@@ -1,7 +1,7 @@
 import { Lexer } from "./lexer/lexer.ts";
 import { Parser } from "./parser.ts";
 
-const code = `Component Mon8zer{
+const code = `Component Monzer{
     Column{
 
     }
