@@ -224,7 +224,7 @@ export class Lexer {
     /**
      * Adds an `EndOfFile` token to mark the end of the input source code.
      */
-    this.token("EndOfFile", TokenType.EOF);
+    // this.token("EndOfFile", TokenType.EOF);
 
     /**
      * Returns an array of `Token` objects representing the individual tokens in the input source code.
