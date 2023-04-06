@@ -149,9 +149,9 @@ export class Parser {
   }
 
     /**
-   * Parses a component node (e.g. "Component MyComponent { ... }").
-   * Throws a ParserError if the current token is not "Component".
-   * @returns An ASTNode representing the component.
+   * Parses a page node (e.g. "Page MyComponent { ... }").
+   * Throws a ParserError if the current token is not "Page".
+   * @returns An ASTNode representing the page.
    */
     private parsePage(): ASTNode {
       this.expect(TokenType.Page);
