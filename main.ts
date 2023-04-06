@@ -1,9 +1,11 @@
 import { Lexer } from "./lexer/lexer.ts";
-import { Parser } from "./parser.ts";
+import { Parser } from "./parser/parser.ts";
 
-const code = `Component Monzer{
-    Column{
+const code = `Page Home {
+    Component Navbar {
+        Column {
 
+        }
     }
 }`;
 
@@ -11,6 +13,6 @@ const code = `Component Monzer{
 const tokens = new Lexer(code).tokenize();
 console.log(tokens);
 
-let parser = new Parser(tokens).parse()
+const parser = new Parser(tokens).parse()
 console.log(JSON.stringify(parser));
 

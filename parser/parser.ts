@@ -1,11 +1,12 @@
-import { TokenType, Token } from "./lexer/types.ts";
+// deno-lint-ignore-file ban-ts-comment
+import { TokenType, Token } from "../lexer/types.ts";
 
 /**
  * The nodes in the abstract syntax tree (AST) produced by the parser.
  */
 interface ASTNode {
   /** The type of the node (e.g. "Component", "Column"). */
-  type: string;
+  type: TokenType;
   /** The value of the node (e.g. the name of the component). */
   value?: string;
   /** The children of the node (e.g. nested components or columns). */
@@ -139,13 +140,49 @@ export class Parser {
     }
     this.expect(TokenType.CloseBrace);
     return {
-      type: "Component",
+      type: TokenType.Component,
       //@ts-ignore
       value: identifierToken.value,
       children,
       attributes,
     };
   }
+
+    /**
+   * Parses a component node (e.g. "Component MyComponent { ... }").
+   * Throws a ParserError if the current token is not "Component".
+   * @returns An ASTNode representing the component.
+   */
+    private parsePage(): ASTNode {
+      this.expect(TokenType.Page);
+      const identifierToken = this.currentToken;
+      this.expect(TokenType.Identifier);
+      this.expect(TokenType.OpenBrace);
+      const children: ASTNode[] = [];
+      const attributes = this.parseAttributes();
+      while (this.currentToken && this.currentToken.value !== "}") {
+        switch (this.currentToken.type) {
+          case TokenType.Component:
+            children.push(this.parseComponent());
+            break;
+          case TokenType.Column:
+            children.push(this.parseColumn());
+            break;
+          default:
+            throw new ParserError(this.currentToken, TokenType.Page);
+        }
+      }
+      this.expect(TokenType.CloseBrace);
+      return {
+        type: TokenType.Page,
+        //@ts-ignore
+        value: identifierToken.value,
+        children,
+        attributes,
+      };
+    }
+
+
   /**
 
 Parses a column node (e.g. "Column { ... }").
@@ -168,7 +205,7 @@ Throws a ParserError if the current token is not "Column".
     }
     this.expect(TokenType.CloseBrace);
     return {
-      type: "Column",
+      type: TokenType.Column,
       children,
       attributes,
     };
@@ -178,10 +215,13 @@ Throws a ParserError if the current token is not "Column".
   Parses the end of file (EOF) token.
   Throws a ParserError if the current token is not the end of the file.
   */
-  private parseEOF(): void {
-    if (this.currentToken) {
-      throw new ParserError(this.currentToken, TokenType.EOF);
-    }
+  private parseEOF(): ASTNode {
+    this.advance()
+    return {
+      type: TokenType.EOF,
+      attributes: {},
+      children: []
+    };
   }
   /**
   
@@ -192,11 +232,17 @@ Throws a ParserError if the current token is not "Column".
     const nodes: ASTNode[] = [];
     while (this.currentToken) {
       switch (this.currentToken.type) {
+        case TokenType.Page:
+          nodes.push(this.parsePage());
+          break;
         case TokenType.Component:
           nodes.push(this.parseComponent());
           break;
         case TokenType.Column:
           nodes.push(this.parseColumn());
+          break;
+        case TokenType.EOF:
+          nodes.push(this.parseEOF());
           break;
         default:
           throw new ParserError(this.currentToken, TokenType.Component);

@@ -10,6 +10,7 @@ const KEYWORDS: Record<string, TokenType> = {
   Component: TokenType.Component,
   Column: TokenType.Column,
   export: TokenType.Export,
+  Page: TokenType.Page,
 };
 
 export class Lexer {
@@ -210,6 +211,8 @@ export class Lexer {
           this.token(identifier, TokenType.Column);
         } else if (reserved === TokenType.Export) {
           this.token(identifier, TokenType.Export);
+        } else if (reserved === TokenType.Page) {
+          this.token(identifier, TokenType.Page);
         } else {
           this.token(identifier, TokenType.Identifier);
         }
@@ -224,7 +227,7 @@ export class Lexer {
     /**
      * Adds an `EndOfFile` token to mark the end of the input source code.
      */
-    // this.token("EndOfFile", TokenType.EOF);
+    this.token("EndOfFile", TokenType.EOF);
 
     /**
      * Returns an array of `Token` objects representing the individual tokens in the input source code.

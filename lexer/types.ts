@@ -10,7 +10,8 @@ Number="Number",
 OpenParen="OpenParen",
 CloseParen="CloseParen",
 StringLiteral="StringLiteral",
-Colon="Colon"
+Colon="Colon",
+Page="Page"
 }
 
 export type Token = {
