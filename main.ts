@@ -1,12 +1,11 @@
 import { Lexer } from "./lexer/lexer.ts";
 import { Parser } from "./parser.ts";
 
-const code = `Component Monzer {
+const code = `Component Mon8zer{
     Column{
 
     }
-}
-    `;
+}`;
 
 
 const tokens = new Lexer(code).tokenize();

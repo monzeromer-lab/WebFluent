@@ -58,8 +58,11 @@ export class Lexer {
 
   private readIdentifier(): string {
     let result = "";
-    while (this.currentChar !== null && /[a-zA-Z]/.test(this.currentChar)) {
+    while (this.currentChar !== null && /[a-zA-Z]/.test(this.currentChar) || this.isint(this.currentChar as string)) {
       result += this.currentChar;
+      if(this.isint(this.currentChar as string)){
+        throw new Error(`Hold on a sec take a look at ${this.tokens[this.tokens.length - 1].line}:${this.tokens[this.tokens.length - 1].column} We dont have that here`);
+      }
       this.advance();
     }
     return result;
@@ -82,11 +85,11 @@ export class Lexer {
   /**
  Return whether the character is a valid integer -> [0-9]
  */
-  // private isint(str: string) {
-  //   const c = str.charCodeAt(0);
-  //   const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
-  //   return c >= bounds[0] && c <= bounds[1];
-  // }
+  private isint(str: string) {
+    const c = str.charCodeAt(0);
+    const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
+    return c >= bounds[0] && c <= bounds[1];
+  }
 
   // Returns a token of a given type and value
   private token(value = "", type: TokenType): void {
