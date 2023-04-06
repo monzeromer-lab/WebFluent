@@ -11,7 +11,9 @@ OpenParen="OpenParen",
 CloseParen="CloseParen",
 StringLiteral="StringLiteral",
 Colon="Colon",
-Page="Page"
+Page="Page",
+Row="Row",
+TextInput="TextInput"
 }
 
 export type Token = {

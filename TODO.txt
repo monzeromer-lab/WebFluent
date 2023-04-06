@@ -1,0 +1,4 @@
+add support for in line comments
+add style support
+build enviroment variables
+run the code from .sf file

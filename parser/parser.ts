@@ -26,8 +26,9 @@ class ParserError extends Error {
 
   constructor(token: Token, expectedType: TokenType) {
     super(
-      `Unexpected token: ${JSON.stringify(token)}, expected: ${expectedType}`
+      `Unexpected type: ${token.type} => ${token.value} at ${token.line}:${token.column}, expected: ${expectedType}`
     );
+    
     this.token = token;
     this.expectedType = expectedType;
   }
@@ -58,10 +59,13 @@ export class Parser {
    * Advances to the next token in the tokens array.
    */
   private advance(): void {
+
     this.index++;
+
     if (this.index < this.tokens.length) {
       this.currentToken = this.tokens[this.index];
     } else {
+
       this.currentToken = null;
     }
   }
@@ -72,12 +76,15 @@ export class Parser {
    * @param expectedType The expected token type.
    */
   private expect(expectedType: TokenType): void {
+
     if (!this.currentToken) {
       throw new ParserError(this.tokens[this.tokens.length - 1], expectedType);
     }
+
     if (this.currentToken.type === expectedType) {
       this.advance();
     } else {
+
       throw new ParserError(this.currentToken, expectedType);
     }
   }
@@ -91,7 +98,9 @@ export class Parser {
     this.expect(TokenType.Identifier);
     //@ts-ignore
     const name = this.currentToken.value;
+    // FIXME: this should be : not ,
     this.expect(TokenType.Colon);
+    // FIXME: the values must be between "" and without the need to finish them with a ,
     this.expect(TokenType.StringLiteral);
     //@ts-ignore
     const value = this.currentToken.value;
@@ -103,12 +112,16 @@ export class Parser {
    * @returns A record of attribute names and values.
    */
   private parseAttributes(): Record<string, string> {
+
     const attributes: Record<string, string> = {};
+
     while (
       this.currentToken &&
       this.currentToken.type === TokenType.Identifier
     ) {
+
       const { name, value } = this.parseAttribute();
+
       attributes[name] = value;
     }
     return attributes;
@@ -120,25 +133,43 @@ export class Parser {
    * @returns An ASTNode representing the component.
    */
   private parseComponent(): ASTNode {
+
     this.expect(TokenType.Component);
+
     const identifierToken = this.currentToken;
+
     this.expect(TokenType.Identifier);
-    this.expect(TokenType.OpenBrace);
-    const children: ASTNode[] = [];
+    
+    this.expect(TokenType.OpenParen);
     const attributes = this.parseAttributes();
+    this.expect(TokenType.CloseParen);
+
+    this.expect(TokenType.OpenBrace);
+
+    const children: ASTNode[] = [];
+
     while (this.currentToken && this.currentToken.value !== "}") {
       switch (this.currentToken.type) {
+
         case TokenType.Component:
           children.push(this.parseComponent());
           break;
+
         case TokenType.Column:
           children.push(this.parseColumn());
           break;
+
+        case TokenType.Row:
+          children.push(this.parseRow());
+          break;
+
         default:
+          console.log(this.currentToken.type);
           throw new ParserError(this.currentToken, TokenType.Component);
       }
     }
     this.expect(TokenType.CloseBrace);
+
     return {
       type: TokenType.Component,
       //@ts-ignore
@@ -155,24 +186,43 @@ export class Parser {
    */
     private parsePage(): ASTNode {
       this.expect(TokenType.Page);
+
       const identifierToken = this.currentToken;
+
       this.expect(TokenType.Identifier);
-      this.expect(TokenType.OpenBrace);
-      const children: ASTNode[] = [];
+      this.expect(TokenType.OpenParen);
       const attributes = this.parseAttributes();
+      this.expect(TokenType.CloseParen);
+      this.expect(TokenType.OpenBrace);
+
+      const children: ASTNode[] = [];
+
+
+
       while (this.currentToken && this.currentToken.value !== "}") {
         switch (this.currentToken.type) {
+
           case TokenType.Component:
             children.push(this.parseComponent());
             break;
+
           case TokenType.Column:
             children.push(this.parseColumn());
             break;
+
+            case TokenType.Row:
+              children.push(this.parseRow());
+              break;
+
+          case TokenType.Identifier:
+            throw new Error("Not Supported Yet")
+
           default:
-            throw new ParserError(this.currentToken, TokenType.Page);
+            throw new ParserError(this.currentToken, TokenType.Page || TokenType.CloseBrace);
         }
       }
       this.expect(TokenType.CloseBrace);
+
       return {
         type: TokenType.Page,
         //@ts-ignore
@@ -190,33 +240,103 @@ Throws a ParserError if the current token is not "Column".
 @returns An ASTNode representing the column.
 */
   private parseColumn(): ASTNode {
+
     this.expect(TokenType.Column);
-    this.expect(TokenType.OpenBrace);
-    const children: ASTNode[] = [];
+    
+    this.expect(TokenType.OpenParen);
     const attributes = this.parseAttributes();
+    this.expect(TokenType.CloseParen);
+
+    this.expect(TokenType.OpenBrace);
+
+    const children: ASTNode[] = [];
+
+
     while (this.currentToken && this.currentToken.value !== "}") {
       switch (this.currentToken.type) {
+
         case TokenType.Component:
           children.push(this.parseComponent());
           break;
+
+        case TokenType.Column:
+          children.push(this.parseColumn());
+          break;
+
+          case TokenType.Row:
+            children.push(this.parseRow());
+            break;
+
+
         default:
           throw new ParserError(this.currentToken, TokenType.Component);
       }
     }
     this.expect(TokenType.CloseBrace);
+
     return {
       type: TokenType.Column,
       children,
       attributes,
     };
   }
+
+    /**
+
+Parses a row node (e.g. "Column { ... }").
+Throws a ParserError if the current token is not "Row".
+@returns An ASTNode representing the row.
+*/
+private parseRow(): ASTNode {
+
+  this.expect(TokenType.Row);
+  
+  this.expect(TokenType.OpenParen);
+  const attributes = this.parseAttributes();
+  this.expect(TokenType.CloseParen);
+  
+  this.expect(TokenType.OpenBrace);
+
+  const children: ASTNode[] = [];
+
+
+  while (this.currentToken && this.currentToken.value !== "}") {
+    switch (this.currentToken.type) {
+
+      case TokenType.Component:
+        children.push(this.parseComponent());
+        break;
+
+      case TokenType.Column:
+        children.push(this.parseColumn());
+        break;
+
+        case TokenType.Row:
+        children.push(this.parseRow());
+        break;
+
+      default:
+        throw new ParserError(this.currentToken, TokenType.Component);
+    }
+  }
+  this.expect(TokenType.CloseBrace);
+
+  return {
+    type: TokenType.Column,
+    children,
+    attributes,
+  };
+}
+
   /**
   
   Parses the end of file (EOF) token.
   Throws a ParserError if the current token is not the end of the file.
   */
   private parseEOF(): ASTNode {
-    this.advance()
+
+    this.advance();
+
     return {
       type: TokenType.EOF,
       attributes: {},
@@ -229,26 +349,38 @@ Throws a ParserError if the current token is not "Column".
   @returns An array of ASTNodes representing the parsed markup.
   */
   public parse(): ASTNode[] {
+
     const nodes: ASTNode[] = [];
+
     while (this.currentToken) {
       switch (this.currentToken.type) {
+
         case TokenType.Page:
           nodes.push(this.parsePage());
           break;
+
         case TokenType.Component:
           nodes.push(this.parseComponent());
           break;
-        case TokenType.Column:
-          nodes.push(this.parseColumn());
-          break;
+
+        // case TokenType.Column:
+        //   nodes.push(this.parseColumn());
+        //   break;
+
+        //   case TokenType.Row:
+        //   nodes.push(this.parseRow());
+        //   break;
+
         case TokenType.EOF:
           nodes.push(this.parseEOF());
           break;
+
         default:
           throw new ParserError(this.currentToken, TokenType.Component);
       }
     }
     this.parseEOF();
+
     return nodes;
   }
 }

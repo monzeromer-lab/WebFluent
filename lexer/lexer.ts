@@ -11,6 +11,8 @@ const KEYWORDS: Record<string, TokenType> = {
   Column: TokenType.Column,
   export: TokenType.Export,
   Page: TokenType.Page,
+  Row: TokenType.Row,
+  TextInput: TokenType.TextInput,
 };
 
 export class Lexer {
@@ -197,6 +199,40 @@ export class Lexer {
          */
         this.token("}", TokenType.CloseBrace);
         this.advance();
+
+      } else if (this.currentChar === ",") {
+        /**
+         * Adds a `Colon` token and advances to the next character.
+         */
+        this.token(",", TokenType.Colon);
+        this.advance();
+
+      } else if (this.currentChar === '"') {
+        /**
+         * Adds a `StringLiteral` token and advances to the next character.
+         */
+        this.token('"', TokenType.StringLiteral);
+        this.advance();
+
+      } else if (this.currentChar === "") {
+        /**
+         * if there is no code just exit
+         */
+        Deno.exit(0);
+      } else if (this.currentChar === "(") {
+        /**
+         * Adds a `OpenParen` token and advances to the next character.
+         */
+        this.token("(", TokenType.OpenParen);
+        this.advance();
+        
+      } else if (this.currentChar === ")") {
+        /**
+         * Adds a `CloseParen` token and advances to the next character.
+         */
+        this.token(")", TokenType.CloseParen);
+        this.advance();
+        
       } else if (this.isalpha(this.currentChar)) {
         /**
          * Reads an identifier and checks if it is a reserved keyword.
@@ -213,6 +249,10 @@ export class Lexer {
           this.token(identifier, TokenType.Export);
         } else if (reserved === TokenType.Page) {
           this.token(identifier, TokenType.Page);
+        } else if (reserved === TokenType.Row) {
+          this.token(identifier, TokenType.Row);
+        } else if (reserved === TokenType.TextInput) {
+          this.token(identifier, TokenType.TextInput);
         } else {
           this.token(identifier, TokenType.Identifier);
         }
