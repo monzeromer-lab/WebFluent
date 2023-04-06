@@ -1,62 +1,86 @@
-import { Token, TokenType } from "./lexer.ts";
+import { TokenType, Token } from "./lexer/types.ts";
 
-class ASTNode {
-  constructor(public type: string, public children: ASTNode[]) {}
+
+interface ASTNode {
+  type: string;
+  value?: string;
+  children?: ASTNode[];
 }
 
-class Parser {
+export class Parser {
   private tokens: Token[];
-  private pos: number;
+  private currentToken: Token | null;
+  private index: number;
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
-    this.pos = 0;
+    this.index = 0;
+    this.currentToken = this.tokens[this.index];
   }
 
-  private error(): never {
-    throw new Error("Invalid syntax");
-  }
-
-  private eat(type: TokenType): Token {
-    if (this.tokens[this.pos].type === type) {
-      return this.tokens[this.pos++];
+  private advance(): void {
+    this.index++;
+    if (this.index < this.tokens.length) {
+      this.currentToken = this.tokens[this.index];
     } else {
-      this.error();
+      this.currentToken = null;
     }
   }
 
-  private parseComponent(): ASTNode {
-    const name = this.eat(TokenType.Identifier).value;
-    this.eat(TokenType.OpenBrace);
-    const children = this.parseChildren();
-    this.eat(TokenType.CloseBrace);
-    return new ASTNode("Component", [new ASTNode(name, children)]);
+  private expect(expectedType: TokenType): void {
+    if (!this.currentToken) {
+      throw new Error(`Unexpected end of input at line ${this.tokens[this.tokens.length - 1].line}, column ${this.tokens[this.tokens.length - 1].column}`);
+    }
+    if (this.currentToken.type === "Identifier" && expectedType === TokenType.Identifier) {
+      this.advance();
+    } else if (this.currentToken.type === "OpenBrace" && expectedType === TokenType.OpenBrace) {
+      this.advance();
+    } else if (this.currentToken.type === expectedType) {
+      this.advance();
+    } else {
+      throw new Error(`Token: ${JSON.stringify(this.currentToken)} Expected "${expectedType}" at line ${this.currentToken.line}, column ${this.currentToken.column}`);
+    }
   }
 
-  private parseChildren(): ASTNode[] {
+  public parseComponent(): ASTNode {
+    this.expect(TokenType.Component);
+    const identifierToken = this.currentToken;
+    this.expect(TokenType.Identifier);
+    this.expect(TokenType.OpenBrace);
     const children: ASTNode[] = [];
-    while (this.tokens[this.pos].type !== TokenType.CloseBrace) {
-      const child = this.parseColumn();
-      children.push(child);
+    while (this.currentToken && this.currentToken.value !== "}") {
+      switch (this.currentToken.type) {
+        case "Column":
+          children.push(this.parseColumn());
+          break;
+        default:
+          throw new Error(`Unknown [token type](poe://www.poe.com/_api/key_phrase?phrase=token%20type&prompt=Tell%20me%20more%20about%20token%20type.): ${this.currentToken.type} at line ${this.currentToken.line}, column ${this.currentToken.column}`);
+      }
     }
-    return children;
+    this.expect(TokenType.CloseBrace);
+    return {
+      type: "Component",
+      //@ts-ignore
+      value: identifierToken.value,
+      children,
+    };
   }
 
-  private parseColumn(): ASTNode {
-    const name = this.eat(TokenType.Column).value;
-    this.eat(TokenType.OpenBrace);
-    this.eat(TokenType.CloseBrace);
-    return new ASTNode(name, []);
+  public parseColumn(): ASTNode {
+    this.expect(TokenType.Column);
+    this.expect(TokenType.OpenBrace);
+    this.expect(TokenType.CloseBrace);
+    return {
+      type: "Column",
+    };
   }
 
   public parse(): ASTNode {
-    const component = this.parseComponent();
-    if (this.tokens[this.pos].type !== TokenType.Export) {
-      this.error();
-    }
-    this.eat(TokenType.Export);
-    this.eat(TokenType.Identifier);
-    this.eat(TokenType.EOF);
-    return new ASTNode("Program", [component]);
+    const componentNode = this.parseComponent();
+    this.expect(TokenType.EOF);
+    return {
+      type: "Program",
+      children: [componentNode],
+    };
   }
 }

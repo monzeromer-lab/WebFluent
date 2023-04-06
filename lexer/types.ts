@@ -9,7 +9,6 @@ EOF = "EOF",
 Number = "Number",
 OpenParen = "OpenParen",
 CloseParen = "CloseParen",
-SOF = "SOF"
 }
 
 export type Token = {

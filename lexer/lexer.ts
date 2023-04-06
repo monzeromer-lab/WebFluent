@@ -101,7 +101,6 @@ export class Lexer {
    * - Does not modify the incoming string.
    */
   tokenize() {
-    this.token("StartOfFile", TokenType.SOF);
     while (this.currentChar !== null) {
       if (this.isskippable(this.currentChar)) {
         this.skipWhitespace();
@@ -118,7 +117,7 @@ export class Lexer {
       } else if (this.isalpha(this.currentChar)) {
         const identifier = this.readIdentifier();
         const reserved = KEYWORDS[identifier];
-        
+
          if (reserved === TokenType.Component) {
           this.token(identifier, TokenType.Component);
 
