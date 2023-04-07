@@ -200,11 +200,11 @@ export class Lexer {
         this.token("}", TokenType.CloseBrace);
         this.advance();
 
-      } else if (this.currentChar === ",") {
+      } else if (this.currentChar === ":") {
         /**
          * Adds a `Colon` token and advances to the next character.
          */
-        this.token(",", TokenType.Colon);
+        this.token(":", TokenType.Colon);
         this.advance();
 
       } else if (this.currentChar === '"') {

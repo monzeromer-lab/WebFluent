@@ -125,16 +125,19 @@ export class Parser {
   private parseAttribute(): { name: string; value: string } {
     this.expect(TokenType.Identifier);
     //@ts-ignore
-    const name = this.currentToken.value;
+    const name = this.tokens[this.index -1].value;
+
     // FIXME: this should be : not ,
     this.expect(TokenType.Colon);
     // FIXME: the values must be between "" and without the need to finish them with a ,
     this.expect(TokenType.StringLiteral);
+    this.expect(TokenType.Identifier);
+    
     //@ts-ignore
-    const value = this.currentToken.value;
+    const value = this.tokens[this.index -1].value;
 
     this.expect(TokenType.StringLiteral);
-    
+
     return { name, value };
   }
 

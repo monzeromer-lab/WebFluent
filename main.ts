@@ -1,7 +1,9 @@
+import { ASTNode, HTMLCompiler } from "./compiler/htmlElements.ts";
 import { Lexer } from "./lexer/lexer.ts";
 import { Parser } from "./parser/parser.ts";
 
 const code = `Page Home (  ) {
+
     Component Navbar () {
         Row () {
             Column () {
@@ -17,7 +19,7 @@ Component Navbar () {
         }
     }
 }
-Component Navbar () {
+Component Navbar (style: "Umm") {
     Row () {
         Column () {
             
@@ -29,6 +31,9 @@ Component Navbar () {
 const tokens = new Lexer(code).tokenize();
 console.log(tokens);
 
-const parser = new Parser(tokens).parse()
+const parser: ASTNode[] = new Parser(tokens).parse()
 console.log(JSON.stringify(parser));
 
+const output = new HTMLCompiler().compile(parser)
+
+console.log(output);
