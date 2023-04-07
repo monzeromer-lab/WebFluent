@@ -1,12 +1,26 @@
 import { Lexer } from "./lexer/lexer.ts";
 import { Parser } from "./parser/parser.ts";
 
-const code = `Page Home (name, "name,") {
+const code = `Page Home (  ) {
     Component Navbar () {
         Row () {
             Column () {
-                TextInput()
+                
             }
+        }
+    }
+}
+Component Navbar () {
+    Row () {
+        Column () {
+            
+        }
+    }
+}
+Component Navbar () {
+    Row () {
+        Column () {
+            
         }
     }
 }`;

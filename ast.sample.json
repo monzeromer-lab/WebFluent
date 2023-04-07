@@ -1,0 +1,68 @@
+[
+    {
+        "type": "Page",
+        "value": "Home",
+        "children": [
+            {
+                "type": "Component",
+                "value": "Navbar",
+                "children": [
+                    {
+                        "type": "Row",
+                        "children": [
+                            {
+                                "type": "Column",
+                                "children": [],
+                                "attributes": {}
+                            }
+                        ],
+                        "attributes": {}
+                    }
+                ],
+                "attributes": {}
+            }
+        ],
+        "attributes": {}
+    },
+    {
+        "type": "Component",
+        "value": "Navbar",
+        "children": [
+            {
+                "type": "Row",
+                "children": [
+                    {
+                        "type": "Column",
+                        "children": [],
+                        "attributes": {}
+                    }
+                ],
+                "attributes": {}
+            }
+        ],
+        "attributes": {}
+    },
+    {
+        "type": "Component",
+        "value": "Navbar",
+        "children": [
+            {
+                "type": "Row",
+                "children": [
+                    {
+                        "type": "Column",
+                        "children": [],
+                        "attributes": {}
+                    }
+                ],
+                "attributes": {}
+            }
+        ],
+        "attributes": {}
+    },
+    {
+        "type": "EOF",
+        "attributes": {},
+        "children": []
+    }
+]
