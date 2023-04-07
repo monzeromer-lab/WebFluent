@@ -1,5 +1,8 @@
-add support for in line comments
+add support for in line comments (done)
+something wasn't here but: build the html compiler
+write the compiler output to build dir
+add safha.app.json file to descripe the app metadata
 add style support
-build enviroment variables
+build enviroment variables ?? support identifiers
 run the code from .sf file
 refactor the code (may be done)
