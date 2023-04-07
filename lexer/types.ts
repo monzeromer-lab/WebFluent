@@ -13,7 +13,8 @@ StringLiteral="StringLiteral",
 Colon="Colon",
 Page="Page",
 Row="Row",
-TextInput="TextInput"
+TextInput="TextInput",
+Color="Color",
 }
 
 export type Token = {
