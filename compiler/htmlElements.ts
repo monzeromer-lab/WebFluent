@@ -24,7 +24,7 @@ export class HTMLCompiler {
   private visit(node: ASTNode): void {
     switch (node.type) {
       case TokenType.Page:
-        this.output += `<html><head><title>${node.value}</title></head><body>`;
+        this.output += `<html><head><meta charset="utf-8"><title>${node.value}</title></head><body>`;
         this.visitNodes(node.children || []);
         this.output += "</body></html>";
         break;

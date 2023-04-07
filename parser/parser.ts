@@ -129,7 +129,6 @@ private parseAttribute(): { name: string; value: string } {
   this.expect(TokenType.Colon);
 
   let value: string;
-  console.log(name, this.currentToken?.type);
   
   //@ts-ignore
   if (this.currentToken.type === TokenType.StringLiteral) {

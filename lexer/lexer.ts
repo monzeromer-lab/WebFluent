@@ -98,6 +98,15 @@ export class Lexer {
       }
       this.advance();
     }
+    // Skip over comments
+    if (this.currentChar === "/" && this.source.charAt(this.pos + 1) === "/") {
+      // deno-lint-ignore ban-ts-comment
+      //@ts-ignore
+      while (this.currentChar !== "\n" && this.currentChar !== null) {
+        this.advance();
+      }
+      this.skipWhitespace(); // Recursively skip any whitespace after the comment
+    }
   }
 
   /**
