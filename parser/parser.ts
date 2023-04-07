@@ -117,29 +117,40 @@ export class Parser {
     return children;
   }
 
-  /**
-   * Parses a single attribute (e.g. "class: 'my-class'").
-   * Throws a ParserError if the current token is not an identifier followed by a colon and a string literal.
-   * @returns The name and value of the attribute.
-   */
-  private parseAttribute(): { name: string; value: string } {
-    this.expect(TokenType.Identifier);
-    //@ts-ignore
-    const name = this.tokens[this.index -1].value;
+/**
+ * Parses a single attribute (e.g. "class: 'my-class'").
+ * Throws a ParserError if the current token is not an identifier followed by a colon and a string literal or a hex color code.
+ * @returns The name and value of the attribute.
+ */
+private parseAttribute(): { name: string; value: string } {
+  this.expect(TokenType.Identifier);
+  const name = this.tokens[this.index - 1].value;
 
-    // FIXME: this should be : not ,
-    this.expect(TokenType.Colon);
-    // FIXME: the values must be between "" and without the need to finish them with a ,
+  this.expect(TokenType.Colon);
+
+  let value: string;
+  console.log(name, this.currentToken?.type);
+  
+  //@ts-ignore
+  if (this.currentToken.type === TokenType.StringLiteral) {
     this.expect(TokenType.StringLiteral);
-    this.expect(TokenType.Identifier);
-    
-    //@ts-ignore
-    const value = this.tokens[this.index -1].value;
-
+    value = this.tokens[this.index - 1].value;
     this.expect(TokenType.StringLiteral);
-
-    return { name, value };
+    //@ts-ignore
+  } else if (this.currentToken.type === TokenType.HexColor && this.currentToken.value.startsWith("#")) {
+    //@ts-ignore
+    value = this.currentToken.value;
+    this.advance();
+  } else {
+    throw new ParserError(
+      //@ts-ignore
+      this.currentToken,
+      TokenType.StringLiteral,
+    );
   }
+
+  return { name, value };
+}
 
   /**
    * Parses a set of attributes (e.g. "class: 'my-class', style: 'color: red;'").

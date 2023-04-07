@@ -14,7 +14,7 @@ Colon="Colon",
 Page="Page",
 Row="Row",
 TextInput="TextInput",
-Color="Color",
+HexColor="HexColor",
 }
 
 export type Token = {

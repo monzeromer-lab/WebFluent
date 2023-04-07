@@ -2,7 +2,7 @@ import { ASTNode, HTMLCompiler } from "./compiler/htmlElements.ts";
 import { Lexer } from "./lexer/lexer.ts";
 import { Parser } from "./parser/parser.ts";
 
-const code = `Page Home () {
+const code = `Page Home (color: #1e1e1e) {
     Component Navbar () {
         Row () {
             Column () {

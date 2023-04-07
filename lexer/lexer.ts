@@ -129,6 +129,22 @@ export class Lexer {
     return result;
   }
 
+  private readHexColorCode(): string {
+    let result = "";
+    if (this.currentChar === "#") {
+      result += this.currentChar;
+      this.advance();
+    }
+    while (
+      this.currentChar !== null &&
+      /[0-9a-fA-F]/.test(this.currentChar)
+    ) {
+      result += this.currentChar;
+      this.advance();
+    }
+    return result;
+  }
+
   /**
    * Returns whether the character passed in alphabetic -> [a-zA-Z]
    */
@@ -233,6 +249,22 @@ export class Lexer {
         this.token(")", TokenType.CloseParen);
         this.advance();
         
+      } else if (this.currentChar === "#") {
+        /**
+         * Adds a `CloseParen` token and advances to the next character.
+         */
+        const colorCode = this.readHexColorCode();
+        console.log(this.tokens);
+        
+        console.log(colorCode);
+        
+        if (this.isHexColorCode(colorCode)){
+          this.token(colorCode, TokenType.HexColor);
+        } else {
+          throw new Error(`Color Code: ${colorCode} is not valid`)
+        }
+        
+        
       } else if (this.isalpha(this.currentChar)) {
         /**
          * Reads an identifier and checks if it is a reserved keyword.
@@ -253,6 +285,8 @@ export class Lexer {
           this.token(identifier, TokenType.Row);
         } else if (reserved === TokenType.TextInput) {
           this.token(identifier, TokenType.TextInput);
+        } else if (this.isHexColorCode(identifier)) {
+          this.token(identifier, TokenType.HexColor);
         } else {
           this.token(identifier, TokenType.Identifier);
         }
