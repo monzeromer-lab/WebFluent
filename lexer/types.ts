@@ -13,8 +13,14 @@ StringLiteral="StringLiteral",
 Colon="Colon",
 Page="Page",
 Row="Row",
-TextInput="TextInput",
+Input="Input",
 HexColor="HexColor",
+Dot=".",
+Text="Text",
+String="String",
+Coma="Coma",
+src="src",
+Image="Image",
 }
 
 export type Token = {

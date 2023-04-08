@@ -12,7 +12,10 @@ const KEYWORDS: Record<string, TokenType> = {
   export: TokenType.Export,
   Page: TokenType.Page,
   Row: TokenType.Row,
-  TextInput: TokenType.TextInput,
+  TextInput: TokenType.Input,
+  Text: TokenType.Text,
+  src: TokenType.src,
+  Image: TokenType.Image
 };
 
 export class Lexer {
@@ -180,7 +183,7 @@ export class Lexer {
   }
 
   // Returns a token of a given type and value
-  private token(value = "", type: TokenType): void {
+  private addToken(value = "", type: TokenType): void {
     this.tokens.push({ value, type, line: this.line, column: this.column });
   }
 
@@ -194,6 +197,19 @@ export class Lexer {
     // Match the string against the regular expression for a valid hexadecimal color code
     const regex = /^#([0-9A-Fa-f]{3}){1,2}$/;
     return regex.test(str);
+  }
+
+  private getString(): string {
+    let result = '';
+    this.advance();
+    while (this.currentChar !== '"' && this.currentChar !== null) {
+      result += this.currentChar;
+      this.advance();
+    }
+    if (this.currentChar !== null && this.currentChar !== '"') {
+      this.advance();
+    }
+    return result;
   }
 
   /**
@@ -216,27 +232,42 @@ export class Lexer {
         /**
          * Adds an `OpenBrace` token and advances to the next character.
          */
-        this.token("{", TokenType.OpenBrace);
+        this.addToken("{", TokenType.OpenBrace);
         this.advance();
       } else if (this.currentChar === "}") {
         /**
          * Adds a `CloseBrace` token and advances to the next character.
          */
-        this.token("}", TokenType.CloseBrace);
+        this.addToken("}", TokenType.CloseBrace);
         this.advance();
 
       } else if (this.currentChar === ":") {
         /**
          * Adds a `Colon` token and advances to the next character.
          */
-        this.token(":", TokenType.Colon);
+        this.addToken(":", TokenType.Colon);
         this.advance();
 
       } else if (this.currentChar === '"') {
         /**
          * Adds a `StringLiteral` token and advances to the next character.
          */
-        this.token('"', TokenType.StringLiteral);
+        const value: string = this.getString();
+        this.addToken(value, TokenType.String);
+        this.advance();
+
+      } else if (this.currentChar === '.') {
+        /**
+         * Adds a Dot Token and then advance
+         */
+        this.addToken('.', TokenType.Dot);
+        this.advance();
+
+      } else if (this.currentChar === ',') {
+        /**
+         * Adds a Dot Token and then advance
+         */
+        this.addToken(',', TokenType.Coma);
         this.advance();
 
       } else if (this.currentChar === "") {
@@ -248,14 +279,14 @@ export class Lexer {
         /**
          * Adds a `OpenParen` token and advances to the next character.
          */
-        this.token("(", TokenType.OpenParen);
+        this.addToken("(", TokenType.OpenParen);
         this.advance();
         
       } else if (this.currentChar === ")") {
         /**
          * Adds a `CloseParen` token and advances to the next character.
          */
-        this.token(")", TokenType.CloseParen);
+        this.addToken(")", TokenType.CloseParen);
         this.advance();
         
       } else if (this.currentChar === "#") {
@@ -263,12 +294,10 @@ export class Lexer {
          * Adds a `CloseParen` token and advances to the next character.
          */
         const colorCode = this.readHexColorCode();
-        console.log(this.tokens);
         
-        console.log(colorCode);
         
         if (this.isHexColorCode(colorCode)){
-          this.token(colorCode, TokenType.HexColor);
+          this.addToken(colorCode, TokenType.HexColor);
         } else {
           throw new Error(`Color Code: ${colorCode} is not valid`)
         }
@@ -280,24 +309,44 @@ export class Lexer {
          * Adds an `Identifier`, `Component`, `Column`, or `Export` token as appropriate.
          */
         const identifier = this.readIdentifier();
+        console.log(identifier);
+        
         const reserved = KEYWORDS[identifier];
+        console.log(reserved);
+        
 
         if (reserved === TokenType.Component) {
-          this.token(identifier, TokenType.Component);
+          this.addToken(identifier, TokenType.Component);
+          
         } else if (reserved === TokenType.Column) {
-          this.token(identifier, TokenType.Column);
+          this.addToken(identifier, TokenType.Column);
+
         } else if (reserved === TokenType.Export) {
-          this.token(identifier, TokenType.Export);
+          this.addToken(identifier, TokenType.Export);
+
         } else if (reserved === TokenType.Page) {
-          this.token(identifier, TokenType.Page);
+          this.addToken(identifier, TokenType.Page);
+
         } else if (reserved === TokenType.Row) {
-          this.token(identifier, TokenType.Row);
-        } else if (reserved === TokenType.TextInput) {
-          this.token(identifier, TokenType.TextInput);
+          this.addToken(identifier, TokenType.Row);
+
+        } else if (reserved === TokenType.Input) {
+          this.addToken(identifier, TokenType.Input);
+
+        } else if (reserved === TokenType.Text) {
+          this.addToken(identifier, TokenType.Text);
+
+        } else if (reserved === TokenType.Image) {
+          this.addToken(identifier, TokenType.Image);
+
+        } else if (reserved === TokenType.src) {
+          this.addToken(identifier, TokenType.src);
+
         } else if (this.isHexColorCode(identifier)) {
-          this.token(identifier, TokenType.HexColor);
+          this.addToken(identifier, TokenType.HexColor);
+
         } else {
-          this.token(identifier, TokenType.Identifier);
+          this.addToken(identifier, TokenType.Identifier);
         }
       } else {
         /**
@@ -310,7 +359,7 @@ export class Lexer {
     /**
      * Adds an `EndOfFile` token to mark the end of the input source code.
      */
-    this.token("EndOfFile", TokenType.EOF);
+    this.addToken("EndOfFile", TokenType.EOF);
 
     /**
      * Returns an array of `Token` objects representing the individual tokens in the input source code.

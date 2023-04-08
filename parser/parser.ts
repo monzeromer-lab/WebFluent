@@ -102,6 +102,18 @@ export class Parser {
           children.push(this.parseRow());
           break;
 
+        case TokenType.Input:
+          children.push(this.parseInput());
+          break;
+
+        case TokenType.Text:
+          children.push(this.parseText());
+          break;
+
+          case TokenType.Image:
+          children.push(this.parseImage());
+          break;
+
         case TokenType.Identifier:
           throw new Error("Not Supported Yet");
 
@@ -112,44 +124,55 @@ export class Parser {
             TokenType.Page || TokenType.CloseBrace
           );
       }
-      
     }
     return children;
   }
 
-/**
- * Parses a single attribute (e.g. "class: 'my-class'").
- * Throws a ParserError if the current token is not an identifier followed by a colon and a string literal or a hex color code.
- * @returns The name and value of the attribute.
- */
-private parseAttribute(): { name: string; value: string } {
-  this.expect(TokenType.Identifier);
-  const name = this.tokens[this.index - 1].value;
+  /**
+   * Parses a single attribute (e.g. "class: 'my-class'").
+   * Throws a ParserError if the current token is not an identifier followed by a colon and a string literal or a hex color code.
+   * @returns The name and value of the attribute.
+   */
+  private parseAttribute(): { name: string; value: string } {
+    this.expect(TokenType.Identifier);
+    const name = this.tokens[this.index - 1].value;
 
-  this.expect(TokenType.Colon);
+    this.expect(TokenType.Colon);
 
-  let value: string;
-  
-  //@ts-ignore
-  if (this.currentToken.type === TokenType.StringLiteral) {
-    this.expect(TokenType.StringLiteral);
-    value = this.tokens[this.index - 1].value;
-    this.expect(TokenType.StringLiteral);
+    let value: string;
+
     //@ts-ignore
-  } else if (this.currentToken.type === TokenType.HexColor && this.currentToken.value.startsWith("#")) {
-    //@ts-ignore
-    value = this.currentToken.value;
-    this.advance();
-  } else {
-    throw new ParserError(
+    if (this.currentToken.type === TokenType.StringLiteral) {
+      this.expect(TokenType.StringLiteral);
+      value = this.tokens[this.index - 1].value;
+      this.expect(TokenType.StringLiteral);
       //@ts-ignore
-      this.currentToken,
-      TokenType.StringLiteral,
-    );
-  }
+    } else if (
+      //@ts-ignore
+      this.currentToken.type === TokenType.HexColor &&
+      //@ts-ignore
+      this.currentToken.value.startsWith("#")
+    ) {
+      //@ts-ignore
+      value = this.currentToken.value;
+      this.advance();
+    } else if (
+      //@ts-ignore
+      this.currentToken.type === TokenType.String
+    ) {
+      //@ts-ignore
+      value = this.currentToken.value;
+      this.advance();
+    } else {
+      throw new ParserError(
+        //@ts-ignore
+        this.currentToken,
+        TokenType.StringLiteral
+      );
+    }
 
-  return { name, value };
-}
+    return { name, value };
+  }
 
   /**
    * Parses a set of attributes (e.g. "class: 'my-class', style: 'color: red;'").
@@ -196,6 +219,73 @@ private parseAttribute(): { name: string; value: string } {
       //@ts-ignore
       value: identifierToken.value,
       children,
+      attributes,
+    };
+  }
+
+  /**
+   * Parses a Input node (e.g. "Input(Text)").
+   * Throws a ParserError if the current token is not "Component".
+   * @returns An ASTNode representing the component.
+   */
+  private parseInput(): ASTNode {
+    this.expect(TokenType.Input);
+
+    this.expect(TokenType.OpenParen);
+
+    const identifierToken = this.currentToken;
+    this.expect(TokenType.Identifier);
+    this.expect(TokenType.Coma);
+    const attributes = this.parseAttributes();
+    this.expect(TokenType.CloseParen);
+
+    return {
+      type: TokenType.Input,
+      //@ts-ignore
+      value: identifierToken.value,
+      attributes,
+    };
+  }
+
+  /**
+   * Parses a Input node (e.g. "Input(Text)").
+   * Throws a ParserError if the current token is not "Component".
+   * @returns An ASTNode representing the component.
+   */
+  private parseText(): ASTNode {
+    this.expect(TokenType.Text);
+
+    this.expect(TokenType.OpenParen);
+    const attributes = this.parseAttributes();
+    this.expect(TokenType.CloseParen);
+
+    return {
+      type: TokenType.Text,
+      attributes,
+    };
+  }
+
+  /**
+   * Parses a Input node (e.g. "Input(Text)").
+   * Throws a ParserError if the current token is not "Component".
+   * @returns An ASTNode representing the component.
+   */
+  private parseImage(): ASTNode {
+    this.expect(TokenType.Image);
+
+    this.expect(TokenType.OpenParen);
+    this.expect(TokenType.src);
+    this.expect(TokenType.Colon);
+    //@ts-ignore
+    const source = this.currentToken?.value
+    this.expect(TokenType.String);
+    this.expect(TokenType.Coma);
+    const attributes = this.parseAttributes();
+    this.expect(TokenType.CloseParen);
+
+    return {
+      type: TokenType.Image,
+      value:source,
       attributes,
     };
   }

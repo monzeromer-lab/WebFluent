@@ -6,7 +6,9 @@ const code = `Page Home (color: #1e1e1e) {
     Component Navbar () {
         Row () {
             Column () {
-                
+                TextInput(text,)
+                Text(value: "Hii, this is me monzer")
+                Image(src: "",)
             }
         }
     }
