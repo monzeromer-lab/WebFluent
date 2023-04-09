@@ -12,7 +12,7 @@ const KEYWORDS: Record<string, TokenType> = {
   export: TokenType.Export,
   Page: TokenType.Page,
   Row: TokenType.Row,
-  TextInput: TokenType.Input,
+  Input: TokenType.Input,
   Text: TokenType.Text,
   src: TokenType.src,
   Image: TokenType.Image
@@ -309,11 +309,8 @@ export class Lexer {
          * Adds an `Identifier`, `Component`, `Column`, or `Export` token as appropriate.
          */
         const identifier = this.readIdentifier();
-        console.log(identifier);
         
-        const reserved = KEYWORDS[identifier];
-        console.log(reserved);
-        
+        const reserved = KEYWORDS[identifier];        
 
         if (reserved === TokenType.Component) {
           this.addToken(identifier, TokenType.Component);
