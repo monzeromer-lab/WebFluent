@@ -24,7 +24,7 @@ export class HTMLCompiler {
   private visit(node: ASTNode): void {
     switch (node.type) {
       case TokenType.Page:
-        this.output += `<html><head><meta charset="utf-8"><title>${node.value}</title></head><body>`;
+        this.output += `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${node.value}</title></head><body>`;
         this.visitNodes(node.children || []);
         this.output += "</body></html>";
         break;
@@ -63,15 +63,14 @@ export class HTMLCompiler {
         break;
 
       case TokenType.Text:
-          //@ts-ignore
           this.output += `<p class='text' ${this.renderAttributes(node.attributes)}>`;
+          // deno-lint-ignore ban-ts-comment
           //@ts-ignore
           this.output += node.attributes.value;
           this.output += "</p>";
         break;
 
         case TokenType.Image:
-          //@ts-ignore
           this.output += `<img class='text' src="${node.value}" ${this.renderAttributes(node.attributes)}>`;
         break;
 

@@ -2,7 +2,7 @@ add support for in line comments (done)
 something wasn't here but: build the html compiler
 write the compiler output to build dir
 add safha.app.json file to descripe the app metadata
-add style support
+add style support (in progress)
 build enviroment variables ?? support identifiers
-run the code from .sf file => it's actully means add the cli
+run the code from .sf file => it's actully means add the cli (in progress)
 refactor the code (may be done)

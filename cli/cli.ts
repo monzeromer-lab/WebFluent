@@ -4,6 +4,7 @@ import { ConfigFileType } from "./types/cli.ts";
 export async function Cli() {
 
   const jsonFilePath = `${Deno.cwd()}/webfluent.app.json`;
+  // deno-lint-ignore no-unused-vars
   let configFile: ConfigFileType = {};
 
   try {

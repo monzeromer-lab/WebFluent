@@ -21,6 +21,14 @@ String="String",
 Coma="Coma",
 src="src",
 Image="Image",
+Style="Style",
+Color="Color",
+Border="Border",
+Background="Background",
+Font="Font",
+Width="width",
+Hight="Hight",
+
 }
 
 export type Token = {
