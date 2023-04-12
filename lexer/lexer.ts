@@ -15,7 +15,16 @@ const KEYWORDS: Record<string, TokenType> = {
   Input: TokenType.Input,
   Text: TokenType.Text,
   src: TokenType.src,
-  Image: TokenType.Image
+  Image: TokenType.Image,
+  Style: TokenType.Style,
+  Display: TokenType.Display,
+  Place: TokenType.Place,
+  Padding: TokenType.Padding,
+  FontColor: TokenType.FontColor,
+  Font: TokenType.Font,
+  Border: TokenType.Border,
+  Background: TokenType.Background,
+
 };
 
 export class Lexer {
@@ -86,7 +95,7 @@ export class Lexer {
     } else {
       this.currentChar = this.source.charAt(this.pos);
       this.column++;
-    }
+    }    
   }
 
   /**
@@ -289,6 +298,13 @@ export class Lexer {
         this.addToken(")", TokenType.CloseParen);
         this.advance();
         
+      } else if (this.isint(this.currentChar)) {
+        /**
+         * Adds a `CloseParen` token and advances to the next character.
+         */
+        this.addToken(this.currentChar, TokenType.Number);
+        this.advance();
+        
       } else if (this.currentChar === "#") {
         /**
          * Adds a `CloseParen` token and advances to the next character.
@@ -339,6 +355,30 @@ export class Lexer {
         } else if (reserved === TokenType.src) {
           this.addToken(identifier, TokenType.src);
 
+        } else if (reserved === TokenType.Style) {
+          this.addToken(identifier, TokenType.Style);
+
+        } else if (reserved === TokenType.Place) {
+          this.addToken(identifier, TokenType.Place);
+
+        } else if (reserved === TokenType.Padding) {
+          this.addToken(identifier, TokenType.Padding);
+
+        } else if (reserved === TokenType.Display) {
+          this.addToken(identifier, TokenType.Display);
+
+        } else if (reserved === TokenType.Font) {
+          this.addToken(identifier, TokenType.Font);
+
+        } else if (reserved === TokenType.Border) {
+          this.addToken(identifier, TokenType.Border);
+
+        } else if (reserved === TokenType.Background) {
+          this.addToken(identifier, TokenType.Background);
+
+        } else if (reserved === TokenType.FontColor) {
+          this.addToken(identifier, TokenType.FontColor);
+
         } else if (this.isHexColorCode(identifier)) {
           this.addToken(identifier, TokenType.HexColor);
 
@@ -346,6 +386,8 @@ export class Lexer {
           this.addToken(identifier, TokenType.Identifier);
         }
       } else {
+        console.log(this.tokens);
+        
         /**
          * Throws an error for an invalid character or token.
          */

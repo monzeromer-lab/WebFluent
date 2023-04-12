@@ -110,7 +110,7 @@ export class Parser {
           children.push(this.parseText());
           break;
 
-          case TokenType.Image:
+        case TokenType.Image:
           children.push(this.parseImage());
           break;
 
@@ -235,7 +235,9 @@ export class Parser {
 
     const identifierToken = this.currentToken;
     this.expect(TokenType.Identifier);
-    this.expect(TokenType.Coma);
+    if (this.currentToken?.type === TokenType.Coma) {
+      this.expect(TokenType.Coma);
+    }
     const attributes = this.parseAttributes();
     this.expect(TokenType.CloseParen);
 
@@ -245,6 +247,61 @@ export class Parser {
       value: identifierToken.value,
       attributes,
     };
+  }
+
+  private parseStyle() {
+    let currentStyleInProgress: boolean = true;
+    this.expect(TokenType.Style);
+    this.expect(TokenType.OpenParen);
+    const identifier = this.currentToken?.value;
+    console.log(identifier);
+
+    this.expect(TokenType.Identifier);
+    this.expect(TokenType.CloseParen);
+    this.expect(TokenType.Dot);
+
+    const checkIfMore = () =>{
+      // @ts-ignore
+      if (this.currentToken.type === TokenType.Dot) {
+        this.expect(TokenType.Dot);
+      } else {
+        currentStyleInProgress = false;
+      }
+    }
+    while (currentStyleInProgress) {
+      switch (this.currentToken?.type) {
+        case TokenType.Background:
+          this.expect(TokenType.Background);
+          this.expect(TokenType.OpenParen);
+          // this.expect(<Something about the background>);
+          this.expect(TokenType.CloseParen);
+          
+          checkIfMore();
+          break;
+
+        case TokenType.Border:
+          this.expect(TokenType.Border);
+          this.expect(TokenType.OpenParen);
+          // this.expect(<Something about the background>);
+          this.expect(TokenType.CloseParen);
+
+          checkIfMore();
+          break;
+
+        case TokenType.Display:
+          this.expect(TokenType.Display);
+          this.expect(TokenType.OpenParen)
+          this.expect(TokenType.Identifier);
+          this.expect(TokenType.CloseParen);
+
+          checkIfMore();
+          break;
+
+        default:
+          currentStyleInProgress = false;
+          break;
+      }
+    }
   }
 
   /**
@@ -257,6 +314,10 @@ export class Parser {
 
     this.expect(TokenType.OpenParen);
     const attributes = this.parseAttributes();
+    if (this.currentToken?.type === TokenType.Coma) {
+      this.advance();
+      this.parseStyle();
+    }
     this.expect(TokenType.CloseParen);
 
     return {
@@ -277,15 +338,17 @@ export class Parser {
     this.expect(TokenType.src);
     this.expect(TokenType.Colon);
     //@ts-ignore
-    const source = this.currentToken?.value
+    const source = this.currentToken?.value;
     this.expect(TokenType.String);
-    this.expect(TokenType.Coma);
+    if (this.currentToken?.type === TokenType.Coma) {
+      this.expect(TokenType.Coma);
+    }
     const attributes = this.parseAttributes();
     this.expect(TokenType.CloseParen);
 
     return {
       type: TokenType.Image,
-      value:source,
+      value: source,
       attributes,
     };
   }

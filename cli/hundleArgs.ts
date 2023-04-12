@@ -36,22 +36,23 @@ export class HandleArgs {
       switch (this.currentArg) {
         case GenerateSubs.component:
         case GenerateSubs.c:
+          
           console.log("Need a new component huh?");
           this.nextArg();
           break;
 
         case GenerateSubs.page:
         case GenerateSubs.p:
+
           console.log("Need a new page huh?");
           this.nextArg();
-
           break;
 
         case GenerateSubs.style:
         case GenerateSubs.s:
+
           console.log("Need a new style huh?");
           this.nextArg();
-
           break;
 
         default:
@@ -88,25 +89,34 @@ export class HandleArgs {
       switch (this.currentArg) {
         case Commands.generate:
         case Commands.g:
+
           this.hundleGenerateCommand();
+          this.nextArg();
           break;
 
         case Commands.build:
+
           this.build();
+          this.nextArg();
           break;
 
         case Commands.init:
+
           this.init();
+          this.nextArg();
           break;
 
         case Commands.help:
         case Commands.h:
+
           this.help();
+          this.nextArg();
           break;
 
         default:
           console.log(`Unknown command: ${this.currentArg}`);
           console.log(cliInfo);
+
           Deno.exit(1);
       }
     }

@@ -63,7 +63,8 @@ export class HTMLCompiler {
         break;
 
       case TokenType.Text:
-          this.output += `<p class='text' ${this.renderAttributes(node.attributes)}>`;
+          this.output += `<p class='text'>`;
+          // ${this.renderAttributes(node.attributes)}
           // deno-lint-ignore ban-ts-comment
           //@ts-ignore
           this.output += node.attributes.value;
