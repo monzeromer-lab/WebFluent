@@ -1,5 +1,6 @@
 import { TokenType } from "../../lexer/types.ts";
 import { ASTNode, Parser } from "../parser.ts";
+import { parseAttributes } from "./attributes.ts";
 
   /**
    * Parses a Input node (e.g. "Input(Text)").
@@ -18,7 +19,7 @@ import { ASTNode, Parser } from "../parser.ts";
     if (Parser.currentToken?.type === TokenType.Coma) {
       Parser.expect(TokenType.Coma);
     }
-    const attributes = Parser.parseAttributes();
+    const attributes = parseAttributes();
     Parser.expect(TokenType.CloseParen);
 
     return {

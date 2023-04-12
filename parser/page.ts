@@ -1,6 +1,7 @@
 import { TokenType } from "../lexer/types.ts";
 import { parseChildrens } from "./childrens.ts";
 import { ASTNode, Parser } from "./parser.ts";
+import { parseAttributes } from "./tags/attributes.ts";
 
 /**
    * Parses a page node (e.g. "Page MyComponent { ... }").
@@ -14,7 +15,7 @@ export function parsePage(): ASTNode {
 
     Parser.expect(TokenType.Identifier);
     Parser.expect(TokenType.OpenParen);
-    const attributes = Parser.parseAttributes();
+    const attributes = parseAttributes();
     Parser.expect(TokenType.CloseParen);
     Parser.expect(TokenType.OpenBrace);
 

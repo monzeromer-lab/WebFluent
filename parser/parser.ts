@@ -3,12 +3,7 @@ import { TokenType, Token } from "../lexer/types.ts";
 import { parseComponent } from "./component.ts";
 import { parseEOF } from "./eof.ts";
 import { parsePage } from "./page.ts";
-import { parseColumn } from "./style/column.ts";
-import { parseRow } from "./style/row.ts";
-import { parseImage } from "./tags/image.ts";
 
-import { parseInput } from './tags/input.ts'
-import { parseText } from "./tags/text.ts";
 /**
  * The nodes in the abstract syntax tree (AST) produced by the parser.
  */
@@ -54,14 +49,6 @@ export class Parser {
   public static index: number;
 
   /**
-   * Creates a new parser with the given tokens.
-   * @param tokens The tokens produced by the lexer.
-   */
-  constructor(tokens: Token[]) {
-
-  }
-
-  /**
    * Advances to the next token in the tokens array.
    */
   public static advance(): void {
@@ -89,71 +76,6 @@ export class Parser {
     } else {
       throw new ParserError(this.currentToken, expectedType);
     }
-  }
-
-
-  /**
-   * Parses a single attribute (e.g. "class: 'my-class'").
-   * Throws a ParserError if the current token is not an identifier followed by a colon and a string literal or a hex color code.
-   * @returns The name and value of the attribute.
-   */
-  public static parseAttribute(): { name: string; value: string } {
-    this.expect(TokenType.Identifier);
-    const name = this.tokens[this.index - 1].value;
-
-    this.expect(TokenType.Colon);
-
-    let value: string;
-
-    //@ts-ignore
-    if (this.currentToken.type === TokenType.StringLiteral) {
-      this.expect(TokenType.StringLiteral);
-      value = this.tokens[this.index - 1].value;
-      this.expect(TokenType.StringLiteral);
-      //@ts-ignore
-    } else if (
-      //@ts-ignore
-      this.currentToken.type === TokenType.HexColor &&
-      //@ts-ignore
-      this.currentToken.value.startsWith("#")
-    ) {
-      //@ts-ignore
-      value = this.currentToken.value;
-      this.advance();
-    } else if (
-      //@ts-ignore
-      this.currentToken.type === TokenType.String
-    ) {
-      //@ts-ignore
-      value = this.currentToken.value;
-      this.advance();
-    } else {
-      throw new ParserError(
-        //@ts-ignore
-        this.currentToken,
-        TokenType.StringLiteral
-      );
-    }
-
-    return { name, value };
-  }
-
-  /**
-   * Parses a set of attributes (e.g. "class: 'my-class', style: 'color: red;'").
-   * @returns A record of attribute names and values.
-   */
-  public static parseAttributes(): Record<string, string> {
-    const attributes: Record<string, string> = {};
-
-    while (
-      this.currentToken &&
-      this.currentToken.type === TokenType.Identifier
-    ) {
-      const { name, value } = this.parseAttribute();
-
-      attributes[name] = value;
-    }
-    return attributes;
   }
   
   /**
