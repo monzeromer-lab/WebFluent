@@ -12,6 +12,7 @@ export function main() {
                     Input(text)
                     Text(value: "Hii, this is me monzer", Style(Header).Border().Display(flex).Place(center).Padding(3,3,3,3).FontColor(#1e1e1e).Font(Lexend))
                     Image(src: "")
+                    
                 }
             }
         }
@@ -19,8 +20,7 @@ export function main() {
 
   const tokens = new Lexer(code).tokenize();  
   console.log(tokens);
-  
-  const parser: ASTNode[] = new Parser(tokens).parse();
+  const parser: ASTNode[] = Parser.parse(tokens);
   const output = new HTMLCompiler().compile(parser);
 
   console.log (output);
