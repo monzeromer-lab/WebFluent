@@ -1,27 +1,21 @@
 import { TokenType } from "../lexer/types.ts";
-
-export interface ASTNode {
-  type: TokenType;
-  value?: string;
-  children?: ASTNode[];
-  attributes?: Record<string, string>;
-}
+import { IASTNode } from "../parser/interfaces/IAstNode.ts";
 
 export class HTMLCompiler {
   private output = "";
 
-  public compile(ast: ASTNode[]): string {
+  public compile(ast: IASTNode[]): string {
     this.visitNodes(ast);
     return this.output;
   }
 
-  private visitNodes(nodes: ASTNode[]): void {
+  private visitNodes(nodes: IASTNode[]): void {
     for (const node of nodes) {
       this.visit(node);
     }
   }
 
-  private visit(node: ASTNode): void {
+  private visit(node: IASTNode): void {
     switch (node.type) {
       case TokenType.Page:
         this.output += `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${node.value}</title></head><body>`;

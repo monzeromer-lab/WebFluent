@@ -137,13 +137,14 @@ export class Lexer {
     ) {
       result += this.currentChar;
       if (this.isint(this.currentChar as string)) {
-        throw new Error(
+        console.log(
           `Hold on a sec take a look at ${
             this.tokens[this.tokens.length - 1].line
           }:${
             this.tokens[this.tokens.length - 1].column
           } We dont have that here`
         );
+        Deno.exit(1);
       }
       this.advance();
     }
@@ -391,7 +392,8 @@ export class Lexer {
         /**
          * Throws an error for an invalid character or token.
          */
-        throw new Error(`Invalid character: ${this.currentChar}`);
+        console.log(`Invalid character: "${this.currentChar}" at ${this.line}:${this.column}`);
+        Deno.exit(1);
       }
     }
 

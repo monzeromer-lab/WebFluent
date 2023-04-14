@@ -1,10 +1,9 @@
 {
-    "name": "Monzer Omer",
-    "version": "",
-    "auther": "",
+    "name": "Hello World",
+    "version": "0.0.1",
+    "auther": "Monzer Omer",
     "style": {
         "mode": "css | tailwind",
-        "place": "inTag | file"
-    },
-    "":""
+        "place": "StyleTag | File"
+    }
 }

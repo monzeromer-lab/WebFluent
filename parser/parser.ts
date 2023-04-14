@@ -2,38 +2,63 @@
 import { TokenType, Token } from "../lexer/types.ts";
 import { parseComponent } from "./component.ts";
 import { parseEOF } from "./eof.ts";
+import { IASTNode } from "./interfaces/IAstNode.ts";
+import { IASTs } from "./interfaces/IAST.ts";
 import { parsePage } from "./page.ts";
+import { parseStyle } from "./style/style.ts";
+import { IStyle, StyleAST } from "./interfaces/IStyle.ts";
 
 /**
  * The nodes in the abstract syntax tree (AST) produced by the parser.
  */
-export interface ASTNode {
-  /** The type of the node (e.g. "Component", "Column"). */
-  type: TokenType;
-  /** The value of the node (e.g. the name of the component). */
-  value?: string;
-  /** The children of the node (e.g. nested components or columns). */
-  children?: ASTNode[];
-  /** The custom attributes of the node. */
-  attributes?: Record<string, string>;
-}
+
 
 /**
  * An error thrown by the parser when it encounters an unexpected token.
  */
-export class ParserError extends Error {
+export class ParserError {
   /** The token that caused the error. */
   public token: Token;
+
   /** The expected token type. */
   public expectedType: TokenType;
 
-  constructor(token: Token, expectedType: TokenType) {
-    super(
-      `Unexpected type: ${token.type} => ${token.value} at ${token.line}:${token.column}, expected: ${expectedType}`
-    );
+  public tokens: Token[];
 
+  public genLog(tokens: Token[], line: number, column: number) {
+    let code: string = "";
+    for (let index = 0; index < tokens.length; index++) {
+      if (tokens[index].line === line) {
+        if (tokens[index].line === line && tokens[index].column === column) {
+          code += "=> " + tokens[index].value;
+          return `"${code}"`;
+        }
+        code += tokens[index].value + "";
+      }
+    }
+    return `"${code}"`;
+  }
+
+  constructor(
+    token: Token,
+    expectedType: TokenType,
+    tokens: Token[] | null = null
+  ) {
     this.token = token;
     this.expectedType = expectedType;
+    this.tokens = tokens as Token[];
+
+    console.log(
+      `Error: Unexpected type: "${token.type}" => "${token.value}" at ${
+        token.line
+      }:${token.column}, expected: "${expectedType}" \n   ${this.genLog(
+        Parser.tokens,
+        //@ts-ignore
+        token.line,
+        token.column
+      )}`
+    );
+    Deno.exit(1);
   }
 }
 
@@ -47,6 +72,11 @@ export class Parser {
   public static currentToken: Token | null;
   /** The index of the current token in the tokens array. */
   public static index: number;
+
+  public static ASTs: IASTs = {};
+
+  public static styleAST: StyleAST[] = [];
+
 
   /**
    * Advances to the next token in the tokens array.
@@ -77,17 +107,17 @@ export class Parser {
       throw new ParserError(this.currentToken, expectedType);
     }
   }
-  
+
   /**
   
   Parses the set of tokens produced by the lexer and returns an array of ASTNodes.
   @returns An array of ASTNodes representing the parsed markup.
   */
-  public static parse(tokens: Token[]): ASTNode[] {
+  public static parse(tokens: Token[]): IASTs {
     Parser.tokens = tokens;
     Parser.index = 0;
     Parser.currentToken = Parser.tokens[Parser.index];
-    const nodes: ASTNode[] = [];
+    const nodes: IASTNode[] = [];
 
     while (this.currentToken) {
       switch (this.currentToken.type) {
@@ -97,6 +127,10 @@ export class Parser {
 
         case TokenType.Component:
           nodes.push(parseComponent());
+          break;
+
+          case TokenType.Style:
+          parseStyle()
           break;
 
         case TokenType.EOF:
@@ -109,6 +143,8 @@ export class Parser {
     }
     parseEOF();
 
-    return nodes;
+    Parser.ASTs.MarkupASTL = nodes;
+    Parser.ASTs.StyleAST = this.styleAST;
+    return Parser.ASTs;
   }
 }

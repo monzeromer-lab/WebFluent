@@ -37,14 +37,13 @@ export function parseChildrens(): ASTNode[] {
           break;
 
         case TokenType.Identifier:
-          throw new Error("Not Supported Yet");
+          console.log(`Error: "${Parser.currentToken.value}" at ${Parser.currentToken.line}:${Parser.currentToken.column} Using Identifier Not Supported Yet`);
+          Deno.exit(1);
+          break;
 
         default:
-          //@ts-ignore
-          throw new ParserError(
-            Parser.currentToken,
-            TokenType.Page || TokenType.CloseBrace
-          );
+          console.log(`Error: Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`);
+          Deno.exit(1);
       }
     }
     return children;
