@@ -1,5 +1,7 @@
 import { TokenType } from "../../lexer/types.ts";
-import { ASTNode, Parser } from "../parser.ts";
+import { IASTNode } from "../interfaces/IAstNode.ts";
+import { Parser } from "../parser.ts";
+import { parseStyle } from "../style/style.ts";
 import { parseAttributes } from "./attributes.ts";
 
   /**
@@ -7,7 +9,7 @@ import { parseAttributes } from "./attributes.ts";
    * Throws a ParserError if the current token is not "Component".
    * @returns An ASTNode representing the component.
    */
-  export function parseInput(): ASTNode {
+  export function parseInput(): IASTNode {
     Parser.expect(TokenType.Input);
 
     Parser.expect(TokenType.OpenParen);
@@ -18,6 +20,13 @@ import { parseAttributes } from "./attributes.ts";
         Parser.expect(TokenType.Coma);
     }
     const attributes = parseAttributes();
+
+    let ElementClass: string;
+    if (Parser.currentToken?.type === TokenType.Coma) {
+      Parser.advance();
+      ElementClass = parseStyle();      
+    }
+    
     Parser.expect(TokenType.CloseParen);
 
     return {
@@ -25,5 +34,7 @@ import { parseAttributes } from "./attributes.ts";
       //@ts-ignore
       value: identifierToken.value,
       attributes,
+      //@ts-ignore
+      class: ElementClass
     };
   }

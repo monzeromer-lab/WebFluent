@@ -1,4 +1,3 @@
-import { Enviroment } from "../../enviroment/eval.ts";
 import { TokenType } from "../../lexer/types.ts";
 import { IASTNode } from "../interfaces/IAstNode.ts";
 import { Parser } from "../parser.ts";
