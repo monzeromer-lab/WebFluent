@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-ts-comment no-explicit-any
 import { Token } from "../lexer/types.ts";
 import { IASTNode } from "../parser/interfaces/IAstNode.ts";
 import { IStyle, StyleAST } from "../parser/interfaces/IStyle.ts";

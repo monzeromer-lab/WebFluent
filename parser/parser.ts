@@ -1,4 +1,4 @@
-// deno-lint-ignore-file ban-ts-comment
+// deno-lint-ignore-file ban-ts-comment no-inferrable-types
 import { TokenType, Token } from "../lexer/types.ts";
 import { parseComponent } from "./component.ts";
 import { parseEOF } from "./eof.ts";
@@ -6,7 +6,7 @@ import { IASTNode } from "./interfaces/IAstNode.ts";
 import { IASTs } from "./interfaces/IAST.ts";
 import { parsePage } from "./page.ts";
 import { parseStyle } from "./style/style.ts";
-import { IStyle, StyleAST } from "./interfaces/IStyle.ts";
+import { StyleAST } from "./interfaces/IStyle.ts";
 
 /**
  * An error thrown by the parser when it encounters an unexpected token.

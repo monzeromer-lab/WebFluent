@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-ts-comment
 import { Cli } from "./cli/cli.ts";
 import { HTMLCompiler } from "./compiler/htmlElements.ts";
 import { Lexer } from "./lexer/lexer.ts";

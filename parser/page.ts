@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-ts-comment
 import { TokenType } from "../lexer/types.ts";
 import { parseChildrens } from "./childrens.ts";
 import { IASTNode } from "./interfaces/IAstNode.ts";

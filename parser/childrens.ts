@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-ts-comment prefer-const
 import { Enviroment } from "../enviroment/eval.ts";
 import { Token, TokenType } from "../lexer/types.ts";
 import { parseComponent } from "./component.ts";

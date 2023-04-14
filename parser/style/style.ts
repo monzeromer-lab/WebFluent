@@ -1,6 +1,7 @@
-// deno-lint-ignore-file no-inferrable-types ban-ts-comment ban-types
+// deno-lint-ignore-file
+// deno-lint-ignore-file no-inferrable-types prefer-const
 import { Enviroment } from "../../enviroment/eval.ts";
-import { Token, TokenType } from "../../lexer/types.ts";
+import { TokenType } from "../../lexer/types.ts";
 import { IStyle } from "../interfaces/IStyle.ts";
 import { Parser } from "../parser.ts";
 

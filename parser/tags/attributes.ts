@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-ts-comment
 import { TokenType } from "../../lexer/types.ts";
 import { Parser, ParserError } from "../parser.ts";
 
