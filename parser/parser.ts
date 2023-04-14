@@ -9,11 +9,6 @@ import { parseStyle } from "./style/style.ts";
 import { IStyle, StyleAST } from "./interfaces/IStyle.ts";
 
 /**
- * The nodes in the abstract syntax tree (AST) produced by the parser.
- */
-
-
-/**
  * An error thrown by the parser when it encounters an unexpected token.
  */
 export class ParserError {
@@ -24,20 +19,6 @@ export class ParserError {
   public expectedType: TokenType;
 
   public tokens: Token[];
-
-  public genLog(tokens: Token[], line: number, column: number) {
-    let code: string = "";
-    for (let index = 0; index < tokens.length; index++) {
-      if (tokens[index].line === line) {
-        if (tokens[index].line === line && tokens[index].column === column) {
-          code += "=> " + tokens[index].value;
-          return `"${code}"`;
-        }
-        code += tokens[index].value + "";
-      }
-    }
-    return `"${code}"`;
-  }
 
   constructor(
     token: Token,
@@ -51,7 +32,7 @@ export class ParserError {
     console.log(
       `Error: Unexpected type: "${token.type}" => "${token.value}" at ${
         token.line
-      }:${token.column}, expected: "${expectedType}" \n   ${this.genLog(
+      }:${token.column}, expected: "${expectedType}" \n   ${ParserError.genLog(
         Parser.tokens,
         //@ts-ignore
         token.line,
@@ -59,6 +40,20 @@ export class ParserError {
       )}`
     );
     Deno.exit(1);
+  }
+
+  public static genLog(tokens: Token[], line: number, column: number) {
+    let code: string = "";
+    for (let index = 0; index < tokens.length; index++) {
+      if (tokens[index].line === line) {
+        if (tokens[index].line === line && tokens[index].column === column) {
+          code += "=> " + tokens[index].value;
+          return `"${code}"`;
+        }
+        code += tokens[index].value + "";
+      }
+    }
+    return `"${code}"`;
   }
 }
 
@@ -76,7 +71,6 @@ export class Parser {
   public static ASTs: IASTs = {};
 
   public static styleAST: StyleAST[] = [];
-
 
   /**
    * Advances to the next token in the tokens array.
@@ -109,7 +103,6 @@ export class Parser {
   }
 
   /**
-  
   Parses the set of tokens produced by the lexer and returns an array of ASTNodes.
   @returns An array of ASTNodes representing the parsed markup.
   */
@@ -129,8 +122,8 @@ export class Parser {
           nodes.push(parseComponent());
           break;
 
-          case TokenType.Style:
-          parseStyle()
+        case TokenType.Style:
+          parseStyle();
           break;
 
         case TokenType.EOF:

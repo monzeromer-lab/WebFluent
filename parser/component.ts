@@ -1,14 +1,15 @@
 import { TokenType } from "../lexer/types.ts";
 import { parseChildrens } from "./childrens.ts";
-import { ASTNode, Parser } from "./parser.ts";
+import { IASTNode } from "./interfaces/IAstNode.ts";
+import { Parser } from "./parser.ts";
 import { parseAttributes } from "./tags/attributes.ts";
 
 /**
    * Parses a component node (e.g. "Component MyComponent { ... }").
    * Throws a ParserError if the current token is not "Component".
-   * @returns An ASTNode representing the component.
+   * @returns An IASTNode representing the component.
    */
-export function parseComponent(): ASTNode {
+export function parseComponent(): IASTNode {
     Parser.expect(TokenType.Component);
 
     const identifierToken = Parser.currentToken;
@@ -21,7 +22,7 @@ export function parseComponent(): ASTNode {
 
     Parser.expect(TokenType.OpenBrace);
 
-    const children: ASTNode[] = parseChildrens();
+    const children: IASTNode[] = parseChildrens();
 
     Parser.expect(TokenType.CloseBrace);
 

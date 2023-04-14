@@ -1,6 +1,9 @@
 import { TokenType } from "../../lexer/types.ts";
 import { IStyle } from "./IStyle.ts";
 
+/**
+ * The nodes in the abstract syntax tree (AST) produced by the parser.
+ */
 export interface IASTNode {
   /** The type of the node (e.g. "Component", "Column"). */
   type: TokenType;
@@ -10,4 +13,6 @@ export interface IASTNode {
   children?: IASTNode[];
   /** The custom attributes of the node. */
   attributes?: Record<string, string>;
+
+  class?: string | IStyle;
 }

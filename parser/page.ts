@@ -1,14 +1,15 @@
 import { TokenType } from "../lexer/types.ts";
 import { parseChildrens } from "./childrens.ts";
-import { ASTNode, Parser } from "./parser.ts";
+import { IASTNode } from "./interfaces/IAstNode.ts";
+import { Parser } from "./parser.ts";
 import { parseAttributes } from "./tags/attributes.ts";
 
 /**
    * Parses a page node (e.g. "Page MyComponent { ... }").
    * Throws a ParserError if the current token is not "Page".
-   * @returns An ASTNode representing the page.
+   * @returns An IASTNode representing the page.
    */
-export function parsePage(): ASTNode {
+export function parsePage(): IASTNode {
     Parser.expect(TokenType.Page);
 
     const identifierToken = Parser.currentToken;
@@ -19,7 +20,7 @@ export function parsePage(): ASTNode {
     Parser.expect(TokenType.CloseParen);
     Parser.expect(TokenType.OpenBrace);
 
-    const children: ASTNode[] = parseChildrens();
+    const children: IASTNode[] = parseChildrens();
 
     Parser.expect(TokenType.CloseBrace);
 

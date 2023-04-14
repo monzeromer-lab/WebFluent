@@ -24,15 +24,15 @@ export class HTMLCompiler {
         break;
 
       case TokenType.Component:
-        if (node.value === "Navbar") {
-          this.output += `<nav ${this.renderAttributes(node.attributes)}>`;
+        
+          this.output += `<div class="${node.value} ${node.class ? node.class : ""}" ${this.renderAttributes(node.attributes)}>`;
           this.visitNodes(node.children || []);
-          this.output += "</nav>";
-        }
+          this.output += "</div>";
+        
         break;
 
       case TokenType.Row:
-        this.output += `<div class='row' ${this.renderAttributes(
+        this.output += `<div class='row ${node.class ? node.class : ""}' ${this.renderAttributes(
           node.attributes
         )}>`;
         this.visitNodes(node.children || []);
@@ -40,7 +40,7 @@ export class HTMLCompiler {
         break;
 
       case TokenType.Column:
-        this.output += `<div class='column' ${this.renderAttributes(
+        this.output += `<div class='column ${node.class ? node.class : ""}' ${this.renderAttributes(
           node.attributes
         )}>`;
         this.visitNodes(node.children || []);
@@ -49,7 +49,7 @@ export class HTMLCompiler {
 
       case TokenType.Input:
         if (node.value == "text") {
-          this.output += `<input class='input-${node.value}' type="${
+          this.output += `<input class='input-${node.value} ${node.class ? node.class : ""}' type="${
             node.value
           }" ${this.renderAttributes(node.attributes)}>`;
           this.visitNodes(node.children || []);
@@ -57,7 +57,7 @@ export class HTMLCompiler {
         break;
 
       case TokenType.Text:
-          this.output += `<p class='text'>`;
+          this.output += `<p class='text ${node.class ? node.class : ""}'>`;
           // ${this.renderAttributes(node.attributes)}
           // deno-lint-ignore ban-ts-comment
           //@ts-ignore
@@ -66,7 +66,7 @@ export class HTMLCompiler {
         break;
 
         case TokenType.Image:
-          this.output += `<img class='text' src="${node.value}" ${this.renderAttributes(node.attributes)}>`;
+          this.output += `<img class='text  ${node.class ? node.class : ""}' src="${node.value}" ${this.renderAttributes(node.attributes)}>`;
         break;
 
       case TokenType.EOF:
