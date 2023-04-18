@@ -47,7 +47,7 @@ export class ParserError {
     for (let index = 0; index < tokens.length; index++) {
       if (tokens[index].line === line) {
         if (tokens[index].line === line && tokens[index].column === column) {
-          code += "=> " + tokens[index].value;
+          code += "=>" + tokens[index].value;
           return `"${code}"`;
         }
         code += tokens[index].value + "";

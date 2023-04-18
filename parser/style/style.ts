@@ -16,11 +16,11 @@ export function parseStyle(): string {
   Parser.expect(TokenType.Identifier);
 
   Parser.expect(TokenType.CloseParen);
-  
+
   if (Parser.currentToken?.type !== TokenType.Dot) {
     return identifier;
   }
-  
+
   Parser.expect(TokenType.Dot);
 
   const checkIfMore = () => {
@@ -44,7 +44,7 @@ export function parseStyle(): string {
         checkIfMore();
         break;
 
-        //@ts-ignore
+      //@ts-ignore
       case TokenType.Border:
         Parser.expect(TokenType.Border);
         Parser.expect(TokenType.OpenParen);
@@ -54,7 +54,7 @@ export function parseStyle(): string {
         checkIfMore();
         break;
 
-        //@ts-ignore
+      //@ts-ignore
       case TokenType.Display:
         Parser.expect(TokenType.Display);
         Parser.expect(TokenType.OpenParen);
@@ -64,7 +64,7 @@ export function parseStyle(): string {
         checkIfMore();
         break;
 
-        //@ts-ignore
+      //@ts-ignore
       case TokenType.Place:
         Parser.expect(TokenType.Place);
         Parser.expect(TokenType.OpenParen);
@@ -74,7 +74,7 @@ export function parseStyle(): string {
         checkIfMore();
         break;
 
-        //@ts-ignore
+      //@ts-ignore
       case TokenType.Padding:
         Parser.expect(TokenType.Padding);
         Parser.expect(TokenType.OpenParen);
@@ -85,7 +85,7 @@ export function parseStyle(): string {
         checkIfMore();
         break;
 
-        //@ts-ignore
+      //@ts-ignore
       case TokenType.FontColor:
         Parser.expect(TokenType.FontColor);
         Parser.expect(TokenType.OpenParen);
@@ -96,7 +96,7 @@ export function parseStyle(): string {
         checkIfMore();
         break;
 
-        //@ts-ignore
+      //@ts-ignore
       case TokenType.Font:
         Parser.expect(TokenType.Font);
         Parser.expect(TokenType.OpenParen);
@@ -113,7 +113,7 @@ export function parseStyle(): string {
     }
   }
 
-  Enviroment.setStyle(identifier, style)
+  Enviroment.setStyle(identifier, style);
   Parser.styleAST.push({ identifier, styleAST: style });
 
   return identifier;
