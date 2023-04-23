@@ -5,8 +5,9 @@ import { parseEOF } from "./eof.ts";
 import { IASTNode } from "./interfaces/IAstNode.ts";
 import { IASTs } from "./interfaces/IAST.ts";
 import { parsePage } from "./page.ts";
-import { parseStyle } from "./style/style.ts";
-import { StyleAST } from "./interfaces/IStyle.ts";
+import { Enviroment } from "../enviroment/eval.ts"
+// import { parseStyle } from "./style/style.ts";
+// import { StyleAST } from "./interfaces/IStyle.ts";
 
 /**
  * An error thrown by the parser when it encounters an unexpected token.
@@ -70,7 +71,7 @@ export class Parser {
 
   public static ASTs: IASTs = {};
 
-  public static styleAST: StyleAST[] = [];
+  // public static styleAST: StyleAST[] = [];
 
   /**
    * Advances to the next token in the tokens array.
@@ -118,13 +119,16 @@ export class Parser {
           nodes.push(parsePage());
           break;
 
+        // deno-lint-ignore no-case-declarations
         case TokenType.Component:
-          nodes.push(parseComponent());
+          let component = parseComponent();
+          Enviroment.setIdentifier(component.value as string, component);
+          nodes.push(component);
           break;
 
-        case TokenType.Style:
-          parseStyle();
-          break;
+        // case TokenType.Style:
+        //   parseStyle();
+        //   break;
 
         case TokenType.EOF:
           nodes.push(parseEOF());
@@ -137,7 +141,7 @@ export class Parser {
     parseEOF();
 
     Parser.ASTs.MarkupASTL = nodes;
-    Parser.ASTs.StyleAST = this.styleAST;
+    // Parser.ASTs.StyleAST = this.styleAST;
     return Parser.ASTs;
   }
 }

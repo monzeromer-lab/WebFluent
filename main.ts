@@ -11,12 +11,13 @@ export function main() {
             Row () {
                 Column () {
                     Input(text)
-                    Text(value: "Hii, this is me monzer", Style(Header).Border("").Display(flex).Place(center).Padding("3px").FontColor(#1e1e1e).Font("Lexend"))
+                    Text(value: "Hii, this is me monzer")
                     Image(src: "")
                 }
             }
         }
     }`;
+
 
   const tokens = new Lexer(code).tokenize();  
   const parser: IASTs = Parser.parse(tokens);
@@ -24,7 +25,6 @@ export function main() {
   const output = new HTMLCompiler().compile(parser.MarkupASTL);
 
   console.log (output);
-  console.log(parser.StyleAST);
 }
 
 

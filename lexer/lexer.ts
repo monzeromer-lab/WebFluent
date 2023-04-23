@@ -9,21 +9,21 @@ import { Token, TokenType } from "./types.ts";
 const KEYWORDS: Record<string, TokenType> = {
   Component: TokenType.Component,
   Column: TokenType.Column,
-  export: TokenType.Export,
+  // export: TokenType.Export,
   Page: TokenType.Page,
   Row: TokenType.Row,
   Input: TokenType.Input,
   Text: TokenType.Text,
   src: TokenType.src,
   Image: TokenType.Image,
-  Style: TokenType.Style,
-  Display: TokenType.Display,
-  Place: TokenType.Place,
-  Padding: TokenType.Padding,
-  FontColor: TokenType.FontColor,
-  Font: TokenType.Font,
-  Border: TokenType.Border,
-  Background: TokenType.Background,
+  // Style: TokenType.Style,
+  // Display: TokenType.Display,
+  // Place: TokenType.Place,
+  // Padding: TokenType.Padding,
+  // FontColor: TokenType.FontColor,
+  // Font: TokenType.Font,
+  // Border: TokenType.Border,
+  // Background: TokenType.Background,
 
 };
 
@@ -306,21 +306,23 @@ export class Lexer {
         this.addToken(this.currentChar, TokenType.Number);
         this.advance();
         
-      } else if (this.currentChar === "#") {
-        /**
-         * Adds a `CloseParen` token and advances to the next character.
-         */
-        const colorCode = this.readHexColorCode();
+      }
+      //  else if (this.currentChar === "#") {
+      //   /**
+      //    * Adds a `CloseParen` token and advances to the next character.
+      //    */
+      //   const colorCode = this.readHexColorCode();
         
         
-        if (this.isHexColorCode(colorCode)){
-          this.addToken(colorCode, TokenType.HexColor);
-        } else {
-          throw new Error(`Color Code: ${colorCode} is not valid`)
-        }
+      //   if (this.isHexColorCode(colorCode)){
+      //     this.addToken(colorCode, TokenType.HexColor);
+      //   } else {
+      //     throw new Error(`Color Code: ${colorCode} is not valid`)
+      //   }
         
         
-      } else if (this.isalpha(this.currentChar)) {
+      // }
+       else if (this.isalpha(this.currentChar)) {
         /**
          * Reads an identifier and checks if it is a reserved keyword.
          * Adds an `Identifier`, `Component`, `Column`, or `Export` token as appropriate.
@@ -356,34 +358,36 @@ export class Lexer {
         } else if (reserved === TokenType.src) {
           this.addToken(identifier, TokenType.src);
 
-        } else if (reserved === TokenType.Style) {
-          this.addToken(identifier, TokenType.Style);
+        }
+        //  else if (reserved === TokenType.Style) {
+        //   this.addToken(identifier, TokenType.Style);
 
-        } else if (reserved === TokenType.Place) {
-          this.addToken(identifier, TokenType.Place);
+        // } else if (reserved === TokenType.Place) {
+        //   this.addToken(identifier, TokenType.Place);
 
-        } else if (reserved === TokenType.Padding) {
-          this.addToken(identifier, TokenType.Padding);
+        // } else if (reserved === TokenType.Padding) {
+        //   this.addToken(identifier, TokenType.Padding);
 
-        } else if (reserved === TokenType.Display) {
-          this.addToken(identifier, TokenType.Display);
+        // } else if (reserved === TokenType.Display) {
+        //   this.addToken(identifier, TokenType.Display);
 
-        } else if (reserved === TokenType.Font) {
-          this.addToken(identifier, TokenType.Font);
+        // } else if (reserved === TokenType.Font) {
+        //   this.addToken(identifier, TokenType.Font);
 
-        } else if (reserved === TokenType.Border) {
-          this.addToken(identifier, TokenType.Border);
+        // } else if (reserved === TokenType.Border) {
+        //   this.addToken(identifier, TokenType.Border);
 
-        } else if (reserved === TokenType.Background) {
-          this.addToken(identifier, TokenType.Background);
+        // } else if (reserved === TokenType.Background) {
+        //   this.addToken(identifier, TokenType.Background);
 
-        } else if (reserved === TokenType.FontColor) {
-          this.addToken(identifier, TokenType.FontColor);
+        // } else if (reserved === TokenType.FontColor) {
+        //   this.addToken(identifier, TokenType.FontColor);
 
-        } else if (this.isHexColorCode(identifier)) {
-          this.addToken(identifier, TokenType.HexColor);
+        // } else if (this.isHexColorCode(identifier)) {
+        //   this.addToken(identifier, TokenType.HexColor);
 
-        } else {
+        // }
+         else {
           this.addToken(identifier, TokenType.Identifier);
         }
       } else {

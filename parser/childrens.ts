@@ -6,7 +6,7 @@ import { IASTNode } from "./interfaces/IAstNode.ts";
 import { Parser } from "./parser.ts";
 import { parseColumn } from "./style/column.ts";
 import { parseRow } from "./style/row.ts";
-import { parseStyle } from "./style/style.ts";
+// import { parseStyle } from "./style/style.ts";
 import { parseImage } from "./tags/image.ts";
 import { parseInput } from "./tags/input.ts";
 import { parseText } from "./tags/text.ts";
@@ -57,9 +57,9 @@ export function parseChildrens(): IASTNode[] {
         children.push(parseImage());
         break;
 
-      case TokenType.Style:
-        parseStyle();
-        break;
+      // case TokenType.Style:
+      //   parseStyle();
+      //   break;
 
       case TokenType.Identifier:
         children.push(getIdentifier());

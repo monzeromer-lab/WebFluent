@@ -1,0 +1,16 @@
+Page Home () {
+        Component Navbar () {
+            Row () {
+                Column () {
+                    Input(text)
+                    Text(value: "Hii, this is me monzer")
+                    Image(src: "")
+                    Nav
+                }
+            }
+        }
+    }
+
+    Component Ali () {
+        
+    }
