@@ -30,7 +30,7 @@ export interface IStyle {
   padding?: string;
   display?: EDisplay;
   place?: EPlace;
-  FontColor?: TokenType.HexColor;
+  // FontColor?: TokenType.HexColor;
   Font?: string;
 }
 

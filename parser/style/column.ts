@@ -4,7 +4,7 @@ import { parseChildrens } from "../childrens.ts";
 import { IASTNode } from "../interfaces/IAstNode.ts";
 import { Parser } from "../parser.ts";
 import { parseAttributes } from "../tags/attributes.ts";
-import { parseStyle } from "./style.ts";
+// import { parseStyle } from "./style.ts";
 
   /**
 
@@ -19,10 +19,10 @@ export function parseColumn(): IASTNode {
     const attributes = parseAttributes();
 
     let ElementClass: string;
-    if (Parser.currentToken?.type === TokenType.Coma) {
-      Parser.advance();
-      ElementClass = parseStyle();      
-    }
+    // if (Parser.currentToken?.type === TokenType.Coma) {
+    //   Parser.advance();
+    //   ElementClass = parseStyle();      
+    // }
 
 
     Parser.expect(TokenType.CloseParen);

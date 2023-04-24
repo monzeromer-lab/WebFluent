@@ -2,7 +2,7 @@
 import { TokenType } from "../../lexer/types.ts";
 import { IASTNode } from "../interfaces/IAstNode.ts";
 import { Parser } from "../parser.ts";
-import { parseStyle } from "../style/style.ts";
+// import { parseStyle } from "../style/style.ts";
 import { parseAttributes } from "./attributes.ts";
 
   /**
@@ -23,10 +23,10 @@ import { parseAttributes } from "./attributes.ts";
     const attributes = parseAttributes();
 
     let ElementClass: string;
-    if (Parser.currentToken?.type === TokenType.Coma) {
-      Parser.advance();
-      ElementClass = parseStyle();      
-    }
+    // if (Parser.currentToken?.type === TokenType.Coma) {
+    //   Parser.advance();
+    //   ElementClass = parseStyle();      
+    // }
     
     Parser.expect(TokenType.CloseParen);
 
