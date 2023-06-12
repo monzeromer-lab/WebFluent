@@ -1,0 +1,52 @@
+/*
+the folloing is a page smaple
+//other props is an object will have:
+//'class, id,  
+Page <identifier> (<title>, <..other props>) {}
+
+page sample with style prop in it
+Page HomePage (Home, Style(<var>)) {}
+
+component sample
+Component <identifier> (<props>) {}
+
+grid system sample
+Container() {}
+Column() {}
+Row() {}
+
+print a text sample
+Text("<vlue>", <style || >)
+
+inputs sample
+// input type is the same in html
+//name will be used for server side actions
+Input(<type>, name)
+
+image sample
+Img(<src>, <alt>)
+
+a table code sample
+Table() {}
+Thead(){}
+Trow() {}
+Tdata(<could be anything a string or an element or even a compnent>)
+
+Tabs sample
+Tab() {}
+TabPage(<name>) {
+    // content
+}
+
+dialog sample
+// maybe not i don't know yet
+Dialog(<name>) {}
+
+button sample
+Button(<type>)
+
+Page helloworld (Hello World) {
+    Text("Hello world!")
+}
+
+*/

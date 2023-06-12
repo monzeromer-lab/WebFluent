@@ -1,5 +1,5 @@
 import { HandleArgs } from "./hundleArgs.ts";
-import { ConfigFileType } from "./types/cli.ts";
+import { ConfigFileType } from "./cli.types.ts";
 
 export async function Cli() {
 

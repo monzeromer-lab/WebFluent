@@ -5,6 +5,8 @@ export class HTMLCompiler {
   private output = "";
 
   public compile(ast: IASTNode[]): string {
+    // console.log(ast);
+    
     this.visitNodes(ast);
     return this.output;
   }
@@ -74,7 +76,7 @@ export class HTMLCompiler {
         break;
 
       default:
-        throw new Error(`Unknown node type: ${node.type}`);
+        console.log("Error at node:\n", JSON.stringify(node));
     }
   }
 
