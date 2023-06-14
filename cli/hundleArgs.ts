@@ -1,7 +1,7 @@
 import { HTMLCompiler } from "../compiler/htmlElements.ts";
 import { Enviroment } from "../enviroment/eval.ts";
 import { Lexer } from "../lexer/lexer.ts";
-import { Token, TokenType } from "../lexer/types.ts";
+import { TokenType } from "../lexer/types.ts";
 // import { main } from "../main.ts";
 import { IASTNode } from "../parser/interfaces/IAstNode.ts";
 import { Parser } from "../parser/parser.ts";
@@ -22,8 +22,6 @@ export class HandleArgs {
   private currentFile: Files | undefined | null;
   // deno-lint-ignore no-inferrable-types
   private currentArgIndex: number = 0;
-
-  private Nodes: IASTNode[] = [];
 
   private args: string[];
 
@@ -48,11 +46,11 @@ export class HandleArgs {
   }
 
   private nextFile() {
-    //@ts-ignore
+    //@ts-ignore this var could be null
     this.currentFileIndex++;
 
     if ((this.currentFileIndex as number) < this.files.length) {
-      //@ts-ignore
+      //@ts-ignore setting it to the current file
       this.currentFile = this.files[this.currentFileIndex];
     } else {
       this.currentFile = null;
@@ -126,44 +124,26 @@ export class HandleArgs {
     return this.files;
   }
 
-  // private async BuildAndWriteFile(ASTnodes: IASTNode[]) {
-
-  //   console.log(ASTnodes);
-  //   const output = new HTMLCompiler().compile(ASTnodes);
-
-  //   if (!(await fileExists(Deno.cwd() + "/build"))) {
-  //     Deno.mkdir("./build", { recursive: true });
-  //   }
-
-  //   const encoder = new TextEncoder();
-  //   const html = encoder.encode(output);
-  //   //@ts-ignore
-  //   await Deno.writeFile(`./build/${this.currentFile.name.split(".")[0]}.html`,
-  //     html,
-  //     {
-  //       create: true,
-  //     }
-  //   );
-  //   return;
-  // }
-
-//get one file name and type as a param
-  private async BuildAndWriteFile(name: string, type: TokenType.Component | TokenType.Page) {
+  //get one file name and type as a param
+  private async BuildAndWriteFile(
+    name: string,
+    type: TokenType.Component | TokenType.Page
+  ) {
     let astNode;
-    
+
     //get the AstNode from the enviroment
-    if (type == TokenType.Page){
-      astNode = Enviroment.getPage(name)
+    if (type == TokenType.Page) {
+      astNode = Enviroment.getPage(name);
     }
-    
-    if (type == TokenType.Component){
-      astNode = Enviroment.getComponent(name)
+
+    if (type == TokenType.Component) {
+      astNode = Enviroment.getComponent(name);
     }
 
     // log it
     // console.log(astNode);
-    
-    // compile it 
+
+    // compile it
     const output = new HTMLCompiler().compile(astNode as unknown as IASTNode[]);
 
     // make sure build dir is available
@@ -176,12 +156,9 @@ export class HandleArgs {
     const html = encoder.encode(output);
 
     // write the file with it's name
-    await Deno.writeFile(`./build/${name}.html`,
-      html,
-      {
-        create: true,
-      }
-    );
+    await Deno.writeFile(`./build/${name}.html`, html, {
+      create: true,
+    });
 
     // return
     return;
@@ -190,7 +167,7 @@ export class HandleArgs {
   // TODO: update this for parsing file after another insted of one file
   private async ParseFile(dir: string) {
     const decoder = new TextDecoder("utf-8");
-    //@ts-ignore
+
     const data = await Deno.readFile(dir);
     if (data.length === 0) {
       return;
@@ -202,7 +179,7 @@ export class HandleArgs {
     const tempAst = Parser.parse(tokens).MarkupASTL as unknown as IASTNode[];
 
     // console.log(tempAst);
-    
+
     switch (tempAst[0].type) {
       case TokenType.Page:
         // console.log(`storing single page node:\n${JSON.stringify(tempAst)}`);
@@ -221,25 +198,30 @@ export class HandleArgs {
         break;
 
       default:
-        console.log(`Unexpected Error Happend while parsing ${this.currentFile?.name as string}:\n found a -> ${tempAst[0].type} <- type, which for some reason i didn't implement here yet`);
+        console.log(
+          `Unexpected Error Happend while parsing ${
+            this.currentFile?.name as string
+          }:\n found a -> ${
+            tempAst[0].type
+          } <- type, which for some reason i didn't implement here yet`
+        );
         Deno.exit(1);
     }
-    
+
     this.nextFile();
     return;
   }
 
   private async parseFiles() {
     // console.log(this.files);
-    
+
     if (this.currentFile) {
       // console.log("parsing: ", this.currentFile);
-      
+
       await this.ParseFile(this.currentFile?.dir as string);
       // this.nextFile();
       await this.parseFiles();
     }
-    
   }
 
   private async build() {
@@ -263,7 +245,6 @@ export class HandleArgs {
       // end the building process
     } catch (error) {
       console.log(`Unexpected Deno Error:\n${error}`);
-      
     }
   }
 

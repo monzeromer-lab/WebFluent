@@ -9,6 +9,7 @@ import { parseRow } from "./style/row.ts";
 // import { parseStyle } from "./style/style.ts";
 import { parseImage } from "./tags/image.ts";
 import { parseInput } from "./tags/input.ts";
+import { parseTable } from "./tags/tables/table.ts";
 import { parseText } from "./tags/text.ts";
 
 function generateAST_Save(): IASTNode {
@@ -32,7 +33,10 @@ export function parseChildrens(): IASTNode[] {
   const children: IASTNode[] = [];
   while (Parser.currentToken && Parser.currentToken.value !== "}") {
     //@ts-ignore
+    // console.log(Parser.currentToken.type, Parser.currentToken.value);
+    
     switch (Parser.currentToken.type) {
+      
       case TokenType.Component:
         children.push(generateAST_Save());
         break;
@@ -57,6 +61,10 @@ export function parseChildrens(): IASTNode[] {
         children.push(parseImage());
         break;
 
+      case TokenType.Table:
+        children.push(parseTable());
+        break;
+
       // case TokenType.Style:
       //   parseStyle();
       //   break;
@@ -67,8 +75,7 @@ export function parseChildrens(): IASTNode[] {
 
       default:
         console.log(
-          `Error: Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`
-        );
+          `Parser Error: Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`);
         Deno.exit(1);
     }
   }

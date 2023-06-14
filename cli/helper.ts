@@ -6,7 +6,7 @@ export async function fileExists(dir: string): Promise<boolean> {
         if (directory.isDirectory) {
             return true;
         }
-    } catch (error) {
+    } catch (_error) {
         return false;
     }
     return false;

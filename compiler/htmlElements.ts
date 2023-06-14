@@ -71,12 +71,17 @@ export class HTMLCompiler {
           this.output += `<img class='text  ${node.class ? node.class : ""}' src="${node.value}" ${this.renderAttributes(node.attributes)}>`;
         break;
 
+        case TokenType.Table:
+          console.log("just found a table to compile but I'm not ready for it yet help me with it\n", node);
+          break;
+          
+
       case TokenType.EOF:
         // nothing to do for EOF node
         break;
 
       default:
-        console.log("Error at node:\n", JSON.stringify(node));
+        // console.log("Error at node:\n", JSON.stringify(node));
     }
   }
 
