@@ -10,6 +10,7 @@ import { parseRow } from "./style/row.ts";
 import { parseImage } from "./tags/image.ts";
 import { parseInput } from "./tags/input.ts";
 import { parseTable } from "./tags/tables/table.ts";
+import { parseTab } from "./tags/tabs/tab.ts";
 import { parseText } from "./tags/text.ts";
 
 function generateAST_Save(): IASTNode {
@@ -68,6 +69,10 @@ export function parseChildrens(): IASTNode[] {
       case TokenType.Table:
         children.push(parseTable());
         break;
+
+        case TokenType.Tab:
+          children.push(parseTab());
+          break;
 
       // case TokenType.Style:
       //   parseStyle();
