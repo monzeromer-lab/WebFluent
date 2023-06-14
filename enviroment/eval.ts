@@ -23,7 +23,7 @@ export class Enviroment {
   ): IASTNode {
     if (this.Vals.get(identifier) === undefined) {
       console.log(
-        `Error: "${identifier}" at ${currentToken.line}:${
+        `%cEnviroment Error:`, 'color: red;', `"${identifier}" at ${currentToken.line}:${
           currentToken.column
         }, is not defined \n   ${ParserError.genLog(
           Parser.tokens,
@@ -58,7 +58,7 @@ export class Enviroment {
   public static getStyle(identifier: string, currentToken: Token): StyleAST {
     if (this.Styles.get(identifier) === undefined) {
       console.log(
-        `Error: Style "${identifier}" at ${currentToken.line}:${
+        `%cEnviroment Error:`, 'color: red;', `Style "${identifier}" at ${currentToken.line}:${
           currentToken.column
         }, is not defined \n   ${ParserError.genLog(
           Parser.tokens,

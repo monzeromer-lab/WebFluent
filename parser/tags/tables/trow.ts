@@ -1,7 +1,7 @@
 import { TokenType } from "../../../lexer/types.ts";
 import { IASTNode } from "../../interfaces/IAstNode.ts";
 import { Parser } from "../../parser.ts";
-import { parseAttribute, parseAttributes } from "../attributes.ts";
+import {parseAttributes } from "../attributes.ts";
 import { parseTdata } from "./tdata.ts";
 import { parseThead } from "./thead.ts";
 
@@ -26,10 +26,8 @@ export function parseTrow(): IASTNode {
                 break;
 
             default:
-                console.log(Parser.currentToken.type);
-                
-                console.log(`Parser Error: \nTable row must have tdata or thead only for this beta`);
-                
+                console.log(`%cParser Error:`, 'color: red;', `Table row must have tdata or thead only for this beta`);
+                Deno.exit(1);
         }
     }
     Parser.expect(TokenType.CloseBrace);

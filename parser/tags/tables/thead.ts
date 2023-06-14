@@ -8,9 +8,8 @@ export function parseThead(): IASTNode {
     Parser.expect(TokenType.Thead);
     Parser.expect(TokenType.OpenParen);
     while (Parser.currentToken && Parser.currentToken.type !== TokenType.CloseParen) {
-        
-        
         switch (Parser.currentToken.type) {
+            
             case TokenType.String:
                 TableHead.push(Parser.currentToken.value);
                 Parser.advance();
@@ -21,8 +20,8 @@ export function parseThead(): IASTNode {
                 break;
 
             default:
-                console.log(`Praser Error:\nUnexpected Token -> ${Parser.currentToken.type} as "${Parser.currentToken.value}" at ${Parser.currentToken.line}:${Parser.currentToken.column}\n ${ParserError.genLog(Parser.tokens, Parser.currentToken.line as number, Parser.currentToken.column as number)}`);
-                
+                console.log(`%cParser Error:`, 'color: red;', `Unexpected Token -> ${Parser.currentToken.type} as "${Parser.currentToken.value}" at ${Parser.currentToken.line}:${Parser.currentToken.column}\n ${ParserError.genLog(Parser.tokens, Parser.currentToken.line as number, Parser.currentToken.column as number)}`);
+                break;
         }
     }
     Parser.expect(TokenType.CloseParen);

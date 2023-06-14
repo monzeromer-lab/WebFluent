@@ -5,8 +5,8 @@ import { parseComponent } from "./component.ts";
 import { IASTNode } from "./interfaces/IAstNode.ts";
 import { Parser } from "./parser.ts";
 import { parseColumn } from "./style/column.ts";
+import { parseContainer } from "./style/container.ts";
 import { parseRow } from "./style/row.ts";
-// import { parseStyle } from "./style/style.ts";
 import { parseImage } from "./tags/image.ts";
 import { parseInput } from "./tags/input.ts";
 import { parseTable } from "./tags/tables/table.ts";
@@ -49,6 +49,10 @@ export function parseChildrens(): IASTNode[] {
         children.push(parseRow());
         break;
 
+      case TokenType.Container:
+        children.push(parseContainer());
+        break;
+
       case TokenType.Input:
         children.push(parseInput());
         break;
@@ -75,7 +79,7 @@ export function parseChildrens(): IASTNode[] {
 
       default:
         console.log(
-          `Parser Error: Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`);
+          `%cParser Error:`, 'color: red;', `Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`);
         Deno.exit(1);
     }
   }

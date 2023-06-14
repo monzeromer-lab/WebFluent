@@ -51,6 +51,9 @@ export class Lexer {
   // store the tokens here before return them
   private tokens: Array<Token>;
 
+  // the current file on the lexer name
+  private fileName: string;
+
   /**
    * Creates a new Lexer object to tokenize the given source code.
    *
@@ -60,11 +63,13 @@ export class Lexer {
    *
    * @param sourceCode - The source code to tokenize.
    */
-  constructor(sourceCode: string) {
+  constructor(sourceCode: string, name: string) {
     /**
      * The input source code to tokenize.
      */
     this.source = sourceCode;
+
+    this.fileName = name;
 
     /**
      * The current position of the lexer in the input source code.
@@ -427,12 +432,11 @@ export class Lexer {
           this.addToken(identifier, TokenType.Identifier);
         }
       } else {
-        console.log(this.tokens);
         
         /**
          * Throws an error for an invalid character or token.
          */
-        console.log(`Invalid character: "${this.currentChar}" at ${this.line}:${this.column}`);
+        console.log(`%cLexer Error:`, 'color: red;', `at file "${this.fileName}": Invalid character "${this.currentChar}" at ${this.line}:${this.column}`);
         Deno.exit(1);
       }
     }

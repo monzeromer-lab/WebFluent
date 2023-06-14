@@ -11,7 +11,7 @@ export function parseTable(): IASTNode {
     Parser.expect(TokenType.CloseParen);
 
     Parser.expect(TokenType.OpenBrace);
-    let content = praseTableContent();
+    const content = praseTableContent();
     Parser.expect(TokenType.CloseBrace);
 
     return {

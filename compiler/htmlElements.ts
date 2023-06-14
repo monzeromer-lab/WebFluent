@@ -41,6 +41,13 @@ export class HTMLCompiler {
         this.output += "</div>";
         break;
 
+      case TokenType.Container:
+        console.log("%cTODO:", 'color: yellow;', "Add Container Compileing!");
+        this.output += "[Container Here]";
+        this.visitNodes(node.children || []);
+        break;
+        
+
       case TokenType.Column:
         this.output += `<div class='column ${node.class ? node.class : ""}' ${this.renderAttributes(
           node.attributes
@@ -72,7 +79,8 @@ export class HTMLCompiler {
         break;
 
         case TokenType.Table:
-          console.log("just found a table to compile but I'm not ready for it yet help me with it\n", node);
+          console.log("%cTODO:", 'color: yellow;', "Add Table Compileing!");
+          this.output += "[Table Here]"
           break;
           
 
@@ -81,7 +89,9 @@ export class HTMLCompiler {
         break;
 
       default:
-        // console.log("Error at node:\n", JSON.stringify(node));
+        //@ts-expect-error node[0].type is not a valid duo to the type of node `IASTNode`
+        console.log("%cCompiler Info:", 'color: blue;', "Unexpected token", (node.type || node[0].type + " From an array 'node[0].type';"));
+        break;
     }
   }
 

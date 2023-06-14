@@ -1,6 +1,6 @@
 import { TokenType } from "../../../lexer/types.ts";
 import { IASTNode } from "../../interfaces/IAstNode.ts";
-import { Parser } from "../../parser.ts";
+import { Parser, ParserError } from "../../parser.ts";
 import { parseTdata } from "./tdata.ts";
 import { parseThead } from "./thead.ts";
 import { parseTrow } from "./trow.ts";
@@ -23,8 +23,8 @@ export function praseTableContent(): IASTNode[] {
                 break;
 
             default:
-                console.log(Parser.currentToken.type);
-                break;
+                console.log(`%cParser Error:`, 'color: red;', `Unexpected Token: ${Parser.currentToken.type} at ${Parser.currentToken.line}:${Parser.currentToken.column}\n${ParserError.genLog(Parser.tokens, Parser.currentToken.line as number, Parser.currentToken.column as number)}`);
+                Deno.exit(1);
         }
     }
 

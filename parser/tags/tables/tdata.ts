@@ -21,7 +21,7 @@ export function parseTdata(): IASTNode {
                 break;
 
             default:
-                console.log(`Praser Error:\nUnexpected Token -> ${Parser.currentToken.type} as "${Parser.currentToken.value}" at ${Parser.currentToken.line}:${Parser.currentToken.column}\n ${ParserError.genLog(Parser.tokens, Parser.currentToken.line as number, Parser.currentToken.column as number)}`);
+                console.log(`%cParser Error:`, 'color: red;', `Unexpected Token -> ${Parser.currentToken.type} as "${Parser.currentToken.value}" at ${Parser.currentToken.line}:${Parser.currentToken.column}\n ${ParserError.genLog(Parser.tokens, Parser.currentToken.line as number, Parser.currentToken.column as number)}`);
                 
         }
     }

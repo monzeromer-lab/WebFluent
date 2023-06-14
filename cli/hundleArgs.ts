@@ -140,9 +140,6 @@ export class HandleArgs {
       astNode = Enviroment.getComponent(name);
     }
 
-    // log it
-    // console.log(astNode);
-
     // compile it
     const output = new HTMLCompiler().compile(astNode as unknown as IASTNode[]);
 
@@ -164,8 +161,7 @@ export class HandleArgs {
     return;
   }
 
-  // TODO: update this for parsing file after another insted of one file
-  private async ParseFile(dir: string) {
+  private async ParseFile(dir: string, fileName: string) {
     const decoder = new TextDecoder("utf-8");
 
     const data = await Deno.readFile(dir);
@@ -174,27 +170,21 @@ export class HandleArgs {
     }
 
     const code = decoder.decode(data);
-    const tokens = new Lexer(code).tokenize();
+    const tokens = new Lexer(code, fileName).tokenize();
 
     const tempAst = Parser.parse(tokens).MarkupASTL as unknown as IASTNode[];
 
-    // console.log(tempAst);
-
     switch (tempAst[0].type) {
       case TokenType.Page:
-        // console.log(`storing single page node:\n${JSON.stringify(tempAst)}`);
         Enviroment.pages.push(tempAst[0].value as string);
         Enviroment.setPage(tempAst[0].value as string, tempAst);
-        // console.log("Just parsed: ", Enviroment.getPage(tempAst[0].value as string)[0].value);
+        
         this.BuildAndWriteFile(tempAst[0].value as string, TokenType.Page);
-        // console.log("done.");
         break;
 
       case TokenType.Component:
-        // console.log(`storing single component node:\n${JSON.stringify(tempAst)}`);
         Enviroment.components.push(tempAst[0].value as string);
         Enviroment.setIdentifier(tempAst[0].value as string, tempAst);
-        // console.log("done.");
         break;
 
       default:
@@ -213,20 +203,19 @@ export class HandleArgs {
   }
 
   private async parseFiles() {
-    // console.log(this.files);
 
     if (this.currentFile) {
-      // console.log("parsing: ", this.currentFile);
+      console.log("%cBuilding:", 'color: green;', this.currentFile.name);
 
-      await this.ParseFile(this.currentFile?.dir as string);
-      // this.nextFile();
+      await this.ParseFile(this.currentFile?.dir as string, this.currentFile.name);
+
       await this.parseFiles();
     }
   }
 
   private async build() {
     // start building
-    // console.log("Started Building...");
+    console.log("%cStarted Building...", 'color: green;');
 
     try {
       // get all the files available
@@ -243,8 +232,10 @@ export class HandleArgs {
       // build all the pages and write thier files
 
       // end the building process
+      console.log("%cBuilding Done!", 'color: green;');
+      
     } catch (error) {
-      console.log(`Unexpected Deno Error:\n${error}`);
+      console.log(`%cCli Error:`, 'color: red;', `Unexpected Deno Error:\n${error}`);
     }
   }
 
@@ -288,7 +279,7 @@ export class HandleArgs {
           break;
 
         default:
-          console.log(`Unknown command: ${this.currentArg}`);
+          console.log(`%cCli Error:`, 'color: red;', `Unknown command:\n${this.currentArg}`);
           console.log(cliInfo);
 
           Deno.exit(1);

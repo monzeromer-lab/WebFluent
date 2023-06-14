@@ -31,7 +31,7 @@ export class ParserError {
     this.tokens = tokens as Token[];
 
     console.log(
-      `Parser Error: Unexpected type: "${token.type}" => "${token.value}" at ${
+      `%cParser Error:`, 'color: red;', `Unexpected type: "${token.type}" => "${token.value}" at ${
         token.line
       }:${token.column}, expected: "${expectedType}" \n   ${ParserError.genLog(
         Parser.tokens,
@@ -48,10 +48,10 @@ export class ParserError {
     for (let index = 0; index < tokens.length; index++) {
       if (tokens[index].line === line) {
         if (tokens[index].line === line && tokens[index].column === column) {
-          code += "=>" + tokens[index].value;
+          code += tokens[index].value;
           return `"${code}"`;
         }
-        code += tokens[index].value + "";
+        code += tokens[index].value;
       }
     }
     return `"${code}"`;

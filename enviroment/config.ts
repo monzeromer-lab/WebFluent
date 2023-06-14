@@ -47,7 +47,7 @@ export class ProjectConfig {
         return mode;
         
         default:
-            console.log("please provide a correct style mode classless | tailwind | material");
+            console.log(`%cConfig Error:`, 'color: red;', "please provide a correct style mode classless | tailwind | material");
             Deno.exit(1);
             
     }
@@ -60,7 +60,7 @@ export class ProjectConfig {
         return place;
         
         default:
-            console.log("please provide a correct style output place styleTag | file");
+            console.log(`%cConfig Error:`, 'color: red;', "please provide a correct style output place styleTag | file");
             Deno.exit(1);
             
     }
