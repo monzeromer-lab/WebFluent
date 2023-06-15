@@ -11,6 +11,7 @@ export class ProjectConfig {
   public static theme: ThemeConfig;
 
   public static debug: boolean;
+  public static serve: boolean;
 
   name = "demo";
   version = "0.1.0";
@@ -19,6 +20,7 @@ export class ProjectConfig {
   output = OutputConfig.pages;
   theme = ThemeConfig.light;
   debug = false;
+  serve = false;
 
  
 

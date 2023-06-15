@@ -1,7 +1,7 @@
 {
   "tasks": {
     "dev": "deno run --watch main.ts",
-    "build": "deno compile -A main.ts",
+    "build": "deno compile -o webfluent -A main.ts",
     "start": "deno run -A main.ts"
   }
 }

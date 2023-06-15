@@ -28,6 +28,7 @@ export enum Commands {
   help = "help",
   h = "h",
   debug = "debug",
+  serve= "serve"
 }
 
 export enum GenerateSubs {

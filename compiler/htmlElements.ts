@@ -1,6 +1,5 @@
 import { TokenType } from "../lexer/types.ts";
 import { IASTNode } from "../parser/interfaces/IAstNode.ts";
-import { log } from "../utils/logging.ts";
 
 export class HTMLCompiler {
   private output = "";
@@ -98,7 +97,7 @@ export class HTMLCompiler {
         //@ts-expect-error title could be undefiend
         if (node.attributes["title"]) {
           //@ts-expect-error title could be undefiend
-          this.output += `<caption>${node.attributes["title"]}</caption>`
+          this.output += `<caption>${node.attributes["title"]}</caption>`;
         }
         this.visitNodes(node.children || []);
         this.output += "</table>";
@@ -119,8 +118,8 @@ export class HTMLCompiler {
         //@ts-expect-error value is forced to be an array
         node.value?.map((element) => {
           this.output += `<th>${element}</th>`;
-        })
-        this.output +=`</tr></thead>`;
+        });
+        this.output += `</tr></thead>`;
         break;
 
       case TokenType.Tdata:

@@ -273,6 +273,11 @@ export class HandleArgs {
           this.nextArg();
           break;
 
+          case Commands.serve:
+            ProjectConfig.serve = true;
+            this.nextArg();
+            break;
+
         case Commands.build:
           this.build();
           this.nextArg();
