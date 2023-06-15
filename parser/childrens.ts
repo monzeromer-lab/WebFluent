@@ -5,10 +5,14 @@ import { parseComponent } from "./component.ts";
 import { IASTNode } from "./interfaces/IAstNode.ts";
 import { Parser } from "./parser.ts";
 import { parseColumn } from "./style/column.ts";
+import { parseContainer } from "./style/container.ts";
 import { parseRow } from "./style/row.ts";
-// import { parseStyle } from "./style/style.ts";
+import { parseButton } from "./tags/button.ts";
+import { parseDialog } from "./tags/dialog.ts";
 import { parseImage } from "./tags/image.ts";
 import { parseInput } from "./tags/input.ts";
+import { parseTable } from "./tags/tables/table.ts";
+import { parseTab } from "./tags/tabs/tab.ts";
 import { parseText } from "./tags/text.ts";
 
 function generateAST_Save(): IASTNode {
@@ -32,7 +36,10 @@ export function parseChildrens(): IASTNode[] {
   const children: IASTNode[] = [];
   while (Parser.currentToken && Parser.currentToken.value !== "}") {
     //@ts-ignore
+    // console.log(Parser.currentToken.type, Parser.currentToken.value);
+    
     switch (Parser.currentToken.type) {
+      
       case TokenType.Component:
         children.push(generateAST_Save());
         break;
@@ -43,6 +50,10 @@ export function parseChildrens(): IASTNode[] {
 
       case TokenType.Row:
         children.push(parseRow());
+        break;
+
+      case TokenType.Container:
+        children.push(parseContainer());
         break;
 
       case TokenType.Input:
@@ -57,6 +68,22 @@ export function parseChildrens(): IASTNode[] {
         children.push(parseImage());
         break;
 
+      case TokenType.Table:
+        children.push(parseTable());
+        break;
+
+        case TokenType.Tab:
+          children.push(parseTab());
+          break;
+
+        case TokenType.Dialog:
+          children.push(parseDialog());
+          break;
+
+        case TokenType.Button:
+          children.push(parseButton());
+          break;
+
       // case TokenType.Style:
       //   parseStyle();
       //   break;
@@ -67,8 +94,7 @@ export function parseChildrens(): IASTNode[] {
 
       default:
         console.log(
-          `Error: Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`
-        );
+          `%cParser Error:`, 'color: red;', `Unexpected type: "${Parser.currentToken.type}" => ${Parser.currentToken.value} at ${Parser.currentToken.line}:${Parser.currentToken.column}, expected: "Page" or "}"`);
         Deno.exit(1);
     }
   }

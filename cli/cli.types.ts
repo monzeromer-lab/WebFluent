@@ -21,21 +21,23 @@ export type ConfigFileType = {
 };
 
 export enum Commands {
-  generate="generate",
-  g="g",
-  init="init",
-  build="build",
-  help="help",
-  h="h"
+  generate = "generate",
+  g = "g",
+  init = "init",
+  build = "build",
+  help = "help",
+  h = "h",
+  debug = "debug",
+  serve= "serve"
 }
 
 export enum GenerateSubs {
-  component="component",
-  c="c",
-  page="page",
-  p="p",
-  style="style",
-  s="s",
+  component = "component",
+  c = "c",
+  page = "page",
+  p = "p",
+  style = "style",
+  s = "s",
 }
 
 // deno-lint-ignore no-inferrable-types
@@ -53,6 +55,7 @@ export const cliInfo: string = `Usage: webfluent [options] [command]
         p, page       Generate a new page.
         s, style      Generate a new style file.
     init              Initialize a new WebFluent project.
-    build               Build the WebFluent application.
+    build             Build the WebFluent application.
+    serve             serve any page with a provided path to http server with 8080 port
     
   Run 'webfluent [command] --help' for more information on a specific command.`;

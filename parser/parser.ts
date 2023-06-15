@@ -31,7 +31,7 @@ export class ParserError {
     this.tokens = tokens as Token[];
 
     console.log(
-      `Error: Unexpected type: "${token.type}" => "${token.value}" at ${
+      `%cParser Error:`, 'color: red;', `Unexpected type: "${token.type}" => "${token.value}" at ${
         token.line
       }:${token.column}, expected: "${expectedType}" \n   ${ParserError.genLog(
         Parser.tokens,
@@ -48,10 +48,10 @@ export class ParserError {
     for (let index = 0; index < tokens.length; index++) {
       if (tokens[index].line === line) {
         if (tokens[index].line === line && tokens[index].column === column) {
-          code += "=>" + tokens[index].value;
+          code += tokens[index].value;
           return `"${code}"`;
         }
-        code += tokens[index].value + "";
+        code += tokens[index].value;
       }
     }
     return `"${code}"`;
@@ -121,7 +121,7 @@ export class Parser {
 
         // deno-lint-ignore no-case-declarations
         case TokenType.Component:
-          let component = parseComponent();
+          const component = parseComponent();
           Enviroment.setIdentifier(component.value as string, component);
           nodes.push(component);
           break;
@@ -136,7 +136,8 @@ export class Parser {
 
         default:
           throw new ParserError(this.currentToken, TokenType.Component);
-      }
+      
+        }
     }
     parseEOF();
 

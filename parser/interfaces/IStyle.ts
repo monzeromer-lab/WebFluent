@@ -1,5 +1,3 @@
-import { TokenType } from "../../lexer/types.ts";
-
 interface IBorder {
   radius?: string;
   style?: string;

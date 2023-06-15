@@ -1,4 +1,5 @@
 // deno-lint-ignore-file ban-ts-comment
+import { Enviroment } from "../enviroment/eval.ts";
 import { TokenType } from "../lexer/types.ts";
 import { parseChildrens } from "./childrens.ts";
 import { IASTNode } from "./interfaces/IAstNode.ts";
@@ -24,6 +25,18 @@ export function parsePage(): IASTNode {
     const children: IASTNode[] = parseChildrens();
 
     Parser.expect(TokenType.CloseBrace);
+
+    if(attributes["path"]) {
+      console.log(`http://localhost:8080/${attributes["path"]}/`);
+      
+      Enviroment.setPage(`http://localhost:8080/${attributes["path"]}/`, {
+        type: TokenType.Page,
+        //@ts-ignore
+        value: identifierToken.value,
+        children,
+        attributes,
+      });
+    }
 
     return {
       type: TokenType.Page,

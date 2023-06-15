@@ -8,12 +8,12 @@ import { parseAttributes } from "../tags/attributes.ts";
 
   /**
 
-Parses a row node (e.g. "Row { ... }").
-Throws a ParserError if the current token is not "Row".
-@returns An ASTNode representing the row.
+Parses a container node (e.g. "Container { ... }").
+Thcontainers a ParserError if the current token is not "container".
+@returns An ASTNode representing the container.
 */
-export function parseRow(): IASTNode {
-    Parser.expect(TokenType.Row);
+export function parseContainer(): IASTNode {
+    Parser.expect(TokenType.Container);
 
     Parser.expect(TokenType.OpenParen);
     const attributes = parseAttributes();
@@ -32,10 +32,10 @@ export function parseRow(): IASTNode {
     Parser.expect(TokenType.CloseBrace);
 
     return {
-      type: TokenType.Row,
+      type: TokenType.Container,
       children,
       attributes,
       //@ts-ignore
-      // class: ElementClass
+    //   class: ElementClass
     };
   }

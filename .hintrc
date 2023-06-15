@@ -21,6 +21,14 @@
       {
         "label": "off"
       }
+    ],
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "dialog"
+        ]
+      }
     ]
   }
 }

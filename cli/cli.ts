@@ -1,5 +1,7 @@
 import { HandleArgs } from "./hundleArgs.ts";
-import { ConfigFileType } from "./types/cli.ts";
+import { ConfigFileType } from "./cli.types.ts";
+import { WebServer } from "../server/http.ts";
+import { ProjectConfig } from "../enviroment/config.ts";
 
 export async function Cli() {
 
@@ -15,9 +17,12 @@ export async function Cli() {
     // deno-lint-ignore no-unused-vars
   } catch (error) {
     console.error(
-      `No webfluent.app.json file here try webfluent --init to create a new one`
+      `%cNo webfluent.app.json found try webfluent --init to create a new one`,
+      "color: red;"
     );
+    Deno.exit(1);
   }
 
   new HandleArgs(Deno.args).run();
+  ProjectConfig.serve ? await WebServer() : null
 }

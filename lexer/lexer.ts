@@ -16,6 +16,15 @@ const KEYWORDS: Record<string, TokenType> = {
   Text: TokenType.Text,
   src: TokenType.src,
   Image: TokenType.Image,
+  Container: TokenType.Container,
+  Table: TokenType.Table,
+  Thead: TokenType.Thead,
+  Trow: TokenType.Trow,
+  Tdata: TokenType.Tdata,
+  Tab: TokenType.Tab,
+  TabPage: TokenType.TabPage,
+  Dialog: TokenType.Dialog,
+  Button: TokenType.Button
   // Style: TokenType.Style,
   // Display: TokenType.Display,
   // Place: TokenType.Place,
@@ -42,6 +51,9 @@ export class Lexer {
   // store the tokens here before return them
   private tokens: Array<Token>;
 
+  // the current file on the lexer name
+  private fileName: string;
+
   /**
    * Creates a new Lexer object to tokenize the given source code.
    *
@@ -51,11 +63,13 @@ export class Lexer {
    *
    * @param sourceCode - The source code to tokenize.
    */
-  constructor(sourceCode: string) {
+  constructor(sourceCode: string, name: string) {
     /**
      * The input source code to tokenize.
      */
     this.source = sourceCode;
+
+    this.fileName = name;
 
     /**
      * The current position of the lexer in the input source code.
@@ -358,6 +372,33 @@ export class Lexer {
         } else if (reserved === TokenType.src) {
           this.addToken(identifier, TokenType.src);
 
+        } else if (reserved === TokenType.Button) {
+          this.addToken(identifier, TokenType.Button);
+
+        } else if (reserved === TokenType.Table) {
+          this.addToken(identifier, TokenType.Table);
+
+        } else if (reserved === TokenType.Thead) {
+          this.addToken(identifier, TokenType.Thead);
+
+        } else if (reserved === TokenType.Trow) {
+          this.addToken(identifier, TokenType.Trow);
+
+        } else if (reserved === TokenType.Tdata) {
+          this.addToken(identifier, TokenType.Tdata);
+
+        } else if (reserved === TokenType.Tab) {
+          this.addToken(identifier, TokenType.Tab);
+
+        } else if (reserved === TokenType.TabPage) {
+          this.addToken(identifier, TokenType.TabPage);
+
+        } else if (reserved === TokenType.Container) {
+          this.addToken(identifier, TokenType.Container);
+
+        } else if (reserved === TokenType.Dialog) {
+          this.addToken(identifier, TokenType.Dialog);
+
         }
         //  else if (reserved === TokenType.Style) {
         //   this.addToken(identifier, TokenType.Style);
@@ -391,12 +432,11 @@ export class Lexer {
           this.addToken(identifier, TokenType.Identifier);
         }
       } else {
-        console.log(this.tokens);
         
         /**
          * Throws an error for an invalid character or token.
          */
-        console.log(`Invalid character: "${this.currentChar}" at ${this.line}:${this.column}`);
+        console.log(`%cLexer Error:`, 'color: red;', `at file "${this.fileName}": Invalid character "${this.currentChar}" at ${this.line}:${this.column}`);
         Deno.exit(1);
       }
     }

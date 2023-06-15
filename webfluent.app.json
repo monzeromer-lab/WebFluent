@@ -3,7 +3,9 @@
     "version": "0.0.1",
     "auther": "Monzer Omer",
     "style": {
-        "mode": "css | tailwind",
+        "mode": "classless | tailwind | material",
         "place": "StyleTag | File"
-    }
+    },
+    "output": "pages | components | both",
+    "theme": "dark | light | both"
 }
