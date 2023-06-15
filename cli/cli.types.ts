@@ -55,6 +55,7 @@ export const cliInfo: string = `Usage: webfluent [options] [command]
         p, page       Generate a new page.
         s, style      Generate a new style file.
     init              Initialize a new WebFluent project.
-    build               Build the WebFluent application.
+    build             Build the WebFluent application.
+    serve             serve any page with a provided path to http server with 8080 port
     
   Run 'webfluent [command] --help' for more information on a specific command.`;

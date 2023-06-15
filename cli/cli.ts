@@ -1,6 +1,5 @@
 import { HandleArgs } from "./hundleArgs.ts";
 import { ConfigFileType } from "./cli.types.ts";
-// deno-lint-ignore no-unused-vars
 import { WebServer } from "../server/http.ts";
 import { ProjectConfig } from "../enviroment/config.ts";
 
