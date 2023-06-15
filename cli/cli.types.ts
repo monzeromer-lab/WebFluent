@@ -21,21 +21,22 @@ export type ConfigFileType = {
 };
 
 export enum Commands {
-  generate="generate",
-  g="g",
-  init="init",
-  build="build",
-  help="help",
-  h="h"
+  generate = "generate",
+  g = "g",
+  init = "init",
+  build = "build",
+  help = "help",
+  h = "h",
+  debug = "debug",
 }
 
 export enum GenerateSubs {
-  component="component",
-  c="c",
-  page="page",
-  p="p",
-  style="style",
-  s="s",
+  component = "component",
+  c = "c",
+  page = "page",
+  p = "p",
+  style = "style",
+  s = "s",
 }
 
 // deno-lint-ignore no-inferrable-types

@@ -1,4 +1,5 @@
 import { HTMLCompiler } from "../compiler/htmlElements.ts";
+import { ProjectConfig } from "../enviroment/config.ts";
 import { Enviroment } from "../enviroment/eval.ts";
 import { Lexer } from "../lexer/lexer.ts";
 import { TokenType } from "../lexer/types.ts";
@@ -178,7 +179,7 @@ export class HandleArgs {
       case TokenType.Page:
         Enviroment.pages.push(tempAst[0].value as string);
         Enviroment.setPage(tempAst[0].value as string, tempAst);
-        
+
         this.BuildAndWriteFile(tempAst[0].value as string, TokenType.Page);
         break;
 
@@ -203,11 +204,13 @@ export class HandleArgs {
   }
 
   private async parseFiles() {
-
     if (this.currentFile) {
-      console.log("%cBuilding:", 'color: green;', this.currentFile.name);
+      console.log("%cBuilding:", "color: green;", this.currentFile.name);
 
-      await this.ParseFile(this.currentFile?.dir as string, this.currentFile.name);
+      await this.ParseFile(
+        this.currentFile?.dir as string,
+        this.currentFile.name
+      );
 
       await this.parseFiles();
     }
@@ -215,7 +218,7 @@ export class HandleArgs {
 
   private async build() {
     // start building
-    console.log("%cStarted Building...", 'color: green;');
+    console.log("%cStarted Building...", "color: green;");
 
     try {
       // get all the files available
@@ -232,10 +235,13 @@ export class HandleArgs {
       // build all the pages and write thier files
 
       // end the building process
-      console.log("%cBuilding Done!", 'color: green;');
-      
+      console.log("%cBuilding Done!", "color: green;");
     } catch (error) {
-      console.log(`%cCli Error:`, 'color: red;', `Unexpected Deno Error:\n${error}`);
+      console.log(
+        `%cCli Error:`,
+        "color: red;",
+        `Unexpected Deno Error:\n${error}`
+      );
     }
   }
 
@@ -262,6 +268,11 @@ export class HandleArgs {
           this.nextArg();
           break;
 
+        case Commands.debug:
+          ProjectConfig.debug = true;
+          this.nextArg();
+          break;
+
         case Commands.build:
           this.build();
           this.nextArg();
@@ -279,7 +290,11 @@ export class HandleArgs {
           break;
 
         default:
-          console.log(`%cCli Error:`, 'color: red;', `Unknown command:\n${this.currentArg}`);
+          console.log(
+            `%cCli Error:`,
+            "color: red;",
+            `Unknown command:\n${this.currentArg}`
+          );
           console.log(cliInfo);
 
           Deno.exit(1);
