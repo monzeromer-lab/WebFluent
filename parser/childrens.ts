@@ -7,6 +7,8 @@ import { Parser } from "./parser.ts";
 import { parseColumn } from "./style/column.ts";
 import { parseContainer } from "./style/container.ts";
 import { parseRow } from "./style/row.ts";
+import { parseButton } from "./tags/button.ts";
+import { parseDialog } from "./tags/dialog.ts";
 import { parseImage } from "./tags/image.ts";
 import { parseInput } from "./tags/input.ts";
 import { parseTable } from "./tags/tables/table.ts";
@@ -72,6 +74,14 @@ export function parseChildrens(): IASTNode[] {
 
         case TokenType.Tab:
           children.push(parseTab());
+          break;
+
+        case TokenType.Dialog:
+          children.push(parseDialog());
+          break;
+
+        case TokenType.Button:
+          children.push(parseButton());
           break;
 
       // case TokenType.Style:

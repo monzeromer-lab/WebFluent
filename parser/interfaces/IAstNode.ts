@@ -15,4 +15,7 @@ export interface IASTNode {
   attributes?: Record<string, string>;
 
   class?: string | IStyle;
+
+  /* used for the web server only on pages */
+  path?: string;
 }
