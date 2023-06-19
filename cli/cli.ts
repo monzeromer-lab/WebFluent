@@ -2,27 +2,31 @@ import { HandleArgs } from "./hundleArgs.ts";
 import { ConfigFileType } from "./cli.types.ts";
 import { WebServer } from "../server/http.ts";
 import { ProjectConfig } from "../enviroment/config.ts";
-
+import { StyleMode } from "../enviroment/config.types.ts";
+let able = true;
 export async function Cli() {
 
   const jsonFilePath = `${Deno.cwd()}/webfluent.app.json`;
   // deno-lint-ignore no-unused-vars
-  let configFile: ConfigFileType = {};
+  let configFile: ConfigFileType;
 
   try {
     const decoder = new TextDecoder("utf-8");
     const data = await Deno.readFile(jsonFilePath);
-    configFile = JSON.parse(decoder.decode(data));
-
+    configFile = JSON.parse(decoder.decode(data)) as ProjectConfig;
+    ProjectConfig.mode = configFile.mode as unknown as StyleMode
+    if (configFile.port) {
+      ProjectConfig.port = configFile.port;
+    }
+    
     // deno-lint-ignore no-unused-vars
   } catch (error) {
-    console.error(
-      `%cNo webfluent.app.json found try webfluent --init to create a new one`,
-      "color: red;"
-    );
-    Deno.exit(1);
+    able = false;
+    new HandleArgs(Deno.args, false).run();
   }
 
-  new HandleArgs(Deno.args).run();
+  if (able) {
+    new HandleArgs(Deno.args).run();
+  }
   ProjectConfig.serve ? await WebServer() : null
 }

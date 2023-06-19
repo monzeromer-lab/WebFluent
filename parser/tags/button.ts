@@ -1,6 +1,8 @@
 import { TokenType } from "../../lexer/types.ts";
 import { IASTNode } from "../interfaces/IAstNode.ts";
 import { Parser } from "../parser.ts";
+import { parseAttributes } from "./attributes.ts";
+import { ButtonAttribute } from "./button.attributes.ts";
 
 /**
    * Parses a Button node (e.g. "Button("<type>")").
@@ -19,6 +21,9 @@ export function parseButton(): IASTNode {
     buttonType.push(Parser.currentToken?.value);
     Parser.expect(TokenType.String);
 
+    const attributes = parseAttributes();
+    ButtonAttribute(attributes);
+    
     Parser.expect(TokenType.CloseParen);
 
     return {

@@ -3,8 +3,8 @@ Page Home (path: "home") {
             Row () {
                 Column () {
                     Input(text)
-                    Text(value: "Hii, this is me monzer")
-                    Image(src: "http://localhost:8080/monzer.png", alt: "monzer image")
+                    Text("Hii, this is me monzer", large)
+                    Image(src: "http://localhost:8080/public/image/monzer.png", alt: "monzer image")
                     Nav
                 }
             }

@@ -1,4 +1,4 @@
 Component Nav () {
-    Text(value: "Hii, this is me monzer")
+    Text("Hii, this is me monzer", large)
     //Ali
 }

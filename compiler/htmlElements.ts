@@ -1,164 +1,134 @@
 import { TokenType } from "../lexer/types.ts";
 import { IASTNode } from "../parser/interfaces/IAstNode.ts";
+import { CompileButton } from "./elements/button.ts";
+import { CompileComponent } from "./elements/component.ts";
+import { CompileDialog } from "./elements/dialog.ts";
+import { CompileGrid } from "./elements/grid.ts";
+import { CompileImage } from "./elements/image.ts";
+import { CompileInput } from "./elements/input.ts";
+import { CompilePage } from "./elements/page.ts";
+import { CompileTable } from "./elements/tables/table.ts";
+import { CompileTableData } from "./elements/tables/tdata.ts";
+import { CompileTableHead } from "./elements/tables/thead.ts";
+import { CompileTableRow } from "./elements/tables/trow.ts";
+import { CompileTab } from "./elements/tabs/tab.ts";
+import { CompileTabPage } from "./elements/tabs/tabPage.ts";
+import { CompileText } from "./elements/text.ts";
 
 export class HTMLCompiler {
-  private output = "";
+  public static output = "";
 
-  public compile(ast: IASTNode[]): string {
+  public static compile(ast: IASTNode[], clearOld = false): string {
     // console.log(ast);
+    if (clearOld) {
+      this.output = "";
+    }
 
     this.visitNodes(ast);
     return this.output;
   }
 
-  private visitNodes(nodes: IASTNode[]): void {
+  public static visitNodes(nodes: IASTNode[]): void {
     for (const node of nodes) {
       this.visit(node);
     }
   }
 
-  private visit(node: IASTNode): void {
+  public static visit(node: IASTNode): void {
     switch (node.type) {
       case TokenType.Page:
-        // log("page");
-        this.output += `<!-- Start Page ${node.value} -->\n<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${node.value}</title></head><body>`;
-        this.visitNodes(node.children || []);
-        this.output += `</body></html>\n<!-- End Page ${node.value} -->\n\n`;
+        CompilePage(node.children || [], node.value);
         break;
 
       case TokenType.Component:
-        // log("component");
-        this.output += `<div class="${node.value} ${
-          node.class ? node.class : ""
-        }" ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</div>";
+        CompileComponent(
+          node.value,
+          node.class as string,
+          node.attributes,
+          node.children || []
+        );
         break;
 
       case TokenType.Row:
-        // log("row");
-        this.output += `<div class='row ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</div>";
+        CompileGrid(
+          TokenType.Row,
+          node.class as string,
+          node.attributes,
+          node.children || []
+        );
         break;
 
       case TokenType.Container:
-        // log("container");
-        this.output += `<div class='container ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</div>";
+        CompileGrid(
+          TokenType.Container,
+          node.class as string,
+          node.attributes,
+          node.children || []
+        );
         break;
 
       case TokenType.Column:
-        // log("column");
-        this.output += `<div class='column ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</div>";
+        CompileGrid(
+          TokenType.Column,
+          node.class as string,
+          node.attributes,
+          node.children || []
+        );
         break;
 
       case TokenType.Input:
-        // log("input");
-        if (node.value == "text") {
-          this.output += `<input class='input-${node.value} ${
-            node.class ? node.class : ""
-          }' type="${node.value}" ${this.renderAttributes(node.attributes)}>`;
-          this.visitNodes(node.children || []);
-        }
+        CompileInput(
+          node.value,
+          node.class as string,
+          node.attributes,
+          node.children || []
+        );
         break;
 
       case TokenType.Text:
-        // log("text");
-        this.output += `<p class='text ${node.class ? node.class : ""}'>`;
-        // ${this.renderAttributes(node.attributes)}
-        // deno-lint-ignore ban-ts-comment
-        //@ts-ignore
-        this.output += node.attributes.value;
-        this.output += "</p>";
+        //@ts-expect-error type attribute must be added!
+        CompileText(node.value[0], node.value[1], node.class as string);
         break;
 
       case TokenType.Image:
-        // log("image");
-        this.output += `<img class='${node.class ? node.class : ""}' src="${
-          node.value
-        }" ${this.renderAttributes(node.attributes)}>`;
+        CompileImage(
+          node.value as string,
+          node.class as string,
+          node.attributes
+        );
         break;
 
       case TokenType.Table:
-        // log("table");
-        this.output += `<table class='table ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        //@ts-expect-error title could be undefiend
-        if (node.attributes["title"]) {
-          //@ts-expect-error title could be undefiend
-          this.output += `<caption>${node.attributes["title"]}</caption>`;
-        }
-        this.visitNodes(node.children || []);
-        this.output += "</table>";
+        CompileTable(node.class as string, node.attributes, node.children);
         break;
 
       case TokenType.Trow:
-        // log("trow");
-        this.output += `<tr class='trow ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</tr>";
+        CompileTableRow(node.class as string, node.attributes, node.children);
         break;
 
       case TokenType.Thead:
-        // log("thead");
-        this.output += `<thead><tr class="trow">`;
-        //@ts-expect-error value is forced to be an array
-        node.value?.map((element) => {
-          this.output += `<th>${element}</th>`;
-        });
-        this.output += `</tr></thead>`;
+        CompileTableHead(node.value as string[]);
         break;
 
       case TokenType.Tdata:
-        // log("tdata");
-        //@ts-expect-error value is forced to be an array
-        node.value?.map((element) => {
-          this.output += `<td>${element}</td>`;
-        });
+        CompileTableData(node.value as string[]);
         break;
 
       case TokenType.Tab:
-        // log("tab");
-        this.output += `<div class='tab ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</div>";
+        CompileTab(node.class as string, node.attributes, node.children);
         break;
 
       case TokenType.TabPage:
-        // log("tab page");
-        this.output += `<div class='tab-page ${
-          node.class ? node.class : ""
-        }' ${this.renderAttributes(node.attributes)}>`;
-        this.visitNodes(node.children || []);
-        this.output += "</div>";
+        CompileTabPage(node.class as string, node.attributes, node.children);
         break;
 
       case TokenType.Dialog:
-        // log("dialog");
-        this.output += `<dialog>`;
-        this.visitNodes(node.children || []);
-        this.output += "</dialog>";
+        CompileDialog(node.children);
         break;
 
       case TokenType.Button:
-        // log("button");
-        //@ts-expect-error node value is forced to be an array here so no need to worry about the type error
-        this.output += `<button type="${node.value[0]}">${node.value[1]}</button>`;
+        //@ts-expect-error there's no error because the type and text are forced by the parser
+        CompileButton(node.value[0], node.value[1]);
         break;
 
       case TokenType.EOF:
@@ -178,7 +148,7 @@ export class HTMLCompiler {
     }
   }
 
-  private renderAttributes(attributes?: Record<string, string>): string {
+  public static renderAttributes(attributes?: Record<string, string>): string {
     if (!attributes) {
       return "";
     }

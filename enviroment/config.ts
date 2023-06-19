@@ -9,10 +9,11 @@ export class ProjectConfig {
   public static Style: StyleConfig;
   public static output: OutputConfig;
   public static theme: ThemeConfig;
+  public static port: number;
 
   public static debug: boolean;
   public static serve: boolean;
-
+  public static mode: StyleMode;
   name = "demo";
   version = "0.1.0";
   auther = "WebFluent";
@@ -21,7 +22,8 @@ export class ProjectConfig {
   theme = ThemeConfig.light;
   debug = false;
   serve = false;
-
+  mode = StyleMode.classless;
+  port = 8080;
  
 
   public validateStyleMode(mode: StyleMode) {

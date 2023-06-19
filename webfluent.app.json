@@ -1,11 +1,10 @@
 {
-    "name": "Hello World",
-    "version": "0.0.1",
-    "auther": "Monzer Omer",
-    "style": {
-        "mode": "classless | tailwind | material",
-        "place": "StyleTag | File"
-    },
-    "output": "pages | components | both",
-    "theme": "dark | light | both"
+  "name": "Hello World",
+  "version": "0.0.1",
+  "auther": "Monzer Omer",
+  "mode": "classless",
+  "place": "file",
+  "output": "pages",
+  "theme": "dark",
+  "port": 2023
 }

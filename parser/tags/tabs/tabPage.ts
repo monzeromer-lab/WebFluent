@@ -3,11 +3,13 @@ import { parseChildrens } from "../../childrens.ts";
 import { IASTNode } from "../../interfaces/IAstNode.ts";
 import { Parser } from "../../parser.ts";
 import { parseAttributes } from "../attributes.ts";
+import { TabPageAttribute } from "./tabpage.attributes.ts";
 
 export function parseTabPage(): IASTNode {
     Parser.expect(TokenType.TabPage);
     Parser.expect(TokenType.OpenParen);
     const attributes = parseAttributes();
+    TabPageAttribute(attributes);
     Parser.expect(TokenType.CloseParen);
 
     Parser.expect(TokenType.OpenBrace);

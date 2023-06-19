@@ -7,8 +7,13 @@ import { TokenType } from "../lexer/types.ts";
 import { IASTNode } from "../parser/interfaces/IAstNode.ts";
 import { Parser } from "../parser/parser.ts";
 import { cliInfo, Commands, GenerateSubs } from "./cli.types.ts";
-import { fileExists, fixFileName, writeAFile } from "./helper.ts";
-import { CodesTypes } from "./helper.types.ts";
+import {
+  AddStyleAssets,
+  fileExists,
+  fixFileName,
+  writeAFile,
+} from "./helper.ts";
+import { CodesTypes, FileTypes } from "./helper.types.ts";
 
 interface Files {
   dir: string;
@@ -26,8 +31,11 @@ export class HandleArgs {
 
   private args: string[];
 
-  constructor(args: string[]) {
+  private canBuild: boolean;
+
+  constructor(args: string[], canBuild: boolean = true) {
     this.args = args;
+    this.canBuild = canBuild;
     this.currentArg = args[this.currentArgIndex] as unknown as
       | Commands
       | GenerateSubs;
@@ -59,6 +67,13 @@ export class HandleArgs {
   }
 
   private async hundleGenerateCommand() {
+    if (!this.canBuild) {
+      console.error(
+        `%cNo webfluent.app.json found try webfluent init to create a new one`,
+        "color: red;"
+      );
+      Deno.exit(1);
+    }
     this.nextArg();
 
     // create new file (maybe create a template and upload it to github and then when this command run download it here)
@@ -69,7 +84,7 @@ export class HandleArgs {
           this.nextArg();
           await writeAFile(
             `Component ${fixFileName(this.currentArg)} () {
-  Text(value: "Component ${fixFileName(this.currentArg)} Works!")
+  Text("Component ${fixFileName(this.currentArg)} Works!", normal)
 }`,
             fixFileName(this.currentArg),
             CodesTypes.Component
@@ -82,7 +97,7 @@ export class HandleArgs {
           this.nextArg();
           await writeAFile(
             `Page ${fixFileName(this.currentArg)} () {
-  Text(value: "Page ${fixFileName(this.currentArg)} Works!")
+  Text("Page ${fixFileName(this.currentArg)} Works!", normal)
 }`,
             fixFileName(this.currentArg),
             CodesTypes.Page
@@ -142,7 +157,7 @@ export class HandleArgs {
     }
 
     // compile it
-    const output = new HTMLCompiler().compile(astNode as unknown as IASTNode[]);
+    const output = HTMLCompiler.compile(astNode as unknown as IASTNode[], true);
 
     // make sure build dir is available
     if (!(await fileExists(Deno.cwd() + "/build"))) {
@@ -217,6 +232,20 @@ export class HandleArgs {
   }
 
   private async build() {
+    if (!this.canBuild) {
+      console.error(
+        `%cNo webfluent.app.json found try webfluent init to create a new one`,
+        "color: red;"
+      );
+      Deno.exit(1);
+    }
+    if (!fileExists("src")) {
+      console.error(
+        `%cWebFluent Error No src Dir`,
+        "color: red;"
+      );
+      Deno.exit(1);
+    }
     // start building
     console.log("%cStarted Building...", "color: green;");
 
@@ -240,13 +269,30 @@ export class HandleArgs {
       console.log(
         `%cCli Error:`,
         "color: red;",
-        `Unexpected Deno Error:\n${error}`
+        `Unexpected Deno Error while building: ${error}`
       );
+      Deno.exit(1);
     }
   }
 
-  private init() {
+  private async init() {
     // create new file (maybe create a template and upload it to github and then when this command run download it here)
+    await writeAFile(
+      `{
+      "name": "Hello World",
+      "version": "0.0.1",
+      "auther": "Monzer Omer",
+      "mode": "classless | tailwind | material",
+      "place": "StyleTag | File",
+      "output": "pages | components | both",
+      "theme": "dark | light | both",
+      "port": 8080
+  }`,
+      "webfluent.app.json",
+      FileTypes.init
+    );
+    await Deno.mkdir("src");
+    AddStyleAssets();
     return;
   }
 
@@ -273,10 +319,10 @@ export class HandleArgs {
           this.nextArg();
           break;
 
-          case Commands.serve:
-            ProjectConfig.serve = true;
-            this.nextArg();
-            break;
+        case Commands.serve:
+          ProjectConfig.serve = true;
+          this.nextArg();
+          break;
 
         case Commands.build:
           this.build();

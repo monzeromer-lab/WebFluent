@@ -4,6 +4,7 @@ import { IASTNode } from "../interfaces/IAstNode.ts";
 import { Parser } from "../parser.ts";
 // import { parseStyle } from "../style/style.ts";
 import { parseAttributes } from "./attributes.ts";
+import { InputAttribute } from "./input.attributes.ts";
 
   /**
    * Parses a Input node (e.g. "Input(Text)").
@@ -21,7 +22,7 @@ import { parseAttributes } from "./attributes.ts";
         Parser.expect(TokenType.Coma);
     }
     const attributes = parseAttributes();
-
+    InputAttribute(attributes);
     let ElementClass: string;
     // if (Parser.currentToken?.type === TokenType.Coma) {
     //   Parser.advance();

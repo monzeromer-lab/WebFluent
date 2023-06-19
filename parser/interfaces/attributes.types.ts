@@ -12,11 +12,13 @@ bottom= "bottom",
 }
 
 export enum TextSizes {
-    large= "large",
-    larger = "larger",
-    medium ="medium",
-    small ="small",
-    smaller ="smaller"
+    larger = "h1",
+    large= "h2",
+    medium ="h3",
+    normal= "h4",
+    small ="h5",
+    smaller ="h6",
+
 }
 
 export enum InputTypes {

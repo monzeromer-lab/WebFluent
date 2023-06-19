@@ -29,7 +29,7 @@ export interface ITableAttributes extends IStaticAttributes {
 }
 
 export interface IComponentAttributes extends IStaticAttributes {
-    
+    path: string
 }
 
 export interface IimageAttributes extends IStaticAttributes {
@@ -39,11 +39,17 @@ export interface IimageAttributes extends IStaticAttributes {
 }
 
 export interface ITextAttributes extends IStaticAttributes {
-    size: TextSizes
+    size: TextSizes,
+    value: string
+}
+
+export interface IDialogAttributes extends IStaticAttributes {
+    delay: number,
+    path: string
 }
 
 export interface IinputAttributes extends IStaticAttributes {
-    iType: InputTypes,
+    type: InputTypes,
     name?: string,
     value?: string
 }

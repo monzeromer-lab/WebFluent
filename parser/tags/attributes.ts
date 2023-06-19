@@ -16,7 +16,15 @@ import { Parser, ParserError } from "../parser.ts";
       const { name, value } = parseAttribute();
 
       attributes[name] = value;
+      
+      //@ts-ignore idk but this statement made it work
+      if (Parser.currentToken?.type === TokenType.Coma) {
+        Parser.expect(TokenType.Coma);
+      }
+      
     }
+    
+    
     return attributes;
   }
 
@@ -62,6 +70,10 @@ import { Parser, ParserError } from "../parser.ts";
             TokenType.StringLiteral
           );
         }
-    
+        
+        if (Parser.tokens[Parser.index+1]?.type === TokenType.Coma) {
+          Parser.expect(TokenType.Coma);
+        }
+
         return { name, value };
       }

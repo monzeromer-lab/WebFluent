@@ -3,6 +3,7 @@ import { parseChildrens } from "../childrens.ts";
 import { IASTNode } from "../interfaces/IAstNode.ts";
 import { Parser } from "../parser.ts";
 import { parseAttributes } from "../tags/attributes.ts";
+import { DialogAttribute } from "./dialog.attributes.ts";
 
 /**
    * Parses a dialog node (e.g. "dialog MyComponent { ... }").
@@ -14,6 +15,7 @@ export function parseDialog(): IASTNode {
 
     Parser.expect(TokenType.OpenParen);
     const attributes = parseAttributes();
+    DialogAttribute(attributes);
     Parser.expect(TokenType.CloseParen);
     Parser.expect(TokenType.OpenBrace);
 
