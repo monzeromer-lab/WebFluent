@@ -1,3 +1,1 @@
-build
-*.exe
-src
+/target

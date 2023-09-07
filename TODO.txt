@@ -1,2 +1,0 @@
-I removed the style only to add a default theme i can use and modify I'll use classless.de
-because it's perfect and I can modify it as I can
