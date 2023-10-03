@@ -1,8 +1,19 @@
-﻿# I'm Just Playing around
+﻿# Hello World 👋
 
-I'm building some kind of a scripting language that's have an 80% similar Syntax to flutter & jetpack compose
+This is me again, Monzer Omer but this time tried to make web development easier and save us a lot of time
 
-Some examples:
+I tried to make WebFluent the new way to build web apps with more readable syntax anyone no matter their experience with web development are.
+
+it was all going well but at some point I decided to stop working on this project i though this project is a waste of time for me so i decide to archive it and in hope that someday someone will be inspired by it.
+
+By the time I'm updating this readme file I found out about mint-lang.
+
+If you think WebFluent could be helpful I highly recommend you to check it out:
+https://mint-lang.com
+
+WebFluent was supposed to have components like tabs, navigation bars and other non html tags built-in to it.
+
+Here are some examples of the syntax:
 
     //create a new page
     Page Home () {
@@ -44,7 +55,7 @@ Adding Row and Columns:
 
 Inputs:
 
-    Input('type',)
+    Input('type')
 
 Text views:
 
@@ -55,5 +66,7 @@ Image views:
     Image(src: "url or any string here")
 
 
-as I said I'm just playing around but if you found this helpful feel free to connect with me (visit my profile for social media links)
-and may be share it with your friends and co-workers
+The current WebFluent is built with deno as a preview for the syntax. (not for production)
+
+if you think I should continue working on this project, or if you have any feedbacks or questions, feel free to reach out to me by email:
+monzer.a.omer@gmail.com
