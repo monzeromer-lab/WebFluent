@@ -1,7 +1,7 @@
 ﻿# Hello World 👋
  ## Umm, you may wanna skip this part if it's your first time here
 
-if you've ever been here -> I'll be rewriting WebFluent again
+if you've ever been here -> I'll be rewriting WebFluent again (and don't worry it's gonna be in functional programming this type)
 Why?
 I played around with Mint-lang, and I think It's great But... It's has some issues that I should probably talk about it in a video (soo stay tuned for that..)
 
