@@ -1,4 +1,13 @@
 ﻿# Hello World 👋
+ ## Umm, you may wanna skip this part if it's your first time here
+
+if you've ever been here -> I'll be rewriting WebFluent again
+Why?
+I played around with Mint-lang, and I think It's great But... It's has some issues that I should probably talk about it in a video (soo stay tuned for that..)
+
+let's get to the actual readme for this repo...
+
+# the actual readme..
 
 This is me again, Monzer Omer but this time tried to make web development easier and save us a lot of time
 
