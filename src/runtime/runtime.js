@@ -156,47 +156,54 @@ const WF = (() => {
   }
 
   // ─── Conditional rendering ───────────────────────────
+  function removeNodes(nodes) {
+    for (const n of nodes) {
+      if (n && n.parentNode) n.parentNode.removeChild(n);
+    }
+  }
+
   function condRender(parent, condFn, thenFn, elseFn, animConfig) {
     const marker = document.createComment("wf-if");
     parent.appendChild(marker);
     let currentNodes = [];
-    let animating = false;
+    let lastShow = undefined;
 
+    // Only track the condition signal — not signals read during rendering
     effect(() => {
-      const show = condFn();
-      if (animating) return;
+      const show = !!condFn();
+      if (show === lastShow) return;
+      lastShow = show;
 
-      const removeOld = () => {
-        if (currentNodes.length === 0) return Promise.resolve();
-        if (animConfig && animConfig.exit) {
-          animating = true;
-          const exitName = animConfig.exit;
-          const promises = currentNodes.map(n => n instanceof Element ? animateOut(n, exitName, animConfig.duration) : Promise.resolve());
-          return Promise.all(promises).then(() => {
-            for (const n of currentNodes) n.remove();
-            currentNodes = [];
-            animating = false;
-          });
-        }
-        for (const n of currentNodes) n.remove();
+      // Remove old nodes
+      if (animConfig && animConfig.exit && currentNodes.length) {
+        const exitName = animConfig.exit;
+        const toRemove = [...currentNodes];
         currentNodes = [];
-        return Promise.resolve();
-      };
+        const promises = toRemove.map(n => n instanceof Element ? animateOut(n, exitName, animConfig.duration) : Promise.resolve());
+        Promise.all(promises).then(() => removeNodes(toRemove));
+      } else {
+        removeNodes(currentNodes);
+        currentNodes = [];
+      }
 
-      const addNew = (renderFn) => {
-        const frag = document.createDocumentFragment();
-        const nodes = [].concat(renderFn()).flat().filter(n => n instanceof Node);
-        for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
-        marker.parentNode.insertBefore(frag, marker.nextSibling);
-        if (animConfig && animConfig.enter) {
-          nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay); });
+      // Add new nodes (untracked so rendering doesn't subscribe this effect to state signals)
+      const renderFn = show ? thenFn : elseFn;
+      if (renderFn) {
+        const prev = currentEffect;
+        currentEffect = null; // Untrack: don't subscribe to signals during render
+        try {
+          const frag = document.createDocumentFragment();
+          const result = renderFn();
+          const nodes = [].concat(result).flat().filter(n => n instanceof Node);
+          for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
+          if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
+          if (animConfig && animConfig.enter) {
+            nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay); });
+          }
+        } finally {
+          currentEffect = prev;
         }
-      };
-
-      removeOld().then(() => {
-        if (show && thenFn) addNew(thenFn);
-        else if (!show && elseFn) addNew(elseFn);
-      });
+      }
     });
   }
 
@@ -207,40 +214,47 @@ const WF = (() => {
     let currentNodes = [];
 
     effect(() => {
+      const items = listFn(); // Track the list signal
+
       // Remove old
       if (animConfig && animConfig.exit && currentNodes.length) {
-        const exitName = animConfig.exit;
-        currentNodes.forEach((n, i) => {
+        const toRemove = [...currentNodes];
+        toRemove.forEach((n, i) => {
           if (n instanceof Element) {
-            const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * i) + "ms" : undefined;
-            animateOut(n, exitName, animConfig.duration).then(() => n.remove());
+            animateOut(n, animConfig.exit, animConfig.duration).then(() => { if (n.parentNode) n.parentNode.removeChild(n); });
           } else {
-            n.remove();
+            if (n.parentNode) n.parentNode.removeChild(n);
           }
         });
       } else {
-        for (const n of currentNodes) n.remove();
+        removeNodes(currentNodes);
       }
       currentNodes = [];
 
-      const items = listFn();
-      const frag = document.createDocumentFragment();
-      if (items && items.length) {
-        items.forEach((item, index) => {
-          const nodes = [].concat(itemFn(item, index)).flat();
-          for (const n of nodes) {
-            if (n instanceof Node) {
-              frag.appendChild(n);
-              currentNodes.push(n);
-              if (animConfig && animConfig.enter && n instanceof Element) {
-                const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * index) + "ms" : animConfig.delay;
-                animateIn(n, animConfig.enter, animConfig.duration, delay);
+      // Render items untracked
+      const prev = currentEffect;
+      currentEffect = null;
+      try {
+        const frag = document.createDocumentFragment();
+        if (items && items.length) {
+          items.forEach((item, index) => {
+            const nodes = [].concat(itemFn(item, index)).flat();
+            for (const n of nodes) {
+              if (n instanceof Node) {
+                frag.appendChild(n);
+                currentNodes.push(n);
+                if (animConfig && animConfig.enter && n instanceof Element) {
+                  const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * index) + "ms" : animConfig.delay;
+                  animateIn(n, animConfig.enter, animConfig.duration, delay);
+                }
               }
             }
-          }
-        });
+          });
+        }
+        if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
+      } finally {
+        currentEffect = prev;
       }
-      marker.parentNode.insertBefore(frag, marker.nextSibling);
     });
   }
 
@@ -348,13 +362,20 @@ const WF = (() => {
     }
 
     function render() {
-      const path = currentPath();
+      const path = currentPath(); // Only subscribe to path changes
       const match = matchRoute(path);
       container.innerHTML = "";
 
       if (match) {
-        const el = match.route.render(match.params);
-        if (el instanceof Node) container.appendChild(el);
+        // Untrack: don't subscribe the router effect to signals read during page render
+        const prev = currentEffect;
+        currentEffect = null;
+        try {
+          const el = match.route.render(match.params);
+          if (el instanceof Node) container.appendChild(el);
+        } finally {
+          currentEffect = prev;
+        }
       }
     }
 
