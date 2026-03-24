@@ -682,11 +682,7 @@ function Page_Ssg(params) {
   _e43.appendChild(_e50);
   const _e51 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e52 = WF.h("div", { className: "wf-card__body" });
-  const _e53 = WF.h("code", { className: "wf-code wf-code--block" }, "{
-  \"build\": {
-    \"ssg\": true
-  }
-}");
+  const _e53 = WF.h("code", { className: "wf-code wf-code--block" }, "{\n  \"build\": {\n    \"ssg\": true\n  }\n}");
   _e52.appendChild(_e53);
   _e51.appendChild(_e52);
   _e43.appendChild(_e51);
@@ -744,10 +740,7 @@ function Page_Ssg(params) {
   const _e81 = WF.h("div", { className: "wf-card__body" });
   const _e82 = WF.h("p", { className: "wf-text wf-text--bold" }, "SPA (default)");
   _e81.appendChild(_e82);
-  const _e83 = WF.h("code", { className: "wf-code wf-code--block" }, "build/
-├── index.html       # Empty shell
-├── app.js
-└── styles.css");
+  const _e83 = WF.h("code", { className: "wf-code wf-code--block" }, "build/\n├── index.html       # Empty shell\n├── app.js\n└── styles.css");
   _e81.appendChild(_e83);
   _e80.appendChild(_e81);
   _e79.appendChild(_e80);
@@ -757,14 +750,7 @@ function Page_Ssg(params) {
   const _e86 = WF.h("div", { className: "wf-card__body" });
   const _e87 = WF.h("p", { className: "wf-text wf-text--bold" }, "SSG mode");
   _e86.appendChild(_e87);
-  const _e88 = WF.h("code", { className: "wf-code wf-code--block" }, "build/
-├── index.html       # Pre-rendered /
-├── about/
-│   └── index.html   # Pre-rendered /about
-├── blog/
-│   └── index.html   # Pre-rendered /blog
-├── app.js
-└── styles.css");
+  const _e88 = WF.h("code", { className: "wf-code wf-code--block" }, "build/\n├── index.html       # Pre-rendered /\n├── about/\n│   └── index.html   # Pre-rendered /about\n├── blog/\n│   └── index.html   # Pre-rendered /blog\n├── app.js\n└── styles.css");
   _e86.appendChild(_e88);
   _e85.appendChild(_e86);
   _e84.appendChild(_e85);
@@ -933,10 +919,7 @@ function Page_Styling(params) {
   _e133.appendChild(_e166);
   const _e167 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e168 = WF.h("div", { className: "wf-card__body" });
-  const _e169 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Save\", primary, large, rounded)
-Text(\"Warning!\", danger, bold, uppercase)
-Card(elevated, outlined) { Text(\"Content\") }
-Input(text, full, rounded)");
+  const _e169 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Save\", primary, large, rounded)\nText(\"Warning!\", danger, bold, uppercase)\nCard(elevated, outlined) { Text(\"Content\") }\nInput(text, full, rounded)");
   _e168.appendChild(_e169);
   _e167.appendChild(_e168);
   _e133.appendChild(_e167);
@@ -954,15 +937,7 @@ Input(text, full, rounded)");
   _e133.appendChild(_e175);
   const _e176 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e177 = WF.h("div", { className: "wf-card__body" });
-  const _e178 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Custom\") {
-    style {
-        background: \"#8B5CF6\"
-        color: \"#FFFFFF\"
-        padding: xl
-        radius: lg
-        shadow: md
-    }
-}");
+  const _e178 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Custom\") {\n    style {\n        background: \"#8B5CF6\"\n        color: \"#FFFFFF\"\n        padding: xl\n        radius: lg\n        shadow: md\n    }\n}");
   _e177.appendChild(_e178);
   _e176.appendChild(_e177);
   _e133.appendChild(_e176);
@@ -1140,16 +1115,7 @@ Input(text, full, rounded)");
   _e133.appendChild(_e264);
   const _e265 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e266 = WF.h("div", { className: "wf-card__body" });
-  const _e267 = WF.h("code", { className: "wf-code wf-code--block" }, "{
-  \"theme\": {
-    \"name\": \"default\",
-    \"tokens\": {
-      \"color-primary\": \"#8B5CF6\",
-      \"font-family\": \"Poppins, sans-serif\",
-      \"radius-md\": \"1rem\"
-    }
-  }
-}");
+  const _e267 = WF.h("code", { className: "wf-code wf-code--block" }, "{\n  \"theme\": {\n    \"name\": \"default\",\n    \"tokens\": {\n      \"color-primary\": \"#8B5CF6\",\n      \"font-family\": \"Poppins, sans-serif\",\n      \"radius-md\": \"1rem\"\n    }\n  }\n}");
   _e266.appendChild(_e267);
   _e265.appendChild(_e266);
   _e133.appendChild(_e265);
@@ -1178,12 +1144,7 @@ function Page_Guide(params) {
   _e269.appendChild(_e276);
   const _e277 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e278 = WF.h("div", { className: "wf-card__body" });
-  const _e279 = WF.h("code", { className: "wf-code wf-code--block" }, "Page Home (path: \"/\", title: \"Home\") {
-    Container {
-        Heading(\"Welcome\", h1)
-        Text(\"This is the home page.\")
-    }
-}");
+  const _e279 = WF.h("code", { className: "wf-code wf-code--block" }, "Page Home (path: \"/\", title: \"Home\") {\n    Container {\n        Heading(\"Welcome\", h1)\n        Text(\"This is the home page.\")\n    }\n}");
   _e278.appendChild(_e279);
   _e277.appendChild(_e278);
   _e269.appendChild(_e277);
@@ -1247,23 +1208,7 @@ function Page_Guide(params) {
   _e269.appendChild(_e308);
   const _e309 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e310 = WF.h("div", { className: "wf-card__body" });
-  const _e311 = WF.h("code", { className: "wf-code wf-code--block" }, "Component UserCard (name: String, role: String, active: Bool = true) {
-    Card(elevated) {
-        Row(align: center, gap: md) {
-            Avatar(initials: \"U\", primary)
-            Stack {
-                Text(name, bold)
-                Text(role, muted)
-            }
-            if active {
-                Badge(\"Active\", success)
-            }
-        }
-    }
-}
-
-// Usage
-UserCard(name: \"Monzer\", role: \"Developer\")");
+  const _e311 = WF.h("code", { className: "wf-code wf-code--block" }, "Component UserCard (name: String, role: String, active: Bool = true) {\n    Card(elevated) {\n        Row(align: center, gap: md) {\n            Avatar(initials: \"U\", primary)\n            Stack {\n                Text(name, bold)\n                Text(role, muted)\n            }\n            if active {\n                Badge(\"Active\", success)\n            }\n        }\n    }\n}\n\n// Usage\nUserCard(name: \"Monzer\", role: \"Developer\")");
   _e310.appendChild(_e311);
   _e309.appendChild(_e310);
   _e269.appendChild(_e309);
@@ -1285,15 +1230,7 @@ UserCard(name: \"Monzer\", role: \"Developer\")");
   _e269.appendChild(_e319);
   const _e320 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e321 = WF.h("div", { className: "wf-card__body" });
-  const _e322 = WF.h("code", { className: "wf-code wf-code--block" }, "Page Counter (path: \"/counter\") {
-    state count = 0
-
-    Container {
-        Text(\"Count: {count}\")
-        Button(\"+1\", primary) { count = count + 1 }
-        Button(\"-1\") { count = count - 1 }
-    }
-}");
+  const _e322 = WF.h("code", { className: "wf-code wf-code--block" }, "Page Counter (path: \"/counter\") {\n    state count = 0\n\n    Container {\n        Text(\"Count: {count}\")\n        Button(\"+1\", primary) { count = count + 1 }\n        Button(\"-1\") { count = count - 1 }\n    }\n}");
   _e321.appendChild(_e322);
   _e320.appendChild(_e321);
   _e269.appendChild(_e320);
@@ -1303,9 +1240,7 @@ UserCard(name: \"Monzer\", role: \"Developer\")");
   _e269.appendChild(_e324);
   const _e325 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e326 = WF.h("div", { className: "wf-card__body" });
-  const _e327 = WF.h("code", { className: "wf-code wf-code--block" }, "state items = [{name: \"A\", price: 3}, {name: \"B\", price: 2}]
-derived total = items.map(i => i.price).sum()
-derived isEmpty = items.length == 0");
+  const _e327 = WF.h("code", { className: "wf-code wf-code--block" }, "state items = [{name: \"A\", price: 3}, {name: \"B\", price: 2}]\nderived total = items.map(i => i.price).sum()\nderived isEmpty = items.length == 0");
   _e326.appendChild(_e327);
   _e325.appendChild(_e326);
   _e269.appendChild(_e325);
@@ -1323,25 +1258,7 @@ derived isEmpty = items.length == 0");
   _e269.appendChild(_e333);
   const _e334 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e335 = WF.h("div", { className: "wf-card__body" });
-  const _e336 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Submit\") {
-    on:click {
-        submitForm()
-    }
-}
-
-Input(text, placeholder: \"Search...\") {
-    on:input {
-        searchQuery = value
-    }
-    on:keydown {
-        if key == \"Enter\" {
-            performSearch()
-        }
-    }
-}
-
-// Shorthand: block on Button defaults to on:click
-Button(\"Save\") { save() }");
+  const _e336 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Submit\") {\n    on:click {\n        submitForm()\n    }\n}\n\nInput(text, placeholder: \"Search...\") {\n    on:input {\n        searchQuery = value\n    }\n    on:keydown {\n        if key == \"Enter\" {\n            performSearch()\n        }\n    }\n}\n\n// Shorthand: block on Button defaults to on:click\nButton(\"Save\") { save() }");
   _e335.appendChild(_e336);
   _e334.appendChild(_e335);
   _e269.appendChild(_e334);
@@ -1361,13 +1278,7 @@ Button(\"Save\") { save() }");
   _e269.appendChild(_e343);
   const _e344 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e345 = WF.h("div", { className: "wf-card__body" });
-  const _e346 = WF.h("code", { className: "wf-code wf-code--block" }, "if isLoggedIn {
-    Text(\"Welcome back!\")
-} else if isGuest {
-    Text(\"Hello, guest\")
-} else {
-    Button(\"Log In\") { navigate(\"/login\") }
-}");
+  const _e346 = WF.h("code", { className: "wf-code wf-code--block" }, "if isLoggedIn {\n    Text(\"Welcome back!\")\n} else if isGuest {\n    Text(\"Hello, guest\")\n} else {\n    Button(\"Log In\") { navigate(\"/login\") }\n}");
   _e345.appendChild(_e346);
   _e344.appendChild(_e345);
   _e269.appendChild(_e344);
@@ -1377,14 +1288,7 @@ Button(\"Save\") { save() }");
   _e269.appendChild(_e348);
   const _e349 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e350 = WF.h("div", { className: "wf-card__body" });
-  const _e351 = WF.h("code", { className: "wf-code wf-code--block" }, "for user in users {
-    UserCard(name: user.name, role: user.role)
-}
-
-// With index
-for item, index in items {
-    Text(\"{index + 1}. {item}\")
-}");
+  const _e351 = WF.h("code", { className: "wf-code wf-code--block" }, "for user in users {\n    UserCard(name: user.name, role: user.role)\n}\n\n// With index\nfor item, index in items {\n    Text(\"{index + 1}. {item}\")\n}");
   _e350.appendChild(_e351);
   _e349.appendChild(_e350);
   _e269.appendChild(_e349);
@@ -1394,9 +1298,7 @@ for item, index in items {
   _e269.appendChild(_e353);
   const _e354 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e355 = WF.h("div", { className: "wf-card__body" });
-  const _e356 = WF.h("code", { className: "wf-code wf-code--block" }, "show isExpanded {
-    Card { Text(\"Expanded content\") }
-}");
+  const _e356 = WF.h("code", { className: "wf-code wf-code--block" }, "show isExpanded {\n    Card { Text(\"Expanded content\") }\n}");
   _e355.appendChild(_e356);
   _e354.appendChild(_e355);
   _e269.appendChild(_e354);
@@ -1414,28 +1316,7 @@ for item, index in items {
   _e269.appendChild(_e362);
   const _e363 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e364 = WF.h("div", { className: "wf-card__body" });
-  const _e365 = WF.h("code", { className: "wf-code wf-code--block" }, "Store CartStore {
-    state items = []
-
-    derived total = items.map(i => i.price * i.quantity).sum()
-    derived count = items.length
-
-    action addItem(product: Map) {
-        items.push({ id: product.id, name: product.name, price: product.price, quantity: 1 })
-    }
-
-    action removeItem(id: Number) {
-        items = items.filter(i => i.id != id)
-    }
-}
-
-// Usage in a page
-Page Cart (path: \"/cart\") {
-    use CartStore
-
-    Text(\"Total: ${CartStore.total}\")
-    Button(\"Clear\") { CartStore.clear() }
-}");
+  const _e365 = WF.h("code", { className: "wf-code wf-code--block" }, "Store CartStore {\n    state items = []\n\n    derived total = items.map(i => i.price * i.quantity).sum()\n    derived count = items.length\n\n    action addItem(product: Map) {\n        items.push({ id: product.id, name: product.name, price: product.price, quantity: 1 })\n    }\n\n    action removeItem(id: Number) {\n        items = items.filter(i => i.id != id)\n    }\n}\n\n// Usage in a page\nPage Cart (path: \"/cart\") {\n    use CartStore\n\n    Text(\"Total: ${CartStore.total}\")\n    Button(\"Clear\") { CartStore.clear() }\n}");
   _e364.appendChild(_e365);
   _e363.appendChild(_e364);
   _e269.appendChild(_e363);
@@ -1453,30 +1334,7 @@ Page Cart (path: \"/cart\") {
   _e269.appendChild(_e371);
   const _e372 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e373 = WF.h("div", { className: "wf-card__body" });
-  const _e374 = WF.h("code", { className: "wf-code wf-code--block" }, "App {
-    Navbar {
-        Navbar.Brand { Text(\"My App\", heading) }
-        Navbar.Links {
-            Link(to: \"/\") { Text(\"Home\") }
-            Link(to: \"/about\") { Text(\"About\") }
-        }
-    }
-
-    Router {
-        Route(path: \"/\", page: Home)
-        Route(path: \"/about\", page: About)
-        Route(path: \"/user/:id\", page: UserProfile)
-        Route(path: \"*\", page: NotFound)
-    }
-}
-
-// Programmatic navigation
-Button(\"Go Home\") { navigate(\"/\") }
-
-// Dynamic routes access params
-Page UserProfile (path: \"/user/:id\") {
-    Text(\"User ID: {params.id}\")
-}");
+  const _e374 = WF.h("code", { className: "wf-code wf-code--block" }, "App {\n    Navbar {\n        Navbar.Brand { Text(\"My App\", heading) }\n        Navbar.Links {\n            Link(to: \"/\") { Text(\"Home\") }\n            Link(to: \"/about\") { Text(\"About\") }\n        }\n    }\n\n    Router {\n        Route(path: \"/\", page: Home)\n        Route(path: \"/about\", page: About)\n        Route(path: \"/user/:id\", page: UserProfile)\n        Route(path: \"*\", page: NotFound)\n    }\n}\n\n// Programmatic navigation\nButton(\"Go Home\") { navigate(\"/\") }\n\n// Dynamic routes access params\nPage UserProfile (path: \"/user/:id\") {\n    Text(\"User ID: {params.id}\")\n}");
   _e373.appendChild(_e374);
   _e372.appendChild(_e373);
   _e269.appendChild(_e372);
@@ -1494,26 +1352,7 @@ Page UserProfile (path: \"/user/:id\") {
   _e269.appendChild(_e380);
   const _e381 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e382 = WF.h("div", { className: "wf-card__body" });
-  const _e383 = WF.h("code", { className: "wf-code wf-code--block" }, "fetch users from \"/api/users\" {
-    loading {
-        Spinner()
-    }
-    error (err) {
-        Alert(\"Failed to load users\", danger)
-    }
-    success {
-        for user in users {
-            UserCard(name: user.name, role: user.role)
-        }
-    }
-}
-
-// With options
-fetch result from \"/api/submit\" (method: \"POST\", body: { name: name, email: email }) {
-    success {
-        Alert(\"Saved!\", success)
-    }
-}");
+  const _e383 = WF.h("code", { className: "wf-code wf-code--block" }, "fetch users from \"/api/users\" {\n    loading {\n        Spinner()\n    }\n    error (err) {\n        Alert(\"Failed to load users\", danger)\n    }\n    success {\n        for user in users {\n            UserCard(name: user.name, role: user.role)\n        }\n    }\n}\n\n// With options\nfetch result from \"/api/submit\" (method: \"POST\", body: { name: name, email: email }) {\n    success {\n        Alert(\"Saved!\", success)\n    }\n}");
   _e382.appendChild(_e383);
   _e381.appendChild(_e382);
   _e269.appendChild(_e381);
@@ -1612,10 +1451,7 @@ function Page_Animation(params) {
   _e389.appendChild(_e427);
   const _e428 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e429 = WF.h("div", { className: "wf-card__body" });
-  const _e430 = WF.h("code", { className: "wf-code wf-code--block" }, "Card(elevated, fadeIn) { Text(\"Fades in\") }
-Heading(\"Title\", h1, slideUp, slow)
-Button(\"Click\", primary, bounce)
-Spinner(pulse)");
+  const _e430 = WF.h("code", { className: "wf-code wf-code--block" }, "Card(elevated, fadeIn) { Text(\"Fades in\") }\nHeading(\"Title\", h1, slideUp, slow)\nButton(\"Click\", primary, bounce)\nSpinner(pulse)");
   _e429.appendChild(_e430);
   _e428.appendChild(_e429);
   _e389.appendChild(_e428);
@@ -1633,20 +1469,7 @@ Spinner(pulse)");
   _e389.appendChild(_e436);
   const _e437 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e438 = WF.h("div", { className: "wf-card__body" });
-  const _e439 = WF.h("code", { className: "wf-code wf-code--block" }, "// Conditional — animate in and out
-if showMessage, animate(fadeIn, fadeOut) {
-    Alert(\"Saved!\", success)
-}
-
-// List — stagger each item
-for product in products, animate(slideUp, fadeOut, stagger: \"50ms\") {
-    Card { Text(product.name) }
-}
-
-// Show/hide — keeps in DOM
-show isOpen, animate(scaleIn, scaleOut) {
-    Modal(title: \"Confirm\") { Text(\"Are you sure?\") }
-}");
+  const _e439 = WF.h("code", { className: "wf-code wf-code--block" }, "// Conditional — animate in and out\nif showMessage, animate(fadeIn, fadeOut) {\n    Alert(\"Saved!\", success)\n}\n\n// List — stagger each item\nfor product in products, animate(slideUp, fadeOut, stagger: \"50ms\") {\n    Card { Text(product.name) }\n}\n\n// Show/hide — keeps in DOM\nshow isOpen, animate(scaleIn, scaleOut) {\n    Modal(title: \"Confirm\") { Text(\"Are you sure?\") }\n}");
   _e438.appendChild(_e439);
   _e437.appendChild(_e438);
   _e389.appendChild(_e437);
@@ -1668,12 +1491,7 @@ show isOpen, animate(scaleIn, scaleOut) {
   _e389.appendChild(_e447);
   const _e448 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e449 = WF.h("div", { className: "wf-card__body" });
-  const _e450 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Hover me\", primary) {
-    transition {
-        background 200ms ease
-        transform 150ms spring
-    }
-}");
+  const _e450 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"Hover me\", primary) {\n    transition {\n        background 200ms ease\n        transform 150ms spring\n    }\n}");
   _e449.appendChild(_e450);
   _e448.appendChild(_e449);
   _e389.appendChild(_e448);
@@ -1762,19 +1580,7 @@ function Page_I18n(params) {
   _e482.appendChild(_e489);
   const _e490 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e491 = WF.h("div", { className: "wf-card__body" });
-  const _e492 = WF.h("code", { className: "wf-code wf-code--block" }, "// src/translations/en.json
-{
-    \"greeting\": \"Hello, {name}!\",
-    \"nav.home\": \"Home\",
-    \"nav.about\": \"About\"
-}
-
-// src/translations/ar.json
-{
-    \"greeting\": \"!أهلاً، {name}\",
-    \"nav.home\": \"الرئيسية\",
-    \"nav.about\": \"حول\"
-}");
+  const _e492 = WF.h("code", { className: "wf-code wf-code--block" }, "// src/translations/en.json\n{\n    \"greeting\": \"Hello, {name}!\",\n    \"nav.home\": \"Home\",\n    \"nav.about\": \"About\"\n}\n\n// src/translations/ar.json\n{\n    \"greeting\": \"!أهلاً، {name}\",\n    \"nav.home\": \"الرئيسية\",\n    \"nav.about\": \"حول\"\n}");
   _e491.appendChild(_e492);
   _e490.appendChild(_e491);
   _e482.appendChild(_e490);
@@ -1784,13 +1590,7 @@ function Page_I18n(params) {
   _e482.appendChild(_e494);
   const _e495 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e496 = WF.h("div", { className: "wf-card__body" });
-  const _e497 = WF.h("code", { className: "wf-code wf-code--block" }, "{
-  \"i18n\": {
-    \"defaultLocale\": \"en\",
-    \"locales\": [\"en\", \"ar\"],
-    \"dir\": \"src/translations\"
-  }
-}");
+  const _e497 = WF.h("code", { className: "wf-code wf-code--block" }, "{\n  \"i18n\": {\n    \"defaultLocale\": \"en\",\n    \"locales\": [\"en\", \"ar\"],\n    \"dir\": \"src/translations\"\n  }\n}");
   _e496.appendChild(_e497);
   _e495.appendChild(_e496);
   _e482.appendChild(_e495);
@@ -1808,15 +1608,7 @@ function Page_I18n(params) {
   _e482.appendChild(_e503);
   const _e504 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e505 = WF.h("div", { className: "wf-card__body" });
-  const _e506 = WF.h("code", { className: "wf-code wf-code--block" }, "// Simple key lookup
-Text(t(\"nav.home\"))
-
-// With interpolation
-Text(t(\"greeting\", name: user.name))
-
-// In any component
-Button(t(\"actions.save\"), primary)
-Heading(t(\"page.title\"), h1)");
+  const _e506 = WF.h("code", { className: "wf-code wf-code--block" }, "// Simple key lookup\nText(t(\"nav.home\"))\n\n// With interpolation\nText(t(\"greeting\", name: user.name))\n\n// In any component\nButton(t(\"actions.save\"), primary)\nHeading(t(\"page.title\"), h1)");
   _e505.appendChild(_e506);
   _e504.appendChild(_e505);
   _e482.appendChild(_e504);
@@ -1834,13 +1626,7 @@ Heading(t(\"page.title\"), h1)");
   _e482.appendChild(_e512);
   const _e513 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e514 = WF.h("div", { className: "wf-card__body" });
-  const _e515 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"English\") { setLocale(\"en\") }
-Button(\"العربية\") { setLocale(\"ar\") }
-Button(\"Espanol\") { setLocale(\"es\") }
-
-// Access current locale
-Text(\"Current: {locale}\")
-Text(\"Direction: {dir}\")");
+  const _e515 = WF.h("code", { className: "wf-code wf-code--block" }, "Button(\"English\") { setLocale(\"en\") }\nButton(\"العربية\") { setLocale(\"ar\") }\nButton(\"Espanol\") { setLocale(\"es\") }\n\n// Access current locale\nText(\"Current: {locale}\")\nText(\"Direction: {dir}\")");
   _e514.appendChild(_e515);
   _e513.appendChild(_e514);
   _e482.appendChild(_e513);
@@ -1949,9 +1735,7 @@ function Page_GettingStarted(params) {
   _e557.appendChild(_e564);
   const _e565 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e566 = WF.h("div", { className: "wf-card__body" });
-  const _e567 = WF.h("code", { className: "wf-code wf-code--block" }, "git clone https://github.com/user/webfluent.git
-cd webfluent
-cargo build --release");
+  const _e567 = WF.h("code", { className: "wf-code wf-code--block" }, "git clone https://github.com/user/webfluent.git\ncd webfluent\ncargo build --release");
   _e566.appendChild(_e567);
   _e565.appendChild(_e566);
   _e557.appendChild(_e565);
@@ -2011,9 +1795,7 @@ cargo build --release");
   _e557.appendChild(_e594);
   const _e595 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e596 = WF.h("div", { className: "wf-card__body" });
-  const _e597 = WF.h("code", { className: "wf-code wf-code--block" }, "cd my-app
-wf build
-wf serve");
+  const _e597 = WF.h("code", { className: "wf-code wf-code--block" }, "cd my-app\nwf build\nwf serve");
   _e596.appendChild(_e597);
   _e595.appendChild(_e596);
   _e557.appendChild(_e595);
@@ -2031,22 +1813,7 @@ wf serve");
   _e557.appendChild(_e603);
   const _e604 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e605 = WF.h("div", { className: "wf-card__body" });
-  const _e606 = WF.h("code", { className: "wf-code wf-code--block" }, "my-app/
-├── webfluent.app.json       # Project config
-├── src/
-│   ├── App.wf               # Root app (router, layout)
-│   ├── pages/               # Page files
-│   │   ├── Home.wf
-│   │   └── About.wf
-│   ├── components/           # Reusable components
-│   │   └── Header.wf
-│   ├── stores/               # Shared state
-│   │   └── auth.wf
-│   └── translations/         # i18n JSON files
-│       ├── en.json
-│       └── ar.json
-├── public/                   # Static assets
-└── build/                    # Compiled output");
+  const _e606 = WF.h("code", { className: "wf-code wf-code--block" }, "my-app/\n├── webfluent.app.json       # Project config\n├── src/\n│   ├── App.wf               # Root app (router, layout)\n│   ├── pages/               # Page files\n│   │   ├── Home.wf\n│   │   └── About.wf\n│   ├── components/           # Reusable components\n│   │   └── Header.wf\n│   ├── stores/               # Shared state\n│   │   └── auth.wf\n│   └── translations/         # i18n JSON files\n│       ├── en.json\n│       └── ar.json\n├── public/                   # Static assets\n└── build/                    # Compiled output");
   _e605.appendChild(_e606);
   _e604.appendChild(_e605);
   _e557.appendChild(_e604);
@@ -2289,36 +2056,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e722);
   const _e723 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e724 = WF.h("div", { className: "wf-card__body" });
-  const _e725 = WF.h("code", { className: "wf-code wf-code--block" }, "{
-  \"name\": \"My App\",
-  \"version\": \"1.0.0\",
-  \"author\": \"Your Name\",
-  \"theme\": {
-    \"name\": \"default\",
-    \"mode\": \"light\",
-    \"tokens\": {
-      \"color-primary\": \"#6366F1\"
-    }
-  },
-  \"build\": {
-    \"output\": \"./build\",
-    \"minify\": true,
-    \"ssg\": false
-  },
-  \"dev\": {
-    \"port\": 3000
-  },
-  \"meta\": {
-    \"title\": \"My App\",
-    \"description\": \"Built with WebFluent\",
-    \"lang\": \"en\"
-  },
-  \"i18n\": {
-    \"defaultLocale\": \"en\",
-    \"locales\": [\"en\", \"ar\"],
-    \"dir\": \"src/translations\"
-  }
-}");
+  const _e725 = WF.h("code", { className: "wf-code wf-code--block" }, "{\n  \"name\": \"My App\",\n  \"version\": \"1.0.0\",\n  \"author\": \"Your Name\",\n  \"theme\": {\n    \"name\": \"default\",\n    \"mode\": \"light\",\n    \"tokens\": {\n      \"color-primary\": \"#6366F1\"\n    }\n  },\n  \"build\": {\n    \"output\": \"./build\",\n    \"minify\": true,\n    \"ssg\": false\n  },\n  \"dev\": {\n    \"port\": 3000\n  },\n  \"meta\": {\n    \"title\": \"My App\",\n    \"description\": \"Built with WebFluent\",\n    \"lang\": \"en\"\n  },\n  \"i18n\": {\n    \"defaultLocale\": \"en\",\n    \"locales\": [\"en\", \"ar\"],\n    \"dir\": \"src/translations\"\n  }\n}");
   _e724.appendChild(_e725);
   _e723.appendChild(_e724);
   _e631.appendChild(_e723);
@@ -2351,16 +2089,7 @@ function Page_Home(params) {
   _e727.appendChild(_e736);
   const _e737 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e738 = WF.h("div", { className: "wf-card__body" });
-  const _e739 = WF.h("code", { className: "wf-code wf-code--block" }, "Page Home (path: \"/\") {
-    Container {
-        Heading(\"Hello, WebFluent!\", h1)
-        Text(\"Build for the web. Nothing else.\")
-
-        Button(\"Get Started\", primary, large) {
-            navigate(\"/docs\")
-        }
-    }
-}");
+  const _e739 = WF.h("code", { className: "wf-code wf-code--block" }, "Page Home (path: \"/\") {\n    Container {\n        Heading(\"Hello, WebFluent!\", h1)\n        Text(\"Build for the web. Nothing else.\")\n\n        Button(\"Get Started\", primary, large) {\n            navigate(\"/docs\")\n        }\n    }\n}");
   _e738.appendChild(_e739);
   _e737.appendChild(_e738);
   _e727.appendChild(_e737);
@@ -2551,18 +2280,7 @@ function Page_Components(params) {
   _e790.appendChild(_e829);
   const _e830 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e831 = WF.h("div", { className: "wf-card__body" });
-  const _e832 = WF.h("code", { className: "wf-code wf-code--block" }, "Container {
-    Row(gap: md) {
-        Column(span: 6) { Text(\"Left\") }
-        Column(span: 6) { Text(\"Right\") }
-    }
-}
-
-Grid(columns: 3, gap: md) {
-    Card { Text(\"A\") }
-    Card { Text(\"B\") }
-    Card { Text(\"C\") }
-}");
+  const _e832 = WF.h("code", { className: "wf-code wf-code--block" }, "Container {\n    Row(gap: md) {\n        Column(span: 6) { Text(\"Left\") }\n        Column(span: 6) { Text(\"Right\") }\n    }\n}\n\nGrid(columns: 3, gap: md) {\n    Card { Text(\"A\") }\n    Card { Text(\"B\") }\n    Card { Text(\"C\") }\n}");
   _e831.appendChild(_e832);
   _e830.appendChild(_e831);
   _e790.appendChild(_e830);
@@ -2622,21 +2340,7 @@ Grid(columns: 3, gap: md) {
   _e790.appendChild(_e859);
   const _e860 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e861 = WF.h("div", { className: "wf-card__body" });
-  const _e862 = WF.h("code", { className: "wf-code wf-code--block" }, "Navbar {
-    Navbar.Brand { Text(\"My App\", heading) }
-    Navbar.Links {
-        Link(to: \"/\") { Text(\"Home\") }
-        Link(to: \"/about\") { Text(\"About\") }
-    }
-    Navbar.Actions {
-        Button(\"Sign In\", primary)
-    }
-}
-
-Tabs {
-    TabPage(\"General\") { Text(\"General settings\") }
-    TabPage(\"Security\") { Text(\"Security settings\") }
-}");
+  const _e862 = WF.h("code", { className: "wf-code wf-code--block" }, "Navbar {\n    Navbar.Brand { Text(\"My App\", heading) }\n    Navbar.Links {\n        Link(to: \"/\") { Text(\"Home\") }\n        Link(to: \"/about\") { Text(\"About\") }\n    }\n    Navbar.Actions {\n        Button(\"Sign In\", primary)\n    }\n}\n\nTabs {\n    TabPage(\"General\") { Text(\"General settings\") }\n    TabPage(\"Security\") { Text(\"Security settings\") }\n}");
   _e861.appendChild(_e862);
   _e860.appendChild(_e861);
   _e790.appendChild(_e860);
@@ -2772,21 +2476,7 @@ Tabs {
   _e790.appendChild(_e927);
   const _e928 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e929 = WF.h("div", { className: "wf-card__body" });
-  const _e930 = WF.h("code", { className: "wf-code wf-code--block" }, "state username = \"\"
-state agreed = false
-state theme = \"light\"
-state volume = 50
-
-Form {
-    Input(text, bind: username, label: \"Username\", required: true)
-    Checkbox(bind: agreed, label: \"I agree to terms\")
-    Radio(bind: theme, value: \"light\", label: \"Light\")
-    Radio(bind: theme, value: \"dark\", label: \"Dark\")
-    Switch(bind: notifications, label: \"Notifications\")
-    Slider(bind: volume, min: 0, max: 100, label: \"Volume\")
-    Button(\"Save\", primary)
-    on:submit { save() }
-}");
+  const _e930 = WF.h("code", { className: "wf-code wf-code--block" }, "state username = \"\"\nstate agreed = false\nstate theme = \"light\"\nstate volume = 50\n\nForm {\n    Input(text, bind: username, label: \"Username\", required: true)\n    Checkbox(bind: agreed, label: \"I agree to terms\")\n    Radio(bind: theme, value: \"light\", label: \"Light\")\n    Radio(bind: theme, value: \"dark\", label: \"Dark\")\n    Switch(bind: notifications, label: \"Notifications\")\n    Slider(bind: volume, min: 0, max: 100, label: \"Volume\")\n    Button(\"Save\", primary)\n    on:submit { save() }\n}");
   _e929.appendChild(_e930);
   _e928.appendChild(_e929);
   _e790.appendChild(_e928);
@@ -2971,14 +2661,7 @@ function Page_Accessibility(params) {
   _e1010.appendChild(_e1017);
   const _e1018 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1019 = WF.h("div", { className: "wf-card__body" });
-  const _e1020 = WF.h("code", { className: "wf-code wf-code--block" }, "$ wf build
-Building my-app...
-  Warning [A01]: Image missing \"alt\" attribute at src/pages/Home.wf:12:5
-    Add alt text: Image(src: \"...\", alt: \"Description of image\")
-  Warning [A03]: Input missing \"label\" attribute at src/pages/Form.wf:8:9
-    Add a label: Input(text, label: \"Username\")
-  3 pages, 2 components, 1 stores
-  Build complete with 2 accessibility warning(s).");
+  const _e1020 = WF.h("code", { className: "wf-code wf-code--block" }, "$ wf build\nBuilding my-app...\n  Warning [A01]: Image missing \"alt\" attribute at src/pages/Home.wf:12:5\n    Add alt text: Image(src: \"...\", alt: \"Description of image\")\n  Warning [A03]: Input missing \"label\" attribute at src/pages/Form.wf:8:9\n    Add a label: Input(text, label: \"Username\")\n  3 pages, 2 components, 1 stores\n  Build complete with 2 accessibility warning(s).");
   _e1019.appendChild(_e1020);
   _e1018.appendChild(_e1019);
   _e1010.appendChild(_e1018);
@@ -3110,11 +2793,7 @@ Building my-app...
   const _e1085 = WF.h("div", { className: "wf-card__body" });
   const _e1086 = WF.h("p", { className: "wf-text wf-text--danger wf-text--bold" }, "Bad (triggers warning)");
   _e1085.appendChild(_e1086);
-  const _e1087 = WF.h("code", { className: "wf-code wf-code--block" }, "Image(src: \"/photo.jpg\")
-IconButton(icon: \"close\")
-Input(text)
-Checkbox(bind: agreed)
-Button()");
+  const _e1087 = WF.h("code", { className: "wf-code wf-code--block" }, "Image(src: \"/photo.jpg\")\nIconButton(icon: \"close\")\nInput(text)\nCheckbox(bind: agreed)\nButton()");
   _e1085.appendChild(_e1087);
   _e1084.appendChild(_e1085);
   _e1083.appendChild(_e1084);
@@ -3124,11 +2803,7 @@ Button()");
   const _e1090 = WF.h("div", { className: "wf-card__body" });
   const _e1091 = WF.h("p", { className: "wf-text wf-text--success wf-text--bold" }, "Good (no warnings)");
   _e1090.appendChild(_e1091);
-  const _e1092 = WF.h("code", { className: "wf-code wf-code--block" }, "Image(src: \"/photo.jpg\", alt: \"Team photo\")
-IconButton(icon: \"close\", label: \"Close\")
-Input(text, label: \"Username\")
-Checkbox(bind: agreed, label: \"I agree\")
-Button(\"Save\")");
+  const _e1092 = WF.h("code", { className: "wf-code wf-code--block" }, "Image(src: \"/photo.jpg\", alt: \"Team photo\")\nIconButton(icon: \"close\", label: \"Close\")\nInput(text, label: \"Username\")\nCheckbox(bind: agreed, label: \"I agree\")\nButton(\"Save\")");
   _e1090.appendChild(_e1092);
   _e1089.appendChild(_e1090);
   _e1088.appendChild(_e1089);
