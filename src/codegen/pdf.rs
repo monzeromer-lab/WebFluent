@@ -283,7 +283,7 @@ impl PdfCodegen {
         }).collect();
         let _ = font_refs; // We'll build resources properly in serialize
 
-        let page_id = self.objects.len() + 1; // will be assigned next
+        let _page_id = self.objects.len() + 1;
         let page_data = format!(
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {} {}] /Contents {} 0 R >>",
             fmt_f64(self.page_width), fmt_f64(self.page_height), content_id
@@ -350,7 +350,7 @@ impl PdfCodegen {
             Statement::For(for_stmt) => {
                 // For loops in PDF: evaluate the list if it's a literal
                 if let Expr::ListLiteral(items) = &for_stmt.iterable {
-                    for item in items {
+                    for _item in items {
                         // Simple: treat each item as text
                         for s in &for_stmt.body {
                             self.emit_statement(s);
@@ -682,7 +682,6 @@ impl PdfCodegen {
                 };
 
                 let bullet_x = self.margin_left;
-                let text_x = self.margin_left + 20.0;
 
                 self.current_stream.set_color(0.0, 0.0, 0.0);
                 self.current_stream.text_at(bullet_x, self.cursor_y, &font_tag, self.current_font_size, &bullet);
@@ -785,7 +784,6 @@ impl PdfCodegen {
 
         let full_text = texts.join("\n");
         let font_name = "Times-Roman";
-        let font_tag = self.font_tag(font_name);
         let size = self.current_font_size;
         let line_height = size * 1.6;
 
@@ -1277,7 +1275,7 @@ impl PdfCodegen {
         let font_start = 3;
         let num_fonts = self.fonts.len();
         let resources_id = font_start + num_fonts;
-        let obj_offset = resources_id; // existing objects get IDs starting after resources
+        let _obj_offset = resources_id;
 
         // Remap page IDs and content IDs
         // self.objects contains interleaved content streams and page objects
@@ -1291,7 +1289,7 @@ impl PdfCodegen {
         final_objects.push((1, catalog.into_bytes()));
 
         // Font objects (3..3+N-1)
-        for (i, (tag, base_font)) in self.fonts.iter().enumerate() {
+        for (i, (_tag, base_font)) in self.fonts.iter().enumerate() {
             let font_id = font_start + i;
             let font_obj = format!(
                 "<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>",
