@@ -280,9 +280,44 @@ const WF = (() => {
   // ─── Router ──────────────────────────────────────────
   let routerInstance = null;
 
+  // ─── Router ──────────────────────────────────────────
+  // Detect base path for GitHub Pages (e.g., /WebFluent)
+  const _basePath = (function() {
+    const base = document.querySelector("base");
+    if (base) return base.getAttribute("href").replace(/\/$/, "");
+    // Auto-detect: if script src is relative (../app.js), we're in a subdir
+    const scripts = document.querySelectorAll("script[src]");
+    for (const s of scripts) {
+      const src = s.getAttribute("src");
+      if (src && src.includes("app.js")) {
+        const depth = (src.match(/\.\.\//g) || []).length;
+        if (depth > 0) {
+          const segs = location.pathname.split("/").filter(Boolean);
+          return "/" + segs.slice(0, segs.length - depth).join("/");
+        }
+      }
+    }
+    return "";
+  })();
+
+  function _stripBase(fullPath) {
+    if (_basePath && fullPath.startsWith(_basePath)) {
+      const stripped = fullPath.slice(_basePath.length);
+      return stripped || "/";
+    }
+    return fullPath;
+  }
+
   function createRouter(routes, container) {
-    const currentPath = signal(window.location.pathname);
-    let currentCleanup = null;
+    // Check for SPA redirect from 404.html (?p=/path)
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get("p");
+    if (redirectPath) {
+      window.history.replaceState(null, "", _basePath + redirectPath);
+    }
+
+    const initialPath = _stripBase(window.location.pathname);
+    const currentPath = signal(initialPath);
 
     function matchRoute(path) {
       for (const route of routes) {
@@ -324,14 +359,14 @@ const WF = (() => {
     }
 
     window.addEventListener("popstate", () => {
-      currentPath.set(window.location.pathname);
+      currentPath.set(_stripBase(window.location.pathname));
     });
 
     effect(render);
 
     routerInstance = {
       navigate: (path) => {
-        window.history.pushState(null, "", path);
+        window.history.pushState(null, "", _basePath + path);
         currentPath.set(path);
       },
       currentPath,
