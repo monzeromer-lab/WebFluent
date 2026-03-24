@@ -6,12 +6,12 @@ Page Cli (path: "/cli", title: "CLI Reference") {
 
         Spacer()
 
-        Heading("webfluent init", h2)
+        Heading("wf init", h2)
         Text("Create a new WebFluent project.")
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("webfluent init <name> [--template spa|static]", block)
+                Code("wf init <name> [--template spa|static]", block)
             }
         }
         Spacer(sm)
@@ -27,12 +27,12 @@ Page Cli (path: "/cli", title: "CLI Reference") {
         Divider()
         Spacer()
 
-        Heading("webfluent build", h2)
+        Heading("wf build", h2)
         Text("Compile .wf files to HTML, CSS, and JavaScript.")
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("webfluent build [--dir DIR]", block)
+                Code("wf build [--dir DIR]", block)
             }
         }
         Spacer(sm)
@@ -53,12 +53,12 @@ Page Cli (path: "/cli", title: "CLI Reference") {
         Divider()
         Spacer()
 
-        Heading("webfluent serve", h2)
+        Heading("wf serve", h2)
         Text("Start a development server that serves the built output.")
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("webfluent serve [--dir DIR]", block)
+                Code("wf serve [--dir DIR]", block)
             }
         }
         Spacer(sm)
@@ -68,20 +68,20 @@ Page Cli (path: "/cli", title: "CLI Reference") {
         Divider()
         Spacer()
 
-        Heading("webfluent generate", h2)
+        Heading("wf generate", h2)
         Text("Scaffold a new page, component, or store.")
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("webfluent generate <kind> <name> [--dir DIR]", block)
+                Code("wf generate <kind> <name> [--dir DIR]", block)
             }
         }
         Spacer(sm)
         Table {
             Thead { Tcell("Kind") Tcell("Creates") Tcell("Example") }
-            Trow { Tcell("page") Tcell("src/pages/Name.wf") Tcell("webfluent generate page About") }
-            Trow { Tcell("component") Tcell("src/components/Name.wf") Tcell("webfluent generate component Header") }
-            Trow { Tcell("store") Tcell("src/stores/name.wf") Tcell("webfluent generate store CartStore") }
+            Trow { Tcell("page") Tcell("src/pages/Name.wf") Tcell("wf generate page About") }
+            Trow { Tcell("component") Tcell("src/components/Name.wf") Tcell("wf generate component Header") }
+            Trow { Tcell("store") Tcell("src/stores/name.wf") Tcell("wf generate store CartStore") }
         }
 
         Spacer()

@@ -1981,7 +1981,7 @@ cargo build --release");
   _e577.appendChild(_e581);
   const _e582 = WF.h("div", { className: "wf-spacer" });
   _e577.appendChild(_e582);
-  const _e583 = WF.h("code", { className: "wf-code wf-code--block" }, "webfluent init my-app --template spa");
+  const _e583 = WF.h("code", { className: "wf-code wf-code--block" }, "wf init my-app --template spa");
   _e577.appendChild(_e583);
   _e576.appendChild(_e577);
   _e575.appendChild(_e576);
@@ -1999,7 +1999,7 @@ cargo build --release");
   _e586.appendChild(_e590);
   const _e591 = WF.h("div", { className: "wf-spacer" });
   _e586.appendChild(_e591);
-  const _e592 = WF.h("code", { className: "wf-code wf-code--block" }, "webfluent init my-site --template static");
+  const _e592 = WF.h("code", { className: "wf-code wf-code--block" }, "wf init my-site --template static");
   _e586.appendChild(_e592);
   _e585.appendChild(_e586);
   _e584.appendChild(_e585);
@@ -2012,8 +2012,8 @@ cargo build --release");
   const _e595 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e596 = WF.h("div", { className: "wf-card__body" });
   const _e597 = WF.h("code", { className: "wf-code wf-code--block" }, "cd my-app
-webfluent build
-webfluent serve");
+wf build
+wf serve");
   _e596.appendChild(_e597);
   _e595.appendChild(_e596);
   _e557.appendChild(_e595);
@@ -2113,7 +2113,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e634);
   const _e635 = WF.h("div", { className: "wf-spacer" });
   _e631.appendChild(_e635);
-  const _e636 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "webfluent init");
+  const _e636 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "wf init");
   _e631.appendChild(_e636);
   const _e637 = WF.h("p", { className: "wf-text" }, "Create a new WebFluent project.");
   _e631.appendChild(_e637);
@@ -2121,7 +2121,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e638);
   const _e639 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e640 = WF.h("div", { className: "wf-card__body" });
-  const _e641 = WF.h("code", { className: "wf-code wf-code--block" }, "webfluent init <name> [--template spa|static]");
+  const _e641 = WF.h("code", { className: "wf-code wf-code--block" }, "wf init <name> [--template spa|static]");
   _e640.appendChild(_e641);
   _e639.appendChild(_e640);
   _e631.appendChild(_e639);
@@ -2157,7 +2157,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e656);
   const _e657 = WF.h("div", { className: "wf-spacer" });
   _e631.appendChild(_e657);
-  const _e658 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "webfluent build");
+  const _e658 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "wf build");
   _e631.appendChild(_e658);
   const _e659 = WF.h("p", { className: "wf-text" }, "Compile .wf files to HTML, CSS, and JavaScript.");
   _e631.appendChild(_e659);
@@ -2165,7 +2165,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e660);
   const _e661 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e662 = WF.h("div", { className: "wf-card__body" });
-  const _e663 = WF.h("code", { className: "wf-code wf-code--block" }, "webfluent build [--dir DIR]");
+  const _e663 = WF.h("code", { className: "wf-code wf-code--block" }, "wf build [--dir DIR]");
   _e662.appendChild(_e663);
   _e661.appendChild(_e662);
   _e631.appendChild(_e661);
@@ -2205,7 +2205,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e680);
   const _e681 = WF.h("div", { className: "wf-spacer" });
   _e631.appendChild(_e681);
-  const _e682 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "webfluent serve");
+  const _e682 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "wf serve");
   _e631.appendChild(_e682);
   const _e683 = WF.h("p", { className: "wf-text" }, "Start a development server that serves the built output.");
   _e631.appendChild(_e683);
@@ -2213,7 +2213,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e684);
   const _e685 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e686 = WF.h("div", { className: "wf-card__body" });
-  const _e687 = WF.h("code", { className: "wf-code wf-code--block" }, "webfluent serve [--dir DIR]");
+  const _e687 = WF.h("code", { className: "wf-code wf-code--block" }, "wf serve [--dir DIR]");
   _e686.appendChild(_e687);
   _e685.appendChild(_e686);
   _e631.appendChild(_e685);
@@ -2227,7 +2227,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e691);
   const _e692 = WF.h("div", { className: "wf-spacer" });
   _e631.appendChild(_e692);
-  const _e693 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "webfluent generate");
+  const _e693 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, "wf generate");
   _e631.appendChild(_e693);
   const _e694 = WF.h("p", { className: "wf-text" }, "Scaffold a new page, component, or store.");
   _e631.appendChild(_e694);
@@ -2235,7 +2235,7 @@ function Page_Cli(params) {
   _e631.appendChild(_e695);
   const _e696 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e697 = WF.h("div", { className: "wf-card__body" });
-  const _e698 = WF.h("code", { className: "wf-code wf-code--block" }, "webfluent generate <kind> <name> [--dir DIR]");
+  const _e698 = WF.h("code", { className: "wf-code wf-code--block" }, "wf generate <kind> <name> [--dir DIR]");
   _e697.appendChild(_e698);
   _e696.appendChild(_e697);
   _e631.appendChild(_e696);
@@ -2255,7 +2255,7 @@ function Page_Cli(params) {
   _e705.appendChild(_e706);
   const _e707 = WF.h("td", {}, "src/pages/Name.wf");
   _e705.appendChild(_e707);
-  const _e708 = WF.h("td", {}, "webfluent generate page About");
+  const _e708 = WF.h("td", {}, "wf generate page About");
   _e705.appendChild(_e708);
   _e700.appendChild(_e705);
   const _e709 = WF.h("tr", {});
@@ -2263,7 +2263,7 @@ function Page_Cli(params) {
   _e709.appendChild(_e710);
   const _e711 = WF.h("td", {}, "src/components/Name.wf");
   _e709.appendChild(_e711);
-  const _e712 = WF.h("td", {}, "webfluent generate component Header");
+  const _e712 = WF.h("td", {}, "wf generate component Header");
   _e709.appendChild(_e712);
   _e700.appendChild(_e709);
   const _e713 = WF.h("tr", {});
@@ -2271,7 +2271,7 @@ function Page_Cli(params) {
   _e713.appendChild(_e714);
   const _e715 = WF.h("td", {}, "src/stores/name.wf");
   _e713.appendChild(_e715);
-  const _e716 = WF.h("td", {}, "webfluent generate store CartStore");
+  const _e716 = WF.h("td", {}, "wf generate store CartStore");
   _e713.appendChild(_e716);
   _e700.appendChild(_e713);
   _e631.appendChild(_e700);
@@ -2971,7 +2971,7 @@ function Page_Accessibility(params) {
   _e1010.appendChild(_e1017);
   const _e1018 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1019 = WF.h("div", { className: "wf-card__body" });
-  const _e1020 = WF.h("code", { className: "wf-code wf-code--block" }, "$ webfluent build
+  const _e1020 = WF.h("code", { className: "wf-code wf-code--block" }, "$ wf build
 Building my-app...
   Warning [A01]: Image missing \"alt\" attribute at src/pages/Home.wf:12:5
     Add alt text: Image(src: \"...\", alt: \"Description of image\")

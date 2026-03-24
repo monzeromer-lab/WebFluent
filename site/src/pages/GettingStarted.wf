@@ -33,7 +33,7 @@ Page GettingStarted (path: "/getting-started", title: "Getting Started") {
                         Heading("Interactive App", h2)
                         Text("Dashboard with routing, stores, forms, modals, animations. Full CRUD task manager.", muted)
                         Spacer(sm)
-                        Code("webfluent init my-app --template spa", block)
+                        Code("wf init my-app --template spa", block)
                     }
                 }
             }
@@ -45,7 +45,7 @@ Page GettingStarted (path: "/getting-started", title: "Getting Started") {
                         Heading("Static Site", h2)
                         Text("Marketing site with SSG, i18n, blog cards, contact form. Pre-rendered HTML for instant loads.", muted)
                         Spacer(sm)
-                        Code("webfluent init my-site --template static", block)
+                        Code("wf init my-site --template static", block)
                     }
                 }
             }
@@ -56,7 +56,7 @@ Page GettingStarted (path: "/getting-started", title: "Getting Started") {
         Heading("Build and Serve", h2)
         Card(outlined) {
             Card.Body {
-                Code("cd my-app\nwebfluent build\nwebfluent serve", block)
+                Code("cd my-app\nwf build\nwf serve", block)
             }
         }
         Spacer(sm)

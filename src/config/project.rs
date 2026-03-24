@@ -136,7 +136,7 @@ impl ProjectConfig {
         let config_path = project_dir.join("webfluent.app.json");
         if !config_path.exists() {
             return Err(WebFluentError::ConfigError(
-                "webfluent.app.json not found. Run 'webfluent init' to create a project.".to_string()
+                "webfluent.app.json not found. Run 'wf init' to create a project.".to_string()
             ));
         }
         let content = fs::read_to_string(&config_path)?;

@@ -14,7 +14,7 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "webfluent")]
+#[command(name = "wf")]
 #[command(about = "WebFluent — Build SPAs with a web-first language", long_about = None)]
 #[command(version)]
 struct Cli {

@@ -23,8 +23,8 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
     println!("Created new WebFluent project: {} (template: {})", name, template);
     println!();
     println!("  cd {}", name);
-    println!("  webfluent build");
-    println!("  webfluent serve");
+    println!("  wf build");
+    println!("  wf serve");
 
     Ok(())
 }

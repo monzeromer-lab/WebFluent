@@ -93,24 +93,24 @@ cd webfluent
 cargo build --release
 ```
 
-The binary is at `target/release/webfluent`.
+The binary is at `target/release/wf`.
 
 ### Create a Project
 
 ```bash
 # Interactive SPA (dashboard, task manager, etc.)
-webfluent init my-app --template spa
+wf init my-app --template spa
 
 # Static site with SSG + i18n (blog, marketing, etc.)
-webfluent init my-site --template static
+wf init my-site --template static
 ```
 
 ### Build & Serve
 
 ```bash
 cd my-app
-webfluent build
-webfluent serve
+wf build
+wf serve
 ```
 
 Open `http://localhost:3000`.
@@ -367,10 +367,10 @@ Button("Custom") {
 ## CLI
 
 ```
-webfluent init <name> [--template spa|static]   Create a new project
-webfluent build [--dir DIR]                     Compile to HTML + CSS + JS
-webfluent serve [--dir DIR]                     Start dev server
-webfluent generate page|component|store <name>  Scaffold a new file
+wf init <name> [--template spa|static]   Create a new project
+wf build [--dir DIR]                     Compile to HTML + CSS + JS
+wf serve [--dir DIR]                     Start dev server
+wf generate page|component|store <name>  Scaffold a new file
 ```
 
 ## Build Output
