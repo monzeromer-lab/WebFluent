@@ -1,2 +1,4 @@
 /target
 *.exe
+/dist
+RELEASE_NOTES.md
