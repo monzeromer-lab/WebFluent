@@ -1,0 +1,102 @@
+Page Cli (path: "/cli", title: "CLI Reference") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("CLI Reference", h1)
+        Text("The WebFluent command-line interface.", muted)
+
+        Spacer()
+
+        Heading("webfluent init", h2)
+        Text("Create a new WebFluent project.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("webfluent init <name> [--template spa|static]", block)
+            }
+        }
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Argument") Tcell("Description") }
+            Trow { Tcell("name") Tcell("Project name (creates a directory)") }
+            Trow { Tcell("--template, -t") Tcell("Template: spa (default) or static") }
+        }
+        Spacer(sm)
+        Text("SPA template: interactive dashboard with routing, stores, forms, animations. Static template: marketing site with SSG, i18n, responsive grids.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("webfluent build", h2)
+        Text("Compile .wf files to HTML, CSS, and JavaScript.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("webfluent build [--dir DIR]", block)
+            }
+        }
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Option") Tcell("Description") }
+            Trow { Tcell("--dir, -d") Tcell("Project directory (default: current directory)") }
+        }
+        Spacer(sm)
+        Text("The build pipeline: Lex all .wf files, parse to AST, run accessibility linter, generate HTML + CSS + JS, write to output directory.", muted)
+        Spacer(sm)
+        Text("Output depends on config:")
+        Stack(gap: sm) {
+            Text("SPA mode (ssg: false): single index.html + app.js + styles.css")
+            Text("SSG mode (ssg: true): one HTML per page + app.js + styles.css")
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("webfluent serve", h2)
+        Text("Start a development server that serves the built output.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("webfluent serve [--dir DIR]", block)
+            }
+        }
+        Spacer(sm)
+        Text("Serves files from the build directory. SPA fallback: all routes serve index.html so client-side routing works. Port is configured in webfluent.app.json (default: 3000).", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("webfluent generate", h2)
+        Text("Scaffold a new page, component, or store.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("webfluent generate <kind> <name> [--dir DIR]", block)
+            }
+        }
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Kind") Tcell("Creates") Tcell("Example") }
+            Trow { Tcell("page") Tcell("src/pages/Name.wf") Tcell("webfluent generate page About") }
+            Trow { Tcell("component") Tcell("src/components/Name.wf") Tcell("webfluent generate component Header") }
+            Trow { Tcell("store") Tcell("src/stores/name.wf") Tcell("webfluent generate store CartStore") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Configuration", h2)
+        Text("All config is in webfluent.app.json at the project root.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"name\": \"My App\",\n  \"version\": \"1.0.0\",\n  \"author\": \"Your Name\",\n  \"theme\": \{\n    \"name\": \"default\",\n    \"mode\": \"light\",\n    \"tokens\": \{\n      \"color-primary\": \"#6366F1\"\n    \}\n  \},\n  \"build\": \{\n    \"output\": \"./build\",\n    \"minify\": true,\n    \"ssg\": false\n  \},\n  \"dev\": \{\n    \"port\": 3000\n  \},\n  \"meta\": \{\n    \"title\": \"My App\",\n    \"description\": \"Built with WebFluent\",\n    \"lang\": \"en\"\n  \},\n  \"i18n\": \{\n    \"defaultLocale\": \"en\",\n    \"locales\": [\"en\", \"ar\"],\n    \"dir\": \"src/translations\"\n  \}\n\}", block)
+            }
+        }
+
+        Spacer(xl)
+    }
+}

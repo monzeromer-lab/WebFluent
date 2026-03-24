@@ -1,0 +1,9 @@
+Component FeatureCard (title: String, description: String) {
+    Card(elevated, scaleIn) {
+        Card.Body {
+            Heading(title, h2)
+            Spacer(sm)
+            Text(description, muted)
+        }
+    }
+}

@@ -1,0 +1,132 @@
+Page Home (path: "/", title: "WebFluent — The Web-First Language") {
+    Container {
+        Spacer(xl)
+
+        Stack(gap: md) {
+            Heading("The Web-First Language", h1, center, slideUp)
+            Text("Build fully functional single-page applications and static sites that compile to clean HTML, CSS, and JavaScript. No frameworks. No dependencies. Just the web.", muted, center, fadeIn)
+            Spacer(sm)
+            Row(gap: md, justify: center) {
+                Button("Get Started", primary, large) { navigate("/getting-started") }
+                Button("View Guide", large) { navigate("/guide") }
+            }
+        }
+
+        Spacer(xl)
+
+        Card(outlined) {
+            Card.Body {
+                Code("Page Home (path: \"/\") \{\n    Container \{\n        Heading(\"Hello, WebFluent!\", h1)\n        Text(\"Build for the web. Nothing else.\")\n\n        Button(\"Get Started\", primary, large) \{\n            navigate(\"/docs\")\n        \}\n    \}\n\}", block)
+            }
+        }
+
+        Spacer(xl)
+        Divider()
+        Spacer()
+
+        Heading("Why WebFluent?", h2, center)
+        Text("Everything you need to build for the web, built into the language.", muted, center)
+
+        Spacer()
+
+        Grid(columns: 3, gap: md) {
+            FeatureCard(
+                title: "Declarative Syntax",
+                description: "No XML, no JSX, no templates. Write UI as readable declarations with curly braces and parentheses."
+            )
+            FeatureCard(
+                title: "50+ Built-in Components",
+                description: "Navbar, Card, Modal, Form, Table, Tabs, and more. Every component has a default design out of the box."
+            )
+            FeatureCard(
+                title: "Signal-Based Reactivity",
+                description: "Fine-grained DOM updates without a virtual DOM. When state changes, only the affected nodes update."
+            )
+        }
+
+        Spacer()
+
+        Grid(columns: 3, gap: md) {
+            FeatureCard(
+                title: "Design System First",
+                description: "Design tokens for colors, spacing, typography. Switch themes with a single config change."
+            )
+            FeatureCard(
+                title: "Animations Built In",
+                description: "12 animations as modifiers: fadeIn, slideUp, bounce, shake. Enter/exit animations on conditionals and loops."
+            )
+            FeatureCard(
+                title: "i18n + RTL Support",
+                description: "JSON translations with t() function. Reactive locale switching. Automatic RTL for Arabic, Hebrew, Farsi."
+            )
+        }
+
+        Spacer()
+
+        Grid(columns: 3, gap: md) {
+            FeatureCard(
+                title: "Static Site Generation",
+                description: "Pre-render pages at build time for instant content. JavaScript hydrates for interactivity."
+            )
+            FeatureCard(
+                title: "Accessibility Linting",
+                description: "12 compile-time checks catch missing alt text, labels, headings. Warnings during build, never blocks."
+            )
+            FeatureCard(
+                title: "Zero Dependencies",
+                description: "Compiles to vanilla HTML, CSS, and JS. No runtime framework. The output is pure web standards."
+            )
+        }
+
+        Spacer(xl)
+        Divider()
+        Spacer()
+
+        Heading("How It Works", h2, center)
+
+        Spacer()
+
+        Row(gap: lg) {
+            Column(span: 4) {
+                Card {
+                    Card.Body {
+                        Heading("1. Write", h2)
+                        Text("Write your UI in .wf files using the declarative syntax. Components, pages, stores, and styles — all in one language.", muted)
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card {
+                    Card.Body {
+                        Heading("2. Build", h2)
+                        Text("The Rust compiler lexes, parses, lints for accessibility, and generates optimized HTML + CSS + JS output.", muted)
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card {
+                    Card.Body {
+                        Heading("3. Ship", h2)
+                        Text("Deploy the static output anywhere — GitHub Pages, Netlify, Vercel, or any static hosting. No server required.", muted)
+                    }
+                }
+            }
+        }
+
+        Spacer(xl)
+
+        Card(elevated) {
+            Card.Body {
+                Row(align: center, justify: between) {
+                    Stack {
+                        Heading("Ready to start?", h2)
+                        Text("Create your first WebFluent project in seconds.", muted)
+                    }
+                    Button("Get Started", primary, large) { navigate("/getting-started") }
+                }
+            }
+        }
+
+        Spacer(xl)
+    }
+}

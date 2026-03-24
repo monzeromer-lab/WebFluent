@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internationalization</title>
+    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="app">
+        <!--wf-component-->
+        <div class="wf-container wf-animate-fadeIn">
+            <div class="wf-spacer"></div>
+            <h1 class="wf-heading wf-heading--h1">Internationalization (i18n)</h1>​
+            <p class="wf-text wf-text--muted">Built-in multi-language support with reactive locale switching and automatic RTL.</p>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Setup</h2>​
+            <p class="wf-text">Create a JSON file per locale in your translations directory.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">// src/translations/en.json
+{
+    &quot;greeting&quot;: &quot;Hello, {name}!&quot;,
+    &quot;nav.home&quot;: &quot;Home&quot;,
+    &quot;nav.about&quot;: &quot;About&quot;
+}
+
+// src/translations/ar.json
+{
+    &quot;greeting&quot;: &quot;!أهلاً، {name}&quot;,
+    &quot;nav.home&quot;: &quot;الرئيسية&quot;,
+    &quot;nav.about&quot;: &quot;حول&quot;
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--bold">Add i18n config to webfluent.app.json:</p>​
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">{
+  &quot;i18n&quot;: {
+    &quot;defaultLocale&quot;: &quot;en&quot;,
+    &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;],
+    &quot;dir&quot;: &quot;src/translations&quot;
+  }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">The t() Function</h2>​
+            <p class="wf-text">Use t() to look up translated text. It is reactive — all t() calls update when the locale changes.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">// Simple key lookup
+Text(t(&quot;nav.home&quot;))
+
+// With interpolation
+Text(t(&quot;greeting&quot;, name: user.name))
+
+// In any component
+Button(t(&quot;actions.save&quot;), primary)
+Heading(t(&quot;page.title&quot;), h1)</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Locale Switching</h2>​
+            <p class="wf-text">Switch the locale at runtime with setLocale(). All translated text updates instantly.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Button(&quot;English&quot;) { setLocale(&quot;en&quot;) }
+Button(&quot;العربية&quot;) { setLocale(&quot;ar&quot;) }
+Button(&quot;Espanol&quot;) { setLocale(&quot;es&quot;) }
+
+// Access current locale
+Text(&quot;Current: {locale}&quot;)
+Text(&quot;Direction: {dir}&quot;)</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">RTL Support</h2>​
+            <p class="wf-text">WebFluent automatically detects RTL locales and updates the document direction.</p>​
+            <div class="wf-spacer"></div>
+            <table class="wf-table">
+                <thead>
+                    <td>Locale</td>​
+                    <td>Direction</td>​
+                </thead>​
+                <tr>
+                    <td>ar (Arabic)</td>​
+                    <td>RTL</td>​
+                </tr>​
+                <tr>
+                    <td>he (Hebrew)</td>​
+                    <td>RTL</td>​
+                </tr>​
+                <tr>
+                    <td>fa (Farsi)</td>​
+                    <td>RTL</td>​
+                </tr>​
+                <tr>
+                    <td>ur (Urdu)</td>​
+                    <td>RTL</td>​
+                </tr>​
+                <tr>
+                    <td>All others</td>​
+                    <td>LTR</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--muted">When setLocale(&quot;ar&quot;) is called, the HTML element gets dir=&quot;rtl&quot; and lang=&quot;ar&quot; automatically.</p>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Fallback Behavior</h2>​
+            <p class="wf-text">If a key is missing in the current locale:</p>​
+            <div class="wf-stack">
+                <p class="wf-text">1. Falls back to the defaultLocale translation</p>​
+                <p class="wf-text">2. If still missing, returns the key itself (e.g., &quot;nav.home&quot;)</p>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">SSG + i18n</h2>​
+            <p class="wf-text wf-text--muted">When both SSG and i18n are enabled, pages are pre-rendered with the default locale text. After JavaScript loads, locale switching works normally.</p>​
+            <div class="wf-spacer"></div>
+        </div>​
+        <!--wf-component-->
+    </div>
+    <script src="../app.js"></script>
+</body>
+</html>

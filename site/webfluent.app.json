@@ -1,0 +1,27 @@
+{
+  "name": "WebFluent",
+  "version": "1.0.0",
+  "author": "Monzer Omer",
+  "theme": {
+    "name": "default",
+    "mode": "light",
+    "tokens": {
+      "color-primary": "#6366F1",
+      "color-secondary": "#8B5CF6",
+      "font-family": "Inter, system-ui, -apple-system, sans-serif"
+    }
+  },
+  "build": {
+    "output": "../docs",
+    "minify": true,
+    "ssg": true
+  },
+  "dev": {
+    "port": 4000
+  },
+  "meta": {
+    "title": "WebFluent — The Web-First Language",
+    "description": "A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.",
+    "lang": "en"
+  }
+}

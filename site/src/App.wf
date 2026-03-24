@@ -1,0 +1,18 @@
+App {
+    NavBar
+
+    Router {
+        Route(path: "/", page: Home)
+        Route(path: "/getting-started", page: GettingStarted)
+        Route(path: "/guide", page: Guide)
+        Route(path: "/components", page: Components)
+        Route(path: "/styling", page: Styling)
+        Route(path: "/animation", page: Animation)
+        Route(path: "/i18n", page: I18n)
+        Route(path: "/ssg", page: Ssg)
+        Route(path: "/accessibility", page: Accessibility)
+        Route(path: "/cli", page: Cli)
+    }
+
+    SiteFooter
+}

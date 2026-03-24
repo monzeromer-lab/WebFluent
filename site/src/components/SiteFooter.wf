@@ -1,0 +1,14 @@
+Component SiteFooter () {
+    Divider()
+    Container {
+        Spacer()
+        Row(align: center, justify: between) {
+            Text("WebFluent — The Web-First Language", muted, small)
+            Row(gap: md) {
+                Link(to: "/") { Text("Home", muted, small) }
+                Link(to: "/getting-started") { Text("Docs", muted, small) }
+            }
+        }
+        Spacer()
+    }
+}

@@ -1,0 +1,111 @@
+Page GettingStarted (path: "/getting-started", title: "Getting Started") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Getting Started", h1)
+        Text("Get up and running with WebFluent in under a minute.", muted)
+
+        Spacer()
+
+        Heading("Installation", h2)
+        Text("Build from source. You need Rust installed.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("git clone https://github.com/user/webfluent.git\ncd webfluent\ncargo build --release", block)
+            }
+        }
+        Spacer(sm)
+        Text("The binary is at target/release/webfluent. Add it to your PATH.", muted)
+
+        Spacer()
+
+        Heading("Create a Project", h2)
+        Text("WebFluent comes with two starter templates.")
+
+        Spacer(sm)
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Badge("SPA", primary)
+                        Spacer(sm)
+                        Heading("Interactive App", h2)
+                        Text("Dashboard with routing, stores, forms, modals, animations. Full CRUD task manager.", muted)
+                        Spacer(sm)
+                        Code("webfluent init my-app --template spa", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Badge("Static", success)
+                        Spacer(sm)
+                        Heading("Static Site", h2)
+                        Text("Marketing site with SSG, i18n, blog cards, contact form. Pre-rendered HTML for instant loads.", muted)
+                        Spacer(sm)
+                        Code("webfluent init my-site --template static", block)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+
+        Heading("Build and Serve", h2)
+        Card(outlined) {
+            Card.Body {
+                Code("cd my-app\nwebfluent build\nwebfluent serve", block)
+            }
+        }
+        Spacer(sm)
+        Text("Open http://localhost:3000 in your browser.", muted)
+
+        Spacer()
+
+        Heading("Project Structure", h2)
+        Text("A WebFluent project has this structure:")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("my-app/\n├── webfluent.app.json       # Project config\n├── src/\n│   ├── App.wf               # Root app (router, layout)\n│   ├── pages/               # Page files\n│   │   ├── Home.wf\n│   │   └── About.wf\n│   ├── components/           # Reusable components\n│   │   └── Header.wf\n│   ├── stores/               # Shared state\n│   │   └── auth.wf\n│   └── translations/         # i18n JSON files\n│       ├── en.json\n│       └── ar.json\n├── public/                   # Static assets\n└── build/                    # Compiled output", block)
+            }
+        }
+
+        Spacer()
+
+        Heading("Build Output", h2)
+        Text("The compiler generates three files:")
+        Spacer(sm)
+        Table {
+            Thead {
+                Tcell("File")
+                Tcell("Contents")
+            }
+            Trow {
+                Tcell("index.html")
+                Tcell("HTML shell (or pre-rendered pages with SSG)")
+            }
+            Trow {
+                Tcell("app.js")
+                Tcell("Reactive runtime + compiled pages and components")
+            }
+            Trow {
+                Tcell("styles.css")
+                Tcell("Design tokens as CSS custom properties + component styles")
+            }
+        }
+
+        Spacer()
+
+        Heading("Next Steps", h2)
+        Row(gap: md) {
+            Button("Read the Guide", primary) { navigate("/guide") }
+            Button("Browse Components") { navigate("/components") }
+            Button("View CLI Reference") { navigate("/cli") }
+        }
+
+        Spacer(xl)
+    }
+}

@@ -1,0 +1,159 @@
+Page Guide (path: "/guide", title: "Language Guide") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Language Guide", h1)
+        Text("Learn the core concepts of WebFluent.", muted)
+
+        Spacer()
+
+        Heading("Pages", h2)
+        Text("Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Page Home (path: \"/\", title: \"Home\") \{\n    Container \{\n        Heading(\"Welcome\", h1)\n        Text(\"This is the home page.\")\n    \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Page attributes:", bold)
+        Table {
+            Thead {
+                Tcell("Attribute")
+                Tcell("Type")
+                Tcell("Description")
+            }
+            Trow { Tcell("path") Tcell("String") Tcell("URL route for this page (required)") }
+            Trow { Tcell("title") Tcell("String") Tcell("Document title") }
+            Trow { Tcell("guard") Tcell("Expression") Tcell("Navigation guard — redirects if false") }
+            Trow { Tcell("redirect") Tcell("String") Tcell("Redirect target when guard fails") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Components", h2)
+        Text("Reusable UI blocks that accept props and can have internal state.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Component UserCard (name: String, role: String, active: Bool = true) \{\n    Card(elevated) \{\n        Row(align: center, gap: md) \{\n            Avatar(initials: \"U\", primary)\n            Stack \{\n                Text(name, bold)\n                Text(role, muted)\n            \}\n            if active \{\n                Badge(\"Active\", success)\n            \}\n        \}\n    \}\n\}\n\n// Usage\nUserCard(name: \"Monzer\", role: \"Developer\")", block)
+            }
+        }
+        Spacer(sm)
+        Text("Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("State and Reactivity", h2)
+        Text("State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Page Counter (path: \"/counter\") \{\n    state count = 0\n\n    Container \{\n        Text(\"Count: \{count\}\")\n        Button(\"+1\", primary) \{ count = count + 1 \}\n        Button(\"-1\") \{ count = count - 1 \}\n    \}\n\}", block)
+            }
+        }
+
+        Spacer(sm)
+        Text("Derived state:", bold)
+        Card(outlined) {
+            Card.Body {
+                Code("state items = [\{name: \"A\", price: 3\}, \{name: \"B\", price: 2\}]\nderived total = items.map(i => i.price).sum()\nderived isEmpty = items.length == 0", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Events", h2)
+        Text("Event handlers are declared with on:event or via shorthand blocks on buttons.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Submit\") \{\n    on:click \{\n        submitForm()\n    \}\n\}\n\nInput(text, placeholder: \"Search...\") \{\n    on:input \{\n        searchQuery = value\n    \}\n    on:keydown \{\n        if key == \"Enter\" \{\n            performSearch()\n        \}\n    \}\n\}\n\n// Shorthand: block on Button defaults to on:click\nButton(\"Save\") \{ save() \}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Control Flow", h2)
+
+        Text("Conditionals:", bold)
+        Card(outlined) {
+            Card.Body {
+                Code("if isLoggedIn \{\n    Text(\"Welcome back!\")\n\} else if isGuest \{\n    Text(\"Hello, guest\")\n\} else \{\n    Button(\"Log In\") \{ navigate(\"/login\") \}\n\}", block)
+            }
+        }
+
+        Spacer(sm)
+        Text("Loops:", bold)
+        Card(outlined) {
+            Card.Body {
+                Code("for user in users \{\n    UserCard(name: user.name, role: user.role)\n\}\n\n// With index\nfor item, index in items \{\n    Text(\"\{index + 1\}. \{item\}\")\n\}", block)
+            }
+        }
+
+        Spacer(sm)
+        Text("Show/Hide (keeps element in DOM, toggles visibility):", bold)
+        Card(outlined) {
+            Card.Body {
+                Code("show isExpanded \{\n    Card \{ Text(\"Expanded content\") \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Stores", h2)
+        Text("Stores hold shared state accessible from any page or component.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Store CartStore \{\n    state items = []\n\n    derived total = items.map(i => i.price * i.quantity).sum()\n    derived count = items.length\n\n    action addItem(product: Map) \{\n        items.push(\{ id: product.id, name: product.name, price: product.price, quantity: 1 \})\n    \}\n\n    action removeItem(id: Number) \{\n        items = items.filter(i => i.id != id)\n    \}\n\}\n\n// Usage in a page\nPage Cart (path: \"/cart\") \{\n    use CartStore\n\n    Text(\"Total: $\{CartStore.total\}\")\n    Button(\"Clear\") \{ CartStore.clear() \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Routing", h2)
+        Text("SPA routing is declared in the App file.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("App \{\n    Navbar \{\n        Navbar.Brand \{ Text(\"My App\", heading) \}\n        Navbar.Links \{\n            Link(to: \"/\") \{ Text(\"Home\") \}\n            Link(to: \"/about\") \{ Text(\"About\") \}\n        \}\n    \}\n\n    Router \{\n        Route(path: \"/\", page: Home)\n        Route(path: \"/about\", page: About)\n        Route(path: \"/user/:id\", page: UserProfile)\n        Route(path: \"*\", page: NotFound)\n    \}\n\}\n\n// Programmatic navigation\nButton(\"Go Home\") \{ navigate(\"/\") \}\n\n// Dynamic routes access params\nPage UserProfile (path: \"/user/:id\") \{\n    Text(\"User ID: \{params.id\}\")\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Data Fetching", h2)
+        Text("Built-in async data loading with automatic loading, error, and success states.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("fetch users from \"/api/users\" \{\n    loading \{\n        Spinner()\n    \}\n    error (err) \{\n        Alert(\"Failed to load users\", danger)\n    \}\n    success \{\n        for user in users \{\n            UserCard(name: user.name, role: user.role)\n        \}\n    \}\n\}\n\n// With options\nfetch result from \"/api/submit\" (method: \"POST\", body: \{ name: name, email: email \}) \{\n    success \{\n        Alert(\"Saved!\", success)\n    \}\n\}", block)
+            }
+        }
+
+        Spacer()
+
+        Row(gap: md) {
+            Button("Components Reference", primary) { navigate("/components") }
+            Button("Styling Guide") { navigate("/styling") }
+        }
+
+        Spacer(xl)
+    }
+}

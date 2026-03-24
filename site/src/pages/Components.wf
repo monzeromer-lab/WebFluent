@@ -1,0 +1,135 @@
+Page Components (path: "/components", title: "Components Reference") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Components Reference", h1)
+        Text("WebFluent ships with 50+ built-in components across 8 categories.", muted)
+
+        Spacer()
+
+        Heading("Layout", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("HTML") Tcell("Description") }
+            Trow { Tcell("Container") Tcell("div") Tcell("Centered max-width wrapper. Use fluid modifier for full-width.") }
+            Trow { Tcell("Row") Tcell("div") Tcell("Horizontal flex container. Accepts gap, align, justify.") }
+            Trow { Tcell("Column") Tcell("div") Tcell("Flex child with optional span (1-12 grid). Responsive: span: 12, md: 6, lg: 4.") }
+            Trow { Tcell("Grid") Tcell("div") Tcell("CSS Grid container. Set columns: N and gap.") }
+            Trow { Tcell("Stack") Tcell("div") Tcell("Vertical flex with consistent gap.") }
+            Trow { Tcell("Spacer") Tcell("div") Tcell("Empty space. Variants: sm, md (default), lg, xl.") }
+            Trow { Tcell("Divider") Tcell("hr") Tcell("Horizontal separator line.") }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Container \{\n    Row(gap: md) \{\n        Column(span: 6) \{ Text(\"Left\") \}\n        Column(span: 6) \{ Text(\"Right\") \}\n    \}\n\}\n\nGrid(columns: 3, gap: md) \{\n    Card \{ Text(\"A\") \}\n    Card \{ Text(\"B\") \}\n    Card \{ Text(\"C\") \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Navigation", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("Description") }
+            Trow { Tcell("Navbar") Tcell("Top navigation bar with Brand, Links, Actions sub-components.") }
+            Trow { Tcell("Sidebar") Tcell("Side panel with Header, Item, Divider sub-components.") }
+            Trow { Tcell("Breadcrumb") Tcell("Navigation trail with Item sub-components.") }
+            Trow { Tcell("Link") Tcell("SPA navigation link. Uses to: attribute. Renders as <a>.") }
+            Trow { Tcell("Menu") Tcell("Dropdown menu with trigger and items.") }
+            Trow { Tcell("Tabs / TabPage") Tcell("Tabbed content panels.") }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Navbar \{\n    Navbar.Brand \{ Text(\"My App\", heading) \}\n    Navbar.Links \{\n        Link(to: \"/\") \{ Text(\"Home\") \}\n        Link(to: \"/about\") \{ Text(\"About\") \}\n    \}\n    Navbar.Actions \{\n        Button(\"Sign In\", primary)\n    \}\n\}\n\nTabs \{\n    TabPage(\"General\") \{ Text(\"General settings\") \}\n    TabPage(\"Security\") \{ Text(\"Security settings\") \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Data Display", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("Description") }
+            Trow { Tcell("Card") Tcell("Surface with optional Header, Body, Footer. Modifiers: elevated, outlined, flat.") }
+            Trow { Tcell("Table / Thead / Trow / Tcell") Tcell("Data table with headers and rows.") }
+            Trow { Tcell("List / List.Item") Tcell("Styled list with items.") }
+            Trow { Tcell("Badge") Tcell("Small label. Color modifiers: primary, success, danger, warning.") }
+            Trow { Tcell("Avatar") Tcell("User photo or initials. Use initials: or src: attribute.") }
+            Trow { Tcell("Tooltip") Tcell("Hover popup with text: attribute.") }
+            Trow { Tcell("Tag") Tcell("Removable label with on:remove event.") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Data Input", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("Description") }
+            Trow { Tcell("Input") Tcell("Text input. Types: text, email, password, number, search, tel, url, date, time, color. Use bind: for two-way binding.") }
+            Trow { Tcell("Select / Option") Tcell("Dropdown select with options.") }
+            Trow { Tcell("Checkbox") Tcell("Toggle checkbox with label.") }
+            Trow { Tcell("Radio") Tcell("Exclusive radio button with value and label.") }
+            Trow { Tcell("Switch") Tcell("Toggle switch with label.") }
+            Trow { Tcell("Slider") Tcell("Range slider with min, max, step, label.") }
+            Trow { Tcell("DatePicker") Tcell("Date input with optional min/max.") }
+            Trow { Tcell("FileUpload") Tcell("File picker with accept filter.") }
+            Trow { Tcell("Form") Tcell("Form wrapper with on:submit handler.") }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("state username = \"\"\nstate agreed = false\nstate theme = \"light\"\nstate volume = 50\n\nForm \{\n    Input(text, bind: username, label: \"Username\", required: true)\n    Checkbox(bind: agreed, label: \"I agree to terms\")\n    Radio(bind: theme, value: \"light\", label: \"Light\")\n    Radio(bind: theme, value: \"dark\", label: \"Dark\")\n    Switch(bind: notifications, label: \"Notifications\")\n    Slider(bind: volume, min: 0, max: 100, label: \"Volume\")\n    Button(\"Save\", primary)\n    on:submit \{ save() \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Feedback", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("Description") }
+            Trow { Tcell("Alert") Tcell("Static notification. Modifiers: success, danger, warning, info. Add dismissible.") }
+            Trow { Tcell("Toast") Tcell("Temporary popup triggered from actions. Toast(\"Saved!\", success)") }
+            Trow { Tcell("Modal") Tcell("Full dialog with overlay. Requires visible: state and title: attribute.") }
+            Trow { Tcell("Dialog") Tcell("Lightweight dialog. Same API as Modal.") }
+            Trow { Tcell("Spinner") Tcell("Loading indicator. Modifiers: large, primary.") }
+            Trow { Tcell("Progress") Tcell("Progress bar with value and max attributes.") }
+            Trow { Tcell("Skeleton") Tcell("Loading placeholder with shimmer animation.") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Actions", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("Description") }
+            Trow { Tcell("Button") Tcell("Interactive button. First arg is text. Modifiers: primary, danger, small, large, full, rounded.") }
+            Trow { Tcell("IconButton") Tcell("Icon-only button. Requires icon: and label: for accessibility.") }
+            Trow { Tcell("ButtonGroup") Tcell("Group of buttons rendered as a connected strip.") }
+            Trow { Tcell("Dropdown") Tcell("Button with dropdown menu. Uses label: attribute.") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Media and Typography", h2)
+        Table {
+            Thead { Tcell("Component") Tcell("Description") }
+            Trow { Tcell("Image") Tcell("Requires src: and alt: attributes.") }
+            Trow { Tcell("Video") Tcell("Video player. Use controls: true.") }
+            Trow { Tcell("Icon") Tcell("Icon from built-in set.") }
+            Trow { Tcell("Text") Tcell("Paragraph text. Modifiers: bold, muted, primary, center, small, large.") }
+            Trow { Tcell("Heading") Tcell("Heading with level modifiers: h1, h2, h3, h4, h5, h6.") }
+            Trow { Tcell("Code") Tcell("Code text. Use block modifier for block-level display.") }
+            Trow { Tcell("Blockquote") Tcell("Block quotation with left border.") }
+        }
+
+        Spacer(xl)
+    }
+}

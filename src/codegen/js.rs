@@ -1511,7 +1511,11 @@ impl JsCodegen {
 
     fn emit_expr(&self, expr: &Expr) -> String {
         match expr {
-            Expr::StringLiteral(s) => format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\\"")),
+            Expr::StringLiteral(s) => {
+                let escaped = s.replace('\\', "\\\\").replace('"', "\\\"")
+                    .replace('\u{FFFE}', "{").replace('\u{FFFF}', "}");
+                format!("\"{}\"", escaped)
+            }
             Expr::InterpolatedString(parts) => {
                 let mut out = String::from("`");
                 for part in parts {

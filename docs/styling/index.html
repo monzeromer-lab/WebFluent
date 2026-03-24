@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System & Styling</title>
+    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="app">
+        <!--wf-component-->
+        <div class="wf-container wf-animate-fadeIn">
+            <div class="wf-spacer"></div>
+            <h1 class="wf-heading wf-heading--h1">Design System &amp; Styling</h1>​
+            <p class="wf-text wf-text--muted">WebFluent has a token-based design system. Every built-in component uses design tokens for colors, spacing, typography, and more. Change the entire look with a single config update.</p>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Variant Modifiers</h2>​
+            <p class="wf-text">Apply common styles with modifier keywords on any component.</p>​
+            <div class="wf-spacer"></div>
+            <table class="wf-table">
+                <thead>
+                    <td>Category</td>​
+                    <td>Modifiers</td>​
+                </thead>​
+                <tr>
+                    <td>Size</td>​
+                    <td>small, medium (default), large</td>​
+                </tr>​
+                <tr>
+                    <td>Color</td>​
+                    <td>primary, secondary, success, danger, warning, info</td>​
+                </tr>​
+                <tr>
+                    <td>Shape</td>​
+                    <td>rounded, pill, square</td>​
+                </tr>​
+                <tr>
+                    <td>Elevation</td>​
+                    <td>flat, elevated, outlined</td>​
+                </tr>​
+                <tr>
+                    <td>Width</td>​
+                    <td>full (100%), fit (fit-content)</td>​
+                </tr>​
+                <tr>
+                    <td>Text</td>​
+                    <td>bold, italic, underline, uppercase, lowercase</td>​
+                </tr>​
+                <tr>
+                    <td>Alignment</td>​
+                    <td>left, center, right</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Button(&quot;Save&quot;, primary, large, rounded)
+Text(&quot;Warning!&quot;, danger, bold, uppercase)
+Card(elevated, outlined) { Text(&quot;Content&quot;) }
+Input(text, full, rounded)</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Style Blocks</h2>​
+            <p class="wf-text">For custom styling beyond modifiers, use a style block inside any component.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Button(&quot;Custom&quot;) {
+    style {
+        background: &quot;#8B5CF6&quot;
+        color: &quot;#FFFFFF&quot;
+        padding: xl
+        radius: lg
+        shadow: md
+    }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--muted">Token references: Use token names directly — background: primary references the color-primary token. padding: md references spacing-md.</p>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Design Tokens</h2>​
+            <p class="wf-text">All styling is built on tokens — named values defined as CSS custom properties.</p>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Colors</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Token</td>​
+                    <td>Default Value</td>​
+                </thead>​
+                <tr>
+                    <td>color-primary</td>​
+                    <td>#3B82F6</td>​
+                </tr>​
+                <tr>
+                    <td>color-secondary</td>​
+                    <td>#64748B</td>​
+                </tr>​
+                <tr>
+                    <td>color-success</td>​
+                    <td>#22C55E</td>​
+                </tr>​
+                <tr>
+                    <td>color-danger</td>​
+                    <td>#EF4444</td>​
+                </tr>​
+                <tr>
+                    <td>color-warning</td>​
+                    <td>#F59E0B</td>​
+                </tr>​
+                <tr>
+                    <td>color-info</td>​
+                    <td>#06B6D4</td>​
+                </tr>​
+                <tr>
+                    <td>color-background</td>​
+                    <td>#FFFFFF</td>​
+                </tr>​
+                <tr>
+                    <td>color-surface</td>​
+                    <td>#F8FAFC</td>​
+                </tr>​
+                <tr>
+                    <td>color-text</td>​
+                    <td>#0F172A</td>​
+                </tr>​
+                <tr>
+                    <td>color-text-muted</td>​
+                    <td>#64748B</td>​
+                </tr>​
+                <tr>
+                    <td>color-border</td>​
+                    <td>#E2E8F0</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Spacing, Radius, Shadows</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Token</td>​
+                    <td>Value</td>​
+                </thead>​
+                <tr>
+                    <td>spacing-xs / sm / md / lg / xl</td>​
+                    <td>0.25rem / 0.5rem / 1rem / 1.5rem / 2rem</td>​
+                </tr>​
+                <tr>
+                    <td>radius-sm / md / lg / full</td>​
+                    <td>0.25rem / 0.5rem / 1rem / 9999px</td>​
+                </tr>​
+                <tr>
+                    <td>shadow-sm / md / lg / xl</td>​
+                    <td>Increasing depth shadows</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Themes</h2>​
+            <p class="wf-text">WebFluent ships with 4 built-in themes. Set the theme in webfluent.app.json.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <span class="wf-badge wf-badge--primary">default</span>​
+                        <p class="wf-text wf-text--muted">Clean, modern light theme.</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <span class="wf-badge wf-badge--secondary">dark</span>​
+                        <p class="wf-text wf-text--muted">Dark mode with muted tones.</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <span class="wf-badge">minimal</span>​
+                        <p class="wf-text wf-text--muted">Ultra-minimal, no shadows or radii.</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <span class="wf-badge wf-badge--danger">brutalist</span>​
+                        <p class="wf-text wf-text--muted">Bold, monospace, hard shadows.</p>​
+                    </div>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--bold">Override any token in your config:</p>​
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">{
+  &quot;theme&quot;: {
+    &quot;name&quot;: &quot;default&quot;,
+    &quot;tokens&quot;: {
+      &quot;color-primary&quot;: &quot;#8B5CF6&quot;,
+      &quot;font-family&quot;: &quot;Poppins, sans-serif&quot;,
+      &quot;radius-md&quot;: &quot;1rem&quot;
+    }
+  }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+        </div>​
+        <!--wf-component-->
+    </div>
+    <script src="../app.js"></script>
+</body>
+</html>

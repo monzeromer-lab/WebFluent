@@ -1,0 +1,122 @@
+Page Styling (path: "/styling", title: "Design System & Styling") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Design System & Styling", h1)
+        Text("WebFluent has a token-based design system. Every built-in component uses design tokens for colors, spacing, typography, and more. Change the entire look with a single config update.", muted)
+
+        Spacer()
+
+        Heading("Variant Modifiers", h2)
+        Text("Apply common styles with modifier keywords on any component.")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Category") Tcell("Modifiers") }
+            Trow { Tcell("Size") Tcell("small, medium (default), large") }
+            Trow { Tcell("Color") Tcell("primary, secondary, success, danger, warning, info") }
+            Trow { Tcell("Shape") Tcell("rounded, pill, square") }
+            Trow { Tcell("Elevation") Tcell("flat, elevated, outlined") }
+            Trow { Tcell("Width") Tcell("full (100%), fit (fit-content)") }
+            Trow { Tcell("Text") Tcell("bold, italic, underline, uppercase, lowercase") }
+            Trow { Tcell("Alignment") Tcell("left, center, right") }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Save\", primary, large, rounded)\nText(\"Warning!\", danger, bold, uppercase)\nCard(elevated, outlined) \{ Text(\"Content\") \}\nInput(text, full, rounded)", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Style Blocks", h2)
+        Text("For custom styling beyond modifiers, use a style block inside any component.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Custom\") \{\n    style \{\n        background: \"#8B5CF6\"\n        color: \"#FFFFFF\"\n        padding: xl\n        radius: lg\n        shadow: md\n    \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Token references: Use token names directly — background: primary references the color-primary token. padding: md references spacing-md.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Design Tokens", h2)
+        Text("All styling is built on tokens — named values defined as CSS custom properties.")
+        Spacer(sm)
+
+        Heading("Colors", h2)
+        Table {
+            Thead { Tcell("Token") Tcell("Default Value") }
+            Trow { Tcell("color-primary") Tcell("#3B82F6") }
+            Trow { Tcell("color-secondary") Tcell("#64748B") }
+            Trow { Tcell("color-success") Tcell("#22C55E") }
+            Trow { Tcell("color-danger") Tcell("#EF4444") }
+            Trow { Tcell("color-warning") Tcell("#F59E0B") }
+            Trow { Tcell("color-info") Tcell("#06B6D4") }
+            Trow { Tcell("color-background") Tcell("#FFFFFF") }
+            Trow { Tcell("color-surface") Tcell("#F8FAFC") }
+            Trow { Tcell("color-text") Tcell("#0F172A") }
+            Trow { Tcell("color-text-muted") Tcell("#64748B") }
+            Trow { Tcell("color-border") Tcell("#E2E8F0") }
+        }
+
+        Spacer()
+
+        Heading("Spacing, Radius, Shadows", h2)
+        Table {
+            Thead { Tcell("Token") Tcell("Value") }
+            Trow { Tcell("spacing-xs / sm / md / lg / xl") Tcell("0.25rem / 0.5rem / 1rem / 1.5rem / 2rem") }
+            Trow { Tcell("radius-sm / md / lg / full") Tcell("0.25rem / 0.5rem / 1rem / 9999px") }
+            Trow { Tcell("shadow-sm / md / lg / xl") Tcell("Increasing depth shadows") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Themes", h2)
+        Text("WebFluent ships with 4 built-in themes. Set the theme in webfluent.app.json.")
+        Spacer(sm)
+        Row(gap: md) {
+            Card(outlined) {
+                Card.Body {
+                    Badge("default", primary)
+                    Text("Clean, modern light theme.", muted)
+                }
+            }
+            Card(outlined) {
+                Card.Body {
+                    Badge("dark", secondary)
+                    Text("Dark mode with muted tones.", muted)
+                }
+            }
+            Card(outlined) {
+                Card.Body {
+                    Badge("minimal")
+                    Text("Ultra-minimal, no shadows or radii.", muted)
+                }
+            }
+            Card(outlined) {
+                Card.Body {
+                    Badge("brutalist", danger)
+                    Text("Bold, monospace, hard shadows.", muted)
+                }
+            }
+        }
+
+        Spacer(sm)
+        Text("Override any token in your config:", bold)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"theme\": \{\n    \"name\": \"default\",\n    \"tokens\": \{\n      \"color-primary\": \"#8B5CF6\",\n      \"font-family\": \"Poppins, sans-serif\",\n      \"radius-md\": \"1rem\"\n    \}\n  \}\n\}", block)
+            }
+        }
+
+        Spacer(xl)
+    }
+}

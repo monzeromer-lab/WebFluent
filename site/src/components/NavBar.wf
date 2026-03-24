@@ -1,0 +1,19 @@
+Component NavBar () {
+    Navbar {
+        Navbar.Brand {
+            Text("WebFluent", heading)
+        }
+        Navbar.Links {
+            Link(to: "/") { Text("Home") }
+            Link(to: "/getting-started") { Text("Get Started") }
+            Link(to: "/guide") { Text("Guide") }
+            Link(to: "/components") { Text("Components") }
+            Link(to: "/styling") { Text("Styling") }
+            Link(to: "/animation") { Text("Animation") }
+            Link(to: "/i18n") { Text("i18n") }
+            Link(to: "/ssg") { Text("SSG") }
+            Link(to: "/accessibility") { Text("Accessibility") }
+            Link(to: "/cli") { Text("CLI") }
+        }
+    }
+}

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components Reference</title>
+    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="app">
+        <!--wf-component-->
+        <div class="wf-container wf-animate-fadeIn">
+            <div class="wf-spacer"></div>
+            <h1 class="wf-heading wf-heading--h1">Components Reference</h1>​
+            <p class="wf-text wf-text--muted">WebFluent ships with 50+ built-in components across 8 categories.</p>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Layout</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>HTML</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Container</td>​
+                    <td>div</td>​
+                    <td>Centered max-width wrapper. Use fluid modifier for full-width.</td>​
+                </tr>​
+                <tr>
+                    <td>Row</td>​
+                    <td>div</td>​
+                    <td>Horizontal flex container. Accepts gap, align, justify.</td>​
+                </tr>​
+                <tr>
+                    <td>Column</td>​
+                    <td>div</td>​
+                    <td>Flex child with optional span (1-12 grid). Responsive: span: 12, md: 6, lg: 4.</td>​
+                </tr>​
+                <tr>
+                    <td>Grid</td>​
+                    <td>div</td>​
+                    <td>CSS Grid container. Set columns: N and gap.</td>​
+                </tr>​
+                <tr>
+                    <td>Stack</td>​
+                    <td>div</td>​
+                    <td>Vertical flex with consistent gap.</td>​
+                </tr>​
+                <tr>
+                    <td>Spacer</td>​
+                    <td>div</td>​
+                    <td>Empty space. Variants: sm, md (default), lg, xl.</td>​
+                </tr>​
+                <tr>
+                    <td>Divider</td>​
+                    <td>hr</td>​
+                    <td>Horizontal separator line.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Container {
+    Row(gap: md) {
+        Column(span: 6) { Text(&quot;Left&quot;) }
+        Column(span: 6) { Text(&quot;Right&quot;) }
+    }
+}
+
+Grid(columns: 3, gap: md) {
+    Card { Text(&quot;A&quot;) }
+    Card { Text(&quot;B&quot;) }
+    Card { Text(&quot;C&quot;) }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Navigation</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Navbar</td>​
+                    <td>Top navigation bar with Brand, Links, Actions sub-components.</td>​
+                </tr>​
+                <tr>
+                    <td>Sidebar</td>​
+                    <td>Side panel with Header, Item, Divider sub-components.</td>​
+                </tr>​
+                <tr>
+                    <td>Breadcrumb</td>​
+                    <td>Navigation trail with Item sub-components.</td>​
+                </tr>​
+                <tr>
+                    <td>Link</td>​
+                    <td>SPA navigation link. Uses to: attribute. Renders as &lt;a&gt;.</td>​
+                </tr>​
+                <tr>
+                    <td>Menu</td>​
+                    <td>Dropdown menu with trigger and items.</td>​
+                </tr>​
+                <tr>
+                    <td>Tabs / TabPage</td>​
+                    <td>Tabbed content panels.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Navbar {
+    Navbar.Brand { Text(&quot;My App&quot;, heading) }
+    Navbar.Links {
+        Link(to: &quot;/&quot;) { Text(&quot;Home&quot;) }
+        Link(to: &quot;/about&quot;) { Text(&quot;About&quot;) }
+    }
+    Navbar.Actions {
+        Button(&quot;Sign In&quot;, primary)
+    }
+}
+
+Tabs {
+    TabPage(&quot;General&quot;) { Text(&quot;General settings&quot;) }
+    TabPage(&quot;Security&quot;) { Text(&quot;Security settings&quot;) }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Data Display</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Card</td>​
+                    <td>Surface with optional Header, Body, Footer. Modifiers: elevated, outlined, flat.</td>​
+                </tr>​
+                <tr>
+                    <td>Table / Thead / Trow / Tcell</td>​
+                    <td>Data table with headers and rows.</td>​
+                </tr>​
+                <tr>
+                    <td>List / List.Item</td>​
+                    <td>Styled list with items.</td>​
+                </tr>​
+                <tr>
+                    <td>Badge</td>​
+                    <td>Small label. Color modifiers: primary, success, danger, warning.</td>​
+                </tr>​
+                <tr>
+                    <td>Avatar</td>​
+                    <td>User photo or initials. Use initials: or src: attribute.</td>​
+                </tr>​
+                <tr>
+                    <td>Tooltip</td>​
+                    <td>Hover popup with text: attribute.</td>​
+                </tr>​
+                <tr>
+                    <td>Tag</td>​
+                    <td>Removable label with on:remove event.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Data Input</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Input</td>​
+                    <td>Text input. Types: text, email, password, number, search, tel, url, date, time, color. Use bind: for two-way binding.</td>​
+                </tr>​
+                <tr>
+                    <td>Select / Option</td>​
+                    <td>Dropdown select with options.</td>​
+                </tr>​
+                <tr>
+                    <td>Checkbox</td>​
+                    <td>Toggle checkbox with label.</td>​
+                </tr>​
+                <tr>
+                    <td>Radio</td>​
+                    <td>Exclusive radio button with value and label.</td>​
+                </tr>​
+                <tr>
+                    <td>Switch</td>​
+                    <td>Toggle switch with label.</td>​
+                </tr>​
+                <tr>
+                    <td>Slider</td>​
+                    <td>Range slider with min, max, step, label.</td>​
+                </tr>​
+                <tr>
+                    <td>DatePicker</td>​
+                    <td>Date input with optional min/max.</td>​
+                </tr>​
+                <tr>
+                    <td>FileUpload</td>​
+                    <td>File picker with accept filter.</td>​
+                </tr>​
+                <tr>
+                    <td>Form</td>​
+                    <td>Form wrapper with on:submit handler.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">state username = &quot;&quot;
+state agreed = false
+state theme = &quot;light&quot;
+state volume = 50
+
+Form {
+    Input(text, bind: username, label: &quot;Username&quot;, required: true)
+    Checkbox(bind: agreed, label: &quot;I agree to terms&quot;)
+    Radio(bind: theme, value: &quot;light&quot;, label: &quot;Light&quot;)
+    Radio(bind: theme, value: &quot;dark&quot;, label: &quot;Dark&quot;)
+    Switch(bind: notifications, label: &quot;Notifications&quot;)
+    Slider(bind: volume, min: 0, max: 100, label: &quot;Volume&quot;)
+    Button(&quot;Save&quot;, primary)
+    on:submit { save() }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Feedback</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Alert</td>​
+                    <td>Static notification. Modifiers: success, danger, warning, info. Add dismissible.</td>​
+                </tr>​
+                <tr>
+                    <td>Toast</td>​
+                    <td>Temporary popup triggered from actions. Toast(&quot;Saved!&quot;, success)</td>​
+                </tr>​
+                <tr>
+                    <td>Modal</td>​
+                    <td>Full dialog with overlay. Requires visible: state and title: attribute.</td>​
+                </tr>​
+                <tr>
+                    <td>Dialog</td>​
+                    <td>Lightweight dialog. Same API as Modal.</td>​
+                </tr>​
+                <tr>
+                    <td>Spinner</td>​
+                    <td>Loading indicator. Modifiers: large, primary.</td>​
+                </tr>​
+                <tr>
+                    <td>Progress</td>​
+                    <td>Progress bar with value and max attributes.</td>​
+                </tr>​
+                <tr>
+                    <td>Skeleton</td>​
+                    <td>Loading placeholder with shimmer animation.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Actions</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Button</td>​
+                    <td>Interactive button. First arg is text. Modifiers: primary, danger, small, large, full, rounded.</td>​
+                </tr>​
+                <tr>
+                    <td>IconButton</td>​
+                    <td>Icon-only button. Requires icon: and label: for accessibility.</td>​
+                </tr>​
+                <tr>
+                    <td>ButtonGroup</td>​
+                    <td>Group of buttons rendered as a connected strip.</td>​
+                </tr>​
+                <tr>
+                    <td>Dropdown</td>​
+                    <td>Button with dropdown menu. Uses label: attribute.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Media and Typography</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Component</td>​
+                    <td>Description</td>​
+                </thead>​
+                <tr>
+                    <td>Image</td>​
+                    <td>Requires src: and alt: attributes.</td>​
+                </tr>​
+                <tr>
+                    <td>Video</td>​
+                    <td>Video player. Use controls: true.</td>​
+                </tr>​
+                <tr>
+                    <td>Icon</td>​
+                    <td>Icon from built-in set.</td>​
+                </tr>​
+                <tr>
+                    <td>Text</td>​
+                    <td>Paragraph text. Modifiers: bold, muted, primary, center, small, large.</td>​
+                </tr>​
+                <tr>
+                    <td>Heading</td>​
+                    <td>Heading with level modifiers: h1, h2, h3, h4, h5, h6.</td>​
+                </tr>​
+                <tr>
+                    <td>Code</td>​
+                    <td>Code text. Use block modifier for block-level display.</td>​
+                </tr>​
+                <tr>
+                    <td>Blockquote</td>​
+                    <td>Block quotation with left border.</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+        </div>​
+        <!--wf-component-->
+    </div>
+    <script src="../app.js"></script>
+</body>
+</html>

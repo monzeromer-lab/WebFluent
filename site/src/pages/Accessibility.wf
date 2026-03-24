@@ -1,0 +1,66 @@
+Page Accessibility (path: "/accessibility", title: "Accessibility Linting") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Accessibility Linting", h1)
+        Text("WebFluent checks your code for accessibility issues at compile time. Warnings are printed during build but never block compilation.", muted)
+
+        Spacer()
+
+        Heading("How It Works", h2)
+        Text("The linter runs automatically after parsing, before code generation. It walks the AST and checks each component against 12 rules.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("$ webfluent build\nBuilding my-app...\n  Warning [A01]: Image missing \"alt\" attribute at src/pages/Home.wf:12:5\n    Add alt text: Image(src: \"...\", alt: \"Description of image\")\n  Warning [A03]: Input missing \"label\" attribute at src/pages/Form.wf:8:9\n    Add a label: Input(text, label: \"Username\")\n  3 pages, 2 components, 1 stores\n  Build complete with 2 accessibility warning(s).", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Lint Rules", h2)
+        Table {
+            Thead { Tcell("Rule") Tcell("Component") Tcell("Check") }
+            Trow { Tcell("A01") Tcell("Image") Tcell("Must have alt attribute") }
+            Trow { Tcell("A02") Tcell("IconButton") Tcell("Must have label attribute (no visible text)") }
+            Trow { Tcell("A03") Tcell("Input") Tcell("Must have label or placeholder") }
+            Trow { Tcell("A04") Tcell("Checkbox, Radio, Switch, Slider") Tcell("Must have label attribute") }
+            Trow { Tcell("A05") Tcell("Button") Tcell("Must have text content") }
+            Trow { Tcell("A06") Tcell("Link") Tcell("Must have text content or children") }
+            Trow { Tcell("A07") Tcell("Heading") Tcell("Must not be empty") }
+            Trow { Tcell("A08") Tcell("Modal, Dialog") Tcell("Must have title attribute") }
+            Trow { Tcell("A09") Tcell("Video") Tcell("Must have controls attribute") }
+            Trow { Tcell("A10") Tcell("Table") Tcell("Must have Thead header row") }
+            Trow { Tcell("A11") Tcell("Heading") Tcell("Levels must not skip (h1 to h3)") }
+            Trow { Tcell("A12") Tcell("Page") Tcell("Must have exactly one h1") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Examples", h2)
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(outlined) {
+                    Card.Body {
+                        Text("Bad (triggers warning)", danger, bold)
+                        Code("Image(src: \"/photo.jpg\")\nIconButton(icon: \"close\")\nInput(text)\nCheckbox(bind: agreed)\nButton()", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(outlined) {
+                    Card.Body {
+                        Text("Good (no warnings)", success, bold)
+                        Code("Image(src: \"/photo.jpg\", alt: \"Team photo\")\nIconButton(icon: \"close\", label: \"Close\")\nInput(text, label: \"Username\")\nCheckbox(bind: agreed, label: \"I agree\")\nButton(\"Save\")", block)
+                    }
+                }
+            }
+        }
+
+        Spacer(xl)
+    }
+}

@@ -1,0 +1,89 @@
+Page I18n (path: "/i18n", title: "Internationalization") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Internationalization (i18n)", h1)
+        Text("Built-in multi-language support with reactive locale switching and automatic RTL.", muted)
+
+        Spacer()
+
+        Heading("Setup", h2)
+        Text("Create a JSON file per locale in your translations directory.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("// src/translations/en.json\n\{\n    \"greeting\": \"Hello, \{name\}!\",\n    \"nav.home\": \"Home\",\n    \"nav.about\": \"About\"\n\}\n\n// src/translations/ar.json\n\{\n    \"greeting\": \"!أهلاً، \{name\}\",\n    \"nav.home\": \"الرئيسية\",\n    \"nav.about\": \"حول\"\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Add i18n config to webfluent.app.json:", bold)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"i18n\": \{\n    \"defaultLocale\": \"en\",\n    \"locales\": [\"en\", \"ar\"],\n    \"dir\": \"src/translations\"\n  \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("The t() Function", h2)
+        Text("Use t() to look up translated text. It is reactive — all t() calls update when the locale changes.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("// Simple key lookup\nText(t(\"nav.home\"))\n\n// With interpolation\nText(t(\"greeting\", name: user.name))\n\n// In any component\nButton(t(\"actions.save\"), primary)\nHeading(t(\"page.title\"), h1)", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Locale Switching", h2)
+        Text("Switch the locale at runtime with setLocale(). All translated text updates instantly.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"English\") \{ setLocale(\"en\") \}\nButton(\"العربية\") \{ setLocale(\"ar\") \}\nButton(\"Espanol\") \{ setLocale(\"es\") \}\n\n// Access current locale\nText(\"Current: \{locale\}\")\nText(\"Direction: \{dir\}\")", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("RTL Support", h2)
+        Text("WebFluent automatically detects RTL locales and updates the document direction.")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Locale") Tcell("Direction") }
+            Trow { Tcell("ar (Arabic)") Tcell("RTL") }
+            Trow { Tcell("he (Hebrew)") Tcell("RTL") }
+            Trow { Tcell("fa (Farsi)") Tcell("RTL") }
+            Trow { Tcell("ur (Urdu)") Tcell("RTL") }
+            Trow { Tcell("All others") Tcell("LTR") }
+        }
+        Spacer(sm)
+        Text("When setLocale(\"ar\") is called, the HTML element gets dir=\"rtl\" and lang=\"ar\" automatically.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Fallback Behavior", h2)
+        Text("If a key is missing in the current locale:")
+        Stack(gap: sm) {
+            Text("1. Falls back to the defaultLocale translation")
+            Text("2. If still missing, returns the key itself (e.g., \"nav.home\")")
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("SSG + i18n", h2)
+        Text("When both SSG and i18n are enabled, pages are pre-rendered with the default locale text. After JavaScript loads, locale switching works normally.", muted)
+
+        Spacer(xl)
+    }
+}

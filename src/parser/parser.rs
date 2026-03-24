@@ -1082,8 +1082,8 @@ impl Parser {
             TokenType::StringLiteral(s) => {
                 let s = s.clone();
                 self.advance();
-                // Check for interpolation
-                if s.contains('{') && s.contains('}') {
+                // Check for interpolation: only if { is followed by an identifier char
+                if has_interpolation(&s) {
                     let parts = self.parse_interpolated_string(&s)?;
                     Ok(Expr::InterpolatedString(parts))
                 } else {
@@ -1270,4 +1270,37 @@ impl Parser {
             _ => Err(self.error(format!("Expected string literal, got {}", self.current_type()))),
         }
     }
+}
+
+/// Check if a string contains valid interpolation patterns like {identifier} or {expr}.
+/// A valid interpolation: { followed by identifier char, content has no newlines,
+/// and closes with } on the same "line segment".
+fn has_interpolation(s: &str) -> bool {
+    let chars: Vec<char> = s.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '{' {
+            if i + 1 < chars.len() {
+                let next = chars[i + 1];
+                if next.is_alphabetic() || next == '_' {
+                    // Scan to matching } — must not contain \n, :, or ,
+                    // (Those indicate map/object literals, not interpolation)
+                    let mut j = i + 2;
+                    let mut valid = true;
+                    while j < chars.len() && chars[j] != '}' {
+                        if chars[j] == '\n' || chars[j] == ':' || chars[j] == ',' {
+                            valid = false;
+                            break;
+                        }
+                        j += 1;
+                    }
+                    if valid && j < chars.len() && chars[j] == '}' {
+                        return true;
+                    }
+                }
+            }
+        }
+        i += 1;
+    }
+    false
 }

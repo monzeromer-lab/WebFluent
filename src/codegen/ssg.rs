@@ -49,6 +49,15 @@ pub fn render_page_html(
         format!("    <meta name=\"description\" content=\"{}\">\n", config.meta.description)
     };
 
+    // Calculate relative path prefix based on page route depth
+    let route = page.path.trim_start_matches('/');
+    let base = if route.is_empty() || route == "/" {
+        ".".to_string()
+    } else {
+        let depth = route.split('/').filter(|s| !s.is_empty()).count();
+        (0..depth).map(|_| "..").collect::<Vec<_>>().join("/")
+    };
+
     format!(
         r#"<!DOCTYPE html>
 <html lang="{}">
@@ -56,15 +65,15 @@ pub fn render_page_html(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}    <link rel="stylesheet" href="/styles.css">
+{}    <link rel="stylesheet" href="{}/styles.css">
 </head>
 <body>
     <div id="app">
 {}    </div>
-    <script src="/app.js"></script>
+    <script src="{}/app.js"></script>
 </body>
 </html>"#,
-        lang, title, description_meta, body_html
+        lang, title, description_meta, base, body_html, base
     )
 }
 
@@ -345,6 +354,8 @@ fn html_escape(s: &str) -> String {
      .replace('<', "&lt;")
      .replace('>', "&gt;")
      .replace('"', "&quot;")
+     .replace('\u{FFFE}', "{")
+     .replace('\u{FFFF}', "}")
 }
 
 fn builtin_to_html_tag(name: &str) -> (&'static str, &'static str) {

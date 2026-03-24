@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Linting</title>
+    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="app">
+        <!--wf-component-->
+        <div class="wf-container wf-animate-fadeIn">
+            <div class="wf-spacer"></div>
+            <h1 class="wf-heading wf-heading--h1">Accessibility Linting</h1>​
+            <p class="wf-text wf-text--muted">WebFluent checks your code for accessibility issues at compile time. Warnings are printed during build but never block compilation.</p>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">How It Works</h2>​
+            <p class="wf-text">The linter runs automatically after parsing, before code generation. It walks the AST and checks each component against 12 rules.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">$ webfluent build
+Building my-app...
+  Warning [A01]: Image missing &quot;alt&quot; attribute at src/pages/Home.wf:12:5
+    Add alt text: Image(src: &quot;...&quot;, alt: &quot;Description of image&quot;)
+  Warning [A03]: Input missing &quot;label&quot; attribute at src/pages/Form.wf:8:9
+    Add a label: Input(text, label: &quot;Username&quot;)
+  3 pages, 2 components, 1 stores
+  Build complete with 2 accessibility warning(s).</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Lint Rules</h2>​
+            <table class="wf-table">
+                <thead>
+                    <td>Rule</td>​
+                    <td>Component</td>​
+                    <td>Check</td>​
+                </thead>​
+                <tr>
+                    <td>A01</td>​
+                    <td>Image</td>​
+                    <td>Must have alt attribute</td>​
+                </tr>​
+                <tr>
+                    <td>A02</td>​
+                    <td>IconButton</td>​
+                    <td>Must have label attribute (no visible text)</td>​
+                </tr>​
+                <tr>
+                    <td>A03</td>​
+                    <td>Input</td>​
+                    <td>Must have label or placeholder</td>​
+                </tr>​
+                <tr>
+                    <td>A04</td>​
+                    <td>Checkbox, Radio, Switch, Slider</td>​
+                    <td>Must have label attribute</td>​
+                </tr>​
+                <tr>
+                    <td>A05</td>​
+                    <td>Button</td>​
+                    <td>Must have text content</td>​
+                </tr>​
+                <tr>
+                    <td>A06</td>​
+                    <td>Link</td>​
+                    <td>Must have text content or children</td>​
+                </tr>​
+                <tr>
+                    <td>A07</td>​
+                    <td>Heading</td>​
+                    <td>Must not be empty</td>​
+                </tr>​
+                <tr>
+                    <td>A08</td>​
+                    <td>Modal, Dialog</td>​
+                    <td>Must have title attribute</td>​
+                </tr>​
+                <tr>
+                    <td>A09</td>​
+                    <td>Video</td>​
+                    <td>Must have controls attribute</td>​
+                </tr>​
+                <tr>
+                    <td>A10</td>​
+                    <td>Table</td>​
+                    <td>Must have Thead header row</td>​
+                </tr>​
+                <tr>
+                    <td>A11</td>​
+                    <td>Heading</td>​
+                    <td>Levels must not skip (h1 to h3)</td>​
+                </tr>​
+                <tr>
+                    <td>A12</td>​
+                    <td>Page</td>​
+                    <td>Must have exactly one h1</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Examples</h2>​
+            <div class="wf-row">
+                <div class="wf-col">
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <p class="wf-text wf-text--danger wf-text--bold">Bad (triggers warning)</p>​
+                            <code class="wf-code">Image(src: &quot;/photo.jpg&quot;)
+IconButton(icon: &quot;close&quot;)
+Input(text)
+Checkbox(bind: agreed)
+Button()</code>​
+                        </div>​
+                    </div>​
+                </div>​
+                <div class="wf-col">
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <p class="wf-text wf-text--success wf-text--bold">Good (no warnings)</p>​
+                            <code class="wf-code">Image(src: &quot;/photo.jpg&quot;, alt: &quot;Team photo&quot;)
+IconButton(icon: &quot;close&quot;, label: &quot;Close&quot;)
+Input(text, label: &quot;Username&quot;)
+Checkbox(bind: agreed, label: &quot;I agree&quot;)
+Button(&quot;Save&quot;)</code>​
+                        </div>​
+                    </div>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+        </div>​
+        <!--wf-component-->
+    </div>
+    <script src="../app.js"></script>
+</body>
+</html>

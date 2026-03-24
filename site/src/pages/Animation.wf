@@ -1,0 +1,81 @@
+Page Animation (path: "/animation", title: "Animation System") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Animation System", h1)
+        Text("Declarative animations built into the language — no CSS keyframes to write, no JS animation libraries.", muted)
+
+        Spacer()
+
+        Heading("Animation Modifiers", h2)
+        Text("Apply a built-in animation to any component. The animation plays when the element mounts.")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Modifier") Tcell("Effect") }
+            Trow { Tcell("fadeIn / fadeOut") Tcell("Fade opacity in or out") }
+            Trow { Tcell("slideUp / slideDown") Tcell("Slide from below or above with fade") }
+            Trow { Tcell("slideLeft / slideRight") Tcell("Slide from right or left with fade") }
+            Trow { Tcell("scaleIn / scaleOut") Tcell("Scale up from 90% or down to 90%") }
+            Trow { Tcell("bounce") Tcell("Bouncy entrance animation") }
+            Trow { Tcell("shake") Tcell("Horizontal shake") }
+            Trow { Tcell("pulse") Tcell("Gentle scale pulse (infinite)") }
+            Trow { Tcell("spin") Tcell("360-degree rotation (infinite)") }
+        }
+        Spacer(sm)
+        Text("Speed variants: fast (150ms), default (300ms), slow (500ms)", muted)
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Card(elevated, fadeIn) \{ Text(\"Fades in\") \}\nHeading(\"Title\", h1, slideUp, slow)\nButton(\"Click\", primary, bounce)\nSpinner(pulse)", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Control Flow Animations", h2)
+        Text("Add enter and exit animations to if, for, and show blocks.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("// Conditional — animate in and out\nif showMessage, animate(fadeIn, fadeOut) \{\n    Alert(\"Saved!\", success)\n\}\n\n// List — stagger each item\nfor product in products, animate(slideUp, fadeOut, stagger: \"50ms\") \{\n    Card \{ Text(product.name) \}\n\}\n\n// Show/hide — keeps in DOM\nshow isOpen, animate(scaleIn, scaleOut) \{\n    Modal(title: \"Confirm\") \{ Text(\"Are you sure?\") \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("If only one animation is given, the exit auto-reverses: fadeIn exits with fadeOut, slideUp exits with slideDown.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Transition Blocks", h2)
+        Text("Declare CSS transitions for smooth property changes on hover, focus, or state change.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Hover me\", primary) \{\n    transition \{\n        background 200ms ease\n        transform 150ms spring\n    \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Easing options: ease, linear, easeIn, easeOut, easeInOut, spring, bouncy, smooth", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Animation Design Tokens", h2)
+        Text("Customize animation timing globally via config tokens.")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Token") Tcell("Default") }
+            Trow { Tcell("animation-duration-fast") Tcell("150ms") }
+            Trow { Tcell("animation-duration-normal") Tcell("300ms") }
+            Trow { Tcell("animation-duration-slow") Tcell("500ms") }
+            Trow { Tcell("animation-easing-default") Tcell("cubic-bezier(0.4, 0, 0.2, 1)") }
+            Trow { Tcell("animation-easing-bounce") Tcell("cubic-bezier(0.68, -0.55, 0.265, 1.55)") }
+            Trow { Tcell("animation-easing-spring") Tcell("cubic-bezier(0.175, 0.885, 0.32, 1.275)") }
+        }
+
+        Spacer(xl)
+    }
+}

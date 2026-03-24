@@ -1,0 +1,7 @@
+Component CodeBlock (code: String) {
+    Card(outlined) {
+        Card.Body {
+            Code(code, block)
+        }
+    }
+}

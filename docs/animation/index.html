@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation System</title>
+    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="app">
+        <!--wf-component-->
+        <div class="wf-container wf-animate-fadeIn">
+            <div class="wf-spacer"></div>
+            <h1 class="wf-heading wf-heading--h1">Animation System</h1>​
+            <p class="wf-text wf-text--muted">Declarative animations built into the language — no CSS keyframes to write, no JS animation libraries.</p>​
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Animation Modifiers</h2>​
+            <p class="wf-text">Apply a built-in animation to any component. The animation plays when the element mounts.</p>​
+            <div class="wf-spacer"></div>
+            <table class="wf-table">
+                <thead>
+                    <td>Modifier</td>​
+                    <td>Effect</td>​
+                </thead>​
+                <tr>
+                    <td>fadeIn / fadeOut</td>​
+                    <td>Fade opacity in or out</td>​
+                </tr>​
+                <tr>
+                    <td>slideUp / slideDown</td>​
+                    <td>Slide from below or above with fade</td>​
+                </tr>​
+                <tr>
+                    <td>slideLeft / slideRight</td>​
+                    <td>Slide from right or left with fade</td>​
+                </tr>​
+                <tr>
+                    <td>scaleIn / scaleOut</td>​
+                    <td>Scale up from 90% or down to 90%</td>​
+                </tr>​
+                <tr>
+                    <td>bounce</td>​
+                    <td>Bouncy entrance animation</td>​
+                </tr>​
+                <tr>
+                    <td>shake</td>​
+                    <td>Horizontal shake</td>​
+                </tr>​
+                <tr>
+                    <td>pulse</td>​
+                    <td>Gentle scale pulse (infinite)</td>​
+                </tr>​
+                <tr>
+                    <td>spin</td>​
+                    <td>360-degree rotation (infinite)</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--muted">Speed variants: fast (150ms), default (300ms), slow (500ms)</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Card(elevated, fadeIn) { Text(&quot;Fades in&quot;) }
+Heading(&quot;Title&quot;, h1, slideUp, slow)
+Button(&quot;Click&quot;, primary, bounce)
+Spinner(pulse)</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Control Flow Animations</h2>​
+            <p class="wf-text">Add enter and exit animations to if, for, and show blocks.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">// Conditional — animate in and out
+if showMessage, animate(fadeIn, fadeOut) {
+    Alert(&quot;Saved!&quot;, success)
+}
+
+// List — stagger each item
+for product in products, animate(slideUp, fadeOut, stagger: &quot;50ms&quot;) {
+    Card { Text(product.name) }
+}
+
+// Show/hide — keeps in DOM
+show isOpen, animate(scaleIn, scaleOut) {
+    Modal(title: &quot;Confirm&quot;) { Text(&quot;Are you sure?&quot;) }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--muted">If only one animation is given, the exit auto-reverses: fadeIn exits with fadeOut, slideUp exits with slideDown.</p>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Transition Blocks</h2>​
+            <p class="wf-text">Declare CSS transitions for smooth property changes on hover, focus, or state change.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Button(&quot;Hover me&quot;, primary) {
+    transition {
+        background 200ms ease
+        transform 150ms spring
+    }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--muted">Easing options: ease, linear, easeIn, easeOut, easeInOut, spring, bouncy, smooth</p>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Animation Design Tokens</h2>​
+            <p class="wf-text">Customize animation timing globally via config tokens.</p>​
+            <div class="wf-spacer"></div>
+            <table class="wf-table">
+                <thead>
+                    <td>Token</td>​
+                    <td>Default</td>​
+                </thead>​
+                <tr>
+                    <td>animation-duration-fast</td>​
+                    <td>150ms</td>​
+                </tr>​
+                <tr>
+                    <td>animation-duration-normal</td>​
+                    <td>300ms</td>​
+                </tr>​
+                <tr>
+                    <td>animation-duration-slow</td>​
+                    <td>500ms</td>​
+                </tr>​
+                <tr>
+                    <td>animation-easing-default</td>​
+                    <td>cubic-bezier(0.4, 0, 0.2, 1)</td>​
+                </tr>​
+                <tr>
+                    <td>animation-easing-bounce</td>​
+                    <td>cubic-bezier(0.68, -0.55, 0.265, 1.55)</td>​
+                </tr>​
+                <tr>
+                    <td>animation-easing-spring</td>​
+                    <td>cubic-bezier(0.175, 0.885, 0.32, 1.275)</td>​
+                </tr>​
+            </table>​
+            <div class="wf-spacer"></div>
+        </div>​
+        <!--wf-component-->
+    </div>
+    <script src="../app.js"></script>
+</body>
+</html>

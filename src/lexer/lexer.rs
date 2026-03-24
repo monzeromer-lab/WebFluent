@@ -240,8 +240,8 @@ impl Lexer {
                     'r' => value.push('\r'),
                     '\\' => value.push('\\'),
                     '"' => value.push('"'),
-                    '{' => value.push('{'),
-                    '}' => value.push('}'),
+                    '{' => value.push('\u{FFFE}'), // Escaped brace placeholder
+                    '}' => value.push('\u{FFFF}'), // Escaped brace placeholder
                     c => {
                         value.push('\\');
                         value.push(c);
