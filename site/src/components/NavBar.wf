@@ -4,16 +4,20 @@ Component NavBar () {
             Text("WebFluent", heading)
         }
         Navbar.Links {
-            Link(to: "/") { Text("Home") }
-            Link(to: "/getting-started") { Text("Get Started") }
-            Link(to: "/guide") { Text("Guide") }
-            Link(to: "/components") { Text("Components") }
-            Link(to: "/styling") { Text("Styling") }
-            Link(to: "/animation") { Text("Animation") }
-            Link(to: "/i18n") { Text("i18n") }
-            Link(to: "/ssg") { Text("SSG") }
-            Link(to: "/accessibility") { Text("Accessibility") }
-            Link(to: "/cli") { Text("CLI") }
+            Link(to: "/") { Text(t("nav.home")) }
+            Link(to: "/getting-started") { Text(t("nav.start")) }
+            Link(to: "/guide") { Text(t("nav.guide")) }
+            Link(to: "/components") { Text(t("nav.components")) }
+            Link(to: "/styling") { Text(t("nav.styling")) }
+            Link(to: "/animation") { Text(t("nav.animation")) }
+            Link(to: "/i18n") { Text(t("nav.i18n")) }
+            Link(to: "/ssg") { Text(t("nav.ssg")) }
+            Link(to: "/accessibility") { Text(t("nav.a11y")) }
+            Link(to: "/cli") { Text(t("nav.cli")) }
+        }
+        Navbar.Actions {
+            Button("EN", small) { setLocale("en") }
+            Button("AR", small) { setLocale("ar") }
         }
     }
 }

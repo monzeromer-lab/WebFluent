@@ -24,5 +24,10 @@
     "title": "WebFluent — The Web-First Language",
     "description": "A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.",
     "lang": "en"
+  },
+  "i18n": {
+    "defaultLocale": "en",
+    "locales": ["en", "ar"],
+    "dir": "src/translations"
   }
 }

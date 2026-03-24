@@ -1,22 +1,21 @@
 Page Home (path: "/", title: "WebFluent — The Web-First Language") {
     state counter = 0
     state taskInput = ""
-    state tasks = ["Learn WebFluent", "Build something cool"]
     state showDemo = false
 
     Container {
         Spacer(xl)
 
-        Heading("The Web-First Language", h1, center, slideUp)
+        Heading(t("hero.title"), h1, center, slideUp)
         Spacer(sm)
-        Text("A programming language that compiles to HTML, CSS, and JavaScript.", muted, center, fadeIn)
-        Text("Built-in components, reactivity, routing, i18n, animations, and SSG.", muted, center, fadeIn)
+        Text(t("hero.sub1"), muted, center, fadeIn)
+        Text(t("hero.sub2"), muted, center, fadeIn)
 
         Spacer()
 
         Row(gap: md, justify: center) {
-            Button("Get Started", primary, large) { navigate("/getting-started") }
-            Button("View Guide", large) { navigate("/guide") }
+            Button(t("hero.cta"), primary, large) { navigate("/getting-started") }
+            Button(t("hero.guide"), large) { navigate("/guide") }
         }
 
         Spacer(xl)
@@ -31,14 +30,14 @@ Page Home (path: "/", title: "WebFluent — The Web-First Language") {
         Divider()
         Spacer()
 
-        Heading("Try It Live", h2, center)
-        Text("These are real WebFluent components running in your browser.", muted, center)
+        Heading(t("demo.title"), h2, center)
+        Text(t("demo.subtitle"), muted, center)
 
         Spacer()
 
         Grid(columns: 2, gap: lg) {
             Card(elevated, fadeIn) {
-                Card.Header { Heading("Reactive Counter", h2) }
+                Card.Header { Heading(t("demo.counter"), h2) }
                 Card.Body {
                     Row(align: center, gap: md) {
                         Button("-", large) { counter = counter - 1 }
@@ -46,33 +45,33 @@ Page Home (path: "/", title: "WebFluent — The Web-First Language") {
                         Button("+", primary, large) { counter = counter + 1 }
                     }
                     Spacer(sm)
-                    Text("Click the buttons. The number updates instantly.", muted, small)
+                    Text(t("demo.counter.hint"), muted, small)
                 }
             }
 
             Card(elevated, fadeIn) {
-                Card.Header { Heading("Two-Way Binding", h2) }
+                Card.Header { Heading(t("demo.binding"), h2) }
                 Card.Body {
-                    Input(text, bind: taskInput, placeholder: "Type something here...", label: "Live input")
+                    Input(text, bind: taskInput, placeholder: t("demo.binding.placeholder"), label: "Input")
                     Spacer(sm)
                     if taskInput != "" {
                         Alert("You typed: {taskInput}", info)
                     }
-                    Text("The alert updates as you type.", muted, small)
+                    Text(t("demo.binding.hint"), muted, small)
                 }
             }
 
             Card(elevated, fadeIn) {
-                Card.Header { Heading("Conditional Rendering", h2) }
+                Card.Header { Heading(t("demo.conditional"), h2) }
                 Card.Body {
-                    Switch(bind: showDemo, label: "Toggle content")
+                    Switch(bind: showDemo, label: t("demo.conditional.toggle"))
                     Spacer(sm)
                     if showDemo, animate(slideUp, fadeOut) {
                         Card(outlined) {
                             Card.Body {
                                 Badge("Visible!", success)
                                 Spacer(sm)
-                                Text("This card animates in/out when you toggle the switch.")
+                                Text(t("demo.conditional.text"))
                             }
                         }
                     }
@@ -80,7 +79,7 @@ Page Home (path: "/", title: "WebFluent — The Web-First Language") {
             }
 
             Card(elevated, fadeIn) {
-                Card.Header { Heading("Components", h2) }
+                Card.Header { Heading(t("demo.components"), h2) }
                 Card.Body {
                     Stack(gap: sm) {
                         Row(gap: sm) {
@@ -95,7 +94,7 @@ Page Home (path: "/", title: "WebFluent — The Web-First Language") {
                             Tag("WebFluent")
                         }
                         Progress(value: 72, max: 100)
-                        Text("Button variants, badges, tags, and progress bar.", muted, small)
+                        Text(t("demo.components.hint"), muted, small)
                     }
                 }
             }
@@ -105,21 +104,21 @@ Page Home (path: "/", title: "WebFluent — The Web-First Language") {
         Divider()
         Spacer()
 
-        Heading("Why WebFluent?", h2, center)
-        Text("Everything you need, built into the language.", muted, center)
+        Heading(t("why.title"), h2, center)
+        Text(t("why.subtitle"), muted, center)
 
         Spacer()
 
         Grid(columns: 3, gap: md) {
-            FeatureCard(title: "Declarative Syntax", description: "No XML, no JSX. Write UI as readable declarations with curly braces and parentheses.")
-            FeatureCard(title: "50+ Components", description: "Navbar, Card, Modal, Form, Table, Tabs, and more. Every component has a default design.")
-            FeatureCard(title: "Signal Reactivity", description: "Fine-grained DOM updates without a virtual DOM. Only affected nodes update.")
-            FeatureCard(title: "Design System", description: "Design tokens for colors, spacing, typography. 4 themes. Switch with one config line.")
-            FeatureCard(title: "Animations", description: "12 built-in animations as modifiers. Enter/exit on conditionals and loops with stagger.")
-            FeatureCard(title: "i18n + RTL", description: "JSON translations, t() function, reactive locale switching, automatic RTL direction.")
-            FeatureCard(title: "SSG", description: "Pre-render pages at build time. Instant content, then JS hydrates for interactivity.")
-            FeatureCard(title: "A11y Linting", description: "12 compile-time checks for missing alt text, labels, headings. Never blocks the build.")
-            FeatureCard(title: "Zero Dependencies", description: "Compiles to vanilla HTML, CSS, JS. No runtime framework. Pure web standards output.")
+            FeatureCard(title: t("why.syntax"), description: t("why.syntax.desc"))
+            FeatureCard(title: t("why.components"), description: t("why.components.desc"))
+            FeatureCard(title: t("why.reactivity"), description: t("why.reactivity.desc"))
+            FeatureCard(title: t("why.design"), description: t("why.design.desc"))
+            FeatureCard(title: t("why.animation"), description: t("why.animation.desc"))
+            FeatureCard(title: t("why.i18n"), description: t("why.i18n.desc"))
+            FeatureCard(title: t("why.ssg"), description: t("why.ssg.desc"))
+            FeatureCard(title: t("why.a11y"), description: t("why.a11y.desc"))
+            FeatureCard(title: t("why.zero"), description: t("why.zero.desc"))
         }
 
         Spacer(xl)
@@ -128,10 +127,10 @@ Page Home (path: "/", title: "WebFluent — The Web-First Language") {
             Card.Body {
                 Row(align: center, justify: between) {
                     Stack {
-                        Heading("Ready to build?", h2)
-                        Text("Create your first project in seconds.", muted)
+                        Heading(t("cta.title"), h2)
+                        Text(t("cta.subtitle"), muted)
                     }
-                    Button("Get Started", primary, large) { navigate("/getting-started") }
+                    Button(t("hero.cta"), primary, large) { navigate("/getting-started") }
                 }
             }
         }

@@ -3,10 +3,10 @@ Component SiteFooter () {
     Container {
         Spacer()
         Row(align: center, justify: between) {
-            Text("WebFluent — The Web-First Language", muted, small)
+            Text(t("footer.built"), muted, small)
             Row(gap: md) {
-                Link(to: "/") { Text("Home", muted, small) }
-                Link(to: "/getting-started") { Text("Docs", muted, small) }
+                Link(to: "/") { Text(t("nav.home"), muted, small) }
+                Link(to: "/getting-started") { Text(t("footer.docs"), muted, small) }
             }
         }
         Spacer()
