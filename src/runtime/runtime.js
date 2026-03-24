@@ -155,6 +155,16 @@ const WF = (() => {
     return animateIn(el, name, duration);
   }
 
+  function replayAnimation(el, name, duration) {
+    // Remove then re-add the animation class to restart it
+    const cls = "wf-animate-" + name;
+    el.classList.remove(cls);
+    // Force reflow to reset animation
+    void el.offsetWidth;
+    el.classList.add(cls);
+    if (duration) el.style.animationDuration = duration;
+  }
+
   // ─── Conditional rendering ───────────────────────────
   function removeNodes(nodes) {
     for (const n of nodes) {
@@ -623,7 +633,7 @@ const WF = (() => {
     signal, effect, computed,
     h, text, reactiveText, appendChildren,
     condRender, listRender, showRender,
-    animateIn, animateOut, animateEl,
+    animateIn, animateOut, animateEl, replayAnimation,
     createRouter, navigate, getParams,
     createStore,
     createI18n,

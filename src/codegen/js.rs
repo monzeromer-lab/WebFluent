@@ -747,7 +747,7 @@ impl JsCodegen {
                 // Handle events
                 for handler in &ui.events {
                     let body = self.emit_event_body(&handler.body);
-                    attrs.push(format!("\"on:{}\": (e) => {{ {} }}", handler.event, body));
+                    attrs.push(format!("\"on:{}\": (event) => {{ {} }}", handler.event, body));
                 }
 
                 // If element has a block with just statements (Button shorthand click)
@@ -1681,6 +1681,12 @@ impl JsCodegen {
                 if name == "setLocale" && self.has_i18n() {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                     return format!("WF.i18n.setLocale({})", args_str.join(", "));
+                }
+
+                // WF runtime functions
+                if name == "replayAnimation" {
+                    let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("WF.replayAnimation({})", args_str.join(", "));
                 }
 
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();

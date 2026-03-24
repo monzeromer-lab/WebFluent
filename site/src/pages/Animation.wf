@@ -1,6 +1,5 @@
 Page Animation (path: "/animation", title: "Animation System") {
     state showCard = false
-    state items = ["Item A", "Item B", "Item C"]
 
     Container(fadeIn) {
         Spacer()
@@ -10,16 +9,46 @@ Page Animation (path: "/animation", title: "Animation System") {
         Spacer()
 
         Heading("Mount Animations", h2)
-        Text("Add an animation modifier to any component. It plays when the element appears.")
+        Text("Add an animation modifier to any component. It plays when the element appears. Hover each card to replay.")
         Spacer(sm)
 
         Grid(columns: 3, gap: md) {
-            Card(outlined, fadeIn) { Card.Body { Text("fadeIn", center, bold) Text("Fades from transparent", center, muted, small) } }
-            Card(outlined, slideUp) { Card.Body { Text("slideUp", center, bold) Text("Slides from below", center, muted, small) } }
-            Card(outlined, scaleIn) { Card.Body { Text("scaleIn", center, bold) Text("Scales from 90%", center, muted, small) } }
-            Card(outlined, slideDown) { Card.Body { Text("slideDown", center, bold) Text("Slides from above", center, muted, small) } }
-            Card(outlined, slideLeft) { Card.Body { Text("slideLeft", center, bold) Text("Slides from right", center, muted, small) } }
-            Card(outlined, bounce) { Card.Body { Text("bounce", center, bold) Text("Bouncy entrance", center, muted, small) } }
+            Card(outlined, fadeIn) {
+                Card.Body { Text("fadeIn", center, bold) Text("Fades from transparent", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "fadeIn") }
+            }
+            Card(outlined, slideUp) {
+                Card.Body { Text("slideUp", center, bold) Text("Slides from below", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "slideUp") }
+            }
+            Card(outlined, scaleIn) {
+                Card.Body { Text("scaleIn", center, bold) Text("Scales from 90%", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "scaleIn") }
+            }
+            Card(outlined, slideDown) {
+                Card.Body { Text("slideDown", center, bold) Text("Slides from above", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "slideDown") }
+            }
+            Card(outlined, slideLeft) {
+                Card.Body { Text("slideLeft", center, bold) Text("Slides from right", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "slideLeft") }
+            }
+            Card(outlined, bounce) {
+                Card.Body { Text("bounce", center, bold) Text("Bouncy entrance", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "bounce") }
+            }
+            Card(outlined, shake) {
+                Card.Body { Text("shake", center, bold) Text("Horizontal shake", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "shake") }
+            }
+            Card(outlined, pulse) {
+                Card.Body { Text("pulse", center, bold) Text("Gentle scale pulse", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "pulse") }
+            }
+            Card(outlined, slideRight) {
+                Card.Body { Text("slideRight", center, bold) Text("Slides from left", center, muted, small) }
+                on:mouseenter { replayAnimation(event.currentTarget, "slideRight") }
+            }
         }
 
         Spacer(sm)
@@ -64,11 +93,31 @@ Page Animation (path: "/animation", title: "Animation System") {
 
         Heading("Speed Variants", h2)
         Spacer(sm)
-        Table {
-            Thead { Tcell("Modifier") Tcell("Duration") }
-            Trow { Tcell("fast") Tcell("150ms") }
-            Trow { Tcell("(default)") Tcell("300ms") }
-            Trow { Tcell("slow") Tcell("500ms") }
+        Grid(columns: 3, gap: md) {
+            Card(outlined, fadeIn) {
+                Card.Body {
+                    Text("fast", center, bold)
+                    Text("150ms", center, muted)
+                    Code("Card(elevated, fadeIn, fast)", block)
+                }
+                on:mouseenter { replayAnimation(event.currentTarget, "fadeIn", "150ms") }
+            }
+            Card(outlined, fadeIn) {
+                Card.Body {
+                    Text("default", center, bold)
+                    Text("300ms", center, muted)
+                    Code("Card(elevated, fadeIn)", block)
+                }
+                on:mouseenter { replayAnimation(event.currentTarget, "fadeIn") }
+            }
+            Card(outlined, fadeIn) {
+                Card.Body {
+                    Text("slow", center, bold)
+                    Text("500ms", center, muted)
+                    Code("Card(elevated, fadeIn, slow)", block)
+                }
+                on:mouseenter { replayAnimation(event.currentTarget, "fadeIn", "500ms") }
+            }
         }
 
         Spacer()
@@ -78,15 +127,54 @@ Page Animation (path: "/animation", title: "Animation System") {
         Heading("All 12 Animations", h2)
         Spacer(sm)
         Table {
-            Thead { Tcell("Name") Tcell("Effect") }
-            Trow { Tcell("fadeIn / fadeOut") Tcell("Opacity fade") }
-            Trow { Tcell("slideUp / slideDown") Tcell("Vertical slide with fade") }
-            Trow { Tcell("slideLeft / slideRight") Tcell("Horizontal slide with fade") }
-            Trow { Tcell("scaleIn / scaleOut") Tcell("Scale from/to 90%") }
-            Trow { Tcell("bounce") Tcell("Bouncy entrance") }
-            Trow { Tcell("shake") Tcell("Horizontal shake") }
-            Trow { Tcell("pulse") Tcell("Gentle scale pulse (infinite)") }
-            Trow { Tcell("spin") Tcell("360-degree rotation (infinite)") }
+            Thead { Tcell("Name") Tcell("Effect") Tcell("Usage") }
+            Trow { Tcell("fadeIn / fadeOut") Tcell("Opacity fade") Tcell("Card(elevated, fadeIn)") }
+            Trow { Tcell("slideUp / slideDown") Tcell("Vertical slide + fade") Tcell("Heading(\"Hi\", h1, slideUp)") }
+            Trow { Tcell("slideLeft / slideRight") Tcell("Horizontal slide + fade") Tcell("Text(\"Hello\", slideLeft)") }
+            Trow { Tcell("scaleIn / scaleOut") Tcell("Scale from/to 90%") Tcell("Badge(\"New\", scaleIn)") }
+            Trow { Tcell("bounce") Tcell("Bouncy entrance") Tcell("Button(\"Go\", bounce)") }
+            Trow { Tcell("shake") Tcell("Horizontal shake") Tcell("Alert(\"Error!\", shake)") }
+            Trow { Tcell("pulse") Tcell("Scale pulse (infinite)") Tcell("Badge(\"Live\", pulse)") }
+            Trow { Tcell("spin") Tcell("360-degree rotation") Tcell("Spinner(spin)") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Conditional Animations", h2)
+        Text("Attach enter and exit animations to if blocks.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("if visible, animate(slideUp, fadeOut) \{\n    Card \{ Text(\"Appears with slideUp, exits with fadeOut\") \}\n\}\n\nif expanded, animate(scaleIn, scaleOut) \{\n    Text(\"Scales in and out\")\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("List Stagger", h2)
+        Text("Animate list items with staggered delays.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("for item in items, animate(slideUp, fadeOut, stagger: \"50ms\") \{\n    Card \{ Text(item.name) \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Transition Blocks", h2)
+        Text("Smooth CSS transitions on property changes.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Hover me\") \{\n    transition \{\n        background 200ms ease\n        transform 150ms spring\n    \}\n\}", block)
+            }
         }
 
         Spacer(xl)

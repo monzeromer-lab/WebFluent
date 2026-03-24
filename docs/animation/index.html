@@ -16,7 +16,7 @@
             <p class="wf-text wf-text--muted">Declarative animations built into the language. No CSS keyframes to write.</p>​
             <div class="wf-spacer"></div>
             <h2 class="wf-heading wf-heading--h2">Mount Animations</h2>​
-            <p class="wf-text">Add an animation modifier to any component. It plays when the element appears.</p>​
+            <p class="wf-text">Add an animation modifier to any component. It plays when the element appears. Hover each card to replay.</p>​
             <div class="wf-spacer"></div>
             <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
                 <div class="wf-card wf-card--outlined wf-animate-fadeIn">
@@ -55,6 +55,24 @@
                         <p class="wf-text wf-text--center wf-text--muted wf-text--small">Bouncy entrance</p>​
                     </div>​
                 </div>​
+                <div class="wf-card wf-card--outlined wf-animate-shake">
+                    <div class="wf-card__body">
+                        <p class="wf-text wf-text--center wf-text--bold">shake</p>​
+                        <p class="wf-text wf-text--center wf-text--muted wf-text--small">Horizontal shake</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined wf-animate-pulse">
+                    <div class="wf-card__body">
+                        <p class="wf-text wf-text--center wf-text--bold">pulse</p>​
+                        <p class="wf-text wf-text--center wf-text--muted wf-text--small">Gentle scale pulse</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined wf-animate-slideRight">
+                    <div class="wf-card__body">
+                        <p class="wf-text wf-text--center wf-text--bold">slideRight</p>​
+                        <p class="wf-text wf-text--center wf-text--muted wf-text--small">Slides from left</p>​
+                    </div>​
+                </div>​
             </div>​
             <div class="wf-spacer"></div>
             <div class="wf-card wf-card--outlined">
@@ -88,24 +106,29 @@ Button(&quot;Click&quot;, primary, bounce)</code>​
             <div class="wf-spacer"></div>
             <h2 class="wf-heading wf-heading--h2">Speed Variants</h2>​
             <div class="wf-spacer"></div>
-            <table class="wf-table">
-                <thead>
-                    <td>Modifier</td>​
-                    <td>Duration</td>​
-                </thead>​
-                <tr>
-                    <td>fast</td>​
-                    <td>150ms</td>​
-                </tr>​
-                <tr>
-                    <td>(default)</td>​
-                    <td>300ms</td>​
-                </tr>​
-                <tr>
-                    <td>slow</td>​
-                    <td>500ms</td>​
-                </tr>​
-            </table>​
+            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
+                <div class="wf-card wf-card--outlined wf-animate-fadeIn">
+                    <div class="wf-card__body">
+                        <p class="wf-text wf-text--center wf-text--bold">fast</p>​
+                        <p class="wf-text wf-text--center wf-text--muted">150ms</p>​
+                        <code class="wf-code">Card(elevated, fadeIn, fast)</code>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined wf-animate-fadeIn">
+                    <div class="wf-card__body">
+                        <p class="wf-text wf-text--center wf-text--bold">default</p>​
+                        <p class="wf-text wf-text--center wf-text--muted">300ms</p>​
+                        <code class="wf-code">Card(elevated, fadeIn)</code>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--outlined wf-animate-fadeIn">
+                    <div class="wf-card__body">
+                        <p class="wf-text wf-text--center wf-text--bold">slow</p>​
+                        <p class="wf-text wf-text--center wf-text--muted">500ms</p>​
+                        <code class="wf-code">Card(elevated, fadeIn, slow)</code>​
+                    </div>​
+                </div>​
+            </div>​
             <div class="wf-spacer"></div>
             <hr class="wf-divider">
             <div class="wf-spacer"></div>
@@ -115,40 +138,95 @@ Button(&quot;Click&quot;, primary, bounce)</code>​
                 <thead>
                     <td>Name</td>​
                     <td>Effect</td>​
+                    <td>Usage</td>​
                 </thead>​
                 <tr>
                     <td>fadeIn / fadeOut</td>​
                     <td>Opacity fade</td>​
+                    <td>Card(elevated, fadeIn)</td>​
                 </tr>​
                 <tr>
                     <td>slideUp / slideDown</td>​
-                    <td>Vertical slide with fade</td>​
+                    <td>Vertical slide + fade</td>​
+                    <td>Heading(&quot;Hi&quot;, h1, slideUp)</td>​
                 </tr>​
                 <tr>
                     <td>slideLeft / slideRight</td>​
-                    <td>Horizontal slide with fade</td>​
+                    <td>Horizontal slide + fade</td>​
+                    <td>Text(&quot;Hello&quot;, slideLeft)</td>​
                 </tr>​
                 <tr>
                     <td>scaleIn / scaleOut</td>​
                     <td>Scale from/to 90%</td>​
+                    <td>Badge(&quot;New&quot;, scaleIn)</td>​
                 </tr>​
                 <tr>
                     <td>bounce</td>​
                     <td>Bouncy entrance</td>​
+                    <td>Button(&quot;Go&quot;, bounce)</td>​
                 </tr>​
                 <tr>
                     <td>shake</td>​
                     <td>Horizontal shake</td>​
+                    <td>Alert(&quot;Error!&quot;, shake)</td>​
                 </tr>​
                 <tr>
                     <td>pulse</td>​
-                    <td>Gentle scale pulse (infinite)</td>​
+                    <td>Scale pulse (infinite)</td>​
+                    <td>Badge(&quot;Live&quot;, pulse)</td>​
                 </tr>​
                 <tr>
                     <td>spin</td>​
-                    <td>360-degree rotation (infinite)</td>​
+                    <td>360-degree rotation</td>​
+                    <td>Spinner(spin)</td>​
                 </tr>​
             </table>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Conditional Animations</h2>​
+            <p class="wf-text">Attach enter and exit animations to if blocks.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">if visible, animate(slideUp, fadeOut) {
+    Card { Text(&quot;Appears with slideUp, exits with fadeOut&quot;) }
+}
+
+if expanded, animate(scaleIn, scaleOut) {
+    Text(&quot;Scales in and out&quot;)
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">List Stagger</h2>​
+            <p class="wf-text">Animate list items with staggered delays.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">for item in items, animate(slideUp, fadeOut, stagger: &quot;50ms&quot;) {
+    Card { Text(item.name) }
+}</code>​
+                </div>​
+            </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
+            <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Transition Blocks</h2>​
+            <p class="wf-text">Smooth CSS transitions on property changes.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-card wf-card--outlined">
+                <div class="wf-card__body">
+                    <code class="wf-code">Button(&quot;Hover me&quot;) {
+    transition {
+        background 200ms ease
+        transform 150ms spring
+    }
+}</code>​
+                </div>​
+            </div>​
             <div class="wf-spacer"></div>
         </div>​
         <!--wf-component-->

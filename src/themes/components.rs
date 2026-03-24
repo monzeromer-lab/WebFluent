@@ -385,5 +385,10 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-animate-spin { animation: wf-spin 0.6s linear infinite; }
 .wf-animate--fast { animation-duration: var(--animation-duration-fast) !important; }
 .wf-animate--slow { animation-duration: var(--animation-duration-slow) !important; }
+
+/* ─── Hover Replay: cards with inline animation style replay on hover ── */
+.wf-card[style*="animation"]:hover { animation-iteration-count: 1 !important; animation-play-state: running; }
+.wf-anim-hover { transition: transform 0.15s ease; }
+.wf-anim-hover:hover { animation-iteration-count: 1 !important; }
 "#
 }
