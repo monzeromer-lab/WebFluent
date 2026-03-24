@@ -3142,6 +3142,7 @@ Button(\"Save\")");
 
 (function() {
   const _app = document.getElementById('app');
+  _app.innerHTML = '';
   const _e1094 = Component_NavBar({});
   _app.appendChild(_e1094);
   const _routerEl = document.createElement('div');

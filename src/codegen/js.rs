@@ -429,6 +429,8 @@ impl JsCodegen {
         self.emit_line("(function() {");
         self.indent += 1;
         self.emit_line("const _app = document.getElementById('app');");
+        // In SSG mode, clear pre-rendered content before mounting the full app
+        self.emit_line("_app.innerHTML = '';");
 
         // Find Router in body
         let mut has_router = false;
