@@ -208,10 +208,17 @@ const WF = (() => {
         const prev = currentEffect;
         currentEffect = null; // Untrack: don't subscribe to signals during render
         try {
-          const frag = document.createDocumentFragment();
           const result = renderFn();
-          const nodes = [].concat(result).flat().filter(n => n instanceof Node);
-          for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
+          // Collect actual child nodes — DocumentFragments lose children when appended
+          let nodes;
+          if (result instanceof DocumentFragment) {
+            nodes = [...result.childNodes];
+          } else {
+            nodes = [].concat(result).flat().filter(n => n instanceof Node);
+          }
+          currentNodes = nodes.slice();
+          const frag = document.createDocumentFragment();
+          for (const n of nodes) frag.appendChild(n);
           if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
           if (animConfig && animConfig.enter) {
             nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay); });
@@ -254,15 +261,19 @@ const WF = (() => {
         const frag = document.createDocumentFragment();
         if (items && items.length) {
           items.forEach((item, index) => {
-            const nodes = [].concat(itemFn(item, index)).flat();
+            const result = itemFn(item, index);
+            let nodes;
+            if (result instanceof DocumentFragment) {
+              nodes = [...result.childNodes];
+            } else {
+              nodes = [].concat(result).flat().filter(n => n instanceof Node);
+            }
             for (const n of nodes) {
-              if (n instanceof Node) {
-                frag.appendChild(n);
-                currentNodes.push(n);
-                if (animConfig && animConfig.enter && n instanceof Element) {
-                  const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * index) + "ms" : animConfig.delay;
-                  animateIn(n, animConfig.enter, animConfig.duration, delay);
-                }
+              frag.appendChild(n);
+              currentNodes.push(n);
+              if (animConfig && animConfig.enter && n instanceof Element) {
+                const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * index) + "ms" : animConfig.delay;
+                animateIn(n, animConfig.enter, animConfig.duration, delay);
               }
             }
           });
