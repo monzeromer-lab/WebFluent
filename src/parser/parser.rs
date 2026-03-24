@@ -619,6 +619,10 @@ impl Parser {
     }
 
     fn is_modifier(&self) -> bool {
+        // Keywords that can also be used as modifiers
+        if matches!(self.current_type(), TokenType::Success | TokenType::Error | TokenType::Loading) {
+            return true;
+        }
         if let TokenType::Identifier(name) = self.current_type() {
             matches!(name.as_str(),
                 // Size

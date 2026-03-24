@@ -28,6 +28,9 @@ enum Commands {
     Init {
         /// Project name
         name: String,
+        /// Template: "spa" (default) or "static"
+        #[arg(short, long, default_value = "spa")]
+        template: String,
     },
     /// Build the project (compile .wf files to HTML + CSS + JS)
     Build {
@@ -57,7 +60,7 @@ fn main() {
     let cli = Cli::parse();
 
     let result = match cli.command {
-        Commands::Init { name } => cli::init::run_init(&name),
+        Commands::Init { name, template } => cli::init::run_init(&name, &template),
         Commands::Build { dir } => cli::build::run_build(&dir),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),
