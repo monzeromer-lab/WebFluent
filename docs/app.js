@@ -167,6 +167,7 @@ const WF = (() => {
     parent.appendChild(marker);
     let currentNodes = [];
     let lastShow = undefined;
+    let pendingRemoval = null; // Track in-progress exit animations
 
     // Only track the condition signal — not signals read during rendering
     effect(() => {
@@ -174,16 +175,31 @@ const WF = (() => {
       if (show === lastShow) return;
       lastShow = show;
 
+      // Cancel any pending removal animation
+      if (pendingRemoval) {
+        removeNodes(pendingRemoval);
+        pendingRemoval = null;
+      }
+
       // Remove old nodes
-      if (animConfig && animConfig.exit && currentNodes.length) {
+      const toRemove = [...currentNodes];
+      currentNodes = [];
+
+      if (animConfig && animConfig.exit && toRemove.length) {
+        pendingRemoval = toRemove;
         const exitName = animConfig.exit;
-        const toRemove = [...currentNodes];
-        currentNodes = [];
-        const promises = toRemove.map(n => n instanceof Element ? animateOut(n, exitName, animConfig.duration) : Promise.resolve());
-        Promise.all(promises).then(() => removeNodes(toRemove));
+        const promises = toRemove.map(n =>
+          n instanceof Element ? animateOut(n, exitName, animConfig.duration) : Promise.resolve()
+        );
+        Promise.all(promises).then(() => {
+          // Only remove if this is still the pending removal (not cancelled by a new toggle)
+          if (pendingRemoval === toRemove) {
+            removeNodes(toRemove);
+            pendingRemoval = null;
+          }
+        });
       } else {
-        removeNodes(currentNodes);
-        currentNodes = [];
+        removeNodes(toRemove);
       }
 
       // Add new nodes (untracked so rendering doesn't subscribe this effect to state signals)
