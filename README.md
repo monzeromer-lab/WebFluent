@@ -1,1 +1,0 @@
-WebFluent redefines UI development by focusing on simplicity and accessibility. Craft visually appealing interfaces seamlessly with its readable syntax, making the task of building user interfaces enjoyable for developers of all skill levels.

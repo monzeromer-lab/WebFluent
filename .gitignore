@@ -1,5 +1,2 @@
-build
-*.exe
-src
 /target
-/examples
+*.exe
