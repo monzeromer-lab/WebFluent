@@ -15,8 +15,8 @@
             <h1 class="wf-heading wf-heading--h1">Getting Started</h1>​
             <p class="wf-text wf-text--muted">Get up and running with WebFluent in under a minute.</p>​
             <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Installation</h2>​
-            <p class="wf-text">Build from source. You need Rust installed.</p>​
+            <h2 class="wf-heading wf-heading--h2">Install</h2>​
+            <p class="wf-text">Build from source (requires Rust):</p>​
             <div class="wf-spacer"></div>
             <div class="wf-card wf-card--outlined">
                 <div class="wf-card__body">
@@ -26,10 +26,11 @@ cargo build --release</code>​
                 </div>​
             </div>​
             <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--muted">The binary is at target/release/webfluent. Add it to your PATH.</p>​
+            <p class="wf-text wf-text--muted">The binary is at target/release/wf. Add it to your PATH.</p>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
             <div class="wf-spacer"></div>
             <h2 class="wf-heading wf-heading--h2">Create a Project</h2>​
-            <p class="wf-text">WebFluent comes with two starter templates.</p>​
             <div class="wf-spacer"></div>
             <div class="wf-row">
                 <div class="wf-col">
@@ -38,7 +39,7 @@ cargo build --release</code>​
                             <span class="wf-badge wf-badge--primary">SPA</span>​
                             <div class="wf-spacer"></div>
                             <h2 class="wf-heading wf-heading--h2">Interactive App</h2>​
-                            <p class="wf-text wf-text--muted">Dashboard with routing, stores, forms, modals, animations. Full CRUD task manager.</p>​
+                            <p class="wf-text wf-text--muted">Dashboard with routing, stores, forms, modals, animations.</p>​
                             <div class="wf-spacer"></div>
                             <code class="wf-code">wf init my-app --template spa</code>​
                         </div>​
@@ -50,13 +51,15 @@ cargo build --release</code>​
                             <span class="wf-badge wf-badge--success">Static</span>​
                             <div class="wf-spacer"></div>
                             <h2 class="wf-heading wf-heading--h2">Static Site</h2>​
-                            <p class="wf-text wf-text--muted">Marketing site with SSG, i18n, blog cards, contact form. Pre-rendered HTML for instant loads.</p>​
+                            <p class="wf-text wf-text--muted">Marketing site with SSG, i18n, blog, contact form.</p>​
                             <div class="wf-spacer"></div>
                             <code class="wf-code">wf init my-site --template static</code>​
                         </div>​
                     </div>​
                 </div>​
             </div>​
+            <div class="wf-spacer"></div>
+            <hr class="wf-divider">
             <div class="wf-spacer"></div>
             <h2 class="wf-heading wf-heading--h2">Build and Serve</h2>​
             <div class="wf-card wf-card--outlined">
@@ -69,62 +72,30 @@ wf serve</code>​
             <div class="wf-spacer"></div>
             <p class="wf-text wf-text--muted">Open http://localhost:3000 in your browser.</p>​
             <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Project Structure</h2>​
-            <p class="wf-text">A WebFluent project has this structure:</p>​
+            <hr class="wf-divider">
             <div class="wf-spacer"></div>
+            <h2 class="wf-heading wf-heading--h2">Project Structure</h2>​
             <div class="wf-card wf-card--outlined">
                 <div class="wf-card__body">
                     <code class="wf-code">my-app/
-├── webfluent.app.json       # Project config
-├── src/
-│   ├── App.wf               # Root app (router, layout)
-│   ├── pages/               # Page files
-│   │   ├── Home.wf
-│   │   └── About.wf
-│   ├── components/           # Reusable components
-│   │   └── Header.wf
-│   ├── stores/               # Shared state
-│   │   └── auth.wf
-│   └── translations/         # i18n JSON files
-│       ├── en.json
-│       └── ar.json
-├── public/                   # Static assets
-└── build/                    # Compiled output</code>​
++-- webfluent.app.json       # Config
++-- src/
+|   +-- App.wf               # Root (router, layout)
+|   +-- pages/
+|   +-- components/
+|   +-- stores/
+|   +-- translations/
++-- public/
++-- build/</code>​
                 </div>​
             </div>​
             <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Build Output</h2>​
-            <p class="wf-text">The compiler generates three files:</p>​
-            <div class="wf-spacer"></div>
-            <table class="wf-table">
-                <thead>
-                    <td>File</td>​
-                    <td>Contents</td>​
-                </thead>​
-                <tr>
-                    <td>index.html</td>​
-                    <td>HTML shell (or pre-rendered pages with SSG)</td>​
-                </tr>​
-                <tr>
-                    <td>app.js</td>​
-                    <td>Reactive runtime + compiled pages and components</td>​
-                </tr>​
-                <tr>
-                    <td>styles.css</td>​
-                    <td>Design tokens as CSS custom properties + component styles</td>​
-                </tr>​
-            </table>​
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Next Steps</h2>​
             <div class="wf-row">
                 <button class="wf-btn wf-btn--primary">
                     Read the Guide
                 </button>​
                 <button class="wf-btn">
                     Browse Components
-                </button>​
-                <button class="wf-btn">
-                    View CLI Reference
                 </button>​
             </div>​
             <div class="wf-spacer"></div>

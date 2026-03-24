@@ -12,18 +12,18 @@
         <!--wf-component-->
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-stack">
-                <h1 class="wf-heading wf-heading--h1 wf-text--center wf-animate-slideUp">The Web-First Language</h1>​
-                <p class="wf-text wf-text--muted wf-text--center wf-animate-fadeIn">Build fully functional single-page applications and static sites that compile to clean HTML, CSS, and JavaScript. No frameworks. No dependencies. Just the web.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-row">
-                    <button class="wf-btn wf-btn--primary wf-btn--large">
-                        Get Started
-                    </button>​
-                    <button class="wf-btn wf-btn--large">
-                        View Guide
-                    </button>​
-                </div>​
+            <h1 class="wf-heading wf-heading--h1 wf-text--center wf-animate-slideUp">The Web-First Language</h1>​
+            <div class="wf-spacer"></div>
+            <p class="wf-text wf-text--muted wf-text--center wf-animate-fadeIn">A programming language that compiles to HTML, CSS, and JavaScript.</p>​
+            <p class="wf-text wf-text--muted wf-text--center wf-animate-fadeIn">Built-in components, reactivity, routing, i18n, animations, and SSG.</p>​
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <button class="wf-btn wf-btn--primary wf-btn--large">
+                    Get Started
+                </button>​
+                <button class="wf-btn wf-btn--large">
+                    View Guide
+                </button>​
             </div>​
             <div class="wf-spacer"></div>
             <div class="wf-card wf-card--outlined">
@@ -43,64 +43,96 @@
             <div class="wf-spacer"></div>
             <hr class="wf-divider">
             <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2 wf-text--center">Why WebFluent?</h2>​
-            <p class="wf-text wf-text--muted wf-text--center">Everything you need to build for the web, built into the language.</p>​
+            <h2 class="wf-heading wf-heading--h2 wf-text--center">Try It Live</h2>​
+            <p class="wf-text wf-text--muted wf-text--center">These are real WebFluent components running in your browser.</p>​
             <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
-                <!--wf-component-->
-                <!--wf-component-->
-                <!--wf-component-->
-            </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
-                <!--wf-component-->
-                <!--wf-component-->
-                <!--wf-component-->
-            </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
-                <!--wf-component-->
-                <!--wf-component-->
-                <!--wf-component-->
+            <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
+                <div class="wf-card wf-card--elevated wf-animate-fadeIn">
+                    <div class="wf-card__header">
+                        <h2 class="wf-heading wf-heading--h2">Reactive Counter</h2>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <div class="wf-row">
+                            <button class="wf-btn wf-btn--large">
+                                -
+                            </button>​
+                            <h2 class="wf-heading wf-heading--h2 wf-heading--primary"></h2>​
+                            <button class="wf-btn wf-btn--primary wf-btn--large">
+                                +
+                            </button>​
+                        </div>​
+                        <div class="wf-spacer"></div>
+                        <p class="wf-text wf-text--muted wf-text--small">Click the buttons. The number updates instantly.</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--elevated wf-animate-fadeIn">
+                    <div class="wf-card__header">
+                        <h2 class="wf-heading wf-heading--h2">Two-Way Binding</h2>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <input class="wf-input" placeholder="Type something here..." type="text">
+                        <div class="wf-spacer"></div>
+                        <!--wf-if-->
+                        <p class="wf-text wf-text--muted wf-text--small">The alert updates as you type.</p>​
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--elevated wf-animate-fadeIn">
+                    <div class="wf-card__header">
+                        <h2 class="wf-heading wf-heading--h2">Conditional Rendering</h2>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <label class="wf-switch">Toggle content</label>​
+                        <div class="wf-spacer"></div>
+                        <!--wf-if-->
+                    </div>​
+                </div>​
+                <div class="wf-card wf-card--elevated wf-animate-fadeIn">
+                    <div class="wf-card__header">
+                        <h2 class="wf-heading wf-heading--h2">Components</h2>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <div class="wf-stack">
+                            <div class="wf-row">
+                                <button class="wf-btn wf-btn--primary">Primary</button>​
+                                <button class="wf-btn wf-btn--danger">Danger</button>​
+                                <button class="wf-btn wf-btn--success">Success</button>​
+                            </div>​
+                            <div class="wf-row">
+                                <span class="wf-badge wf-badge--primary">New</span>​
+                                <span class="wf-badge wf-badge--danger">Sale</span>​
+                                <span class="wf-badge wf-badge--success">Active</span>​
+                                <span class="wf-tag">WebFluent</span>​
+                            </div>​
+                            <progress class="wf-progress" value="72" max="100"></progress>​
+                            <p class="wf-text wf-text--muted wf-text--small">Button variants, badges, tags, and progress bar.</p>​
+                        </div>​
+                    </div>​
+                </div>​
             </div>​
             <div class="wf-spacer"></div>
             <hr class="wf-divider">
             <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2 wf-text--center">How It Works</h2>​
+            <h2 class="wf-heading wf-heading--h2 wf-text--center">Why WebFluent?</h2>​
+            <p class="wf-text wf-text--muted wf-text--center">Everything you need, built into the language.</p>​
             <div class="wf-spacer"></div>
-            <div class="wf-row">
-                <div class="wf-col">
-                    <div class="wf-card">
-                        <div class="wf-card__body">
-                            <h2 class="wf-heading wf-heading--h2">1. Write</h2>​
-                            <p class="wf-text wf-text--muted">Write your UI in .wf files using the declarative syntax. Components, pages, stores, and styles — all in one language.</p>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-col">
-                    <div class="wf-card">
-                        <div class="wf-card__body">
-                            <h2 class="wf-heading wf-heading--h2">2. Build</h2>​
-                            <p class="wf-text wf-text--muted">The Rust compiler lexes, parses, lints for accessibility, and generates optimized HTML + CSS + JS output.</p>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-col">
-                    <div class="wf-card">
-                        <div class="wf-card__body">
-                            <h2 class="wf-heading wf-heading--h2">3. Ship</h2>​
-                            <p class="wf-text wf-text--muted">Deploy the static output anywhere — GitHub Pages, Netlify, Vercel, or any static hosting. No server required.</p>​
-                        </div>​
-                    </div>​
-                </div>​
+            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
+                <!--wf-component-->
             </div>​
             <div class="wf-spacer"></div>
             <div class="wf-card wf-card--elevated">
                 <div class="wf-card__body">
                     <div class="wf-row">
                         <div class="wf-stack">
-                            <h2 class="wf-heading wf-heading--h2">Ready to start?</h2>​
-                            <p class="wf-text wf-text--muted">Create your first WebFluent project in seconds.</p>​
+                            <h2 class="wf-heading wf-heading--h2">Ready to build?</h2>​
+                            <p class="wf-text wf-text--muted">Create your first project in seconds.</p>​
                         </div>​
                         <button class="wf-btn wf-btn--primary wf-btn--large">
                             Get Started
