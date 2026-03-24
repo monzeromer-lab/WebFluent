@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release
+        run: cargo build --release
+
+      - name: Build .deb package
+        run: |
+          cargo install cargo-deb
+          cargo deb --no-build
+
+      - name: Create tarball
+        run: |
+          mkdir -p dist
+          tar czf dist/wf-${{ github.ref_name }}-x86_64-linux.tar.gz -C target/release wf
+
+      - name: Collect artifacts
+        run: |
+          cp target/debian/*.deb dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: dist/*
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release
+        run: cargo build --release
+
+      - name: Install WiX and cargo-wix
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          cargo install cargo-wix
+
+      - name: Init WiX (generate wxs if missing)
+        run: |
+          if (!(Test-Path "wix\main.wxs")) { cargo wix init }
+
+      - name: Build MSI
+        run: cargo wix --no-build --nocapture
+
+      - name: Create zip
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          Compress-Archive -Path target\release\wf.exe -DestinationPath dist\wf-${{ github.ref_name }}-x86_64-windows.zip
+
+      - name: Collect MSI
+        run: |
+          Copy-Item target\wix\*.msi dist\
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-packages
+          path: dist/*
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.deb
+            dist/*.tar.gz
+            dist/*.msi
+            dist/*.zip

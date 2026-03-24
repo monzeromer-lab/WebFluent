@@ -2,6 +2,23 @@
 name = "webfluent"
 version = "0.1.0"
 edition = "2024"
+description = "The Web-First Language — compiles to HTML, CSS, and JavaScript"
+authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/monzeromer-lab/WebFluent"
+homepage = "https://monzeromer-lab.github.io/WebFluent"
+readme = "README.md"
+
+[package.metadata.deb]
+maintainer = "Monzer Omer"
+copyright = "2026 Monzer Omer"
+depends = "$auto"
+section = "devel"
+priority = "optional"
+assets = [
+    ["target/release/wf", "usr/bin/", "755"],
+]
+extended-description = "A programming language that compiles to HTML, CSS, and JavaScript. Built-in components, reactivity, routing, i18n, animations, and SSG."
 
 [[bin]]
 name = "wf"
