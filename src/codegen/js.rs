@@ -55,6 +55,11 @@ impl JsCodegen {
             }
         }
 
+        // Emit SSG mode flag
+        if self.ssg_mode {
+            self.emit_line("WF.setSsgMode(true);");
+        }
+
         // Emit i18n setup if configured
         self.emit_i18n_setup();
 
@@ -628,11 +633,16 @@ impl JsCodegen {
                                 }
                                 "to" => {
                                     let v = self.emit_expr(val);
-                                    attrs.push(format!("href: {}", v));
-                                    attrs.push(format!(
-                                        "\"on:click\": (e) => {{ e.preventDefault(); WF.navigate({}); }}",
-                                        v
-                                    ));
+                                    if self.ssg_mode {
+                                        // SSG: plain links, no SPA navigation
+                                        attrs.push(format!("href: {}", v));
+                                    } else {
+                                        attrs.push(format!("href: {}", v));
+                                        attrs.push(format!(
+                                            "\"on:click\": (e) => {{ e.preventDefault(); WF.navigate({}); }}",
+                                            v
+                                        ));
+                                    }
                                 }
                                 "span" => {
                                     if let Expr::NumberLiteral(n) = val {

@@ -398,9 +398,18 @@ const WF = (() => {
     return routerInstance;
   }
 
+  let _ssgMode = false;
+  function setSsgMode(enabled) { _ssgMode = enabled; }
+
   function navigate(path) {
-    if (routerInstance) routerInstance.navigate(path);
-    else window.location.href = path;
+    if (_ssgMode) {
+      // SSG: full page load to the pre-rendered HTML file
+      window.location.href = _basePath + path;
+    } else if (routerInstance) {
+      routerInstance.navigate(path);
+    } else {
+      window.location.href = path;
+    }
   }
 
   function getParams() {
@@ -607,12 +616,13 @@ const WF = (() => {
     createStore,
     createI18n,
     wfFetch, showToast,
-    mount, hydrate,
+    mount, hydrate, setSsgMode,
     i18n: null,
   };
 })();
 
 
+WF.setSsgMode(true);
 function Component_CodeBlock({ code }) {
   const _frag = document.createDocumentFragment();
   const _e0 = WF.h("div", { className: "wf-card wf-card--outlined" });
@@ -650,11 +660,11 @@ function Component_SiteFooter() {
   const _e12 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "WebFluent — The Web-First Language");
   _e11.appendChild(_e12);
   const _e13 = WF.h("div", { className: "wf-row wf-row--gap-md" });
-  const _e14 = WF.h("a", { className: "wf-link", href: "/", "on:click": (e) => { e.preventDefault(); WF.navigate("/"); } });
+  const _e14 = WF.h("a", { className: "wf-link", href: "/" });
   const _e15 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Home");
   _e14.appendChild(_e15);
   _e13.appendChild(_e14);
-  const _e16 = WF.h("a", { className: "wf-link", href: "/getting-started", "on:click": (e) => { e.preventDefault(); WF.navigate("/getting-started"); } });
+  const _e16 = WF.h("a", { className: "wf-link", href: "/getting-started" });
   const _e17 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Docs");
   _e16.appendChild(_e17);
   _e13.appendChild(_e16);
@@ -674,43 +684,43 @@ function Component_NavBar() {
   _e20.appendChild(_e21);
   _e19.appendChild(_e20);
   const _e22 = WF.h("div", { className: "wf-navbar__links" });
-  const _e23 = WF.h("a", { className: "wf-link", href: "/", "on:click": (e) => { e.preventDefault(); WF.navigate("/"); } });
+  const _e23 = WF.h("a", { className: "wf-link", href: "/" });
   const _e24 = WF.h("p", { className: "wf-text" }, "Home");
   _e23.appendChild(_e24);
   _e22.appendChild(_e23);
-  const _e25 = WF.h("a", { className: "wf-link", href: "/getting-started", "on:click": (e) => { e.preventDefault(); WF.navigate("/getting-started"); } });
+  const _e25 = WF.h("a", { className: "wf-link", href: "/getting-started" });
   const _e26 = WF.h("p", { className: "wf-text" }, "Get Started");
   _e25.appendChild(_e26);
   _e22.appendChild(_e25);
-  const _e27 = WF.h("a", { className: "wf-link", href: "/guide", "on:click": (e) => { e.preventDefault(); WF.navigate("/guide"); } });
+  const _e27 = WF.h("a", { className: "wf-link", href: "/guide" });
   const _e28 = WF.h("p", { className: "wf-text" }, "Guide");
   _e27.appendChild(_e28);
   _e22.appendChild(_e27);
-  const _e29 = WF.h("a", { className: "wf-link", href: "/components", "on:click": (e) => { e.preventDefault(); WF.navigate("/components"); } });
+  const _e29 = WF.h("a", { className: "wf-link", href: "/components" });
   const _e30 = WF.h("p", { className: "wf-text" }, "Components");
   _e29.appendChild(_e30);
   _e22.appendChild(_e29);
-  const _e31 = WF.h("a", { className: "wf-link", href: "/styling", "on:click": (e) => { e.preventDefault(); WF.navigate("/styling"); } });
+  const _e31 = WF.h("a", { className: "wf-link", href: "/styling" });
   const _e32 = WF.h("p", { className: "wf-text" }, "Styling");
   _e31.appendChild(_e32);
   _e22.appendChild(_e31);
-  const _e33 = WF.h("a", { className: "wf-link", href: "/animation", "on:click": (e) => { e.preventDefault(); WF.navigate("/animation"); } });
+  const _e33 = WF.h("a", { className: "wf-link", href: "/animation" });
   const _e34 = WF.h("p", { className: "wf-text" }, "Animation");
   _e33.appendChild(_e34);
   _e22.appendChild(_e33);
-  const _e35 = WF.h("a", { className: "wf-link", href: "/i18n", "on:click": (e) => { e.preventDefault(); WF.navigate("/i18n"); } });
+  const _e35 = WF.h("a", { className: "wf-link", href: "/i18n" });
   const _e36 = WF.h("p", { className: "wf-text" }, "i18n");
   _e35.appendChild(_e36);
   _e22.appendChild(_e35);
-  const _e37 = WF.h("a", { className: "wf-link", href: "/ssg", "on:click": (e) => { e.preventDefault(); WF.navigate("/ssg"); } });
+  const _e37 = WF.h("a", { className: "wf-link", href: "/ssg" });
   const _e38 = WF.h("p", { className: "wf-text" }, "SSG");
   _e37.appendChild(_e38);
   _e22.appendChild(_e37);
-  const _e39 = WF.h("a", { className: "wf-link", href: "/accessibility", "on:click": (e) => { e.preventDefault(); WF.navigate("/accessibility"); } });
+  const _e39 = WF.h("a", { className: "wf-link", href: "/accessibility" });
   const _e40 = WF.h("p", { className: "wf-text" }, "Accessibility");
   _e39.appendChild(_e40);
   _e22.appendChild(_e39);
-  const _e41 = WF.h("a", { className: "wf-link", href: "/cli", "on:click": (e) => { e.preventDefault(); WF.navigate("/cli"); } });
+  const _e41 = WF.h("a", { className: "wf-link", href: "/cli" });
   const _e42 = WF.h("p", { className: "wf-text" }, "CLI");
   _e41.appendChild(_e42);
   _e22.appendChild(_e41);

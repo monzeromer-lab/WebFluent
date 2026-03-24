@@ -398,9 +398,18 @@ const WF = (() => {
     return routerInstance;
   }
 
+  let _ssgMode = false;
+  function setSsgMode(enabled) { _ssgMode = enabled; }
+
   function navigate(path) {
-    if (routerInstance) routerInstance.navigate(path);
-    else window.location.href = path;
+    if (_ssgMode) {
+      // SSG: full page load to the pre-rendered HTML file
+      window.location.href = _basePath + path;
+    } else if (routerInstance) {
+      routerInstance.navigate(path);
+    } else {
+      window.location.href = path;
+    }
   }
 
   function getParams() {
@@ -607,7 +616,7 @@ const WF = (() => {
     createStore,
     createI18n,
     wfFetch, showToast,
-    mount, hydrate,
+    mount, hydrate, setSsgMode,
     i18n: null,
   };
 })();

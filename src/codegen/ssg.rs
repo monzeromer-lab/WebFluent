@@ -20,9 +20,19 @@ pub fn render_page_html(
         .cloned()
         .unwrap_or_default();
 
+    // Calculate relative base path from page route depth
+    let route = page.path.trim_start_matches('/');
+    let base_path = if route.is_empty() || route == "/" {
+        ".".to_string()
+    } else {
+        let depth = route.split('/').filter(|s| !s.is_empty()).count();
+        (0..depth).map(|_| "..").collect::<Vec<_>>().join("/")
+    };
+
     let mut ctx = SsgContext {
         default_messages,
         indent: 2,
+        base_path,
     };
 
     // Render app shell (navbar, etc.) if available
@@ -80,6 +90,7 @@ pub fn render_page_html(
 struct SsgContext {
     default_messages: HashMap<String, String>,
     indent: usize,
+    base_path: String, // Relative path to root (e.g., ".." for /about, "." for /)
 }
 
 impl SsgContext {
@@ -197,7 +208,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     }
                     "to" => {
                         if let Some(s) = expr_to_static_string(val) {
-                            attrs.push(format!("href=\"{}\"", html_escape(&s)));
+                            // Convert route path to relative file path for SSG
+                            let href = if s == "/" {
+                                format!("{}/", ctx.base_path)
+                            } else {
+                                let clean = s.trim_start_matches('/');
+                                format!("{}/{}/", ctx.base_path, clean)
+                            };
+                            attrs.push(format!("href=\"{}\"", html_escape(&href)));
                         }
                     }
                     "required" => attrs.push("required".to_string()),
