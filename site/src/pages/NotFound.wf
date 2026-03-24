@@ -1,0 +1,17 @@
+Page NotFound (path: "/404", title: "Page Not Found") {
+    Container(fadeIn) {
+        Spacer(xl)
+
+        Stack(gap: md) {
+            Heading("404", h1, center, primary)
+            Heading("Page Not Found", h2, center)
+            Text("The page you are looking for does not exist or has been moved.", muted, center)
+            Spacer()
+            Row(justify: center) {
+                Button("Go Home", primary, large) { navigate("/") }
+            }
+        }
+
+        Spacer(xl)
+    }
+}

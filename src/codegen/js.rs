@@ -634,8 +634,8 @@ impl JsCodegen {
                                 "to" => {
                                     let v = self.emit_expr(val);
                                     if self.ssg_mode {
-                                        // SSG: plain links, no SPA navigation
-                                        attrs.push(format!("href: {}", v));
+                                        // SSG: plain links with base path prepended
+                                        attrs.push(format!("href: WF._basePath + {}", v));
                                     } else {
                                         attrs.push(format!("href: {}", v));
                                         attrs.push(format!(
@@ -1927,7 +1927,25 @@ fn modifier_to_class(base_class: &str, modifier: &str) -> String {
 }
 
 fn is_reactive_expr(expr_str: &str) -> bool {
-    expr_str.contains("_()")
+    // Check for signal access pattern: _identifier()
+    let bytes = expr_str.as_bytes();
+    for i in 0..bytes.len() {
+        if bytes[i] == b'_' && i + 1 < bytes.len() && (bytes[i + 1] as char).is_alphanumeric() {
+            // Found _identifier, check if it's followed by ()
+            let mut j = i + 1;
+            while j < bytes.len() && (bytes[j] as char).is_alphanumeric() {
+                j += 1;
+            }
+            if j + 1 < bytes.len() && bytes[j] == b'(' && bytes[j + 1] == b')' {
+                return true;
+            }
+        }
+    }
+    // Also check for WF.i18n.t( which is reactive (locale changes)
+    if expr_str.contains("WF.i18n.t(") || expr_str.contains("WF.i18n.locale()") || expr_str.contains("WF.i18n.dir()") {
+        return true;
+    }
+    false
 }
 
 fn to_camel_case(kebab: &str) -> String {

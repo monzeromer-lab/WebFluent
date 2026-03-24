@@ -617,6 +617,7 @@ const WF = (() => {
     createI18n,
     wfFetch, showToast,
     mount, hydrate, setSsgMode,
+    _basePath,
     i18n: null,
   };
 })();
