@@ -29,10 +29,13 @@ pub fn render_page_html(
         (0..depth).map(|_| "..").collect::<Vec<_>>().join("/")
     };
 
+    let link_base = config.build.base_path.clone();
+
     let mut ctx = SsgContext {
         default_messages,
         indent: 2,
         base_path,
+        link_base,
     };
 
     // Render app shell (navbar, etc.) if available
@@ -90,7 +93,8 @@ pub fn render_page_html(
 struct SsgContext {
     default_messages: HashMap<String, String>,
     indent: usize,
-    base_path: String, // Relative path to root (e.g., ".." for /about, "." for /)
+    base_path: String, // Relative path to root for assets (e.g., ".." for /about)
+    link_base: String, // Config base_path for links (e.g., "/WebFluent")
 }
 
 impl SsgContext {
@@ -208,12 +212,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     }
                     "to" => {
                         if let Some(s) = expr_to_static_string(val) {
-                            // Convert route path to relative file path for SSG
-                            let href = if s == "/" {
-                                format!("{}/", ctx.base_path)
+                            // Use config base_path for absolute links
+                            let href = if ctx.link_base.is_empty() {
+                                s.clone()
                             } else {
-                                let clean = s.trim_start_matches('/');
-                                format!("{}/{}/", ctx.base_path, clean)
+                                format!("{}{}", ctx.link_base, s)
                             };
                             attrs.push(format!("href=\"{}\"", html_escape(&href)));
                         }

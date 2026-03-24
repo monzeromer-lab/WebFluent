@@ -16,6 +16,8 @@ pub struct JsCodegen {
     i18n_translations: HashMap<String, HashMap<String, String>>,
     /// SSG mode: emit hydration instead of full mount
     ssg_mode: bool,
+    /// Base path for deployment (e.g., "/WebFluent")
+    base_path: String,
 }
 
 impl JsCodegen {
@@ -29,6 +31,7 @@ impl JsCodegen {
             i18n_default_locale: None,
             i18n_translations: HashMap::new(),
             ssg_mode: false,
+            base_path: String::new(),
         }
     }
 
@@ -39,6 +42,10 @@ impl JsCodegen {
 
     pub fn set_ssg(&mut self, enabled: bool) {
         self.ssg_mode = enabled;
+    }
+
+    pub fn set_base_path(&mut self, path: String) {
+        self.base_path = path;
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
@@ -55,7 +62,10 @@ impl JsCodegen {
             }
         }
 
-        // Emit SSG mode flag
+        // Emit base path and SSG mode flag
+        if !self.base_path.is_empty() {
+            self.emit_line(&format!("WF.setBasePath(\"{}\");", self.base_path));
+        }
         if self.ssg_mode {
             self.emit_line("WF.setSsgMode(true);");
         }

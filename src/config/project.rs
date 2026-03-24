@@ -45,6 +45,9 @@ pub struct BuildConfig {
     pub sourcemap: bool,
     #[serde(default)]
     pub ssg: bool,
+    /// Base path for deployment (e.g., "/WebFluent" for GitHub Pages project sites)
+    #[serde(default)]
+    pub base_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -107,6 +110,7 @@ impl Default for BuildConfig {
             minify: true,
             sourcemap: false,
             ssg: false,
+            base_path: String::new(),
         }
     }
 }

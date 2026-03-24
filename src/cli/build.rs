@@ -66,6 +66,9 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     if config.build.ssg {
         js_codegen.set_ssg(true);
     }
+    if !config.build.base_path.is_empty() {
+        js_codegen.set_base_path(config.build.base_path.clone());
+    }
     let js = js_codegen.generate(&program);
 
     // Write output

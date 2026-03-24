@@ -295,24 +295,8 @@ const WF = (() => {
   let routerInstance = null;
 
   // ─── Router ──────────────────────────────────────────
-  // Detect base path for GitHub Pages (e.g., /WebFluent)
-  const _basePath = (function() {
-    const base = document.querySelector("base");
-    if (base) return base.getAttribute("href").replace(/\/$/, "");
-    // Auto-detect: if script src is relative (../app.js), we're in a subdir
-    const scripts = document.querySelectorAll("script[src]");
-    for (const s of scripts) {
-      const src = s.getAttribute("src");
-      if (src && src.includes("app.js")) {
-        const depth = (src.match(/\.\.\//g) || []).length;
-        if (depth > 0) {
-          const segs = location.pathname.split("/").filter(Boolean);
-          return "/" + segs.slice(0, segs.length - depth).join("/");
-        }
-      }
-    }
-    return "";
-  })();
+  // Base path for deployment (set via WF.setBasePath or config)
+  let _basePath = "";
 
   function _stripBase(fullPath) {
     if (_basePath && fullPath.startsWith(_basePath)) {
@@ -400,6 +384,7 @@ const WF = (() => {
 
   let _ssgMode = false;
   function setSsgMode(enabled) { _ssgMode = enabled; }
+  function setBasePath(path) { _basePath = path.replace(/\/$/, ""); }
 
   function navigate(path) {
     if (_ssgMode) {
@@ -616,8 +601,8 @@ const WF = (() => {
     createStore,
     createI18n,
     wfFetch, showToast,
-    mount, hydrate, setSsgMode,
-    _basePath,
+    mount, hydrate, setSsgMode, setBasePath,
+    get _basePath() { return _basePath; },
     i18n: null,
   };
 })();

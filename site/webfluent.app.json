@@ -14,7 +14,8 @@
   "build": {
     "output": "../docs",
     "minify": true,
-    "ssg": true
+    "ssg": true,
+    "base_path": "/WebFluent"
   },
   "dev": {
     "port": 4000
