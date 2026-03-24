@@ -680,7 +680,13 @@ impl Parser {
         self.expect(&TokenType::OpenBrace)?;
         let mut properties = Vec::new();
         while !self.check(&TokenType::CloseBrace) {
-            let name = self.expect_identifier()?;
+            // Support hyphenated property names: border-radius, font-size, etc.
+            let mut name = self.expect_identifier()?;
+            while self.check(&TokenType::Minus) {
+                self.advance(); // consume -
+                let part = self.expect_identifier()?;
+                name = format!("{}-{}", name, part);
+            }
             self.expect(&TokenType::Colon)?;
             let value = self.parse_expression()?;
             properties.push(StyleProperty { name, value });

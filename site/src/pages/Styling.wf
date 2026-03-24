@@ -120,13 +120,136 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
         Spacer()
 
         Heading("Themes", h2)
-        Text("4 built-in themes. Set in webfluent.app.json.")
+        Text("4 built-in themes. Set in webfluent.app.json. Each preview below shows the actual colors and style of that theme.")
         Spacer(sm)
         Grid(columns: 2, gap: md) {
-            Card(outlined) { Card.Body { Badge("default", primary) Spacer(sm) Text("Clean, modern light theme.", muted) } }
-            Card(outlined) { Card.Body { Badge("dark", secondary) Spacer(sm) Text("Dark backgrounds, muted light text.", muted) } }
-            Card(outlined) { Card.Body { Badge("minimal") Spacer(sm) Text("Black and white. No shadows or radii.", muted) } }
-            Card(outlined) { Card.Body { Badge("brutalist", danger) Spacer(sm) Text("Monospace, hard shadows, bold.", muted) } }
+            Card {
+                Card.Body {
+                    Row(gap: sm, align: center) {
+                        Badge("default", primary)
+                        Text("Default", bold)
+                    }
+                    Spacer(sm)
+                    Text("Clean, modern light theme with blue primary.", muted, small)
+                    Spacer(sm)
+                    Row(gap: sm) {
+                        Button("Primary", primary, small)
+                        Button("Success", success, small)
+                        Badge("Tag", info)
+                    }
+                    Spacer(sm)
+                    Progress(value: 65, max: 100, primary)
+                    Spacer(sm)
+                    Code("\"theme\": \{ \"name\": \"default\" \}", block)
+                }
+                style {
+                    background: "#ffffff"
+                    border: "1px solid #E2E8F0"
+                    border-radius: "0.75rem"
+                }
+            }
+            Card {
+                Card.Body {
+                    Row(gap: sm, align: center) {
+                        Badge("dark", secondary)
+                        Text("Dark", bold)
+                    }
+                    Spacer(sm)
+                    Text("Dark backgrounds with light text and vibrant accents.", small)
+                    Spacer(sm)
+                    Row(gap: sm) {
+                        Button("Primary", primary, small)
+                        Button("Danger", danger, small)
+                        Badge("Live", success)
+                    }
+                    Spacer(sm)
+                    Progress(value: 80, max: 100, info)
+                    Spacer(sm)
+                    Code("\"theme\": \{ \"name\": \"dark\" \}", block)
+                }
+                style {
+                    background: "#0F172A"
+                    color: "#E2E8F0"
+                    border: "1px solid #334155"
+                    border-radius: "0.75rem"
+                }
+            }
+            Card {
+                Card.Body {
+                    Row(gap: sm, align: center) {
+                        Badge("minimal")
+                        Text("Minimal", bold)
+                    }
+                    Spacer(sm)
+                    Text("Black and white. No shadows, no border-radius. Pure content.", small)
+                    Spacer(sm)
+                    Row(gap: sm) {
+                        Button("Action", small)
+                        Badge("Note")
+                    }
+                    Spacer(sm)
+                    Progress(value: 50, max: 100)
+                    Spacer(sm)
+                    Code("\"theme\": \{ \"name\": \"minimal\" \}", block)
+                }
+                style {
+                    background: "#ffffff"
+                    border: "2px solid #000000"
+                    border-radius: "0"
+                }
+            }
+            Card {
+                Card.Body {
+                    Row(gap: sm, align: center) {
+                        Badge("brutalist", danger)
+                        Text("Brutalist", bold)
+                    }
+                    Spacer(sm)
+                    Text("Monospace font, bold red primary, hard offset shadows.", small)
+                    Spacer(sm)
+                    Row(gap: sm) {
+                        Button("Action", danger, small)
+                        Badge("Alert", danger)
+                    }
+                    Spacer(sm)
+                    Progress(value: 90, max: 100, danger)
+                    Spacer(sm)
+                    Code("\"theme\": \{ \"name\": \"brutalist\" \}", block)
+                }
+                style {
+                    background: "#ffffff"
+                    border: "3px solid #000000"
+                    border-radius: "0"
+                    box-shadow: "4px 4px 0 #000000"
+                    font-family: "monospace"
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Custom Tokens", h2)
+        Text("Override any design token in your config to customize the theme.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"theme\": \{\n    \"name\": \"default\",\n    \"tokens\": \{\n      \"color-primary\": \"#8B5CF6\",\n      \"color-secondary\": \"#EC4899\",\n      \"font-family\": \"Poppins, sans-serif\",\n      \"radius-md\": \"1rem\"\n    \}\n  \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Style Blocks", h2)
+        Text("Override styles on any component with inline style blocks.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Custom\") \{\n    style \{\n        background: \"#8B5CF6\"\n        padding: xl\n        radius: lg\n    \}\n\}", block)
+            }
         }
 
         Spacer(xl)
