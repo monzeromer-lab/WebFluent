@@ -118,6 +118,14 @@ pub enum TokenType {
     Code,
     Blockquote,
 
+    // Document components (PDF)
+    Document,
+    Section,
+    Paragraph,
+    PageBreak,
+    Header,
+    Footer,
+
     // Style & Animation
     Style,
     Theme,
@@ -336,6 +344,14 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "Heading" => TokenType::Heading,
         "Code" => TokenType::Code,
         "Blockquote" => TokenType::Blockquote,
+
+        // Document components (PDF)
+        "Document" => TokenType::Document,
+        "Section" => TokenType::Section,
+        "Paragraph" => TokenType::Paragraph,
+        "PageBreak" => TokenType::PageBreak,
+        "Header" => TokenType::Header,
+        "Footer" => TokenType::Footer,
 
         // Style & Animation
         "style" => TokenType::Style,

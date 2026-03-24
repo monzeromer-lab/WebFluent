@@ -4,6 +4,16 @@ use std::fs;
 use std::path::Path;
 use crate::error::{WebFluentError, Result};
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum OutputType {
+    Spa,
+    Static,
+    Pdf,
+}
+
+fn default_output_type() -> OutputType { OutputType::Spa }
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProjectConfig {
     pub name: String,
@@ -48,6 +58,67 @@ pub struct BuildConfig {
     /// Base path for deployment (e.g., "/WebFluent" for GitHub Pages project sites)
     #[serde(default)]
     pub base_path: String,
+    /// Output type: "spa" (default), "static", or "pdf"
+    #[serde(default = "default_output_type")]
+    pub output_type: OutputType,
+    /// PDF-specific configuration
+    #[serde(default)]
+    pub pdf: PdfConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PdfConfig {
+    #[serde(default = "default_page_size")]
+    pub page_size: String,
+    #[serde(default = "default_margins")]
+    pub margins: PdfMargins,
+    #[serde(default = "default_font")]
+    pub default_font: String,
+    #[serde(default = "default_font_size")]
+    pub default_font_size: f64,
+    #[serde(default)]
+    pub output_filename: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PdfMargins {
+    #[serde(default = "default_margin")]
+    pub top: f64,
+    #[serde(default = "default_margin")]
+    pub bottom: f64,
+    #[serde(default = "default_margin")]
+    pub left: f64,
+    #[serde(default = "default_margin")]
+    pub right: f64,
+}
+
+fn default_page_size() -> String { "A4".to_string() }
+fn default_margins() -> PdfMargins { PdfMargins::default() }
+fn default_font() -> String { "Helvetica".to_string() }
+fn default_font_size() -> f64 { 12.0 }
+fn default_margin() -> f64 { 72.0 }
+
+impl Default for PdfConfig {
+    fn default() -> Self {
+        Self {
+            page_size: default_page_size(),
+            margins: PdfMargins::default(),
+            default_font: default_font(),
+            default_font_size: default_font_size(),
+            output_filename: None,
+        }
+    }
+}
+
+impl Default for PdfMargins {
+    fn default() -> Self {
+        Self {
+            top: default_margin(),
+            bottom: default_margin(),
+            left: default_margin(),
+            right: default_margin(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -111,6 +182,8 @@ impl Default for BuildConfig {
             sourcemap: false,
             ssg: false,
             base_path: String::new(),
+            output_type: OutputType::Spa,
+            pdf: PdfConfig::default(),
         }
     }
 }

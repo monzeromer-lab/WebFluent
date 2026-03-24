@@ -14,8 +14,9 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
     match template {
         "spa" => generate_spa(name, project_dir)?,
         "static" => generate_static(name, project_dir)?,
+        "pdf" => generate_pdf(name, project_dir)?,
         _ => {
-            eprintln!("Unknown template '{}'. Use 'spa' or 'static'.", template);
+            eprintln!("Unknown template '{}'. Use 'spa', 'static', or 'pdf'.", template);
             std::process::exit(1);
         }
     }
@@ -892,6 +893,131 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
         Spacer()
     }
 }"#)?;
+
+    Ok(())
+}
+
+fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
+    fs::create_dir_all(project_dir.join("src/pages"))?;
+
+    fs::write(project_dir.join("webfluent.app.json"), format!(r#"{{
+  "name": "{name}",
+  "version": "0.1.0",
+  "build": {{
+    "output": "./build",
+    "output_type": "pdf",
+    "pdf": {{
+      "page_size": "A4",
+      "margins": {{ "top": 72, "bottom": 72, "left": 72, "right": 72 }},
+      "default_font": "Helvetica",
+      "default_font_size": 12,
+      "output_filename": "{name}.pdf"
+    }}
+  }}
+}}"#))?;
+
+    fs::write(project_dir.join("src/pages/Report.wf"), format!(r#"Page Report (path: "/", title: "{name} Report") {{
+    Document(page_size: "A4") {{
+        Header {{
+            Text("{name}", muted, small, right)
+        }}
+
+        Footer {{
+            Text("Confidential", muted, small, center)
+        }}
+
+        Section {{
+            Heading("{name}", h1)
+
+            Spacer(sm)
+
+            Text("This document was generated with WebFluent's PDF output.")
+
+            Spacer()
+
+            Heading("Summary", h2)
+
+            Paragraph {{
+                Text("WebFluent generates PDF documents directly from .wf source files. The same declarative syntax used for web UIs works for documents.")
+            }}
+
+            Divider()
+
+            Heading("Data Table", h2)
+
+            Table {{
+                Thead {{
+                    Trow {{
+                        Tcell("Item")
+                        Tcell("Category")
+                        Tcell("Status")
+                        Tcell("Value")
+                    }}
+                }}
+                Tbody {{
+                    Trow {{
+                        Tcell("Widget A")
+                        Tcell("Hardware")
+                        Tcell("Active")
+                        Tcell("$1,200")
+                    }}
+                    Trow {{
+                        Tcell("Service B")
+                        Tcell("Software")
+                        Tcell("Pending")
+                        Tcell("$3,400")
+                    }}
+                    Trow {{
+                        Tcell("License C")
+                        Tcell("Legal")
+                        Tcell("Complete")
+                        Tcell("$800")
+                    }}
+                }}
+            }}
+
+            Spacer()
+
+            Heading("Key Points", h3)
+
+            List {{
+                Text("PDF output uses raw PDF 1.7 — no external dependencies")
+                Text("Tables, headings, text, lists, and code blocks are supported")
+                Text("Automatic page breaks with headers and footers on every page")
+                Text("Font support for all 14 PDF base fonts")
+            }}
+
+            Spacer()
+
+            Alert("Interactive elements like Button and Input are rejected at compile time in PDF mode.", info)
+
+            Spacer()
+
+            Code("Document(page_size: \"A4\") \{{\n    Heading(\"Hello!\", h1)\n    Text(\"Generated with WebFluent.\")\n\}}", block)
+
+            Spacer()
+
+            Blockquote {{
+                Text("WebFluent — build for the web, print for the world.")
+            }}
+
+            PageBreak()
+
+            Heading("Page Two", h1)
+
+            Paragraph {{
+                Text("Content continues after PageBreak. Headers and footers repeat on every page.")
+            }}
+
+            Progress(value: 75, max: 100, primary)
+
+            Spacer()
+
+            Badge("Complete", success)
+        }}
+    }}
+}}
+"#))?;
 
     Ok(())
 }

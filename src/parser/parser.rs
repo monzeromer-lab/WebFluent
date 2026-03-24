@@ -93,7 +93,9 @@ impl Parser {
             TokenType::Image | TokenType::Video | TokenType::Icon | TokenType::Carousel |
             TokenType::Text | TokenType::Heading | TokenType::Code | TokenType::Blockquote |
             TokenType::Router | TokenType::Route |
-            TokenType::TypeList // List component
+            TokenType::TypeList | // List component
+            TokenType::Document | TokenType::Section | TokenType::Paragraph |
+            TokenType::PageBreak | TokenType::Header | TokenType::Footer
         )
     }
 

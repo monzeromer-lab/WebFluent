@@ -4,7 +4,8 @@ use std::path::{Path, PathBuf};
 use crate::config::ProjectConfig;
 use crate::lexer::Lexer;
 use crate::parser::{Parser, Program, Declaration, Statement};
-use crate::codegen::{generate_html, generate_css, JsCodegen};
+use crate::codegen::{generate_html, generate_css, JsCodegen, PdfCodegen};
+use crate::config::project::OutputType;
 use crate::error::{WebFluentError, Result};
 
 pub fn run_build(project_dir: &Path) -> Result<()> {
@@ -48,6 +49,42 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     let a11y_warnings = crate::linter::lint_accessibility(&program);
     for warning in &a11y_warnings {
         eprintln!("{}", warning);
+    }
+
+    // PDF output mode
+    if config.build.output_type == OutputType::Pdf {
+        // Validate: reject interactive elements
+        let pdf_errors = crate::linter::validate_for_pdf(&program);
+        if !pdf_errors.is_empty() {
+            for err in &pdf_errors {
+                eprintln!("{}", err);
+            }
+            return Err(WebFluentError::CodegenError(
+                format!("{} element(s) not allowed in PDF output", pdf_errors.len())
+            ));
+        }
+
+        let mut pdf_codegen = PdfCodegen::new(&config.build.pdf);
+        let pdf_bytes = pdf_codegen.generate(&program);
+
+        let output_dir = project_dir.join(&config.build.output);
+        fs::create_dir_all(&output_dir)?;
+
+        let filename = config.build.pdf.output_filename
+            .clone()
+            .unwrap_or_else(|| format!("{}.pdf", config.name));
+        fs::write(output_dir.join(&filename), &pdf_bytes)?;
+
+        let page_count = program.declarations.iter()
+            .filter(|d| matches!(d, Declaration::Page(_))).count();
+        println!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
+        println!("  Output: {}/{}", config.build.output, filename);
+        if a11y_warnings.is_empty() {
+            println!("Build complete.");
+        } else {
+            println!("Build complete with {} accessibility warning(s).", a11y_warnings.len());
+        }
+        return Ok(());
     }
 
     // Load translations if i18n is configured
