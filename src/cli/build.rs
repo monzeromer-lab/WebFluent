@@ -1,8 +1,9 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use crate::config::ProjectConfig;
 use crate::lexer::Lexer;
-use crate::parser::{Parser, Program, Declaration};
+use crate::parser::{Parser, Program, Declaration, Statement};
 use crate::codegen::{generate_html, generate_css, JsCodegen};
 use crate::error::{WebFluentError, Result};
 
@@ -43,17 +44,70 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         declarations: all_declarations,
     };
 
+    // Run accessibility linter
+    let a11y_warnings = crate::linter::lint_accessibility(&program);
+    for warning in &a11y_warnings {
+        eprintln!("{}", warning);
+    }
+
+    // Load translations if i18n is configured
+    let translations = if let Some(i18n_config) = &config.i18n {
+        load_translations(project_dir, i18n_config)?
+    } else {
+        HashMap::new()
+    };
+
     // Generate output
-    let html = generate_html(&config);
     let css = generate_css(&config.theme.name, &config.theme.tokens);
     let mut js_codegen = JsCodegen::new();
+    if let Some(i18n_config) = &config.i18n {
+        js_codegen.set_i18n(i18n_config.default_locale.clone(), translations.clone());
+    }
+    if config.build.ssg {
+        js_codegen.set_ssg(true);
+    }
     let js = js_codegen.generate(&program);
 
     // Write output
     let output_dir = project_dir.join(&config.build.output);
     fs::create_dir_all(&output_dir)?;
 
-    fs::write(output_dir.join("index.html"), html)?;
+    if config.build.ssg {
+        // SSG: generate per-page HTML files
+        let app_body: Option<Vec<Statement>> = program.declarations.iter().find_map(|d| {
+            if let Declaration::App(a) = d { Some(a.body.clone()) } else { None }
+        });
+        let app_stmts = app_body.as_deref();
+
+        for decl in &program.declarations {
+            if let Declaration::Page(page) = decl {
+                // Skip dynamic routes (contain :param)
+                if page.path.contains(':') {
+                    continue;
+                }
+
+                let page_html = crate::codegen::render_page_html(
+                    page, &config, app_stmts, &translations,
+                );
+
+                // Determine output path
+                let route = page.path.trim_start_matches('/');
+                if route.is_empty() || route == "/" {
+                    fs::write(output_dir.join("index.html"), &page_html)?;
+                } else {
+                    let dir = output_dir.join(route);
+                    fs::create_dir_all(&dir)?;
+                    fs::write(dir.join("index.html"), &page_html)?;
+                }
+            }
+        }
+        println!("  SSG: pre-rendered static pages");
+    } else {
+        // SPA: single index.html
+        let html = generate_html(&config);
+        fs::write(output_dir.join("index.html"), html)?;
+    }
+
     fs::write(output_dir.join("styles.css"), css)?;
     fs::write(output_dir.join("app.js"), js)?;
 
@@ -67,9 +121,18 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     let comp_count = program.declarations.iter().filter(|d| matches!(d, Declaration::Component(_))).count();
     let store_count = program.declarations.iter().filter(|d| matches!(d, Declaration::Store(_))).count();
 
-    println!("  {} pages, {} components, {} stores", page_count, comp_count, store_count);
+    let locale_count = config.i18n.as_ref().map_or(0, |i| i.locales.len());
+    if locale_count > 0 {
+        println!("  {} pages, {} components, {} stores, {} locales", page_count, comp_count, store_count, locale_count);
+    } else {
+        println!("  {} pages, {} components, {} stores", page_count, comp_count, store_count);
+    }
     println!("  Output: {}/", config.build.output);
-    println!("Build complete.");
+    if a11y_warnings.is_empty() {
+        println!("Build complete.");
+    } else {
+        println!("Build complete with {} accessibility warning(s).", a11y_warnings.len());
+    }
 
     Ok(())
 }
@@ -103,6 +166,36 @@ fn find_wf_files(dir: &Path) -> Result<Vec<PathBuf>> {
     }
 
     Ok(files)
+}
+
+fn load_translations(
+    project_dir: &Path,
+    i18n_config: &crate::config::project::I18nConfig,
+) -> Result<HashMap<String, HashMap<String, String>>> {
+    let mut translations = HashMap::new();
+    let trans_dir = project_dir.join(&i18n_config.dir);
+
+    if !trans_dir.exists() {
+        println!("  Warning: translations directory '{}' not found", i18n_config.dir);
+        return Ok(translations);
+    }
+
+    for locale in &i18n_config.locales {
+        let file_path = trans_dir.join(format!("{}.json", locale));
+        if !file_path.exists() {
+            println!("  Warning: translation file '{}.json' not found", locale);
+            continue;
+        }
+
+        let content = fs::read_to_string(&file_path)?;
+        let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {
+            WebFluentError::ConfigError(format!("Failed to parse {}.json: {}", locale, e))
+        })?;
+
+        translations.insert(locale.clone(), messages);
+    }
+
+    Ok(translations)
 }
 
 fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {

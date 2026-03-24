@@ -325,5 +325,34 @@ pre.wf-code { padding: var(--spacing-md); overflow-x: auto; display: block; bord
   .wf-navbar { flex-wrap: wrap; gap: var(--spacing-sm); }
   .wf-sidebar { width: 100%; min-height: auto; }
 }
+
+/* ─── Animation Keyframes ───────────────────────────── */
+@keyframes wf-fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wf-fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes wf-slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes wf-slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
+@keyframes wf-slideLeft { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+@keyframes wf-slideRight { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: none; } }
+@keyframes wf-scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+@keyframes wf-scaleOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(0.9); } }
+@keyframes wf-bounce { 0% { opacity: 0; transform: scale(0.3); } 50% { transform: scale(1.05); } 70% { transform: scale(0.9); } 100% { opacity: 1; transform: none; } }
+@keyframes wf-shake { 0%,100% { transform: none; } 10%,30%,50%,70%,90% { transform: translateX(-4px); } 20%,40%,60%,80% { transform: translateX(4px); } }
+@keyframes wf-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* ─── Animation Utility Classes ─────────────────────── */
+.wf-animate-fadeIn { animation: wf-fadeIn var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-fadeOut { animation: wf-fadeOut var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-slideUp { animation: wf-slideUp var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-slideDown { animation: wf-slideDown var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-slideLeft { animation: wf-slideLeft var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-slideRight { animation: wf-slideRight var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-scaleIn { animation: wf-scaleIn var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-scaleOut { animation: wf-scaleOut var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-bounce { animation: wf-bounce var(--animation-duration-slow) var(--animation-easing-bounce) both; }
+.wf-animate-shake { animation: wf-shake var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-pulse { animation: wf-pulse var(--animation-duration-slow) var(--animation-easing-default) infinite; }
+.wf-animate-spin { animation: wf-spin 0.6s linear infinite; }
+.wf-animate--fast { animation-duration: var(--animation-duration-fast) !important; }
+.wf-animate--slow { animation-duration: var(--animation-duration-slow) !important; }
 "#
 }

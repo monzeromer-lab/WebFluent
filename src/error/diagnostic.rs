@@ -66,3 +66,44 @@ impl From<std::io::Error> for WebFluentError {
 }
 
 pub type Result<T> = std::result::Result<T, WebFluentError>;
+
+/// A non-fatal accessibility warning emitted during compilation.
+#[derive(Debug)]
+pub struct A11yWarning {
+    pub rule_id: String,
+    pub message: String,
+    pub file: String,
+    pub line: usize,
+    pub column: usize,
+    pub hint: String,
+}
+
+impl A11yWarning {
+    pub fn new(
+        rule_id: impl Into<String>,
+        message: impl Into<String>,
+        file: impl Into<String>,
+        line: usize,
+        column: usize,
+        hint: impl Into<String>,
+    ) -> Self {
+        Self {
+            rule_id: rule_id.into(),
+            message: message.into(),
+            file: file.into(),
+            line,
+            column,
+            hint: hint.into(),
+        }
+    }
+}
+
+impl fmt::Display for A11yWarning {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "  Warning [{}]: {} at {}:{}:{}\n    {}",
+            self.rule_id, self.message, self.file, self.line, self.column, self.hint
+        )
+    }
+}

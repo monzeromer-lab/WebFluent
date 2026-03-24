@@ -114,41 +114,113 @@ const WF = (() => {
     return document.createTextNode(String(fn));
   }
 
+  // ─── Animation helpers ──────────────────────────────
+  const ANIM_REVERSE = {
+    fadeIn: "fadeOut", fadeOut: "fadeIn",
+    slideUp: "slideDown", slideDown: "slideUp",
+    slideLeft: "slideRight", slideRight: "slideLeft",
+    scaleIn: "scaleOut", scaleOut: "scaleIn",
+    bounce: "fadeOut", shake: "fadeOut", pulse: "fadeOut",
+  };
+
+  function animateIn(el, name, duration, delay) {
+    if (!name) return Promise.resolve();
+    const cls = "wf-animate-" + name;
+    if (duration) el.style.animationDuration = duration;
+    if (delay) el.style.animationDelay = delay;
+    el.classList.add(cls);
+    return new Promise(resolve => {
+      const done = () => { el.classList.remove(cls); el.style.animationDuration = ""; el.style.animationDelay = ""; resolve(); };
+      el.addEventListener("animationend", done, { once: true });
+      // Fallback timeout
+      setTimeout(done, (parseInt(duration) || 300) + (parseInt(delay) || 0) + 100);
+    });
+  }
+
+  function animateOut(el, name, duration) {
+    if (!name) return Promise.resolve();
+    const cls = "wf-animate-" + name;
+    if (duration) el.style.animationDuration = duration;
+    el.classList.add(cls);
+    return new Promise(resolve => {
+      const done = () => { el.classList.remove(cls); el.style.animationDuration = ""; resolve(); };
+      el.addEventListener("animationend", done, { once: true });
+      setTimeout(done, (parseInt(duration) || 300) + 100);
+    });
+  }
+
+  function animateEl(target, name, duration) {
+    const el = typeof target === "string" ? document.querySelector(`[data-ref="${target}"]`) : target;
+    if (!el) return;
+    return animateIn(el, name, duration);
+  }
+
   // ─── Conditional rendering ───────────────────────────
-  function condRender(parent, condFn, thenFn, elseFn) {
+  function condRender(parent, condFn, thenFn, elseFn, animConfig) {
     const marker = document.createComment("wf-if");
     parent.appendChild(marker);
     let currentNodes = [];
+    let animating = false;
 
     effect(() => {
-      // Remove old nodes
-      for (const n of currentNodes) n.remove();
-      currentNodes = [];
+      const show = condFn();
+      if (animating) return;
 
-      const frag = document.createDocumentFragment();
-      if (condFn()) {
-        const nodes = thenFn();
-        for (const n of [].concat(nodes).flat()) {
-          if (n instanceof Node) { frag.appendChild(n); currentNodes.push(n); }
+      const removeOld = () => {
+        if (currentNodes.length === 0) return Promise.resolve();
+        if (animConfig && animConfig.exit) {
+          animating = true;
+          const exitName = animConfig.exit;
+          const promises = currentNodes.map(n => n instanceof Element ? animateOut(n, exitName, animConfig.duration) : Promise.resolve());
+          return Promise.all(promises).then(() => {
+            for (const n of currentNodes) n.remove();
+            currentNodes = [];
+            animating = false;
+          });
         }
-      } else if (elseFn) {
-        const nodes = elseFn();
-        for (const n of [].concat(nodes).flat()) {
-          if (n instanceof Node) { frag.appendChild(n); currentNodes.push(n); }
+        for (const n of currentNodes) n.remove();
+        currentNodes = [];
+        return Promise.resolve();
+      };
+
+      const addNew = (renderFn) => {
+        const frag = document.createDocumentFragment();
+        const nodes = [].concat(renderFn()).flat().filter(n => n instanceof Node);
+        for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
+        marker.parentNode.insertBefore(frag, marker.nextSibling);
+        if (animConfig && animConfig.enter) {
+          nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay); });
         }
-      }
-      marker.parentNode.insertBefore(frag, marker.nextSibling);
+      };
+
+      removeOld().then(() => {
+        if (show && thenFn) addNew(thenFn);
+        else if (!show && elseFn) addNew(elseFn);
+      });
     });
   }
 
   // ─── List rendering ─────────────────────────────────
-  function listRender(parent, listFn, itemFn) {
+  function listRender(parent, listFn, itemFn, animConfig) {
     const marker = document.createComment("wf-for");
     parent.appendChild(marker);
     let currentNodes = [];
 
     effect(() => {
-      for (const n of currentNodes) n.remove();
+      // Remove old
+      if (animConfig && animConfig.exit && currentNodes.length) {
+        const exitName = animConfig.exit;
+        currentNodes.forEach((n, i) => {
+          if (n instanceof Element) {
+            const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * i) + "ms" : undefined;
+            animateOut(n, exitName, animConfig.duration).then(() => n.remove());
+          } else {
+            n.remove();
+          }
+        });
+      } else {
+        for (const n of currentNodes) n.remove();
+      }
       currentNodes = [];
 
       const items = listFn();
@@ -157,7 +229,14 @@ const WF = (() => {
         items.forEach((item, index) => {
           const nodes = [].concat(itemFn(item, index)).flat();
           for (const n of nodes) {
-            if (n instanceof Node) { frag.appendChild(n); currentNodes.push(n); }
+            if (n instanceof Node) {
+              frag.appendChild(n);
+              currentNodes.push(n);
+              if (animConfig && animConfig.enter && n instanceof Element) {
+                const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * index) + "ms" : animConfig.delay;
+                animateIn(n, animConfig.enter, animConfig.duration, delay);
+              }
+            }
           }
         });
       }
@@ -166,7 +245,7 @@ const WF = (() => {
   }
 
   // ─── Show/Hide ───────────────────────────────────────
-  function showRender(parent, condFn, contentFn) {
+  function showRender(parent, condFn, contentFn, animConfig) {
     const wrapper = document.createElement("div");
     wrapper.style.display = "contents";
     const nodes = [].concat(contentFn()).flat();
@@ -174,9 +253,28 @@ const WF = (() => {
       if (n instanceof Node) wrapper.appendChild(n);
     }
     parent.appendChild(wrapper);
-    effect(() => {
-      wrapper.style.display = condFn() ? "contents" : "none";
-    });
+
+    if (animConfig) {
+      effect(() => {
+        if (condFn()) {
+          wrapper.style.display = "contents";
+          if (animConfig.enter) {
+            for (const n of wrapper.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay);
+          }
+        } else {
+          if (animConfig.exit) {
+            const promises = [...wrapper.children].map(n => animateOut(n, animConfig.exit, animConfig.duration));
+            Promise.all(promises).then(() => { wrapper.style.display = "none"; });
+          } else {
+            wrapper.style.display = "none";
+          }
+        }
+      });
+    } else {
+      effect(() => {
+        wrapper.style.display = condFn() ? "contents" : "none";
+      });
+    }
   }
 
   // ─── Router ──────────────────────────────────────────
@@ -387,14 +485,73 @@ const WF = (() => {
     }
   }
 
+  // ─── Hydrate (SSG) ─────────────────────────────────
+  function hydrate(renderFn, container) {
+    // If container already has pre-rendered content, keep it and
+    // run the render function to initialize signals, effects, and events.
+    // The render function builds DOM nodes that won't be inserted —
+    // instead, the existing DOM is kept and JS takes over.
+    if (container.children.length > 0) {
+      // Run render to initialize all signals and effects
+      renderFn();
+      // The effects will find and update the existing DOM nodes
+    } else {
+      // No pre-rendered content — fall back to full mount
+      mount(renderFn, container);
+    }
+  }
+
+  // ─── i18n ────────────────────────────────────────────
+  const RTL_LOCALES = new Set(["ar", "he", "fa", "ur"]);
+  let i18nInstance = null;
+
+  function createI18n(defaultLocale, translations) {
+    const locale = signal(defaultLocale);
+    const dir = signal(RTL_LOCALES.has(defaultLocale) ? "rtl" : "ltr");
+
+    function t(key, params) {
+      const currentLocale = locale();
+      const messages = translations[currentLocale] || translations[defaultLocale] || {};
+      let text = messages[key];
+      // Fallback to default locale
+      if (text === undefined && currentLocale !== defaultLocale) {
+        const fallback = translations[defaultLocale] || {};
+        text = fallback[key];
+      }
+      // Fallback to key itself
+      if (text === undefined) return key;
+      // Interpolate {placeholder} tokens
+      if (params && text.includes("{")) {
+        for (const [k, v] of Object.entries(params)) {
+          text = text.replace(new RegExp("\\{" + k + "\\}", "g"), String(v));
+        }
+      }
+      return text;
+    }
+
+    function setLocale(newLocale) {
+      locale.set(newLocale);
+      const newDir = RTL_LOCALES.has(newLocale) ? "rtl" : "ltr";
+      dir.set(newDir);
+      document.documentElement.setAttribute("lang", newLocale);
+      document.documentElement.setAttribute("dir", newDir);
+    }
+
+    i18nInstance = { t, locale, dir, setLocale };
+    return i18nInstance;
+  }
+
   // ─── Exports ─────────────────────────────────────────
   return {
     signal, effect, computed,
     h, text, reactiveText, appendChildren,
     condRender, listRender, showRender,
+    animateIn, animateOut, animateEl,
     createRouter, navigate, getParams,
     createStore,
+    createI18n,
     wfFetch, showToast,
-    mount,
+    mount, hydrate,
+    i18n: null,
   };
 })();

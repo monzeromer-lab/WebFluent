@@ -19,6 +19,8 @@ pub struct ProjectConfig {
     pub dev: DevConfig,
     #[serde(default)]
     pub meta: MetaConfig,
+    #[serde(default)]
+    pub i18n: Option<I18nConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -41,6 +43,8 @@ pub struct BuildConfig {
     pub minify: bool,
     #[serde(default)]
     pub sourcemap: bool,
+    #[serde(default)]
+    pub ssg: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -62,6 +66,20 @@ pub struct MetaConfig {
     #[serde(default = "default_lang")]
     pub lang: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct I18nConfig {
+    #[serde(default = "default_locale")]
+    pub default_locale: String,
+    #[serde(default = "default_locales")]
+    pub locales: Vec<String>,
+    #[serde(default = "default_translations_dir")]
+    pub dir: String,
+}
+
+fn default_locale() -> String { "en".to_string() }
+fn default_locales() -> Vec<String> { vec!["en".to_string()] }
+fn default_translations_dir() -> String { "src/translations".to_string() }
 
 fn default_version() -> String { "0.1.0".to_string() }
 fn default_theme_name() -> String { "default".to_string() }
@@ -88,6 +106,7 @@ impl Default for BuildConfig {
             output: default_output_dir(),
             minify: true,
             sourcemap: false,
+            ssg: false,
         }
     }
 }
@@ -135,6 +154,7 @@ impl ProjectConfig {
             theme: ThemeConfig::default(),
             build: BuildConfig::default(),
             dev: DevConfig::default(),
+            i18n: None,
             meta: MetaConfig {
                 title: name.to_string(),
                 ..Default::default()

@@ -118,10 +118,12 @@ pub enum TokenType {
     Code,
     Blockquote,
 
-    // Style
+    // Style & Animation
     Style,
     Theme,
     Token,
+    Animate,
+    Transition,
 
     // Identifiers
     Identifier(String),
@@ -335,10 +337,12 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "Code" => TokenType::Code,
         "Blockquote" => TokenType::Blockquote,
 
-        // Style
+        // Style & Animation
         "style" => TokenType::Style,
         "Theme" => TokenType::Theme,
         "token" => TokenType::Token,
+        "animate" => TokenType::Animate,
+        "transition" => TokenType::Transition,
 
         // Children
         "children" => TokenType::Children,

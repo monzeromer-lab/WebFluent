@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::parser::ast::*;
 use crate::runtime;
 
@@ -8,6 +9,11 @@ pub struct JsCodegen {
     components: Vec<String>,
     /// Track store names
     stores: Vec<String>,
+    /// i18n: default locale and translations (locale -> key -> value)
+    i18n_default_locale: Option<String>,
+    i18n_translations: HashMap<String, HashMap<String, String>>,
+    /// SSG mode: emit hydration instead of full mount
+    ssg_mode: bool,
 }
 
 impl JsCodegen {
@@ -17,7 +23,19 @@ impl JsCodegen {
             indent: 0,
             components: Vec::new(),
             stores: Vec::new(),
+            i18n_default_locale: None,
+            i18n_translations: HashMap::new(),
+            ssg_mode: false,
         }
+    }
+
+    pub fn set_i18n(&mut self, default_locale: String, translations: HashMap<String, HashMap<String, String>>) {
+        self.i18n_default_locale = Some(default_locale);
+        self.i18n_translations = translations;
+    }
+
+    pub fn set_ssg(&mut self, enabled: bool) {
+        self.ssg_mode = enabled;
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
@@ -33,6 +51,9 @@ impl JsCodegen {
                 _ => {}
             }
         }
+
+        // Emit i18n setup if configured
+        self.emit_i18n_setup();
 
         // Emit stores
         for decl in &program.declarations {
@@ -70,9 +91,10 @@ impl JsCodegen {
             }).collect();
 
             if pages.len() == 1 {
+                let mount_fn = if self.ssg_mode { "hydrate" } else { "mount" };
                 self.emit_line(&format!(
-                    "WF.mount(() => Page_{}({{}}), document.getElementById('app'));",
-                    pages[0].name
+                    "WF.{}(() => Page_{}({{}}), document.getElementById('app'));",
+                    mount_fn, pages[0].name
                 ));
             } else if !pages.is_empty() {
                 // Auto-create router from page paths
@@ -286,6 +308,54 @@ impl JsCodegen {
             }
             _ => self.emit_statement(stmt),
         }
+    }
+
+    // ─── i18n ────────────────────────────────────────
+
+    fn emit_i18n_setup(&mut self) {
+        if self.i18n_translations.is_empty() {
+            return;
+        }
+
+        let default_locale = self.i18n_default_locale.clone().unwrap_or_else(|| "en".to_string());
+        let translations = self.i18n_translations.clone();
+
+        self.emit_line("WF.i18n = WF.createI18n(");
+        self.indent += 1;
+        self.emit_line(&format!("\"{}\",", default_locale));
+        self.emit_line("{");
+        self.indent += 1;
+
+        let mut locales: Vec<&String> = translations.keys().collect();
+        locales.sort();
+
+        for locale in &locales {
+            let messages = &translations[*locale];
+            self.emit_line(&format!("\"{}\": {{", locale));
+            self.indent += 1;
+
+            let mut keys: Vec<&String> = messages.keys().collect();
+            keys.sort();
+
+            for key in &keys {
+                let value = &messages[*key];
+                let escaped = value.replace('\\', "\\\\").replace('"', "\\\"");
+                self.emit_line(&format!("\"{}\": \"{}\",", key, escaped));
+            }
+
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+
+        self.indent -= 1;
+        self.emit_line("}");
+        self.indent -= 1;
+        self.emit_line(");");
+        self.emit_line("");
+    }
+
+    fn has_i18n(&self) -> bool {
+        !self.i18n_translations.is_empty()
     }
 
     // ─── Component ───────────────────────────────────
@@ -773,6 +843,28 @@ impl JsCodegen {
                     }
                 }
 
+                // Apply transition block
+                if let Some(transition) = &ui.transition_block {
+                    let transitions: Vec<String> = transition.properties.iter().map(|p| {
+                        let easing = p.easing.as_deref().map(|e| match e {
+                            "ease" => "ease",
+                            "linear" => "linear",
+                            "easeIn" => "ease-in",
+                            "easeOut" => "ease-out",
+                            "easeInOut" => "ease-in-out",
+                            "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                            "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+                            "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
+                            other => other,
+                        }).unwrap_or("ease");
+                        format!("{} {} {}", p.property, p.duration, easing)
+                    }).collect();
+                    self.emit_line(&format!(
+                        "{}.style.transition = \"{}\";",
+                        var, transitions.join(", ")
+                    ));
+                }
+
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
 
@@ -1125,16 +1217,15 @@ impl JsCodegen {
             }
             self.emit_line(&format!("return {};", else_var));
             self.indent -= 1;
-            self.emit_line("}");
+            self.emit_line("},");
         } else if !if_stmt.else_if_branches.is_empty() {
-            // Handle else if — nested condRender
             self.emit_line("() => {");
             self.indent += 1;
             let elif_var = self.fresh_var();
             self.emit_line(&format!("const {} = document.createDocumentFragment();", elif_var));
-            // Recursively emit else-if as nested if
             let elif = IfStmt {
                 condition: if_stmt.else_if_branches[0].0.clone(),
+                animate: if_stmt.animate.clone(),
                 then_body: if_stmt.else_if_branches[0].1.clone(),
                 else_if_branches: if_stmt.else_if_branches[1..].to_vec(),
                 else_body: if_stmt.else_body.clone(),
@@ -1142,10 +1233,13 @@ impl JsCodegen {
             self.emit_if_dom(&elif, &elif_var);
             self.emit_line(&format!("return {};", elif_var));
             self.indent -= 1;
-            self.emit_line("}");
+            self.emit_line("},");
         } else {
-            self.emit_line("null");
+            self.emit_line("null,");
         }
+
+        // Animation config (5th argument)
+        self.emit_animate_config(&if_stmt.animate);
 
         self.indent -= 1;
         self.emit_line(");");
@@ -1173,7 +1267,11 @@ impl JsCodegen {
         }
         self.emit_line(&format!("return {};", item_var));
         self.indent -= 1;
-        self.emit_line("}");
+        self.emit_line("},");
+
+        // Animation config (4th argument)
+        self.emit_animate_config(&for_stmt.animate);
+
         self.indent -= 1;
         self.emit_line(");");
     }
@@ -1193,9 +1291,38 @@ impl JsCodegen {
         }
         self.emit_line(&format!("return {};", content_var));
         self.indent -= 1;
-        self.emit_line("}");
+        self.emit_line("},");
+
+        // Animation config (4th argument)
+        self.emit_animate_config(&show_stmt.animate);
+
         self.indent -= 1;
         self.emit_line(");");
+    }
+
+    fn emit_animate_config(&mut self, config: &Option<AnimateConfig>) {
+        if let Some(anim) = config {
+            let mut parts = Vec::new();
+            parts.push(format!("enter: \"{}\"", anim.enter));
+            if let Some(exit) = &anim.exit {
+                parts.push(format!("exit: \"{}\"", exit));
+            }
+            if let Some(dur) = &anim.duration {
+                parts.push(format!("duration: \"{}\"", dur));
+            }
+            if let Some(delay) = &anim.delay {
+                parts.push(format!("delay: \"{}\"", delay));
+            }
+            if let Some(stagger) = &anim.stagger {
+                parts.push(format!("stagger: \"{}\"", stagger));
+            }
+            if let Some(easing) = &anim.easing {
+                parts.push(format!("easing: \"{}\"", easing));
+            }
+            self.emit_line(&format!("{{ {} }}", parts.join(", ")));
+        } else {
+            self.emit_line("null");
+        }
     }
 
     fn emit_fetch_dom(&mut self, fetch: &FetchDecl, parent: &str) {
@@ -1290,6 +1417,13 @@ impl JsCodegen {
             Statement::Log(expr) => {
                 let val = self.emit_expr(expr);
                 self.emit_line(&format!("console.log({});", val));
+            }
+            Statement::Animate(anim) => {
+                let dur = anim.duration.as_deref().map(|d| format!(", \"{}\"", d)).unwrap_or_default();
+                self.emit_line(&format!(
+                    "WF.animateEl(\"{}\", \"{}\"{});",
+                    anim.target, anim.animation, dur
+                ));
             }
             Statement::ExprStatement(expr) => {
                 let val = self.emit_expr(expr);
@@ -1403,6 +1537,10 @@ impl JsCodegen {
             Expr::BoolLiteral(b) => format!("{}", b),
             Expr::Null => "null".to_string(),
             Expr::Identifier(name) => {
+                // i18n: locale and dir are reactive i18n signals
+                if self.has_i18n() && (name == "locale" || name == "dir") {
+                    return format!("WF.i18n.{}()", name);
+                }
                 // Store references, params, and built-in names stay as-is
                 if self.stores.contains(name)
                     || name == "params"
@@ -1483,8 +1621,31 @@ impl JsCodegen {
                 }
             }
             Expr::FunctionCall(name, args) => {
+                // i18n: t("key") or t("key", name: value, ...)
+                if name == "t" && self.has_i18n() {
+                    if args.is_empty() {
+                        return "\"\"".to_string();
+                    }
+                    let key = self.emit_expr(&args[0]);
+                    if args.len() == 1 {
+                        return format!("WF.i18n.t({})", key);
+                    }
+                    // Remaining args are named params for interpolation
+                    // They come as FunctionCall args — could be positional expressions
+                    // In practice the parser sees t("key", name: value) where name: value
+                    // is parsed as separate expressions. We need to handle both positional
+                    // and the case where the parser gave us the values.
+                    let params: Vec<String> = args[1..].iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("WF.i18n.t({}, {})", key, params.join(", "));
+                }
+                // i18n: setLocale("ar")
+                if name == "setLocale" && self.has_i18n() {
+                    let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("WF.i18n.setLocale({})", args_str.join(", "));
+                }
+
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
-                // Check if it's a component or store function
+                // Check if it's a store function
                 if self.stores.contains(name) {
                     format!("{}.{}({})", name, args_str.first().unwrap_or(&String::new()), args_str.get(1..).unwrap_or(&[]).join(", "))
                 } else {
@@ -1725,6 +1886,13 @@ fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
         "date" | "time" | "datetime" | "color" | "submit" | "reset" | "required" |
         "controls" | "autoplay" => String::new(),
+        // Animation modifiers
+        "fadeIn" | "fadeOut" | "slideUp" | "slideDown" |
+        "slideLeft" | "slideRight" | "scaleIn" | "scaleOut" |
+        "bounce" | "shake" | "pulse" | "spin" => format!("wf-animate-{}", modifier),
+        // Animation speed
+        "fast" => "wf-animate--fast".to_string(),
+        "slow" => "wf-animate--slow".to_string(),
         _ => String::new(),
     }
 }

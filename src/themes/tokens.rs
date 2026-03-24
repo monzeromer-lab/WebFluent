@@ -68,6 +68,14 @@ pub fn default_tokens() -> HashMap<String, String> {
     t.insert("transition-normal".into(), "250ms ease".into());
     t.insert("transition-slow".into(), "350ms ease".into());
 
+    // Animation
+    t.insert("animation-duration-fast".into(), "150ms".into());
+    t.insert("animation-duration-normal".into(), "300ms".into());
+    t.insert("animation-duration-slow".into(), "500ms".into());
+    t.insert("animation-easing-default".into(), "cubic-bezier(0.4, 0, 0.2, 1)".into());
+    t.insert("animation-easing-bounce".into(), "cubic-bezier(0.68, -0.55, 0.265, 1.55)".into());
+    t.insert("animation-easing-spring".into(), "cubic-bezier(0.175, 0.885, 0.32, 1.275)".into());
+
     t
 }
 

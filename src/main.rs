@@ -8,6 +8,7 @@ mod runtime;
 mod themes;
 mod config;
 mod error;
+mod linter;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;

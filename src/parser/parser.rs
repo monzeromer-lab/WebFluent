@@ -244,9 +244,11 @@ impl Parser {
                     modifiers: Vec::new(),
                     children: Vec::new(),
                     style_block: None,
+                    transition_block: None,
                     events: Vec::new(),
                 }))
             }
+            TokenType::Animate => self.parse_animate_stmt(),
             TokenType::Style => self.parse_style_statement(),
             TokenType::Event(_) => {
                 let handler = self.parse_event_handler()?;
@@ -333,6 +335,10 @@ impl Parser {
     fn parse_if_stmt(&mut self) -> Result<Statement> {
         self.expect(&TokenType::If)?;
         let condition = self.parse_expression()?;
+
+        // Optional animate clause: , animate(...)
+        let animate = self.parse_optional_animate_clause()?;
+
         let then_body = self.parse_block()?;
 
         let mut else_if_branches = Vec::new();
@@ -351,6 +357,7 @@ impl Parser {
 
         Ok(Statement::If(IfStmt {
             condition,
+            animate,
             then_body,
             else_if_branches,
             else_body,
@@ -361,22 +368,96 @@ impl Parser {
         self.expect(&TokenType::For)?;
         let item = self.expect_identifier()?;
         let index = if self.match_token(&TokenType::Comma) {
-            Some(self.expect_identifier()?)
+            // Check if next is an identifier (index var) or `animate` keyword
+            if self.check(&TokenType::Animate) {
+                None
+            } else {
+                Some(self.expect_identifier()?)
+            }
         } else {
             None
         };
         self.expect(&TokenType::In)?;
         let iterable = self.parse_expression()?;
+
+        // Optional animate clause: , animate(...)
+        let animate = self.parse_optional_animate_clause()?;
+
         let body = self.parse_block()?;
 
-        Ok(Statement::For(ForStmt { item, index, iterable, body }))
+        Ok(Statement::For(ForStmt { item, index, iterable, animate, body }))
     }
 
     fn parse_show_stmt(&mut self) -> Result<Statement> {
         self.expect(&TokenType::Show)?;
         let condition = self.parse_expression()?;
+
+        // Optional animate clause: , animate(...)
+        let animate = self.parse_optional_animate_clause()?;
+
         let body = self.parse_block()?;
-        Ok(Statement::Show(ShowStmt { condition, body }))
+        Ok(Statement::Show(ShowStmt { condition, animate, body }))
+    }
+
+    /// Parse optional `, animate(enter, exit, duration: "300ms", ...)` clause
+    fn parse_optional_animate_clause(&mut self) -> Result<Option<AnimateConfig>> {
+        // Check for comma followed by `animate`
+        if self.check(&TokenType::Comma) {
+            // Look ahead: is next token `animate`?
+            if self.pos + 1 < self.tokens.len() && matches!(self.tokens[self.pos + 1].token_type, TokenType::Animate) {
+                self.advance(); // skip comma
+                return Ok(Some(self.parse_animate_config()?));
+            }
+        }
+        // Also accept `animate` directly without comma (for `for` where comma was already consumed)
+        if self.check(&TokenType::Animate) {
+            return Ok(Some(self.parse_animate_config()?));
+        }
+        Ok(None)
+    }
+
+    fn parse_animate_config(&mut self) -> Result<AnimateConfig> {
+        self.expect(&TokenType::Animate)?;
+        self.expect(&TokenType::OpenParen)?;
+
+        // First positional: enter animation name
+        let enter = self.expect_identifier()?;
+        let mut exit = None;
+        let mut duration = None;
+        let mut delay = None;
+        let mut stagger = None;
+        let mut easing = None;
+
+        while self.match_token(&TokenType::Comma) {
+            if self.check(&TokenType::CloseParen) {
+                break;
+            }
+            // Check if named arg
+            if self.is_named_arg() {
+                let key = self.expect_identifier()?;
+                self.expect(&TokenType::Colon)?;
+                let val = self.expect_string()?;
+                match key.as_str() {
+                    "duration" => duration = Some(val),
+                    "delay" => delay = Some(val),
+                    "stagger" => stagger = Some(val),
+                    "easing" => easing = Some(val),
+                    _ => {}
+                }
+            } else {
+                // Second positional: exit animation name
+                if exit.is_none() {
+                    exit = Some(self.expect_identifier()?);
+                } else {
+                    // Skip unknown positional
+                    let _ = self.parse_expression()?;
+                }
+            }
+        }
+
+        self.expect(&TokenType::CloseParen)?;
+
+        Ok(AnimateConfig { enter, exit, duration, delay, stagger, easing })
     }
 
     // ─── Fetch ───────────────────────────────────────────
@@ -476,9 +557,10 @@ impl Parser {
             self.expect(&TokenType::CloseParen)?;
         }
 
-        // Parse optional block (children, events, style)
+        // Parse optional block (children, events, style, transition)
         let mut children = Vec::new();
         let mut style_block = None;
+        let mut transition_block = None;
         let mut events = Vec::new();
 
         if self.check(&TokenType::OpenBrace) {
@@ -490,6 +572,9 @@ impl Parser {
                     }
                     TokenType::Style => {
                         style_block = Some(self.parse_style_block()?);
+                    }
+                    TokenType::Transition => {
+                        transition_block = Some(self.parse_transition_block()?);
                     }
                     _ => {
                         children.push(self.parse_statement()?);
@@ -505,6 +590,7 @@ impl Parser {
             modifiers,
             children,
             style_block,
+            transition_block,
             events,
         })
     }
@@ -559,7 +645,13 @@ impl Parser {
                 "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
                 "date" | "time" | "datetime" | "color" |
                 // Button types
-                "submit" | "reset"
+                "submit" | "reset" |
+                // Animation modifiers
+                "fadeIn" | "fadeOut" | "slideUp" | "slideDown" |
+                "slideLeft" | "slideRight" | "scaleIn" | "scaleOut" |
+                "bounce" | "shake" | "pulse" | "spin" |
+                // Animation speed
+                "fast" | "slow"
             )
         } else {
             false
@@ -590,8 +682,70 @@ impl Parser {
             modifiers: Vec::new(),
             children: Vec::new(),
             style_block: Some(block),
+            transition_block: None,
             events: Vec::new(),
         }))
+    }
+
+    // ─── Transition ──────────────────────────────────────
+
+    fn parse_transition_block(&mut self) -> Result<TransitionBlock> {
+        self.expect(&TokenType::Transition)?;
+        self.expect(&TokenType::OpenBrace)?;
+        let mut properties = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
+            let property = self.expect_identifier()?;
+            // Duration: next token should be a string like "200ms" or an identifier like "fast"
+            let duration = match self.current_type().clone() {
+                TokenType::StringLiteral(s) => { self.advance(); s }
+                TokenType::Identifier(s) => {
+                    self.advance();
+                    match s.as_str() {
+                        "fast" => "150ms".to_string(),
+                        "normal" => "250ms".to_string(),
+                        "slow" => "350ms".to_string(),
+                        _ => s,
+                    }
+                }
+                TokenType::NumberLiteral(n) => {
+                    self.advance();
+                    format!("{}ms", n as i32)
+                }
+                _ => return Err(self.error("Expected duration value in transition".to_string())),
+            };
+            // Optional easing
+            let easing = if let TokenType::Identifier(name) = self.current_type() {
+                if matches!(name.as_str(), "ease" | "linear" | "easeIn" | "easeOut" | "easeInOut" | "spring" | "bouncy" | "smooth") {
+                    let e = name.clone();
+                    self.advance();
+                    Some(e)
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+            properties.push(TransitionProperty { property, duration, easing });
+        }
+        self.expect(&TokenType::CloseBrace)?;
+        Ok(TransitionBlock { properties })
+    }
+
+    // ─── Animate statement ───────────────────────────────
+
+    fn parse_animate_stmt(&mut self) -> Result<Statement> {
+        self.expect(&TokenType::Animate)?;
+        self.expect(&TokenType::OpenParen)?;
+        let target = self.expect_identifier()?;
+        self.expect(&TokenType::Comma)?;
+        let animation = self.expect_identifier()?;
+        let duration = if self.match_token(&TokenType::Comma) {
+            Some(self.expect_string()?)
+        } else {
+            None
+        };
+        self.expect(&TokenType::CloseParen)?;
+        Ok(Statement::Animate(AnimateStmt { target, animation, duration }))
     }
 
     // ─── Events ──────────────────────────────────────────
@@ -704,6 +858,7 @@ impl Parser {
 
                 let mut children = Vec::new();
                 let mut style_block = None;
+                let mut transition_block = None;
                 let mut events = Vec::new();
 
                 if self.check(&TokenType::OpenBrace) {
@@ -712,6 +867,7 @@ impl Parser {
                         match self.current_type() {
                             TokenType::Event(_) => events.push(self.parse_event_handler()?),
                             TokenType::Style => style_block = Some(self.parse_style_block()?),
+                            TokenType::Transition => transition_block = Some(self.parse_transition_block()?),
                             _ => children.push(self.parse_statement()?),
                         }
                     }
@@ -724,6 +880,7 @@ impl Parser {
                     modifiers,
                     children,
                     style_block,
+                    transition_block,
                     events,
                 }));
             } else {
@@ -746,6 +903,7 @@ impl Parser {
             let mut children = Vec::new();
             let mut events = Vec::new();
             let mut style_block = None;
+            let mut transition_block = None;
 
             if self.check(&TokenType::OpenBrace) {
                 self.expect(&TokenType::OpenBrace)?;
@@ -753,6 +911,7 @@ impl Parser {
                     match self.current_type() {
                         TokenType::Event(_) => events.push(self.parse_event_handler()?),
                         TokenType::Style => style_block = Some(self.parse_style_block()?),
+                        TokenType::Transition => transition_block = Some(self.parse_transition_block()?),
                         _ => children.push(self.parse_statement()?),
                     }
                 }
@@ -765,6 +924,7 @@ impl Parser {
                 modifiers: Vec::new(),
                 children,
                 style_block,
+                transition_block,
                 events,
             }));
         }

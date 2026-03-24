@@ -87,6 +87,7 @@ pub enum Statement {
     EventHandler(EventHandler),
     Navigate(Expr),
     Log(Expr),
+    Animate(AnimateStmt),
     ExprStatement(Expr),
 }
 
@@ -136,6 +137,7 @@ pub struct UIElement {
     pub modifiers: Vec<String>,
     pub children: Vec<Statement>,
     pub style_block: Option<StyleBlock>,
+    pub transition_block: Option<TransitionBlock>,
     pub events: Vec<EventHandler>,
 }
 
@@ -172,11 +174,43 @@ pub struct EventHandler {
     pub body: Vec<Statement>,
 }
 
+// ─── Animation ───────────────────────────────────────────
+
+#[derive(Debug, Clone)]
+pub struct AnimateConfig {
+    pub enter: String,
+    pub exit: Option<String>,
+    pub duration: Option<String>,
+    pub delay: Option<String>,
+    pub stagger: Option<String>,
+    pub easing: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TransitionBlock {
+    pub properties: Vec<TransitionProperty>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TransitionProperty {
+    pub property: String,
+    pub duration: String,
+    pub easing: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct AnimateStmt {
+    pub target: String,
+    pub animation: String,
+    pub duration: Option<String>,
+}
+
 // ─── Control Flow ────────────────────────────────────────
 
 #[derive(Debug, Clone)]
 pub struct IfStmt {
     pub condition: Expr,
+    pub animate: Option<AnimateConfig>,
     pub then_body: Vec<Statement>,
     pub else_if_branches: Vec<(Expr, Vec<Statement>)>,
     pub else_body: Option<Vec<Statement>>,
@@ -187,12 +221,14 @@ pub struct ForStmt {
     pub item: String,
     pub index: Option<String>,
     pub iterable: Expr,
+    pub animate: Option<AnimateConfig>,
     pub body: Vec<Statement>,
 }
 
 #[derive(Debug, Clone)]
 pub struct ShowStmt {
     pub condition: Expr,
+    pub animate: Option<AnimateConfig>,
     pub body: Vec<Statement>,
 }
 
