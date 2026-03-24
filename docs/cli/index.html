@@ -20,7 +20,7 @@
             <div class="wf-spacer"></div>
             <div class="wf-card wf-card--outlined">
                 <div class="wf-card__body">
-                    <code class="wf-code">wf init &lt;name&gt; [--template spa|static]</code>​
+                    <code class="wf-code">wf init &lt;name&gt; [--template spa|static|pdf]</code>​
                 </div>​
             </div>​
             <div class="wf-spacer"></div>
@@ -35,11 +35,11 @@
                 </tr>​
                 <tr>
                     <td>--template, -t</td>​
-                    <td>Template: spa (default) or static</td>​
+                    <td>Template: spa (default), static, or pdf</td>​
                 </tr>​
             </table>​
             <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--muted">SPA template: interactive dashboard with routing, stores, forms, animations. Static template: marketing site with SSG, i18n, responsive grids.</p>​
+            <p class="wf-text wf-text--muted">SPA: interactive app with routing and state. Static: SSG site with i18n. PDF: document generation with tables, headings, and auto page breaks.</p>​
             <div class="wf-spacer"></div>
             <hr class="wf-divider">
             <div class="wf-spacer"></div>
@@ -67,8 +67,9 @@
             <div class="wf-spacer"></div>
             <p class="wf-text">Output depends on config:</p>​
             <div class="wf-stack">
-                <p class="wf-text">SPA mode (ssg: false): single index.html + app.js + styles.css</p>​
+                <p class="wf-text">SPA mode (default): single index.html + app.js + styles.css</p>​
                 <p class="wf-text">SSG mode (ssg: true): one HTML per page + app.js + styles.css</p>​
+                <p class="wf-text">PDF mode (output_type: pdf): a single .pdf file</p>​
             </div>​
             <div class="wf-spacer"></div>
             <hr class="wf-divider">
@@ -132,18 +133,20 @@
   &quot;theme&quot;: {
     &quot;name&quot;: &quot;default&quot;,
     &quot;mode&quot;: &quot;light&quot;,
-    &quot;tokens&quot;: {
-      &quot;color-primary&quot;: &quot;#6366F1&quot;
-    }
+    &quot;tokens&quot;: { &quot;color-primary&quot;: &quot;#6366F1&quot; }
   },
   &quot;build&quot;: {
     &quot;output&quot;: &quot;./build&quot;,
     &quot;minify&quot;: true,
-    &quot;ssg&quot;: false
+    &quot;ssg&quot;: false,
+    &quot;output_type&quot;: &quot;spa&quot;,
+    &quot;pdf&quot;: {
+      &quot;page_size&quot;: &quot;A4&quot;,
+      &quot;default_font&quot;: &quot;Helvetica&quot;,
+      &quot;output_filename&quot;: &quot;report.pdf&quot;
+    }
   },
-  &quot;dev&quot;: {
-    &quot;port&quot;: 3000
-  },
+  &quot;dev&quot;: { &quot;port&quot;: 3000 },
   &quot;meta&quot;: {
     &quot;title&quot;: &quot;My App&quot;,
     &quot;description&quot;: &quot;Built with WebFluent&quot;,

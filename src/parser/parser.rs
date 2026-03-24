@@ -601,10 +601,19 @@ impl Parser {
         let name = self.builtin_name();
         self.advance();
 
-        // Check for sub-component: Navbar.Brand, Card.Header, etc.
+        // Check for sub-component: Navbar.Brand, Card.Header, Card.Footer, etc.
         if self.check(&TokenType::Dot) {
             self.advance();
-            let sub = self.expect_identifier()?;
+            // Accept identifiers and keywords (Header/Footer are now keyword tokens)
+            let sub = if let TokenType::Identifier(_) = self.current_type() {
+                self.expect_identifier()?
+            } else if self.is_builtin_component() {
+                let n = self.builtin_name();
+                self.advance();
+                n
+            } else {
+                return Err(self.error(format!("Expected sub-component name, got {}", self.current_type())));
+            };
             Ok(ComponentRef::SubComponent(name, sub))
         } else {
             Ok(ComponentRef::BuiltIn(name))

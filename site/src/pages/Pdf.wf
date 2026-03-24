@@ -1,0 +1,150 @@
+Page Pdf (path: "/pdf", title: "PDF Generation") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("PDF Generation", h1)
+        Text("Generate PDF documents directly from .wf source files. No external dependencies — raw PDF 1.7 output.", muted)
+
+        Spacer()
+
+        Heading("Enable PDF Output", h2)
+        Text("Set the output type to pdf in your project config.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"build\": \{\n    \"output_type\": \"pdf\",\n    \"pdf\": \{\n      \"page_size\": \"A4\",\n      \"margins\": \{ \"top\": 72, \"bottom\": 72, \"left\": 72, \"right\": 72 \},\n      \"default_font\": \"Helvetica\",\n      \"default_font_size\": 12,\n      \"output_filename\": \"report.pdf\"\n    \}\n  \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Quick Start", h2)
+        Card(outlined) {
+            Card.Body {
+                Code("wf init my-report --template pdf\ncd my-report\nwf build", block)
+            }
+        }
+        Spacer(sm)
+        Text("This creates a sample PDF project and builds it to build/my-report.pdf.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Document Structure", h2)
+        Text("PDF documents use the same .wf syntax. Wrap content in a Document element with optional Header and Footer.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Page Report (path: \"/\", title: \"Q1 Report\") \{\n    Document(page_size: \"A4\") \{\n        Header \{\n            Text(\"Company Inc.\", muted, small, right)\n        \}\n\n        Footer \{\n            Text(\"Confidential\", muted, small, center)\n        \}\n\n        Section \{\n            Heading(\"Quarterly Report\", h1)\n            Text(\"Revenue grew 15% this quarter.\")\n\n            Table \{\n                Thead \{\n                    Trow \{\n                        Tcell(\"Region\")\n                        Tcell(\"Revenue\")\n                    \}\n                \}\n                Tbody \{\n                    Trow \{\n                        Tcell(\"North America\")\n                        Tcell(\"$2.4M\")\n                    \}\n                \}\n            \}\n\n            PageBreak()\n\n            Heading(\"Key Highlights\", h2)\n            List \{\n                Text(\"Launched 3 new products\")\n                Text(\"Expanded to 5 new markets\")\n            \}\n        \}\n    \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Supported Components", h2)
+        Text("These components render in PDF output:")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Component") Tcell("PDF Behavior") }
+            Trow { Tcell("Document") Tcell("Root element. Sets page size via page_size arg.") }
+            Trow { Tcell("Header / Footer") Tcell("Repeated on every page. Positioned in margins.") }
+            Trow { Tcell("Section") Tcell("Groups content with spacing.") }
+            Trow { Tcell("Paragraph") Tcell("Block of text with paragraph spacing.") }
+            Trow { Tcell("PageBreak") Tcell("Forces a new page.") }
+            Trow { Tcell("Heading(text, h1..h6)") Tcell("Bold heading. h1=28pt, h2=22pt, h3=18pt...") }
+            Trow { Tcell("Text(text)") Tcell("Body text with word wrapping.") }
+            Trow { Tcell("Table / Thead / Tbody / Trow / Tcell") Tcell("Gridded table with borders and header styling.") }
+            Trow { Tcell("List") Tcell("Bulleted list. Add ordered modifier for numbered.") }
+            Trow { Tcell("Code(text, block)") Tcell("Monospace code with gray background.") }
+            Trow { Tcell("Blockquote") Tcell("Indented text with left bar.") }
+            Trow { Tcell("Divider") Tcell("Horizontal line.") }
+            Trow { Tcell("Alert(text, variant)") Tcell("Colored box with left accent bar.") }
+            Trow { Tcell("Badge / Tag") Tcell("Colored pill with white text.") }
+            Trow { Tcell("Progress(value, max)") Tcell("Horizontal bar.") }
+            Trow { Tcell("Card") Tcell("Bordered box around children.") }
+            Trow { Tcell("Image(src)") Tcell("Placeholder rectangle (JPEG planned).") }
+            Trow { Tcell("Spacer") Tcell("Vertical space. Modifiers: sm, md, lg, xl.") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Rejected Components", h2)
+        Text("Interactive and web-only components cause compile-time errors in PDF mode:")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("error[pdf]: 'Button' cannot be used in PDF output (Page Report)\n  — interactive elements are not supported in PDF\n\nerror[pdf]: 'Input' cannot be used in PDF output (Page Report)\n  — interactive elements are not supported in PDF", block)
+            }
+        }
+        Spacer(sm)
+        Text("Rejected: Button, Input, Select, Checkbox, Switch, Slider, Form, Modal, Dialog, Toast, Router, Navbar, Sidebar, Tabs, Video, Carousel, and all event handlers.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Page Sizes", h2)
+        Table {
+            Thead { Tcell("Value") Tcell("Dimensions (points)") Tcell("Dimensions (mm)") }
+            Trow { Tcell("A4") Tcell("595 x 842") Tcell("210 x 297") }
+            Trow { Tcell("A3") Tcell("842 x 1191") Tcell("297 x 420") }
+            Trow { Tcell("A5") Tcell("420 x 595") Tcell("148 x 210") }
+            Trow { Tcell("Letter") Tcell("612 x 792") Tcell("216 x 279") }
+            Trow { Tcell("Legal") Tcell("612 x 1008") Tcell("216 x 356") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Fonts", h2)
+        Text("PDF output uses the 14 standard PDF base fonts. No embedding needed.")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Font Family") Tcell("Variants") }
+            Trow { Tcell("Helvetica") Tcell("Regular, Bold, Oblique, BoldOblique") }
+            Trow { Tcell("Times") Tcell("Roman, Bold, Italic, BoldItalic") }
+            Trow { Tcell("Courier") Tcell("Regular, Bold, Oblique, BoldOblique") }
+        }
+        Spacer(sm)
+        Text("Set the default font in config or override per-element with style blocks:", muted)
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Heading(\"Title\", h1) \{\n    style \{\n        font-family: \"Helvetica-Bold\"\n        color: \"#1a1a2e\"\n    \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Styling in PDF", h2)
+        Text("Style blocks support these properties in PDF output:")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Property") Tcell("Values") Tcell("Example") }
+            Trow { Tcell("font-size") Tcell("Number (points)") Tcell("font-size: 14") }
+            Trow { Tcell("font-family") Tcell("Base14 font name") Tcell("font-family: \"Courier\"") }
+            Trow { Tcell("color") Tcell("Hex color") Tcell("color: \"#333333\"") }
+            Trow { Tcell("text-align") Tcell("left, center, right") Tcell("text-align: \"center\"") }
+        }
+        Spacer(sm)
+        Text("Modifiers also work: bold, muted, primary, danger, success, warning, info, small, large, center, right.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Auto Page Breaks", h2)
+        Text("Content automatically flows to a new page when it reaches the bottom margin. Headers and footers are rendered on every page, including auto-generated ones.", muted)
+
+        Spacer(xl)
+    }
+}

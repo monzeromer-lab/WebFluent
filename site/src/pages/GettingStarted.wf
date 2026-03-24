@@ -23,29 +23,35 @@ Page GettingStarted (path: "/getting-started", title: "Getting Started") {
 
         Heading("Create a Project", h2)
         Spacer(sm)
-        Row(gap: md) {
-            Column(span: 6) {
-                Card(elevated) {
-                    Card.Body {
-                        Badge("SPA", primary)
-                        Spacer(sm)
-                        Heading("Interactive App", h2)
-                        Text("Dashboard with routing, stores, forms, modals, animations.", muted)
-                        Spacer()
-                        Code("wf init my-app --template spa", block)
-                    }
+        Grid(columns: 3, gap: md) {
+            Card(elevated) {
+                Card.Body {
+                    Badge("SPA", primary)
+                    Spacer(sm)
+                    Heading("Interactive App", h2)
+                    Text("Dashboard with routing, stores, forms, modals, animations.", muted)
+                    Spacer()
+                    Code("wf init my-app -t spa", block)
                 }
             }
-            Column(span: 6) {
-                Card(elevated) {
-                    Card.Body {
-                        Badge("Static", success)
-                        Spacer(sm)
-                        Heading("Static Site", h2)
-                        Text("Marketing site with SSG, i18n, blog, contact form.", muted)
-                        Spacer()
-                        Code("wf init my-site --template static", block)
-                    }
+            Card(elevated) {
+                Card.Body {
+                    Badge("Static", success)
+                    Spacer(sm)
+                    Heading("Static Site", h2)
+                    Text("Marketing site with SSG, i18n, blog, contact form.", muted)
+                    Spacer()
+                    Code("wf init my-site -t static", block)
+                }
+            }
+            Card(elevated) {
+                Card.Body {
+                    Badge("PDF", info)
+                    Spacer(sm)
+                    Heading("PDF Document", h2)
+                    Text("Reports, invoices, docs. Tables, code blocks, auto page breaks.", muted)
+                    Spacer()
+                    Code("wf init my-report -t pdf", block)
                 }
             }
         }

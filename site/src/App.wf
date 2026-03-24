@@ -10,6 +10,7 @@ App {
         Route(path: "/animation", page: Animation)
         Route(path: "/i18n", page: I18n)
         Route(path: "/ssg", page: Ssg)
+        Route(path: "/pdf", page: Pdf)
         Route(path: "/accessibility", page: Accessibility)
         Route(path: "/cli", page: Cli)
         Route(path: "/404", page: NotFound)

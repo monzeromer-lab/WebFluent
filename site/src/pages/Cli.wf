@@ -11,17 +11,17 @@ Page Cli (path: "/cli", title: "CLI Reference") {
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("wf init <name> [--template spa|static]", block)
+                Code("wf init <name> [--template spa|static|pdf]", block)
             }
         }
         Spacer(sm)
         Table {
             Thead { Tcell("Argument") Tcell("Description") }
             Trow { Tcell("name") Tcell("Project name (creates a directory)") }
-            Trow { Tcell("--template, -t") Tcell("Template: spa (default) or static") }
+            Trow { Tcell("--template, -t") Tcell("Template: spa (default), static, or pdf") }
         }
         Spacer(sm)
-        Text("SPA template: interactive dashboard with routing, stores, forms, animations. Static template: marketing site with SSG, i18n, responsive grids.", muted)
+        Text("SPA: interactive app with routing and state. Static: SSG site with i18n. PDF: document generation with tables, headings, and auto page breaks.", muted)
 
         Spacer()
         Divider()
@@ -45,8 +45,9 @@ Page Cli (path: "/cli", title: "CLI Reference") {
         Spacer(sm)
         Text("Output depends on config:")
         Stack(gap: sm) {
-            Text("SPA mode (ssg: false): single index.html + app.js + styles.css")
+            Text("SPA mode (default): single index.html + app.js + styles.css")
             Text("SSG mode (ssg: true): one HTML per page + app.js + styles.css")
+            Text("PDF mode (output_type: pdf): a single .pdf file")
         }
 
         Spacer()
@@ -93,7 +94,7 @@ Page Cli (path: "/cli", title: "CLI Reference") {
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("\{\n  \"name\": \"My App\",\n  \"version\": \"1.0.0\",\n  \"author\": \"Your Name\",\n  \"theme\": \{\n    \"name\": \"default\",\n    \"mode\": \"light\",\n    \"tokens\": \{\n      \"color-primary\": \"#6366F1\"\n    \}\n  \},\n  \"build\": \{\n    \"output\": \"./build\",\n    \"minify\": true,\n    \"ssg\": false\n  \},\n  \"dev\": \{\n    \"port\": 3000\n  \},\n  \"meta\": \{\n    \"title\": \"My App\",\n    \"description\": \"Built with WebFluent\",\n    \"lang\": \"en\"\n  \},\n  \"i18n\": \{\n    \"defaultLocale\": \"en\",\n    \"locales\": [\"en\", \"ar\"],\n    \"dir\": \"src/translations\"\n  \}\n\}", block)
+                Code("\{\n  \"name\": \"My App\",\n  \"version\": \"1.0.0\",\n  \"author\": \"Your Name\",\n  \"theme\": \{\n    \"name\": \"default\",\n    \"mode\": \"light\",\n    \"tokens\": \{ \"color-primary\": \"#6366F1\" \}\n  \},\n  \"build\": \{\n    \"output\": \"./build\",\n    \"minify\": true,\n    \"ssg\": false,\n    \"output_type\": \"spa\",\n    \"pdf\": \{\n      \"page_size\": \"A4\",\n      \"default_font\": \"Helvetica\",\n      \"output_filename\": \"report.pdf\"\n    \}\n  \},\n  \"dev\": \{ \"port\": 3000 \},\n  \"meta\": \{\n    \"title\": \"My App\",\n    \"description\": \"Built with WebFluent\",\n    \"lang\": \"en\"\n  \},\n  \"i18n\": \{\n    \"defaultLocale\": \"en\",\n    \"locales\": [\"en\", \"ar\"],\n    \"dir\": \"src/translations\"\n  \}\n\}", block)
             }
         }
 
