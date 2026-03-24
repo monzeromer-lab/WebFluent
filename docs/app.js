@@ -561,7 +561,7 @@ function Component_CodeBlock({ code }) {
   const _frag = document.createDocumentFragment();
   const _e0 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1 = WF.h("div", { className: "wf-card__body" });
-  const _e2 = WF.h("code", { className: "wf-code wf-code--block" }, _code());
+  const _e2 = WF.h("code", { className: "wf-code wf-code--block" }, code);
   _e1.appendChild(_e2);
   _e0.appendChild(_e1);
   _frag.appendChild(_e0);
@@ -572,11 +572,11 @@ function Component_FeatureCard({ title, description }) {
   const _frag = document.createDocumentFragment();
   const _e3 = WF.h("div", { className: "wf-card wf-card--elevated wf-animate-scaleIn" });
   const _e4 = WF.h("div", { className: "wf-card__body" });
-  const _e5 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, _title());
+  const _e5 = WF.h("h2", { className: "wf-heading wf-heading--h2" }, title);
   _e4.appendChild(_e5);
   const _e6 = WF.h("div", { className: "wf-spacer" });
   _e4.appendChild(_e6);
-  const _e7 = WF.h("p", { className: "wf-text wf-text--muted" }, _description());
+  const _e7 = WF.h("p", { className: "wf-text wf-text--muted" }, description);
   _e4.appendChild(_e7);
   _e3.appendChild(_e4);
   _frag.appendChild(_e3);

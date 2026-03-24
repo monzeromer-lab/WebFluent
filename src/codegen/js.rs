@@ -9,6 +9,8 @@ pub struct JsCodegen {
     components: Vec<String>,
     /// Track store names
     stores: Vec<String>,
+    /// Track current component/page prop names (not signals)
+    current_props: Vec<String>,
     /// i18n: default locale and translations (locale -> key -> value)
     i18n_default_locale: Option<String>,
     i18n_translations: HashMap<String, HashMap<String, String>>,
@@ -23,6 +25,7 @@ impl JsCodegen {
             indent: 0,
             components: Vec::new(),
             stores: Vec::new(),
+            current_props: Vec::new(),
             i18n_default_locale: None,
             i18n_translations: HashMap::new(),
             ssg_mode: false,
@@ -368,6 +371,9 @@ impl JsCodegen {
             format!("{{ {} }}", params.join(", "))
         };
 
+        // Set current props so emit_expr treats them as plain variables, not signals
+        self.current_props = params.clone();
+
         self.emit_line(&format!("function Component_{}({}) {{", comp.name, destructure));
         self.indent += 1;
 
@@ -392,6 +398,7 @@ impl JsCodegen {
         self.indent -= 1;
         self.emit_line("}");
         self.emit_line("");
+        self.current_props.clear();
     }
 
     // ─── Page ────────────────────────────────────────
@@ -1552,8 +1559,9 @@ impl JsCodegen {
                 if self.has_i18n() && (name == "locale" || name == "dir") {
                     return format!("WF.i18n.{}()", name);
                 }
-                // Store references, params, and built-in names stay as-is
+                // Store references, component props, and built-in names stay as-is
                 if self.stores.contains(name)
+                    || self.current_props.contains(name)
                     || name == "params"
                     || name == "value"
                     || name == "key"
