@@ -64,10 +64,26 @@ package-linux: release
     just deb-fast
     just tarball-linux
 
-# Build all packages
-package-all: package-linux
-    @echo "Built .deb and Linux tarball"
-    @echo "For Windows: run 'just msi' on Windows or with cross-compilation"
+# Build ALL packages (Linux .deb + tarball, Windows .zip, docs site)
+package-all: release
+    @echo "══════════════════════════════════════════"
+    @echo "  Packaging WebFluent v{{version}}"
+    @echo "══════════════════════════════════════════"
+    mkdir -p dist
+    @echo "\n── Linux .deb ──"
+    just deb-fast
+    cp target/debian/*.deb dist/ 2>/dev/null || true
+    @echo "\n── Linux tarball ──"
+    just tarball-linux
+    @echo "\n── Windows .exe ──"
+    just build-windows
+    just zip-windows
+    @echo "\n── Docs site ──"
+    just site-build
+    @echo "\n══════════════════════════════════════════"
+    @echo "  Done! Artifacts in dist/"
+    @echo "══════════════════════════════════════════"
+    @ls -lh dist/
 
 # Create Linux tarball
 tarball-linux:
