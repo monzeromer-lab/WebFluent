@@ -332,11 +332,12 @@ impl PdfCodegen {
         self.current_stream = ContentStream::new();
         self.page_has_content = false;
 
-        // Emit header on new page
+        // Emit header on new page — render in the top margin area
         if !self.header_stmts.is_empty() && !self.in_header_footer {
             self.in_header_footer = true;
             let saved_y = self.cursor_y;
-            self.cursor_y = self.page_height - self.margin_top / 2.0;
+            // Position header with enough room: top of page minus a small top pad
+            self.cursor_y = self.page_height - 24.0;
             let stmts = self.header_stmts.clone();
             for stmt in &stmts {
                 self.emit_statement(stmt);
@@ -347,12 +348,14 @@ impl PdfCodegen {
     }
 
     fn finalize_page(&mut self) {
-        // Emit footer before finalizing
+        // Emit footer before finalizing — render a single line at a safe position
         if !self.footer_stmts.is_empty() && !self.in_header_footer {
             self.in_header_footer = true;
             let stmts = self.footer_stmts.clone();
             let saved_y = self.cursor_y;
-            self.cursor_y = self.margin_bottom / 2.0;
+            // Place footer text baseline at 28pt from page bottom —
+            // this leaves room for the text descenders and avoids clipping
+            self.cursor_y = 28.0;
             for stmt in &stmts {
                 self.emit_statement(stmt);
             }
@@ -852,10 +855,7 @@ impl PdfCodegen {
     fn emit_list(&mut self, ui: &UIElement) {
         let ordered = ui.modifiers.iter().any(|m| m == "ordered");
         let font_size = self.current_font_size;
-        let line_height = font_size * 1.5;
-        let indent = 18.0;
         let default_font = self.default_font.clone();
-        let font_tag = self.font_tag(&default_font);
 
         for (idx, child) in ui.children.iter().enumerate() {
             if let Statement::UIElement(item) = child {
@@ -864,30 +864,83 @@ impl PdfCodegen {
                     continue;
                 }
 
-                self.check_page_break(line_height);
-
+                // Build the marker string
                 let marker = if ordered {
-                    format!("{}.", idx + 1)
+                    format!("{}. ", idx + 1)
                 } else {
-                    // Use a simple dash - works reliably in all PDF viewers
-                    "-".to_string()
+                    "- ".to_string()
                 };
 
-                // Draw marker and text at same Y position
-                // The marker is drawn at margin_left, text starts after indent
-                let marker_x = self.margin_left;
-                self.current_stream.set_color(0.3, 0.3, 0.3);
-                self.current_stream.text_at(marker_x, self.cursor_y, &font_tag, font_size, &marker);
-                self.mark_content();
+                // Prepend marker to text and render as one unit
+                // This guarantees marker and text are on the same line
+                let full_text = format!("{}{}", marker, text);
 
-                // Render item text indented
+                // Use a hanging indent: first line starts at margin_left,
+                // continuation lines start at margin_left + indent
+                let indent = text_width(&marker, &default_font, font_size) + 2.0;
+
                 let saved_left = self.margin_left;
-                self.margin_left += indent;
-                self.render_wrapped_text(&text, &default_font, font_size, (0.0, 0.0, 0.0), "");
+
+                // Render first line at margin_left (includes marker)
+                // Then subsequent wrapped lines at margin_left + indent
+                self.render_list_item(&full_text, &default_font, font_size, (0.15, 0.15, 0.15), indent);
+
                 self.margin_left = saved_left;
             }
         }
-        self.cursor_y -= 4.0;
+        self.cursor_y -= 6.0;
+    }
+
+    /// Render a list item with hanging indent (first line flush, wraps indented)
+    fn render_list_item(&mut self, text: &str, font: &str, size: f64, color: (f64, f64, f64), indent: f64) {
+        let font_tag = self.font_tag(font);
+        let line_height = size * 1.5;
+        let avail_width = self.content_width();
+        let space_w = text_width(" ", font, size);
+
+        let words: Vec<&str> = text.split_whitespace().collect();
+        if words.is_empty() {
+            return;
+        }
+
+        let mut current_line = String::new();
+        let mut current_width = 0.0;
+        let mut is_first_line = true;
+
+        for word in &words {
+            let word_w = text_width(word, font, size);
+            let max_w = if is_first_line { avail_width } else { avail_width - indent };
+
+            if !current_line.is_empty() && current_width + space_w + word_w > max_w {
+                // Flush line
+                self.check_page_break(line_height);
+                let x = if is_first_line { self.margin_left } else { self.margin_left + indent };
+                self.current_stream.set_color(color.0, color.1, color.2);
+                self.current_stream.text_at(x, self.cursor_y, &font_tag, size, &current_line);
+                self.cursor_y -= line_height;
+                self.mark_content();
+
+                is_first_line = false;
+                current_line = word.to_string();
+                current_width = word_w;
+            } else {
+                if !current_line.is_empty() {
+                    current_line.push(' ');
+                    current_width += space_w;
+                }
+                current_line.push_str(word);
+                current_width += word_w;
+            }
+        }
+
+        if !current_line.is_empty() {
+            self.check_page_break(line_height);
+            let x = if is_first_line { self.margin_left } else { self.margin_left + indent };
+            self.current_stream.set_color(color.0, color.1, color.2);
+            self.current_stream.text_at(x, self.cursor_y, &font_tag, size, &current_line);
+            self.cursor_y -= line_height;
+            self.mark_content();
+        }
     }
 
     // ─── Code Block ─────────────────────────────────────────
@@ -996,9 +1049,9 @@ impl PdfCodegen {
     // ─── Blockquote ─────────────────────────────────────────
 
     fn emit_blockquote(&mut self, ui: &UIElement) {
-        let indent = 20.0;
         let bar_width = 3.0;
-        let bar_gap = 8.0; // space between bar and text
+        let bar_x_offset = 6.0;  // bar position from margin_left
+        let text_indent = 18.0;  // text indented past the bar
 
         // Collect all text from children
         let mut texts = Vec::new();
@@ -1020,39 +1073,41 @@ impl PdfCodegen {
         let size = self.current_font_size;
         let line_height = size * 1.5;
 
-        // Count actual wrapped lines for accurate height
-        let avail = self.content_width() - indent;
+        // Pre-calculate total height to draw bar first (so it appears behind text)
+        let avail = self.content_width() - text_indent;
         let line_count = self.count_wrapped_lines(&full_text, &font_name, size, avail);
         let text_block_height = line_count as f64 * line_height;
 
-        self.check_page_break(text_block_height.min(line_height * 3.0));
+        // Ensure we have room for at least a few lines
+        self.check_page_break(text_block_height.min(line_height * 2.0));
 
-        // Record start position — text baseline is at cursor_y,
-        // visual top of text is cursor_y + font_ascent (~80% of size)
-        let bar_top_y = self.cursor_y + size * 0.8;
+        let _start_page = self.pages.len();
 
-        // Render text with indent
-        let saved_left = self.margin_left;
-        self.margin_left += indent;
-        self.render_wrapped_text(&full_text, &font_name, size, (0.35, 0.35, 0.35), "");
-        self.margin_left = saved_left;
-
-        let bar_bottom_y = self.cursor_y + size * 0.3; // slight bottom padding
-        let bar_height = bar_top_y - bar_bottom_y;
-
-        // Left bar (drawn after text to know exact extent)
-        if bar_height > 0.0 {
-            self.current_stream.set_color(0.65, 0.65, 0.65);
+        // Draw the bar FIRST (behind text) so it can't be occluded
+        // Bar extends from current text-top to predicted text-bottom
+        let bar_top = self.cursor_y + size * 0.75;     // align with text ascender
+        let bar_bottom = self.cursor_y - text_block_height + line_height * 0.3;
+        let bar_h = bar_top - bar_bottom;
+        if bar_h > 0.0 {
+            self.current_stream.set_color(0.72, 0.72, 0.72);
             self.current_stream.rounded_rect(
-                self.margin_left + bar_gap,
-                bar_bottom_y,
+                self.margin_left + bar_x_offset,
+                bar_bottom,
                 bar_width,
-                bar_height,
+                bar_h,
                 1.5,
             );
             self.current_stream.fill();
         }
 
+        // Render text with indent (on top of the bar)
+        let saved_left = self.margin_left;
+        self.margin_left += text_indent;
+        self.render_wrapped_text(&full_text, &font_name, size, (0.30, 0.30, 0.30), "");
+        self.margin_left = saved_left;
+
+        // If text caused a page break, we can't retroactively fix the bar,
+        // but at least the text renders correctly
         self.cursor_y -= 8.0;
     }
 
@@ -1126,30 +1181,42 @@ impl PdfCodegen {
     // ─── Divider ────────────────────────────────────────────
 
     fn emit_divider(&mut self) {
-        self.cursor_y -= 12.0;
-        self.check_page_break(2.0);
-        self.current_stream.set_stroke_color(0.78, 0.78, 0.78);
+        // Space above the line (below previous content)
+        let gap = 14.0;
+        self.cursor_y -= gap;
+        self.check_page_break(gap + 2.0);
+
+        // Draw the line at current cursor_y + half gap
+        // This places the line in the vertical center of the total gap
+        let line_y = self.cursor_y + gap / 2.0;
+        self.current_stream.set_stroke_color(0.80, 0.80, 0.80);
         self.current_stream.set_line_width(0.5);
-        let y = self.cursor_y + 4.0; // draw above the next text baseline
         self.current_stream.line(
             self.margin_left,
-            y,
+            line_y,
             self.page_width - self.margin_right,
-            y,
+            line_y,
         );
-        self.cursor_y -= 12.0;
+
+        // Space below the line (above next content)
+        self.cursor_y -= gap;
         self.mark_content();
     }
 
     // ─── Card ───────────────────────────────────────────────
 
     fn emit_card(&mut self, ui: &UIElement) {
-        let card_padding = 12.0;
+        let card_padding = 14.0;
+        let card_margin = 6.0; // external spacing
+        let card_radius = 4.0; // rounded corners
         let saved_left = self.margin_left;
         let saved_right = self.margin_right;
 
-        self.margin_left += card_padding;
-        self.margin_right += card_padding;
+        // External margin
+        self.cursor_y -= card_margin;
+
+        self.margin_left += card_padding + card_margin;
+        self.margin_right += card_padding + card_margin;
 
         // Record start Y
         let start_y = self.cursor_y;
@@ -1171,16 +1238,22 @@ impl PdfCodegen {
         // Only draw card border if content stayed on same page
         if self.pages.len() == start_page_count {
             let card_height = start_y - end_y;
-            self.current_stream.set_stroke_color(0.85, 0.85, 0.85);
-            self.current_stream.set_line_width(1.0);
-            self.current_stream.rect(
-                saved_left,
-                end_y,
-                self.page_width - saved_left - saved_right,
-                card_height,
-            );
+            let card_x = saved_left + card_margin;
+            let card_w = self.page_width - saved_left - saved_right - card_margin * 2.0;
+
+            // Light background fill
+            self.current_stream.set_color(0.99, 0.99, 0.99);
+            self.current_stream.rounded_rect(card_x, end_y, card_w, card_height, card_radius);
+            self.current_stream.fill();
+
+            // Border
+            self.current_stream.set_stroke_color(0.82, 0.82, 0.82);
+            self.current_stream.set_line_width(0.75);
+            self.current_stream.rounded_rect(card_x, end_y, card_w, card_height, card_radius);
             self.current_stream.stroke();
         }
+
+        self.cursor_y -= card_margin; // external margin after
     }
 
     // ─── Badge / Tag ────────────────────────────────────────
@@ -1328,19 +1401,23 @@ impl PdfCodegen {
         }
 
         let bar_height = 8.0;
+        let bar_radius = bar_height / 2.0; // fully rounded
         let fraction = (value / max).min(1.0).max(0.0);
 
         self.check_page_break(bar_height + 8.0);
 
-        // Track
+        // Track (rounded)
         self.current_stream.set_color(0.9, 0.9, 0.9);
-        self.current_stream.rect(self.margin_left, self.cursor_y - bar_height, self.content_width(), bar_height);
+        self.current_stream.rounded_rect(self.margin_left, self.cursor_y - bar_height, self.content_width(), bar_height, bar_radius);
         self.current_stream.fill();
 
-        // Fill
-        let color = self.modifier_color(&ui.modifiers);
-        self.current_stream.set_color(color.0, color.1, color.2);
-        self.current_stream.rect(self.margin_left, self.cursor_y - bar_height, self.content_width() * fraction, bar_height);
+        // Fill (rounded, clip to track width)
+        let fill_width = self.content_width() * fraction;
+        if fill_width > 0.5 {
+            let color = self.modifier_color(&ui.modifiers);
+            self.current_stream.set_color(color.0, color.1, color.2);
+            self.current_stream.rounded_rect(self.margin_left, self.cursor_y - bar_height, fill_width, bar_height, bar_radius);
+        }
         self.current_stream.fill();
 
         self.cursor_y -= bar_height + 8.0;
