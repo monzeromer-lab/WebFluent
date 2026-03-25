@@ -249,6 +249,8 @@ pub struct PdfCodegen {
     in_header_footer: bool,
     // Track if the current page has any visible content
     page_has_content: bool,
+    // Page numbering
+    current_page_number: usize,
 }
 
 impl PdfCodegen {
@@ -277,6 +279,7 @@ impl PdfCodegen {
             image_objects: Vec::new(),
             in_header_footer: false,
             page_has_content: false,
+            current_page_number: 0,
         };
 
         // Register default fonts
@@ -328,6 +331,7 @@ impl PdfCodegen {
     }
 
     fn start_new_page(&mut self) {
+        self.current_page_number += 1;
         self.cursor_y = self.page_height - self.margin_top;
         self.current_stream = ContentStream::new();
         self.page_has_content = false;
@@ -402,6 +406,38 @@ impl PdfCodegen {
         self.page_has_content = true;
     }
 
+    /// Substitute {page} and {pages} in text strings during header/footer rendering
+    fn substitute_page_vars(&self, text: &str) -> String {
+        if !self.in_header_footer {
+            return text.to_string();
+        }
+        // {page} → current page number, {pages} → fixed-width placeholder
+        // The placeholder "###" (3 bytes) will be replaced with the actual total after generation
+        text.replace("{page}", &self.current_page_number.to_string())
+            .replace("{pages}", "###")
+    }
+
+    /// After all pages generated, replace "###" placeholders with actual total page count
+    fn fixup_total_pages(&mut self) {
+        let total = self.current_page_number;
+        let total_str = format!("{:<3}", total); // left-align, pad to 3 chars
+
+        // The placeholder "###" in hex is "232323"
+        let placeholder_hex = "232323";
+        let replacement_hex: String = total_str.chars()
+            .map(|ch| format!("{:02X}", ch as u8))
+            .collect();
+
+        // Search and replace in all object data
+        for obj in &mut self.objects {
+            let data_str = String::from_utf8_lossy(&obj.data).to_string();
+            if data_str.contains(placeholder_hex) {
+                let fixed = data_str.replace(placeholder_hex, &replacement_hex);
+                obj.data = fixed.into_bytes();
+            }
+        }
+    }
+
     pub fn page_count(&self) -> usize {
         self.pages.len()
     }
@@ -427,6 +463,9 @@ impl PdfCodegen {
 
         // Finalize the last page
         self.finalize_page();
+
+        // Replace {pages} placeholders with actual total page count
+        self.fixup_total_pages();
 
         self.serialize()
     }
@@ -489,7 +528,8 @@ impl PdfCodegen {
             "Blockquote" => self.emit_blockquote(ui),
             "Image" => self.emit_image(ui),
             "Divider" => self.emit_divider(),
-            "Container" | "Row" | "Column" | "Grid" | "Stack" => {
+            "Row" => self.emit_row(ui),
+            "Container" | "Column" | "Grid" | "Stack" => {
                 // Layout containers: just render children sequentially
                 for child in &ui.children {
                     self.emit_statement(child);
@@ -517,6 +557,70 @@ impl PdfCodegen {
                     self.emit_statement(child);
                 }
             }
+        }
+    }
+
+    // ─── Row Layout ──────────────────────────────────────────
+
+    fn emit_row(&mut self, ui: &UIElement) {
+        // Check for justify: between — render first child left, last child right on same line
+        let mut justify_between = false;
+        for arg in &ui.args {
+            if let crate::parser::Arg::Named(name, value) = arg {
+                if name == "justify" {
+                    if let Expr::Identifier(v) = value {
+                        if v == "between" {
+                            justify_between = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if justify_between && ui.children.len() >= 2 {
+            // Collect text items from children
+            let mut items: Vec<(String, String, f64, (f64, f64, f64))> = Vec::new(); // (text, font, size, color)
+            for child in &ui.children {
+                if let Statement::UIElement(child_ui) = child {
+                    let text = self.extract_text_content(child_ui);
+                    let (font, size, color, _align) = self.extract_text_style(child_ui);
+                    items.push((text, font, size, color));
+                }
+            }
+
+            if items.len() >= 2 {
+                let line_height = items.iter().map(|(_, _, s, _)| *s * 1.5).fold(0.0f64, f64::max);
+                self.check_page_break(line_height);
+
+                // First item: left-aligned
+                let (ref text, ref font, size, color) = items[0];
+                if !text.is_empty() {
+                    let font_tag = self.font_tag(font);
+                    self.current_stream.set_color(color.0, color.1, color.2);
+                    self.current_stream.text_at(self.margin_left, self.cursor_y, &font_tag, size, text);
+                    self.mark_content();
+                }
+
+                // Last item: right-aligned
+                let last = items.len() - 1;
+                let (ref text, ref font, size, color) = items[last];
+                if !text.is_empty() {
+                    let font_tag = self.font_tag(font);
+                    let tw = text_width(text, font, size);
+                    let x = self.page_width - self.margin_right - tw;
+                    self.current_stream.set_color(color.0, color.1, color.2);
+                    self.current_stream.text_at(x, self.cursor_y, &font_tag, size, text);
+                    self.mark_content();
+                }
+
+                self.cursor_y -= line_height;
+                return;
+            }
+        }
+
+        // Default: render children sequentially (vertical stack)
+        for child in &ui.children {
+            self.emit_statement(child);
         }
     }
 
@@ -1498,7 +1602,9 @@ impl PdfCodegen {
         // First positional arg is usually the text
         for arg in &ui.args {
             if let crate::parser::Arg::Positional(expr) = arg {
-                return self.expr_to_string(expr);
+                let text = self.expr_to_string(expr);
+                // Substitute {page}/{pages} in header/footer context
+                return self.substitute_page_vars(&text);
             }
         }
         String::new()
