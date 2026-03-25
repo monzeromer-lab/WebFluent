@@ -9,6 +9,7 @@ mod themes;
 mod config;
 mod error;
 mod linter;
+mod template;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -54,6 +55,23 @@ enum Commands {
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
     },
+    /// Render a .wf template with JSON data
+    Render {
+        /// Template file (.wf)
+        template: PathBuf,
+        /// JSON data file (reads stdin if omitted)
+        #[arg(long)]
+        data: Option<PathBuf>,
+        /// Output format: "html" (default), "html-fragment", or "pdf"
+        #[arg(short, long, default_value = "html")]
+        format: String,
+        /// Output file (stdout if omitted)
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        /// Theme name
+        #[arg(long, default_value = "default")]
+        theme: String,
+    },
 }
 
 fn main() {
@@ -64,6 +82,9 @@ fn main() {
         Commands::Build { dir } => cli::build::run_build(&dir),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),
+        Commands::Render { template: tpl, data, format, output, theme } => {
+            cli::render::run_render(&tpl, data.as_deref(), &format, output.as_deref(), &theme)
+        }
     };
 
     if let Err(e) = result {

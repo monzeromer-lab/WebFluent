@@ -20,6 +20,10 @@ assets = [
 ]
 extended-description = "A programming language that compiles to HTML, CSS, and JavaScript. Built-in components, reactivity, routing, i18n, animations, and SSG."
 
+[lib]
+name = "webfluent"
+path = "src/lib.rs"
+
 [[bin]]
 name = "wf"
 path = "src/main.rs"

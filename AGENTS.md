@@ -535,6 +535,100 @@ Code("function() \{ return 42; \}", block)
 }
 ```
 
+## Template Engine (Server-Side Rendering)
+
+WebFluent can be used as a **template engine** from Rust or Node.js to render `.wf` templates to HTML or PDF with JSON data.
+
+### CLI
+
+```bash
+# Render to HTML
+wf render template.wf --data data.json --format html -o output.html
+
+# Render to HTML fragment (no <html> wrapper)
+wf render template.wf --data data.json --format fragment
+
+# Render to PDF
+wf render template.wf --data data.json --format pdf -o report.pdf
+
+# Pipe JSON from stdin
+echo '{"name":"Monzer"}' | wf render template.wf --format html
+
+# With theme
+wf render template.wf --data data.json --format html --theme dark
+```
+
+### Rust API
+
+```rust
+use webfluent::Template;
+use serde_json::json;
+
+let tpl = Template::from_str("Container { Heading(\"Hello, {name}!\", h1) }")?;
+// or: Template::from_file("templates/invoice.wf")?;
+
+let html = tpl.render_html(&json!({"name": "World"}))?;           // Full HTML doc
+let frag = tpl.render_html_fragment(&json!({"name": "World"}))?;  // Fragment only
+let pdf  = tpl.render_pdf(&json!({"name": "World"}))?;            // Vec<u8>
+
+// With theme
+let html = tpl.with_theme("dark")
+    .with_tokens(&[("color-primary", "#8B5CF6")])
+    .render_html(&data)?;
+```
+
+### Node.js API
+
+```javascript
+const { Template } = require('@aspect/webfluent');
+
+const tpl = Template.fromString('Container { Heading("Hello, {name}!", h1) }');
+// or: Template.fromFile('templates/invoice.wf');
+
+const html = tpl.renderHtml({ name: "World" });           // Full HTML string
+const frag = tpl.renderHtmlFragment({ name: "World" });   // Fragment string
+const pdf  = tpl.renderPdf({ name: "World" });             // Buffer
+
+// With theme
+const html = tpl.withTheme('dark')
+    .withTokens({ 'color-primary': '#8B5CF6' })
+    .renderHtml(data);
+```
+
+### Template Data Context
+
+Data is a JSON object. Top-level keys become template variables:
+
+```wf
+// template.wf
+Page Invoice (path: "/", title: "Invoice") {
+    Container {
+        Heading("Invoice #{number}", h1)
+        Text("Customer: {customer.name}")
+
+        for item in items {
+            Card { Text(item.name, bold) Text("${item.price}") }
+        }
+
+        if paid { Badge("PAID", success) }
+        else    { Badge("UNPAID", danger) }
+    }
+}
+```
+
+```json
+{
+    "number": "INV-001",
+    "customer": { "name": "Acme Corp" },
+    "items": [{ "name": "Widget", "price": 9.99 }],
+    "paid": true
+}
+```
+
+**Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, modifiers, themes.
+
+**Not supported**: `state`, `derived`, `effect`, events (`on:click`), navigation, stores, animations, `fetch`.
+
 ## Key Rules
 
 1. **Every page needs a path**: `Page Name (path: "/route") { ... }`

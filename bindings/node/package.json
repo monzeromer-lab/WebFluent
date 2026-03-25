@@ -1,0 +1,20 @@
+{
+  "name": "@aspect/webfluent",
+  "version": "0.2.0-alpha",
+  "description": "WebFluent template engine for Node.js — render .wf templates to HTML and PDF",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monzeromer-lab/WebFluent"
+  },
+  "keywords": ["webfluent", "template-engine", "html", "pdf", "ssr"],
+  "files": ["index.js", "index.d.ts", "README.md"],
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "test": "node test.js"
+  }
+}
