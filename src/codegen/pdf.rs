@@ -178,6 +178,43 @@ impl ContentStream {
         self.op(&format!("{} w", fmt_f64(w)));
     }
 
+    /// Draw a rounded rectangle using cubic Bezier curves
+    fn rounded_rect(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
+        // Clamp radius to half the smallest dimension
+        let r = r.min(w / 2.0).min(h / 2.0);
+        // Magic number for approximating a quarter circle with a cubic Bezier
+        let k = 0.5523;
+        let kr = k * r;
+
+        // Start at bottom-left + radius
+        self.op(&format!("{} {} m", fmt_f64(x + r), fmt_f64(y)));
+        // Bottom edge → bottom-right corner
+        self.op(&format!("{} {} l", fmt_f64(x + w - r), fmt_f64(y)));
+        self.op(&format!("{} {} {} {} {} {} c",
+            fmt_f64(x + w - r + kr), fmt_f64(y),
+            fmt_f64(x + w), fmt_f64(y + r - kr),
+            fmt_f64(x + w), fmt_f64(y + r)));
+        // Right edge → top-right corner
+        self.op(&format!("{} {} l", fmt_f64(x + w), fmt_f64(y + h - r)));
+        self.op(&format!("{} {} {} {} {} {} c",
+            fmt_f64(x + w), fmt_f64(y + h - r + kr),
+            fmt_f64(x + w - r + kr), fmt_f64(y + h),
+            fmt_f64(x + w - r), fmt_f64(y + h)));
+        // Top edge → top-left corner
+        self.op(&format!("{} {} l", fmt_f64(x + r), fmt_f64(y + h)));
+        self.op(&format!("{} {} {} {} {} {} c",
+            fmt_f64(x + r - kr), fmt_f64(y + h),
+            fmt_f64(x), fmt_f64(y + h - r + kr),
+            fmt_f64(x), fmt_f64(y + h - r)));
+        // Left edge → bottom-left corner
+        self.op(&format!("{} {} l", fmt_f64(x), fmt_f64(y + r)));
+        self.op(&format!("{} {} {} {} {} {} c",
+            fmt_f64(x), fmt_f64(y + r - kr),
+            fmt_f64(x + r - kr), fmt_f64(y),
+            fmt_f64(x + r), fmt_f64(y)));
+        self.op("h"); // close path
+    }
+
     fn bytes(&self) -> &[u8] {
         &self.ops
     }
@@ -813,7 +850,12 @@ impl PdfCodegen {
     // ─── List ───────────────────────────────────────────────
 
     fn emit_list(&mut self, ui: &UIElement) {
-        let font_tag = self.font_tag(&self.default_font.clone());
+        let ordered = ui.modifiers.iter().any(|m| m == "ordered");
+        let font_size = self.current_font_size;
+        let line_height = font_size * 1.5;
+        let indent = 18.0;
+        let default_font = self.default_font.clone();
+        let font_tag = self.font_tag(&default_font);
 
         for (idx, child) in ui.children.iter().enumerate() {
             if let Statement::UIElement(item) = child {
@@ -822,27 +864,26 @@ impl PdfCodegen {
                     continue;
                 }
 
-                let line_height = self.current_font_size * 1.5;
                 self.check_page_break(line_height);
 
-                // Check for "ordered" modifier
-                let ordered = ui.modifiers.iter().any(|m| m == "ordered");
-                let bullet = if ordered {
+                let marker = if ordered {
                     format!("{}.", idx + 1)
                 } else {
-                    "\u{2022}".to_string() // bullet character
+                    // Use a simple dash - works reliably in all PDF viewers
+                    "-".to_string()
                 };
 
-                let bullet_x = self.margin_left;
-
-                self.current_stream.set_color(0.0, 0.0, 0.0);
-                self.current_stream.text_at(bullet_x, self.cursor_y, &font_tag, self.current_font_size, &bullet);
+                // Draw marker and text at same Y position
+                // The marker is drawn at margin_left, text starts after indent
+                let marker_x = self.margin_left;
+                self.current_stream.set_color(0.3, 0.3, 0.3);
+                self.current_stream.text_at(marker_x, self.cursor_y, &font_tag, font_size, &marker);
                 self.mark_content();
 
-                // Render text with indent
+                // Render item text indented
                 let saved_left = self.margin_left;
-                self.margin_left += 20.0;
-                self.render_wrapped_text(&text, &self.default_font.clone(), self.current_font_size, (0.0, 0.0, 0.0), "");
+                self.margin_left += indent;
+                self.render_wrapped_text(&text, &default_font, font_size, (0.0, 0.0, 0.0), "");
                 self.margin_left = saved_left;
             }
         }
@@ -955,8 +996,9 @@ impl PdfCodegen {
     // ─── Blockquote ─────────────────────────────────────────
 
     fn emit_blockquote(&mut self, ui: &UIElement) {
-        let indent = 24.0;
+        let indent = 20.0;
         let bar_width = 3.0;
+        let bar_gap = 8.0; // space between bar and text
 
         // Collect all text from children
         let mut texts = Vec::new();
@@ -974,39 +1016,44 @@ impl PdfCodegen {
         }
 
         let full_text = texts.join("\n");
-        let font_name = "Times-Roman";
+        let font_name = self.default_font.clone();
         let size = self.current_font_size;
-        let line_height = size * 1.6;
+        let line_height = size * 1.5;
 
         // Count actual wrapped lines for accurate height
         let avail = self.content_width() - indent;
-        let line_count = self.count_wrapped_lines(&full_text, font_name, size, avail);
-        let block_height = line_count as f64 * line_height + 8.0;
+        let line_count = self.count_wrapped_lines(&full_text, &font_name, size, avail);
+        let text_block_height = line_count as f64 * line_height;
 
-        self.check_page_break(block_height.min(line_height * 3.0));
+        self.check_page_break(text_block_height.min(line_height * 3.0));
 
-        // Record start position for left bar
-        let bar_start_y = self.cursor_y;
+        // Record start position — text baseline is at cursor_y,
+        // visual top of text is cursor_y + font_ascent (~80% of size)
+        let bar_top_y = self.cursor_y + size * 0.8;
 
-        // Text
+        // Render text with indent
         let saved_left = self.margin_left;
         self.margin_left += indent;
-        self.render_wrapped_text(&full_text, font_name, size, (0.3, 0.3, 0.3), "");
+        self.render_wrapped_text(&full_text, &font_name, size, (0.35, 0.35, 0.35), "");
         self.margin_left = saved_left;
 
-        let bar_end_y = self.cursor_y;
+        let bar_bottom_y = self.cursor_y + size * 0.3; // slight bottom padding
+        let bar_height = bar_top_y - bar_bottom_y;
 
-        // Left bar (draw after text so we know the exact height)
-        self.current_stream.set_color(0.7, 0.7, 0.7);
-        self.current_stream.rect(
-            self.margin_left + 4.0,
-            bar_end_y,
-            bar_width,
-            bar_start_y - bar_end_y,
-        );
-        self.current_stream.fill();
+        // Left bar (drawn after text to know exact extent)
+        if bar_height > 0.0 {
+            self.current_stream.set_color(0.65, 0.65, 0.65);
+            self.current_stream.rounded_rect(
+                self.margin_left + bar_gap,
+                bar_bottom_y,
+                bar_width,
+                bar_height,
+                1.5,
+            );
+            self.current_stream.fill();
+        }
 
-        self.cursor_y -= 4.0;
+        self.cursor_y -= 8.0;
     }
 
     // ─── Image ──────────────────────────────────────────────
@@ -1079,17 +1126,18 @@ impl PdfCodegen {
     // ─── Divider ────────────────────────────────────────────
 
     fn emit_divider(&mut self) {
-        self.cursor_y -= 8.0;
+        self.cursor_y -= 12.0;
         self.check_page_break(2.0);
-        self.current_stream.set_stroke_color(0.75, 0.75, 0.75);
+        self.current_stream.set_stroke_color(0.78, 0.78, 0.78);
         self.current_stream.set_line_width(0.5);
+        let y = self.cursor_y + 4.0; // draw above the next text baseline
         self.current_stream.line(
             self.margin_left,
-            self.cursor_y,
+            y,
             self.page_width - self.margin_right,
-            self.cursor_y,
+            y,
         );
-        self.cursor_y -= 8.0;
+        self.cursor_y -= 12.0;
         self.mark_content();
     }
 
@@ -1151,14 +1199,17 @@ impl PdfCodegen {
 
         self.check_page_break(badge_h);
 
-        // Background pill
+        // Background pill (rounded)
         let color = self.modifier_color(&ui.modifiers);
+        let badge_w = tw + pad * 2.0;
+        let badge_radius = badge_h / 2.0; // fully rounded ends
         self.current_stream.set_color(color.0, color.1, color.2);
-        self.current_stream.rect(
+        self.current_stream.rounded_rect(
             self.margin_left,
             self.cursor_y - badge_h + pad,
-            tw + pad * 2.0,
+            badge_w,
             badge_h,
+            badge_radius,
         );
         self.current_stream.fill();
 
