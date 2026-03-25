@@ -8,8 +8,12 @@
     "nav.i18n": "التدويل",
     "nav.ssg": "التوليد الثابت",
     "nav.pdf": "PDF",
+    "nav.template": "محرك القوالب",
     "nav.a11y": "إمكانية الوصول",
     "nav.cli": "سطر الأوامر",
+
+    "tpl.title": "محرك القوالب",
+    "tpl.subtitle": "استخدم WebFluent كمحرك قوالب من Rust و Node.js لتوليد HTML و PDF.",
 
     "hero.title": "لغة الويب الأولى",
     "hero.sub1": "لغة برمجة تُترجم إلى HTML و CSS و JavaScript.",

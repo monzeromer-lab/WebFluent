@@ -1,0 +1,180 @@
+Page TemplateEngine (path: "/template-engine", title: "Template Engine") {
+    Container(fadeIn) {
+        Spacer()
+        Heading(t("tpl.title"), h1)
+        Text(t("tpl.subtitle"), muted)
+
+        Spacer()
+
+        Alert("WebFluent can be used as a server-side template engine from Rust and Node.js to render .wf templates into HTML or PDF with JSON data.", info)
+
+        Spacer()
+        Heading("CLI Usage", h2)
+        Text("Render any .wf template with JSON data directly from the command line.")
+        Spacer(sm)
+
+        Card(outlined) {
+            Card.Body {
+                Code("# Render to HTML\nwf render template.wf --data data.json --format html -o output.html\n\n# Render to HTML fragment (no <html> wrapper)\nwf render template.wf --data data.json --format fragment\n\n# Render to PDF\nwf render template.wf --data data.json --format pdf -o report.pdf\n\n# Pipe JSON from stdin\necho '\{\"name\":\"Monzer\"\}' | wf render template.wf --format html\n\n# With theme\nwf render template.wf --data data.json --format html --theme dark", block)
+            }
+        }
+
+        Spacer()
+        Table {
+            Thead { Tcell("Option") Tcell("Description") }
+            Trow { Tcell("template") Tcell("Path to the .wf template file") }
+            Trow { Tcell("--data") Tcell("Path to JSON data file (reads stdin if omitted)") }
+            Trow { Tcell("--format, -f") Tcell("Output format: html, fragment, or pdf") }
+            Trow { Tcell("--output, -o") Tcell("Output file path (stdout if omitted)") }
+            Trow { Tcell("--theme") Tcell("Theme name (default: \"default\")") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Template Syntax", h2)
+        Text("Templates use standard .wf syntax. Data is passed as a JSON object — top-level keys become template variables.")
+
+        Spacer(sm)
+        Grid(columns: 2, gap: lg) {
+            Card(outlined) {
+                Card.Header { Badge("Template", primary) Text("invoice.wf", bold) }
+                Card.Body {
+                    Code("Page Invoice (path: \"/\", title: \"Invoice\") \{\n    Container \{\n        Heading(\"Invoice #\{number\}\", h1)\n        Text(\"Customer: \{customer.name\}\")\n\n        Table \{\n            Thead \{ Trow \{ Tcell(\"Item\") Tcell(\"Price\") \} \}\n            for item in items \{\n                Trow \{\n                    Tcell(item.name)\n                    Tcell(\"$\{item.price\}\")\n                \}\n            \}\n        \}\n\n        if paid \{\n            Badge(\"PAID\", success)\n        \} else \{\n            Badge(\"UNPAID\", danger)\n        \}\n    \}\n\}", block)
+                }
+            }
+
+            Card(outlined) {
+                Card.Header { Badge("Data", info) Text("data.json", bold) }
+                Card.Body {
+                    Code("\{\n  \"number\": \"INV-001\",\n  \"customer\": \{ \"name\": \"Acme Corp\" \},\n  \"items\": [\n    \{ \"name\": \"Widget\", \"price\": 9.99 \},\n    \{ \"name\": \"Gadget\", \"price\": 24.99 \}\n  ],\n  \"paid\": true\n\}", block)
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Rust API", h2)
+        Text("Add WebFluent as a library dependency to use templates in your Rust application.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Header { Text("Cargo.toml", bold, muted) }
+            Card.Body {
+                Code("[dependencies]\nwebfluent = \"0.2\"", block)
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Header { Text("main.rs", bold, muted) }
+            Card.Body {
+                Code("use webfluent::Template;\nuse serde_json::json;\n\nfn main() -> webfluent::Result<()> \{\n    let tpl = Template::from_file(\"templates/invoice.wf\")?;\n\n    // HTML document (with embedded CSS)\n    let html = tpl.render_html(&json!(\{\n        \"number\": \"INV-001\",\n        \"customer\": \{ \"name\": \"Acme Corp\" \},\n        \"items\": [\{ \"name\": \"Widget\", \"price\": 9.99 \}],\n        \"paid\": true\n    \}))?;\n\n    // HTML fragment (no wrapper)\n    let fragment = tpl.render_html_fragment(&data)?;\n\n    // PDF bytes\n    let pdf_bytes = tpl.render_pdf(&data)?;\n    std::fs::write(\"invoice.pdf\", pdf_bytes)?;\n\n    // With custom theme\n    let dark = Template::from_file(\"invoice.wf\")?\n        .with_theme(\"dark\")\n        .with_tokens(&[(\"color-primary\", \"#8B5CF6\")]);\n    let html = dark.render_html(&data)?;\n\n    Ok(())\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Node.js API", h2)
+        Text("Use WebFluent templates in Express, Next.js, or any Node.js application.")
+        Spacer(sm)
+
+        Card(outlined) {
+            Card.Header { Text("Install", bold, muted) }
+            Card.Body {
+                Code("npm install @aspect/webfluent", block)
+            }
+        }
+        Spacer(sm)
+
+        Card(outlined) {
+            Card.Header { Text("Basic Usage", bold, muted) }
+            Card.Body {
+                Code("const \{ Template \} = require('@aspect/webfluent');\n\nconst tpl = Template.fromFile('templates/invoice.wf');\n// or: Template.fromString('Container \{ Heading(\"Hello!\", h1) \}');\n\n// Render to HTML\nconst html = tpl.renderHtml(\{ name: \"World\" \});\n\n// Render to HTML fragment\nconst frag = tpl.renderHtmlFragment(\{ name: \"World\" \});\n\n// Render to PDF (returns Buffer)\nconst pdf = tpl.renderPdf(\{ name: \"World\" \});\nfs.writeFileSync('output.pdf', pdf);", block)
+            }
+        }
+        Spacer(sm)
+
+        Card(outlined) {
+            Card.Header { Text("Express.js Example", bold, muted) }
+            Card.Body {
+                Code("const express = require('express');\nconst \{ Template \} = require('@aspect/webfluent');\n\nconst app = express();\n\napp.get('/invoice/:id', async (req, res) => \{\n    const invoice = await db.getInvoice(req.params.id);\n    const tpl = Template.fromFile('templates/invoice.wf');\n    res.send(tpl.renderHtml(invoice));\n\});\n\napp.get('/invoice/:id/pdf', async (req, res) => \{\n    const invoice = await db.getInvoice(req.params.id);\n    const tpl = Template.fromFile('templates/invoice.wf');\n    res.type('application/pdf').send(tpl.renderPdf(invoice));\n\});", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Supported Features", h2)
+        Text("Templates support the static, data-driven subset of WebFluent.")
+        Spacer(sm)
+
+        Grid(columns: 2, gap: md) {
+            Card(elevated) {
+                Card.Header { Heading("Supported", h3) }
+                Card.Body {
+                    Stack(gap: sm) {
+                        Row(gap: sm) { Badge("Yes", success) Text("All layout components") }
+                        Row(gap: sm) { Badge("Yes", success) Text("Typography (Text, Heading, Code)") }
+                        Row(gap: sm) { Badge("Yes", success) Text("Data display (Card, Table, List, Badge)") }
+                        Row(gap: sm) { Badge("Yes", success) Text("for loops over data arrays") }
+                        Row(gap: sm) { Badge("Yes", success) Text("if/else conditionals") }
+                        Row(gap: sm) { Badge("Yes", success) Text("String interpolation \{var\}") }
+                        Row(gap: sm) { Badge("Yes", success) Text("Nested access (user.name)") }
+                        Row(gap: sm) { Badge("Yes", success) Text("Design tokens and themes") }
+                        Row(gap: sm) { Badge("Yes", success) Text("Style blocks") }
+                        Row(gap: sm) { Badge("Yes", success) Text("PDF components") }
+                    }
+                }
+            }
+
+            Card(elevated) {
+                Card.Header { Heading("Not Supported", h3) }
+                Card.Body {
+                    Stack(gap: sm) {
+                        Row(gap: sm) { Badge("No", danger) Text("state / derived / effect") }
+                        Row(gap: sm) { Badge("No", danger) Text("Events (on:click, on:submit)") }
+                        Row(gap: sm) { Badge("No", danger) Text("Navigation / Router") }
+                        Row(gap: sm) { Badge("No", danger) Text("Stores (shared state)") }
+                        Row(gap: sm) { Badge("No", danger) Text("fetch (data loading)") }
+                        Row(gap: sm) { Badge("No", danger) Text("Animations") }
+                        Row(gap: sm) { Badge("No", danger) Text("Toast (imperative)") }
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Use Cases", h2)
+        Spacer(sm)
+        Grid(columns: 3, gap: md) {
+            Card(elevated) {
+                Card.Body {
+                    Heading("Server-Rendered Pages", h3)
+                    Text("Generate HTML pages on the server with data from your database or API.", muted)
+                }
+            }
+            Card(elevated) {
+                Card.Body {
+                    Heading("PDF Reports", h3)
+                    Text("Create invoices, receipts, and reports as PDF files from structured data.", muted)
+                }
+            }
+            Card(elevated) {
+                Card.Body {
+                    Heading("Email Templates", h3)
+                    Text("Render HTML emails with WebFluent components and your design system.", muted)
+                }
+            }
+        }
+
+        Spacer(xl)
+    }
+}

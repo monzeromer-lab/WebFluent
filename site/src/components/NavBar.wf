@@ -13,6 +13,7 @@ Component NavBar () {
             Link(to: "/i18n") { Text(t("nav.i18n")) }
             Link(to: "/ssg") { Text(t("nav.ssg")) }
             Link(to: "/pdf") { Text(t("nav.pdf")) }
+            Link(to: "/template-engine") { Text(t("nav.template")) }
             Link(to: "/accessibility") { Text(t("nav.a11y")) }
             Link(to: "/cli") { Text(t("nav.cli")) }
         }

@@ -8,8 +8,12 @@
     "nav.i18n": "i18n",
     "nav.ssg": "SSG",
     "nav.pdf": "PDF",
+    "nav.template": "Template Engine",
     "nav.a11y": "Accessibility",
     "nav.cli": "CLI",
+
+    "tpl.title": "Template Engine",
+    "tpl.subtitle": "Use WebFluent as a server-side template engine from Rust and Node.js.",
 
     "hero.title": "The Web-First Language",
     "hero.sub1": "A programming language that compiles to HTML, CSS, and JavaScript.",

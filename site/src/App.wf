@@ -11,6 +11,7 @@ App {
         Route(path: "/i18n", page: I18n)
         Route(path: "/ssg", page: Ssg)
         Route(path: "/pdf", page: Pdf)
+        Route(path: "/template-engine", page: TemplateEngine)
         Route(path: "/accessibility", page: Accessibility)
         Route(path: "/cli", page: Cli)
         Route(path: "/404", page: NotFound)
