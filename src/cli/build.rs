@@ -75,8 +75,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             .unwrap_or_else(|| format!("{}.pdf", config.name));
         fs::write(output_dir.join(&filename), &pdf_bytes)?;
 
-        let page_count = program.declarations.iter()
-            .filter(|d| matches!(d, Declaration::Page(_))).count();
+        let page_count = pdf_codegen.page_count();
         println!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
         println!("  Output: {}/{}", config.build.output, filename);
         if a11y_warnings.is_empty() {

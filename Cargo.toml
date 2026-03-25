@@ -1,6 +1,6 @@
 [package]
 name = "webfluent"
-version = "0.2.0-alpha"
+version = "0.3.0-alpha"
 edition = "2024"
 description = "The Web-First Language — compiles to HTML, CSS, and JavaScript"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]

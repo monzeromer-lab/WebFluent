@@ -22,6 +22,15 @@ const HELVETICA_BOLD_WIDTHS: [u16; 95] = [
     611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584,
 ];
 
+const TIMES_WIDTHS: [u16; 95] = [
+    250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278,
+    500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444,
+    921, 722, 667, 667, 722, 611, 556, 722, 722, 333, 389, 722, 611, 889, 722, 722,
+    556, 722, 667, 556, 611, 722, 722, 944, 722, 722, 611, 333, 278, 333, 469, 500,
+    333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500, 278, 778, 500, 500,
+    500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
+];
+
 const COURIER_WIDTH: u16 = 600; // Monospace: all glyphs are 600 units
 
 fn char_width(ch: char, font: &str) -> u16 {
@@ -32,6 +41,13 @@ fn char_width(ch: char, font: &str) -> u16 {
     let idx = (code - 32) as usize;
     if font.contains("Courier") {
         COURIER_WIDTH
+    } else if font.contains("Times") {
+        if font.contains("Bold") {
+            // Times-Bold is close enough to Times-Roman widths for layout
+            TIMES_WIDTHS[idx]
+        } else {
+            TIMES_WIDTHS[idx]
+        }
     } else if font.contains("Bold") {
         HELVETICA_BOLD_WIDTHS[idx]
     } else {
@@ -42,6 +58,31 @@ fn char_width(ch: char, font: &str) -> u16 {
 fn text_width(text: &str, font: &str, font_size: f64) -> f64 {
     let units: u32 = text.chars().map(|c| char_width(c, font) as u32).sum();
     units as f64 * font_size / 1000.0
+}
+
+/// Truncate text to fit within max_width, appending "..." if truncated
+fn truncate_text(text: &str, font: &str, font_size: f64, max_width: f64) -> String {
+    let full_w = text_width(text, font, font_size);
+    if full_w <= max_width {
+        return text.to_string();
+    }
+    let ellipsis = "...";
+    let ellipsis_w = text_width(ellipsis, font, font_size);
+    let target = max_width - ellipsis_w;
+    if target <= 0.0 {
+        return ellipsis.to_string();
+    }
+    let mut w = 0.0;
+    let mut end = 0;
+    for (i, ch) in text.char_indices() {
+        let cw = char_width(ch, font) as f64 * font_size / 1000.0;
+        if w + cw > target {
+            break;
+        }
+        w += cw;
+        end = i + ch.len_utf8();
+    }
+    format!("{}...", &text[..end])
 }
 
 // ─── Page Size Constants (in points, 72 pts = 1 inch) ───────────────
@@ -169,6 +210,8 @@ pub struct PdfCodegen {
     image_objects: Vec<(usize, f64, f64)>, // (obj_id, width, height)
     // Guard against recursion in header/footer rendering
     in_header_footer: bool,
+    // Track if the current page has any visible content
+    page_has_content: bool,
 }
 
 impl PdfCodegen {
@@ -196,6 +239,7 @@ impl PdfCodegen {
             footer_stmts: Vec::new(),
             image_objects: Vec::new(),
             in_header_footer: false,
+            page_has_content: false,
         };
 
         // Register default fonts
@@ -234,6 +278,11 @@ impl PdfCodegen {
         self.page_width - self.margin_left - self.margin_right
     }
 
+    /// Available vertical space on the current page
+    fn available_height(&self) -> f64 {
+        self.cursor_y - self.margin_bottom
+    }
+
     fn check_page_break(&mut self, needed: f64) {
         if self.cursor_y - needed < self.margin_bottom && !self.in_header_footer {
             self.finalize_page();
@@ -244,6 +293,7 @@ impl PdfCodegen {
     fn start_new_page(&mut self) {
         self.cursor_y = self.page_height - self.margin_top;
         self.current_stream = ContentStream::new();
+        self.page_has_content = false;
 
         // Emit header on new page
         if !self.header_stmts.is_empty() && !self.in_header_footer {
@@ -273,17 +323,14 @@ impl PdfCodegen {
             self.in_header_footer = false;
         }
 
+        // Only create a page if there's actual content
         let stream_data = std::mem::replace(&mut self.current_stream, ContentStream::new());
+        if stream_data.bytes().is_empty() && !self.page_has_content {
+            return; // Skip empty pages
+        }
+
         let content_id = self.add_stream_object(stream_data.bytes());
 
-        // Build font resource references
-        let font_refs: Vec<String> = self.fonts.iter().map(|(tag, _)| {
-            // Font object IDs will be assigned during serialize
-            format!("/{} << >>", tag) // placeholder
-        }).collect();
-        let _ = font_refs; // We'll build resources properly in serialize
-
-        let _page_id = self.objects.len() + 1;
         let page_data = format!(
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {} {}] /Contents {} 0 R >>",
             fmt_f64(self.page_width), fmt_f64(self.page_height), content_id
@@ -309,6 +356,14 @@ impl PdfCodegen {
         data.extend_from_slice(stream_data);
         data.extend_from_slice(b"\nendstream");
         self.add_object(&data)
+    }
+
+    fn mark_content(&mut self) {
+        self.page_has_content = true;
+    }
+
+    pub fn page_count(&self) -> usize {
+        self.pages.len()
     }
 
     // ─── Main Entry Point ───────────────────────────────────
@@ -351,7 +406,6 @@ impl PdfCodegen {
                 // For loops in PDF: evaluate the list if it's a literal
                 if let Expr::ListLiteral(items) = &for_stmt.iterable {
                     for _item in items {
-                        // Simple: treat each item as text
                         for s in &for_stmt.body {
                             self.emit_statement(s);
                         }
@@ -452,7 +506,6 @@ impl PdfCodegen {
     }
 
     fn emit_section(&mut self, ui: &UIElement) {
-        // Add some spacing before sections
         self.cursor_y -= 8.0;
         for child in &ui.children {
             self.emit_statement(child);
@@ -474,7 +527,6 @@ impl PdfCodegen {
     }
 
     fn emit_paragraph(&mut self, ui: &UIElement) {
-        // Parse style overrides
         let (font, size, color, align) = self.extract_text_style(ui);
 
         for child in &ui.children {
@@ -592,66 +644,166 @@ impl PdfCodegen {
         }
 
         let num_cols = rows.iter().map(|r| r.len()).max().unwrap_or(1);
-        let col_width = self.content_width() / num_cols as f64;
-        let row_height = self.current_font_size * 2.0;
-        let total_height = row_height * rows.len() as f64;
+        let content_w = self.content_width();
+        let col_width = content_w / num_cols as f64;
+        let cell_padding = 4.0;
+        let cell_text_width = col_width - cell_padding * 2.0; // available text width per cell
+        let font_size = self.current_font_size;
+        let line_height = font_size * 1.5;
 
-        self.check_page_break(total_height.min(row_height * 3.0));
+        // Calculate row heights based on wrapped text
+        let mut row_heights: Vec<f64> = Vec::new();
+        for row in &rows {
+            let mut max_lines = 1usize;
+            for cell_text in row {
+                let lines = self.count_wrapped_lines(cell_text, &self.default_font.clone(), font_size, cell_text_width);
+                if lines > max_lines {
+                    max_lines = lines;
+                }
+            }
+            let row_h = (max_lines as f64 * line_height) + cell_padding * 2.0;
+            row_heights.push(row_h.max(font_size * 2.0)); // minimum height
+        }
+
+        // Check if first few rows fit
+        let initial_height: f64 = row_heights.iter().take(2).sum();
+        self.check_page_break(initial_height);
 
         let table_x = self.margin_left;
-        let table_y = self.cursor_y;
+        self.mark_content();
 
-        // Draw table grid and content
         self.current_stream.set_line_width(0.5);
-        self.current_stream.set_stroke_color(0.6, 0.6, 0.6);
 
         for (row_idx, row) in rows.iter().enumerate() {
-            let y = table_y - (row_idx as f64 * row_height);
+            let row_height = row_heights[row_idx];
 
-            if y - row_height < self.margin_bottom {
-                // Need page break mid-table
+            // Page break check for this row
+            if self.cursor_y - row_height < self.margin_bottom && !self.in_header_footer {
                 self.finalize_page();
                 self.start_new_page();
-                // Continue from top
-                // (simplified: just continue at current cursor_y)
             }
 
-            let cell_y = y - row_height;
+            let row_top = self.cursor_y;
+            let cell_y = row_top - row_height;
 
             // Background for header rows
             if is_header[row_idx] {
                 self.current_stream.set_color(0.93, 0.93, 0.93);
-                self.current_stream.rect(table_x, cell_y, self.content_width(), row_height);
+                self.current_stream.rect(table_x, cell_y, content_w, row_height);
                 self.current_stream.fill();
             }
 
             // Row border
-            self.current_stream.set_stroke_color(0.6, 0.6, 0.6);
-            self.current_stream.rect(table_x, cell_y, self.content_width(), row_height);
+            self.current_stream.set_stroke_color(0.75, 0.75, 0.75);
+            self.current_stream.rect(table_x, cell_y, content_w, row_height);
             self.current_stream.stroke();
 
             // Cell content
-            let font_name = if is_header[row_idx] { "Helvetica-Bold" } else { &self.default_font };
-            let font_tag = self.font_tag(font_name);
+            let font_name = if is_header[row_idx] { "Helvetica-Bold".to_string() } else { self.default_font.clone() };
+            let font_tag = self.font_tag(&font_name);
 
             for (col_idx, cell_text) in row.iter().enumerate() {
                 let cell_x = table_x + col_idx as f64 * col_width;
 
                 // Vertical cell border
                 if col_idx > 0 {
-                    self.current_stream.line(cell_x, y, cell_x, cell_y);
+                    self.current_stream.set_stroke_color(0.75, 0.75, 0.75);
+                    self.current_stream.line(cell_x, row_top, cell_x, cell_y);
                 }
 
-                // Text in cell
-                let text_x = cell_x + 4.0;
-                let text_y = cell_y + (row_height - self.current_font_size) / 2.0;
-
+                // Render wrapped text within the cell
                 self.current_stream.set_color(0.0, 0.0, 0.0);
-                self.current_stream.text_at(text_x, text_y, &font_tag, self.current_font_size, cell_text);
+                self.render_cell_text(
+                    cell_text,
+                    &font_name,
+                    &font_tag,
+                    font_size,
+                    cell_x + cell_padding,
+                    row_top - cell_padding - font_size,
+                    cell_text_width,
+                    line_height,
+                );
             }
+
+            self.cursor_y = cell_y;
         }
 
-        self.cursor_y = table_y - (rows.len() as f64 * row_height) - 8.0;
+        self.cursor_y -= 8.0;
+    }
+
+    /// Count how many wrapped lines a text needs at given width
+    fn count_wrapped_lines(&self, text: &str, font: &str, size: f64, max_width: f64) -> usize {
+        if max_width <= 0.0 || text.is_empty() {
+            return 1;
+        }
+        let space_w = text_width(" ", font, size);
+        let mut line_count = 0usize;
+
+        for line_text in text.split('\n') {
+            line_count += 1;
+            let words: Vec<&str> = line_text.split_whitespace().collect();
+            if words.is_empty() {
+                continue;
+            }
+            let mut current_w = 0.0;
+            for (i, word) in words.iter().enumerate() {
+                let word_w = text_width(word, font, size);
+                let needed = if i > 0 { space_w + word_w } else { word_w };
+                if current_w > 0.0 && current_w + needed > max_width {
+                    line_count += 1;
+                    current_w = word_w;
+                } else {
+                    current_w += needed;
+                }
+            }
+        }
+        line_count.max(1)
+    }
+
+    /// Render text within a table cell with word wrapping
+    fn render_cell_text(&mut self, text: &str, font: &str, font_tag: &str, size: f64,
+                        x: f64, mut y: f64, max_width: f64, line_height: f64) {
+        let space_w = text_width(" ", font, size);
+
+        for line_text in text.split('\n') {
+            let words: Vec<&str> = line_text.split_whitespace().collect();
+            if words.is_empty() {
+                y -= line_height;
+                continue;
+            }
+
+            let mut current_line = String::new();
+            let mut current_w = 0.0;
+
+            for word in &words {
+                let word_w = text_width(word, font, size);
+
+                if !current_line.is_empty() && current_w + space_w + word_w > max_width {
+                    // Flush line
+                    self.current_stream.text_at(x, y, font_tag, size, &current_line);
+                    y -= line_height;
+                    current_line = word.to_string();
+                    current_w = word_w;
+                } else {
+                    if !current_line.is_empty() {
+                        current_line.push(' ');
+                        current_w += space_w;
+                    }
+                    current_line.push_str(word);
+                    current_w += word_w;
+                }
+            }
+            if !current_line.is_empty() {
+                // If still too wide (single very long word), truncate
+                if current_w > max_width {
+                    let truncated = truncate_text(&current_line, font, size, max_width);
+                    self.current_stream.text_at(x, y, font_tag, size, &truncated);
+                } else {
+                    self.current_stream.text_at(x, y, font_tag, size, &current_line);
+                }
+                y -= line_height;
+            }
+        }
     }
 
     fn emit_table_row(&mut self, _ui: &UIElement) {
@@ -685,6 +837,7 @@ impl PdfCodegen {
 
                 self.current_stream.set_color(0.0, 0.0, 0.0);
                 self.current_stream.text_at(bullet_x, self.cursor_y, &font_tag, self.current_font_size, &bullet);
+                self.mark_content();
 
                 // Render text with indent
                 let saved_left = self.margin_left;
@@ -707,46 +860,40 @@ impl PdfCodegen {
         let is_block = ui.modifiers.iter().any(|m| m == "block");
 
         if is_block {
+            let code_font_size = 10.0;
+            let code_line_height = code_font_size * 1.4;
+            let padding_v = 12.0;
+            let padding_h = 8.0;
             let lines: Vec<&str> = text.split('\n').collect();
-            let line_height = 12.0 * 1.4;
-            let block_height = lines.len() as f64 * line_height + 16.0;
+            let avail_height = self.available_height();
 
-            self.check_page_break(block_height);
+            // Calculate total block height
+            let total_block_height = lines.len() as f64 * code_line_height + padding_v * 2.0;
 
-            // Background rectangle
-            self.current_stream.set_color(0.95, 0.95, 0.95);
-            self.current_stream.rect(
-                self.margin_left,
-                self.cursor_y - block_height,
-                self.content_width(),
-                block_height,
-            );
-            self.current_stream.fill();
+            // If the entire block fits, render it as one
+            if total_block_height <= avail_height {
+                self.render_code_block(&lines, code_font_size, code_line_height, padding_v, padding_h, total_block_height);
+            } else {
+                // Split across pages: render as many lines as fit per page
+                let mut remaining_lines = &lines[..];
+                while !remaining_lines.is_empty() {
+                    let avail = self.available_height();
+                    let max_lines_on_page = ((avail - padding_v * 2.0) / code_line_height).floor() as usize;
+                    let max_lines_on_page = max_lines_on_page.max(1); // at least 1 line
 
-            // Border
-            self.current_stream.set_stroke_color(0.85, 0.85, 0.85);
-            self.current_stream.set_line_width(0.5);
-            self.current_stream.rect(
-                self.margin_left,
-                self.cursor_y - block_height,
-                self.content_width(),
-                block_height,
-            );
-            self.current_stream.stroke();
+                    let take = remaining_lines.len().min(max_lines_on_page);
+                    let chunk = &remaining_lines[..take];
+                    remaining_lines = &remaining_lines[take..];
 
-            // Code text
-            let font_tag = self.font_tag("Courier");
-            self.current_stream.set_color(0.2, 0.2, 0.2);
-            let mut y = self.cursor_y - 12.0;
-            for line in &lines {
-                self.current_stream.text_at(
-                    self.margin_left + 8.0, y,
-                    &font_tag, 10.0, line,
-                );
-                y -= line_height;
+                    let chunk_height = chunk.len() as f64 * code_line_height + padding_v * 2.0;
+                    self.render_code_block(chunk, code_font_size, code_line_height, padding_v, padding_h, chunk_height);
+
+                    if !remaining_lines.is_empty() {
+                        self.finalize_page();
+                        self.start_new_page();
+                    }
+                }
             }
-
-            self.cursor_y -= block_height + 8.0;
         } else {
             // Inline code: just render in courier
             let font_tag = self.font_tag("Courier");
@@ -758,7 +905,51 @@ impl PdfCodegen {
                 &font_tag, self.current_font_size, &text,
             );
             self.cursor_y -= line_height;
+            self.mark_content();
         }
+    }
+
+    /// Render a code block (background + lines) at the current cursor position
+    fn render_code_block(&mut self, lines: &[&str], font_size: f64, line_height: f64, padding_v: f64, padding_h: f64, block_height: f64) {
+        let font_tag = self.font_tag("Courier");
+        let max_text_width = self.content_width() - padding_h * 2.0;
+
+        // Background rectangle
+        self.current_stream.set_color(0.95, 0.95, 0.95);
+        self.current_stream.rect(
+            self.margin_left,
+            self.cursor_y - block_height,
+            self.content_width(),
+            block_height,
+        );
+        self.current_stream.fill();
+
+        // Border
+        self.current_stream.set_stroke_color(0.85, 0.85, 0.85);
+        self.current_stream.set_line_width(0.5);
+        self.current_stream.rect(
+            self.margin_left,
+            self.cursor_y - block_height,
+            self.content_width(),
+            block_height,
+        );
+        self.current_stream.stroke();
+
+        // Code text
+        self.current_stream.set_color(0.2, 0.2, 0.2);
+        let mut y = self.cursor_y - padding_v - font_size;
+        for line in lines {
+            // Truncate long lines instead of overflowing
+            let display_line = truncate_text(line, "Courier", font_size, max_text_width);
+            self.current_stream.text_at(
+                self.margin_left + padding_h, y,
+                &font_tag, font_size, &display_line,
+            );
+            y -= line_height;
+        }
+
+        self.cursor_y -= block_height + 8.0;
+        self.mark_content();
     }
 
     // ─── Blockquote ─────────────────────────────────────────
@@ -787,40 +978,33 @@ impl PdfCodegen {
         let size = self.current_font_size;
         let line_height = size * 1.6;
 
-        // Estimate block height for the left bar
-        let words: Vec<&str> = full_text.split_whitespace().collect();
+        // Count actual wrapped lines for accurate height
         let avail = self.content_width() - indent;
-        let mut line_count = 1usize;
-        let mut line_w = 0.0;
-        for word in &words {
-            let ww = text_width(word, font_name, size) + text_width(" ", font_name, size);
-            if line_w + ww > avail && line_w > 0.0 {
-                line_count += 1;
-                line_w = ww;
-            } else {
-                line_w += ww;
-            }
-        }
+        let line_count = self.count_wrapped_lines(&full_text, font_name, size, avail);
         let block_height = line_count as f64 * line_height + 8.0;
 
-        self.check_page_break(block_height);
+        self.check_page_break(block_height.min(line_height * 3.0));
 
-        // Left bar
-        self.current_stream.set_color(0.7, 0.7, 0.7);
-        self.current_stream.rect(
-            self.margin_left + 4.0,
-            self.cursor_y - block_height,
-            bar_width,
-            block_height,
-        );
-        self.current_stream.fill();
+        // Record start position for left bar
+        let bar_start_y = self.cursor_y;
 
         // Text
         let saved_left = self.margin_left;
         self.margin_left += indent;
-        self.current_stream.set_color(0.3, 0.3, 0.3);
         self.render_wrapped_text(&full_text, font_name, size, (0.3, 0.3, 0.3), "");
         self.margin_left = saved_left;
+
+        let bar_end_y = self.cursor_y;
+
+        // Left bar (draw after text so we know the exact height)
+        self.current_stream.set_color(0.7, 0.7, 0.7);
+        self.current_stream.rect(
+            self.margin_left + 4.0,
+            bar_end_y,
+            bar_width,
+            bar_start_y - bar_end_y,
+        );
+        self.current_stream.fill();
 
         self.cursor_y -= 4.0;
     }
@@ -867,7 +1051,7 @@ impl PdfCodegen {
 
         self.check_page_break(height + 8.0);
 
-        // Draw placeholder rectangle (since we can't easily embed images without file I/O at this stage)
+        // Draw placeholder rectangle
         self.current_stream.set_color(0.93, 0.93, 0.93);
         self.current_stream.rect(self.margin_left, self.cursor_y - height, width, height);
         self.current_stream.fill();
@@ -889,6 +1073,7 @@ impl PdfCodegen {
         );
 
         self.cursor_y -= height + 8.0;
+        self.mark_content();
     }
 
     // ─── Divider ────────────────────────────────────────────
@@ -905,12 +1090,12 @@ impl PdfCodegen {
             self.cursor_y,
         );
         self.cursor_y -= 8.0;
+        self.mark_content();
     }
 
     // ─── Card ───────────────────────────────────────────────
 
     fn emit_card(&mut self, ui: &UIElement) {
-        // Estimate card content height (rough)
         let card_padding = 12.0;
         let saved_left = self.margin_left;
         let saved_right = self.margin_right;
@@ -918,30 +1103,36 @@ impl PdfCodegen {
         self.margin_left += card_padding;
         self.margin_right += card_padding;
 
-        // Light border
+        // Record start Y
         let start_y = self.cursor_y;
+        let start_page_count = self.pages.len();
+
+        self.cursor_y -= card_padding; // top padding
 
         for child in &ui.children {
             self.emit_statement(child);
         }
 
-        let end_y = self.cursor_y;
-        let card_height = start_y - end_y + card_padding * 2.0;
+        self.cursor_y -= card_padding; // bottom padding
 
-        // Draw card border retroactively (simplified: draw at current position)
-        self.current_stream.set_stroke_color(0.85, 0.85, 0.85);
-        self.current_stream.set_line_width(1.0);
-        self.current_stream.rect(
-            saved_left,
-            end_y - card_padding,
-            self.page_width - saved_left - saved_right,
-            card_height,
-        );
-        self.current_stream.stroke();
+        let end_y = self.cursor_y;
 
         self.margin_left = saved_left;
         self.margin_right = saved_right;
-        self.cursor_y -= card_padding;
+
+        // Only draw card border if content stayed on same page
+        if self.pages.len() == start_page_count {
+            let card_height = start_y - end_y;
+            self.current_stream.set_stroke_color(0.85, 0.85, 0.85);
+            self.current_stream.set_line_width(1.0);
+            self.current_stream.rect(
+                saved_left,
+                end_y,
+                self.page_width - saved_left - saved_right,
+                card_height,
+            );
+            self.current_stream.stroke();
+        }
     }
 
     // ─── Badge / Tag ────────────────────────────────────────
@@ -980,6 +1171,7 @@ impl PdfCodegen {
         );
 
         self.cursor_y -= badge_h + 4.0;
+        self.mark_content();
     }
 
     // ─── Alert ──────────────────────────────────────────────
@@ -991,11 +1183,18 @@ impl PdfCodegen {
         }
 
         let color = self.modifier_color(&ui.modifiers);
-        let line_height = self.current_font_size * 1.5;
         let padding = 12.0;
-        let box_height = line_height + padding * 2.0;
+        let font_name = self.default_font.clone();
+        let font_size = self.current_font_size;
+        let line_height = font_size * 1.5;
+        let text_width_avail = self.content_width() - padding * 2.0 - 4.0; // minus left bar and padding
 
-        self.check_page_break(box_height);
+        // Calculate actual height based on wrapped text
+        let line_count = self.count_wrapped_lines(&text, &font_name, font_size, text_width_avail);
+        let text_height = line_count as f64 * line_height;
+        let box_height = text_height + padding * 2.0;
+
+        self.check_page_break(box_height.min(line_height * 3.0 + padding * 2.0));
 
         // Background
         self.current_stream.set_color(
@@ -1017,16 +1216,46 @@ impl PdfCodegen {
         );
         self.current_stream.fill();
 
-        // Text
-        let font_tag = self.font_tag(&self.default_font.clone());
+        // Render wrapped text inside alert
+        let font_tag = self.font_tag(&font_name);
         self.current_stream.set_color(0.15, 0.15, 0.15);
-        self.current_stream.text_at(
-            self.margin_left + padding + 4.0,
-            self.cursor_y - padding - self.current_font_size,
-            &font_tag, self.current_font_size, &text,
-        );
+
+        let text_x = self.margin_left + padding + 4.0;
+        let mut text_y = self.cursor_y - padding - font_size;
+        let space_w = text_width(" ", &font_name, font_size);
+
+        for raw_line in text.split('\n') {
+            let words: Vec<&str> = raw_line.split_whitespace().collect();
+            if words.is_empty() {
+                text_y -= line_height;
+                continue;
+            }
+            let mut current_line = String::new();
+            let mut current_w = 0.0;
+            for word in &words {
+                let ww = text_width(word, &font_name, font_size);
+                if !current_line.is_empty() && current_w + space_w + ww > text_width_avail {
+                    self.current_stream.text_at(text_x, text_y, &font_tag, font_size, &current_line);
+                    text_y -= line_height;
+                    current_line = word.to_string();
+                    current_w = ww;
+                } else {
+                    if !current_line.is_empty() {
+                        current_line.push(' ');
+                        current_w += space_w;
+                    }
+                    current_line.push_str(word);
+                    current_w += ww;
+                }
+            }
+            if !current_line.is_empty() {
+                self.current_stream.text_at(text_x, text_y, &font_tag, font_size, &current_line);
+                text_y -= line_height;
+            }
+        }
 
         self.cursor_y -= box_height + 8.0;
+        self.mark_content();
     }
 
     // ─── Progress Bar ───────────────────────────────────────
@@ -1064,6 +1293,7 @@ impl PdfCodegen {
         self.current_stream.fill();
 
         self.cursor_y -= bar_height + 8.0;
+        self.mark_content();
     }
 
     // ─── Text Rendering (with word wrap) ────────────────────
@@ -1096,6 +1326,7 @@ impl PdfCodegen {
                     self.current_stream.set_color(color.0, color.1, color.2);
                     self.current_stream.text_at(x, self.cursor_y, &font_tag, size, &current_line);
                     self.cursor_y -= line_height;
+                    self.mark_content();
                     current_line = word.to_string();
                     current_width = word_w;
                 } else {
@@ -1114,6 +1345,7 @@ impl PdfCodegen {
                 self.current_stream.set_color(color.0, color.1, color.2);
                 self.current_stream.text_at(x, self.cursor_y, &font_tag, size, &current_line);
                 self.cursor_y -= line_height;
+                self.mark_content();
             }
         }
     }
@@ -1258,28 +1490,9 @@ impl PdfCodegen {
         // Binary comment (recommended by spec to mark as binary)
         out.extend_from_slice(b"%\xE2\xE3\xCF\xD3\n");
 
-        // We need to build objects in a specific order:
-        // 1: Catalog
-        // 2: Pages
-        // 3+: Font objects
-        // Then: content streams and page objects (already in self.objects)
-        // Then: Resources
-
-        // Assign final IDs:
-        // obj 1 = Catalog
-        // obj 2 = Pages
-        // obj 3..3+N = Font objects
-        // obj 3+N+1 = Resources
-        // obj 3+N+2.. = existing objects (content streams, pages)
-
         let font_start = 3;
         let num_fonts = self.fonts.len();
         let resources_id = font_start + num_fonts;
-        let _obj_offset = resources_id;
-
-        // Remap page IDs and content IDs
-        // self.objects contains interleaved content streams and page objects
-        // self.pages contains the original IDs of page objects
 
         // Rebuild everything from scratch for clean serialization
         let mut final_objects: Vec<(usize, Vec<u8>)> = Vec::new(); // (id, data)
@@ -1311,7 +1524,6 @@ impl PdfCodegen {
         let mut next_id = resources_id + 1;
 
         // self.objects are: [content_stream, page, content_stream, page, ...]
-        // Each page references a content stream
         let mut i = 0;
         while i < self.objects.len() {
             if i + 1 < self.objects.len() {
