@@ -207,6 +207,7 @@ impl fmt::Display for TokenType {
             TokenType::Identifier(s) => write!(f, "{}", s),
             TokenType::Event(s) => write!(f, "on:{}", s),
             TokenType::EOF => write!(f, "EOF"),
+            TokenType::TypeList => write!(f, "List"),
             other => write!(f, "{:?}", other),
         }
     }
