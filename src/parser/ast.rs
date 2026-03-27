@@ -160,12 +160,19 @@ pub enum Arg {
 #[derive(Debug, Clone)]
 pub struct StyleBlock {
     pub properties: Vec<StyleProperty>,
+    pub media_queries: Vec<MediaQuery>,
 }
 
 #[derive(Debug, Clone)]
 pub struct StyleProperty {
     pub name: String,
     pub value: Expr,
+}
+
+#[derive(Debug, Clone)]
+pub struct MediaQuery {
+    pub condition: String,
+    pub properties: Vec<StyleProperty>,
 }
 
 #[derive(Debug, Clone)]

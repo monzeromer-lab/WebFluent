@@ -451,96 +451,20 @@ impl JsCodegen {
         self.emit_line("(function() {");
         self.indent += 1;
         self.emit_line("const _app = document.getElementById('app');");
-        // In SSG mode, clear pre-rendered content before mounting the full app
         self.emit_line("_app.innerHTML = '';");
 
-        // Find Router in body (may be nested inside a layout wrapper like Row)
-        let router_stmts = Self::find_router_routes(&app.body);
-        let has_router = !router_stmts.is_empty();
+        // Find Route declarations (may be nested at any depth)
+        let router_routes = Self::find_router_routes(&app.body);
+        let has_router = !router_routes.is_empty();
 
-        // Find the layout wrapper containing the Router (if any)
-        let router_wrapper = Self::find_router_wrapper(&app.body);
-
-        // Separate top-level statements into pre-router, the wrapper/router, and post-router
-        let mut pre_router: Vec<&Statement> = Vec::new();
-        let mut post_router: Vec<&Statement> = Vec::new();
-        let mut found_router = false;
-
-        for stmt in &app.body {
-            if !found_router && Self::stmt_contains_router(stmt) {
-                found_router = true;
-                continue;
-            }
-            if found_router {
-                post_router.push(stmt);
-            } else {
-                pre_router.push(stmt);
-            }
-        }
-
-        // Emit pre-router elements (like Navbar)
-        for stmt in &pre_router {
-            self.emit_statement_dom(stmt, "_app");
-        }
+        // Recursively emit the app tree, replacing the Router with the route setup
+        self.emit_app_tree(&app.body, "_app", has_router);
 
         if has_router {
-            // If Router is inside a layout wrapper (e.g., Row), create the wrapper
-            // and emit siblings (like DocSidebar) into it
-            if let Some(wrapper_ui) = &router_wrapper {
-                let wrapper_var = self.fresh_var();
-                let comp_name = Self::component_name(&wrapper_ui.component);
-                let (tag, class) = builtin_to_html(&comp_name);
-                let mut classes: Vec<String> = vec![class.to_string()];
-                // Apply layout modifiers
-                for m in &wrapper_ui.modifiers {
-                    match m.as_str() {
-                        "center" => classes.push("wf-row--center".to_string()),
-                        "between" => classes.push("wf-row--between".to_string()),
-                        _ => {}
-                    }
-                }
-                // Apply gap from args
-                let mut attrs_parts = Vec::new();
-                for arg in &wrapper_ui.args {
-                    if let Arg::Named(k, v) = arg {
-                        if k == "gap" {
-                            if let Expr::Identifier(g) = v {
-                                classes.push(format!("wf-gap--{}", g));
-                            }
-                        }
-                    }
-                }
-                attrs_parts.push(format!("className: \"{}\"", classes.join(" ")));
-                self.emit_line(&format!(
-                    "const {} = WF.h(\"{}\", {{ {} }});",
-                    wrapper_var, tag, attrs_parts.join(", ")
-                ));
-
-                // Emit non-router siblings (like DocSidebar)
-                for child in &wrapper_ui.children {
-                    if !Self::stmt_contains_router(child) {
-                        self.emit_statement_dom(child, &wrapper_var);
-                    }
-                }
-
-                // Create router container inside the wrapper
-                self.emit_line("const _routerEl = document.createElement('div');");
-                self.emit_line("_routerEl.id = 'wf-router';");
-                self.emit_line("_routerEl.style.flex = '1';");
-                self.emit_line(&format!("{}.appendChild(_routerEl);", wrapper_var));
-                self.emit_line(&format!("_app.appendChild({});", wrapper_var));
-            } else {
-                // Router is directly in App body
-                self.emit_line("const _routerEl = document.createElement('div');");
-                self.emit_line("_routerEl.id = 'wf-router';");
-                self.emit_line("_routerEl.style.flex = '1';");
-                self.emit_line("_app.appendChild(_routerEl);");
-            }
-
-            // Collect routes
+            // Emit route definitions
             self.emit_line("const _routes = [");
             self.indent += 1;
-            for route in &router_stmts {
+            for route in &router_routes {
                 let mut path = String::new();
                 let mut page_name = String::new();
                 for arg in &route.args {
@@ -565,13 +489,68 @@ impl JsCodegen {
             self.emit_line("WF.createRouter(_routes, _routerEl);");
         }
 
-        // Emit post-router elements (like Footer)
-        for stmt in &post_router {
-            self.emit_statement_dom(stmt, "_app");
-        }
-
         self.indent -= 1;
         self.emit_line("})();");
+    }
+
+    /// Recursively emit App body statements, replacing Router with a router element
+    fn emit_app_tree(&mut self, stmts: &[Statement], parent: &str, has_router: bool) {
+        for stmt in stmts {
+            if let Statement::UIElement(ui) = stmt {
+                let name = match &ui.component {
+                    ComponentRef::BuiltIn(n) => n.as_str(),
+                    _ => "",
+                };
+
+                if name == "Router" {
+                    // Replace Router with the router container element
+                    self.emit_line("const _routerEl = document.createElement('div');");
+                    self.emit_line("_routerEl.id = 'wf-router';");
+                    self.emit_line("_routerEl.style.flex = '1';");
+                    self.emit_line(&format!("{}.appendChild(_routerEl);", parent));
+                    continue;
+                }
+
+                if Self::stmt_contains_router(stmt) {
+                    // This element wraps the Router — emit it as a container and recurse
+                    let var = self.fresh_var();
+                    let comp_name = Self::component_name_str(&ui.component);
+                    let (tag, class) = builtin_to_html(&comp_name);
+                    let mut classes: Vec<String> = vec![class.to_string()];
+                    for m in &ui.modifiers {
+                        classes.push(format!("{}--{}", class, m));
+                    }
+                    for arg in &ui.args {
+                        if let Arg::Named(k, v) = arg {
+                            if k == "gap" {
+                                if let Expr::Identifier(g) = v {
+                                    classes.push(format!("wf-gap--{}", g));
+                                }
+                            }
+                        }
+                    }
+                    self.emit_line(&format!(
+                        "const {} = WF.h(\"{}\", {{ className: \"{}\" }});",
+                        var, tag, classes.join(" ")
+                    ));
+                    // Apply style block if present
+                    if let Some(style) = &ui.style_block {
+                        for prop in &style.properties {
+                            let val = self.emit_expr(&prop.value);
+                            let css_prop = to_camel_case(&prop.name);
+                            self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
+                        }
+                    }
+                    self.emit_line(&format!("{}.appendChild({});", parent, var));
+                    // Recurse into children
+                    self.emit_app_tree(&ui.children, &var, has_router);
+                    continue;
+                }
+            }
+
+            // Non-router statement — emit normally
+            self.emit_statement_dom(stmt, parent);
+        }
     }
 
     /// Check if a statement is or contains a Router
@@ -580,7 +559,6 @@ impl JsCodegen {
             if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
                 return true;
             }
-            // Check children recursively
             for child in &ui.children {
                 if Self::stmt_contains_router(child) {
                     return true;
@@ -613,25 +591,7 @@ impl JsCodegen {
         Vec::new()
     }
 
-    /// Find the layout wrapper that directly contains a Router (e.g., Row { Sidebar Router })
-    fn find_router_wrapper<'a>(body: &'a [Statement]) -> Option<&'a UIElement> {
-        for stmt in body {
-            if let Statement::UIElement(ui) = stmt {
-                if !matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
-                    for child in &ui.children {
-                        if let Statement::UIElement(child_ui) = child {
-                            if matches!(&child_ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
-                                return Some(ui);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        None
-    }
-
-    fn component_name(comp: &ComponentRef) -> String {
+    fn component_name_str(comp: &ComponentRef) -> String {
         match comp {
             ComponentRef::BuiltIn(n) => n.clone(),
             ComponentRef::UserDefined(n) => n.clone(),
@@ -1017,6 +977,26 @@ impl JsCodegen {
                         let val = self.emit_expr(&prop.value);
                         let css_prop = to_camel_case(&prop.name);
                         self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
+                    }
+                    // Emit @media queries as a scoped <style> element
+                    if !style.media_queries.is_empty() {
+                        let scope_var = self.fresh_var();
+                        let scope_class = scope_var.replace("_e", "wf-s");
+                        self.emit_line(&format!("{}.classList.add(\"{}\");", var, scope_class));
+                        let mut css = String::new();
+                        for mq in &style.media_queries {
+                            css.push_str(&format!("{} {{ .{} {{ ", mq.condition, scope_class));
+                            for prop in &mq.properties {
+                                let val = self.emit_expr(&prop.value);
+                                let val_str = val.trim_matches('"');
+                                css.push_str(&format!("{}: {}; ", prop.name, val_str));
+                            }
+                            css.push_str("} } ");
+                        }
+                        self.emit_line(&format!(
+                            "{{ const _s = document.createElement('style'); _s.textContent = {}; document.head.appendChild(_s); }}",
+                            format!("\"{}\"", css.replace('"', "\\\""))
+                        ));
                     }
                 }
 

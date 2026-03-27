@@ -146,6 +146,9 @@ impl Lexer {
                 '.' => self.single_token(TokenType::Dot),
                 '?' => self.single_token(TokenType::QuestionMark),
 
+                // @ directives — used in style blocks for @media, @keyframes, etc.
+                '@' => self.read_at_rule(),
+
                 _ => {
                     return Err(WebFluentError::LexerError(
                         Diagnostic::new(format!("Unexpected character '{}'", ch), &self.file, self.line, self.column)
@@ -218,6 +221,22 @@ impl Lexer {
         let t = Token::new(token_type, self.line, self.column);
         self.advance();
         t
+    }
+
+    fn read_at_rule(&mut self) -> Token {
+        let start_col = self.column;
+        self.advance(); // skip @
+        let mut name = String::from("@");
+        while self.pos < self.source.len() {
+            let c = self.source[self.pos];
+            if c.is_alphanumeric() || c == '_' || c == '-' {
+                name.push(c);
+                self.advance();
+            } else {
+                break;
+            }
+        }
+        Token::new(TokenType::Identifier(name), self.line, start_col)
     }
 
     fn read_string(&mut self) -> Result<Token> {

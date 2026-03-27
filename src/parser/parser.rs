@@ -679,20 +679,97 @@ impl Parser {
         self.expect(&TokenType::Style)?;
         self.expect(&TokenType::OpenBrace)?;
         let mut properties = Vec::new();
-        while !self.check(&TokenType::CloseBrace) {
-            // Support hyphenated property names: border-radius, font-size, etc.
-            let mut name = self.expect_identifier()?;
-            while self.check(&TokenType::Minus) {
-                self.advance(); // consume -
-                let part = self.expect_identifier()?;
-                name = format!("{}-{}", name, part);
+        let mut media_queries = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
+            // Check for @media query
+            if self.check_at_rule() {
+                media_queries.push(self.parse_media_query()?);
+                continue;
             }
-            self.expect(&TokenType::Colon)?;
-            let value = self.parse_expression()?;
-            properties.push(StyleProperty { name, value });
+            let prop = self.parse_style_property()?;
+            properties.push(prop);
         }
         self.expect(&TokenType::CloseBrace)?;
-        Ok(StyleBlock { properties })
+        Ok(StyleBlock { properties, media_queries })
+    }
+
+    fn parse_style_property(&mut self) -> Result<StyleProperty> {
+        // Support hyphenated property names: border-radius, font-size, etc.
+        // Also accept keywords (transition, etc.) as CSS property names
+        let mut name = self.expect_css_property_name()?;
+        while self.check(&TokenType::Minus) {
+            self.advance(); // consume -
+            let part = self.expect_css_property_name()?;
+            name = format!("{}-{}", name, part);
+        }
+        self.expect(&TokenType::Colon)?;
+        let value = self.parse_expression()?;
+        Ok(StyleProperty { name, value })
+    }
+
+    fn expect_css_property_name(&mut self) -> Result<String> {
+        match self.current_type().clone() {
+            TokenType::Identifier(name) => { self.advance(); Ok(name) }
+            // Allow WebFluent keywords as CSS property names in style blocks
+            TokenType::Transition => { self.advance(); Ok("transition".to_string()) }
+            TokenType::Loading => { self.advance(); Ok("loading".to_string()) }
+            TokenType::Error => { self.advance(); Ok("error".to_string()) }
+            TokenType::Success => { self.advance(); Ok("success".to_string()) }
+            TokenType::Action => { self.advance(); Ok("action".to_string()) }
+            TokenType::State => { self.advance(); Ok("state".to_string()) }
+            TokenType::Style => { self.advance(); Ok("style".to_string()) }
+            TokenType::Show => { self.advance(); Ok("show".to_string()) }
+            _ => Err(self.error(format!("Expected CSS property name, got {}", self.current_type()))),
+        }
+    }
+
+    fn check_at_rule(&self) -> bool {
+        if let TokenType::Identifier(s) = self.current_type() {
+            s.starts_with('@')
+        } else {
+            false
+        }
+    }
+
+    fn parse_media_query(&mut self) -> Result<MediaQuery> {
+        // @media is lexed as an Identifier "@media" or Unknown token
+        // Consume everything until the opening brace as the condition
+        let mut condition = String::new();
+
+        // Consume all tokens until we hit OpenBrace, building the condition string
+        while !self.check(&TokenType::OpenBrace) && !self.is_at_end() {
+            let tok = self.current_type().clone();
+            let text = match &tok {
+                TokenType::Identifier(s) => s.clone(),
+                TokenType::StringLiteral(s) => format!("\"{}\"", s),
+                TokenType::NumberLiteral(n) => {
+                    if *n == (*n as i64) as f64 {
+                        format!("{}", *n as i64)
+                    } else {
+                        format!("{}", n)
+                    }
+                }
+                TokenType::OpenParen => "(".to_string(),
+                TokenType::CloseParen => ")".to_string(),
+                TokenType::Colon => ":".to_string(),
+                TokenType::Minus => "-".to_string(),
+                _ => format!("{}", tok),
+            };
+            if !condition.is_empty() && !text.starts_with('(') && !condition.ends_with('(') {
+                condition.push(' ');
+            }
+            condition.push_str(&text);
+            self.advance();
+        }
+
+        self.expect(&TokenType::OpenBrace)?;
+        let mut properties = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
+            properties.push(self.parse_style_property()?);
+        }
+        self.expect(&TokenType::CloseBrace)?;
+
+        Ok(MediaQuery { condition, properties })
     }
 
     fn parse_style_statement(&mut self) -> Result<Statement> {
