@@ -12,6 +12,10 @@
     "nav.a11y": "Accessibility",
     "nav.cli": "CLI",
 
+    "nav.section.intro": "Introduction",
+    "nav.section.features": "Features",
+    "nav.section.tools": "Tools",
+
     "tpl.title": "Template Engine",
     "tpl.subtitle": "Use WebFluent as a server-side template engine from Rust and Node.js.",
 

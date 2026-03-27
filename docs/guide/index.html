@@ -10,62 +10,64 @@
 <body>
     <div id="app">
         <!--wf-component-->
-        <div class="wf-container wf-animate-fadeIn">
-            <div class="wf-spacer"></div>
-            <h1 class="wf-heading wf-heading--h1">Language Guide</h1>​
-            <p class="wf-text wf-text--muted">Learn the core concepts of WebFluent.</p>​
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Pages</h2>​
-            <p class="wf-text">Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">Page Home (path: &quot;/&quot;, title: &quot;Home&quot;) {
+        <div class="wf-row">
+            <!--wf-component-->
+            <div class="wf-container wf-animate-fadeIn">
+                <div class="wf-spacer"></div>
+                <h1 class="wf-heading wf-heading--h1">Language Guide</h1>​
+                <p class="wf-text wf-text--muted">Learn the core concepts of WebFluent.</p>​
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Pages</h2>​
+                <p class="wf-text">Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">Page Home (path: &quot;/&quot;, title: &quot;Home&quot;) {
     Container {
         Heading(&quot;Welcome&quot;, h1)
         Text(&quot;This is the home page.&quot;)
     }
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--bold">Page attributes:</p>​
-            <table class="wf-table">
-                <thead>
-                    <td>Attribute</td>​
-                    <td>Type</td>​
-                    <td>Description</td>​
-                </thead>​
-                <tr>
-                    <td>path</td>​
-                    <td>String</td>​
-                    <td>URL route for this page (required)</td>​
-                </tr>​
-                <tr>
-                    <td>title</td>​
-                    <td>String</td>​
-                    <td>Document title</td>​
-                </tr>​
-                <tr>
-                    <td>guard</td>​
-                    <td>Expression</td>​
-                    <td>Navigation guard — redirects if false</td>​
-                </tr>​
-                <tr>
-                    <td>redirect</td>​
-                    <td>String</td>​
-                    <td>Redirect target when guard fails</td>​
-                </tr>​
-            </table>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Components</h2>​
-            <p class="wf-text">Reusable UI blocks that accept props and can have internal state.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">Component UserCard (name: String, role: String, active: Bool = true) {
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--bold">Page attributes:</p>​
+                <table class="wf-table">
+                    <thead>
+                        <td>Attribute</td>​
+                        <td>Type</td>​
+                        <td>Description</td>​
+                    </thead>​
+                    <tr>
+                        <td>path</td>​
+                        <td>String</td>​
+                        <td>URL route for this page (required)</td>​
+                    </tr>​
+                    <tr>
+                        <td>title</td>​
+                        <td>String</td>​
+                        <td>Document title</td>​
+                    </tr>​
+                    <tr>
+                        <td>guard</td>​
+                        <td>Expression</td>​
+                        <td>Navigation guard — redirects if false</td>​
+                    </tr>​
+                    <tr>
+                        <td>redirect</td>​
+                        <td>String</td>​
+                        <td>Redirect target when guard fails</td>​
+                    </tr>​
+                </table>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Components</h2>​
+                <p class="wf-text">Reusable UI blocks that accept props and can have internal state.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">Component UserCard (name: String, role: String, active: Bool = true) {
     Card(elevated) {
         Row(align: center, gap: md) {
             Avatar(initials: &quot;U&quot;, primary)
@@ -82,19 +84,19 @@
 
 // Usage
 UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--muted">Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.</p>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">State and Reactivity</h2>​
-            <p class="wf-text">State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">Page Counter (path: &quot;/counter&quot;) {
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--muted">Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.</p>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">State and Reactivity</h2>​
+                <p class="wf-text">State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">Page Counter (path: &quot;/counter&quot;) {
     state count = 0
 
     Container {
@@ -103,26 +105,26 @@ UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>​
         Button(&quot;-1&quot;) { count = count - 1 }
     }
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--bold">Derived state:</p>​
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">state items = [{name: &quot;A&quot;, price: 3}, {name: &quot;B&quot;, price: 2}]
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--bold">Derived state:</p>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">state items = [{name: &quot;A&quot;, price: 3}, {name: &quot;B&quot;, price: 2}]
 derived total = items.map(i =&gt; i.price).sum()
 derived isEmpty = items.length == 0</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Events</h2>​
-            <p class="wf-text">Event handlers are declared with on:event or via shorthand blocks on buttons.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">Button(&quot;Submit&quot;) {
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Events</h2>​
+                <p class="wf-text">Event handlers are declared with on:event or via shorthand blocks on buttons.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">Button(&quot;Submit&quot;) {
     on:click {
         submitForm()
     }
@@ -141,31 +143,31 @@ Input(text, placeholder: &quot;Search...&quot;) {
 
 // Shorthand: block on Button defaults to on:click
 Button(&quot;Save&quot;) { save() }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--muted">Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount</p>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Control Flow</h2>​
-            <p class="wf-text wf-text--bold">Conditionals:</p>​
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">if isLoggedIn {
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--muted">Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount</p>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Control Flow</h2>​
+                <p class="wf-text wf-text--bold">Conditionals:</p>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">if isLoggedIn {
     Text(&quot;Welcome back!&quot;)
 } else if isGuest {
     Text(&quot;Hello, guest&quot;)
 } else {
     Button(&quot;Log In&quot;) { navigate(&quot;/login&quot;) }
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--bold">Loops:</p>​
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">for user in users {
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--bold">Loops:</p>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">for user in users {
     UserCard(name: user.name, role: user.role)
 }
 
@@ -173,26 +175,26 @@ Button(&quot;Save&quot;) { save() }</code>​
 for item, index in items {
     Text(&quot;{index + 1}. {item}&quot;)
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--bold">Show/Hide (keeps element in DOM, toggles visibility):</p>​
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">show isExpanded {
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--bold">Show/Hide (keeps element in DOM, toggles visibility):</p>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">show isExpanded {
     Card { Text(&quot;Expanded content&quot;) }
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Stores</h2>​
-            <p class="wf-text">Stores hold shared state accessible from any page or component.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">Store CartStore {
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Stores</h2>​
+                <p class="wf-text">Stores hold shared state accessible from any page or component.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">Store CartStore {
     state items = []
 
     derived total = items.map(i =&gt; i.price * i.quantity).sum()
@@ -214,17 +216,17 @@ Page Cart (path: &quot;/cart&quot;) {
     Text(&quot;Total: ${CartStore.total}&quot;)
     Button(&quot;Clear&quot;) { CartStore.clear() }
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Routing</h2>​
-            <p class="wf-text">SPA routing is declared in the App file.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">App {
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Routing</h2>​
+                <p class="wf-text">SPA routing is declared in the App file.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">App {
     Navbar {
         Navbar.Brand { Text(&quot;My App&quot;, heading) }
         Navbar.Links {
@@ -248,17 +250,17 @@ Button(&quot;Go Home&quot;) { navigate(&quot;/&quot;) }
 Page UserProfile (path: &quot;/user/:id&quot;) {
     Text(&quot;User ID: {params.id}&quot;)
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Data Fetching</h2>​
-            <p class="wf-text">Built-in async data loading with automatic loading, error, and success states.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">fetch users from &quot;/api/users&quot; {
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Data Fetching</h2>​
+                <p class="wf-text">Built-in async data loading with automatic loading, error, and success states.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">fetch users from &quot;/api/users&quot; {
     loading {
         Spinner()
     }
@@ -278,19 +280,20 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
         Alert(&quot;Saved!&quot;, success)
     }
 }</code>​
+                    </div>​
                 </div>​
+                <div class="wf-spacer"></div>
+                <div class="wf-row">
+                    <button class="wf-btn wf-btn--primary">
+                        Components Reference
+                    </button>​
+                    <button class="wf-btn">
+                        Styling Guide
+                    </button>​
+                </div>​
+                <div class="wf-spacer"></div>
             </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-row">
-                <button class="wf-btn wf-btn--primary">
-                    Components Reference
-                </button>​
-                <button class="wf-btn">
-                    Styling Guide
-                </button>​
-            </div>​
-            <div class="wf-spacer"></div>
-        </div>​
+        </div>
         <!--wf-component-->
     </div>
     <script src="../app.js"></script>

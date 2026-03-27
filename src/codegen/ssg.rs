@@ -41,17 +41,7 @@ pub fn render_page_html(
     // Render app shell (navbar, etc.) if available
     let mut body_html = String::new();
     if let Some(app_stmts) = app_body {
-        for stmt in app_stmts {
-            // Render pre-router elements (like Navbar)
-            if let Statement::UIElement(ui) = stmt {
-                if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
-                    // Router content — render the specific page
-                    body_html.push_str(&render_statements(&page.body, &mut ctx));
-                } else {
-                    body_html.push_str(&render_ui_element(ui, &mut ctx));
-                }
-            }
-        }
+        render_app_shell_ssg(app_stmts, &page.body, &mut ctx, &mut body_html);
     } else {
         body_html = render_statements(&page.body, &mut ctx);
     }
@@ -101,6 +91,53 @@ impl SsgContext {
     fn indent_str(&self) -> String {
         "    ".repeat(self.indent)
     }
+}
+
+/// Recursively render the App shell for SSG, handling Router nested inside layout wrappers
+fn render_app_shell_ssg(
+    stmts: &[Statement],
+    page_body: &[Statement],
+    ctx: &mut SsgContext,
+    html: &mut String,
+) {
+    for stmt in stmts {
+        if let Statement::UIElement(ui) = stmt {
+            let name = match &ui.component {
+                ComponentRef::BuiltIn(n) => n.as_str(),
+                _ => "",
+            };
+            if name == "Router" {
+                // Replace Router with page content
+                html.push_str(&render_statements(page_body, ctx));
+            } else if stmt_contains_router(stmt) {
+                // This is a layout wrapper (like Row) containing the Router
+                // Render the wrapper tag with children, substituting the Router
+                let (tag, class) = builtin_to_html_tag(name);
+                let indent = ctx.indent_str();
+                html.push_str(&format!("{}<{} class=\"{}\">\n", indent, tag, class));
+                ctx.indent += 1;
+                render_app_shell_ssg(&ui.children, page_body, ctx, html);
+                ctx.indent -= 1;
+                html.push_str(&format!("{}</{}>\n", indent, tag));
+            } else {
+                html.push_str(&render_ui_element(ui, ctx));
+            }
+        }
+    }
+}
+
+fn stmt_contains_router(stmt: &Statement) -> bool {
+    if let Statement::UIElement(ui) = stmt {
+        if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
+            return true;
+        }
+        for child in &ui.children {
+            if stmt_contains_router(child) {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {

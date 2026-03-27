@@ -219,10 +219,10 @@ Link(to: "/about") { Text("About") } // Declarative
 | Component | Usage |
 |-----------|-------|
 | `Navbar` | `Navbar { Navbar.Brand { ... } Navbar.Links { ... } Navbar.Actions { ... } }` |
-| `Sidebar` | `Sidebar { Sidebar.Item(to: "/") { Text("Home") } }` |
+| `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider() }` |
 | `Link` | `Link(to: "/path") { Text("Label") }` |
 | `Tabs` | `Tabs { TabPage("Tab 1") { ... } TabPage("Tab 2") { ... } }` |
-| `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } }` |
+| `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item { ... } }` |
 
 ### Data Display
@@ -234,8 +234,8 @@ Link(to: "/about") { Text("About") } // Declarative
 | `List` | `List { Text("Item 1") Text("Item 2") }` — `List(ordered)` for numbered |
 | `Badge` | `Badge("Label", primary)` — variants: primary, success, danger, warning, info |
 | `Tag` | `Tag("JavaScript")` |
-| `Avatar` | `Avatar(initials: "MO", primary)` or `Avatar(src: "/img.png")` |
-| `Tooltip` | `Tooltip(text: "Help") { Button("?") }` |
+| `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO", primary)` — modifiers: small, large, primary |
+| `Tooltip` | `Tooltip(text: "Click to save") { Button("Save", primary) }` — wraps children, shows text on hover |
 
 ### Form & Input
 
@@ -246,7 +246,9 @@ Link(to: "/about") { Text("About") } // Declarative
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
-| `Slider` | `Slider(bind: var, min: 0, max: 100, label: "Volume")` |
+| `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value |
+| `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input |
+| `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on:change { handleFile(event) } }` — modifiers: multiple |
 | `Form` | `Form { ... on:submit { save() } }` |
 
 Input types (first positional arg): `text`, `email`, `password`, `number`, `search`, `tel`, `url`, `date`, `time`, `color`
@@ -261,14 +263,14 @@ Input types (first positional arg): `text`, `email`, `password`, `number`, `sear
 | `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` |
 | `Spinner` | `Spinner()` or `Spinner(large, primary)` |
 | `Progress` | `Progress(value: 75, max: 100)` |
-| `Skeleton` | `Skeleton(height: "20px", width: "200px")` |
+| `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(circle, size: "48px")` — modifiers: circle |
 
 ### Actions
 
 | Component | Usage |
 |-----------|-------|
 | `Button` | `Button("Label", primary, large)` — click handler: `Button("Save") { doSave() }` |
-| `IconButton` | `IconButton(icon: "close", label: "Close")` |
+| `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit", primary) { editItem() }` — modifiers: small, large, primary, danger |
 | `ButtonGroup` | `ButtonGroup { Button("A") Button("B") }` |
 | `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
 
@@ -281,8 +283,8 @@ Button modifiers: `small`, `large`, `full`, `rounded`, `pill`, `outlined`
 |-----------|-------|
 | `Image` | `Image(src: "/photo.jpg", alt: "Description")` |
 | `Video` | `Video(src: "/video.mp4", controls: true)` |
-| `Icon` | `Icon("home")` |
-| `Carousel` | `Carousel { Carousel.Slide { Image(src: "...") } }` |
+| `Icon` | `Icon("home")` or `Icon("search", large, primary)` — 30 built-in SVG icons rendered inline |
+| `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 
 ### Typography
 
@@ -294,6 +296,135 @@ Button modifiers: `small`, `large`, `full`, `rounded`, `pill`, `outlined`
 | `Blockquote` | `Blockquote { Text("Quote text") }` |
 
 Text modifiers: `bold`, `italic`, `underline`, `uppercase`, `lowercase`, `center`, `right`, `muted`, `small`, `large`, `primary`, `danger`, `success`, `warning`, `info`
+
+### Component Details
+
+#### Sidebar
+
+Structural codegen with sub-components for app navigation:
+
+```wf
+Sidebar {
+    Sidebar.Header { Text("My App", heading) }
+    Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+    Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
+    Sidebar.Divider()
+    Sidebar.Item(to: "/logout", icon: "logout") { Text("Logout") }
+}
+```
+
+Sub-components: `Sidebar.Header`, `Sidebar.Item`, `Sidebar.Divider`
+
+#### Breadcrumb
+
+Navigation breadcrumb with proper separator rendering:
+
+```wf
+Breadcrumb {
+    Breadcrumb.Item(to: "/") { Text("Home") }
+    Breadcrumb.Item(to: "/docs") { Text("Docs") }
+    Breadcrumb.Item { Text("Components") }
+}
+```
+
+The last item (without `to:`) renders as the current page (no link).
+
+#### Tooltip
+
+Wraps children, shows text on hover:
+
+```wf
+Tooltip(text: "Click to save") {
+    Button("Save", primary)
+}
+```
+
+#### Avatar
+
+Displays an image or initials:
+
+```wf
+Avatar(src: "/photo.jpg", alt: "User")
+Avatar(initials: "MO", primary)
+Avatar(initials: "J", large)
+```
+
+Modifiers: `small`, `large`, `primary`
+
+#### Skeleton
+
+Loading placeholder:
+
+```wf
+Skeleton(height: "20px", width: "200px")
+Skeleton(circle, size: "48px")
+```
+
+Modifiers: `circle`
+
+#### Carousel
+
+Slide track with dots and autoplay:
+
+```wf
+Carousel(autoplay: true, interval: 5000) {
+    Carousel.Slide { Image(src: "/1.jpg", alt: "Slide 1") }
+    Carousel.Slide { Image(src: "/2.jpg", alt: "Slide 2") }
+}
+```
+
+#### IconButton
+
+Icon-only button with aria-label:
+
+```wf
+IconButton(icon: "close", label: "Close")
+IconButton(icon: "edit", label: "Edit", primary) { editItem() }
+```
+
+Modifiers: `small`, `large`, `primary`, `danger`
+
+#### Slider
+
+Range input with reactive value:
+
+```wf
+Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")
+```
+
+#### DatePicker
+
+Date input:
+
+```wf
+DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")
+```
+
+#### FileUpload
+
+Styled file input:
+
+```wf
+FileUpload(accept: "image/*", label: "Upload Photo") {
+    on:change { handleFile(event) }
+}
+FileUpload(accept: ".pdf,.doc", multiple, label: "Documents")
+```
+
+### Icon System
+
+WebFluent includes 30 built-in SVG icons, rendered inline. Available icons:
+
+`home`, `menu`, `search`, `close`, `user`, `settings`, `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`, `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`, `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`, `chevron-left`, `logout`, `copy`
+
+Usage:
+
+```wf
+Icon("home")
+Icon("search", large, primary)
+IconButton(icon: "close", label: "Close")
+Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+```
 
 ## Modifiers Reference
 

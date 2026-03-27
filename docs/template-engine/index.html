@@ -10,19 +10,21 @@
 <body>
     <div id="app">
         <!--wf-component-->
-        <div class="wf-container wf-animate-fadeIn">
-            <div class="wf-spacer"></div>
-            <h1 class="wf-heading wf-heading--h1">Template Engine</h1>​
-            <p class="wf-text wf-text--muted">Use WebFluent as a server-side template engine from Rust and Node.js.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-alert wf-alert--info">WebFluent can be used as a server-side template engine from Rust and Node.js to render .wf templates into HTML or PDF with JSON data.</div>​
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">CLI Usage</h2>​
-            <p class="wf-text">Render any .wf template with JSON data directly from the command line.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code"># Render to HTML
+        <div class="wf-row">
+            <!--wf-component-->
+            <div class="wf-container wf-animate-fadeIn">
+                <div class="wf-spacer"></div>
+                <h1 class="wf-heading wf-heading--h1">Template Engine</h1>​
+                <p class="wf-text wf-text--muted">Use WebFluent as a server-side template engine from Rust and Node.js.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-alert wf-alert--info">WebFluent can be used as a server-side template engine from Rust and Node.js to render .wf templates into HTML or PDF with JSON data.</div>​
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">CLI Usage</h2>​
+                <p class="wf-text">Render any .wf template with JSON data directly from the command line.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code"># Render to HTML
 wf render template.wf --data data.json --format html -o output.html
 
 # Render to HTML fragment (no &lt;html&gt; wrapper)
@@ -36,49 +38,49 @@ echo '{&quot;name&quot;:&quot;Monzer&quot;}' | wf render template.wf --format ht
 
 # With theme
 wf render template.wf --data data.json --format html --theme dark</code>​
-                </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <table class="wf-table">
-                <thead>
-                    <td>Option</td>​
-                    <td>Description</td>​
-                </thead>​
-                <tr>
-                    <td>template</td>​
-                    <td>Path to the .wf template file</td>​
-                </tr>​
-                <tr>
-                    <td>--data</td>​
-                    <td>Path to JSON data file (reads stdin if omitted)</td>​
-                </tr>​
-                <tr>
-                    <td>--format, -f</td>​
-                    <td>Output format: html, fragment, or pdf</td>​
-                </tr>​
-                <tr>
-                    <td>--output, -o</td>​
-                    <td>Output file path (stdout if omitted)</td>​
-                </tr>​
-                <tr>
-                    <td>--theme</td>​
-                    <td>Theme name (default: &quot;default&quot;)</td>​
-                </tr>​
-            </table>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Template Syntax</h2>​
-            <p class="wf-text">Templates use standard .wf syntax. Data is passed as a JSON object — top-level keys become template variables.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__header">
-                        <span class="wf-badge wf-badge--primary">Template</span>​
-                        <p class="wf-text wf-text--bold">invoice.wf</p>​
                     </div>​
-                    <div class="wf-card__body">
-                        <code class="wf-code">Page Invoice (path: &quot;/&quot;, title: &quot;Invoice&quot;) {
+                </div>​
+                <div class="wf-spacer"></div>
+                <table class="wf-table">
+                    <thead>
+                        <td>Option</td>​
+                        <td>Description</td>​
+                    </thead>​
+                    <tr>
+                        <td>template</td>​
+                        <td>Path to the .wf template file</td>​
+                    </tr>​
+                    <tr>
+                        <td>--data</td>​
+                        <td>Path to JSON data file (reads stdin if omitted)</td>​
+                    </tr>​
+                    <tr>
+                        <td>--format, -f</td>​
+                        <td>Output format: html, fragment, or pdf</td>​
+                    </tr>​
+                    <tr>
+                        <td>--output, -o</td>​
+                        <td>Output file path (stdout if omitted)</td>​
+                    </tr>​
+                    <tr>
+                        <td>--theme</td>​
+                        <td>Theme name (default: &quot;default&quot;)</td>​
+                    </tr>​
+                </table>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Template Syntax</h2>​
+                <p class="wf-text">Templates use standard .wf syntax. Data is passed as a JSON object — top-level keys become template variables.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__header">
+                            <span class="wf-badge wf-badge--primary">Template</span>​
+                            <p class="wf-text wf-text--bold">invoice.wf</p>​
+                        </div>​
+                        <div class="wf-card__body">
+                            <code class="wf-code">Page Invoice (path: &quot;/&quot;, title: &quot;Invoice&quot;) {
     Container {
         Heading(&quot;Invoice #{number}&quot;, h1)
         Text(&quot;Customer: {customer.name}&quot;)
@@ -100,15 +102,15 @@ wf render template.wf --data data.json --format html --theme dark</code>​
         }
     }
 }</code>​
+                        </div>​
                     </div>​
-                </div>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__header">
-                        <span class="wf-badge wf-badge--info">Data</span>​
-                        <p class="wf-text wf-text--bold">data.json</p>​
-                    </div>​
-                    <div class="wf-card__body">
-                        <code class="wf-code">{
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__header">
+                            <span class="wf-badge wf-badge--info">Data</span>​
+                            <p class="wf-text wf-text--bold">data.json</p>​
+                        </div>​
+                        <div class="wf-card__body">
+                            <code class="wf-code">{
   &quot;number&quot;: &quot;INV-001&quot;,
   &quot;customer&quot;: { &quot;name&quot;: &quot;Acme Corp&quot; },
   &quot;items&quot;: [
@@ -117,31 +119,31 @@ wf render template.wf --data data.json --format html --theme dark</code>​
   ],
   &quot;paid&quot;: true
 }</code>​
+                        </div>​
                     </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Rust API</h2>​
-            <p class="wf-text">Add WebFluent as a library dependency to use templates in your Rust application.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__header">
-                    <p class="wf-text wf-text--bold wf-text--muted">Cargo.toml</p>​
-                </div>​
-                <div class="wf-card__body">
-                    <code class="wf-code">[dependencies]
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Rust API</h2>​
+                <p class="wf-text">Add WebFluent as a library dependency to use templates in your Rust application.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__header">
+                        <p class="wf-text wf-text--bold wf-text--muted">Cargo.toml</p>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <code class="wf-code">[dependencies]
 webfluent = &quot;0.2&quot;</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__header">
-                    <p class="wf-text wf-text--bold wf-text--muted">main.rs</p>​
-                </div>​
-                <div class="wf-card__body">
-                    <code class="wf-code">use webfluent::Template;
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__header">
+                        <p class="wf-text wf-text--bold wf-text--muted">main.rs</p>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <code class="wf-code">use webfluent::Template;
 use serde_json::json;
 
 fn main() -&gt; webfluent::Result&lt;()&gt; {
@@ -170,29 +172,29 @@ fn main() -&gt; webfluent::Result&lt;()&gt; {
 
     Ok(())
 }</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Node.js API</h2>​
-            <p class="wf-text">Use WebFluent templates in Express, Next.js, or any Node.js application.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__header">
-                    <p class="wf-text wf-text--bold wf-text--muted">Install</p>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Node.js API</h2>​
+                <p class="wf-text">Use WebFluent templates in Express, Next.js, or any Node.js application.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__header">
+                        <p class="wf-text wf-text--bold wf-text--muted">Install</p>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <code class="wf-code">npm install @aspect/webfluent</code>​
+                    </div>​
                 </div>​
-                <div class="wf-card__body">
-                    <code class="wf-code">npm install @aspect/webfluent</code>​
-                </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__header">
-                    <p class="wf-text wf-text--bold wf-text--muted">Basic Usage</p>​
-                </div>​
-                <div class="wf-card__body">
-                    <code class="wf-code">const { Template } = require('@aspect/webfluent');
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__header">
+                        <p class="wf-text wf-text--bold wf-text--muted">Basic Usage</p>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <code class="wf-code">const { Template } = require('@aspect/webfluent');
 
 const tpl = Template.fromFile('templates/invoice.wf');
 // or: Template.fromString('Container { Heading(&quot;Hello!&quot;, h1) }');
@@ -206,15 +208,15 @@ const frag = tpl.renderHtmlFragment({ name: &quot;World&quot; });
 // Render to PDF (returns Buffer)
 const pdf = tpl.renderPdf({ name: &quot;World&quot; });
 fs.writeFileSync('output.pdf', pdf);</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__header">
-                    <p class="wf-text wf-text--bold wf-text--muted">Express.js Example</p>​
-                </div>​
-                <div class="wf-card__body">
-                    <code class="wf-code">const express = require('express');
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__header">
+                        <p class="wf-text wf-text--bold wf-text--muted">Express.js Example</p>​
+                    </div>​
+                    <div class="wf-card__body">
+                        <code class="wf-code">const express = require('express');
 const { Template } = require('@aspect/webfluent');
 
 const app = express();
@@ -230,129 +232,130 @@ app.get('/invoice/:id/pdf', async (req, res) =&gt; {
     const tpl = Template.fromFile('templates/invoice.wf');
     res.type('application/pdf').send(tpl.renderPdf(invoice));
 });</code>​
-                </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Supported Features</h2>​
-            <p class="wf-text">Templates support the static, data-driven subset of WebFluent.</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__header">
-                        <h3 class="wf-heading wf-heading--h3">Supported</h3>​
                     </div>​
-                    <div class="wf-card__body">
-                        <div class="wf-stack">
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">All layout components</p>​
+                </div>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Supported Features</h2>​
+                <p class="wf-text">Templates support the static, data-driven subset of WebFluent.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__header">
+                            <h3 class="wf-heading wf-heading--h3">Supported</h3>​
+                        </div>​
+                        <div class="wf-card__body">
+                            <div class="wf-stack">
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">All layout components</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">Typography (Text, Heading, Code)</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">Data display (Card, Table, List, Badge)</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">for loops over data arrays</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">if/else conditionals</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">String interpolation {var}</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">Nested access (user.name)</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">Design tokens and themes</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">Style blocks</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--success">Yes</span>​
+                                    <p class="wf-text">PDF components</p>​
+                                </div>​
                             </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">Typography (Text, Heading, Code)</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">Data display (Card, Table, List, Badge)</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">for loops over data arrays</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">if/else conditionals</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">String interpolation {var}</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">Nested access (user.name)</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">Design tokens and themes</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">Style blocks</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--success">Yes</span>​
-                                <p class="wf-text">PDF components</p>​
+                        </div>​
+                    </div>​
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__header">
+                            <h3 class="wf-heading wf-heading--h3">Not Supported</h3>​
+                        </div>​
+                        <div class="wf-card__body">
+                            <div class="wf-stack">
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">state / derived / effect</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">Events (on:click, on:submit)</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">Navigation / Router</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">Stores (shared state)</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">fetch (data loading)</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">Animations</p>​
+                                </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">No</span>​
+                                    <p class="wf-text">Toast (imperative)</p>​
+                                </div>​
                             </div>​
                         </div>​
                     </div>​
                 </div>​
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__header">
-                        <h3 class="wf-heading wf-heading--h3">Not Supported</h3>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Use Cases</h2>​
+                <div class="wf-spacer"></div>
+                <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__body">
+                            <h3 class="wf-heading wf-heading--h3">Server-Rendered Pages</h3>​
+                            <p class="wf-text wf-text--muted">Generate HTML pages on the server with data from your database or API.</p>​
+                        </div>​
                     </div>​
-                    <div class="wf-card__body">
-                        <div class="wf-stack">
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">state / derived / effect</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">Events (on:click, on:submit)</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">Navigation / Router</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">Stores (shared state)</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">fetch (data loading)</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">Animations</p>​
-                            </div>​
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">No</span>​
-                                <p class="wf-text">Toast (imperative)</p>​
-                            </div>​
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__body">
+                            <h3 class="wf-heading wf-heading--h3">PDF Reports</h3>​
+                            <p class="wf-text wf-text--muted">Create invoices, receipts, and reports as PDF files from structured data.</p>​
+                        </div>​
+                    </div>​
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__body">
+                            <h3 class="wf-heading wf-heading--h3">Email Templates</h3>​
+                            <p class="wf-text wf-text--muted">Render HTML emails with WebFluent components and your design system.</p>​
                         </div>​
                     </div>​
                 </div>​
+                <div class="wf-spacer"></div>
             </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Use Cases</h2>​
-            <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__body">
-                        <h3 class="wf-heading wf-heading--h3">Server-Rendered Pages</h3>​
-                        <p class="wf-text wf-text--muted">Generate HTML pages on the server with data from your database or API.</p>​
-                    </div>​
-                </div>​
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__body">
-                        <h3 class="wf-heading wf-heading--h3">PDF Reports</h3>​
-                        <p class="wf-text wf-text--muted">Create invoices, receipts, and reports as PDF files from structured data.</p>​
-                    </div>​
-                </div>​
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__body">
-                        <h3 class="wf-heading wf-heading--h3">Email Templates</h3>​
-                        <p class="wf-text wf-text--muted">Render HTML emails with WebFluent components and your design system.</p>​
-                    </div>​
-                </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-        </div>​
+        </div>
         <!--wf-component-->
     </div>
     <script src="../app.js"></script>

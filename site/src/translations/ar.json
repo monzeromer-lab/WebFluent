@@ -12,6 +12,10 @@
     "nav.a11y": "إمكانية الوصول",
     "nav.cli": "سطر الأوامر",
 
+    "nav.section.intro": "مقدمة",
+    "nav.section.features": "الميزات",
+    "nav.section.tools": "الأدوات",
+
     "tpl.title": "محرك القوالب",
     "tpl.subtitle": "استخدم WebFluent كمحرك قوالب من Rust و Node.js لتوليد HTML و PDF.",
 

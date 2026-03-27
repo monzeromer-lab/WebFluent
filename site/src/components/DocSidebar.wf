@@ -1,0 +1,29 @@
+Component DocSidebar () {
+    Sidebar {
+        Sidebar.Header {
+            Link(to: "/") { Text("WebFluent", heading) }
+        }
+
+        Text(t("nav.section.intro"), muted, small, bold, uppercase)
+        Sidebar.Item(to: "/", icon: "home") { Text(t("nav.home")) }
+        Sidebar.Item(to: "/getting-started", icon: "arrow-right") { Text(t("nav.start")) }
+        Sidebar.Item(to: "/guide", icon: "info") { Text(t("nav.guide")) }
+
+        Sidebar.Divider()
+
+        Text(t("nav.section.features"), muted, small, bold, uppercase)
+        Sidebar.Item(to: "/components", icon: "filter") { Text(t("nav.components")) }
+        Sidebar.Item(to: "/styling", icon: "eye") { Text(t("nav.styling")) }
+        Sidebar.Item(to: "/animation", icon: "star") { Text(t("nav.animation")) }
+        Sidebar.Item(to: "/i18n", icon: "link") { Text(t("nav.i18n")) }
+        Sidebar.Item(to: "/ssg", icon: "download") { Text(t("nav.ssg")) }
+        Sidebar.Item(to: "/pdf", icon: "copy") { Text(t("nav.pdf")) }
+        Sidebar.Item(to: "/template-engine", icon: "settings") { Text(t("nav.template")) }
+
+        Sidebar.Divider()
+
+        Text(t("nav.section.tools"), muted, small, bold, uppercase)
+        Sidebar.Item(to: "/accessibility", icon: "check") { Text(t("nav.a11y")) }
+        Sidebar.Item(to: "/cli", icon: "chevron-right") { Text(t("nav.cli")) }
+    }
+}

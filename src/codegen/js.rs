@@ -454,21 +454,22 @@ impl JsCodegen {
         // In SSG mode, clear pre-rendered content before mounting the full app
         self.emit_line("_app.innerHTML = '';");
 
-        // Find Router in body
-        let mut has_router = false;
+        // Find Router in body (may be nested inside a layout wrapper like Row)
+        let router_stmts = Self::find_router_routes(&app.body);
+        let has_router = !router_stmts.is_empty();
+
+        // Find the layout wrapper containing the Router (if any)
+        let router_wrapper = Self::find_router_wrapper(&app.body);
+
+        // Separate top-level statements into pre-router, the wrapper/router, and post-router
         let mut pre_router: Vec<&Statement> = Vec::new();
         let mut post_router: Vec<&Statement> = Vec::new();
-        let mut router_stmts: Vec<&Statement> = Vec::new();
-
         let mut found_router = false;
+
         for stmt in &app.body {
-            if let Statement::UIElement(ui) = stmt {
-                if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
-                    has_router = true;
-                    found_router = true;
-                    router_stmts = ui.children.iter().collect();
-                    continue;
-                }
+            if !found_router && Self::stmt_contains_router(stmt) {
+                found_router = true;
+                continue;
             }
             if found_router {
                 post_router.push(stmt);
@@ -483,39 +484,81 @@ impl JsCodegen {
         }
 
         if has_router {
-            // Create router container
-            self.emit_line("const _routerEl = document.createElement('div');");
-            self.emit_line("_routerEl.id = 'wf-router';");
-            self.emit_line("_routerEl.style.flex = '1';");
-            self.emit_line("_app.appendChild(_routerEl);");
+            // If Router is inside a layout wrapper (e.g., Row), create the wrapper
+            // and emit siblings (like DocSidebar) into it
+            if let Some(wrapper_ui) = &router_wrapper {
+                let wrapper_var = self.fresh_var();
+                let comp_name = Self::component_name(&wrapper_ui.component);
+                let (tag, class) = builtin_to_html(&comp_name);
+                let mut classes: Vec<String> = vec![class.to_string()];
+                // Apply layout modifiers
+                for m in &wrapper_ui.modifiers {
+                    match m.as_str() {
+                        "center" => classes.push("wf-row--center".to_string()),
+                        "between" => classes.push("wf-row--between".to_string()),
+                        _ => {}
+                    }
+                }
+                // Apply gap from args
+                let mut attrs_parts = Vec::new();
+                for arg in &wrapper_ui.args {
+                    if let Arg::Named(k, v) = arg {
+                        if k == "gap" {
+                            if let Expr::Identifier(g) = v {
+                                classes.push(format!("wf-gap--{}", g));
+                            }
+                        }
+                    }
+                }
+                attrs_parts.push(format!("className: \"{}\"", classes.join(" ")));
+                self.emit_line(&format!(
+                    "const {} = WF.h(\"{}\", {{ {} }});",
+                    wrapper_var, tag, attrs_parts.join(", ")
+                ));
+
+                // Emit non-router siblings (like DocSidebar)
+                for child in &wrapper_ui.children {
+                    if !Self::stmt_contains_router(child) {
+                        self.emit_statement_dom(child, &wrapper_var);
+                    }
+                }
+
+                // Create router container inside the wrapper
+                self.emit_line("const _routerEl = document.createElement('div');");
+                self.emit_line("_routerEl.id = 'wf-router';");
+                self.emit_line("_routerEl.style.flex = '1';");
+                self.emit_line(&format!("{}.appendChild(_routerEl);", wrapper_var));
+                self.emit_line(&format!("_app.appendChild({});", wrapper_var));
+            } else {
+                // Router is directly in App body
+                self.emit_line("const _routerEl = document.createElement('div');");
+                self.emit_line("_routerEl.id = 'wf-router';");
+                self.emit_line("_routerEl.style.flex = '1';");
+                self.emit_line("_app.appendChild(_routerEl);");
+            }
 
             // Collect routes
             self.emit_line("const _routes = [");
             self.indent += 1;
-            for stmt in &router_stmts {
-                if let Statement::UIElement(ui) = stmt {
-                    if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Route") {
-                        let mut path = String::new();
-                        let mut page_name = String::new();
-                        for arg in &ui.args {
-                            if let Arg::Named(name, expr) = arg {
-                                if name == "path" {
-                                    path = self.emit_expr(expr);
-                                } else if name == "page" {
-                                    if let Expr::Identifier(id) = expr {
-                                        page_name = id.clone();
-                                    }
-                                }
+            for route in &router_stmts {
+                let mut path = String::new();
+                let mut page_name = String::new();
+                for arg in &route.args {
+                    if let Arg::Named(name, expr) = arg {
+                        if name == "path" {
+                            path = self.emit_expr(expr);
+                        } else if name == "page" {
+                            if let Expr::Identifier(id) = expr {
+                                page_name = id.clone();
                             }
                         }
-                        // Remove quotes from path
-                        let clean_path = path.trim_matches('"');
-                        self.emit_line(&format!(
-                            "{{ path: \"{}\", render: (params) => Page_{}(params) }},",
-                            clean_path, page_name
-                        ));
                     }
                 }
+                let clean_path = path.trim_matches('"');
+                self.emit_line(&format!(
+                    "{{ path: \"{}\", render: (params) => Page_{}(params) }},",
+                    clean_path, page_name
+                ));
             }
             self.indent -= 1;
             self.emit_line("];");
@@ -529,6 +572,71 @@ impl JsCodegen {
 
         self.indent -= 1;
         self.emit_line("})();");
+    }
+
+    /// Check if a statement is or contains a Router
+    fn stmt_contains_router(stmt: &Statement) -> bool {
+        if let Statement::UIElement(ui) = stmt {
+            if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
+                return true;
+            }
+            // Check children recursively
+            for child in &ui.children {
+                if Self::stmt_contains_router(child) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    /// Find Route declarations recursively inside the App body
+    fn find_router_routes(body: &[Statement]) -> Vec<&UIElement> {
+        for stmt in body {
+            if let Statement::UIElement(ui) = stmt {
+                if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
+                    return ui.children.iter().filter_map(|s| {
+                        if let Statement::UIElement(child_ui) = s {
+                            if matches!(&child_ui.component, ComponentRef::BuiltIn(n) if n == "Route") {
+                                return Some(child_ui);
+                            }
+                        }
+                        None
+                    }).collect();
+                }
+                let nested = Self::find_router_routes(&ui.children);
+                if !nested.is_empty() {
+                    return nested;
+                }
+            }
+        }
+        Vec::new()
+    }
+
+    /// Find the layout wrapper that directly contains a Router (e.g., Row { Sidebar Router })
+    fn find_router_wrapper<'a>(body: &'a [Statement]) -> Option<&'a UIElement> {
+        for stmt in body {
+            if let Statement::UIElement(ui) = stmt {
+                if !matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
+                    for child in &ui.children {
+                        if let Statement::UIElement(child_ui) = child {
+                            if matches!(&child_ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
+                                return Some(ui);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn component_name(comp: &ComponentRef) -> String {
+        match comp {
+            ComponentRef::BuiltIn(n) => n.clone(),
+            ComponentRef::UserDefined(n) => n.clone(),
+            ComponentRef::SubComponent(p, s) => format!("{}.{}", p, s),
+        }
     }
 
     // ─── DOM-building statement emitter ──────────────
@@ -815,6 +923,46 @@ impl JsCodegen {
                     "Spacer" => {
                         self.emit_line(&format!("const {} = WF.h(\"{}\", {});", var, tag, attrs_str));
                         self.emit_line(&format!("{}.appendChild({});", parent, var));
+                        return;
+                    }
+                    "Sidebar" => {
+                        self.emit_sidebar(&var, ui, parent);
+                        return;
+                    }
+                    "Breadcrumb" => {
+                        self.emit_breadcrumb(&var, ui, parent);
+                        return;
+                    }
+                    "Tooltip" => {
+                        self.emit_tooltip(&var, ui, parent);
+                        return;
+                    }
+                    "Avatar" => {
+                        self.emit_avatar(&var, ui, parent);
+                        return;
+                    }
+                    "Skeleton" => {
+                        self.emit_skeleton(&var, ui, parent);
+                        return;
+                    }
+                    "Carousel" => {
+                        self.emit_carousel(&var, ui, parent);
+                        return;
+                    }
+                    "IconButton" => {
+                        self.emit_icon_button(&var, ui, parent);
+                        return;
+                    }
+                    "Slider" => {
+                        self.emit_slider(&var, ui, parent);
+                        return;
+                    }
+                    "DatePicker" => {
+                        self.emit_datepicker(&var, ui, parent);
+                        return;
+                    }
+                    "FileUpload" => {
+                        self.emit_file_upload(&var, ui, parent);
                         return;
                     }
                     _ => {}
@@ -1211,6 +1359,534 @@ impl JsCodegen {
             var, open_var
         ));
 
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"wf-sidebar\" }});", var));
+
+        for child in &ui.children {
+            if let Statement::UIElement(ui_child) = child {
+                match &ui_child.component {
+                    ComponentRef::SubComponent(p, sub) if p == "Sidebar" => {
+                        match sub.as_str() {
+                            "Header" => {
+                                let h_var = self.fresh_var();
+                                self.emit_line(&format!(
+                                    "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__header\" }});",
+                                    h_var
+                                ));
+                                for c in &ui_child.children {
+                                    self.emit_statement_dom(c, &h_var);
+                                }
+                                self.emit_line(&format!("{}.appendChild({});", var, h_var));
+                            }
+                            "Item" => {
+                                let item_var = self.fresh_var();
+                                let to = ui_child.args.iter().find_map(|a| {
+                                    if let Arg::Named(k, v) = a {
+                                        if k == "to" { Some(self.emit_expr(v)) } else { None }
+                                    } else { None }
+                                });
+                                let icon = ui_child.args.iter().find_map(|a| {
+                                    if let Arg::Named(k, v) = a {
+                                        if k == "icon" { Some(self.emit_expr(v)) } else { None }
+                                    } else { None }
+                                });
+                                if let Some(href) = to {
+                                    let bp = if self.base_path.is_empty() { String::new() } else { format!("WF._basePath + ") };
+                                    self.emit_line(&format!(
+                                        "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {} }});",
+                                        item_var, bp, href
+                                    ));
+                                } else {
+                                    self.emit_line(&format!(
+                                        "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__item\" }});",
+                                        item_var
+                                    ));
+                                }
+                                if let Some(ic) = icon {
+                                    self.emit_line(&format!(
+                                        "{}.appendChild(WF.h(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
+                                        item_var, ic
+                                    ));
+                                }
+                                for c in &ui_child.children {
+                                    self.emit_statement_dom(c, &item_var);
+                                }
+                                self.emit_line(&format!("{}.appendChild({});", var, item_var));
+                            }
+                            "Divider" => {
+                                self.emit_line(&format!(
+                                    "{}.appendChild(WF.h(\"div\", {{ className: \"wf-sidebar__divider\" }}));",
+                                    var
+                                ));
+                            }
+                            _ => {
+                                self.emit_statement_dom(child, var);
+                            }
+                        }
+                    }
+                    _ => {
+                        self.emit_statement_dom(child, var);
+                    }
+                }
+            } else {
+                self.emit_statement_dom(child, var);
+            }
+        }
+
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"wf-breadcrumb\", \"aria-label\": \"breadcrumb\" }});", var));
+
+        for child in &ui.children {
+            if let Statement::UIElement(ui_child) = child {
+                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Breadcrumb" && s == "Item") {
+                    let item_var = self.fresh_var();
+                    let to = ui_child.args.iter().find_map(|a| {
+                        if let Arg::Named(k, v) = a {
+                            if k == "to" { Some(self.emit_expr(v)) } else { None }
+                        } else { None }
+                    });
+                    if let Some(href) = to {
+                        let bp = if self.base_path.is_empty() { String::new() } else { format!("WF._basePath + ") };
+                        self.emit_line(&format!(
+                            "const {} = WF.h(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{} }});",
+                            item_var, bp, href
+                        ));
+                    } else {
+                        self.emit_line(&format!(
+                            "const {} = WF.h(\"span\", {{ className: \"wf-breadcrumb__item\" }});",
+                            item_var
+                        ));
+                    }
+                    for c in &ui_child.children {
+                        self.emit_statement_dom(c, &item_var);
+                    }
+                    self.emit_line(&format!("{}.appendChild({});", var, item_var));
+                } else {
+                    self.emit_statement_dom(child, var);
+                }
+            } else {
+                self.emit_statement_dom(child, var);
+            }
+        }
+
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_tooltip(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let text = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "text" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        }).unwrap_or_else(|| "\"\"".to_string());
+
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tooltip\" }});", var));
+
+        // Render children (the trigger element)
+        for child in &ui.children {
+            self.emit_statement_dom(child, var);
+        }
+
+        // Add tooltip text span
+        let tip_var = self.fresh_var();
+        self.emit_line(&format!(
+            "const {} = WF.h(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\" }}, {});",
+            tip_var, text
+        ));
+        self.emit_line(&format!("{}.appendChild({});", var, tip_var));
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_avatar(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let src = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "src" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let alt = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "alt" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let initials = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "initials" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+
+        let mut cls = "wf-avatar".to_string();
+        for m in &ui.modifiers {
+            match m.as_str() {
+                "small" => cls.push_str(" wf-avatar--small"),
+                "large" => cls.push_str(" wf-avatar--large"),
+                "primary" => cls.push_str(" wf-avatar--primary"),
+                _ => {}
+            }
+        }
+
+        if let Some(img_src) = src {
+            let alt_val = alt.unwrap_or_else(|| "\"\"".to_string());
+            self.emit_line(&format!(
+                "const {} = WF.h(\"div\", {{ className: \"{}\" }}, WF.h(\"img\", {{ src: {}, alt: {} }}));",
+                var, cls, img_src, alt_val
+            ));
+        } else if let Some(init) = initials {
+            self.emit_line(&format!(
+                "const {} = WF.h(\"div\", {{ className: \"{}\" }}, {});",
+                var, cls, init
+            ));
+        } else {
+            self.emit_line(&format!(
+                "const {} = WF.h(\"div\", {{ className: \"{}\" }});",
+                var, cls
+            ));
+        }
+
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_skeleton(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let height = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "height" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let width = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "width" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let size = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "size" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+
+        let is_circle = ui.modifiers.iter().any(|m| m == "circle");
+        let cls = if is_circle { "wf-skeleton wf-skeleton--circle" } else { "wf-skeleton" };
+
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\" }});", var, cls));
+        if let Some(h) = &height {
+            self.emit_line(&format!("{}.style.height = {};", var, h));
+        }
+        if let Some(w) = &width {
+            self.emit_line(&format!("{}.style.width = {};", var, w));
+        }
+        if is_circle {
+            if let Some(s) = &size {
+                if height.is_none() { self.emit_line(&format!("{}.style.height = {};", var, s)); }
+                if width.is_none() { self.emit_line(&format!("{}.style.width = {};", var, s)); }
+            }
+        }
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel\" }});", var));
+
+        let track_var = self.fresh_var();
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel__track\" }});", track_var));
+
+        // Collect slides
+        let mut slide_count = 0;
+        for child in &ui.children {
+            if let Statement::UIElement(ui_child) = child {
+                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Carousel" && s == "Slide") {
+                    let slide_var = self.fresh_var();
+                    self.emit_line(&format!(
+                        "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\" }});",
+                        slide_var
+                    ));
+                    for c in &ui_child.children {
+                        self.emit_statement_dom(c, &slide_var);
+                    }
+                    self.emit_line(&format!("{}.appendChild({});", track_var, slide_var));
+                    slide_count += 1;
+                } else {
+                    self.emit_statement_dom(child, &track_var);
+                }
+            } else {
+                self.emit_statement_dom(child, &track_var);
+            }
+        }
+
+        self.emit_line(&format!("{}.appendChild({});", var, track_var));
+
+        // Navigation dots
+        if slide_count > 1 {
+            let idx_var = self.fresh_var();
+            self.emit_line(&format!("const {} = WF.signal(0);", idx_var));
+
+            let nav_var = self.fresh_var();
+            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel__nav\" }});", nav_var));
+
+            for i in 0..slide_count {
+                let dot_var = self.fresh_var();
+                self.emit_line(&format!(
+                    "const {} = WF.h(\"button\", {{ className: () => {}() === {} ? \"wf-carousel__dot active\" : \"wf-carousel__dot\", \"on:click\": () => {{ {}.set({}); {}.style.transform = `translateX(-${{{}*100}}%)`; }} }});",
+                    dot_var, idx_var, i, idx_var, i, track_var, i
+                ));
+                self.emit_line(&format!("{}.appendChild({});", nav_var, dot_var));
+            }
+            self.emit_line(&format!("{}.appendChild({});", var, nav_var));
+
+            // Autoplay
+            let autoplay = ui.args.iter().any(|a| {
+                matches!(a, Arg::Named(k, v) if k == "autoplay" && matches!(v, Expr::BoolLiteral(true)))
+            });
+            let interval = ui.args.iter().find_map(|a| {
+                if let Arg::Named(k, v) = a {
+                    if k == "interval" {
+                        if let Expr::NumberLiteral(n) = v { return Some(*n as u32); }
+                    }
+                    None
+                } else { None }
+            }).unwrap_or(5000);
+
+            if autoplay {
+                self.emit_line(&format!(
+                    "setInterval(() => {{ const n = ({}() + 1) % {}; {}.set(n); {}.style.transform = `translateX(-${{n*100}}%)`; }}, {});",
+                    idx_var, slide_count, idx_var, track_var, interval
+                ));
+            }
+        }
+
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_icon_button(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let icon = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "icon" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        }).unwrap_or_else(|| "\"\"".to_string());
+
+        let label = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "label" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+
+        let mut cls = "wf-icon-btn".to_string();
+        for m in &ui.modifiers {
+            match m.as_str() {
+                "small" => cls.push_str(" wf-icon-btn--small"),
+                "large" => cls.push_str(" wf-icon-btn--large"),
+                "primary" => cls.push_str(" wf-icon-btn--primary"),
+                "danger" => cls.push_str(" wf-icon-btn--danger"),
+                _ => {}
+            }
+        }
+
+        let mut btn_attrs = format!("className: \"{}\", \"data-icon\": {}", cls, icon);
+        if let Some(l) = &label {
+            btn_attrs.push_str(&format!(", \"aria-label\": {}", l));
+        }
+        btn_attrs.push_str(&format!(", title: {}", label.as_deref().unwrap_or(&icon)));
+
+        // Click handler from children (same as Button shorthand)
+        if ui.events.is_empty() && !ui.children.is_empty() {
+            let all_actions = ui.children.iter().all(|s| matches!(s,
+                Statement::Assignment(_) | Statement::MethodCall(_) |
+                Statement::Navigate(_) | Statement::ExprStatement(_)
+            ));
+            if all_actions {
+                let body = self.emit_statements_inline(&ui.children);
+                btn_attrs.push_str(&format!(", \"on:click\": (e) => {{ {} }}", body));
+            }
+        }
+        for handler in &ui.events {
+            let body = self.emit_event_body(&handler.body);
+            btn_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+        }
+
+        self.emit_line(&format!(
+            "const {} = WF.h(\"button\", {{ {} }}, WF.h(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
+            var, btn_attrs, icon
+        ));
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_slider(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let bind_var = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "bind" {
+                    if let Expr::Identifier(s) = v { return Some(s.clone()); }
+                }
+                None
+            } else { None }
+        });
+        let min_val = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "min" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        }).unwrap_or_else(|| "0".to_string());
+        let max_val = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "max" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        }).unwrap_or_else(|| "100".to_string());
+        let step = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "step" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        }).unwrap_or_else(|| "1".to_string());
+        let label = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "label" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-slider\" }});", var));
+
+        if let Some(l) = &label {
+            let label_var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {} = WF.h(\"label\", {{ className: \"wf-form-label\" }}, {});",
+                label_var, l
+            ));
+            self.emit_line(&format!("{}.appendChild({});", var, label_var));
+        }
+
+        let input_var = self.fresh_var();
+        let mut input_attrs = format!("type: \"range\", min: {}, max: {}, step: {}", min_val, max_val, step);
+        if let Some(state) = &bind_var {
+            input_attrs.push_str(&format!(
+                ", value: () => _{}(), \"on:input\": (e) => _{}.set(Number(e.target.value))",
+                state, state
+            ));
+        }
+        for handler in &ui.events {
+            let body = self.emit_event_body(&handler.body);
+            input_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+        }
+        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!("{}.appendChild({});", var, input_var));
+
+        // Show current value if bound
+        if let Some(state) = &bind_var {
+            let val_var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {} = WF.h(\"span\", {{ className: \"wf-slider__value\" }}, () => String(_{}()));",
+                val_var, state
+            ));
+            self.emit_line(&format!("{}.appendChild({});", var, val_var));
+        }
+
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_datepicker(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let bind_var = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "bind" {
+                    if let Expr::Identifier(s) = v { return Some(s.clone()); }
+                }
+                None
+            } else { None }
+        });
+        let label = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "label" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let min = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "min" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let max = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "max" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+
+        let wrapper_var = self.fresh_var();
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-form-group\" }});", wrapper_var));
+
+        if let Some(l) = &label {
+            let label_var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {} = WF.h(\"label\", {{ className: \"wf-form-label\" }}, {});",
+                label_var, l
+            ));
+            self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
+        }
+
+        let input_var = self.fresh_var();
+        let mut input_attrs = "type: \"date\", className: \"wf-input\"".to_string();
+        if let Some(state) = &bind_var {
+            input_attrs.push_str(&format!(
+                ", value: () => _{}(), \"on:change\": (e) => _{}.set(e.target.value)",
+                state, state
+            ));
+        }
+        if let Some(mn) = min {
+            input_attrs.push_str(&format!(", min: {}", mn));
+        }
+        if let Some(mx) = max {
+            input_attrs.push_str(&format!(", max: {}", mx));
+        }
+        for handler in &ui.events {
+            let body = self.emit_event_body(&handler.body);
+            input_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+        }
+        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
+
+        self.emit_line(&format!("const {} = {};", var, wrapper_var));
+        self.emit_line(&format!("{}.appendChild({});", parent, var));
+    }
+
+    fn emit_file_upload(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let accept = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "accept" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let label = ui.args.iter().find_map(|a| {
+            if let Arg::Named(k, v) = a {
+                if k == "label" { Some(self.emit_expr(v)) } else { None }
+            } else { None }
+        });
+        let multiple = ui.modifiers.iter().any(|m| m == "multiple");
+
+        let wrapper_var = self.fresh_var();
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"wf-file-upload\" }});",
+            wrapper_var
+        ));
+
+        if let Some(l) = &label {
+            let label_var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {} = WF.h(\"label\", {{ className: \"wf-form-label\" }}, {});",
+                label_var, l
+            ));
+            self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
+        }
+
+        let input_var = self.fresh_var();
+        let mut input_attrs = "type: \"file\", className: \"wf-input\"".to_string();
+        if let Some(acc) = &accept {
+            input_attrs.push_str(&format!(", accept: {}", acc));
+        }
+        if multiple {
+            input_attrs.push_str(", multiple: true");
+        }
+        for handler in &ui.events {
+            let body = self.emit_event_body(&handler.body);
+            input_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+        }
+        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
+
+        self.emit_line(&format!("const {} = {};", var, wrapper_var));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 

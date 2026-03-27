@@ -1,21 +1,9 @@
 Component NavBar () {
     Navbar {
         Navbar.Brand {
-            Text("WebFluent", heading)
+            Link(to: "/") { Text("WebFluent", heading) }
         }
         Navbar.Links {
-            Link(to: "/") { Text(t("nav.home")) }
-            Link(to: "/getting-started") { Text(t("nav.start")) }
-            Link(to: "/guide") { Text(t("nav.guide")) }
-            Link(to: "/components") { Text(t("nav.components")) }
-            Link(to: "/styling") { Text(t("nav.styling")) }
-            Link(to: "/animation") { Text(t("nav.animation")) }
-            Link(to: "/i18n") { Text(t("nav.i18n")) }
-            Link(to: "/ssg") { Text(t("nav.ssg")) }
-            Link(to: "/pdf") { Text(t("nav.pdf")) }
-            Link(to: "/template-engine") { Text(t("nav.template")) }
-            Link(to: "/accessibility") { Text(t("nav.a11y")) }
-            Link(to: "/cli") { Text(t("nav.cli")) }
         }
         Navbar.Actions {
             Button("EN", small) { setLocale("en") }

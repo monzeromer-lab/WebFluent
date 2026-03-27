@@ -10,80 +10,82 @@
 <body>
     <div id="app">
         <!--wf-component-->
-        <div class="wf-container wf-animate-fadeIn">
-            <div class="wf-spacer"></div>
-            <h1 class="wf-heading wf-heading--h1">Getting Started</h1>​
-            <p class="wf-text wf-text--muted">Get up and running with WebFluent in under a minute.</p>​
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Install</h2>​
-            <p class="wf-text">Build from source (requires Rust):</p>​
-            <div class="wf-spacer"></div>
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">git clone https://github.com/user/webfluent.git
+        <div class="wf-row">
+            <!--wf-component-->
+            <div class="wf-container wf-animate-fadeIn">
+                <div class="wf-spacer"></div>
+                <h1 class="wf-heading wf-heading--h1">Getting Started</h1>​
+                <p class="wf-text wf-text--muted">Get up and running with WebFluent in under a minute.</p>​
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Install</h2>​
+                <p class="wf-text">Build from source (requires Rust):</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">git clone https://github.com/user/webfluent.git
 cd webfluent
 cargo build --release</code>​
-                </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--muted">The binary is at target/release/wf. Add it to your PATH.</p>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Create a Project</h2>​
-            <div class="wf-spacer"></div>
-            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__body">
-                        <span class="wf-badge wf-badge--primary">SPA</span>​
-                        <div class="wf-spacer"></div>
-                        <h2 class="wf-heading wf-heading--h2">Interactive App</h2>​
-                        <p class="wf-text wf-text--muted">Dashboard with routing, stores, forms, modals, animations.</p>​
-                        <div class="wf-spacer"></div>
-                        <code class="wf-code">wf init my-app -t spa</code>​
                     </div>​
                 </div>​
-                <div class="wf-card wf-card--elevated">
-                    <div class="wf-card__body">
-                        <span class="wf-badge wf-badge--success">Static</span>​
-                        <div class="wf-spacer"></div>
-                        <h2 class="wf-heading wf-heading--h2">Static Site</h2>​
-                        <p class="wf-text wf-text--muted">Marketing site with SSG, i18n, blog, contact form.</p>​
-                        <div class="wf-spacer"></div>
-                        <code class="wf-code">wf init my-site -t static</code>​
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--muted">The binary is at target/release/wf. Add it to your PATH.</p>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Create a Project</h2>​
+                <div class="wf-spacer"></div>
+                <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__body">
+                            <span class="wf-badge wf-badge--primary">SPA</span>​
+                            <div class="wf-spacer"></div>
+                            <h2 class="wf-heading wf-heading--h2">Interactive App</h2>​
+                            <p class="wf-text wf-text--muted">Dashboard with routing, stores, forms, modals, animations.</p>​
+                            <div class="wf-spacer"></div>
+                            <code class="wf-code">wf init my-app -t spa</code>​
+                        </div>​
+                    </div>​
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__body">
+                            <span class="wf-badge wf-badge--success">Static</span>​
+                            <div class="wf-spacer"></div>
+                            <h2 class="wf-heading wf-heading--h2">Static Site</h2>​
+                            <p class="wf-text wf-text--muted">Marketing site with SSG, i18n, blog, contact form.</p>​
+                            <div class="wf-spacer"></div>
+                            <code class="wf-code">wf init my-site -t static</code>​
+                        </div>​
+                    </div>​
+                    <div class="wf-card wf-card--elevated">
+                        <div class="wf-card__body">
+                            <span class="wf-badge wf-badge--info">PDF</span>​
+                            <div class="wf-spacer"></div>
+                            <h2 class="wf-heading wf-heading--h2">PDF Document</h2>​
+                            <p class="wf-text wf-text--muted">Reports, invoices, docs. Tables, code blocks, auto page breaks.</p>​
+                            <div class="wf-spacer"></div>
+                            <code class="wf-code">wf init my-report -t pdf</code>​
+                        </div>​
                     </div>​
                 </div>​
-                <div class="wf-card wf-card--elevated">
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Build and Serve</h2>​
+                <div class="wf-card wf-card--outlined">
                     <div class="wf-card__body">
-                        <span class="wf-badge wf-badge--info">PDF</span>​
-                        <div class="wf-spacer"></div>
-                        <h2 class="wf-heading wf-heading--h2">PDF Document</h2>​
-                        <p class="wf-text wf-text--muted">Reports, invoices, docs. Tables, code blocks, auto page breaks.</p>​
-                        <div class="wf-spacer"></div>
-                        <code class="wf-code">wf init my-report -t pdf</code>​
-                    </div>​
-                </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Build and Serve</h2>​
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">cd my-app
+                        <code class="wf-code">cd my-app
 wf build
 wf serve</code>​
+                    </div>​
                 </div>​
-            </div>​
-            <div class="wf-spacer"></div>
-            <p class="wf-text wf-text--muted">Open http://localhost:3000 in your browser.</p>​
-            <div class="wf-spacer"></div>
-            <hr class="wf-divider">
-            <div class="wf-spacer"></div>
-            <h2 class="wf-heading wf-heading--h2">Project Structure</h2>​
-            <div class="wf-card wf-card--outlined">
-                <div class="wf-card__body">
-                    <code class="wf-code">my-app/
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--muted">Open http://localhost:3000 in your browser.</p>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Project Structure</h2>​
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">my-app/
 +-- webfluent.app.json       # Config
 +-- src/
 |   +-- App.wf               # Root (router, layout)
@@ -93,19 +95,20 @@ wf serve</code>​
 |   +-- translations/
 +-- public/
 +-- build/</code>​
+                    </div>​
                 </div>​
+                <div class="wf-spacer"></div>
+                <div class="wf-row">
+                    <button class="wf-btn wf-btn--primary">
+                        Read the Guide
+                    </button>​
+                    <button class="wf-btn">
+                        Browse Components
+                    </button>​
+                </div>​
+                <div class="wf-spacer"></div>
             </div>​
-            <div class="wf-spacer"></div>
-            <div class="wf-row">
-                <button class="wf-btn wf-btn--primary">
-                    Read the Guide
-                </button>​
-                <button class="wf-btn">
-                    Browse Components
-                </button>​
-            </div>​
-            <div class="wf-spacer"></div>
-        </div>​
+        </div>
         <!--wf-component-->
     </div>
     <script src="../app.js"></script>
