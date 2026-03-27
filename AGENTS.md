@@ -73,26 +73,75 @@ UserCard(name: "Monzer", role: "Developer")
 
 ### App (Router + Layout)
 
-```wf
-App {
-    Navbar {
-        Navbar.Brand { Text("My App", heading) }
-        Navbar.Links {
-            Link(to: "/") { Text("Home") }
-            Link(to: "/about") { Text("About") }
-        }
-    }
+The Router can be placed at any nesting depth inside the App. The codegen recursively finds it.
 
+```wf
+// Simple: Router at top level
+App {
+    Navbar { ... }
     Router {
         Route(path: "/", page: Home)
         Route(path: "/about", page: About)
-        Route(path: "/user/:id", page: UserProfile)
         Route(path: "*", page: NotFound)
     }
-
     Footer
 }
 ```
+
+```wf
+// Sidebar layout: Router nested inside Row > Container
+App {
+    Row {
+        style { min-height: "100vh" }
+
+        Sidebar {
+            style {
+                width: "220px"
+                position: "fixed"
+                top: "0"
+                left: "0"
+                bottom: "0"
+                background: "#1A1A19"
+            }
+            Sidebar.Header { Text("My App", bold) }
+            Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+            Sidebar.Item(to: "/about", icon: "info") { Text("About") }
+        }
+
+        Container {
+            style {
+                margin-left: "220px"
+                flex: "1"
+            }
+
+            Router {
+                Route(path: "/", page: Home)
+                Route(path: "/about", page: About)
+            }
+        }
+    }
+}
+```
+
+```wf
+// Navbar + Sidebar + Router
+App {
+    NavBar
+
+    Row {
+        DocSidebar
+
+        Router {
+            Route(path: "/", page: Home)
+            Route(path: "/docs", page: Docs)
+        }
+    }
+
+    SiteFooter
+}
+```
+
+The Router can be wrapped in `Row`, `Container`, `Stack`, or any layout component. Sibling elements (Sidebar, Navbar) inside the same wrapper are emitted alongside the router element.
 
 ### Stores (Shared State)
 
@@ -461,11 +510,18 @@ Card(outlined, fadeIn) {
     on:mouseenter { replayAnimation(event.currentTarget, "fadeIn") }
 }
 
-// Transition block
+// Transition block (declarative, per-property)
 Button("Hover") {
     transition {
         background 200ms ease
         transform 150ms spring
+    }
+}
+
+// CSS transition property (in style block)
+Button("Hover") {
+    style {
+        transition: "all 200ms ease"
     }
 }
 ```
@@ -481,11 +537,41 @@ Card {
         border-radius: "1rem"
         padding: "2rem"
         box-shadow: "0 2px 8px rgba(0,0,0,0.1)"
+        transition: "all 200ms ease"
     }
 }
 ```
 
-Style properties use CSS names (hyphenated). Values are strings or numbers.
+Style properties use CSS names (hyphenated). Values are strings or numbers. All CSS property names work, including `transition`, `animation`, `filter`, etc.
+
+### Responsive Styles with @media
+
+Style blocks support `@media` queries for responsive design:
+
+```wf
+Sidebar {
+    style {
+        width: "260px"
+        position: "fixed"
+
+        @media (max-width: 768px) {
+            display: "none"
+        }
+    }
+}
+
+Heading("Title", h1) {
+    style {
+        font-size: "3rem"
+
+        @media (max-width: 768px) {
+            font-size: "1.5rem"
+        }
+    }
+}
+```
+
+`@media` queries are emitted as scoped CSS `<style>` elements. Each element gets a unique class to ensure the query only applies to that element.
 
 ### Design Tokens (in webfluent.app.json)
 
@@ -772,3 +858,6 @@ Page Invoice (path: "/", title: "Invoice") {
 8. **String interpolation is reactive**: `Text("Count: {count}")` updates when `count` changes
 9. **Imports via `use`**: `use StoreName` to access shared stores
 10. **No semicolons needed**: statements are newline-separated
+11. **Style blocks support all CSS properties**: including `transition`, `animation`, `filter` — no conflicts with language keywords
+12. **`@media` inside style blocks**: responsive styles are scoped to the element — `@media (max-width: 768px) { display: "none" }`
+13. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth
