@@ -4925,13 +4925,15 @@ function Page_Accessibility(params) {
   const _e1953 = Component_NavBar({});
   _app.appendChild(_e1953);
   const _e1954 = WF.h("div", { className: "wf-row" });
+  _app.appendChild(_e1954);
   const _e1955 = Component_DocSidebar({});
   _e1954.appendChild(_e1955);
   const _routerEl = document.createElement('div');
   _routerEl.id = 'wf-router';
   _routerEl.style.flex = '1';
   _e1954.appendChild(_routerEl);
-  _app.appendChild(_e1954);
+  const _e1956 = Component_SiteFooter({});
+  _app.appendChild(_e1956);
   const _routes = [
     { path: "/", render: (params) => Page_Home(params) },
     { path: "/getting-started", render: (params) => Page_GettingStarted(params) },
@@ -4948,6 +4950,4 @@ function Page_Accessibility(params) {
     { path: "/404", render: (params) => Page_NotFound(params) },
   ];
   WF.createRouter(_routes, _routerEl);
-  const _e1956 = Component_SiteFooter({});
-  _app.appendChild(_e1956);
 })();

@@ -732,11 +732,11 @@ impl Parser {
     }
 
     fn parse_media_query(&mut self) -> Result<MediaQuery> {
-        // @media is lexed as an Identifier "@media" or Unknown token
-        // Consume everything until the opening brace as the condition
-        let mut condition = String::new();
+        // Build the @media condition by consuming tokens until '{'
+        // Reconstruct CSS-style spacing: join with hyphens for Ident-Minus-Ident,
+        // no space inside parens, space after colon.
+        let mut parts: Vec<String> = Vec::new();
 
-        // Consume all tokens until we hit OpenBrace, building the condition string
         while !self.check(&TokenType::OpenBrace) && !self.is_at_end() {
             let tok = self.current_type().clone();
             let text = match &tok {
@@ -755,11 +755,31 @@ impl Parser {
                 TokenType::Minus => "-".to_string(),
                 _ => format!("{}", tok),
             };
-            if !condition.is_empty() && !text.starts_with('(') && !condition.ends_with('(') {
-                condition.push(' ');
-            }
-            condition.push_str(&text);
+            parts.push(text);
             self.advance();
+        }
+
+        // Reconstruct: @media (max-width: 768px)
+        let mut condition = String::new();
+        for (i, part) in parts.iter().enumerate() {
+            if i > 0 {
+                let prev = &parts[i - 1];
+                let is_unit = part.chars().next().map_or(false, |c| c.is_alphabetic())
+                    && prev.chars().all(|c| c.is_ascii_digit() || c == '.');
+                // No space: around hyphens, inside parens, before colon, number+unit (768px)
+                if part == "-" || prev == "-"
+                    || prev == "(" || part == ")"
+                    || part == ":"
+                    || is_unit
+                {
+                    // no space
+                } else if prev == ":" {
+                    condition.push(' ');
+                } else {
+                    condition.push(' ');
+                }
+            }
+            condition.push_str(part);
         }
 
         self.expect(&TokenType::OpenBrace)?;
