@@ -12,9 +12,17 @@ target_windows := "x86_64-pc-windows-gnu"
 build:
     cargo build
 
-# Build release binary
+# Build release binary (compiler + LSP)
 release:
     cargo build --release
+
+# Build only the LSP server
+lsp:
+    cargo build --release -p wf-lsp
+
+# Install LSP server to ~/.cargo/bin
+install-lsp:
+    cargo install --path crates/wf-lsp
 
 # Build for a specific target
 build-target target:

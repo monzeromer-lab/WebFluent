@@ -1,0 +1,2 @@
+cargo:rustc-link-lib=static=wit_bindgen_cabi_realloc0_41_0
+cargo:rustc-link-search=native=/home/monzer-omer/.local/share/zed/extensions/installed/webfluent/target/wasm32-wasip2/debug/build/wit-bindgen-rt-a7b2b899171b7a5e/out

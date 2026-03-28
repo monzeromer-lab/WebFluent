@@ -1,0 +1,18 @@
+[package]
+name = "wf-lsp"
+version = "0.1.0"
+edition = "2024"
+description = "Language Server Protocol implementation for WebFluent"
+authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
+license = "GPL-3.0"
+
+[[bin]]
+name = "wf-lsp"
+path = "src/main.rs"
+
+[dependencies]
+webfluent = { path = "../.." }
+tower-lsp = "0.20"
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+dashmap = "6"

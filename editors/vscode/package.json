@@ -1,0 +1,56 @@
+{
+  "name": "webfluent",
+  "displayName": "WebFluent",
+  "description": "WebFluent language support — syntax highlighting, auto-completion, diagnostics, and more",
+  "version": "0.1.0",
+  "publisher": "monzeromer-lab",
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monzeromer-lab/WebFluent"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "activationEvents": [
+    "onLanguage:webfluent"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "webfluent",
+        "aliases": [
+          "WebFluent",
+          "wf"
+        ],
+        "extensions": [
+          ".wf"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "webfluent",
+        "scopeName": "source.webfluent",
+        "path": "./syntaxes/webfluent.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.2.0",
+    "typescript": "^5.7.0",
+    "vscode-languageclient": "^9.0.1"
+  }
+}

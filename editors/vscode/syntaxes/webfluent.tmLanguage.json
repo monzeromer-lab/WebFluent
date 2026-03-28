@@ -1,0 +1,364 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "WebFluent",
+  "scopeName": "source.webfluent",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#declarations" },
+    { "include": "#routing" },
+    { "include": "#state-keywords" },
+    { "include": "#control-flow" },
+    { "include": "#style-block" },
+    { "include": "#style-animation-keywords" },
+    { "include": "#fetch-block" },
+    { "include": "#fetch-callbacks" },
+    { "include": "#boolean-null" },
+    { "include": "#types" },
+    { "include": "#events" },
+    { "include": "#sub-components" },
+    { "include": "#built-in-components" },
+    { "include": "#modifiers" },
+    { "include": "#function-calls" },
+    { "include": "#named-args" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.webfluent",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.webfluent",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "captures": {
+            "0": { "name": "punctuation.definition.comment.webfluent" }
+          }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.webfluent",
+          "begin": "\"",
+          "end": "\"",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.webfluent" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.webfluent" }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.escape.webfluent",
+              "match": "\\\\."
+            },
+            {
+              "name": "meta.interpolation.webfluent",
+              "begin": "\\{",
+              "end": "\\}",
+              "beginCaptures": {
+                "0": { "name": "punctuation.section.interpolation.begin.webfluent" }
+              },
+              "endCaptures": {
+                "0": { "name": "punctuation.section.interpolation.end.webfluent" }
+              },
+              "contentName": "meta.embedded.expression.webfluent",
+              "patterns": [
+                { "include": "#operators" },
+                { "include": "#numbers" },
+                { "include": "#boolean-null" },
+                { "include": "#function-calls" },
+                {
+                  "name": "variable.other.readwrite.webfluent",
+                  "match": "[a-zA-Z_][a-zA-Z0-9_.]*"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.webfluent",
+          "match": "\\b[0-9]+\\.[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.webfluent",
+          "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(Page|Component)\\b\\s+([A-Z][a-zA-Z0-9]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.webfluent" },
+            "2": { "name": "entity.name.type.webfluent" }
+          }
+        },
+        {
+          "match": "\\b(Store)\\b\\s+([A-Z][a-zA-Z0-9]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.webfluent" },
+            "2": { "name": "entity.name.type.store.webfluent" }
+          }
+        },
+        {
+          "match": "\\b(App)\\b",
+          "name": "keyword.declaration.webfluent"
+        }
+      ]
+    },
+    "routing": {
+      "patterns": [
+        {
+          "name": "keyword.control.routing.webfluent",
+          "match": "\\b(Router|Route)\\b"
+        }
+      ]
+    },
+    "state-keywords": {
+      "patterns": [
+        {
+          "match": "\\b(state)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.other.state.webfluent" },
+            "2": { "name": "variable.other.state.webfluent" }
+          }
+        },
+        {
+          "match": "\\b(derived)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.other.derived.webfluent" },
+            "2": { "name": "variable.other.derived.webfluent" }
+          }
+        },
+        {
+          "match": "\\b(action)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.other.action.webfluent" },
+            "2": { "name": "entity.name.function.action.webfluent" }
+          }
+        },
+        {
+          "name": "keyword.other.webfluent",
+          "match": "\\b(effect|use|navigate|log)\\b"
+        }
+      ]
+    },
+    "control-flow": {
+      "patterns": [
+        {
+          "name": "keyword.control.webfluent",
+          "match": "\\b(if|else|for|in|show)\\b"
+        }
+      ]
+    },
+    "style-block": {
+      "begin": "\\b(style)\\s*\\{",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.style.webfluent" }
+      },
+      "end": "\\}",
+      "name": "meta.style-block.webfluent",
+      "patterns": [
+        { "include": "#comments" },
+        {
+          "match": "([a-zA-Z-]+)\\s*:\\s*",
+          "captures": {
+            "1": { "name": "support.type.property-name.css.webfluent" }
+          }
+        },
+        { "include": "#strings" },
+        { "include": "#numbers" }
+      ]
+    },
+    "style-animation-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.other.style.webfluent",
+          "match": "\\b(style|transition|animate)\\b"
+        }
+      ]
+    },
+    "fetch-block": {
+      "patterns": [
+        {
+          "match": "\\b(fetch)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s+(from)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.fetch.webfluent" },
+            "2": { "name": "variable.other.fetch-result.webfluent" },
+            "3": { "name": "keyword.control.from.webfluent" }
+          }
+        },
+        {
+          "name": "keyword.control.from.webfluent",
+          "match": "\\b(from)\\b"
+        }
+      ]
+    },
+    "fetch-callbacks": {
+      "patterns": [
+        {
+          "name": "keyword.control.fetch-callback.webfluent",
+          "match": "\\b(loading|error|success)(?=\\s*[\\({])"
+        }
+      ]
+    },
+    "boolean-null": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.true.webfluent",
+          "match": "\\btrue\\b"
+        },
+        {
+          "name": "constant.language.boolean.false.webfluent",
+          "match": "\\bfalse\\b"
+        },
+        {
+          "name": "constant.language.null.webfluent",
+          "match": "\\bnull\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.webfluent",
+          "match": "\\b(String|Number|Bool|List|Map)\\b"
+        }
+      ]
+    },
+    "events": {
+      "patterns": [
+        {
+          "match": "(on)(:)(click|input|change|submit|focus|blur|keydown|keyup|keypress|mouseenter|mouseleave|mouseover|mouseout|mount|unmount)\\b",
+          "captures": {
+            "1": { "name": "keyword.other.event.webfluent" },
+            "2": { "name": "punctuation.separator.event.webfluent" },
+            "3": { "name": "entity.name.event.webfluent" }
+          }
+        }
+      ]
+    },
+    "sub-components": {
+      "patterns": [
+        {
+          "match": "\\b(Card|Navbar|Sidebar|Menu|Dropdown|Breadcrumb|Carousel|Modal)(\\.)(Header|Body|Footer|Brand|Links|Actions|Item|Divider|Slide)\\b",
+          "captures": {
+            "1": { "name": "support.class.component.webfluent" },
+            "2": { "name": "punctuation.accessor.dot.webfluent" },
+            "3": { "name": "support.class.sub-component.webfluent" }
+          }
+        }
+      ]
+    },
+    "built-in-components": {
+      "patterns": [
+        {
+          "name": "support.class.component.webfluent",
+          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Link|Tabs|TabPage|Breadcrumb|Menu|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Icon|Carousel|Text|Heading|Code|Blockquote|Document|Section|Paragraph|Header|Footer|PageBreak)\\b"
+        }
+      ]
+    },
+    "modifiers": {
+      "patterns": [
+        {
+          "name": "support.constant.modifier.webfluent",
+          "match": "(?<=[,(\\s])\\b(primary|secondary|success|danger|warning|info|small|medium|large|bold|italic|underline|uppercase|lowercase|center|right|muted|heading|elevated|outlined|flat|full|fit|rounded|pill|square|block|ordered|dismissible|fadeIn|fadeOut|slideUp|slideDown|slideLeft|slideRight|scaleIn|scaleOut|bounce|shake|pulse|spin|fast|slow|text|h1|h2|h3|h4|h5|h6|sm|md|lg|xl)\\b"
+        }
+      ]
+    },
+    "function-calls": {
+      "patterns": [
+        {
+          "match": "\\b(t|setLocale|navigate|replayAnimation|log)\\s*(\\()",
+          "captures": {
+            "1": { "name": "entity.name.function.webfluent" },
+            "2": { "name": "punctuation.definition.arguments.begin.webfluent" }
+          }
+        },
+        {
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\()",
+          "captures": {
+            "1": { "name": "entity.name.function.call.webfluent" },
+            "2": { "name": "punctuation.definition.arguments.begin.webfluent" }
+          }
+        }
+      ]
+    },
+    "named-args": {
+      "patterns": [
+        {
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_-]*)\\s*(:)(?!:)",
+          "captures": {
+            "1": { "name": "variable.parameter.named.webfluent" },
+            "2": { "name": "punctuation.separator.key-value.webfluent" }
+          }
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.webfluent",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.logical.webfluent",
+          "match": "&&|\\|\\||!"
+        },
+        {
+          "name": "keyword.operator.assignment.webfluent",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.arithmetic.webfluent",
+          "match": "[+\\-*/%]"
+        },
+        {
+          "name": "keyword.operator.arrow.webfluent",
+          "match": "=>"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.section.block.begin.webfluent",
+          "match": "\\{"
+        },
+        {
+          "name": "punctuation.section.block.end.webfluent",
+          "match": "\\}"
+        },
+        {
+          "name": "punctuation.definition.arguments.begin.webfluent",
+          "match": "\\("
+        },
+        {
+          "name": "punctuation.definition.arguments.end.webfluent",
+          "match": "\\)"
+        },
+        {
+          "name": "punctuation.separator.comma.webfluent",
+          "match": ","
+        },
+        {
+          "name": "punctuation.terminator.dot.webfluent",
+          "match": "\\."
+        }
+      ]
+    }
+  }
+}

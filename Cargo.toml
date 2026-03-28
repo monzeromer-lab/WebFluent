@@ -32,6 +32,10 @@ path = "src/lib.rs"
 name = "wf"
 path = "src/main.rs"
 
+[workspace]
+members = [".", "crates/wf-lsp"]
+exclude = ["editors/zed"]
+
 [dependencies]
 clap = { version = "4.6.0", features = ["derive"] }
 serde = { version = "1.0.228", features = ["derive"] }
