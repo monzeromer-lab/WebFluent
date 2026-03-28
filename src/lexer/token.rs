@@ -1,5 +1,6 @@
 use std::fmt;
 
+/// All token types produced by the WebFluent lexer.
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     // Top-level declarations
@@ -213,10 +214,14 @@ impl fmt::Display for TokenType {
     }
 }
 
+/// A token with its type and source location.
 #[derive(Debug, Clone)]
 pub struct Token {
+    /// The token type and payload.
     pub token_type: TokenType,
+    /// 1-based line number in the source file.
     pub line: usize,
+    /// 1-based column number in the source file.
     pub column: usize,
 }
 

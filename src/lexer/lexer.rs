@@ -1,6 +1,7 @@
 use crate::error::{Diagnostic, WebFluentError, Result};
 use super::token::{Token, TokenType, keyword_or_identifier};
 
+/// The WebFluent lexer — tokenizes `.wf` source code into a token stream.
 pub struct Lexer {
     source: Vec<char>,
     pos: usize,
@@ -10,6 +11,9 @@ pub struct Lexer {
 }
 
 impl Lexer {
+    /// Create a new lexer for the given source code.
+    ///
+    /// `file` is used for error reporting (file path or `"<input>"`).
     pub fn new(source: &str, file: &str) -> Self {
         Self {
             source: source.chars().collect(),
@@ -20,6 +24,9 @@ impl Lexer {
         }
     }
 
+    /// Tokenize the source code into a vector of [`Token`]s.
+    ///
+    /// Returns an error if the source contains invalid characters or unterminated strings.
     pub fn tokenize(&mut self) -> Result<Vec<Token>> {
         let mut tokens = Vec::new();
 

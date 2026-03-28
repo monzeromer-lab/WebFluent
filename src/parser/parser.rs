@@ -2,6 +2,7 @@ use crate::lexer::{Token, TokenType};
 use crate::error::{Diagnostic, WebFluentError, Result};
 use super::ast::*;
 
+/// The WebFluent parser — converts a token stream into an AST.
 pub struct Parser {
     tokens: Vec<Token>,
     pos: usize,
@@ -9,6 +10,9 @@ pub struct Parser {
 }
 
 impl Parser {
+    /// Create a new parser from a token stream.
+    ///
+    /// `file` is used for error reporting.
     pub fn new(tokens: Vec<Token>, file: &str) -> Self {
         Self {
             tokens,
@@ -17,6 +21,9 @@ impl Parser {
         }
     }
 
+    /// Parse the token stream into a [`Program`] AST.
+    ///
+    /// Returns an error if the token stream contains syntax errors.
     pub fn parse(&mut self) -> Result<Program> {
         let mut declarations = Vec::new();
         while !self.is_at_end() {

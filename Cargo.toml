@@ -2,12 +2,16 @@
 name = "webfluent"
 version = "0.4.0-alpha"
 edition = "2024"
-description = "The Web-First Language — compiles to HTML, CSS, and JavaScript"
+description = "The Web-First Language — compiles to HTML, CSS, JavaScript, and PDF. 50+ built-in components, reactivity, routing, i18n, SSG, and template engine."
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-license = "MIT"
+license = "GPL-3.0"
 repository = "https://github.com/monzeromer-lab/WebFluent"
 homepage = "https://monzeromer-lab.github.io/WebFluent"
+documentation = "https://docs.rs/webfluent"
 readme = "README.md"
+keywords = ["web", "language", "compiler", "template-engine", "pdf"]
+categories = ["compilers", "template-engine", "web-programming"]
+rust-version = "1.85"
 
 [package.metadata.deb]
 maintainer = "Monzer Omer"

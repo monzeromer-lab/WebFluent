@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 use crate::themes;
 
+/// Generate the CSS stylesheet with design tokens and component styles.
+///
+/// Merges the theme's base tokens with any custom overrides, then appends
+/// all component CSS rules and animation keyframes.
 pub fn generate_css(theme_name: &str, custom_tokens: &HashMap<String, String>) -> String {
     let mut tokens = themes::get_theme_tokens(theme_name);
 

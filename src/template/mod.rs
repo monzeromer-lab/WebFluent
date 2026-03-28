@@ -9,7 +9,42 @@ use crate::codegen::pdf::PdfCodegen;
 use crate::config::project::PdfConfig;
 use crate::error::{WebFluentError, Result};
 
-/// A compiled WebFluent template ready for rendering with data.
+/// A compiled WebFluent template ready for rendering with JSON data.
+///
+/// `Template` is the primary public API for using WebFluent as a library.
+/// It parses `.wf` source code and renders it to HTML or PDF with data substitution.
+///
+/// # Examples
+///
+/// ```rust
+/// use webfluent::Template;
+/// use serde_json::json;
+///
+/// let tpl = Template::from_str(r#"
+///     Page Home (path: "/", title: "Hello") {
+///         Container { Heading("Hello, {name}!", h1) }
+///     }
+/// "#).unwrap();
+///
+/// let html = tpl.render_html(&json!({"name": "World"})).unwrap();
+/// assert!(html.contains("Hello, World!"));
+/// ```
+///
+/// # Theming
+///
+/// Use [`with_theme`](Template::with_theme) and [`with_tokens`](Template::with_tokens)
+/// to customize the design system:
+///
+/// ```rust,no_run
+/// # use webfluent::Template;
+/// # use serde_json::json;
+/// let html = Template::from_str("Page P (path: \"/\") { Text(\"Hi\") }")
+///     .unwrap()
+///     .with_theme("dark")
+///     .with_tokens(&[("color-primary", "#8B5CF6")])
+///     .render_html(&json!({}))
+///     .unwrap();
+/// ```
 pub struct Template {
     source: String,
     theme: String,
@@ -18,6 +53,14 @@ pub struct Template {
 
 impl Template {
     /// Create a template from a `.wf` source string.
+    ///
+    /// The source is parsed immediately to validate syntax. Returns an error
+    /// if the source contains lexer or parser errors.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`]
+    /// if the source is invalid.
     pub fn from_str(source: &str) -> Result<Self> {
         // Validate that it parses
         let mut lexer = Lexer::new(source, "<template>");
@@ -32,7 +75,12 @@ impl Template {
         })
     }
 
-    /// Create a template from a `.wf` file.
+    /// Create a template from a `.wf` file on disk.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`WebFluentError::IoError`] if the file cannot be read,
+    /// or a parse error if the content is invalid.
     pub fn from_file(path: &str) -> Result<Self> {
         let source = fs::read_to_string(path).map_err(|e| {
             WebFluentError::IoError(format!("Failed to read template '{}': {}", path, e))
@@ -40,13 +88,18 @@ impl Template {
         Self::from_str(&source)
     }
 
-    /// Set the theme for rendering.
+    /// Set the theme for rendering (builder pattern).
+    ///
+    /// Built-in themes: `"default"`, `"dark"`, `"minimal"`, `"brutalist"`.
     pub fn with_theme(mut self, theme: &str) -> Self {
         self.theme = theme.to_string();
         self
     }
 
-    /// Set custom design tokens.
+    /// Override design tokens (builder pattern).
+    ///
+    /// Common tokens: `"color-primary"`, `"color-secondary"`, `"font-family"`,
+    /// `"radius-md"`, `"spacing-md"`, etc.
     pub fn with_tokens(mut self, tokens: &[(&str, &str)]) -> Self {
         for (k, v) in tokens {
             self.custom_tokens.insert(k.to_string(), v.to_string());
@@ -54,7 +107,13 @@ impl Template {
         self
     }
 
-    /// Render to a full HTML document (with `<html>`, `<style>`, etc.).
+    /// Render to a full HTML document with embedded CSS.
+    ///
+    /// Returns a complete `<!DOCTYPE html>` document with `<html>`, `<head>` (including
+    /// a `<style>` block with component CSS and theme tokens), and `<body>`.
+    ///
+    /// Top-level keys in `data` become template variables accessible via `{key}`
+    /// interpolation and in `for`/`if` blocks.
     pub fn render_html(&self, data: &Value) -> Result<String> {
         let fragment = self.render_html_fragment(data)?;
         let css = generate_css(&self.theme, &self.custom_tokens);
@@ -77,7 +136,10 @@ impl Template {
         ))
     }
 
-    /// Render to an HTML fragment (just the content, no wrapper).
+    /// Render to an HTML fragment (no `<html>`/`<head>`/`<body>` wrapper).
+    ///
+    /// Useful for embedding rendered content into an existing page or email template.
+    /// Does not include CSS — use [`render_html`](Template::render_html) for a complete document.
     pub fn render_html_fragment(&self, data: &Value) -> Result<String> {
         let program = self.parse()?;
         let mut ctx = RenderContext::new(data);
@@ -98,7 +160,13 @@ impl Template {
         Ok(html)
     }
 
-    /// Render to PDF bytes.
+    /// Render to PDF as raw bytes.
+    ///
+    /// Returns a valid PDF file as `Vec<u8>`. Write the result to a file
+    /// or send it as an HTTP response with `Content-Type: application/pdf`.
+    ///
+    /// Uses A4 page size with 72pt margins by default. The template should use
+    /// PDF-compatible components only (no `Button`, `Input`, `Router`, etc.).
     pub fn render_pdf(&self, data: &Value) -> Result<Vec<u8>> {
         let program = self.parse()?;
 

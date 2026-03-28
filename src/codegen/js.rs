@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use crate::parser::ast::*;
 use crate::runtime;
 
+/// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
     indent: usize,

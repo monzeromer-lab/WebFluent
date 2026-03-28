@@ -4,16 +4,21 @@ use std::fs;
 use std::path::Path;
 use crate::error::{WebFluentError, Result};
 
+/// The output format for the build pipeline.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum OutputType {
+    /// Single-page application with client-side routing.
     Spa,
+    /// Static site with pre-rendered HTML pages.
     Static,
+    /// PDF document output.
     Pdf,
 }
 
 fn default_output_type() -> OutputType { OutputType::Spa }
 
+/// Root project configuration, loaded from `webfluent.app.json`.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProjectConfig {
     pub name: String,
@@ -33,6 +38,7 @@ pub struct ProjectConfig {
     pub i18n: Option<I18nConfig>,
 }
 
+/// Theme configuration — name, mode, and custom design tokens.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ThemeConfig {
     #[serde(default = "default_theme_name")]
@@ -45,6 +51,7 @@ pub struct ThemeConfig {
     pub tokens: HashMap<String, String>,
 }
 
+/// Build pipeline configuration — output directory, minification, SSG, and PDF settings.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BuildConfig {
     #[serde(default = "default_output_dir")]
@@ -66,6 +73,7 @@ pub struct BuildConfig {
     pub pdf: PdfConfig,
 }
 
+/// PDF output configuration — page size, margins, fonts.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PdfConfig {
     #[serde(default = "default_page_size")]

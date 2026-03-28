@@ -168,6 +168,10 @@ impl ContentStream {
 //   Shapes (rects, lines) position themselves relative to cursor_y.
 //   Y=0 is page bottom. Y increases upward.
 
+/// PDF code generator — renders the AST to a PDF document using Base14 fonts.
+///
+/// Supports text, headings, tables, lists, code blocks, cards, badges, alerts,
+/// progress bars, images, and page headers/footers with `{page}`/`{pages}` variables.
 pub struct PdfCodegen {
     objects: Vec<PdfObj>,
     pages: Vec<usize>,

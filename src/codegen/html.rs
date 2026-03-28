@@ -1,5 +1,6 @@
 use crate::config::ProjectConfig;
 
+/// Generate the HTML entry point (`index.html`) for a WebFluent project.
 pub fn generate_html(config: &ProjectConfig) -> String {
     let title = if config.meta.title.is_empty() {
         &config.name

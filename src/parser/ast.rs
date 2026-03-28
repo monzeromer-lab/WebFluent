@@ -1,10 +1,18 @@
-/// All AST node types for the WebFluent language.
+//! Abstract Syntax Tree (AST) node types for the WebFluent language.
+//!
+//! The AST is produced by the [`crate::parser::Parser`] and consumed by the
+//! code generators in [`crate::codegen`].
 
+/// The root AST node — a complete WebFluent program.
+///
+/// Contains all top-level declarations: pages, components, stores, and the app block.
 #[derive(Debug, Clone)]
 pub struct Program {
+    /// Top-level declarations in source order.
     pub declarations: Vec<Declaration>,
 }
 
+/// A top-level declaration in a WebFluent program.
 #[derive(Debug, Clone)]
 pub enum Declaration {
     Page(PageDecl),
@@ -15,6 +23,7 @@ pub enum Declaration {
 
 // ─── Pages ───────────────────────────────────────────────
 
+/// A page declaration: `Page Name (path: "/route", title: "Title") { ... }`.
 #[derive(Debug, Clone)]
 pub struct PageDecl {
     pub name: String,
@@ -27,6 +36,7 @@ pub struct PageDecl {
 
 // ─── Components ──────────────────────────────────────────
 
+/// A reusable component: `Component Name (props...) { ... }`.
 #[derive(Debug, Clone)]
 pub struct ComponentDecl {
     pub name: String,
@@ -34,6 +44,7 @@ pub struct ComponentDecl {
     pub body: Vec<Statement>,
 }
 
+/// A component property declaration with type, optionality, and default value.
 #[derive(Debug, Clone)]
 pub struct PropDecl {
     pub name: String,
@@ -44,6 +55,7 @@ pub struct PropDecl {
 
 // ─── Stores ──────────────────────────────────────────────
 
+/// A shared state store: `Store Name { state ..., derived ..., action ... }`.
 #[derive(Debug, Clone)]
 pub struct StoreDecl {
     pub name: String,
@@ -52,6 +64,7 @@ pub struct StoreDecl {
 
 // ─── App ─────────────────────────────────────────────────
 
+/// The root app declaration: `App { Navbar, Router, Footer }`.
 #[derive(Debug, Clone)]
 pub struct AppDecl {
     pub body: Vec<Statement>,
@@ -59,6 +72,7 @@ pub struct AppDecl {
 
 // ─── Types ───────────────────────────────────────────────
 
+/// WebFluent's type system for component props.
 #[derive(Debug, Clone, PartialEq)]
 pub enum WfType {
     String,
