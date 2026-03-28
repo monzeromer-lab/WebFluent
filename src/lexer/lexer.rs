@@ -84,10 +84,16 @@ impl Lexer {
 
                 '!' => {
                     if self.peek() == Some('=') {
-                        let t = Token::new(TokenType::NotEquals, self.line, self.column);
-                        self.advance();
-                        self.advance();
-                        t
+                        let line = self.line;
+                        let col = self.column;
+                        self.advance(); // skip !
+                        self.advance(); // skip =
+                        if self.pos < self.source.len() && self.current() == '=' {
+                            self.advance(); // skip second =
+                            Token::new(TokenType::StrictNotEqual, line, col)
+                        } else {
+                            Token::new(TokenType::NotEquals, line, col)
+                        }
                     } else {
                         self.single_token(TokenType::Not)
                     }
@@ -122,9 +128,7 @@ impl Lexer {
                         self.advance();
                         t
                     } else {
-                        return Err(WebFluentError::LexerError(
-                            Diagnostic::new("Unexpected character '&', did you mean '&&'?", &self.file, self.line, self.column)
-                        ));
+                        self.single_token(TokenType::BitwiseAnd)
                     }
                 }
 

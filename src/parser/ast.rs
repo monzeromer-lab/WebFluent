@@ -103,6 +103,7 @@ pub enum Statement {
     Log(Expr),
     Animate(AnimateStmt),
     ExprStatement(Expr),
+    Return(Option<Expr>),
 }
 
 // ─── State declarations ─────────────────────────────────

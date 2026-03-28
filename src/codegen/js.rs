@@ -2046,6 +2046,8 @@ impl JsCodegen {
         if let Some((err_var, error_body)) = &fetch.error_block {
             self.emit_line(&format!("error: ({}) => {{", err_var));
             self.indent += 1;
+            // Create signal alias so _{err_var}() resolves inside the callback body
+            self.emit_line(&format!("const _{} = () => {};", err_var, err_var));
             let e_var = self.fresh_var();
             self.emit_line(&format!("const {} = document.createDocumentFragment();", e_var));
             for stmt in error_body {
@@ -2059,6 +2061,8 @@ impl JsCodegen {
         if let Some(success_body) = &fetch.success_block {
             self.emit_line(&format!("success: ({}) => {{", fetch.variable));
             self.indent += 1;
+            // Create signal alias so _{variable}() resolves inside the callback body
+            self.emit_line(&format!("const _{} = () => {};", fetch.variable, fetch.variable));
             let s_var = self.fresh_var();
             self.emit_line(&format!("const {} = document.createDocumentFragment();", s_var));
             for stmt in success_body {
@@ -2139,6 +2143,14 @@ impl JsCodegen {
             }
             Statement::Fetch(fetch) => {
                 self.emit_imperative_fetch(fetch);
+            }
+            Statement::Return(expr) => {
+                if let Some(e) = expr {
+                    let val = self.emit_expr(e);
+                    self.emit_line(&format!("return {};", val));
+                } else {
+                    self.emit_line("return;");
+                }
             }
             _ => {}
         }
@@ -2235,6 +2247,19 @@ impl JsCodegen {
                 // i18n: locale and dir are reactive i18n signals
                 if self.has_i18n() && (name == "locale" || name == "dir") {
                     return format!("WF.i18n.{}()", name);
+                }
+                // Browser globals should NOT be prefixed
+                const BROWSER_GLOBALS: &[&str] = &[
+                    "window", "document", "console", "localStorage", "sessionStorage",
+                    "JSON", "Math", "Date", "setTimeout", "setInterval", "clearTimeout", "clearInterval",
+                    "parseInt", "parseFloat", "Array", "Object", "String", "Number", "Boolean",
+                    "Promise", "Error", "Map", "Set", "RegExp", "Infinity", "NaN", "undefined",
+                    "encodeURIComponent", "decodeURIComponent", "encodeURI", "decodeURI",
+                    "atob", "btoa", "fetch", "alert", "confirm", "prompt",
+                    "requestAnimationFrame", "cancelAnimationFrame",
+                ];
+                if BROWSER_GLOBALS.contains(&name.as_str()) {
+                    return format!("{}", name);
                 }
                 // Store references, component props, and built-in names stay as-is
                 if self.stores.contains(name)

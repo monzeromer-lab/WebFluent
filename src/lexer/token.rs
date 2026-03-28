@@ -23,6 +23,7 @@ pub enum TokenType {
     From,
     Navigate,
     Log,
+    Return,
 
     // Control flow
     If,
@@ -146,6 +147,8 @@ pub enum TokenType {
     Equals,
     DoubleEquals,
     NotEquals,
+    StrictNotEqual,
+    BitwiseAnd,
     LessThan,
     GreaterThan,
     LessEquals,
@@ -193,6 +196,7 @@ impl fmt::Display for TokenType {
             TokenType::From => write!(f, "from"),
             TokenType::Navigate => write!(f, "navigate"),
             TokenType::Log => write!(f, "log"),
+            TokenType::Return => write!(f, "return"),
             TokenType::If => write!(f, "if"),
             TokenType::Else => write!(f, "else"),
             TokenType::For => write!(f, "for"),
@@ -257,6 +261,7 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "from" => TokenType::From,
         "navigate" => TokenType::Navigate,
         "log" => TokenType::Log,
+        "return" => TokenType::Return,
 
         // Control flow
         "if" => TokenType::If,

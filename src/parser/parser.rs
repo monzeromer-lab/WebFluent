@@ -245,6 +245,7 @@ impl Parser {
             TokenType::Fetch => self.parse_fetch_decl(),
             TokenType::Navigate => self.parse_navigate(),
             TokenType::Log => self.parse_log(),
+            TokenType::Return => self.parse_return(),
             TokenType::Children => {
                 self.advance();
                 Ok(Statement::UIElement(UIElement {
@@ -337,6 +338,17 @@ impl Parser {
         let expr = self.parse_expression()?;
         self.expect(&TokenType::CloseParen)?;
         Ok(Statement::Log(expr))
+    }
+
+    fn parse_return(&mut self) -> Result<Statement> {
+        self.expect(&TokenType::Return)?;
+        // Return with optional expression - if next token starts an expression, parse it
+        if self.check(&TokenType::CloseBrace) || self.is_at_end() {
+            Ok(Statement::Return(None))
+        } else {
+            let expr = self.parse_expression()?;
+            Ok(Statement::Return(Some(expr)))
+        }
     }
 
     // ─── Control flow ────────────────────────────────────
@@ -475,7 +487,7 @@ impl Parser {
         self.expect(&TokenType::Fetch)?;
         let variable = self.expect_identifier()?;
         self.expect(&TokenType::From)?;
-        let url = self.parse_expression()?;
+        let url = self.parse_fetch_url_expression()?;
 
         // Optional fetch options
         let mut options = Vec::new();
@@ -534,6 +546,246 @@ impl Parser {
             error_block,
             success_block,
         }))
+    }
+
+    /// Parse an expression for the fetch URL context.
+    /// This avoids consuming `(` as a function call when the `(` starts fetch options
+    /// (i.e., `(identifier: ...)`).
+    fn parse_fetch_url_expression(&mut self) -> Result<Expr> {
+        self.parse_fetch_url_or()
+    }
+
+    fn parse_fetch_url_or(&mut self) -> Result<Expr> {
+        let mut left = self.parse_fetch_url_and()?;
+        while self.match_token(&TokenType::Or) {
+            let right = self.parse_fetch_url_and()?;
+            left = Expr::BinaryOp(Box::new(left), BinOp::Or, Box::new(right));
+        }
+        Ok(left)
+    }
+
+    fn parse_fetch_url_and(&mut self) -> Result<Expr> {
+        let mut left = self.parse_fetch_url_equality()?;
+        while self.match_token(&TokenType::And) {
+            let right = self.parse_fetch_url_equality()?;
+            left = Expr::BinaryOp(Box::new(left), BinOp::And, Box::new(right));
+        }
+        Ok(left)
+    }
+
+    fn parse_fetch_url_equality(&mut self) -> Result<Expr> {
+        let mut left = self.parse_fetch_url_comparison()?;
+        loop {
+            if self.match_token(&TokenType::DoubleEquals) {
+                let right = self.parse_fetch_url_comparison()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Eq, Box::new(right));
+            } else if self.match_token(&TokenType::NotEquals) || self.match_token(&TokenType::StrictNotEqual) {
+                let right = self.parse_fetch_url_comparison()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Neq, Box::new(right));
+            } else {
+                break;
+            }
+        }
+        Ok(left)
+    }
+
+    fn parse_fetch_url_comparison(&mut self) -> Result<Expr> {
+        let mut left = self.parse_fetch_url_addition()?;
+        loop {
+            if self.match_token(&TokenType::LessThan) {
+                let right = self.parse_fetch_url_addition()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Lt, Box::new(right));
+            } else if self.match_token(&TokenType::GreaterThan) {
+                let right = self.parse_fetch_url_addition()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Gt, Box::new(right));
+            } else if self.match_token(&TokenType::LessEquals) {
+                let right = self.parse_fetch_url_addition()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Lte, Box::new(right));
+            } else if self.match_token(&TokenType::GreaterEquals) {
+                let right = self.parse_fetch_url_addition()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Gte, Box::new(right));
+            } else {
+                break;
+            }
+        }
+        Ok(left)
+    }
+
+    fn parse_fetch_url_addition(&mut self) -> Result<Expr> {
+        let mut left = self.parse_fetch_url_multiplication()?;
+        loop {
+            if self.match_token(&TokenType::Plus) {
+                let right = self.parse_fetch_url_multiplication()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Add, Box::new(right));
+            } else if self.match_token(&TokenType::Minus) {
+                let right = self.parse_fetch_url_multiplication()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Sub, Box::new(right));
+            } else {
+                break;
+            }
+        }
+        Ok(left)
+    }
+
+    fn parse_fetch_url_multiplication(&mut self) -> Result<Expr> {
+        let mut left = self.parse_fetch_url_unary()?;
+        loop {
+            if self.match_token(&TokenType::Star) {
+                let right = self.parse_fetch_url_unary()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Mul, Box::new(right));
+            } else if self.match_token(&TokenType::Slash) {
+                let right = self.parse_fetch_url_unary()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Div, Box::new(right));
+            } else if self.match_token(&TokenType::Percent) {
+                let right = self.parse_fetch_url_unary()?;
+                left = Expr::BinaryOp(Box::new(left), BinOp::Mod, Box::new(right));
+            } else {
+                break;
+            }
+        }
+        Ok(left)
+    }
+
+    fn parse_fetch_url_unary(&mut self) -> Result<Expr> {
+        if self.match_token(&TokenType::Not) {
+            let expr = self.parse_fetch_url_unary()?;
+            return Ok(Expr::UnaryOp(UnaryOp::Not, Box::new(expr)));
+        }
+        if self.match_token(&TokenType::Minus) {
+            let expr = self.parse_fetch_url_unary()?;
+            return Ok(Expr::UnaryOp(UnaryOp::Neg, Box::new(expr)));
+        }
+        self.parse_fetch_url_postfix()
+    }
+
+    fn parse_fetch_url_postfix(&mut self) -> Result<Expr> {
+        let mut expr = self.parse_fetch_url_primary()?;
+        loop {
+            if self.match_token(&TokenType::Dot) {
+                let prop = self.expect_identifier()?;
+                if self.check(&TokenType::OpenParen) {
+                    self.advance();
+                    let mut args = Vec::new();
+                    while !self.check(&TokenType::CloseParen) {
+                        args.push(self.parse_expression()?);
+                        if !self.check(&TokenType::CloseParen) {
+                            self.expect(&TokenType::Comma)?;
+                        }
+                    }
+                    self.expect(&TokenType::CloseParen)?;
+                    expr = Expr::MethodCall(Box::new(expr), prop, args);
+                } else {
+                    expr = Expr::PropertyAccess(Box::new(expr), prop);
+                }
+            } else if self.match_token(&TokenType::OpenBracket) {
+                let index = self.parse_expression()?;
+                self.expect(&TokenType::CloseBracket)?;
+                expr = Expr::IndexAccess(Box::new(expr), Box::new(index));
+            } else {
+                break;
+            }
+        }
+        Ok(expr)
+    }
+
+    /// Like parse_primary but does NOT consume `(` as function call on identifiers
+    /// when it looks like fetch options (identifier followed by colon).
+    fn parse_fetch_url_primary(&mut self) -> Result<Expr> {
+        match self.current_type().clone() {
+            TokenType::StringLiteral(s) => {
+                let s = s.clone();
+                self.advance();
+                if has_interpolation(&s) {
+                    let parts = self.parse_interpolated_string(&s)?;
+                    Ok(Expr::InterpolatedString(parts))
+                } else {
+                    Ok(Expr::StringLiteral(s))
+                }
+            }
+            TokenType::NumberLiteral(n) => {
+                self.advance();
+                Ok(Expr::NumberLiteral(n))
+            }
+            TokenType::BoolLiteral(b) => {
+                self.advance();
+                Ok(Expr::BoolLiteral(b))
+            }
+            TokenType::Null => {
+                self.advance();
+                Ok(Expr::Null)
+            }
+            TokenType::Identifier(name) => {
+                let name = name.clone();
+                self.advance();
+
+                // Check for lambda
+                if self.check(&TokenType::Arrow) {
+                    self.advance();
+                    let body = self.parse_expression()?;
+                    return Ok(Expr::Lambda(name, Box::new(body)));
+                }
+
+                // Check for function call BUT NOT if it looks like fetch options
+                if self.check(&TokenType::OpenParen) {
+                    // Look ahead: if `(` is followed by identifier + `:`, it's fetch options
+                    if self.is_fetch_options_start() {
+                        return Ok(Expr::Identifier(name));
+                    }
+                    self.advance();
+                    let mut args = Vec::new();
+                    while !self.check(&TokenType::CloseParen) {
+                        args.push(self.parse_expression()?);
+                        if !self.check(&TokenType::CloseParen) {
+                            self.expect(&TokenType::Comma)?;
+                        }
+                    }
+                    self.expect(&TokenType::CloseParen)?;
+                    return Ok(Expr::FunctionCall(name, args));
+                }
+
+                Ok(Expr::Identifier(name))
+            }
+            TokenType::OpenParen => {
+                // Check if this is fetch options rather than a grouped expression
+                if self.is_fetch_options_start() {
+                    return Err(self.error("Unexpected token in fetch URL expression".to_string()));
+                }
+                self.advance();
+                let expr = self.parse_expression()?;
+                self.expect(&TokenType::CloseParen)?;
+                Ok(expr)
+            }
+            TokenType::OpenBracket => {
+                self.advance();
+                let mut items = Vec::new();
+                while !self.check(&TokenType::CloseBracket) {
+                    items.push(self.parse_expression()?);
+                    if !self.check(&TokenType::CloseBracket) {
+                        self.expect(&TokenType::Comma)?;
+                    }
+                }
+                self.expect(&TokenType::CloseBracket)?;
+                Ok(Expr::ListLiteral(items))
+            }
+            _ => Err(self.error(format!("Expected expression, got {}", self.current_type()))),
+        }
+    }
+
+    /// Check if the current `(` token starts a fetch options block
+    /// i.e., `(identifier: ...)` pattern.
+    fn is_fetch_options_start(&self) -> bool {
+        if !self.check(&TokenType::OpenParen) {
+            return false;
+        }
+        // Look ahead: ( + identifier + colon
+        if self.pos + 2 < self.tokens.len() {
+            let after_paren = &self.tokens[self.pos + 1].token_type;
+            let after_ident = &self.tokens[self.pos + 2].token_type;
+            if let TokenType::Identifier(_) = after_paren {
+                return matches!(after_ident, TokenType::Colon);
+            }
+        }
+        false
     }
 
     // ─── UI Elements ─────────────────────────────────────
@@ -1087,7 +1339,7 @@ impl Parser {
             if self.match_token(&TokenType::DoubleEquals) {
                 let right = self.parse_comparison()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Eq, Box::new(right));
-            } else if self.match_token(&TokenType::NotEquals) {
+            } else if self.match_token(&TokenType::NotEquals) || self.match_token(&TokenType::StrictNotEqual) {
                 let right = self.parse_comparison()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Neq, Box::new(right));
             } else {
@@ -1274,7 +1526,7 @@ impl Parser {
                 self.advance();
                 let mut entries = Vec::new();
                 while !self.check(&TokenType::CloseBrace) {
-                    let key = self.expect_identifier()?;
+                    let key = self.expect_map_key()?;
                     self.expect(&TokenType::Colon)?;
                     let value = self.parse_expression()?;
                     entries.push((key, value));
@@ -1380,6 +1632,124 @@ impl Parser {
             TokenType::Success => { self.advance(); Ok("success".to_string()) }
             _ => Err(self.error(format!("Expected identifier, got {}", self.current_type()))),
         }
+    }
+
+    /// Accept any token that can be a map key: identifiers, string literals, or any keyword.
+    fn expect_map_key(&mut self) -> Result<String> {
+        // String literal keys
+        if let TokenType::StringLiteral(s) = self.current_type().clone() {
+            self.advance();
+            // Wrap in quotes to distinguish from identifier keys during codegen
+            return Ok(format!("\"{}\"", s));
+        }
+        // Identifier keys
+        if let TokenType::Identifier(name) = self.current_type().clone() {
+            self.advance();
+            return Ok(name);
+        }
+        // Accept any keyword token as a map key
+        let key = match self.current_type() {
+            TokenType::State => "state",
+            TokenType::Derived => "derived",
+            TokenType::Effect => "effect",
+            TokenType::Action => "action",
+            TokenType::Use => "use",
+            TokenType::Fetch => "fetch",
+            TokenType::From => "from",
+            TokenType::Navigate => "navigate",
+            TokenType::Log => "log",
+            TokenType::Return => "return",
+            TokenType::If => "if",
+            TokenType::Else => "else",
+            TokenType::For => "for",
+            TokenType::In => "in",
+            TokenType::Show => "show",
+            TokenType::Loading => "loading",
+            TokenType::Error => "error",
+            TokenType::Success => "success",
+            TokenType::Style => "style",
+            TokenType::Theme => "Theme",
+            TokenType::Token => "token",
+            TokenType::Animate => "animate",
+            TokenType::Transition => "transition",
+            TokenType::Children => "children",
+            TokenType::Page => "Page",
+            TokenType::Component => "Component",
+            TokenType::Store => "Store",
+            TokenType::App => "App",
+            TokenType::Router => "Router",
+            TokenType::Route => "Route",
+            TokenType::Null => "null",
+            TokenType::TypeString => "String",
+            TokenType::TypeNumber => "Number",
+            TokenType::TypeBool => "Bool",
+            TokenType::TypeList => "List",
+            TokenType::TypeMap => "Map",
+            // Built-in UI components
+            TokenType::Container => "Container",
+            TokenType::Row => "Row",
+            TokenType::Column => "Column",
+            TokenType::Grid => "Grid",
+            TokenType::Stack => "Stack",
+            TokenType::Spacer => "Spacer",
+            TokenType::Divider => "Divider",
+            TokenType::Navbar => "Navbar",
+            TokenType::Sidebar => "Sidebar",
+            TokenType::Breadcrumb => "Breadcrumb",
+            TokenType::Link => "Link",
+            TokenType::Menu => "Menu",
+            TokenType::Tabs => "Tabs",
+            TokenType::TabPage => "TabPage",
+            TokenType::Card => "Card",
+            TokenType::Table => "Table",
+            TokenType::Thead => "Thead",
+            TokenType::Tbody => "Tbody",
+            TokenType::Trow => "Trow",
+            TokenType::Tcell => "Tcell",
+            TokenType::Badge => "Badge",
+            TokenType::Avatar => "Avatar",
+            TokenType::Tooltip => "Tooltip",
+            TokenType::Tag => "Tag",
+            TokenType::Input => "Input",
+            TokenType::Select => "Select",
+            TokenType::Option => "Option",
+            TokenType::Checkbox => "Checkbox",
+            TokenType::Radio => "Radio",
+            TokenType::Switch => "Switch",
+            TokenType::Slider => "Slider",
+            TokenType::DatePicker => "DatePicker",
+            TokenType::FileUpload => "FileUpload",
+            TokenType::Form => "Form",
+            TokenType::Alert => "Alert",
+            TokenType::Toast => "Toast",
+            TokenType::Modal => "Modal",
+            TokenType::Dialog => "Dialog",
+            TokenType::Spinner => "Spinner",
+            TokenType::Progress => "Progress",
+            TokenType::Skeleton => "Skeleton",
+            TokenType::Button => "Button",
+            TokenType::IconButton => "IconButton",
+            TokenType::ButtonGroup => "ButtonGroup",
+            TokenType::Dropdown => "Dropdown",
+            TokenType::Image => "Image",
+            TokenType::Video => "Video",
+            TokenType::Icon => "Icon",
+            TokenType::Carousel => "Carousel",
+            TokenType::Text => "Text",
+            TokenType::Heading => "Heading",
+            TokenType::Code => "Code",
+            TokenType::Blockquote => "Blockquote",
+            TokenType::Document => "Document",
+            TokenType::Section => "Section",
+            TokenType::Paragraph => "Paragraph",
+            TokenType::PageBreak => "PageBreak",
+            TokenType::Header => "Header",
+            TokenType::Footer => "Footer",
+            _ => return Err(self.error(format!("Expected map key (identifier, string, or keyword), got {}", self.current_type()))),
+        };
+        let result = key.to_string();
+        self.advance();
+        Ok(result)
     }
 
     fn expect_string(&mut self) -> Result<String> {

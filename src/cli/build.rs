@@ -150,10 +150,10 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     fs::write(output_dir.join("styles.css"), css)?;
     fs::write(output_dir.join("app.js"), js)?;
 
-    // Copy public/ assets
+    // Copy public/ assets to the root of the output directory
     let public_dir = project_dir.join("public");
     if public_dir.exists() {
-        copy_dir_recursive(&public_dir, &output_dir.join("public"))?;
+        copy_dir_recursive(&public_dir, &output_dir)?;
     }
 
     let page_count = program.declarations.iter().filter(|d| matches!(d, Declaration::Page(_))).count();

@@ -148,6 +148,65 @@ Page Guide (path: "/guide", title: "Language Guide") {
         }
 
         Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Return Values", h2)
+        Text("Store actions can return values using the return keyword.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Store AuthStore \{\n    state accessToken = \"\"\n\n    action getHeaders() \{\n        h = \{\}\n        h[\"Authorization\"] = \"Bearer \" + accessToken\n        return h\n    \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Browser Globals", h2)
+        Text("Standard browser APIs are available directly without any special syntax. They compile to their JavaScript equivalents.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("// Storage\nlocalStorage.setItem(\"token\", tok)\nsessionStorage.getItem(\"key\")\n\n// Window & Document\nwindow.open(\"https://example.com\")\n\n// JSON\ndata = JSON.parse(responseText)\ntext = JSON.stringify(obj)\n\n// Console\nconsole.log(\"debug info\")\n\n// Timers\nsetTimeout(callback, 1000)", block)
+            }
+        }
+        Spacer(sm)
+        Text("Available globals: window, document, console, localStorage, sessionStorage, JSON, Math, Date, setTimeout, setInterval, parseInt, parseFloat, Array, Object, Promise, Error, fetch, alert, confirm, prompt, and more.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Map Literals", h2)
+        Text("Map literals support quoted string keys for HTTP headers and special field names. Reserved words also work as map keys.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("// Quoted keys for headers\nheaders: \{ \"Content-Type\": \"application/json\", \"X-Api-Key\": apiKey \}\n\n// Reserved words as keys\nbody: \{ action: \"create\", token: sessionToken, state: \"active\" \}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Operators", h2)
+        Text("WebFluent supports all common comparison and logical operators.")
+        Spacer(sm)
+        Table {
+            Thead { Tcell("Operator") Tcell("Description") }
+            Trow { Tcell("==") Tcell("Equal") }
+            Trow { Tcell("!=") Tcell("Not equal") }
+            Trow { Tcell("!==") Tcell("Strict not equal (alias for !=)") }
+            Trow { Tcell("< > <= >=") Tcell("Comparison") }
+            Trow { Tcell("&& ||") Tcell("Logical AND / OR") }
+            Trow { Tcell("!") Tcell("Logical NOT") }
+            Trow { Tcell("+ - * / %") Tcell("Arithmetic") }
+        }
+
+        Spacer()
 
         Row(gap: md) {
             Button("Components Reference", primary) { navigate("/components") }

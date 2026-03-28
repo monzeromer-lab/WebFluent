@@ -13,9 +13,11 @@ project/
 │   ├── components/           # Reusable components
 │   ├── stores/               # Shared state stores
 │   └── translations/         # i18n JSON files (en.json, ar.json)
-├── public/                   # Static assets (images, fonts)
+├── public/                   # Static assets → copied to build root
 └── build/                    # Compiled output
 ```
+
+Files in `public/` are copied to the **root** of the build output (not nested under `public/`). Example: `public/logo.png` → `build/logo.png`.
 
 ## CLI
 
@@ -157,6 +159,12 @@ Store CartStore {
         total = total + product.price
     }
 
+    action getHeaders() {
+        h = {}
+        h["Authorization"] = "Bearer " + accessToken
+        return h
+    }
+
     action clear() {
         items = []
         total = 0
@@ -200,6 +208,50 @@ Events: `on:click`, `on:input`, `on:change`, `on:submit`, `on:focus`, `on:blur`,
 
 The event object is available as `event` (e.g., `event.currentTarget`, `event.target`).
 
+### Return Statements
+
+Actions can return values using `return`:
+
+```wf
+Store AuthStore {
+    state accessToken = ""
+
+    action getHeaders() {
+        h = {}
+        h["Authorization"] = "Bearer " + accessToken
+        return h
+    }
+}
+```
+
+### Browser Globals
+
+Standard browser APIs are available without any prefix — they compile directly to their JavaScript equivalents:
+
+```wf
+// Storage
+localStorage.setItem("token", tok)
+sessionStorage.getItem("key")
+
+// Window & Document
+window.open("https://example.com")
+document.title = "New Title"
+
+// Console
+console.log("debug info")
+
+// JSON
+data = JSON.parse(responseText)
+text = JSON.stringify(obj)
+
+// Timers
+setTimeout(callback, 1000)
+
+// Other globals: Math, Date, Array, Object, Promise, Error,
+// parseInt, parseFloat, encodeURIComponent, atob, btoa, fetch,
+// alert, confirm, prompt, RegExp, Map, Set, etc.
+```
+
 ### Control Flow
 
 ```wf
@@ -241,6 +293,20 @@ fetch users from "/api/users" {
 ```
 
 Options: `(method: "POST", body: { key: value }, headers: { "Authorization": token })`
+
+Map literals support **quoted string keys** for headers and special field names:
+
+```wf
+fetch data from "/api/users" (
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    body: { action: "create", token: sessionToken }
+) {
+    success { Text("Done") }
+}
+```
+
+Reserved words (`action`, `token`, `error`, `state`, etc.) work as map keys.
 
 ### Navigation
 
@@ -858,6 +924,12 @@ Page Invoice (path: "/", title: "Invoice") {
 8. **String interpolation is reactive**: `Text("Count: {count}")` updates when `count` changes
 9. **Imports via `use`**: `use StoreName` to access shared stores
 10. **No semicolons needed**: statements are newline-separated
+11. **`return` in actions**: `return expr` returns a value from store actions
 11. **Style blocks support all CSS properties**: including `transition`, `animation`, `filter` — no conflicts with language keywords
 12. **`@media` inside style blocks**: responsive styles are scoped to the element — `@media (max-width: 768px) { display: "none" }`
 13. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth
+14. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
+15. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS)
+16. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
+17. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
+18. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested

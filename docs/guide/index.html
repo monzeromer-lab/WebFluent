@@ -283,6 +283,108 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
                     </div>​
                 </div>​
                 <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Return Values</h2>​
+                <p class="wf-text">Store actions can return values using the return keyword.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">Store AuthStore {
+    state accessToken = &quot;&quot;
+
+    action getHeaders() {
+        h = {}
+        h[&quot;Authorization&quot;] = &quot;Bearer &quot; + accessToken
+        return h
+    }
+}</code>​
+                    </div>​
+                </div>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Browser Globals</h2>​
+                <p class="wf-text">Standard browser APIs are available directly without any special syntax. They compile to their JavaScript equivalents.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">// Storage
+localStorage.setItem(&quot;token&quot;, tok)
+sessionStorage.getItem(&quot;key&quot;)
+
+// Window &amp; Document
+window.open(&quot;https://example.com&quot;)
+
+// JSON
+data = JSON.parse(responseText)
+text = JSON.stringify(obj)
+
+// Console
+console.log(&quot;debug info&quot;)
+
+// Timers
+setTimeout(callback, 1000)</code>​
+                    </div>​
+                </div>​
+                <div class="wf-spacer"></div>
+                <p class="wf-text wf-text--muted">Available globals: window, document, console, localStorage, sessionStorage, JSON, Math, Date, setTimeout, setInterval, parseInt, parseFloat, Array, Object, Promise, Error, fetch, alert, confirm, prompt, and more.</p>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Map Literals</h2>​
+                <p class="wf-text">Map literals support quoted string keys for HTTP headers and special field names. Reserved words also work as map keys.</p>​
+                <div class="wf-spacer"></div>
+                <div class="wf-card wf-card--outlined">
+                    <div class="wf-card__body">
+                        <code class="wf-code">// Quoted keys for headers
+headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, &quot;X-Api-Key&quot;: apiKey }
+
+// Reserved words as keys
+body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quot; }</code>​
+                    </div>​
+                </div>​
+                <div class="wf-spacer"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-heading--h2">Operators</h2>​
+                <p class="wf-text">WebFluent supports all common comparison and logical operators.</p>​
+                <div class="wf-spacer"></div>
+                <table class="wf-table">
+                    <thead>
+                        <td>Operator</td>​
+                        <td>Description</td>​
+                    </thead>​
+                    <tr>
+                        <td>==</td>​
+                        <td>Equal</td>​
+                    </tr>​
+                    <tr>
+                        <td>!=</td>​
+                        <td>Not equal</td>​
+                    </tr>​
+                    <tr>
+                        <td>!==</td>​
+                        <td>Strict not equal (alias for !=)</td>​
+                    </tr>​
+                    <tr>
+                        <td>&lt; &gt; &lt;= &gt;=</td>​
+                        <td>Comparison</td>​
+                    </tr>​
+                    <tr>
+                        <td>&amp;&amp; ||</td>​
+                        <td>Logical AND / OR</td>​
+                    </tr>​
+                    <tr>
+                        <td>!</td>​
+                        <td>Logical NOT</td>​
+                    </tr>​
+                    <tr>
+                        <td>+ - * / %</td>​
+                        <td>Arithmetic</td>​
+                    </tr>​
+                </table>​
+                <div class="wf-spacer"></div>
                 <div class="wf-row">
                     <button class="wf-btn wf-btn--primary">
                         Components Reference
