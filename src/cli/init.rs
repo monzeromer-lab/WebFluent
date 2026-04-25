@@ -15,8 +15,9 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
         "spa" => generate_spa(name, project_dir)?,
         "static" => generate_static(name, project_dir)?,
         "pdf" => generate_pdf(name, project_dir)?,
+        "slides" => generate_slides(name, project_dir)?,
         _ => {
-            eprintln!("Unknown template '{}'. Use 'spa', 'static', or 'pdf'.", template);
+            eprintln!("Unknown template '{}'. Use 'spa', 'static', 'pdf', or 'slides'.", template);
             std::process::exit(1);
         }
     }
@@ -1014,6 +1015,75 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
             Spacer()
 
             Badge("Complete", success)
+        }}
+    }}
+}}
+"#))?;
+
+    Ok(())
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Slides Template — PDF Slide Deck
+// ═══════════════════════════════════════════════════════════
+
+fn generate_slides(name: &str, project_dir: &Path) -> Result<()> {
+    fs::create_dir_all(project_dir.join("src/pages"))?;
+
+    fs::write(project_dir.join("webfluent.app.json"), format!(r#"{{
+  "name": "{name}",
+  "version": "0.1.0",
+  "build": {{
+    "output": "./build",
+    "output_type": "slides",
+    "slides": {{
+      "size": "16:9",
+      "default_font": "Helvetica",
+      "default_font_size": 24,
+      "margin": 60,
+      "show_slide_numbers": true,
+      "footer_text": "{name}",
+      "output_filename": "{name}.pdf"
+    }}
+  }}
+}}"#))?;
+
+    fs::write(project_dir.join("src/pages/Deck.wf"), format!(r#"Page Deck (path: "/", title: "{name}") {{
+    Presentation {{
+        TitleSlide("{name}", "Built with WebFluent")
+
+        Slide {{
+            Heading("What this deck is", h1)
+            Text("A starter PDF slide deck. Each Slide compiles to one PDF page.")
+        }}
+
+        Slide {{
+            Heading("Layouts", h2)
+            List {{
+                Text("Slide — freeform content")
+                Text("TitleSlide — cover page")
+                Text("SectionSlide — divider between sections")
+                Text("TwoColumn — two side-by-side columns")
+                Text("ImageSlide — image with optional caption")
+            }}
+        }}
+
+        TwoColumn {{
+            Container {{
+                Heading("Left column", h3)
+                Text("Content on the left wraps at the gutter.")
+            }}
+            Container {{
+                Heading("Right column", h3)
+                Text("Content on the right has its own layout cursor.")
+            }}
+        }}
+
+        SectionSlide("Wrap up", primary)
+
+        Slide {{
+            Heading("Thanks!", h1)
+            Text("Edit src/pages/Deck.wf to make this deck your own.")
         }}
     }}
 }}

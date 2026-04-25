@@ -102,7 +102,9 @@ impl Parser {
             TokenType::Router | TokenType::Route |
             TokenType::TypeList | // List component
             TokenType::Document | TokenType::Section | TokenType::Paragraph |
-            TokenType::PageBreak | TokenType::Header | TokenType::Footer
+            TokenType::PageBreak | TokenType::Header | TokenType::Footer |
+            TokenType::Presentation | TokenType::Slide | TokenType::TitleSlide |
+            TokenType::SectionSlide | TokenType::TwoColumn | TokenType::ImageSlide
         )
     }
 
@@ -1745,6 +1747,12 @@ impl Parser {
             TokenType::PageBreak => "PageBreak",
             TokenType::Header => "Header",
             TokenType::Footer => "Footer",
+            TokenType::Presentation => "Presentation",
+            TokenType::Slide => "Slide",
+            TokenType::TitleSlide => "TitleSlide",
+            TokenType::SectionSlide => "SectionSlide",
+            TokenType::TwoColumn => "TwoColumn",
+            TokenType::ImageSlide => "ImageSlide",
             _ => return Err(self.error(format!("Expected map key (identifier, string, or keyword), got {}", self.current_type()))),
         };
         let result = key.to_string();

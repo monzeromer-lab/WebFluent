@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use crate::config::ProjectConfig;
 use crate::lexer::Lexer;
 use crate::parser::{Parser, Program, Declaration, Statement};
-use crate::codegen::{generate_html, generate_css, JsCodegen, PdfCodegen};
+use crate::codegen::{generate_html, generate_css, JsCodegen, PdfCodegen, SlidesCodegen};
 use crate::config::project::OutputType;
 use crate::error::{WebFluentError, Result};
 
@@ -77,6 +77,40 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
 
         let page_count = pdf_codegen.page_count();
         println!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
+        println!("  Output: {}/{}", config.build.output, filename);
+        if a11y_warnings.is_empty() {
+            println!("Build complete.");
+        } else {
+            println!("Build complete with {} accessibility warning(s).", a11y_warnings.len());
+        }
+        return Ok(());
+    }
+
+    // Slides output mode (PDF deck)
+    if config.build.output_type == OutputType::Slides {
+        let slide_errors = crate::linter::validate_for_slides(&program);
+        if !slide_errors.is_empty() {
+            for err in &slide_errors {
+                eprintln!("{}", err);
+            }
+            return Err(WebFluentError::CodegenError(
+                format!("{} slide validation error(s)", slide_errors.len())
+            ));
+        }
+
+        let mut slides_codegen = SlidesCodegen::new(&config.build.slides);
+        let pdf_bytes = slides_codegen.generate(&program);
+
+        let output_dir = project_dir.join(&config.build.output);
+        fs::create_dir_all(&output_dir)?;
+
+        let filename = config.build.slides.output_filename
+            .clone()
+            .unwrap_or_else(|| format!("{}.pdf", config.name));
+        fs::write(output_dir.join(&filename), &pdf_bytes)?;
+
+        let slide_count = slides_codegen.slide_count();
+        println!("  Slides: {} bytes, {} slide(s)", pdf_bytes.len(), slide_count);
         println!("  Output: {}/{}", config.build.output, filename);
         if a11y_warnings.is_empty() {
             println!("Build complete.");

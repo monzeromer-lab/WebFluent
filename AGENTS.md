@@ -22,9 +22,9 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ## CLI
 
 ```bash
-wf init <name> -t spa|static|pdf   # Create project
-wf build [-d DIR]                  # Compile
-wf serve [-d DIR]                  # Dev server (localhost:3000)
+wf init <name> -t spa|static|pdf|slides   # Create project
+wf build [-d DIR]                         # Compile
+wf serve [-d DIR]                         # Dev server (localhost:3000)
 wf generate page|component|store <name>
 ```
 
@@ -769,6 +769,105 @@ Page Report (path: "/", title: "Report") {
 }
 ```
 
+## Slides Output (PDF Slide Decks)
+
+PDF deck output where **one `Slide` = one PDF page** (no flow pagination).
+
+```json
+{
+    "build": {
+        "output_type": "slides",
+        "slides": {
+            "size": "16:9",
+            "default_font": "Helvetica",
+            "default_font_size": 24,
+            "margin": 60,
+            "show_slide_numbers": true,
+            "footer_text": "My Deck",
+            "output_filename": "deck.pdf"
+        }
+    }
+}
+```
+
+A deck must be wrapped in a `Presentation { ... }` block inside a `Page` body. Slide elements must not appear outside `Presentation` (compile error).
+
+### Slide kinds
+
+| Component | Purpose |
+|-----------|---------|
+| `Presentation { ... }` | Deck root — children must be slide elements only |
+| `Slide { ... }` | Freeform slide; top-aligned content |
+| `TitleSlide("Title", "Subtitle")` | Cover slide; title 56pt bold + subtitle 28pt grey, vertical-centered |
+| `SectionSlide("Label", primary)` | Full-bleed colored band, white centered label (48pt bold). Color modifiers: `primary`, `success`, `danger`, `warning`, `info` |
+| `TwoColumn { Container { ... } Container { ... } }` | Two equal columns with a 24pt gutter — requires exactly 2 `Container` children |
+| `ImageSlide(src: "...", caption: "...")` | Image slide with optional caption; `src` is required |
+
+Body components inside a `Slide` (or inside `TwoColumn`'s columns): `Text`, `Heading` (auto-scaled ~2× for slides), `List`, `Container`, `Stack`, `Column`, `Grid`, `Section`, `Spacer`, `Divider`, `if`/`for` (static iteration only).
+
+### Slide sizing (`slides.size`)
+
+- `"16:9"` → 960×540pt (default)
+- `"4:3"` → 720×540pt
+- `"A4-landscape"` → 841.89×595.28pt
+- `"WIDTHxHEIGHT"` (e.g. `"800x600"`) → explicit points
+
+Or override with `slides.width` + `slides.height` (in points).
+
+### Slide chrome (opt-in via config)
+
+- `slides.show_slide_numbers: true` → `n / total` in bottom-right
+- `slides.footer_text: "..."` → text in bottom-left
+
+Both render in 11pt grey at the bottom margin.
+
+### Overflow
+
+Content that exceeds the bottom margin is **clipped** and a warning is printed to stderr (`warning[slides]: slide N content overflows; truncated`). The build does **not** fail on overflow.
+
+### Rejected in slides
+
+Same interactive components as PDF (`Button`, `Input`, `Form`, `Modal`, `Router`, `Navbar`, `Video`, etc.) plus PDF document components (`Document`, `Paragraph`, `PageBreak`, `Header`, `Footer`) — slides have their own footer chrome via config.
+
+### Slides example
+
+```wf
+Page Deck (path: "/", title: "Q1 Review") {
+    Presentation {
+        TitleSlide("Q1 Review", "Company Inc. — March 2026")
+
+        Slide {
+            Heading("Highlights", h1)
+            List {
+                Text("Launched 3 new products")
+                Text("Expanded to 5 markets")
+                Text("Revenue grew 15%")
+            }
+        }
+
+        TwoColumn {
+            Container {
+                Heading("Wins", h3)
+                Text("New enterprise deals")
+            }
+            Container {
+                Heading("Risks", h3)
+                Text("Supply chain delays")
+            }
+        }
+
+        ImageSlide(src: "chart.png", caption: "Q1 revenue by region")
+
+        SectionSlide("Q2 Plan", primary)
+
+        Slide {
+            Heading("Thanks", h1)
+            Text("Questions?")
+        }
+    }
+}
+```
+
 ## Escaping Braces
 
 In strings, `{` starts interpolation. To use literal braces (e.g., in code blocks), escape with `\{` and `\}`:
@@ -800,6 +899,17 @@ Code("function() \{ return 42; \}", block)
             "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 },
             "default_font": "Helvetica",
             "default_font_size": 12,
+            "output_filename": null
+        },
+        "slides": {
+            "size": "16:9",
+            "width": null,
+            "height": null,
+            "default_font": "Helvetica",
+            "default_font_size": 24,
+            "margin": 60,
+            "show_slide_numbers": false,
+            "footer_text": null,
             "output_filename": null
         }
     },
@@ -850,9 +960,10 @@ use serde_json::json;
 let tpl = Template::from_str("Container { Heading(\"Hello, {name}!\", h1) }")?;
 // or: Template::from_file("templates/invoice.wf")?;
 
-let html = tpl.render_html(&json!({"name": "World"}))?;           // Full HTML doc
-let frag = tpl.render_html_fragment(&json!({"name": "World"}))?;  // Fragment only
-let pdf  = tpl.render_pdf(&json!({"name": "World"}))?;            // Vec<u8>
+let html   = tpl.render_html(&json!({"name": "World"}))?;           // Full HTML doc
+let frag   = tpl.render_html_fragment(&json!({"name": "World"}))?;  // Fragment only
+let pdf    = tpl.render_pdf(&json!({"name": "World"}))?;            // Vec<u8>
+let slides = tpl.render_slides(&json!({"name": "World"}))?;         // Vec<u8> (PDF deck)
 
 // With theme
 let html = tpl.with_theme("dark")
@@ -933,3 +1044,5 @@ Page Invoice (path: "/", title: "Invoice") {
 16. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
 17. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
 18. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested
+19. **Slides need a Presentation wrapper**: `Page X { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
+20. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a stderr warning

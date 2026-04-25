@@ -128,6 +128,14 @@ pub enum TokenType {
     Header,
     Footer,
 
+    // Slides components (PDF slide deck)
+    Presentation,
+    Slide,
+    TitleSlide,
+    SectionSlide,
+    TwoColumn,
+    ImageSlide,
+
     // Style & Animation
     Style,
     Theme,
@@ -363,6 +371,14 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "PageBreak" => TokenType::PageBreak,
         "Header" => TokenType::Header,
         "Footer" => TokenType::Footer,
+
+        // Slides components (PDF slide deck)
+        "Presentation" => TokenType::Presentation,
+        "Slide" => TokenType::Slide,
+        "TitleSlide" => TokenType::TitleSlide,
+        "SectionSlide" => TokenType::SectionSlide,
+        "TwoColumn" => TokenType::TwoColumn,
+        "ImageSlide" => TokenType::ImageSlide,
 
         // Style & Animation
         "style" => TokenType::Style,

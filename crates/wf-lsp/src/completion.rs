@@ -96,6 +96,15 @@ const DOCUMENT_COMPONENTS: &[ComponentInfo] = &[
     ComponentInfo { name: "Footer", detail: "Page footer" },
 ];
 
+const SLIDES_COMPONENTS: &[ComponentInfo] = &[
+    ComponentInfo { name: "Presentation", detail: "Slide deck root" },
+    ComponentInfo { name: "Slide", detail: "Freeform slide (one PDF page)" },
+    ComponentInfo { name: "TitleSlide", detail: "Title slide: TitleSlide(\"Title\", \"Subtitle\")" },
+    ComponentInfo { name: "SectionSlide", detail: "Section divider slide: SectionSlide(\"Label\")" },
+    ComponentInfo { name: "TwoColumn", detail: "Two-column slide; takes exactly 2 Container children" },
+    ComponentInfo { name: "ImageSlide", detail: "Image slide: ImageSlide(src: \"...\", caption: \"...\")" },
+];
+
 const ROUTING_COMPONENTS: &[ComponentInfo] = &[
     ComponentInfo { name: "Router", detail: "Client-side router outlet" },
     ComponentInfo { name: "Route", detail: "Route definition" },
@@ -111,6 +120,7 @@ const ALL_COMPONENT_GROUPS: &[&[ComponentInfo]] = &[
     MEDIA_COMPONENTS,
     TYPOGRAPHY_COMPONENTS,
     DOCUMENT_COMPONENTS,
+    SLIDES_COMPONENTS,
     ROUTING_COMPONENTS,
 ];
 

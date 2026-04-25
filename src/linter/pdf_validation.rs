@@ -1,7 +1,7 @@
 use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef};
 
 /// Interactive or web-only components that are not allowed in PDF output
-const REJECTED_COMPONENTS: &[&str] = &[
+pub(crate) const REJECTED_COMPONENTS: &[&str] = &[
     // Data input (interactive)
     "Button", "IconButton", "ButtonGroup", "Input", "Select", "Option",
     "Checkbox", "Radio", "Switch", "Slider", "DatePicker", "FileUpload", "Form",

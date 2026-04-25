@@ -14,6 +14,8 @@ pub enum OutputType {
     Static,
     /// PDF document output.
     Pdf,
+    /// PDF slide deck output — one Slide = one page, no flow pagination.
+    Slides,
 }
 
 fn default_output_type() -> OutputType { OutputType::Spa }
@@ -65,12 +67,15 @@ pub struct BuildConfig {
     /// Base path for deployment (e.g., "/WebFluent" for GitHub Pages project sites)
     #[serde(default)]
     pub base_path: String,
-    /// Output type: "spa" (default), "static", or "pdf"
+    /// Output type: "spa" (default), "static", "pdf", or "slides"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
     /// PDF-specific configuration
     #[serde(default)]
     pub pdf: PdfConfig,
+    /// Slides-specific configuration
+    #[serde(default)]
+    pub slides: SlidesConfig,
 }
 
 /// PDF output configuration — page size, margins, fonts.
@@ -105,6 +110,55 @@ fn default_margins() -> PdfMargins { PdfMargins::default() }
 fn default_font() -> String { "Helvetica".to_string() }
 fn default_font_size() -> f64 { 12.0 }
 fn default_margin() -> f64 { 72.0 }
+
+/// Slides output configuration — page size, fonts, slide chrome.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SlidesConfig {
+    /// Named size ("16:9", "4:3", "A4-landscape") or "WIDTHxHEIGHT" in points.
+    #[serde(default = "default_slide_size")]
+    pub size: String,
+    /// Explicit width override in points (wins over `size`).
+    #[serde(default)]
+    pub width: Option<f64>,
+    /// Explicit height override in points (wins over `size`).
+    #[serde(default)]
+    pub height: Option<f64>,
+    #[serde(default = "default_slide_font")]
+    pub default_font: String,
+    #[serde(default = "default_slide_font_size")]
+    pub default_font_size: f64,
+    #[serde(default = "default_slide_margin")]
+    pub margin: f64,
+    /// Show "n / total" page numbers in the bottom-right corner.
+    #[serde(default)]
+    pub show_slide_numbers: bool,
+    /// Footer text shown bottom-left of every slide.
+    #[serde(default)]
+    pub footer_text: Option<String>,
+    #[serde(default)]
+    pub output_filename: Option<String>,
+}
+
+fn default_slide_size() -> String { "16:9".to_string() }
+fn default_slide_font() -> String { "Helvetica".to_string() }
+fn default_slide_font_size() -> f64 { 24.0 }
+fn default_slide_margin() -> f64 { 60.0 }
+
+impl Default for SlidesConfig {
+    fn default() -> Self {
+        Self {
+            size: default_slide_size(),
+            width: None,
+            height: None,
+            default_font: default_slide_font(),
+            default_font_size: default_slide_font_size(),
+            margin: default_slide_margin(),
+            show_slide_numbers: false,
+            footer_text: None,
+            output_filename: None,
+        }
+    }
+}
 
 impl Default for PdfConfig {
     fn default() -> Self {
@@ -192,6 +246,7 @@ impl Default for BuildConfig {
             base_path: String::new(),
             output_type: OutputType::Spa,
             pdf: PdfConfig::default(),
+            slides: SlidesConfig::default(),
         }
     }
 }

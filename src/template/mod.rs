@@ -6,7 +6,8 @@ use crate::parser::{Parser, Program, Declaration, Statement, UIElement, Componen
 use crate::parser::ast::{IfStmt, ForStmt};
 use crate::codegen::css::generate_css;
 use crate::codegen::pdf::PdfCodegen;
-use crate::config::project::PdfConfig;
+use crate::codegen::slides::SlidesCodegen;
+use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::error::{WebFluentError, Result};
 
 /// A compiled WebFluent template ready for rendering with JSON data.
@@ -176,6 +177,23 @@ impl Template {
         let config = PdfConfig::default();
         let mut pdf = PdfCodegen::new(&config);
         Ok(pdf.generate(&resolved))
+    }
+
+    /// Render to a PDF slide deck as raw bytes.
+    ///
+    /// One `Slide` (or layout variant) per page, no flow pagination. The template
+    /// must wrap its slides in a `Presentation { ... }` block; content that overflows
+    /// a slide is clipped and a stderr warning is emitted.
+    ///
+    /// Uses 16:9 page size (960×540pt) by default. The template should use slide-compatible
+    /// components only (no `Button`, `Input`, `Router`, etc.).
+    pub fn render_slides(&self, data: &Value) -> Result<Vec<u8>> {
+        let program = self.parse()?;
+        let resolved = self.resolve_program(&program, data)?;
+
+        let config = SlidesConfig::default();
+        let mut slides = SlidesCodegen::new(&config);
+        Ok(slides.generate(&resolved))
     }
 
     fn parse(&self) -> Result<Program> {
