@@ -29,7 +29,7 @@ enum Commands {
     Init {
         /// Project name
         name: String,
-        /// Template: "spa" (default), "static", or "pdf"
+        /// Template: "spa" (default), "static", "pdf", or "slides"
         #[arg(short, long, default_value = "spa")]
         template: String,
     },
@@ -62,7 +62,7 @@ enum Commands {
         /// JSON data file (reads stdin if omitted)
         #[arg(long)]
         data: Option<PathBuf>,
-        /// Output format: "html" (default), "html-fragment", or "pdf"
+        /// Output format: "html" (default), "html-fragment", "pdf", or "slides"
         #[arg(short, long, default_value = "html")]
         format: String,
         /// Output file (stdout if omitted)

@@ -8,8 +8,13 @@
 //! from `pdf.rs` rather than extracted to a shared module — see implementation
 //! plan for the rationale.
 
+use std::collections::HashSet;
 use crate::config::project::SlidesConfig;
 use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef, Expr, StringPart, Arg};
+use crate::codegen::style::{
+    Background, Color, LinearGradient, StyleProps,
+    gradient_endpoints, luminance, parse_color as style_parse_color,
+};
 
 // ─── Base14 Font Metrics ────────────────────────────────────────────
 
@@ -118,10 +123,42 @@ impl ContentStream {
         self.op(&format!("{} {} {} {} re", fmt_f64(x), fmt_f64(y), fmt_f64(w), fmt_f64(h)));
     }
     fn fill(&mut self) { self.op("f"); }
+    fn stroke(&mut self) { self.op("S"); }
+    fn set_stroke_color(&mut self, r: f64, g: f64, b: f64) {
+        self.op(&format!("{} {} {} RG", fmt_f64(r), fmt_f64(g), fmt_f64(b)));
+    }
+    fn set_line_width(&mut self, w: f64) {
+        self.op(&format!("{} w", fmt_f64(w)));
+    }
+    /// Rounded rectangle path (no fill/stroke — caller invokes `fill()` or `stroke()`).
+    fn rounded_rect_path(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
+        let r = r.min(w / 2.0).min(h / 2.0);
+        if r < 0.5 { self.rect(x, y, w, h); return; }
+        let k = 0.5523;
+        let kr = k * r;
+        self.op(&format!("{} {} m", fmt_f64(x + r), fmt_f64(y)));
+        self.op(&format!("{} {} l", fmt_f64(x + w - r), fmt_f64(y)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w-r+kr), fmt_f64(y), fmt_f64(x+w), fmt_f64(y+r-kr), fmt_f64(x+w), fmt_f64(y+r)));
+        self.op(&format!("{} {} l", fmt_f64(x + w), fmt_f64(y + h - r)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w), fmt_f64(y+h-r+kr), fmt_f64(x+w-r+kr), fmt_f64(y+h), fmt_f64(x+w-r), fmt_f64(y+h)));
+        self.op(&format!("{} {} l", fmt_f64(x + r), fmt_f64(y + h)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+r-kr), fmt_f64(y+h), fmt_f64(x), fmt_f64(y+h-r+kr), fmt_f64(x), fmt_f64(y+h-r)));
+        self.op(&format!("{} {} l", fmt_f64(x), fmt_f64(y + r)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x), fmt_f64(y+r-kr), fmt_f64(x+r-kr), fmt_f64(y), fmt_f64(x+r), fmt_f64(y)));
+        self.op("h");
+    }
     fn bytes(&self) -> &[u8] { &self.ops }
 }
 
 // ─── Codegen ────────────────────────────────────────────────────────
+
+/// One registered axial-shading gradient — emitted as PDF objects in `serialize()`.
+struct GradientInstance {
+    tag: String,
+    start: Color,
+    end: Color,
+    x0: f64, y0: f64, x1: f64, y1: f64,
+}
 
 /// Slide deck PDF generator. Each `Slide` (or layout variant) is exactly one page;
 /// content that exceeds the slide is clipped with a stderr warning.
@@ -139,6 +176,14 @@ pub struct SlidesCodegen {
     default_font_size: f64,
     show_slide_numbers: bool,
     footer_text: Option<String>,
+    /// Deck-wide background; per-slide `style { background }` overrides.
+    deck_background: Option<Background>,
+    /// Explicit chrome color override; if None we auto-flip from bg luminance.
+    chrome_color_override: Option<Color>,
+    /// Set per slide while emitting; drives chrome auto-flip.
+    current_slide_bg_luminance: f64,
+    shadings: Vec<GradientInstance>,
+    warned_styles: HashSet<String>,
     current_slide: usize,
     total_slides: usize,
     slide_overflowed: bool,
@@ -148,6 +193,10 @@ pub struct SlidesCodegen {
 impl SlidesCodegen {
     pub fn new(config: &SlidesConfig) -> Self {
         let (w, h) = slide_dimensions(&config.size, config.width, config.height);
+        let deck_background = config.background_color.as_deref()
+            .and_then(style_parse_color)
+            .map(Background::Color);
+        let chrome_color_override = config.chrome_color.as_deref().and_then(style_parse_color);
         let mut cg = Self {
             objects: Vec::new(),
             page_width: w,
@@ -162,6 +211,11 @@ impl SlidesCodegen {
             default_font_size: config.default_font_size,
             show_slide_numbers: config.show_slide_numbers,
             footer_text: config.footer_text.clone(),
+            deck_background,
+            chrome_color_override,
+            current_slide_bg_luminance: 1.0,
+            shadings: Vec::new(),
+            warned_styles: HashSet::new(),
             current_slide: 0,
             total_slides: 0,
             slide_overflowed: false,
@@ -266,6 +320,28 @@ impl SlidesCodegen {
             _ => return,
         };
         self.start_slide();
+
+        // Resolve background: per-slide style.background > deck config > none.
+        let style = ui.style_block.as_ref().map(StyleProps::from_block);
+        if let Some(s) = &style {
+            self.warn_unsupported(name, &s.unknown);
+        }
+        let slide_bg = style.as_ref().and_then(|s| s.background.clone())
+            .or_else(|| self.deck_background.clone());
+
+        // SectionSlide ignores the bg fill here — it has its own full-bleed band logic
+        // driven by modifier color, but a per-slide style.background still wins if set.
+        let apply_bg = !matches!(name, "SectionSlide") || style.as_ref().map_or(false, |s| s.background.is_some());
+
+        if apply_bg {
+            if let Some(bg) = &slide_bg {
+                self.paint_full_bleed(bg);
+                self.current_slide_bg_luminance = background_luminance(bg);
+            } else {
+                self.current_slide_bg_luminance = 1.0;
+            }
+        }
+
         match name {
             "Slide"        => self.emit_freeform_slide(ui),
             "TitleSlide"   => self.emit_title_slide(ui),
@@ -275,6 +351,57 @@ impl SlidesCodegen {
             _ => {}
         }
         self.finalize_slide();
+    }
+
+    // ─── Background painting ────────────────────────────────
+
+    fn paint_full_bleed(&mut self, bg: &Background) {
+        let (x, y, w, h) = (0.0, 0.0, self.page_width, self.page_height);
+        match bg {
+            Background::Color(c) => {
+                self.current_stream.set_color(c.0, c.1, c.2);
+                self.current_stream.rect(x, y, w, h);
+                self.current_stream.fill();
+            }
+            Background::LinearGradient(g) => {
+                let tag = self.register_gradient(g, x, y, w, h);
+                self.paint_shading(&tag, x, y, w, h, 0.0);
+            }
+        }
+    }
+
+    fn register_gradient(&mut self, g: &LinearGradient, x: f64, y: f64, w: f64, h: f64) -> String {
+        let tag = format!("Sh{}", self.shadings.len() + 1);
+        let ((x0, y0), (x1, y1)) = gradient_endpoints(g.angle_deg, x, y, w, h);
+        self.shadings.push(GradientInstance {
+            tag: tag.clone(),
+            start: g.start, end: g.end,
+            x0, y0, x1, y1,
+        });
+        tag
+    }
+
+    /// Emit `q <clip rect> /<tag> sh Q` to paint a shading clipped to the rect.
+    /// `radius` is the corner radius for the clip path (0 = sharp).
+    fn paint_shading(&mut self, tag: &str, x: f64, y: f64, w: f64, h: f64, radius: f64) {
+        self.current_stream.op("q");
+        if radius > 0.5 {
+            self.current_stream.rounded_rect_path(x, y, w, h, radius);
+        } else {
+            self.current_stream.rect(x, y, w, h);
+        }
+        self.current_stream.op("W n");
+        self.current_stream.op(&format!("/{} sh", tag));
+        self.current_stream.op("Q");
+    }
+
+    fn warn_unsupported(&mut self, component: &str, unknown: &[String]) {
+        for prop in unknown {
+            let key = format!("{}::{}", component, prop);
+            if self.warned_styles.insert(key) {
+                eprintln!("warning[slides]: unsupported style property '{}' on {}", prop, component);
+            }
+        }
     }
 
     fn start_slide(&mut self) {
@@ -304,7 +431,8 @@ impl SlidesCodegen {
         let chrome_size = 11.0;
         let baseline = self.margin * 0.4;
         let ft = self.font_tag("Helvetica");
-        self.current_stream.set_color(0.55, 0.55, 0.55);
+        let color = self.effective_chrome_color();
+        self.current_stream.set_color(color.0, color.1, color.2);
         if let Some(footer) = self.footer_text.clone() {
             self.current_stream.text_at(self.margin, baseline, &ft, chrome_size, &footer);
         }
@@ -313,6 +441,17 @@ impl SlidesCodegen {
             let tw = text_width(&label, "Helvetica", chrome_size);
             let x = self.page_width - self.margin - tw;
             self.current_stream.text_at(x, baseline, &ft, chrome_size, &label);
+        }
+    }
+
+    /// Resolves chrome color: explicit override wins; otherwise auto-flip on
+    /// the current slide's background luminance — light bg → dark grey, dark bg → light grey.
+    fn effective_chrome_color(&self) -> Color {
+        if let Some(c) = self.chrome_color_override { return c; }
+        if self.current_slide_bg_luminance < 0.5 {
+            (0.78, 0.78, 0.78)
+        } else {
+            (0.55, 0.55, 0.55)
         }
     }
 
@@ -495,14 +634,148 @@ impl SlidesCodegen {
             "Spacer"   => { self.cursor_y -= self.spacer_size(ui); }
             "Divider"  => self.emit_divider(),
             "List"     => self.emit_list(ui),
-            "Container" | "Column" | "Stack" | "Grid" | "Section" => {
-                for c in &ui.children { self.emit_statement(c); }
+            "Container" | "Column" | "Stack" | "Grid" | "Section" | "Card" => {
+                self.emit_container(ui, &name);
             }
             _ => {
                 // Unknown component inside a slide — recurse into children for graceful degradation.
                 for c in &ui.children { self.emit_statement(c); }
             }
         }
+    }
+
+    // ─── Container with full styling ────────────────────────
+    //
+    // Styling order at paint time (back-to-front, via splice into the content stream):
+    //   1. box-shadow (offset rect with shadow color)
+    //   2. background (color or linear-gradient, optionally rounded)
+    //   3. border (stroked, optionally rounded)
+    //   4. children content (rendered in-place; everything above is spliced before it)
+    //
+    // The container's vertical extent is auto-measured from cursor_y deltas around
+    // the children render. `width`/`height` from style override the natural sizing.
+
+    fn emit_container(&mut self, ui: &UIElement, component: &str) {
+        let style = ui.style_block.as_ref().map(StyleProps::from_block);
+        if let Some(s) = &style {
+            self.warn_unsupported(component, &s.unknown);
+        }
+
+        let s = match style {
+            Some(s) if container_has_box_styling(&s) => s,
+            _ => {
+                // No box styling — preserve existing behavior (recurse only).
+                for c in &ui.children { self.emit_statement(c); }
+                return;
+            }
+        };
+
+        // Container's outer box.
+        let parent_w = self.content_width();
+        let outer_x = self.margin_left;
+        let mut outer_w = s.width.map(|d| d.resolve(parent_w)).unwrap_or(parent_w);
+        if outer_w > parent_w { outer_w = parent_w; }
+        let explicit_h = s.height.map(|d| d.resolve(self.page_height));
+
+        let saved_left = self.margin_left;
+        let saved_right = self.margin_right;
+        let saved_y = self.cursor_y;
+
+        // Inset child rendering by padding.
+        let pad = s.padding;
+        self.margin_left  = outer_x + pad.left;
+        self.margin_right = self.page_width - (outer_x + outer_w) + pad.right;
+        self.cursor_y     -= pad.top;
+
+        // Snapshot stream length so we can splice bg/border behind children.
+        let splice_at = self.current_stream.ops.len();
+
+        for c in &ui.children { self.emit_statement(c); }
+
+        self.cursor_y -= pad.bottom;
+
+        // Restore outer margins.
+        self.margin_left = saved_left;
+        self.margin_right = saved_right;
+
+        // Compute outer rect (PDF coords: y is bottom).
+        let measured_h = saved_y - self.cursor_y;
+        let outer_h = explicit_h.unwrap_or(measured_h);
+        let outer_y = saved_y - outer_h;
+        if explicit_h.is_some() {
+            // Honor explicit height: cursor advances by the chosen height regardless of content.
+            self.cursor_y = outer_y;
+        }
+
+        // Build the bg/border ops in a temp stream, then splice into current_stream
+        // BEFORE the children's ops so they paint behind text/images.
+        let bg_ops = self.build_box_decoration(&s, outer_x, outer_y, outer_w, outer_h);
+        if !bg_ops.is_empty() {
+            self.current_stream.ops.splice(splice_at..splice_at, bg_ops);
+        }
+    }
+
+    /// Build the back-to-front decoration (shadow, bg, border) for a box,
+    /// returning the raw content-stream bytes. Caller splices these behind the
+    /// children's ops so z-order is correct.
+    fn build_box_decoration(&mut self, s: &StyleProps, x: f64, y: f64, w: f64, h: f64) -> Vec<u8> {
+        let mut tmp = ContentStream::new();
+        let radius = s.border_radius.unwrap_or(0.0);
+
+        // 1. Box shadow (offset rect, drawn behind the bg).
+        if let Some(sh) = &s.box_shadow {
+            // CSS shadow offset: positive Y goes DOWN (so we subtract from y).
+            let sx = x + sh.offset_x;
+            let sy = y - sh.offset_y;
+            tmp.set_color(sh.color.0, sh.color.1, sh.color.2);
+            if radius > 0.5 {
+                tmp.rounded_rect_path(sx, sy, w, h, radius);
+            } else {
+                tmp.rect(sx, sy, w, h);
+            }
+            tmp.fill();
+        }
+
+        // 2. Background.
+        match &s.background {
+            Some(Background::Color(c)) => {
+                tmp.set_color(c.0, c.1, c.2);
+                if radius > 0.5 {
+                    tmp.rounded_rect_path(x, y, w, h, radius);
+                } else {
+                    tmp.rect(x, y, w, h);
+                }
+                tmp.fill();
+            }
+            Some(Background::LinearGradient(g)) => {
+                let tag = self.register_gradient(g, x, y, w, h);
+                tmp.op("q");
+                if radius > 0.5 {
+                    tmp.rounded_rect_path(x, y, w, h, radius);
+                } else {
+                    tmp.rect(x, y, w, h);
+                }
+                tmp.op("W n");
+                tmp.op(&format!("/{} sh", tag));
+                tmp.op("Q");
+            }
+            None => {}
+        }
+
+        // 3. Border (stroked).
+        if let Some(bw) = s.border_width {
+            let bc = s.border_color.unwrap_or((0.5, 0.5, 0.5));
+            tmp.set_stroke_color(bc.0, bc.1, bc.2);
+            tmp.set_line_width(bw);
+            if radius > 0.5 {
+                tmp.rounded_rect_path(x, y, w, h, radius);
+            } else {
+                tmp.rect(x, y, w, h);
+            }
+            tmp.stroke();
+        }
+
+        tmp.bytes().to_vec()
     }
 
     // ─── Body components (clip-on-overflow) ─────────────────
@@ -723,7 +996,10 @@ impl SlidesCodegen {
 
         let font_start = 3;
         let num_fonts = self.fonts.len();
-        let resources_id = font_start + num_fonts;
+        // Each gradient takes 2 objects: a function + a shading dict.
+        let shading_func_start = font_start + num_fonts;
+        let shading_dict_start = shading_func_start + self.shadings.len();
+        let resources_id = shading_dict_start + self.shadings.len();
 
         let mut final_objects: Vec<(usize, Vec<u8>)> = Vec::new();
 
@@ -736,12 +1012,41 @@ impl SlidesCodegen {
                 format!("<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>", bf).into_bytes()));
         }
 
+        // Gradient functions (Type 2 axial, exponential interpolation).
+        for (i, g) in self.shadings.iter().enumerate() {
+            let func_obj = format!(
+                "<< /FunctionType 2 /Domain [0 1] /N 1 /C0 [{} {} {}] /C1 [{} {} {}] >>",
+                fmt_f64(g.start.0), fmt_f64(g.start.1), fmt_f64(g.start.2),
+                fmt_f64(g.end.0),   fmt_f64(g.end.1),   fmt_f64(g.end.2),
+            );
+            final_objects.push((shading_func_start + i, func_obj.into_bytes()));
+        }
+
+        // Gradient shading dicts (Type 2 axial).
+        for (i, g) in self.shadings.iter().enumerate() {
+            let func_id = shading_func_start + i;
+            let shading_obj = format!(
+                "<< /ShadingType 2 /ColorSpace /DeviceRGB /Coords [{} {} {} {}] /Function {} 0 R /Extend [true true] >>",
+                fmt_f64(g.x0), fmt_f64(g.y0), fmt_f64(g.x1), fmt_f64(g.y1), func_id,
+            );
+            final_objects.push((shading_dict_start + i, shading_obj.into_bytes()));
+        }
+
         // Resources
         let mut fe = String::new();
         for (i, (tag, _)) in self.fonts.iter().enumerate() {
             fe.push_str(&format!("/{} {} 0 R ", tag, font_start + i));
         }
-        final_objects.push((resources_id, format!("<< /Font << {} >> >>", fe).into_bytes()));
+        let mut shading_entries = String::new();
+        for (i, g) in self.shadings.iter().enumerate() {
+            shading_entries.push_str(&format!("/{} {} 0 R ", g.tag, shading_dict_start + i));
+        }
+        let resources_dict = if shading_entries.is_empty() {
+            format!("<< /Font << {} >> >>", fe)
+        } else {
+            format!("<< /Font << {} >> /Shading << {} >> >>", fe, shading_entries)
+        };
+        final_objects.push((resources_id, resources_dict.into_bytes()));
 
         // Content streams + Pages (objects come in pairs: stream, then page).
         let mut new_page_ids: Vec<usize> = Vec::new();
@@ -789,6 +1094,24 @@ impl SlidesCodegen {
 }
 
 // ─── Free functions ─────────────────────────────────────────────────
+
+fn container_has_box_styling(s: &StyleProps) -> bool {
+    s.background.is_some()
+        || !s.padding.is_zero()
+        || s.border_width.is_some()
+        || s.border_radius.is_some()
+        || s.box_shadow.is_some()
+        || s.width.is_some()
+        || s.height.is_some()
+}
+
+/// Average luminance of a background — for gradients, average the two stops.
+fn background_luminance(bg: &Background) -> f64 {
+    match bg {
+        Background::Color(c) => luminance(*c),
+        Background::LinearGradient(g) => (luminance(g.start) + luminance(g.end)) / 2.0,
+    }
+}
 
 fn count_slides_in_stmt(stmt: &Statement) -> usize {
     if let Statement::UIElement(ui) = stmt {

@@ -1,5 +1,10 @@
+use std::collections::HashSet;
 use crate::config::project::PdfConfig;
 use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef, Expr, StringPart};
+use crate::codegen::style::{
+    Background, Color as StyleColor, LinearGradient, StyleProps,
+    gradient_endpoints,
+};
 
 // ─── Base14 Font Metrics (Helvetica) ────────────────────────────────
 const HELVETICA_WIDTHS: [u16; 95] = [
@@ -141,6 +146,23 @@ impl ContentStream {
     fn set_line_width(&mut self, w: f64) {
         self.op(&format!("{} w", fmt_f64(w)));
     }
+    /// Rounded rect path only (no fill/stroke). Caller must invoke `fill()` or `stroke()`.
+    fn rounded_rect_path(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
+        let r = r.min(w / 2.0).min(h / 2.0);
+        if r < 0.5 { self.rect(x, y, w, h); return; }
+        let k = 0.5523;
+        let kr = k * r;
+        self.op(&format!("{} {} m", fmt_f64(x + r), fmt_f64(y)));
+        self.op(&format!("{} {} l", fmt_f64(x + w - r), fmt_f64(y)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w-r+kr), fmt_f64(y), fmt_f64(x+w), fmt_f64(y+r-kr), fmt_f64(x+w), fmt_f64(y+r)));
+        self.op(&format!("{} {} l", fmt_f64(x + w), fmt_f64(y + h - r)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w), fmt_f64(y+h-r+kr), fmt_f64(x+w-r+kr), fmt_f64(y+h), fmt_f64(x+w-r), fmt_f64(y+h)));
+        self.op(&format!("{} {} l", fmt_f64(x + r), fmt_f64(y + h)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+r-kr), fmt_f64(y+h), fmt_f64(x), fmt_f64(y+h-r+kr), fmt_f64(x), fmt_f64(y+h-r)));
+        self.op(&format!("{} {} l", fmt_f64(x), fmt_f64(y + r)));
+        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x), fmt_f64(y+r-kr), fmt_f64(x+r-kr), fmt_f64(y), fmt_f64(x+r), fmt_f64(y)));
+        self.op("h");
+    }
     fn rounded_rect(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
         let r = r.min(w / 2.0).min(h / 2.0);
         if r < 0.5 { self.rect(x, y, w, h); return; }
@@ -167,6 +189,13 @@ impl ContentStream {
 //   After drawing a line of text at cursor_y, decrement cursor_y by line_height.
 //   Shapes (rects, lines) position themselves relative to cursor_y.
 //   Y=0 is page bottom. Y increases upward.
+
+struct GradientInstance {
+    tag: String,
+    start: StyleColor,
+    end: StyleColor,
+    x0: f64, y0: f64, x1: f64, y1: f64,
+}
 
 /// PDF code generator — renders the AST to a PDF document using Base14 fonts.
 ///
@@ -196,6 +225,8 @@ pub struct PdfCodegen {
     in_header_footer: bool,
     page_has_content: bool,
     current_page_number: usize,
+    shadings: Vec<GradientInstance>,
+    warned_styles: HashSet<String>,
 }
 
 impl PdfCodegen {
@@ -225,6 +256,8 @@ impl PdfCodegen {
             in_header_footer: false,
             page_has_content: false,
             current_page_number: 0,
+            shadings: Vec::new(),
+            warned_styles: HashSet::new(),
         };
         cg.register_font(&config.default_font);
         cg.register_font("Helvetica-Bold");
@@ -415,7 +448,7 @@ impl PdfCodegen {
             "Divider"   => self.emit_divider(),
             "Row"       => self.emit_row(ui),
             "Container" | "Column" | "Grid" | "Stack" => {
-                for c in &ui.children { self.emit_statement(c); }
+                self.emit_container(ui, &name);
             }
             "Spacer"    => { self.cursor_y -= self.get_spacer_size(ui); }
             "List" | "TypeList" => self.emit_list(ui),
@@ -1236,6 +1269,137 @@ impl PdfCodegen {
         16.0
     }
 
+    // ─── Container with full styling ────────────────────────
+    //
+    // Mirror of slides::emit_container: shadow → background → border → children,
+    // ordered via splice into the content stream so children paint on top.
+
+    fn emit_container(&mut self, ui: &UIElement, component: &str) {
+        let style = ui.style_block.as_ref().map(StyleProps::from_block);
+        if let Some(s) = &style {
+            self.warn_unsupported(component, &s.unknown);
+        }
+
+        let s = match style {
+            Some(s) if container_has_box_styling_pdf(&s) => s,
+            _ => {
+                for c in &ui.children { self.emit_statement(c); }
+                return;
+            }
+        };
+
+        let parent_w = self.content_width();
+        let outer_x = self.margin_left;
+        let mut outer_w = s.width.map(|d| d.resolve(parent_w)).unwrap_or(parent_w);
+        if outer_w > parent_w { outer_w = parent_w; }
+        let explicit_h = s.height.map(|d| d.resolve(self.page_height));
+
+        let saved_left = self.margin_left;
+        let saved_right = self.margin_right;
+        let saved_y = self.cursor_y;
+
+        let pad = s.padding;
+        self.margin_left  = outer_x + pad.left;
+        self.margin_right = self.page_width - (outer_x + outer_w) + pad.right;
+        self.cursor_y     -= pad.top;
+
+        let splice_at = self.current_stream.ops.len();
+        for c in &ui.children { self.emit_statement(c); }
+        self.cursor_y -= pad.bottom;
+
+        self.margin_left = saved_left;
+        self.margin_right = saved_right;
+
+        let measured_h = saved_y - self.cursor_y;
+        let outer_h = explicit_h.unwrap_or(measured_h);
+        let outer_y = saved_y - outer_h;
+        if explicit_h.is_some() {
+            self.cursor_y = outer_y;
+        }
+
+        let bg_ops = self.build_box_decoration_pdf(&s, outer_x, outer_y, outer_w, outer_h);
+        if !bg_ops.is_empty() {
+            self.current_stream.ops.splice(splice_at..splice_at, bg_ops);
+            self.mark_content();
+        }
+    }
+
+    fn register_gradient_pdf(&mut self, g: &LinearGradient, x: f64, y: f64, w: f64, h: f64) -> String {
+        let tag = format!("Sh{}", self.shadings.len() + 1);
+        let ((x0, y0), (x1, y1)) = gradient_endpoints(g.angle_deg, x, y, w, h);
+        self.shadings.push(GradientInstance {
+            tag: tag.clone(),
+            start: g.start, end: g.end,
+            x0, y0, x1, y1,
+        });
+        tag
+    }
+
+    fn build_box_decoration_pdf(&mut self, s: &StyleProps, x: f64, y: f64, w: f64, h: f64) -> Vec<u8> {
+        let mut tmp = ContentStream::new();
+        let radius = s.border_radius.unwrap_or(0.0);
+
+        if let Some(sh) = &s.box_shadow {
+            let sx = x + sh.offset_x;
+            let sy = y - sh.offset_y;
+            tmp.set_color(sh.color.0, sh.color.1, sh.color.2);
+            if radius > 0.5 {
+                tmp.rounded_rect_path(sx, sy, w, h, radius);
+            } else {
+                tmp.rect(sx, sy, w, h);
+            }
+            tmp.fill();
+        }
+
+        match &s.background {
+            Some(Background::Color(c)) => {
+                tmp.set_color(c.0, c.1, c.2);
+                if radius > 0.5 {
+                    tmp.rounded_rect_path(x, y, w, h, radius);
+                } else {
+                    tmp.rect(x, y, w, h);
+                }
+                tmp.fill();
+            }
+            Some(Background::LinearGradient(g)) => {
+                let tag = self.register_gradient_pdf(g, x, y, w, h);
+                tmp.op("q");
+                if radius > 0.5 {
+                    tmp.rounded_rect_path(x, y, w, h, radius);
+                } else {
+                    tmp.rect(x, y, w, h);
+                }
+                tmp.op("W n");
+                tmp.op(&format!("/{} sh", tag));
+                tmp.op("Q");
+            }
+            None => {}
+        }
+
+        if let Some(bw) = s.border_width {
+            let bc = s.border_color.unwrap_or((0.5, 0.5, 0.5));
+            tmp.set_stroke_color(bc.0, bc.1, bc.2);
+            tmp.set_line_width(bw);
+            if radius > 0.5 {
+                tmp.rounded_rect_path(x, y, w, h, radius);
+            } else {
+                tmp.rect(x, y, w, h);
+            }
+            tmp.stroke();
+        }
+
+        tmp.bytes().to_vec()
+    }
+
+    fn warn_unsupported(&mut self, component: &str, unknown: &[String]) {
+        for prop in unknown {
+            let key = format!("{}::{}", component, prop);
+            if self.warned_styles.insert(key) {
+                eprintln!("warning[pdf]: unsupported style property '{}' on {}", prop, component);
+            }
+        }
+    }
+
     // ─── PDF Serialization ──────────────────────────────────
 
     fn serialize(&self) -> Vec<u8> {
@@ -1246,7 +1410,9 @@ impl PdfCodegen {
 
         let font_start = 3;
         let num_fonts = self.fonts.len();
-        let resources_id = font_start + num_fonts;
+        let shading_func_start = font_start + num_fonts;
+        let shading_dict_start = shading_func_start + self.shadings.len();
+        let resources_id = shading_dict_start + self.shadings.len();
 
         let mut final_objects: Vec<(usize, Vec<u8>)> = Vec::new();
 
@@ -1259,12 +1425,39 @@ impl PdfCodegen {
                 format!("<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>", bf).into_bytes()));
         }
 
+        // Gradient functions + shading dicts (Type 2 axial).
+        for (i, g) in self.shadings.iter().enumerate() {
+            let func_obj = format!(
+                "<< /FunctionType 2 /Domain [0 1] /N 1 /C0 [{} {} {}] /C1 [{} {} {}] >>",
+                fmt_f64(g.start.0), fmt_f64(g.start.1), fmt_f64(g.start.2),
+                fmt_f64(g.end.0),   fmt_f64(g.end.1),   fmt_f64(g.end.2),
+            );
+            final_objects.push((shading_func_start + i, func_obj.into_bytes()));
+        }
+        for (i, g) in self.shadings.iter().enumerate() {
+            let func_id = shading_func_start + i;
+            let shading_obj = format!(
+                "<< /ShadingType 2 /ColorSpace /DeviceRGB /Coords [{} {} {} {}] /Function {} 0 R /Extend [true true] >>",
+                fmt_f64(g.x0), fmt_f64(g.y0), fmt_f64(g.x1), fmt_f64(g.y1), func_id,
+            );
+            final_objects.push((shading_dict_start + i, shading_obj.into_bytes()));
+        }
+
         // Resources
         let mut fe = String::new();
         for (i, (tag, _)) in self.fonts.iter().enumerate() {
             fe.push_str(&format!("/{} {} 0 R ", tag, font_start + i));
         }
-        final_objects.push((resources_id, format!("<< /Font << {} >> >>", fe).into_bytes()));
+        let mut shading_entries = String::new();
+        for (i, g) in self.shadings.iter().enumerate() {
+            shading_entries.push_str(&format!("/{} {} 0 R ", g.tag, shading_dict_start + i));
+        }
+        let resources_dict = if shading_entries.is_empty() {
+            format!("<< /Font << {} >> >>", fe)
+        } else {
+            format!("<< /Font << {} >> /Shading << {} >> >>", fe, shading_entries)
+        };
+        final_objects.push((resources_id, resources_dict.into_bytes()));
 
         // Content streams + Pages
         let mut new_page_ids: Vec<usize> = Vec::new();
@@ -1312,6 +1505,16 @@ impl PdfCodegen {
 }
 
 // ─── Utility Functions ──────────────────────────────────────────────
+
+fn container_has_box_styling_pdf(s: &StyleProps) -> bool {
+    s.background.is_some()
+        || !s.padding.is_zero()
+        || s.border_width.is_some()
+        || s.border_radius.is_some()
+        || s.box_shadow.is_some()
+        || s.width.is_some()
+        || s.height.is_some()
+}
 
 fn fmt_f64(v: f64) -> String {
     if v == v.floor() { format!("{:.0}", v) } else { format!("{:.2}", v) }

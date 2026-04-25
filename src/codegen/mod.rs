@@ -14,6 +14,7 @@ pub mod js;
 pub mod ssg;
 pub mod pdf;
 pub mod slides;
+pub mod style;
 
 pub use html::generate_html;
 pub use css::generate_css;

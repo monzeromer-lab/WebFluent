@@ -610,6 +610,28 @@ Card {
 
 Style properties use CSS names (hyphenated). Values are strings or numbers. All CSS property names work, including `transition`, `animation`, `filter`, etc.
 
+### Style support in PDF and Slides
+
+The PDF and Slides backends honor the same set of style properties on `Slide` (slides only) and on layout containers (`Container`, `Column`, `Stack`, `Grid`, `Card`, `Section`). Anything else emits a `warning[pdf]:` or `warning[slides]: unsupported style property '<name>' on <Component>` (deduped per build).
+
+| Property | Values | Notes |
+|----------|--------|-------|
+| `background` / `background-color` | `"#hex"`, `"linear-gradient(...)"` | Paint color or PDF axial-shading gradient |
+| `padding`, `padding-{top,right,bottom,left}` | `Npt`, `Npx`, `N` | Insets the container's child rendering |
+| `border` | `"Npt #hex"` (CSS shorthand, simplified) | Width + color |
+| `border-color` | `"#hex"` | |
+| `border-width` | `Npt` | |
+| `border-radius` | `Npt` | Rounds the bg + border |
+| `box-shadow` | `"X Y #hex"` | Offset rect; blur is ignored |
+| `width`, `height` | `Npt`, `N%` | Fixed-size or percent of parent |
+| `color`, `font-family`, `font-size`, `text-align` | as CSS | On `Text`/`Heading` |
+
+Linear gradient syntax: `linear-gradient(to bottom, #color1, #color2)`, `linear-gradient(45deg, #c1, #c2)`, or named directions `to top|right|bottom|left|top-right|...`. Two color stops only.
+
+The `Slide` element accepts `style { background }` (full-bleed page background). Setting `background` on a `Container` paints the rect under that container's measured box (or its explicit `width`/`height`).
+
+Painting order inside a styled container: shadow → background → border → children. Children paint on top of decoration via content-stream splicing.
+
 ### Responsive Styles with @media
 
 Style blocks support `@media` queries for responsive design:
@@ -784,11 +806,15 @@ PDF deck output where **one `Slide` = one PDF page** (no flow pagination).
             "margin": 60,
             "show_slide_numbers": true,
             "footer_text": "My Deck",
+            "background_color": "#1A1A19",
+            "chrome_color": null,
             "output_filename": "deck.pdf"
         }
     }
 }
 ```
+
+`background_color` paints every slide full-bleed with the given color (override per-slide via `Slide { style { background } }`). `chrome_color` overrides the slide-number/footer color; if `null`, it auto-flips between dark and light grey based on the slide's background luminance.
 
 A deck must be wrapped in a `Presentation { ... }` block inside a `Page` body. Slide elements must not appear outside `Presentation` (compile error).
 
@@ -910,6 +936,8 @@ Code("function() \{ return 42; \}", block)
             "margin": 60,
             "show_slide_numbers": false,
             "footer_text": null,
+            "background_color": null,
+            "chrome_color": null,
             "output_filename": null
         }
     },

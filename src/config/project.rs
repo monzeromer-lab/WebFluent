@@ -135,6 +135,14 @@ pub struct SlidesConfig {
     /// Footer text shown bottom-left of every slide.
     #[serde(default)]
     pub footer_text: Option<String>,
+    /// Deck-wide page background color (e.g. "#1A1A19"). Per-slide
+    /// `style { background }` overrides this for individual slides.
+    #[serde(default)]
+    pub background_color: Option<String>,
+    /// Override slide-chrome (page numbers + footer text) color. If None,
+    /// the chrome color is auto-derived from the slide's background luminance.
+    #[serde(default)]
+    pub chrome_color: Option<String>,
     #[serde(default)]
     pub output_filename: Option<String>,
 }
@@ -155,6 +163,8 @@ impl Default for SlidesConfig {
             margin: default_slide_margin(),
             show_slide_numbers: false,
             footer_text: None,
+            background_color: None,
+            chrome_color: None,
             output_filename: None,
         }
     }

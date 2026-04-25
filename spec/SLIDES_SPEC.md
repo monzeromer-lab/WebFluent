@@ -67,15 +67,76 @@ Both opt-in via config:
 {
   "slides": {
     "show_slide_numbers": true,
-    "footer_text": "Confidential — Q4 2026"
+    "footer_text": "Confidential — Q4 2026",
+    "chrome_color": null
   }
 }
 ```
 
 - `show_slide_numbers`: emits `n / total` in the bottom-right of each slide.
 - `footer_text`: emits the text in the bottom-left of each slide.
+- `chrome_color`: explicit chrome color override (e.g. `"#888"`). If `null`, the chrome color **auto-flips** based on the current slide's background luminance — light bg → dark grey, dark bg → light grey.
 
-Both render in 11pt grey, baselined at `margin × 0.4` from the bottom edge.
+Both render at 11pt, baselined at `margin × 0.4` from the bottom edge. Chrome paints last so it sits above any background.
+
+## Backgrounds
+
+Three sources, in order of precedence (later wins):
+
+1. `slides.background_color` in `webfluent.app.json` — deck-wide.
+2. `Slide { style { background } }` — overrides for one slide.
+3. `Container { style { background } }` inside a slide — paints under the container only.
+
+All three accept either a hex color or a `linear-gradient(...)`:
+
+```wf
+Slide {
+    style { background: "linear-gradient(135deg, #C69C6D, #8B5A2B)" }
+    Heading("Tan-to-brown gradient", h1)
+}
+```
+
+Linear gradient grammar: `linear-gradient(<direction>, <color>, <color>)` where `<direction>` is one of `<N>deg`, `to top|right|bottom|left|top-right|bottom-right|bottom-left|top-left`. Two color stops only (start + end). Implemented via PDF Type-2 axial shading.
+
+## Container styling
+
+Inside a slide (or anywhere in PDF output), layout containers (`Container`, `Column`, `Stack`, `Grid`, `Card`, `Section`) honor a CSS-flavored subset of style properties:
+
+| Property | Notes |
+|----------|-------|
+| `background` / `background-color` | Color or linear-gradient |
+| `padding`, `padding-top`/`-right`/`-bottom`/`-left` | Insets child content |
+| `border` | Shorthand: `"Npt #hex"` (e.g., `"1pt #C69C6D"`) |
+| `border-color`, `border-width` | Individual properties |
+| `border-radius` | Rounds bg + border |
+| `box-shadow` | Shorthand: `"OffsetX OffsetY #hex"` (blur ignored, no spread) |
+| `width`, `height` | `Npt` or `N%` (percent of parent) |
+
+Painting order: `box-shadow` → `background` → `border` → children. Implemented via content-stream splicing — the container's children render in-place, and decoration ops are spliced in *behind* them so z-order is correct without layout pre-measurement.
+
+Example styled card:
+
+```wf
+Container {
+    style {
+        background: "#2A2A28"
+        padding: 24
+        border: "1pt #C69C6D"
+        border-radius: 12
+        box-shadow: "4 4 #000000"
+    }
+    Heading("Card heading", h3)
+    Text("Card body.")
+}
+```
+
+## Diagnostic warnings
+
+Any style property that the slides/PDF emitter does not recognize emits a single `warning[slides]:` (or `warning[pdf]:`) line per `<component, property>` pair (deduped across the build). Build does not fail.
+
+Example: `style { blink: "yes" }` on a Slide → `warning[slides]: unsupported style property 'blink' on Slide`.
+
+A short list of CSS properties is silently accepted (and ignored) without warnings, to avoid noise from web-only properties: `transition`, `animation`, `transform`, `opacity`, `display`, `position`, `z-index`, `overflow`.
 
 ## Body components
 
@@ -136,7 +197,9 @@ wf build                             # compile to PDF in ./build/
 
 ## Limitations (v1)
 
-- Image embedding is a placeholder (mirrors PDF backend).
+- Image embedding is a placeholder (mirrors PDF backend); `background-image: url(...)` is not supported.
+- Box-shadow blur and spread are ignored — only offset + color are honored.
+- Linear gradients support two color stops (start + end). Radial gradients are not supported.
 - Speaker notes are not supported.
 - HTML/reveal.js-style web slides are out of scope.
 - Per-slide page sizes are not supported (whole deck shares one size).

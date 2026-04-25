@@ -49,9 +49,13 @@ pub fn run_render(
             let pdf = tpl.render_pdf(&data)?;
             write_output(output_path, &pdf)?;
         }
+        "slides" => {
+            let pdf = tpl.render_slides(&data)?;
+            write_output(output_path, &pdf)?;
+        }
         _ => {
             return Err(WebFluentError::ConfigError(
-                format!("Unknown format '{}'. Use 'html', 'html-fragment', or 'pdf'.", format)
+                format!("Unknown format '{}'. Use 'html', 'html-fragment', 'pdf', or 'slides'.", format)
             ));
         }
     }
