@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x /home/monzer-omer/Code/WebFluent/install.sh)",
+      "Bash(cargo build:*)",
+      "Bash(just --version)",
+      "Bash(cargo install:*)",
+      "Bash(cargo deb:*)",
+      "Bash(just --list)",
+      "Bash(rustup target:*)",
+      "Bash(dpkg -l)",
+      "Bash(zip -j dist/wf-v2.0.0-alpha-x86_64-windows.zip target/x86_64-pc-windows-gnu/release/wf.exe)",
+      "Bash(tar czf:*)",
+      "Bash(cp target/debian/webfluent_*.deb dist/)",
+      "Bash(zip -j dist/wf-v0.2.0-alpha-x86_64-windows.zip target/x86_64-pc-windows-gnu/release/wf.exe)",
+      "Bash(cargo check *)",
+      "Bash(\"/media/monzer-omer/the good *)",
+      "Bash(command -v pdftoppm)",
+      "Bash(pdftoppm -f 1 -l 6 -png -r 36 /tmp/styled-deck/build/styled-deck.pdf /tmp/styled-deck/probe)",
+      "Bash(pdftoppm -f 1 -l 1 -png -r 36 build/styled-pdf.pdf /tmp/styled-pdf/probe)",
+      "Read(//tmp/**)",
+      "Bash(rm -rf /tmp/styled-deck /tmp/styled-pdf)"
+    ]
+  }
+}
