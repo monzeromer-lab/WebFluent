@@ -16,7 +16,7 @@
 /// structured-edit features (see the STUDIO_INTEGRATION_PLAN). Every code
 /// generator (html/css/js/ssg/pdf/slides) ignores them, and nodes built outside
 /// the parser can use [`Span::dummy`] / `..Default::default()`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct Span {
     /// Byte offset of the first byte of the node in the source.
     pub start: u32,

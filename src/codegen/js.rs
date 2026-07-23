@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::parser::ast::*;
+use crate::codegen::node_id::NodeMap;
 use crate::runtime;
 
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
@@ -19,6 +20,11 @@ pub struct JsCodegen {
     ssg_mode: bool,
     /// Base path for deployment (e.g., "/WebFluent")
     base_path: String,
+    /// Studio mode: stamp `data-wf-node` ids on rendered elements. Off for
+    /// export/release builds, which must contain no debug attributes.
+    studio: bool,
+    /// Deterministic node ids keyed by element span (empty unless in studio mode).
+    node_ids: NodeMap,
 }
 
 impl JsCodegen {
@@ -33,6 +39,8 @@ impl JsCodegen {
             i18n_translations: HashMap::new(),
             ssg_mode: false,
             base_path: String::new(),
+            studio: false,
+            node_ids: NodeMap::default(),
         }
     }
 
@@ -47,6 +55,32 @@ impl JsCodegen {
 
     pub fn set_base_path(&mut self, path: String) {
         self.base_path = path;
+    }
+
+    /// Enable studio mode and supply the node-identity map. When enabled, each
+    /// element's root gets `data-wf-node="<id>"`.
+    pub fn set_studio(&mut self, node_ids: NodeMap) {
+        self.studio = true;
+        self.node_ids = node_ids;
+    }
+
+    /// The `data-wf-node` attrs-object entry for this element, or `None` when not
+    /// in studio mode or the node has no id. Formatted as a JS object property
+    /// (`"data-wf-node": "<id>"`) ready to push into an element's attrs list.
+    fn wf_node_entry(&self, ui: &UIElement) -> Option<String> {
+        if !self.studio {
+            return None;
+        }
+        self.node_ids
+            .id_for(ui.span)
+            .map(|id| format!("\"data-wf-node\": \"{}\"", id))
+    }
+
+    /// Leading-comma form (`, "data-wf-node": "<id>"`) for splicing into an
+    /// existing JS attrs object literal built inline by a special emitter; empty
+    /// when not in studio mode / the node has no id.
+    fn wf_node_inline(&self, ui: &UIElement) -> String {
+        self.wf_node_entry(ui).map(|e| format!(", {}", e)).unwrap_or_default()
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
@@ -531,8 +565,8 @@ impl JsCodegen {
                         }
                     }
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"{}\", {{ className: \"{}\" }});",
-                        var, tag, classes.join(" ")
+                        "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
+                        var, tag, classes.join(" "), self.wf_node_inline(ui)
                     ));
                     // Apply style block if present
                     if let Some(style) = &ui.style_block {
@@ -845,6 +879,13 @@ impl JsCodegen {
                     }
                 }
 
+                // Studio: stamp the node id on the element's root. Injecting here
+                // covers the standard path and every special emitter that reuses
+                // `attrs`/`attrs_str` (Modal, Switch, Checkbox, Dropdown, Spacer).
+                if let Some(entry) = self.wf_node_entry(ui) {
+                    attrs.push(entry);
+                }
+
                 let attrs_str = if attrs.is_empty() {
                     "{}".to_string()
                 } else {
@@ -1037,8 +1078,8 @@ impl JsCodegen {
                 };
 
                 self.emit_line(&format!(
-                    "const {} = WF.h(\"{}\", {{ className: \"{}\" }});",
-                    var, tag, class
+                    "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
+                    var, tag, class, self.wf_node_inline(ui)
                 ));
                 for child in &ui.children {
                     self.emit_statement_dom(child, &var);
@@ -1077,7 +1118,7 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\" }});", var, class));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, class, self.wf_node_inline(ui)));
 
         let content_var = self.fresh_var();
         let content_class = format!("{}__content", class);
@@ -1097,11 +1138,13 @@ impl JsCodegen {
 
         // Check for Modal.Footer
         let mut footer_stmts = Vec::new();
+        let mut footer_wf = String::new();
         let mut body_stmts = Vec::new();
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
                 if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer") {
                     footer_stmts = ui_child.children.clone();
+                    footer_wf = self.wf_node_inline(ui_child);
                     continue;
                 }
             }
@@ -1115,7 +1158,7 @@ impl JsCodegen {
 
         if !footer_stmts.is_empty() {
             let footer_var = self.fresh_var();
-            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}__footer\" }});", footer_var, class));
+            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}__footer\"{} }});", footer_var, class, footer_wf));
             for child in &footer_stmts {
                 self.emit_statement_dom(&child, &footer_var);
             }
@@ -1136,7 +1179,7 @@ impl JsCodegen {
     }
 
     fn emit_tabs(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tabs\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tabs\"{} }});", var, self.wf_node_inline(ui)));
         let nav_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tabs__nav\" }});", nav_var));
 
@@ -1172,7 +1215,7 @@ impl JsCodegen {
         // Create tab content
         for (i, (tab, _)) in tab_pages.iter().enumerate() {
             let page_var = self.fresh_var();
-            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tab-page\" }});", page_var));
+            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tab-page\"{} }});", page_var, self.wf_node_inline(tab)));
             for child in &tab.children {
                 self.emit_statement_dom(child, &page_var);
             }
@@ -1186,20 +1229,20 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
-    fn emit_switch(&mut self, var: &str, attrs: &[String], _ui: &UIElement, parent: &str) {
+    fn emit_switch(&mut self, var: &str, attrs: &[String], ui: &UIElement, parent: &str) {
         let bind_var = attrs.iter().find_map(|a| {
             if a.starts_with("value: () => _") {
                 Some(a.replace("value: () => _", "").replace("()", ""))
             } else { None }
         });
 
-        let label = _ui.args.iter().find_map(|a| {
+        let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "label" { Some(self.emit_expr(v)) } else { None }
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"wf-switch\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"wf-switch\"{} }});", var, self.wf_node_inline(ui)));
 
         if let Some(state) = &bind_var {
             let input_var = self.fresh_var();
@@ -1227,6 +1270,7 @@ impl JsCodegen {
     fn emit_check_radio(&mut self, name: &str, var: &str, _attrs: &[String], ui: &UIElement, parent: &str) {
         let input_type = if name == "Checkbox" { "checkbox" } else { "radio" };
         let class = if name == "Checkbox" { "wf-checkbox" } else { "wf-radio" };
+        let wf = self.wf_node_inline(ui);
 
         let bind_var = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
@@ -1249,7 +1293,7 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"{}\" }});", var, class));
+        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"{}\"{} }});", var, class, wf));
 
         let input_var = self.fresh_var();
         let mut input_attrs = format!("type: \"{}\"", input_type);
@@ -1313,8 +1357,8 @@ impl JsCodegen {
         let open_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.signal(false);", open_var));
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\" }});",
-            var, open_var, class, class
+            "const {} = WF.h(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\"{} }});",
+            var, open_var, class, class, self.wf_node_inline(ui)
         ));
 
         let trigger_var = self.fresh_var();
@@ -1344,7 +1388,7 @@ impl JsCodegen {
     }
 
     fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"wf-sidebar\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"wf-sidebar\"{} }});", var, self.wf_node_inline(ui)));
 
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
@@ -1354,8 +1398,8 @@ impl JsCodegen {
                             "Header" => {
                                 let h_var = self.fresh_var();
                                 self.emit_line(&format!(
-                                    "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__header\" }});",
-                                    h_var
+                                    "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__header\"{} }});",
+                                    h_var, self.wf_node_inline(ui_child)
                                 ));
                                 for c in &ui_child.children {
                                     self.emit_statement_dom(c, &h_var);
@@ -1377,13 +1421,13 @@ impl JsCodegen {
                                 if let Some(href) = to {
                                     let bp = if self.base_path.is_empty() { String::new() } else { format!("WF._basePath + ") };
                                     self.emit_line(&format!(
-                                        "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {} }});",
-                                        item_var, bp, href
+                                        "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {}{} }});",
+                                        item_var, bp, href, self.wf_node_inline(ui_child)
                                     ));
                                 } else {
                                     self.emit_line(&format!(
-                                        "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__item\" }});",
-                                        item_var
+                                        "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__item\"{} }});",
+                                        item_var, self.wf_node_inline(ui_child)
                                     ));
                                 }
                                 if let Some(ic) = icon {
@@ -1399,8 +1443,8 @@ impl JsCodegen {
                             }
                             "Divider" => {
                                 self.emit_line(&format!(
-                                    "{}.appendChild(WF.h(\"div\", {{ className: \"wf-sidebar__divider\" }}));",
-                                    var
+                                    "{}.appendChild(WF.h(\"div\", {{ className: \"wf-sidebar__divider\"{} }}));",
+                                    var, self.wf_node_inline(ui_child)
                                 ));
                             }
                             _ => {
@@ -1421,7 +1465,7 @@ impl JsCodegen {
     }
 
     fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"wf-breadcrumb\", \"aria-label\": \"breadcrumb\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"wf-breadcrumb\", \"aria-label\": \"breadcrumb\"{} }});", var, self.wf_node_inline(ui)));
 
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
@@ -1435,13 +1479,13 @@ impl JsCodegen {
                     if let Some(href) = to {
                         let bp = if self.base_path.is_empty() { String::new() } else { format!("WF._basePath + ") };
                         self.emit_line(&format!(
-                            "const {} = WF.h(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{} }});",
-                            item_var, bp, href
+                            "const {} = WF.h(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{}{} }});",
+                            item_var, bp, href, self.wf_node_inline(ui_child)
                         ));
                     } else {
                         self.emit_line(&format!(
-                            "const {} = WF.h(\"span\", {{ className: \"wf-breadcrumb__item\" }});",
-                            item_var
+                            "const {} = WF.h(\"span\", {{ className: \"wf-breadcrumb__item\"{} }});",
+                            item_var, self.wf_node_inline(ui_child)
                         ));
                     }
                     for c in &ui_child.children {
@@ -1466,7 +1510,7 @@ impl JsCodegen {
             } else { None }
         }).unwrap_or_else(|| "\"\"".to_string());
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tooltip\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tooltip\"{} }});", var, self.wf_node_inline(ui)));
 
         // Render children (the trigger element)
         for child in &ui.children {
@@ -1510,21 +1554,22 @@ impl JsCodegen {
             }
         }
 
+        let wf = self.wf_node_inline(ui);
         if let Some(img_src) = src {
             let alt_val = alt.unwrap_or_else(|| "\"\"".to_string());
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}\" }}, WF.h(\"img\", {{ src: {}, alt: {} }}));",
-                var, cls, img_src, alt_val
+                "const {} = WF.h(\"div\", {{ className: \"{}\"{} }}, WF.h(\"img\", {{ src: {}, alt: {} }}));",
+                var, cls, wf, img_src, alt_val
             ));
         } else if let Some(init) = initials {
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}\" }}, {});",
-                var, cls, init
+                "const {} = WF.h(\"div\", {{ className: \"{}\"{} }}, {});",
+                var, cls, wf, init
             ));
         } else {
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}\" }});",
-                var, cls
+                "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+                var, cls, wf
             ));
         }
 
@@ -1551,7 +1596,7 @@ impl JsCodegen {
         let is_circle = ui.modifiers.iter().any(|m| m == "circle");
         let cls = if is_circle { "wf-skeleton wf-skeleton--circle" } else { "wf-skeleton" };
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\" }});", var, cls));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, cls, self.wf_node_inline(ui)));
         if let Some(h) = &height {
             self.emit_line(&format!("{}.style.height = {};", var, h));
         }
@@ -1568,7 +1613,7 @@ impl JsCodegen {
     }
 
     fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel\"{} }});", var, self.wf_node_inline(ui)));
 
         let track_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel__track\" }});", track_var));
@@ -1580,8 +1625,8 @@ impl JsCodegen {
                 if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Carousel" && s == "Slide") {
                     let slide_var = self.fresh_var();
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\" }});",
-                        slide_var
+                        "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\"{} }});",
+                        slide_var, self.wf_node_inline(ui_child)
                     ));
                     for c in &ui_child.children {
                         self.emit_statement_dom(c, &slide_var);
@@ -1685,6 +1730,9 @@ impl JsCodegen {
             let body = self.emit_event_body(&handler.body);
             btn_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
         }
+        if let Some(entry) = self.wf_node_entry(ui) {
+            btn_attrs.push_str(&format!(", {}", entry));
+        }
 
         self.emit_line(&format!(
             "const {} = WF.h(\"button\", {{ {} }}, WF.h(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
@@ -1723,7 +1771,7 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-slider\" }});", var));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-slider\"{} }});", var, self.wf_node_inline(ui)));
 
         if let Some(l) = &label {
             let label_var = self.fresh_var();
@@ -1788,7 +1836,7 @@ impl JsCodegen {
         });
 
         let wrapper_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-form-group\" }});", wrapper_var));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-form-group\"{} }});", wrapper_var, self.wf_node_inline(ui)));
 
         if let Some(l) = &label {
             let label_var = self.fresh_var();
@@ -1839,8 +1887,8 @@ impl JsCodegen {
 
         let wrapper_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"wf-file-upload\" }});",
-            wrapper_var
+            "const {} = WF.h(\"div\", {{ className: \"wf-file-upload\"{} }});",
+            wrapper_var, self.wf_node_inline(ui)
         ));
 
         if let Some(l) = &label {
