@@ -10,11 +10,14 @@ test the site it built.
 > (engine upgrades) is specced in detail; later milestones are scoped and will be
 > re-detailed as we reach them.
 >
-> **Where we are:** all decisions locked. **Active milestone: M1 (engine).**
-> **Slice 1 (spans) is complete** — byte-accurate source spans on `UIElement`
-> (whole/paren/body/style, per-arg, per-modifier), on `Page`/`Component`/`Store`
-> decls, and on every `Statement`; round-tripping and green across build/PDF/slides.
-> **Immediate next step: Slice 2 — node identity** (see *Milestone 1 — build sequence*).
+> **Where we are:** **Milestone 1 (engine upgrades) is complete.** Slices 1–3 landed on
+> branch `m1-engine-upgrades` as three green commits: **spans** → **node identity** →
+> **edit engine + `WF.__debug`**. Given `.wf` + `studio:true`, WebFluent now returns
+> compiled output with `node_id ↔ span ↔ path` maps, `apply_edits(source, ops)` performs
+> reliable structured edits (11 ops, reparse-guarded, byte-preserving), and the runtime
+> exposes `state`/`tree`/`dispatch`/`query*`. The headless test harness (§1.5) is deferred
+> to M5. **Next: Milestone 2 — in-process compile & preview pipeline (Studio side)**,
+> scoped below and to be re-detailed as we start it.
 
 ## Locked decisions
 
@@ -213,13 +216,22 @@ commit** (they only gain additive fields they ignore).
    generators ignore spans with no behavior change. Verified by span round-trip unit
    tests (incl. a multibyte byte-offset case) with `wf build` / PDF / slides green.
    *Done:* `src[node.span]` round-trips for any node; all tests green.
-2. **Slice 2 — node identity (§1.2).** Add the `studio:true` flag; stamp `data-wf-node`
-   in the JS + SSG codegen; build the in-process `node_id → {span, path, component}` map.
-   *Done when:* a studio-compile stamps every element and the map resolves each id to its
-   span, and an export-compile contains **no** `data-wf-node`.
-3. **Slice 3 — apply engine + debug hook (§1.3/§1.4).** `apply_edits(source, ops)` and the
-   `WF.__debug` runtime hook. *Done when:* an op-batch round-trips to valid, recompiling
-   `.wf` with untouched regions byte-identical, and `WF.__debug.state()` reflects live signals.
+2. **Slice 2 — node identity (§1.2). ✅ Done.** A shared `node_id::visit_nodes` walk assigns
+   each `UIElement` a path id (`Home:2.0.3`) keyed by its span; JS + SSG stamp `data-wf-node`
+   on element roots via the **same** map, so ids match by construction. Gated by a `studio`
+   flag (`JsCodegen::set_studio`, `render_page_html_studio`) — export builds carry no
+   `data-wf-node`. Cross-kind name collisions (`Name#page`) disambiguated deterministically.
+   Verified by 10 unit tests + two adversarial review rounds.
+   *Done:* a studio-compile stamps every element, the map resolves each id to its span, and
+   an export-compile contains no `data-wf-node`.
+3. **Slice 3 — apply engine + debug hook (§1.3/§1.4). ✅ Done.** `apply_edits(source, ops)`
+   in `src/edit.rs` — 11 typed serde ops resolved via `visit_nodes` and applied as
+   right-to-left span patches, parse-validated + reparse-guarded so a bad edit returns `Err`
+   and never corrupts the file. `WF.__debug` (`state`/`tree`/`dispatch`/`query*`) in the
+   runtime; studio-mode signal registration keeps export clean. 31 edit tests incl.
+   multibyte, structural edges, overlap rejection, and MoveNode dup/loss.
+   *Done:* op-batches round-trip to valid, recompiling `.wf` with untouched regions
+   byte-identical, and `WF.__debug.state()` reflects live signals.
 
 The headless test harness (§1.5) lands with M5 (self-testing). Slices 1–2 alone unblock
 M2 (pipeline) and M3 (click-to-code), so we can start the studio side in parallel once
@@ -229,24 +241,85 @@ they're in.
 
 ## Milestone 2 — In-process compile & preview pipeline (Studio)
 
-- Add `webfluent` as a crate dependency of `crates/studio`.
-- Replace the static-mock serving with a `Project` model: `.wf` sources in memory +
-  parsed ASTs + compiled output + the node maps.
-- Compile on edit → **SSG-render** for instant paint (no blank screen) → hydrate →
-  serve HTML/CSS/JS over the existing `wf://` custom protocol → (re)load in the webview.
-- Recompile strategy: recompile the touched page; keep it under the perceptible-latency
-  budget for the talk→see loop; measure, then add caching/incremental as needed.
-- Persist projects to disk (`webfluent.app.json` + `src/`), matching the CLI layout.
+> **Status: re-detailed and ready to build** (M1 complete). Goal: replace the static
+> `layali.html` mock with **real, in-process-compiled WebFluent output**, so the canvas
+> preview shows the actual site the AI is building. Unblocks M3 (click-to-code) and M4.
+
+**What exists to build on** (`crates/studio`):
+- The preview is a wry webview built as a child of the gpui window (`build_preview`,
+  `app.rs`), serving over `wf://` via `serve(request) → site::resource(path)` — today
+  returning **static bytes** (`site.rs` → `layali.html`).
+- `ipc::BRIDGE_JS` reports `data-wf-el` ancestor clicks; state is pushed via
+  `window.__wfApply(...)` (`sync_preview`). The existing `Project` struct is a Home-
+  dashboard *card*, not a compilable project.
+
+**Locked decisions (2026-07):**
+- **Compile facade in the engine.** Add `webfluent::compile_studio(...) -> CompiledSite`
+  (html-per-route + css + js + `NodeMap`) wrapping the M1 studio primitives, so the studio
+  stays thin. (M1 deferred assembling these.)
+- **Seed a minimal real `.wf` page first** to prove compile→serve→reload→click end-to-end;
+  port a richer demo later.
+- **In-memory project first**; `webfluent.app.json` + `src/` disk load/save is M2's last step.
+
+### Build sequence
+
+1. **M2.1 — engine compile facade.** In `webfluent`: `compile_studio(program, opts) ->
+   CompiledSite { pages: Vec<(route, html)>, css, js, node_map }` — builds the node map and
+   runs `JsCodegen::set_studio` + `render_page_html_studio` per page + `generate_css`. Add
+   `webfluent` as a **path dependency** of `crates/studio` (separate repos, path-dep during
+   dev — Appendix C). *Done when:* studio compiles against the engine and a unit test
+   round-trips a `.wf` string to a `CompiledSite` with a populated `node_map`.
+2. **M2.2 — the `WfProject` model.** Sources (`HashMap<path, String>`) + parsed `Program`
+   + `CompiledSite` + `NodeMap`, seeded from a small built-in `.wf` starter, held in app
+   state; a `recompile()` reparses and re-runs the facade. *Done when:* the app boots with
+   a seeded project whose `CompiledSite` is reachable from the serve path.
+3. **M2.3 — dynamic `wf://` serving + recompile→reload.** The blocker: `serve` is a
+   `'static` closure returning static bytes; give it a shared `Arc<RwLock<CompiledSite>>`
+   the closure captures, so `serve(path)` returns the compiled page/css/js. On a `.wf`
+   change → `recompile()` → swap the shared output → **SSG-paint** for instant repaint →
+   `preview.raw().load_url(entry)` to reload → JS hydrates. Retire the static
+   `site.rs`/`layali.html` path. *Done when:* editing the seeded `.wf` (e.g. via a debug
+   hook) recompiles and the webview shows the new output within the perceptible-latency
+   budget.
+
+Persistence (`webfluent.app.json` + `src/`) and recompile caching/incremental land after
+the loop is proven. Selection→inspector→edit (clicking a `data-wf-node` → `apply_edits`)
+is **M3**.
 
 ## Milestone 3 — Selection → inspector → edit loop (Studio)
 
-- Repoint the IPC bridge from `data-wf-el` to **`data-wf-node`**; click → node id →
-  (via the map) AST node + span → highlight + populate the inspector.
-- Inspector edits (color/size/weight/align/bg/radius, text, variant/modifier) emit
-  **`EditOp`s** (Milestone 1.3) → `apply_edits` → recompile → re-highlight. This is the
-  first real "edit by selecting" path and validates the whole spine.
-- Outline panel = the page's AST tree (from the maps). Blocks (add text/image/button) =
-  `InsertChild`/`AppendChild` ops.
+> **Status: re-detailed and ready to build** (M2 complete). The payoff — the first real
+> "edit by selecting" path — validating the whole spine end to end.
+
+**Locked decisions (2026-07):**
+- **Multi-file node→source mapping now** — a node id must resolve to the source *file* it
+  lives in, so an edit targets the right file.
+- **Reuse the mock inspector controls** — keep the existing color/size/weight/align/bg/
+  radius UI; rewire each control to emit an `EditOp` (the change is in what they *do*).
+
+**M3.0 — fix multi-file node identity (prerequisite, surfaced by the decision above).**
+`compile_sources` parses each file independently, so spans (byte offsets from 0) are **not
+unique across files** — two nodes in different files can share a span, and the codegen's
+span-keyed `id_for` then stamps the *wrong* id (the single-file seed never hit this). Fix:
+the studio compiles from a single **merged source** (files concatenated in order, with
+per-file offset ranges tracked), so all spans are unique, `apply_edits` runs on one offset
+space, and the offset ranges map any node back to its file for editing/saving. *Done when:*
+two structurally-identical files compile with no node-id collisions and a node resolves to
+the correct file + source slice.
+
+### Build sequence
+1. **M3.1 — click → code.** Repoint `ipc::BRIDGE_JS` (`data-wf-el` → `data-wf-node`);
+   `select_el` stores node ids; resolve via the node map → `{ span, component, file }`;
+   highlight the element in the *real* preview (inject an outline on `[data-wf-node="id"]`)
+   and surface its source slice. *Done when:* a preview click selects its node and the
+   studio shows its source span.
+2. **M3.2 — inspector → edit → reload.** Map the reused inspector controls to `EditOp`s
+   (text→`SetText`, color/bg/radius→`SetStyle`, variant→`Add/RemoveModifier`,
+   size/weight/align→`SetArg`/`SetStyle`); `apply_edits` on the node's file → `set_source`
+   → `recompile_and_reload`. *Done when:* an inspector tweak edits the `.wf` and the preview
+   shows it — the spine, end to end.
+3. **M3.3 — outline + blocks.** Outline = the page's node tree from the map; blocks (add
+   text/image/button) = `InsertChild`/`AppendChild` ops.
 
 ## Milestone 4 — AI codegen agent + token strategy (Studio)
 
