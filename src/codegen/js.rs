@@ -64,6 +64,25 @@ impl JsCodegen {
         self.node_ids = node_ids;
     }
 
+    /// A `WF.signal(value)` initializer, wrapped so `WF.__debug.state()` can see it
+    /// by name in studio mode. Export builds emit the plain signal (unchanged).
+    fn signal_init(&self, name: &str, value: &str) -> String {
+        if self.studio {
+            format!("WF.__reg(\"{}\", WF.signal({}))", name, value)
+        } else {
+            format!("WF.signal({})", value)
+        }
+    }
+
+    /// A `WF.computed(() => body)` initializer, registered in studio mode.
+    fn computed_init(&self, name: &str, body: &str) -> String {
+        if self.studio {
+            format!("WF.__reg(\"{}\", WF.computed(() => {}))", name, body)
+        } else {
+            format!("WF.computed(() => {})", body)
+        }
+    }
+
     /// The `data-wf-node` attrs-object entry for this element, or `None` when not
     /// in studio mode or the node has no id. Formatted as a JS object property
     /// (`"data-wf-node": "<id>"`) ready to push into an element's attrs list.
@@ -431,7 +450,7 @@ impl JsCodegen {
         for stmt in &comp.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!("const _{name} = WF.signal({val});", name = s.name, val = val));
+                self.emit_line(&format!("const _{} = {};", s.name, self.signal_init(&s.name, &val)));
             }
         }
 
@@ -461,7 +480,7 @@ impl JsCodegen {
         for stmt in &page.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!("const _{name} = WF.signal({val});", name = s.name, val = val));
+                self.emit_line(&format!("const _{} = {};", s.name, self.signal_init(&s.name, &val)));
             }
         }
 
@@ -647,7 +666,7 @@ impl JsCodegen {
             StatementKind::State(_) => {} // Already handled
             StatementKind::Derived(d) => {
                 let val = self.emit_expr(&d.value);
-                self.emit_line(&format!("const _{} = WF.computed(() => {});", d.name, val));
+                self.emit_line(&format!("const _{} = {};", d.name, self.computed_init(&d.name, &val)));
             }
             StatementKind::Effect(e) => {
                 self.emit_line("WF.effect(() => {");

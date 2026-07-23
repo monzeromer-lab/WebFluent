@@ -278,12 +278,19 @@ pub enum Arg {
 pub struct StyleBlock {
     pub properties: Vec<StyleProperty>,
     pub media_queries: Vec<MediaQuery>,
+    /// Interior of the `style { … }` block (between the braces, exclusive) —
+    /// where a new property is inserted. Additive; codegen ignores it.
+    pub body_span: Span,
 }
 
 #[derive(Debug, Clone)]
 pub struct StyleProperty {
     pub name: String,
     pub value: Expr,
+    /// Whole `name: value` span (for removal).
+    pub span: Span,
+    /// The value expression's span (for value replacement).
+    pub value_span: Span,
 }
 
 #[derive(Debug, Clone)]

@@ -62,6 +62,8 @@ pub enum WebFluentError {
     ConfigError(String),
     /// File I/O error.
     IoError(String),
+    /// Structured-edit error (unknown node id, invalid snippet, overlapping edits).
+    EditError(String),
 }
 
 impl fmt::Display for WebFluentError {
@@ -72,6 +74,7 @@ impl fmt::Display for WebFluentError {
             WebFluentError::CodegenError(msg) => write!(f, "Codegen Error: {}", msg),
             WebFluentError::ConfigError(msg) => write!(f, "Config Error: {}", msg),
             WebFluentError::IoError(msg) => write!(f, "IO Error: {}", msg),
+            WebFluentError::EditError(msg) => write!(f, "Edit Error: {}", msg),
         }
     }
 }

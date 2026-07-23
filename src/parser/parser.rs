@@ -1095,6 +1095,10 @@ impl Parser {
 
     fn parse_style_block(&mut self) -> Result<StyleBlock> {
         self.expect(&TokenType::Style)?;
+        // Interior span: one byte past `{` to the byte before `}`.
+        let body_start = self.current().end as u32;
+        let body_line = self.current().line as u32;
+        let body_col = self.current().column as u32;
         self.expect(&TokenType::OpenBrace)?;
         let mut properties = Vec::new();
         let mut media_queries = Vec::new();
@@ -1107,13 +1111,19 @@ impl Parser {
             let prop = self.parse_style_property()?;
             properties.push(prop);
         }
+        let body_end = self.current().offset as u32;
         self.expect(&TokenType::CloseBrace)?;
-        Ok(StyleBlock { properties, media_queries })
+        Ok(StyleBlock {
+            properties,
+            media_queries,
+            body_span: Span::new(body_start, body_end, body_line, body_col),
+        })
     }
 
     fn parse_style_property(&mut self) -> Result<StyleProperty> {
         // Support hyphenated property names: border-radius, font-size, etc.
         // Also accept keywords (transition, etc.) as CSS property names
+        let prop_mark = self.mark();
         let mut name = self.expect_css_property_name()?;
         while self.check(&TokenType::Minus) {
             self.advance(); // consume -
@@ -1121,8 +1131,10 @@ impl Parser {
             name = format!("{}-{}", name, part);
         }
         self.expect(&TokenType::Colon)?;
+        let value_mark = self.mark();
         let value = self.parse_expression()?;
-        Ok(StyleProperty { name, value })
+        let value_span = self.span_since(value_mark);
+        Ok(StyleProperty { name, value, span: self.span_since(prop_mark), value_span })
     }
 
     fn expect_css_property_name(&mut self) -> Result<String> {

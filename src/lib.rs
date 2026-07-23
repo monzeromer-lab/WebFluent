@@ -142,5 +142,9 @@ pub mod linter;
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
 
+/// Structured edit engine — apply typed [`edit::EditOp`]s to `.wf` source as
+/// minimal, span-based text patches (Slice 3 of the studio engine upgrade).
+pub mod edit;
+
 pub use template::Template;
 pub use error::{WebFluentError, Result};

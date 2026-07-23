@@ -87,7 +87,19 @@ impl NodeMap {
 /// Build the node-identity map for a whole program in one deterministic pre-order walk.
 pub fn build_node_map(program: &Program) -> NodeMap {
     let mut map = NodeMap::default();
+    visit_nodes(program, &mut |ui, id, component| {
+        map.record(ui.span, id.to_string(), component);
+    });
+    map
+}
 
+/// Visit every renderable `UIElement` in the deterministic pre-order that node ids
+/// are built from, invoking `visit(element, node_id, component)`.
+///
+/// This is the single source of truth for the traversal: [`build_node_map`], the
+/// codegens (indirectly, via the map), and the edit engine's resolver all go
+/// through it, so their ids can never drift apart.
+pub fn visit_nodes<'a>(program: &'a Program, visit: &mut dyn FnMut(&'a UIElement, &str, &str)) {
     // A Page and a Component may legally share a name (they live in separate JS
     // namespaces, `Page_X` vs `Component_X`), which would otherwise collapse their
     // ids onto the same owner segment. Disambiguate deterministically by
@@ -114,9 +126,8 @@ pub fn build_node_map(program: &Program) -> NodeMap {
         } else {
             name.to_string()
         };
-        walk_body(body, &owner, None, &mut map);
+        walk_body(body, &owner, None, visit);
     }
-    map
 }
 
 /// The owner name a declaration contributes to the id namespace (`None` for stores).
@@ -131,57 +142,52 @@ fn decl_owner_name(decl: &Declaration) -> Option<&str> {
 
 /// Walk a statement list, numbering each statement by its position. The first
 /// level of a declaration uses `Comp:i`; deeper levels append `.i`.
-fn walk_body(stmts: &[Statement], component: &str, prefix: Option<&str>, map: &mut NodeMap) {
+fn walk_body<'a>(stmts: &'a [Statement], component: &str, prefix: Option<&str>, visit: &mut dyn FnMut(&'a UIElement, &str, &str)) {
     for (i, stmt) in stmts.iter().enumerate() {
         let seg = match prefix {
             None => format!("{}:{}", component, i),
             Some(p) => format!("{}.{}", p, i),
         };
-        walk_stmt(stmt, component, &seg, map);
+        walk_stmt(stmt, component, &seg, visit);
     }
 }
 
-/// Record a statement's UIElement (if it is one) and recurse into any child bodies.
+/// Visit a statement's UIElement (if it is one) and recurse into any child bodies.
 ///
 /// Single-body control flow (`for`/`show`) indexes its body directly under `seg`.
 /// Multi-body statements (`if`/`fetch`) insert a short branch discriminator so a
 /// then-branch child cannot collide with an else-branch child.
-fn walk_stmt(stmt: &Statement, component: &str, seg: &str, map: &mut NodeMap) {
+fn walk_stmt<'a>(stmt: &'a Statement, component: &str, seg: &str, visit: &mut dyn FnMut(&'a UIElement, &str, &str)) {
     match &stmt.kind {
         StatementKind::UIElement(ui) => {
-            record_element(ui, component, seg, map);
+            visit(ui, seg, component);
+            walk_body(&ui.children, component, Some(seg), visit);
         }
-        StatementKind::For(f) => walk_body(&f.body, component, Some(seg), map),
-        StatementKind::Show(s) => walk_body(&s.body, component, Some(seg), map),
+        StatementKind::For(f) => walk_body(&f.body, component, Some(seg), visit),
+        StatementKind::Show(s) => walk_body(&s.body, component, Some(seg), visit),
         StatementKind::If(if_stmt) => {
-            walk_body(&if_stmt.then_body, component, Some(&format!("{}.t", seg)), map);
+            walk_body(&if_stmt.then_body, component, Some(&format!("{}.t", seg)), visit);
             for (k, (_, body)) in if_stmt.else_if_branches.iter().enumerate() {
-                walk_body(body, component, Some(&format!("{}.ei{}", seg, k)), map);
+                walk_body(body, component, Some(&format!("{}.ei{}", seg, k)), visit);
             }
             if let Some(else_body) = &if_stmt.else_body {
-                walk_body(else_body, component, Some(&format!("{}.e", seg)), map);
+                walk_body(else_body, component, Some(&format!("{}.e", seg)), visit);
             }
         }
         StatementKind::Fetch(f) => {
             if let Some(b) = &f.loading_block {
-                walk_body(b, component, Some(&format!("{}.l", seg)), map);
+                walk_body(b, component, Some(&format!("{}.l", seg)), visit);
             }
             if let Some((_, b)) = &f.error_block {
-                walk_body(b, component, Some(&format!("{}.err", seg)), map);
+                walk_body(b, component, Some(&format!("{}.err", seg)), visit);
             }
             if let Some(b) = &f.success_block {
-                walk_body(b, component, Some(&format!("{}.s", seg)), map);
+                walk_body(b, component, Some(&format!("{}.s", seg)), visit);
             }
         }
         // State/Derived/Effect/Action/Use/EventHandler/Navigate/Log/Animate/… render no DOM.
         _ => {}
     }
-}
-
-/// Record one UIElement's id, then recurse into its children under the same seg.
-fn record_element(ui: &UIElement, component: &str, seg: &str, map: &mut NodeMap) {
-    map.record(ui.span, seg.to_string(), component);
-    walk_body(&ui.children, component, Some(seg), map);
 }
 
 #[cfg(test)]
@@ -284,8 +290,11 @@ mod tests {
         assert!(studio_js.contains("\"data-wf-node\": \"Home:0.0\""));
         assert!(studio_js.contains("\"data-wf-node\": \"Home:0.1\""));
 
+        // Export must stamp no element. (The runtime's WF.__debug helpers mention
+        // `data-wf-node` as a selector string, so check the exact stamp form — a
+        // `"data-wf-node": "<id>"` WF.h attrs entry — rather than the bare name.)
         let export_js = JsCodegen::new().generate(&p);
-        assert!(!export_js.contains("data-wf-node"));
+        assert!(!export_js.contains("\"data-wf-node\":"));
     }
 
     #[test]
