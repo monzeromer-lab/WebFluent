@@ -3,6 +3,49 @@
 //! The AST is produced by the [`crate::parser::Parser`] and consumed by the
 //! code generators in [`crate::codegen`].
 
+// ─── Source spans ────────────────────────────────────────
+
+/// A source span: a byte range into the original `.wf` source plus the
+/// 1-based line/column of its start.
+///
+/// `start`/`end` are **byte** offsets (`end` exclusive), so `&source[start..end]`
+/// slices the exact text the node was parsed from. `line`/`col` describe `start`
+/// and exist for diagnostics.
+///
+/// Spans are additive metadata: they power the studio's click-to-code and
+/// structured-edit features (see the STUDIO_INTEGRATION_PLAN). Every code
+/// generator (html/css/js/ssg/pdf/slides) ignores them, and nodes built outside
+/// the parser can use [`Span::dummy`] / `..Default::default()`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Span {
+    /// Byte offset of the first byte of the node in the source.
+    pub start: u32,
+    /// Byte offset one past the last byte of the node (exclusive).
+    pub end: u32,
+    /// 1-based line number of `start`.
+    pub line: u32,
+    /// 1-based column number of `start`.
+    pub col: u32,
+}
+
+impl Span {
+    pub fn new(start: u32, end: u32, line: u32, col: u32) -> Self {
+        Self { start, end, line, col }
+    }
+
+    /// A placeholder span (all zeros) for nodes constructed outside the parser.
+    pub fn dummy() -> Self {
+        Self::default()
+    }
+
+    /// Slice the original `source` this span was taken from.
+    ///
+    /// Panics if `source` is not the exact string the span was produced against.
+    pub fn slice<'a>(&self, source: &'a str) -> &'a str {
+        &source[self.start as usize..self.end as usize]
+    }
+}
+
 /// The root AST node — a complete WebFluent program.
 ///
 /// Contains all top-level declarations: pages, components, stores, and the app block.
@@ -32,6 +75,14 @@ pub struct PageDecl {
     pub guard: Option<Expr>,
     pub redirect: Option<String>,
     pub body: Vec<Statement>,
+
+    // ── Source spans (additive) ──
+    /// Whole declaration, `Page` keyword through the closing `}`.
+    pub span: Span,
+    /// The header — `Page Name (…)` — up to (excluding) the body's opening `{`.
+    pub header_span: Span,
+    /// Interior of the `{ … }` body, exclusive of the braces.
+    pub body_span: Span,
 }
 
 // ─── Components ──────────────────────────────────────────
@@ -42,6 +93,14 @@ pub struct ComponentDecl {
     pub name: String,
     pub props: Vec<PropDecl>,
     pub body: Vec<Statement>,
+
+    // ── Source spans (additive) ──
+    /// Whole declaration, `Component` keyword through the closing `}`.
+    pub span: Span,
+    /// The header — `Component Name (…)` — up to (excluding) the body's `{`.
+    pub header_span: Span,
+    /// Interior of the `{ … }` body, exclusive of the braces.
+    pub body_span: Span,
 }
 
 /// A component property declaration with type, optionality, and default value.
@@ -60,6 +119,14 @@ pub struct PropDecl {
 pub struct StoreDecl {
     pub name: String,
     pub body: Vec<Statement>,
+
+    // ── Source spans (additive) ──
+    /// Whole declaration, `Store` keyword through the closing `}`.
+    pub span: Span,
+    /// The header — `Store Name` — up to (excluding) the body's opening `{`.
+    pub header_span: Span,
+    /// Interior of the `{ … }` body, exclusive of the braces.
+    pub body_span: Span,
 }
 
 // ─── App ─────────────────────────────────────────────────
@@ -84,8 +151,25 @@ pub enum WfType {
 
 // ─── Statements ──────────────────────────────────────────
 
+/// A statement plus its source span.
+///
+/// The span covers the whole statement — from the first token that belongs to
+/// it through the last — so `&source[stmt.span]` slices its exact text. Code
+/// generators match on [`Statement::kind`]; the span is additive metadata.
 #[derive(Debug, Clone)]
-pub enum Statement {
+pub struct Statement {
+    pub kind: StatementKind,
+    pub span: Span,
+}
+
+impl Statement {
+    pub fn new(kind: StatementKind, span: Span) -> Self {
+        Self { kind, span }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum StatementKind {
     State(StateDecl),
     Derived(DerivedDecl),
     Effect(EffectDecl),
@@ -154,6 +238,24 @@ pub struct UIElement {
     pub style_block: Option<StyleBlock>,
     pub transition_block: Option<TransitionBlock>,
     pub events: Vec<EventHandler>,
+
+    // ── Source spans (additive; every code generator ignores these) ──
+    /// Whole-node span: the component name through the closing `}` — or through
+    /// the end of the args / component name when there is no block.
+    pub span: Span,
+    /// The `( … )` argument + modifier group, parentheses included. `None` when
+    /// the element is written with no parentheses.
+    pub paren_span: Option<Span>,
+    /// Interior of the `{ … }` body, exclusive of the braces. `None` when the
+    /// element has no block.
+    pub body_span: Option<Span>,
+    /// The `style { … }` block: the `style` keyword through its closing `}`.
+    /// `None` when the element has no style block.
+    pub style_span: Option<Span>,
+    /// Per-argument spans, parallel to and index-aligned with `args`.
+    pub arg_spans: Vec<Span>,
+    /// Per-modifier spans, parallel to and index-aligned with `modifiers`.
+    pub modifier_spans: Vec<Span>,
 }
 
 #[derive(Debug, Clone)]

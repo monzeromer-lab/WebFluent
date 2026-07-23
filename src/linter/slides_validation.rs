@@ -2,7 +2,7 @@
 //! interactive/web-only components (same list PDF rejects, plus a few extras
 //! that don't fit the slides model like `Header`/`Footer`).
 
-use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef, Arg};
+use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Arg};
 use super::pdf_validation::REJECTED_COMPONENTS;
 
 const SLIDE_KINDS: &[&str] = &[
@@ -55,7 +55,7 @@ pub fn validate_for_slides(program: &Program) -> Vec<SlidesValidationError> {
 
 fn validate_page_body(stmts: &[Statement], context: &str, errors: &mut Vec<SlidesValidationError>) {
     for stmt in stmts {
-        if let Statement::UIElement(ui) = stmt {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
             if let ComponentRef::BuiltIn(name) = &ui.component {
                 if name == "Presentation" {
                     validate_presentation_children(&ui.children, context, errors);
@@ -78,8 +78,8 @@ fn validate_page_body(stmts: &[Statement], context: &str, errors: &mut Vec<Slide
 
 fn validate_presentation_children(stmts: &[Statement], context: &str, errors: &mut Vec<SlidesValidationError>) {
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => {
                 let name = match &ui.component {
                     ComponentRef::BuiltIn(n) => n.clone(),
                     _ => {
@@ -118,7 +118,7 @@ fn validate_slide_kind(name: &str, ui: &UIElement, context: &str, errors: &mut V
     match name {
         "TwoColumn" => {
             let ui_children: Vec<&UIElement> = ui.children.iter().filter_map(|c| {
-                if let Statement::UIElement(u) = c { Some(u) } else { None }
+                if let StatementKind::UIElement(u) = &c.kind { Some(u) } else { None }
             }).collect();
             if ui_children.len() != 2 {
                 errors.push(SlidesValidationError {
@@ -147,8 +147,8 @@ fn validate_slide_kind(name: &str, ui: &UIElement, context: &str, errors: &mut V
 
 fn validate_inside_slide(stmts: &[Statement], context: &str, errors: &mut Vec<SlidesValidationError>) {
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => {
                 if let ComponentRef::BuiltIn(name) = &ui.component {
                     if SLIDE_KINDS.contains(&name.as_str()) {
                         errors.push(SlidesValidationError {
@@ -189,31 +189,31 @@ fn validate_inside_slide(stmts: &[Statement], context: &str, errors: &mut Vec<Sl
                 }
                 validate_inside_slide(&ui.children, context, errors);
             }
-            Statement::If(if_stmt) => {
+            StatementKind::If(if_stmt) => {
                 validate_inside_slide(&if_stmt.then_body, context, errors);
                 if let Some(else_body) = &if_stmt.else_body {
                     validate_inside_slide(else_body, context, errors);
                 }
             }
-            Statement::For(for_stmt) => {
+            StatementKind::For(for_stmt) => {
                 validate_inside_slide(&for_stmt.body, context, errors);
             }
-            Statement::Navigate(_) => errors.push(SlidesValidationError {
+            StatementKind::Navigate(_) => errors.push(SlidesValidationError {
                 component: "navigate".to_string(),
                 context: context.to_string(),
                 reason: "navigation is a web-only feature".to_string(),
             }),
-            Statement::Fetch(_) => errors.push(SlidesValidationError {
+            StatementKind::Fetch(_) => errors.push(SlidesValidationError {
                 component: "fetch".to_string(),
                 context: context.to_string(),
                 reason: "data fetching is a web-only feature".to_string(),
             }),
-            Statement::Animate(_) => errors.push(SlidesValidationError {
+            StatementKind::Animate(_) => errors.push(SlidesValidationError {
                 component: "animate".to_string(),
                 context: context.to_string(),
                 reason: "animations are a web-only feature".to_string(),
             }),
-            Statement::EventHandler(_) => errors.push(SlidesValidationError {
+            StatementKind::EventHandler(_) => errors.push(SlidesValidationError {
                 component: "event handler".to_string(),
                 context: context.to_string(),
                 reason: "event handlers are not supported in slides".to_string(),
@@ -226,7 +226,7 @@ fn validate_inside_slide(stmts: &[Statement], context: &str, errors: &mut Vec<Sl
 fn validate_outside_presentation(stmts: &[Statement], context: &str, errors: &mut Vec<SlidesValidationError>) {
     // Slide-kind components are only valid inside a Presentation; flag them anywhere else.
     for stmt in stmts {
-        if let Statement::UIElement(ui) = stmt {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
             if let ComponentRef::BuiltIn(name) = &ui.component {
                 if SLIDE_KINDS.contains(&name.as_str()) {
                     errors.push(SlidesValidationError {

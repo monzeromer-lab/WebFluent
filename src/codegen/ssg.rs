@@ -101,7 +101,7 @@ fn render_app_shell_ssg(
     html: &mut String,
 ) {
     for stmt in stmts {
-        if let Statement::UIElement(ui) = stmt {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
             let name = match &ui.component {
                 ComponentRef::BuiltIn(n) => n.as_str(),
                 _ => "",
@@ -127,7 +127,7 @@ fn render_app_shell_ssg(
 }
 
 fn stmt_contains_router(stmt: &Statement) -> bool {
-    if let Statement::UIElement(ui) = stmt {
+    if let StatementKind::UIElement(ui) = &stmt.kind {
         if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
             return true;
         }
@@ -143,16 +143,16 @@ fn stmt_contains_router(stmt: &Statement) -> bool {
 fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
     let mut html = String::new();
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
-            Statement::If(_) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
+            StatementKind::If(_) => {
                 // Dynamic — emit placeholder comment
                 html.push_str(&format!("{}<!--wf-if-->\n", ctx.indent_str()));
             }
-            Statement::For(_) => {
+            StatementKind::For(_) => {
                 html.push_str(&format!("{}<!--wf-for-->\n", ctx.indent_str()));
             }
-            Statement::Show(show) => {
+            StatementKind::Show(show) => {
                 // Render content but hidden
                 let inner = render_statements(&show.body, ctx);
                 html.push_str(&format!(
@@ -160,7 +160,7 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
                     ctx.indent_str(), inner, ctx.indent_str()
                 ));
             }
-            Statement::Fetch(fetch) => {
+            StatementKind::Fetch(fetch) => {
                 // Render loading block if present
                 if let Some(loading) = &fetch.loading_block {
                     html.push_str(&render_statements(loading, ctx));

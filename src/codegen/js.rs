@@ -147,12 +147,12 @@ impl JsCodegen {
 
         // Collect store state names for context
         let store_state_names: Vec<String> = store.body.iter().filter_map(|s| {
-            if let Statement::State(st) = s { Some(st.name.clone()) } else { None }
+            if let StatementKind::State(st) = &s.kind { Some(st.name.clone()) } else { None }
         }).collect();
 
         // Collect state
         let states: Vec<&StateDecl> = store.body.iter().filter_map(|s| {
-            if let Statement::State(st) = s { Some(st) } else { None }
+            if let StatementKind::State(st) = &s.kind { Some(st) } else { None }
         }).collect();
 
         if !states.is_empty() {
@@ -168,7 +168,7 @@ impl JsCodegen {
 
         // Collect derived
         let derived: Vec<&DerivedDecl> = store.body.iter().filter_map(|s| {
-            if let Statement::Derived(d) = s { Some(d) } else { None }
+            if let StatementKind::Derived(d) = &s.kind { Some(d) } else { None }
         }).collect();
 
         if !derived.is_empty() {
@@ -184,7 +184,7 @@ impl JsCodegen {
 
         // Collect actions
         let actions: Vec<&ActionDecl> = store.body.iter().filter_map(|s| {
-            if let Statement::Action(a) = s { Some(a) } else { None }
+            if let StatementKind::Action(a) = &s.kind { Some(a) } else { None }
         }).collect();
 
         if !actions.is_empty() {
@@ -281,8 +281,8 @@ impl JsCodegen {
     }
 
     fn emit_store_statement(&mut self, stmt: &Statement, store_states: &[String], action_params: &[String]) {
-        match stmt {
-            Statement::Assignment(a) => {
+        match &stmt.kind {
+            StatementKind::Assignment(a) => {
                 let value = self.emit_store_expr(&a.value, store_states);
                 if let Expr::Identifier(name) = &a.target {
                     if store_states.contains(name) {
@@ -295,19 +295,19 @@ impl JsCodegen {
                     self.emit_line(&format!("{} = {};", target, value));
                 }
             }
-            Statement::State(s) => {
+            StatementKind::State(s) => {
                 let val = self.emit_store_expr(&s.value, store_states);
                 self.emit_line(&format!("const {} = {};", s.name, val));
             }
-            Statement::Navigate(expr) => {
+            StatementKind::Navigate(expr) => {
                 let path = self.emit_store_expr(expr, store_states);
                 self.emit_line(&format!("WF.navigate({});", path));
             }
-            Statement::ExprStatement(expr) => {
+            StatementKind::ExprStatement(expr) => {
                 let val = self.emit_store_expr(expr, store_states);
                 self.emit_line(&format!("{};", val));
             }
-            Statement::If(if_stmt) => {
+            StatementKind::If(if_stmt) => {
                 let cond = self.emit_store_expr(&if_stmt.condition, store_states);
                 self.emit_line(&format!("if ({}) {{", cond));
                 self.indent += 1;
@@ -395,7 +395,7 @@ impl JsCodegen {
 
         // Emit state declarations first
         for stmt in &comp.body {
-            if let Statement::State(s) = stmt {
+            if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
                 self.emit_line(&format!("const _{name} = WF.signal({val});", name = s.name, val = val));
             }
@@ -405,7 +405,7 @@ impl JsCodegen {
         self.emit_line("const _frag = document.createDocumentFragment();");
 
         for stmt in &comp.body {
-            if !matches!(stmt, Statement::State(_)) {
+            if !matches!(&stmt.kind, StatementKind::State(_)) {
                 self.emit_statement_dom(stmt, "_frag");
             }
         }
@@ -425,7 +425,7 @@ impl JsCodegen {
 
         // Emit state declarations
         for stmt in &page.body {
-            if let Statement::State(s) = stmt {
+            if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
                 self.emit_line(&format!("const _{name} = WF.signal({val});", name = s.name, val = val));
             }
@@ -435,7 +435,7 @@ impl JsCodegen {
         self.emit_line("const _root = document.createDocumentFragment();");
 
         for stmt in &page.body {
-            if !matches!(stmt, Statement::State(_)) {
+            if !matches!(&stmt.kind, StatementKind::State(_)) {
                 self.emit_statement_dom(stmt, "_root");
             }
         }
@@ -497,7 +497,7 @@ impl JsCodegen {
     /// Recursively emit App body statements, replacing Router with a router element
     fn emit_app_tree(&mut self, stmts: &[Statement], parent: &str, has_router: bool) {
         for stmt in stmts {
-            if let Statement::UIElement(ui) = stmt {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
                 let name = match &ui.component {
                     ComponentRef::BuiltIn(n) => n.as_str(),
                     _ => "",
@@ -556,7 +556,7 @@ impl JsCodegen {
 
     /// Check if a statement is or contains a Router
     fn stmt_contains_router(stmt: &Statement) -> bool {
-        if let Statement::UIElement(ui) = stmt {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
             if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
                 return true;
             }
@@ -572,10 +572,10 @@ impl JsCodegen {
     /// Find Route declarations recursively inside the App body
     fn find_router_routes(body: &[Statement]) -> Vec<&UIElement> {
         for stmt in body {
-            if let Statement::UIElement(ui) = stmt {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
                 if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
                     return ui.children.iter().filter_map(|s| {
-                        if let Statement::UIElement(child_ui) = s {
+                        if let StatementKind::UIElement(child_ui) = &s.kind {
                             if matches!(&child_ui.component, ComponentRef::BuiltIn(n) if n == "Route") {
                                 return Some(child_ui);
                             }
@@ -603,19 +603,19 @@ impl JsCodegen {
     // ─── DOM-building statement emitter ──────────────
 
     fn emit_statement_dom(&mut self, stmt: &Statement, parent: &str) {
-        match stmt {
-            Statement::UIElement(ui) => self.emit_ui_element(ui, parent),
-            Statement::If(if_stmt) => self.emit_if_dom(if_stmt, parent),
-            Statement::For(for_stmt) => self.emit_for_dom(for_stmt, parent),
-            Statement::Show(show_stmt) => self.emit_show_dom(show_stmt, parent),
-            Statement::Fetch(fetch) => self.emit_fetch_dom(fetch, parent),
-            Statement::Use(_) => {} // Stores are global, no DOM output
-            Statement::State(_) => {} // Already handled
-            Statement::Derived(d) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => self.emit_ui_element(ui, parent),
+            StatementKind::If(if_stmt) => self.emit_if_dom(if_stmt, parent),
+            StatementKind::For(for_stmt) => self.emit_for_dom(for_stmt, parent),
+            StatementKind::Show(show_stmt) => self.emit_show_dom(show_stmt, parent),
+            StatementKind::Fetch(fetch) => self.emit_fetch_dom(fetch, parent),
+            StatementKind::Use(_) => {} // Stores are global, no DOM output
+            StatementKind::State(_) => {} // Already handled
+            StatementKind::Derived(d) => {
                 let val = self.emit_expr(&d.value);
                 self.emit_line(&format!("const _{} = WF.computed(() => {});", d.name, val));
             }
-            Statement::Effect(e) => {
+            StatementKind::Effect(e) => {
                 self.emit_line("WF.effect(() => {");
                 self.indent += 1;
                 for s in &e.body {
@@ -624,7 +624,7 @@ impl JsCodegen {
                 self.indent -= 1;
                 self.emit_line("});");
             }
-            Statement::Action(a) => {
+            StatementKind::Action(a) => {
                 let params: Vec<String> = a.params.iter().map(|p| p.name.clone()).collect();
                 self.emit_line(&format!("function {}({}) {{", a.name, params.join(", ")));
                 self.indent += 1;
@@ -634,7 +634,7 @@ impl JsCodegen {
                 self.indent -= 1;
                 self.emit_line("}");
             }
-            Statement::EventHandler(handler) => {
+            StatementKind::EventHandler(handler) => {
                 // Standalone event handlers at component level — unusual but handle it
                 self.emit_line(&format!("// event handler: on:{}", handler.event));
             }
@@ -822,9 +822,9 @@ impl JsCodegen {
                 // If element has a block with just statements (Button shorthand click)
                 if ui.events.is_empty() && !ui.children.is_empty() {
                     // Check if children are all action-like statements (assignments, method calls)
-                    let all_actions = ui.children.iter().all(|s| matches!(s,
-                        Statement::Assignment(_) | Statement::MethodCall(_) |
-                        Statement::Navigate(_) | Statement::ExprStatement(_)
+                    let all_actions = ui.children.iter().all(|s| matches!(&s.kind,
+                        StatementKind::Assignment(_) | StatementKind::MethodCall(_) |
+                        StatementKind::Navigate(_) | StatementKind::ExprStatement(_)
                     ));
 
                     if all_actions && matches!(name.as_str(), "Button" | "IconButton") {
@@ -960,9 +960,9 @@ impl JsCodegen {
                 // Emit children
                 let is_action_shorthand = ui.events.is_empty()
                     && !ui.children.is_empty()
-                    && ui.children.iter().all(|s| matches!(s,
-                        Statement::Assignment(_) | Statement::MethodCall(_) |
-                        Statement::Navigate(_) | Statement::ExprStatement(_)
+                    && ui.children.iter().all(|s| matches!(&s.kind,
+                        StatementKind::Assignment(_) | StatementKind::MethodCall(_) |
+                        StatementKind::Navigate(_) | StatementKind::ExprStatement(_)
                     ))
                     && matches!(name.as_str(), "Button" | "IconButton");
 
@@ -1099,7 +1099,7 @@ impl JsCodegen {
         let mut footer_stmts = Vec::new();
         let mut body_stmts = Vec::new();
         for child in &ui.children {
-            if let Statement::UIElement(ui_child) = child {
+            if let StatementKind::UIElement(ui_child) = &child.kind {
                 if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer") {
                     footer_stmts = ui_child.children.clone();
                     continue;
@@ -1142,7 +1142,7 @@ impl JsCodegen {
 
         // Collect tab pages
         let tab_pages: Vec<(&UIElement, usize)> = ui.children.iter().enumerate().filter_map(|(i, s)| {
-            if let Statement::UIElement(ui_child) = s {
+            if let StatementKind::UIElement(ui_child) = &s.kind {
                 if matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage") {
                     return Some((ui_child, i));
                 }
@@ -1347,7 +1347,7 @@ impl JsCodegen {
         self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"wf-sidebar\" }});", var));
 
         for child in &ui.children {
-            if let Statement::UIElement(ui_child) = child {
+            if let StatementKind::UIElement(ui_child) = &child.kind {
                 match &ui_child.component {
                     ComponentRef::SubComponent(p, sub) if p == "Sidebar" => {
                         match sub.as_str() {
@@ -1424,7 +1424,7 @@ impl JsCodegen {
         self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"wf-breadcrumb\", \"aria-label\": \"breadcrumb\" }});", var));
 
         for child in &ui.children {
-            if let Statement::UIElement(ui_child) = child {
+            if let StatementKind::UIElement(ui_child) = &child.kind {
                 if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Breadcrumb" && s == "Item") {
                     let item_var = self.fresh_var();
                     let to = ui_child.args.iter().find_map(|a| {
@@ -1576,7 +1576,7 @@ impl JsCodegen {
         // Collect slides
         let mut slide_count = 0;
         for child in &ui.children {
-            if let Statement::UIElement(ui_child) = child {
+            if let StatementKind::UIElement(ui_child) = &child.kind {
                 if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Carousel" && s == "Slide") {
                     let slide_var = self.fresh_var();
                     self.emit_line(&format!(
@@ -1672,9 +1672,9 @@ impl JsCodegen {
 
         // Click handler from children (same as Button shorthand)
         if ui.events.is_empty() && !ui.children.is_empty() {
-            let all_actions = ui.children.iter().all(|s| matches!(s,
-                Statement::Assignment(_) | Statement::MethodCall(_) |
-                Statement::Navigate(_) | Statement::ExprStatement(_)
+            let all_actions = ui.children.iter().all(|s| matches!(&s.kind,
+                StatementKind::Assignment(_) | StatementKind::MethodCall(_) |
+                StatementKind::Navigate(_) | StatementKind::ExprStatement(_)
             ));
             if all_actions {
                 let body = self.emit_statements_inline(&ui.children);
@@ -2081,8 +2081,8 @@ impl JsCodegen {
     // ─── Statement (imperative, non-DOM) ─────────────
 
     fn emit_statement(&mut self, stmt: &Statement) {
-        match stmt {
-            Statement::Assignment(a) => {
+        match &stmt.kind {
+            StatementKind::Assignment(a) => {
                 let target = self.emit_expr(&a.target);
                 let value = self.emit_expr(&a.value);
                 // Check if target is a signal (state variable)
@@ -2095,35 +2095,35 @@ impl JsCodegen {
                     self.emit_line(&format!("{} = {};", target, value));
                 }
             }
-            Statement::MethodCall(mc) => {
+            StatementKind::MethodCall(mc) => {
                 let obj = self.emit_expr(&mc.object);
                 let args: Vec<String> = mc.args.iter().map(|a| self.emit_expr(a)).collect();
                 self.emit_line(&format!("{}.{}({});", obj, mc.method, args.join(", ")));
             }
-            Statement::Navigate(expr) => {
+            StatementKind::Navigate(expr) => {
                 let path = self.emit_expr(expr);
                 self.emit_line(&format!("WF.navigate({});", path));
             }
-            Statement::Log(expr) => {
+            StatementKind::Log(expr) => {
                 let val = self.emit_expr(expr);
                 self.emit_line(&format!("console.log({});", val));
             }
-            Statement::Animate(anim) => {
+            StatementKind::Animate(anim) => {
                 let dur = anim.duration.as_deref().map(|d| format!(", \"{}\"", d)).unwrap_or_default();
                 self.emit_line(&format!(
                     "WF.animateEl(\"{}\", \"{}\"{});",
                     anim.target, anim.animation, dur
                 ));
             }
-            Statement::ExprStatement(expr) => {
+            StatementKind::ExprStatement(expr) => {
                 let val = self.emit_expr(expr);
                 self.emit_line(&format!("{};", val));
             }
-            Statement::State(s) => {
+            StatementKind::State(s) => {
                 let val = self.emit_expr(&s.value);
                 self.emit_line(&format!("const _{} = WF.signal({});", s.name, val));
             }
-            Statement::If(if_stmt) => {
+            StatementKind::If(if_stmt) => {
                 let cond = self.emit_expr(&if_stmt.condition);
                 self.emit_line(&format!("if ({}) {{", cond));
                 self.indent += 1;
@@ -2141,10 +2141,10 @@ impl JsCodegen {
                 }
                 self.emit_line("}");
             }
-            Statement::Fetch(fetch) => {
+            StatementKind::Fetch(fetch) => {
                 self.emit_imperative_fetch(fetch);
             }
-            Statement::Return(expr) => {
+            StatementKind::Return(expr) => {
                 if let Some(e) = expr {
                     let val = self.emit_expr(e);
                     self.emit_line(&format!("return {};", val));
@@ -2431,8 +2431,8 @@ impl JsCodegen {
     fn emit_event_body(&mut self, stmts: &[Statement]) -> String {
         let mut parts = Vec::new();
         for stmt in stmts {
-            match stmt {
-                Statement::Assignment(a) => {
+            match &stmt.kind {
+                StatementKind::Assignment(a) => {
                     let value = self.emit_expr(&a.value);
                     if let Expr::Identifier(name) = &a.target {
                         parts.push(format!("_{}.set({});", name, value));
@@ -2441,20 +2441,20 @@ impl JsCodegen {
                         parts.push(format!("{} = {};", target, value));
                     }
                 }
-                Statement::Navigate(expr) => {
+                StatementKind::Navigate(expr) => {
                     let path = self.emit_expr(expr);
                     parts.push(format!("WF.navigate({});", path));
                 }
-                Statement::ExprStatement(expr) => {
+                StatementKind::ExprStatement(expr) => {
                     let val = self.emit_expr(expr);
                     parts.push(format!("{};", val));
                 }
-                Statement::MethodCall(mc) => {
+                StatementKind::MethodCall(mc) => {
                     let obj = self.emit_expr(&mc.object);
                     let args: Vec<String> = mc.args.iter().map(|a| self.emit_expr(a)).collect();
                     parts.push(format!("{}.{}({});", obj, mc.method, args.join(", ")));
                 }
-                Statement::If(if_stmt) => {
+                StatementKind::If(if_stmt) => {
                     let cond = self.emit_expr(&if_stmt.condition);
                     let then_body = self.emit_statements_inline(&if_stmt.then_body);
                     if let Some(else_body) = &if_stmt.else_body {
@@ -2473,8 +2473,8 @@ impl JsCodegen {
     fn emit_statements_inline(&mut self, stmts: &[Statement]) -> String {
         let mut parts = Vec::new();
         for stmt in stmts {
-            match stmt {
-                Statement::Assignment(a) => {
+            match &stmt.kind {
+                StatementKind::Assignment(a) => {
                     let value = self.emit_expr(&a.value);
                     if let Expr::Identifier(name) = &a.target {
                         parts.push(format!("_{}.set({});", name, value));
@@ -2483,11 +2483,11 @@ impl JsCodegen {
                         parts.push(format!("{} = {};", target, value));
                     }
                 }
-                Statement::Navigate(expr) => {
+                StatementKind::Navigate(expr) => {
                     let path = self.emit_expr(expr);
                     parts.push(format!("WF.navigate({});", path));
                 }
-                Statement::ExprStatement(expr) => {
+                StatementKind::ExprStatement(expr) => {
                     let val = self.emit_expr(expr);
                     parts.push(format!("{};", val));
                 }

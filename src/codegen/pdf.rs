@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use crate::config::project::PdfConfig;
-use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef, Expr, StringPart};
+use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart};
 use crate::codegen::style::{
     Background, Color as StyleColor, LinearGradient, StyleProps,
     gradient_endpoints,
@@ -405,12 +405,12 @@ impl PdfCodegen {
     // ─── Statement Dispatch ─────────────────────────────────
 
     fn emit_statement(&mut self, stmt: &Statement) {
-        match stmt {
-            Statement::UIElement(ui) => self.emit_ui_element(ui),
-            Statement::If(if_stmt) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => self.emit_ui_element(ui),
+            StatementKind::If(if_stmt) => {
                 for s in &if_stmt.then_body { self.emit_statement(s); }
             }
-            Statement::For(for_stmt) => {
+            StatementKind::For(for_stmt) => {
                 if let Expr::ListLiteral(items) = &for_stmt.iterable {
                     for _item in items {
                         for s in &for_stmt.body { self.emit_statement(s); }
@@ -481,7 +481,7 @@ impl PdfCodegen {
         if justify_between && ui.children.len() >= 2 {
             let mut items: Vec<(String, String, f64, (f64, f64, f64))> = Vec::new();
             for c in &ui.children {
-                if let Statement::UIElement(cu) = c {
+                if let StatementKind::UIElement(cu) = &c.kind {
                     let t = self.extract_text_content(cu);
                     let (f, s, col, _) = self.extract_text_style(cu);
                     items.push((t, f, s, col));
@@ -543,7 +543,7 @@ impl PdfCodegen {
     fn emit_paragraph(&mut self, ui: &UIElement) {
         let (font, size, color, align) = self.extract_text_style(ui);
         for c in &ui.children {
-            if let Statement::UIElement(tu) = c {
+            if let StatementKind::UIElement(tu) = &c.kind {
                 let text = self.extract_text_content(tu);
                 if !text.is_empty() {
                     let (cf, cs, cc, ca) = self.extract_text_style(tu);
@@ -625,15 +625,15 @@ impl PdfCodegen {
         let mut is_header: Vec<bool> = Vec::new();
 
         for child in &ui.children {
-            if let Statement::UIElement(section) = child {
+            if let StatementKind::UIElement(section) = &child.kind {
                 let sn = match &section.component {
                     ComponentRef::BuiltIn(n) => n.clone(), _ => String::new(),
                 };
                 let hdr = sn == "Thead";
                 for rs in &section.children {
-                    if let Statement::UIElement(row) = rs {
+                    if let StatementKind::UIElement(row) = &rs.kind {
                         let cells: Vec<String> = row.children.iter().filter_map(|c| {
-                            if let Statement::UIElement(cell) = c { Some(self.extract_text_content(cell)) } else { None }
+                            if let StatementKind::UIElement(cell) = &c.kind { Some(self.extract_text_content(cell)) } else { None }
                         }).collect();
                         if !cells.is_empty() { rows.push(cells); is_header.push(hdr); }
                     }
@@ -761,8 +761,8 @@ impl PdfCodegen {
 
         for (idx, child) in ui.children.iter().enumerate() {
             // List children might be bare UIElements or wrapped in other statements
-            let item_opt = match child {
-                Statement::UIElement(u) => Some(u),
+            let item_opt = match &child.kind {
+                StatementKind::UIElement(u) => Some(u),
                 _ => None,
             };
             if let Some(item) = item_opt {
@@ -868,7 +868,7 @@ impl PdfCodegen {
 
         let mut texts = Vec::new();
         for c in &ui.children {
-            if let Statement::UIElement(tu) = c {
+            if let StatementKind::UIElement(tu) = &c.kind {
                 let t = self.extract_text_content(tu);
                 if !t.is_empty() { texts.push(t); }
             }

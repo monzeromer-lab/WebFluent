@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use serde_json::Value;
 use crate::lexer::Lexer;
-use crate::parser::{Parser, Program, Declaration, Statement, UIElement, ComponentRef, Expr, StringPart, Arg};
+use crate::parser::{Parser, Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart, Arg};
 use crate::parser::ast::{IfStmt, ForStmt};
 use crate::codegen::css::generate_css;
 use crate::codegen::pdf::PdfCodegen;
@@ -438,10 +438,10 @@ impl<'a> RenderContext<'a> {
 fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
     let mut html = String::new();
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
-            Statement::If(if_stmt) => html.push_str(&render_if(if_stmt, ctx)),
-            Statement::For(for_stmt) => html.push_str(&render_for(for_stmt, ctx)),
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
+            StatementKind::If(if_stmt) => html.push_str(&render_if(if_stmt, ctx)),
+            StatementKind::For(for_stmt) => html.push_str(&render_for(for_stmt, ctx)),
             // Skip state, derived, effect, action, use, events, navigate, etc.
             _ => {}
         }
@@ -704,8 +704,8 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
     let mut result = Vec::new();
 
     for stmt in stmts {
-        match stmt {
-            Statement::If(if_stmt) => {
+        match &stmt.kind {
+            StatementKind::If(if_stmt) => {
                 let cond = ctx.eval_expr(&if_stmt.condition);
                 if is_truthy(&cond) {
                     result.extend(resolve_statements(&if_stmt.then_body, ctx));
@@ -725,7 +725,7 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                     }
                 }
             }
-            Statement::For(for_stmt) => {
+            StatementKind::For(for_stmt) => {
                 let collection = ctx.eval_expr(&for_stmt.iterable);
                 if let Value::Array(items) = &collection {
                     for (i, item) in items.iter().enumerate() {
@@ -743,10 +743,14 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                     }
                 }
             }
-            Statement::UIElement(ui) => {
-                result.push(Statement::UIElement(resolve_ui_element(ui, ctx)));
+            StatementKind::UIElement(ui) => {
+                // Carry the original statement's source span onto the resolved node.
+                result.push(Statement {
+                    kind: StatementKind::UIElement(resolve_ui_element(ui, ctx)),
+                    span: stmt.span,
+                });
             }
-            other => result.push(other.clone()),
+            _ => result.push(stmt.clone()),
         }
     }
     result

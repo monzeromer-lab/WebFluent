@@ -1,4 +1,4 @@
-use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef};
+use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef};
 
 /// Interactive or web-only components that are not allowed in PDF output
 pub(crate) const REJECTED_COMPONENTS: &[&str] = &[
@@ -56,39 +56,39 @@ pub fn validate_for_pdf(program: &Program) -> Vec<PdfValidationError> {
 
 fn validate_statements(stmts: &[Statement], context: &str, errors: &mut Vec<PdfValidationError>) {
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => validate_ui_element(ui, context, errors),
-            Statement::If(if_stmt) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => validate_ui_element(ui, context, errors),
+            StatementKind::If(if_stmt) => {
                 validate_statements(&if_stmt.then_body, context, errors);
                 if let Some(else_body) = &if_stmt.else_body {
                     validate_statements(else_body, context, errors);
                 }
             }
-            Statement::For(for_stmt) => {
+            StatementKind::For(for_stmt) => {
                 validate_statements(&for_stmt.body, context, errors);
             }
-            Statement::Navigate(_) => {
+            StatementKind::Navigate(_) => {
                 errors.push(PdfValidationError {
                     component: "navigate".to_string(),
                     context: context.to_string(),
                     reason: "navigation is a web-only feature".to_string(),
                 });
             }
-            Statement::Fetch(_) => {
+            StatementKind::Fetch(_) => {
                 errors.push(PdfValidationError {
                     component: "fetch".to_string(),
                     context: context.to_string(),
                     reason: "data fetching is a web-only feature".to_string(),
                 });
             }
-            Statement::Animate(_) => {
+            StatementKind::Animate(_) => {
                 errors.push(PdfValidationError {
                     component: "animate".to_string(),
                     context: context.to_string(),
                     reason: "animations are a web-only feature".to_string(),
                 });
             }
-            Statement::EventHandler(_) => {
+            StatementKind::EventHandler(_) => {
                 errors.push(PdfValidationError {
                     component: "event handler".to_string(),
                     context: context.to_string(),
