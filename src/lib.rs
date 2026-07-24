@@ -151,7 +151,8 @@ pub mod edit;
 pub mod studio;
 
 pub use template::Template;
-pub use error::{WebFluentError, Result};
+pub use error::{WebFluentError, Result, Diagnostic};
 pub use studio::{compile_studio, CompiledSite, CompiledPage};
 pub use codegen::node_id::{NodeMap, NodeInfo};
 pub use edit::{apply_edits, EditOp, ArgRef};
+pub use linter::validate_semantics;
