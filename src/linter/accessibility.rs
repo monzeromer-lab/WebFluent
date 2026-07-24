@@ -79,9 +79,9 @@ fn lint_statements(
     heading_tracker: &mut HeadingTracker,
 ) {
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => lint_ui_element(ui, file, warnings, heading_tracker),
-            Statement::If(if_stmt) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => lint_ui_element(ui, file, warnings, heading_tracker),
+            StatementKind::If(if_stmt) => {
                 lint_statements(&if_stmt.then_body, file, warnings, heading_tracker);
                 for (_, body) in &if_stmt.else_if_branches {
                     lint_statements(body, file, warnings, heading_tracker);
@@ -90,13 +90,13 @@ fn lint_statements(
                     lint_statements(else_body, file, warnings, heading_tracker);
                 }
             }
-            Statement::For(for_stmt) => {
+            StatementKind::For(for_stmt) => {
                 lint_statements(&for_stmt.body, file, warnings, heading_tracker);
             }
-            Statement::Show(show_stmt) => {
+            StatementKind::Show(show_stmt) => {
                 lint_statements(&show_stmt.body, file, warnings, heading_tracker);
             }
-            Statement::Fetch(fetch) => {
+            StatementKind::Fetch(fetch) => {
                 if let Some(loading) = &fetch.loading_block {
                     lint_statements(loading, file, warnings, heading_tracker);
                 }
@@ -176,7 +176,7 @@ fn lint_ui_element(
 
             // A06: Link has no text content
             "Link" => {
-                let has_children = ui.children.iter().any(|s| matches!(s, Statement::UIElement(_)));
+                let has_children = ui.children.iter().any(|s| matches!(&s.kind, StatementKind::UIElement(_)));
                 if !has_children && !has_named_arg(&ui.args, "label") {
                     warnings.push(A11yWarning::new(
                         "A06", "Link has no text content", file, line, col,
@@ -248,7 +248,7 @@ fn lint_ui_element(
             // A10: Table missing header
             "Table" => {
                 let has_thead = ui.children.iter().any(|s| {
-                    if let Statement::UIElement(child) = s {
+                    if let StatementKind::UIElement(child) = &s.kind {
                         matches!(&child.component, ComponentRef::BuiltIn(n) if n == "Thead")
                     } else {
                         false

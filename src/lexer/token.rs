@@ -235,6 +235,10 @@ pub struct Token {
     pub line: usize,
     /// 1-based column number in the source file.
     pub column: usize,
+    /// Byte offset of the token's first byte in the source.
+    pub offset: usize,
+    /// Byte offset one past the token's last byte (exclusive).
+    pub end: usize,
 }
 
 impl Token {
@@ -243,6 +247,10 @@ impl Token {
             token_type,
             line,
             column,
+            // Byte offsets are stamped by the lexer once the token's extent is
+            // known (see `Lexer::tokenize`); callers using `new` directly get 0.
+            offset: 0,
+            end: 0,
         }
     }
 }

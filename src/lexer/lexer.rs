@@ -4,7 +4,11 @@ use super::token::{Token, TokenType, keyword_or_identifier};
 /// The WebFluent lexer — tokenizes `.wf` source code into a token stream.
 pub struct Lexer {
     source: Vec<char>,
+    /// Index into `source` (a char index, not a byte offset).
     pos: usize,
+    /// Byte offset into the original source string, tracked alongside `pos` so
+    /// tokens can carry byte-accurate spans even with multi-byte UTF-8 input.
+    byte_pos: usize,
     line: usize,
     column: usize,
     file: String,
@@ -18,6 +22,7 @@ impl Lexer {
         Self {
             source: source.chars().collect(),
             pos: 0,
+            byte_pos: 0,
             line: 1,
             column: 1,
             file: file.to_string(),
@@ -49,7 +54,12 @@ impl Lexer {
                 }
             }
 
-            let token = match ch {
+            // `pos`/`byte_pos` now sit on the first byte of the real token
+            // (whitespace and comments already skipped). Record the start, build
+            // the token, then stamp the byte extent — this is the single place
+            // spans are assigned, so the per-token helpers stay untouched.
+            let start_byte = self.byte_pos;
+            let mut token = match ch {
                 // String literals
                 '"' => self.read_string()?,
 
@@ -167,10 +177,15 @@ impl Lexer {
                 }
             };
 
+            token.offset = start_byte;
+            token.end = self.byte_pos;
             tokens.push(token);
         }
 
-        tokens.push(Token::new(TokenType::EOF, self.line, self.column));
+        let mut eof = Token::new(TokenType::EOF, self.line, self.column);
+        eof.offset = self.byte_pos;
+        eof.end = self.byte_pos;
+        tokens.push(eof);
         Ok(tokens)
     }
 
@@ -188,12 +203,14 @@ impl Lexer {
 
     fn advance(&mut self) {
         if self.pos < self.source.len() {
-            if self.source[self.pos] == '\n' {
+            let ch = self.source[self.pos];
+            if ch == '\n' {
                 self.line += 1;
                 self.column = 1;
             } else {
                 self.column += 1;
             }
+            self.byte_pos += ch.len_utf8();
             self.pos += 1;
         }
     }

@@ -7,6 +7,7 @@
 //! - [`ssg`] — pre-renders pages to static HTML for SSG mode
 //! - [`pdf`] — generates PDF documents with layout, tables, and typography
 //! - [`slides`] — generates PDF slide decks (one Slide = one page)
+//! - [`node_id`] — deterministic node identity (`data-wf-node`) for the studio
 
 pub mod html;
 pub mod css;
@@ -15,6 +16,7 @@ pub mod ssg;
 pub mod pdf;
 pub mod slides;
 pub mod style;
+pub mod node_id;
 
 pub use html::generate_html;
 pub use css::generate_css;
@@ -22,3 +24,6 @@ pub use js::JsCodegen;
 pub use ssg::render_page_html;
 pub use pdf::PdfCodegen;
 pub use slides::SlidesCodegen;
+// The studio node-identity API (`node_id::{NodeMap, NodeInfo, build_node_map}`
+// and `ssg::render_page_html_studio`) is reachable via `pub mod node_id` and
+// `pub mod ssg`; Milestone 2 will re-export the ergonomic subset it consumes.

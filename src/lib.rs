@@ -142,5 +142,17 @@ pub mod linter;
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
 
+/// Structured edit engine — apply typed [`edit::EditOp`]s to `.wf` source as
+/// minimal, span-based text patches (Slice 3 of the studio engine upgrade).
+pub mod edit;
+
+/// Studio integration facade — [`studio::compile_studio`] turns a program into a
+/// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
+pub mod studio;
+
 pub use template::Template;
-pub use error::{WebFluentError, Result};
+pub use error::{WebFluentError, Result, Diagnostic};
+pub use studio::{compile_studio, CompiledSite, CompiledPage};
+pub use codegen::node_id::{NodeMap, NodeInfo};
+pub use edit::{apply_edits, EditOp, ArgRef};
+pub use linter::validate_semantics;

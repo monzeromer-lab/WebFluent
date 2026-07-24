@@ -2,6 +2,30 @@ use crate::lexer::{Token, TokenType};
 use crate::error::{Diagnostic, WebFluentError, Result};
 use super::ast::*;
 
+/// The parsed `( … )` argument + modifier group of an element, with spans.
+/// Produced by [`Parser::parse_paren_args`].
+struct ParenArgs {
+    args: Vec<Arg>,
+    modifiers: Vec<String>,
+    arg_spans: Vec<Span>,
+    modifier_spans: Vec<Span>,
+    /// Span of the whole `( … )` group, parentheses included.
+    paren_span: Span,
+}
+
+/// The parsed optional `{ … }` body of an element, with spans. Produced by
+/// [`Parser::parse_element_body`].
+struct ElementBody {
+    children: Vec<Statement>,
+    events: Vec<EventHandler>,
+    style_block: Option<StyleBlock>,
+    transition_block: Option<TransitionBlock>,
+    /// Interior of the `{ … }` (braces excluded); `None` if there was no block.
+    body_span: Option<Span>,
+    /// Span of the `style { … }` block; `None` if there was none.
+    style_span: Option<Span>,
+}
+
 /// The WebFluent parser — converts a token stream into an AST.
 pub struct Parser {
     tokens: Vec<Token>,
@@ -82,6 +106,34 @@ impl Parser {
         )
     }
 
+    // ─── Span helpers ────────────────────────────────────
+    //
+    // A node's span runs from the start of the first token that belongs to it
+    // to the end of the last token consumed for it. Callers `mark()` the current
+    // token before parsing and `span_since(mark)` once the node is complete.
+
+    /// Byte offset + 1-based line/column of the current token's start.
+    fn mark(&self) -> (u32, u32, u32) {
+        let t = self.current();
+        (t.offset as u32, t.line as u32, t.column as u32)
+    }
+
+    /// End byte offset (exclusive) of the most recently consumed token; 0 before
+    /// any token has been consumed.
+    fn prev_end(&self) -> u32 {
+        if self.pos == 0 {
+            0
+        } else {
+            self.tokens[self.pos - 1].end as u32
+        }
+    }
+
+    /// Build a [`Span`] from a `mark()` taken before parsing to the end of the
+    /// last consumed token.
+    fn span_since(&self, mark: (u32, u32, u32)) -> Span {
+        Span::new(mark.0, self.prev_end(), mark.1, mark.2)
+    }
+
     fn is_builtin_component(&self) -> bool {
         matches!(self.current_type(),
             TokenType::Container | TokenType::Row | TokenType::Column |
@@ -127,6 +179,7 @@ impl Parser {
     // ─── Page ────────────────────────────────────────────
 
     fn parse_page(&mut self) -> Result<PageDecl> {
+        let decl_mark = self.mark();
         self.expect(&TokenType::Page)?;
         let name = self.expect_identifier()?;
         self.expect(&TokenType::OpenParen)?;
@@ -153,14 +206,21 @@ impl Parser {
         }
 
         self.expect(&TokenType::CloseParen)?;
-        let body = self.parse_block()?;
+        let header_span = self.span_since(decl_mark);
+        let (body, body_span) = self.parse_block_spanned()?;
 
-        Ok(PageDecl { name, path, title, guard, redirect, body })
+        Ok(PageDecl {
+            name, path, title, guard, redirect, body,
+            span: self.span_since(decl_mark),
+            header_span,
+            body_span,
+        })
     }
 
     // ─── Component ───────────────────────────────────────
 
     fn parse_component_decl(&mut self) -> Result<ComponentDecl> {
+        let decl_mark = self.mark();
         self.expect(&TokenType::Component)?;
         let name = self.expect_identifier()?;
         self.expect(&TokenType::OpenParen)?;
@@ -174,9 +234,15 @@ impl Parser {
         }
 
         self.expect(&TokenType::CloseParen)?;
-        let body = self.parse_block()?;
+        let header_span = self.span_since(decl_mark);
+        let (body, body_span) = self.parse_block_spanned()?;
 
-        Ok(ComponentDecl { name, props, body })
+        Ok(ComponentDecl {
+            name, props, body,
+            span: self.span_since(decl_mark),
+            header_span,
+            body_span,
+        })
     }
 
     fn parse_prop_decl(&mut self) -> Result<PropDecl> {
@@ -206,10 +272,17 @@ impl Parser {
     // ─── Store ───────────────────────────────────────────
 
     fn parse_store(&mut self) -> Result<StoreDecl> {
+        let decl_mark = self.mark();
         self.expect(&TokenType::Store)?;
         let name = self.expect_identifier()?;
-        let body = self.parse_block()?;
-        Ok(StoreDecl { name, body })
+        let header_span = self.span_since(decl_mark);
+        let (body, body_span) = self.parse_block_spanned()?;
+        Ok(StoreDecl {
+            name, body,
+            span: self.span_since(decl_mark),
+            header_span,
+            body_span,
+        })
     }
 
     // ─── App ─────────────────────────────────────────────
@@ -223,18 +296,37 @@ impl Parser {
     // ─── Block ───────────────────────────────────────────
 
     fn parse_block(&mut self) -> Result<Vec<Statement>> {
+        Ok(self.parse_block_spanned()?.0)
+    }
+
+    /// Like [`parse_block`], but also returns the span of the block's interior
+    /// (between the braces, exclusive of them) for declaration `body_span`s.
+    fn parse_block_spanned(&mut self) -> Result<(Vec<Statement>, Span)> {
+        // Interior starts one byte past `{` and ends at the byte before `}`.
+        let body_start = self.current().end as u32;
+        let body_line = self.current().line as u32;
+        let body_col = self.current().column as u32;
         self.expect(&TokenType::OpenBrace)?;
         let mut stmts = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
             stmts.push(self.parse_statement()?);
         }
+        let body_end = self.current().offset as u32; // start of `}`
         self.expect(&TokenType::CloseBrace)?;
-        Ok(stmts)
+        Ok((stmts, Span::new(body_start, body_end, body_line, body_col)))
     }
 
     // ─── Statement ───────────────────────────────────────
 
     fn parse_statement(&mut self) -> Result<Statement> {
+        // Single choke point for statement spans: every statement flows through
+        // here, so stamping the whole-statement span once covers them all.
+        let stmt_mark = self.mark();
+        let kind = self.parse_statement_kind()?;
+        Ok(Statement { kind, span: self.span_since(stmt_mark) })
+    }
+
+    fn parse_statement_kind(&mut self) -> Result<StatementKind> {
         match self.current_type() {
             TokenType::State => self.parse_state_decl(),
             TokenType::Derived => self.parse_derived_decl(),
@@ -249,8 +341,9 @@ impl Parser {
             TokenType::Log => self.parse_log(),
             TokenType::Return => self.parse_return(),
             TokenType::Children => {
+                let node_mark = self.mark();
                 self.advance();
-                Ok(Statement::UIElement(UIElement {
+                Ok(StatementKind::UIElement(UIElement {
                     component: ComponentRef::BuiltIn("Children".to_string()),
                     args: Vec::new(),
                     modifiers: Vec::new(),
@@ -258,17 +351,23 @@ impl Parser {
                     style_block: None,
                     transition_block: None,
                     events: Vec::new(),
+                    span: self.span_since(node_mark),
+                    paren_span: None,
+                    body_span: None,
+                    style_span: None,
+                    arg_spans: Vec::new(),
+                    modifier_spans: Vec::new(),
                 }))
             }
             TokenType::Animate => self.parse_animate_stmt(),
             TokenType::Style => self.parse_style_statement(),
             TokenType::Event(_) => {
                 let handler = self.parse_event_handler()?;
-                Ok(Statement::EventHandler(handler))
+                Ok(StatementKind::EventHandler(handler))
             }
             _ if self.is_builtin_component() => {
                 let elem = self.parse_ui_element()?;
-                Ok(Statement::UIElement(elem))
+                Ok(StatementKind::UIElement(elem))
             }
             TokenType::Identifier(_) => self.parse_identifier_statement(),
             _ => Err(self.error(format!("Unexpected token {}", self.current_type()))),
@@ -277,29 +376,29 @@ impl Parser {
 
     // ─── State declarations ─────────────────────────────
 
-    fn parse_state_decl(&mut self) -> Result<Statement> {
+    fn parse_state_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::State)?;
         let name = self.expect_identifier()?;
         self.expect(&TokenType::Equals)?;
         let value = self.parse_expression()?;
-        Ok(Statement::State(StateDecl { name, value }))
+        Ok(StatementKind::State(StateDecl { name, value }))
     }
 
-    fn parse_derived_decl(&mut self) -> Result<Statement> {
+    fn parse_derived_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Derived)?;
         let name = self.expect_identifier()?;
         self.expect(&TokenType::Equals)?;
         let value = self.parse_expression()?;
-        Ok(Statement::Derived(DerivedDecl { name, value }))
+        Ok(StatementKind::Derived(DerivedDecl { name, value }))
     }
 
-    fn parse_effect_decl(&mut self) -> Result<Statement> {
+    fn parse_effect_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Effect)?;
         let body = self.parse_block()?;
-        Ok(Statement::Effect(EffectDecl { body }))
+        Ok(StatementKind::Effect(EffectDecl { body }))
     }
 
-    fn parse_action_decl(&mut self) -> Result<Statement> {
+    fn parse_action_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Action)?;
         let name = self.expect_identifier()?;
         self.expect(&TokenType::OpenParen)?;
@@ -317,45 +416,45 @@ impl Parser {
         self.expect(&TokenType::CloseParen)?;
         let body = self.parse_block()?;
 
-        Ok(Statement::Action(ActionDecl { name, params, body }))
+        Ok(StatementKind::Action(ActionDecl { name, params, body }))
     }
 
-    fn parse_use_decl(&mut self) -> Result<Statement> {
+    fn parse_use_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Use)?;
         let store_name = self.expect_identifier()?;
-        Ok(Statement::Use(UseDecl { store_name }))
+        Ok(StatementKind::Use(UseDecl { store_name }))
     }
 
-    fn parse_navigate(&mut self) -> Result<Statement> {
+    fn parse_navigate(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Navigate)?;
         self.expect(&TokenType::OpenParen)?;
         let expr = self.parse_expression()?;
         self.expect(&TokenType::CloseParen)?;
-        Ok(Statement::Navigate(expr))
+        Ok(StatementKind::Navigate(expr))
     }
 
-    fn parse_log(&mut self) -> Result<Statement> {
+    fn parse_log(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Log)?;
         self.expect(&TokenType::OpenParen)?;
         let expr = self.parse_expression()?;
         self.expect(&TokenType::CloseParen)?;
-        Ok(Statement::Log(expr))
+        Ok(StatementKind::Log(expr))
     }
 
-    fn parse_return(&mut self) -> Result<Statement> {
+    fn parse_return(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Return)?;
         // Return with optional expression - if next token starts an expression, parse it
         if self.check(&TokenType::CloseBrace) || self.is_at_end() {
-            Ok(Statement::Return(None))
+            Ok(StatementKind::Return(None))
         } else {
             let expr = self.parse_expression()?;
-            Ok(Statement::Return(Some(expr)))
+            Ok(StatementKind::Return(Some(expr)))
         }
     }
 
     // ─── Control flow ────────────────────────────────────
 
-    fn parse_if_stmt(&mut self) -> Result<Statement> {
+    fn parse_if_stmt(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::If)?;
         let condition = self.parse_expression()?;
 
@@ -378,7 +477,7 @@ impl Parser {
             }
         }
 
-        Ok(Statement::If(IfStmt {
+        Ok(StatementKind::If(IfStmt {
             condition,
             animate,
             then_body,
@@ -387,7 +486,7 @@ impl Parser {
         }))
     }
 
-    fn parse_for_stmt(&mut self) -> Result<Statement> {
+    fn parse_for_stmt(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::For)?;
         let item = self.expect_identifier()?;
         let index = if self.match_token(&TokenType::Comma) {
@@ -408,10 +507,10 @@ impl Parser {
 
         let body = self.parse_block()?;
 
-        Ok(Statement::For(ForStmt { item, index, iterable, animate, body }))
+        Ok(StatementKind::For(ForStmt { item, index, iterable, animate, body }))
     }
 
-    fn parse_show_stmt(&mut self) -> Result<Statement> {
+    fn parse_show_stmt(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Show)?;
         let condition = self.parse_expression()?;
 
@@ -419,7 +518,7 @@ impl Parser {
         let animate = self.parse_optional_animate_clause()?;
 
         let body = self.parse_block()?;
-        Ok(Statement::Show(ShowStmt { condition, animate, body }))
+        Ok(StatementKind::Show(ShowStmt { condition, animate, body }))
     }
 
     /// Parse optional `, animate(enter, exit, duration: "300ms", ...)` clause
@@ -485,7 +584,7 @@ impl Parser {
 
     // ─── Fetch ───────────────────────────────────────────
 
-    fn parse_fetch_decl(&mut self) -> Result<Statement> {
+    fn parse_fetch_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Fetch)?;
         let variable = self.expect_identifier()?;
         self.expect(&TokenType::From)?;
@@ -540,7 +639,7 @@ impl Parser {
 
         self.expect(&TokenType::CloseBrace)?;
 
-        Ok(Statement::Fetch(FetchDecl {
+        Ok(StatementKind::Fetch(FetchDecl {
             variable,
             url,
             options,
@@ -793,40 +892,95 @@ impl Parser {
     // ─── UI Elements ─────────────────────────────────────
 
     fn parse_ui_element(&mut self) -> Result<UIElement> {
+        let node_mark = self.mark();
         let component = self.parse_component_ref()?;
+
+        let (args, modifiers, arg_spans, modifier_spans, paren_span) =
+            if self.check(&TokenType::OpenParen) {
+                let p = self.parse_paren_args()?;
+                (p.args, p.modifiers, p.arg_spans, p.modifier_spans, Some(p.paren_span))
+            } else {
+                (Vec::new(), Vec::new(), Vec::new(), Vec::new(), None)
+            };
+
+        let body = self.parse_element_body()?;
+
+        Ok(UIElement {
+            component,
+            args,
+            modifiers,
+            children: body.children,
+            style_block: body.style_block,
+            transition_block: body.transition_block,
+            events: body.events,
+            span: self.span_since(node_mark),
+            paren_span,
+            body_span: body.body_span,
+            style_span: body.style_span,
+            arg_spans,
+            modifier_spans,
+        })
+    }
+
+    /// Parse a `( … )` argument + modifier group. The current token MUST be an
+    /// `OpenParen`. `paren_span` covers the whole group (parentheses included);
+    /// each argument and modifier also records its own span for surgical edits.
+    fn parse_paren_args(&mut self) -> Result<ParenArgs> {
+        let paren_mark = self.mark();
+        self.advance(); // consume '('
         let mut args = Vec::new();
         let mut modifiers = Vec::new();
-
-        // Parse arguments in parentheses
-        if self.match_token(&TokenType::OpenParen) {
-            while !self.check(&TokenType::CloseParen) && !self.is_at_end() {
-                // Check if it's a named argument: identifier followed by colon
-                if self.is_named_arg() {
-                    let name = self.expect_identifier()?;
-                    self.expect(&TokenType::Colon)?;
-                    let value = self.parse_expression()?;
-                    args.push(Arg::Named(name, value));
-                } else if self.is_modifier() {
-                    let mod_name = self.expect_identifier()?;
-                    modifiers.push(mod_name);
-                } else {
-                    let expr = self.parse_expression()?;
-                    args.push(Arg::Positional(expr));
-                }
-                if !self.check(&TokenType::CloseParen) {
-                    self.expect(&TokenType::Comma)?;
-                }
+        let mut arg_spans = Vec::new();
+        let mut modifier_spans = Vec::new();
+        while !self.check(&TokenType::CloseParen) && !self.is_at_end() {
+            let item_mark = self.mark();
+            // Named argument: identifier followed by a colon.
+            if self.is_named_arg() {
+                let name = self.expect_identifier()?;
+                self.expect(&TokenType::Colon)?;
+                let value = self.parse_expression()?;
+                args.push(Arg::Named(name, value));
+                arg_spans.push(self.span_since(item_mark));
+            } else if self.is_modifier() {
+                let mod_name = self.expect_identifier()?;
+                modifiers.push(mod_name);
+                modifier_spans.push(self.span_since(item_mark));
+            } else {
+                let expr = self.parse_expression()?;
+                args.push(Arg::Positional(expr));
+                arg_spans.push(self.span_since(item_mark));
             }
-            self.expect(&TokenType::CloseParen)?;
+            if !self.check(&TokenType::CloseParen) {
+                self.expect(&TokenType::Comma)?;
+            }
         }
+        self.expect(&TokenType::CloseParen)?;
+        Ok(ParenArgs {
+            args,
+            modifiers,
+            arg_spans,
+            modifier_spans,
+            paren_span: self.span_since(paren_mark),
+        })
+    }
 
-        // Parse optional block (children, events, style, transition)
+    /// Parse the optional `{ … }` body shared by built-in and user-defined
+    /// elements: children, event handlers, an optional style block, and an
+    /// optional transition block. `body_span` is the interior of the braces
+    /// (exclusive); both spans are `None` when the element has no block.
+    fn parse_element_body(&mut self) -> Result<ElementBody> {
         let mut children = Vec::new();
-        let mut style_block = None;
-        let mut transition_block = None;
         let mut events = Vec::new();
+        let mut style_block = None;
+        let mut style_span = None;
+        let mut transition_block = None;
+        let mut body_span = None;
 
         if self.check(&TokenType::OpenBrace) {
+            // Interior starts one byte past `{` and ends at the byte before `}`.
+            let body_start = self.current().end as u32;
+            let body_line = self.current().line as u32;
+            let body_col = self.current().column as u32;
             self.expect(&TokenType::OpenBrace)?;
             while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
                 match self.current_type() {
@@ -834,7 +988,9 @@ impl Parser {
                         events.push(self.parse_event_handler()?);
                     }
                     TokenType::Style => {
+                        let style_mark = self.mark();
                         style_block = Some(self.parse_style_block()?);
+                        style_span = Some(self.span_since(style_mark));
                     }
                     TokenType::Transition => {
                         transition_block = Some(self.parse_transition_block()?);
@@ -844,17 +1000,18 @@ impl Parser {
                     }
                 }
             }
+            let body_end = self.current().offset as u32; // start of `}`
             self.expect(&TokenType::CloseBrace)?;
+            body_span = Some(Span::new(body_start, body_end, body_line, body_col));
         }
 
-        Ok(UIElement {
-            component,
-            args,
-            modifiers,
+        Ok(ElementBody {
             children,
+            events,
             style_block,
             transition_block,
-            events,
+            body_span,
+            style_span,
         })
     }
 
@@ -938,6 +1095,10 @@ impl Parser {
 
     fn parse_style_block(&mut self) -> Result<StyleBlock> {
         self.expect(&TokenType::Style)?;
+        // Interior span: one byte past `{` to the byte before `}`.
+        let body_start = self.current().end as u32;
+        let body_line = self.current().line as u32;
+        let body_col = self.current().column as u32;
         self.expect(&TokenType::OpenBrace)?;
         let mut properties = Vec::new();
         let mut media_queries = Vec::new();
@@ -950,13 +1111,19 @@ impl Parser {
             let prop = self.parse_style_property()?;
             properties.push(prop);
         }
+        let body_end = self.current().offset as u32;
         self.expect(&TokenType::CloseBrace)?;
-        Ok(StyleBlock { properties, media_queries })
+        Ok(StyleBlock {
+            properties,
+            media_queries,
+            body_span: Span::new(body_start, body_end, body_line, body_col),
+        })
     }
 
     fn parse_style_property(&mut self) -> Result<StyleProperty> {
         // Support hyphenated property names: border-radius, font-size, etc.
         // Also accept keywords (transition, etc.) as CSS property names
+        let prop_mark = self.mark();
         let mut name = self.expect_css_property_name()?;
         while self.check(&TokenType::Minus) {
             self.advance(); // consume -
@@ -964,8 +1131,10 @@ impl Parser {
             name = format!("{}-{}", name, part);
         }
         self.expect(&TokenType::Colon)?;
+        let value_mark = self.mark();
         let value = self.parse_expression()?;
-        Ok(StyleProperty { name, value })
+        let value_span = self.span_since(value_mark);
+        Ok(StyleProperty { name, value, span: self.span_since(prop_mark), value_span })
     }
 
     fn expect_css_property_name(&mut self) -> Result<String> {
@@ -1053,9 +1222,11 @@ impl Parser {
         Ok(MediaQuery { condition, properties })
     }
 
-    fn parse_style_statement(&mut self) -> Result<Statement> {
+    fn parse_style_statement(&mut self) -> Result<StatementKind> {
+        let node_mark = self.mark();
         let block = self.parse_style_block()?;
-        Ok(Statement::UIElement(UIElement {
+        let span = self.span_since(node_mark);
+        Ok(StatementKind::UIElement(UIElement {
             component: ComponentRef::BuiltIn("_StyleBlock".to_string()),
             args: Vec::new(),
             modifiers: Vec::new(),
@@ -1063,6 +1234,12 @@ impl Parser {
             style_block: Some(block),
             transition_block: None,
             events: Vec::new(),
+            span,
+            paren_span: None,
+            body_span: None,
+            style_span: Some(span),
+            arg_spans: Vec::new(),
+            modifier_spans: Vec::new(),
         }))
     }
 
@@ -1112,7 +1289,7 @@ impl Parser {
 
     // ─── Animate statement ───────────────────────────────
 
-    fn parse_animate_stmt(&mut self) -> Result<Statement> {
+    fn parse_animate_stmt(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Animate)?;
         self.expect(&TokenType::OpenParen)?;
         let target = self.expect_identifier()?;
@@ -1124,7 +1301,7 @@ impl Parser {
             None
         };
         self.expect(&TokenType::CloseParen)?;
-        Ok(Statement::Animate(AnimateStmt { target, animation, duration }))
+        Ok(StatementKind::Animate(AnimateStmt { target, animation, duration }))
     }
 
     // ─── Events ──────────────────────────────────────────
@@ -1142,8 +1319,9 @@ impl Parser {
 
     // ─── Identifier-led statements ───────────────────────
 
-    fn parse_identifier_statement(&mut self) -> Result<Statement> {
+    fn parse_identifier_statement(&mut self) -> Result<StatementKind> {
         // Could be: assignment, method call, user-defined component, or store access
+        let node_mark = self.mark();
         let name = self.expect_identifier()?;
 
         // Check for dot access (store.method(), object.property = value)
@@ -1173,11 +1351,11 @@ impl Parser {
             // Check for assignment
             if self.match_token(&TokenType::Equals) {
                 let value = self.parse_expression()?;
-                return Ok(Statement::Assignment(Assignment { target: expr, value }));
+                return Ok(StatementKind::Assignment(Assignment { target: expr, value }));
             }
 
             // It's an expression statement (method call result, etc.)
-            return Ok(Statement::ExprStatement(expr));
+            return Ok(StatementKind::ExprStatement(expr));
         }
 
         // Check for index access
@@ -1191,16 +1369,16 @@ impl Parser {
 
             if self.match_token(&TokenType::Equals) {
                 let value = self.parse_expression()?;
-                return Ok(Statement::Assignment(Assignment { target: expr, value }));
+                return Ok(StatementKind::Assignment(Assignment { target: expr, value }));
             }
 
-            return Ok(Statement::ExprStatement(expr));
+            return Ok(StatementKind::ExprStatement(expr));
         }
 
         // Assignment: name = expr
         if self.match_token(&TokenType::Equals) {
             let value = self.parse_expression()?;
-            return Ok(Statement::Assignment(Assignment {
+            return Ok(StatementKind::Assignment(Assignment {
                 target: Expr::Identifier(name.clone()),
                 value,
             }));
@@ -1211,56 +1389,23 @@ impl Parser {
             // Could be a user-defined component or a function call
             // Treat uppercase-starting names as components
             if name.chars().next().map_or(false, |c| c.is_uppercase()) {
-                // User-defined component
-                let mut args = Vec::new();
-                let mut modifiers = Vec::new();
-                self.advance(); // skip (
-
-                while !self.check(&TokenType::CloseParen) && !self.is_at_end() {
-                    if self.is_named_arg() {
-                        let arg_name = self.expect_identifier()?;
-                        self.expect(&TokenType::Colon)?;
-                        let value = self.parse_expression()?;
-                        args.push(Arg::Named(arg_name, value));
-                    } else if self.is_modifier() {
-                        let mod_name = self.expect_identifier()?;
-                        modifiers.push(mod_name);
-                    } else {
-                        let expr = self.parse_expression()?;
-                        args.push(Arg::Positional(expr));
-                    }
-                    if !self.check(&TokenType::CloseParen) {
-                        self.expect(&TokenType::Comma)?;
-                    }
-                }
-                self.expect(&TokenType::CloseParen)?;
-
-                let mut children = Vec::new();
-                let mut style_block = None;
-                let mut transition_block = None;
-                let mut events = Vec::new();
-
-                if self.check(&TokenType::OpenBrace) {
-                    self.expect(&TokenType::OpenBrace)?;
-                    while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
-                        match self.current_type() {
-                            TokenType::Event(_) => events.push(self.parse_event_handler()?),
-                            TokenType::Style => style_block = Some(self.parse_style_block()?),
-                            TokenType::Transition => transition_block = Some(self.parse_transition_block()?),
-                            _ => children.push(self.parse_statement()?),
-                        }
-                    }
-                    self.expect(&TokenType::CloseBrace)?;
-                }
-
-                return Ok(Statement::UIElement(UIElement {
+                // User-defined component with a `( … )` argument group.
+                let p = self.parse_paren_args()?;
+                let body = self.parse_element_body()?;
+                return Ok(StatementKind::UIElement(UIElement {
                     component: ComponentRef::UserDefined(name),
-                    args,
-                    modifiers,
-                    children,
-                    style_block,
-                    transition_block,
-                    events,
+                    args: p.args,
+                    modifiers: p.modifiers,
+                    children: body.children,
+                    style_block: body.style_block,
+                    transition_block: body.transition_block,
+                    events: body.events,
+                    span: self.span_since(node_mark),
+                    paren_span: Some(p.paren_span),
+                    body_span: body.body_span,
+                    style_span: body.style_span,
+                    arg_spans: p.arg_spans,
+                    modifier_spans: p.modifier_spans,
                 }));
             } else {
                 // Regular function call
@@ -1273,42 +1418,31 @@ impl Parser {
                     }
                 }
                 self.expect(&TokenType::CloseParen)?;
-                return Ok(Statement::ExprStatement(Expr::FunctionCall(name, args)));
+                return Ok(StatementKind::ExprStatement(Expr::FunctionCall(name, args)));
             }
         }
 
         // Bare identifier — could be a component usage without parens
         if name.chars().next().map_or(false, |c| c.is_uppercase()) {
-            let mut children = Vec::new();
-            let mut events = Vec::new();
-            let mut style_block = None;
-            let mut transition_block = None;
-
-            if self.check(&TokenType::OpenBrace) {
-                self.expect(&TokenType::OpenBrace)?;
-                while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
-                    match self.current_type() {
-                        TokenType::Event(_) => events.push(self.parse_event_handler()?),
-                        TokenType::Style => style_block = Some(self.parse_style_block()?),
-                        TokenType::Transition => transition_block = Some(self.parse_transition_block()?),
-                        _ => children.push(self.parse_statement()?),
-                    }
-                }
-                self.expect(&TokenType::CloseBrace)?;
-            }
-
-            return Ok(Statement::UIElement(UIElement {
+            let body = self.parse_element_body()?;
+            return Ok(StatementKind::UIElement(UIElement {
                 component: ComponentRef::UserDefined(name),
                 args: Vec::new(),
                 modifiers: Vec::new(),
-                children,
-                style_block,
-                transition_block,
-                events,
+                children: body.children,
+                style_block: body.style_block,
+                transition_block: body.transition_block,
+                events: body.events,
+                span: self.span_since(node_mark),
+                paren_span: None,
+                body_span: body.body_span,
+                style_span: body.style_span,
+                arg_spans: Vec::new(),
+                modifier_spans: Vec::new(),
             }));
         }
 
-        Ok(Statement::ExprStatement(Expr::Identifier(name)))
+        Ok(StatementKind::ExprStatement(Expr::Identifier(name)))
     }
 
     // ─── Expressions ─────────────────────────────────────
@@ -1802,4 +1936,131 @@ fn has_interpolation(s: &str) -> bool {
         i += 1;
     }
     false
+}
+
+#[cfg(test)]
+mod span_tests {
+    //! Slice 1 acceptance: every parsed node carries a source span that slices
+    //! back to the exact text it was parsed from, and body spans are the precise
+    //! `{ … }` interior. These guard the invariant the edit engine (§1.3) relies on.
+    use super::*;
+    use crate::lexer::Lexer;
+
+    fn parse(src: &str) -> Program {
+        let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
+        Parser::new(tokens, "<test>").parse().expect("parse failed")
+    }
+
+    /// Recursively collect every `UIElement` in a statement list (pre-order).
+    fn collect<'a>(stmts: &'a [Statement], out: &mut Vec<&'a UIElement>) {
+        for s in stmts {
+            match &s.kind {
+                StatementKind::UIElement(ui) => {
+                    out.push(ui);
+                    collect(&ui.children, out);
+                }
+                StatementKind::If(i) => {
+                    collect(&i.then_body, out);
+                    for (_, b) in &i.else_if_branches { collect(b, out); }
+                    if let Some(b) = &i.else_body { collect(b, out); }
+                }
+                StatementKind::For(f) => collect(&f.body, out),
+                StatementKind::Show(sh) => collect(&sh.body, out),
+                StatementKind::Effect(e) => collect(&e.body, out),
+                StatementKind::Action(a) => collect(&a.body, out),
+                _ => {}
+            }
+        }
+    }
+
+    fn ui_elements(program: &Program) -> Vec<&UIElement> {
+        let mut out = Vec::new();
+        for d in &program.declarations {
+            match d {
+                Declaration::Page(p) => collect(&p.body, &mut out),
+                Declaration::Component(c) => collect(&c.body, &mut out),
+                Declaration::App(a) => collect(&a.body, &mut out),
+                Declaration::Store(_) => {}
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn ui_element_spans_round_trip() {
+        let src = "Page Home (path: \"/\") {\n\
+                   \x20 Heading(\"Welcome\", h1)\n\
+                   \x20 Button(\"Click me\", primary, large) {\n\
+                   \x20   on:click { log(\"hi\") }\n\
+                   \x20 }\n\
+                   }\n";
+        let program = parse(src);
+        let uis = ui_elements(&program);
+
+        let heading = uis.iter().find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Heading")).unwrap();
+        assert_eq!(heading.span.slice(src), "Heading(\"Welcome\", h1)");
+        assert_eq!(heading.paren_span.unwrap().slice(src), "(\"Welcome\", h1)");
+        assert_eq!(heading.arg_spans[0].slice(src), "\"Welcome\"");
+        assert_eq!(heading.modifiers, vec!["h1"]);
+        assert_eq!(heading.modifier_spans[0].slice(src), "h1");
+
+        let button = uis.iter().find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Button")).unwrap();
+        assert!(button.span.slice(src).starts_with("Button("));
+        assert!(button.span.slice(src).ends_with('}'));
+        assert_eq!(button.arg_spans[0].slice(src), "\"Click me\"");
+        assert_eq!(button.modifier_spans[0].slice(src), "primary");
+        assert_eq!(button.modifier_spans[1].slice(src), "large");
+        // body_span is exactly the `{ … }` interior (braces excluded).
+        assert_eq!(button.body_span.unwrap().slice(src).trim(), "on:click { log(\"hi\") }");
+    }
+
+    #[test]
+    fn decl_spans_round_trip() {
+        let src = "Page Home (path: \"/\", title: \"Hi\") {\n  Text(\"x\")\n}\n";
+        let program = parse(src);
+        let page = match &program.declarations[0] {
+            Declaration::Page(p) => p,
+            _ => panic!("expected page"),
+        };
+        assert!(page.span.slice(src).starts_with("Page Home"));
+        assert!(page.span.slice(src).ends_with('}'));
+        assert_eq!(page.header_span.slice(src), "Page Home (path: \"/\", title: \"Hi\")");
+        assert_eq!(page.body_span.slice(src).trim(), "Text(\"x\")");
+    }
+
+    #[test]
+    fn spans_are_byte_offsets_through_multibyte_text() {
+        // The lexer collects `chars()` but must report BYTE offsets — a
+        // multibyte prefix would corrupt every later span if it counted chars.
+        let src = "Page P (path: \"/\") {\n  Text(\"héllo → café\")\n}\n";
+        let program = parse(src);
+        let uis = ui_elements(&program);
+        let text = uis.iter().find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Text")).unwrap();
+        assert_eq!(text.arg_spans[0].slice(src), "\"héllo → café\"");
+        assert_eq!(text.span.slice(src), "Text(\"héllo → café\")");
+    }
+
+    #[test]
+    fn statement_spans_round_trip() {
+        // Every statement carries a whole-statement span via the Statement wrapper.
+        let src = "Page P (path: \"/\") {\n\
+                   \x20 state count = 0\n\
+                   \x20 Text(\"hello\")\n\
+                   \x20 Button(\"Go\", primary)\n\
+                   }\n";
+        let program = parse(src);
+        let body = match &program.declarations[0] {
+            Declaration::Page(p) => &p.body,
+            _ => panic!("expected page"),
+        };
+        assert_eq!(body[0].span.slice(src), "state count = 0");
+        assert_eq!(body[1].span.slice(src), "Text(\"hello\")");
+        assert_eq!(body[2].span.slice(src), "Button(\"Go\", primary)");
+        // A statement's span agrees with the element span it wraps.
+        if let StatementKind::UIElement(ui) = &body[1].kind {
+            assert_eq!(ui.span.slice(src), body[1].span.slice(src));
+        } else {
+            panic!("expected UIElement statement");
+        }
+    }
 }

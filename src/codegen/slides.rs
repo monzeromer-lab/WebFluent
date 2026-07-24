@@ -10,7 +10,7 @@
 
 use std::collections::HashSet;
 use crate::config::project::SlidesConfig;
-use crate::parser::{Program, Declaration, Statement, UIElement, ComponentRef, Expr, StringPart, Arg};
+use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart, Arg};
 use crate::codegen::style::{
     Background, Color, LinearGradient, StyleProps,
     gradient_endpoints, luminance, parse_color as style_parse_color,
@@ -301,7 +301,7 @@ impl SlidesCodegen {
     // ─── Slide dispatch ──────────────────────────────────────
 
     fn emit_top_statement(&mut self, stmt: &Statement) {
-        if let Statement::UIElement(ui) = stmt {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
             if let ComponentRef::BuiltIn(name) = &ui.component {
                 if name == "Presentation" {
                     for child in &ui.children { self.emit_slide(child); }
@@ -311,8 +311,8 @@ impl SlidesCodegen {
     }
 
     fn emit_slide(&mut self, stmt: &Statement) {
-        let ui = match stmt {
-            Statement::UIElement(u) => u,
+        let ui = match &stmt.kind {
+            StatementKind::UIElement(u) => u,
             _ => return,
         };
         let name = match &ui.component {
@@ -520,7 +520,7 @@ impl SlidesCodegen {
 
     fn emit_two_column(&mut self, ui: &UIElement) {
         let cols: Vec<&UIElement> = ui.children.iter().filter_map(|c| {
-            if let Statement::UIElement(u) = c { Some(u) } else { None }
+            if let StatementKind::UIElement(u) = &c.kind { Some(u) } else { None }
         }).take(2).collect();
         if cols.len() < 2 { return; }
 
@@ -603,12 +603,12 @@ impl SlidesCodegen {
     // ─── Statement dispatch (inside slide body) ─────────────
 
     fn emit_statement(&mut self, stmt: &Statement) {
-        match stmt {
-            Statement::UIElement(ui) => self.emit_ui_element(ui),
-            Statement::If(if_stmt) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => self.emit_ui_element(ui),
+            StatementKind::If(if_stmt) => {
                 for s in &if_stmt.then_body { self.emit_statement(s); }
             }
-            Statement::For(for_stmt) => {
+            StatementKind::For(for_stmt) => {
                 if let Expr::ListLiteral(items) = &for_stmt.iterable {
                     for _ in items {
                         for s in &for_stmt.body { self.emit_statement(s); }
@@ -828,8 +828,8 @@ impl SlidesCodegen {
         let lh = fs * 1.5;
         let indent = 22.0;
         for (idx, child) in ui.children.iter().enumerate() {
-            let item = match child {
-                Statement::UIElement(u) => u,
+            let item = match &child.kind {
+                StatementKind::UIElement(u) => u,
                 _ => continue,
             };
             let text = self.text_content(item);
@@ -1114,12 +1114,12 @@ fn background_luminance(bg: &Background) -> f64 {
 }
 
 fn count_slides_in_stmt(stmt: &Statement) -> usize {
-    if let Statement::UIElement(ui) = stmt {
+    if let StatementKind::UIElement(ui) = &stmt.kind {
         if let ComponentRef::BuiltIn(name) = &ui.component {
             if name == "Presentation" {
                 let mut n = 0;
                 for child in &ui.children {
-                    if let Statement::UIElement(c) = child {
+                    if let StatementKind::UIElement(c) = &child.kind {
                         if let ComponentRef::BuiltIn(cn) = &c.component {
                             if matches!(cn.as_str(),
                                 "Slide" | "TitleSlide" | "SectionSlide" | "TwoColumn" | "ImageSlide"

@@ -1,13 +1,28 @@
 use std::collections::HashMap;
 use crate::parser::ast::*;
+use crate::codegen::node_id::NodeMap;
 use crate::config::ProjectConfig;
 
-/// Renders a page to static HTML for SSG.
+/// Renders a page to static HTML for SSG (export mode — no studio attributes).
 pub fn render_page_html(
     page: &PageDecl,
     config: &ProjectConfig,
     app_body: Option<&[Statement]>,
     translations: &HashMap<String, HashMap<String, String>>,
+) -> String {
+    render_page_html_studio(page, config, app_body, translations, false, &NodeMap::default())
+}
+
+/// Like [`render_page_html`], but stamps `data-wf-node="<id>"` on element roots
+/// when `studio` is true, using ids from `node_map` (keyed by element span, so
+/// they match the JS codegen exactly).
+pub fn render_page_html_studio(
+    page: &PageDecl,
+    config: &ProjectConfig,
+    app_body: Option<&[Statement]>,
+    translations: &HashMap<String, HashMap<String, String>>,
+    studio: bool,
+    node_map: &NodeMap,
 ) -> String {
     let title = page.title.as_deref().unwrap_or(&config.name);
     let lang = if config.meta.lang.is_empty() { "en" } else { &config.meta.lang };
@@ -36,6 +51,8 @@ pub fn render_page_html(
         indent: 2,
         base_path,
         link_base,
+        studio,
+        node_map: node_map.clone(),
     };
 
     // Render app shell (navbar, etc.) if available
@@ -85,11 +102,34 @@ struct SsgContext {
     indent: usize,
     base_path: String, // Relative path to root for assets (e.g., ".." for /about)
     link_base: String, // Config base_path for links (e.g., "/WebFluent")
+    /// Studio mode: stamp `data-wf-node` on element roots.
+    studio: bool,
+    /// Node ids keyed by element span (empty unless in studio mode). Matches the
+    /// JS codegen's ids because both consult the same map.
+    node_map: NodeMap,
 }
 
 impl SsgContext {
     fn indent_str(&self) -> String {
         "    ".repeat(self.indent)
+    }
+
+    /// The bare `data-wf-node="<id>"` HTML attribute for this element's root, or
+    /// `None` when not in studio mode / the node has no id. Callers building an
+    /// attribute list push it directly; callers building a tag inline prepend a
+    /// space (see [`SsgContext::wf_node_attr_inline`]).
+    fn wf_node_attr(&self, ui: &UIElement) -> Option<String> {
+        if !self.studio {
+            return None;
+        }
+        self.node_map
+            .id_for(ui.span)
+            .map(|id| format!("data-wf-node=\"{}\"", id))
+    }
+
+    /// Space-prefixed form for embedding directly inside a `<tag …>` (empty when absent).
+    fn wf_node_attr_inline(&self, ui: &UIElement) -> String {
+        self.wf_node_attr(ui).map(|a| format!(" {}", a)).unwrap_or_default()
     }
 }
 
@@ -101,7 +141,7 @@ fn render_app_shell_ssg(
     html: &mut String,
 ) {
     for stmt in stmts {
-        if let Statement::UIElement(ui) = stmt {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
             let name = match &ui.component {
                 ComponentRef::BuiltIn(n) => n.as_str(),
                 _ => "",
@@ -114,7 +154,7 @@ fn render_app_shell_ssg(
                 // Render the wrapper tag with children, substituting the Router
                 let (tag, class) = builtin_to_html_tag(name);
                 let indent = ctx.indent_str();
-                html.push_str(&format!("{}<{} class=\"{}\">\n", indent, tag, class));
+                html.push_str(&format!("{}<{} class=\"{}\"{}>\n", indent, tag, class, ctx.wf_node_attr_inline(ui)));
                 ctx.indent += 1;
                 render_app_shell_ssg(&ui.children, page_body, ctx, html);
                 ctx.indent -= 1;
@@ -127,7 +167,7 @@ fn render_app_shell_ssg(
 }
 
 fn stmt_contains_router(stmt: &Statement) -> bool {
-    if let Statement::UIElement(ui) = stmt {
+    if let StatementKind::UIElement(ui) = &stmt.kind {
         if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
             return true;
         }
@@ -143,16 +183,16 @@ fn stmt_contains_router(stmt: &Statement) -> bool {
 fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
     let mut html = String::new();
     for stmt in stmts {
-        match stmt {
-            Statement::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
-            Statement::If(_) => {
+        match &stmt.kind {
+            StatementKind::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
+            StatementKind::If(_) => {
                 // Dynamic — emit placeholder comment
                 html.push_str(&format!("{}<!--wf-if-->\n", ctx.indent_str()));
             }
-            Statement::For(_) => {
+            StatementKind::For(_) => {
                 html.push_str(&format!("{}<!--wf-for-->\n", ctx.indent_str()));
             }
-            Statement::Show(show) => {
+            StatementKind::Show(show) => {
                 // Render content but hidden
                 let inner = render_statements(&show.body, ctx);
                 html.push_str(&format!(
@@ -160,7 +200,7 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
                     ctx.indent_str(), inner, ctx.indent_str()
                 ));
             }
-            Statement::Fetch(fetch) => {
+            StatementKind::Fetch(fetch) => {
                 // Render loading block if present
                 if let Some(loading) = &fetch.loading_block {
                     html.push_str(&render_statements(loading, ctx));
@@ -211,16 +251,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
     let class_str = classes.iter().filter(|c| !c.is_empty()).cloned().collect::<Vec<_>>().join(" ");
 
-    // Special handling for certain components
+    // Special handling for certain components. These build their tag inline
+    // (not via the attrs list below), so stamp the node id inline here too.
+    let wf = ctx.wf_node_attr_inline(ui);
     match name {
         "Spacer" => {
-            return format!("{}<div class=\"{}\"></div>\n", ctx.indent_str(), class_str);
+            return format!("{}<div class=\"{}\"{}></div>\n", ctx.indent_str(), class_str, wf);
         }
         "Divider" => {
-            return format!("{}<hr class=\"{}\">\n", ctx.indent_str(), class_str);
+            return format!("{}<hr class=\"{}\"{}>\n", ctx.indent_str(), class_str, wf);
         }
         "Spinner" => {
-            return format!("{}<div class=\"{}\"></div>\n", ctx.indent_str(), class_str);
+            return format!("{}<div class=\"{}\"{}></div>\n", ctx.indent_str(), class_str, wf);
         }
         "Children" | "_StyleBlock" | "Router" | "Route" => {
             return String::new();
@@ -235,6 +277,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
 
     if !class_str.is_empty() {
         attrs.push(format!("class=\"{}\"", class_str));
+    }
+
+    // Studio: stamp the node id on this element's root (must match the JS codegen id).
+    if let Some(a) = ctx.wf_node_attr(ui) {
+        attrs.push(a);
     }
 
     for arg in &ui.args {
@@ -350,7 +397,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
 
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let indent = ctx.indent_str();
-    let mut result = format!("{}<{} class=\"{}\">\n", indent, tag, class);
+    let wf = ctx.wf_node_attr_inline(ui);
+    let mut result = format!("{}<{} class=\"{}\"{}>\n", indent, tag, class, wf);
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));
     ctx.indent -= 1;
