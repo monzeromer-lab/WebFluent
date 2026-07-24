@@ -323,15 +323,188 @@ the correct file + source slice.
 
 ## Milestone 4 — AI codegen agent + token strategy (Studio)
 
-- Generation (new page/site/component): AI emits full `.wf` once; validated by parse.
-- Editing: the AI is handed a **compact addressable view** — a node tree of
-  `{id, component, args, modifiers, text, childIds}` + the selected node's source
-  slice — never the whole file; it replies with a small batch of `EditOp`s.
-  This is the primary AI-token lever (tens of tokens/edit vs. whole-file regen).
-- Self-heal: on compile error, feed the error + offending span back to the AI for a
-  scoped fix (bounded by `heal_attempts`, already in the settings model).
-- Wire model/effort/permission/skills/MCP/ACP config to real provider calls; keys in
-  the OS keychain (already the mock's stated behavior).
+> **Status: re-detailed and ready to build** (M3 complete). Re-detailed via a design
+> panel + adversarial-verification pass (2026-07-24). The product owner expanded scope
+> beyond the conservative first cut — **multi-node editing, multi-file sites, and all six
+> providers are IN M4** — which roughly doubled the milestone, so it is split into
+> **M4a (offline core)** and **M4b (live transport)**.
+
+**Thesis.** Close the real AI loop **offline first**, behind one provider-neutral
+`LlmClient` async trait, reusing the M3 `apply_ops → edit_node → recompile` path.
+Every turn is **transactional** (pre-turn snapshot, success gated on *compile* not
+reparse, roll back all touched files + derived state on failure while retaining the
+last-good `CompiledSite`). `EditOp`s are the sole edit currency; a two-tier
+addressable view (cheap whole-project outline for addressability + a verbatim slice
+for only the selection) is the token lever — never the merged file.
+
+**Locked decisions (baseline).**
+- **One object-safe `LlmClient` async trait** is the only studio↔AI seam; a
+  `ScriptedClient` fake is injected everywhere → the whole suite is offline/deterministic.
+- **Editing = tool-use with the 11-variant `EditOp` schema**; decoded ops flow through
+  the generalized apply path. Inspector + click-to-code stay untouched.
+- **Transactional turns**: snapshot → apply → **compile-gate** → rollback-all on failure
+  (the reparse-guard is *not* the compile gate — a batch can reparse yet fail to compile).
+- **Bounded self-heal** on *content* errors only (parse/compile/decode); transport,
+  rate-limit, and `max_tokens` errors are terminal and never heal.
+- **Whole-batch permission** via a pure `classify_ops`; never split an atomically-validated batch.
+- **Transport split**: pure `build_request`/`parse_response` **outside a `net` cargo
+  feature** (default `cargo test` stays hermetic); thin `reqwest` glue behind `net` on a
+  **dedicated tokio thread** bridged to GPUI's executor via a oneshot (resolves the
+  reqwest-tokio vs GPUI-smol mismatch inside the seam). `KeyStore` trait, precedence
+  keychain→env→none, key never logged or in a URL.
+- **GPUI-free orchestration**: no `&mut WfProject` across an `await`; `app.rs` pumps the
+  loop in `cx.spawn` and commits inside a synchronous `this.update`; app tests via `TestAppContext`.
+
+**Locked decisions (expansions, product-owner choices 2026-07-24).**
+- **Edit scope = multi-node, intent-driven.** The AI may edit the selected node *or* other
+  nodes the user mentioned without selecting them (the engine already targets any node by
+  id). Selection is a default context hint; **permission gating is the load-bearing guard**
+  against off-target edits.
+- **Generation = multi-file site.** One turn can emit a full multi-page/multi-file site;
+  validated by `compile_merged` over `retained ∪ new` (the only gate that resolves
+  cross-file references and catches breakage of retained files).
+- **All six providers live in M4** (Anthropic, OpenAI, Gemini, DeepSeek, Moonshot/Kimi,
+  Zhipu/GLM), collapsed to **3 wire families** (Anthropic Messages · OpenAI-compatible
+  cluster · Gemini generateContent) + a data-driven `ProviderProfile` table.
+- **Permission = auto-apply safe** (whole-batch): `SetText/SetStyle/RemoveStyle/SetArg`
+  auto-apply; any structural or modifier op holds the whole batch; **destructive
+  generation** (whole-file overwrite / replace-all on a populated project) also holds.
+  All three modes ship; default auto-apply-safe.
+
+**Pre-slice spikes — RESOLVED (2026-07-24).**
+1. **Send spike → PASS.** `CompiledSite`, `FileRange`, `anyhow::Error`, and the
+   `(CompiledSite, String, Vec<FileRange>)` tuple are all `Send + 'static` (verified by a
+   compile-time assertion). M4.4's async `Compiler` runs on `background_executor()` — **no
+   dedicated-thread fallback needed** for compilation (the transport bridge still needs its
+   own tokio thread, for the reactor).
+2. **Engine-shape spike → three findings:**
+   - **`NodeInfo` carries no element kind/text/args/modifiers** — it is `{span, path,
+     component}` where `component` is the *owner* name (`"Home"`), not the element type.
+     `build_view` derives `{kind, text, args, modifiers}` from the node's **source slice**
+     (`span.slice(&merged)`), exactly as `outline()` already does; `childIds` is derived in
+     the studio from the id/span structure. *(Optional: capture kind + a text preview into
+     `NodeInfo` during the existing `visit_nodes` walk — it already has the `&UIElement` —
+     to make `build_view` cheaper. Deferred; derive-from-slice first.)*
+   - **🔴 There is no semantic compile-gate.** `compile_studio` and all codegen return
+     `String`/`CompiledSite` (never `Result`) and are **fully permissive**: undefined
+     component refs, missing route targets, duplicate page names, and unresolved identifiers
+     all compile `OK` and only break at *runtime* in the webview (verified empirically). The
+     only real gates are lex + parse (+ `apply_edits`'s reparse-guard), whose diagnostics
+     carry **line/column, not a byte span**. → **Decision (2026-07-24): add a semantic
+     validation pass to the engine** (below). The re-slice's "reparse-OK/compile-FAIL"
+     scenarios (M4.2/M4.4/M4.5) are *validation* failures, not `compile_studio` failures.
+   - **Duplicate page/component names silently collide** (two `Page Home` → two pages with
+     colliding node ids, last-wins). The engine raises nothing today; the explicit
+     duplicate-name check moves into the new validation pass.
+
+**M4.E — Engine semantic-validation pass (prerequisite; lands in `webfluent` before M4a's
+gate-dependent slices).** Add `validate(program) -> Vec<Diagnostic>` (Diagnostics already
+carry file + 1-based line/column): undefined component references, missing `Route` page
+targets, duplicate page/component names (same-kind), and unresolved identifiers. This is the
+real, static, deterministically-testable compile-gate; it also stops `wf build` from
+silently shipping broken sites. The studio's compile path becomes **lex → parse → validate →
+`compile_studio`**, and a merged **line/column → file** mapper (count each `FileRange`'s line
+span) replaces the byte-span mapper the re-slice assumed. *Done when:* each broken-reference
+class returns a `Diagnostic` with the right line/column, a clean program returns none, and
+the studio surfaces the first diagnostic as its compile error.
+
+**Spike-driven corrections to the slices below:** the compile-gate in **M4.2/M4.4** is
+`recompile()` = parse + **`validate`** (not `compile_studio`, which never fails);
+**M4.4**'s error→file mapping is **line/column → file**, not byte-span → file;
+**M4.5**'s cross-file reference check and duplicate-name pre-check are *the `validate`
+pass* run over `retained ∪ new` (a merged parse alone never catches them); **M4.6**'s
+self-heal feeds back the `validate` `Diagnostic` (message + file-local line/column).
+
+### M4a — Offline core (fully hermetic with `ScriptedClient`; a demoable talk-to-edit + talk-to-generate product)
+
+1. **M4.0 — Neutral seam + `ScriptedClient` + `FlatEditOp` + object-root schemas + `KeyStore` + `LlmError`.**
+   The `LlmClient` trait, provider-neutral `LlmRequest/Response`, the flat edit-tool decode
+   path (`FlatEditOp → EditOp` with per-op required-field enforcement), an **object-root**
+   tool schema (`{ops:[…]}`, no `oneOf/anyOf/$ref` — Gemini-safe), `KeyStore`
+   (in-memory/env/chain) with `Secret<T>` redaction, the `LlmError` taxonomy, and the
+   6-provider `ProviderProfile` table. *Done when:* a scripted turn round-trips a batch
+   through the object-root schema into `Vec<EditOp>` offline; no schema contains
+   `oneOf/anyOf/allOf/$ref`.
+2. **M4.1 — `build_view` / `ProjectView`.** A cheap whole-project outline
+   (`{id, component, text_preview, child_ids, page}` for every node) to address *any* node,
+   plus a verbatim slice for *only* the selection neighborhood; ordered by document span,
+   byte-deterministic. *Done when:* the outline covers every node across all files, the
+   slice appears only when the selection resolves, and two calls are byte-identical.
+3. **M4.2 — Transactional multi-node/multi-file edit substrate (`edit_nodes`).** Group ops
+   by `resolve_node(op.node()).file`, stage per-file `apply_edits` **purely**, then
+   snapshot sources **and derived state (`merged`+`ranges`)**, commit, compile-gate, and
+   **roll back all** on any reparse-reject or compile failure — with `MoveNode`/overlap
+   guards. *Done when:* a reparse-OK/compile-FAIL 2-file batch rolls back both sources *and*
+   derived state, `resolve_node` still maps correctly, and a following edit commits.
+   *(Fixes the atomicity leak the review caught: `recompile()` must retain last-good
+   `{compiled, merged, ranges}` together.)*
+4. **M4.3 — Offline multi-node edit loop + whole-batch permission.** `classify_ops` over
+   multi-file batches; the three permission modes; held-batch approve/reject; `app.rs`
+   pump (decode pure → `this.update{classify → edit_nodes → reload}`). *Done when:* a mixed
+   safe+structural batch is held whole under auto-apply-safe, approve runs it atomically,
+   and the pump reloads exactly once on Ok.
+5. **M4.4 — Transactional merged-compile substrate for generation.** `compile_candidate`
+   (pure, non-mutating merge+compile of an arbitrary source map, returns ranges even on
+   error), atomic `commit`, and error→file mapping (route unique-id errors through
+   `resolve_node`; reserve `map_merged_span` for duplicate-name/span-only cases, handling a
+   separator-gap `span.start`). *Done when:* a valid 3-file cross-file set compiles and
+   addresses all files, `commit` swaps atomically, and a later failed candidate leaves
+   committed state intact. *(Send-spike gates async-Compiler vs dedicated-thread.)*
+6. **M4.5 — Multi-file generation core (happy path).** `emit_wf` object-root tool
+   (`{files:[{path,source,reason?}]}`); union blocks with last-wins dedup; wf-fenced
+   fallback only when zero tool blocks decode; **truncation gates classification
+   independently of decodability** (`MaxTokens` + no completeness signal → `Truncated`, not
+   committed, not healed); assemble `retained ∪ new`; validate per-file parse → duplicate-name
+   pre-check → `compile_candidate` over the whole set; deterministic generate-vs-edit router.
+   *Done when:* a 3-file `emit_wf` on an empty project commits 3 sources; a reparse-OK/
+   compile-FAIL set returns `Compile`; a truncated turn is `Truncated`; a dangling
+   `site_meta.entry` is rejected.
+7. **M4.6 — Cross-file bounded self-heal + destructive-generation permission + concurrency guard.**
+   Heal feedback in the model's own **file-local** coordinates (never a merged offset),
+   always carrying the proposed-path manifest; bounded by `heal_attempts`; a real
+   non-healable branch (cross-file move, budget-exhausted). Destructive generation
+   (`replace_all` on a populated project / overwriting AddFiles) is **held for review**. A
+   source **epoch** captured at snapshot and checked at commit prevents a generation commit
+   from clobbering a concurrent M3 edit. *Done when:* a missing-reference heal adds the file
+   and commits; heal is bounded exactly; a `replace_all` on a populated project is held; a
+   concurrent M3 edit during in-flight generation is not clobbered.
+
+### M4b — Live transport (pure build/parse outside the `net` gate + thin net glue; `#[ignore]` live tests gate nothing)
+
+8. **M4.7 — Family A: Anthropic** pure `build_request`/`parse_response` + recorded
+   (redacted) fixtures. System-as-blocks with `cache_control`, tool-use round-trip,
+   message-granularity mapping, structured-error-fields-only parsing, truncation-before-decode.
+9. **M4.8 — Family B: OpenAI-compatible** (OpenAI/DeepSeek/Moonshot/Zhipu) one code path
+   via data profiles: `arguments`-as-JSON-string, **model-aware `max_tokens` field**
+   (`max_completion_tokens` for o-series/gpt-5+), truncation-before-decode, 200-with-error
+   detection (GLM), split 429 (hard-quota terminal vs per-minute retryable).
+10. **M4.9 — Family C: Gemini** with the flat schema **projected** (strip the full
+    unsupported-key set, not just `oneOf`) and a guard over the *projected* bytes;
+    `functionCall`/`functionResponse` mapping with synthetic ids and `is_error`; a recorded
+    `oneOf`-rejection 400 as proof; key only in the `x-goog-api-key` header.
+11. **M4.10 — Net glue.** `TokioBridge` (dedicated tokio thread, oneshot bridge, panic
+    isolation), `LiveClient`, `RetryPolicy` (bridge retries only transport signals; a
+    200-with-error is returned for `parse_response` to classify semantically),
+    `KeyringStore` (manual/platform-verified; offline tests use in-memory/env), `make_client`
+    factory, provider/model picker + key entry wired via `cx.spawn`, and the `app.rs` pump
+    for both edit and generation turns — **no `&mut WfProject` across the `await`**.
+
+**Testing.** ~10 deterministic offline tests per slice (~110 total) using `ScriptedClient`
++ in-memory `KeyStore` + an owned `WfProject`; default `cargo test` never touches the
+network. Seam/transaction tests run the **real** `compile_studio` inline (the
+reparse-OK/compile-FAIL branch and retained-file breakage are exercised against the real
+engine). Wire tests are `build_request` goldens + **real recorded** `parse_response`
+fixtures (provenance-tagged), including a real GLM 200-with-error and a real Gemini
+`oneOf`-rejection 400, plus a no-key-in-error test per family. Live HTTP exists only in
+`#[ignore]` tests (one per family, nightly) and gates nothing.
+
+**Top risks** (each pinned to a slice + test): derived-state atomicity leak on rollback
+(M4.2); truncation slip-through when tool calls stream per file (M4.5, M4.7–4.9);
+destructive generation bypassing permission (M4.6); unverified engine assumptions
+(engine-shape spike); `CompiledSite` `Send`-ness (send spike); Gemini schema drift
+(projection); per-model `max_tokens` (M4.8); retry-seam contract for body-sourced
+`retry_after`/200-with-error (M4.10); secret leakage (header-only auth + `Secret<T>` +
+structured-error-only parsing); concurrent-edit clobber (epoch guard, M4.6).
 
 ## Milestone 5 — AI self-testing (unit + e2e)
 
