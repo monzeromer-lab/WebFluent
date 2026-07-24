@@ -428,12 +428,20 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> S
 /// static SSG paint. The JS bundle applies the same styles at hydration, but in SSG
 /// mode the pre-painted DOM is kept, so the static HTML must carry them too.
 fn style_block_decls(ui: &UIElement) -> Vec<String> {
+    use super::style_tokens::{canonical_style_prop, resolve_style_token};
     let Some(sb) = &ui.style_block else {
         return Vec::new();
     };
     sb.properties
         .iter()
-        .filter_map(|p| expr_to_static_string(&p.value).map(|v| format!("{}: {}", p.name, v)))
+        .filter_map(|p| {
+            // Apply the property aliases (radius→border-radius, shadow→box-shadow), then
+            // resolve a bare design-token keyword (`font-size: xl`) to its `var(--…)`;
+            // otherwise fall back to a static literal (quoted CSS / number).
+            let prop = canonical_style_prop(&p.name);
+            let value = resolve_style_token(&prop, &p.value).or_else(|| expr_to_static_string(&p.value))?;
+            Some(format!("{prop}: {value}"))
+        })
         .collect()
 }
 

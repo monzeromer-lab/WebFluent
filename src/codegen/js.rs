@@ -590,8 +590,7 @@ impl JsCodegen {
                     // Apply style block if present
                     if let Some(style) = &ui.style_block {
                         for prop in &style.properties {
-                            let val = self.emit_expr(&prop.value);
-                            let css_prop = to_camel_case(&prop.name);
+                            let (css_prop, val) = self.emit_style_decl(prop);
                             self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
                         }
                     }
@@ -1035,8 +1034,7 @@ impl JsCodegen {
                 // Apply style block
                 if let Some(style) = &ui.style_block {
                     for prop in &style.properties {
-                        let val = self.emit_expr(&prop.value);
-                        let css_prop = to_camel_case(&prop.name);
+                        let (css_prop, val) = self.emit_style_decl(prop);
                         self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
                     }
                     // Emit @media queries as a scoped <style> element
@@ -2273,6 +2271,23 @@ impl JsCodegen {
     }
 
     // ─── Expression emitter ──────────────────────────
+
+    /// Compile one `style { prop: value }` declaration to `(camelCaseProperty, jsValue)`.
+    ///
+    /// A bare design-token keyword (`font-size: xl`, `padding: md`) resolves to a
+    /// `"var(--…)"` string literal; property aliases (`radius`, `shadow`) map to their
+    /// real CSS property. Anything else keeps the normal expression path, so quoted
+    /// CSS, numbers, and reactive-state identifiers (`font-size: someState` → `_someState()`)
+    /// are unchanged.
+    fn emit_style_decl(&self, prop: &StyleProperty) -> (String, String) {
+        use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
+        let css_prop = canonical_style_prop(&prop.name);
+        let val = match resolve_style_token(&css_prop, &prop.value) {
+            Some(css) => format!("\"{css}\""),
+            None => self.emit_expr(&prop.value),
+        };
+        (to_camel_case(&css_prop), val)
+    }
 
     fn emit_expr(&self, expr: &Expr) -> String {
         match expr {

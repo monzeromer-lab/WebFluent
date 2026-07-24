@@ -16,6 +16,7 @@ pub mod ssg;
 pub mod pdf;
 pub mod slides;
 pub mod style;
+pub mod style_tokens;
 pub mod node_id;
 
 pub use html::generate_html;
