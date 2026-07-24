@@ -284,6 +284,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         attrs.push(a);
     }
 
+    // Per-element inline styles from a `style { }` block (e.g. inspector / AI edits).
+    // Collected here and emitted as ONE `style="…"` attribute below so a grid
+    // `columns` arg merges into the same attribute instead of producing a duplicate
+    // `style=` (HTML keeps the first and silently drops the rest).
+    let mut style_decls = style_block_decls(ui);
+
     for arg in &ui.args {
         match arg {
             Arg::Named(key, val) => {
@@ -321,7 +327,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     }
                     "columns" => {
                         if let Expr::NumberLiteral(n) = val {
-                            attrs.push(format!("style=\"grid-template-columns: repeat({}, 1fr)\"", *n as i32));
+                            style_decls.push(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
                         }
                     }
                     "visible" | "bind" | "checked" | "icon" | "span" |
@@ -356,6 +362,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     } else {
         tag
     };
+
+    // Emit the collected inline styles (style block + any grid columns) as one attr.
+    if !style_decls.is_empty() {
+        attrs.push(format!("style=\"{}\"", html_escape(&style_decls.join("; "))));
+    }
 
     let indent = ctx.indent_str();
     let attrs_str = if attrs.is_empty() {
@@ -398,12 +409,32 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
-    let mut result = format!("{}<{} class=\"{}\"{}>\n", indent, tag, class, wf);
+    let decls = style_block_decls(ui);
+    let style_attr = if decls.is_empty() {
+        String::new()
+    } else {
+        format!(" style=\"{}\"", html_escape(&decls.join("; ")))
+    };
+    let mut result = format!("{}<{} class=\"{}\"{}{}>\n", indent, tag, class, wf, style_attr);
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));
     ctx.indent -= 1;
     result.push_str(&format!("{}</{}>​\n", indent, tag));
     result
+}
+
+/// Static CSS declarations from an element's `style { }` block, for inlining as a
+/// `style="…"` attribute so per-element inspector/AI style edits appear in the
+/// static SSG paint. The JS bundle applies the same styles at hydration, but in SSG
+/// mode the pre-painted DOM is kept, so the static HTML must carry them too.
+fn style_block_decls(ui: &UIElement) -> Vec<String> {
+    let Some(sb) = &ui.style_block else {
+        return Vec::new();
+    };
+    sb.properties
+        .iter()
+        .filter_map(|p| expr_to_static_string(&p.value).map(|v| format!("{}: {}", p.name, v)))
+        .collect()
 }
 
 /// Try to resolve an expression to a static string.
