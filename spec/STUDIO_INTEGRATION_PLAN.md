@@ -1,5 +1,16 @@
 # WebFluent Studio — Mock → Product Plan
 
+> ⚠️ **SUPERSEDED (2026-07-24).** The single source of truth is the canonical
+> **`docs/IMPLEMENTATION_PLAN.md`** in the studio repo (`wf-studio`). This document
+> diverged from it on crate layout, edit model, and milestone numbering and is retired.
+> It is kept only as a **history of the engine (`webfluent`) workstream**, which is real
+> and done: **source spans, deterministic node ids + `data-wf-node`, `apply_edits`/`EditOp`,
+> and `validate_semantics` (M4.E)** — these map onto the canonical plan's §5 (W1/W2/W3/W5),
+> §4.2, §4.4, and §4.5 apply-layer. See the canonical plan's "§0 Status & Reconciliation"
+> for the crosswalk. Do **not** follow this doc's M1–M6 numbering, its studio-internal
+> `crate::ai` seam, or its `EditOp`-tool-use edit model — all three were reconciled away
+> (4-crate layout · reuse `wf-ai` · chips/review edit model).
+
 Turning WebFluent Studio from a UI mock into a working product: the user builds
 websites by talking to an AI that generates and edits **WebFluent (`.wf`)** code;
 the studio compiles it in-process and shows the result in an embedded webview;
