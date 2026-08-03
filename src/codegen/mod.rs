@@ -20,7 +20,7 @@ pub mod style_tokens;
 pub mod node_id;
 
 pub use html::generate_html;
-pub use css::generate_css;
+pub use css::{generate_css, generate_css_with};
 pub use js::JsCodegen;
 pub use ssg::render_page_html;
 pub use pdf::PdfCodegen;

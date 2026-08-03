@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use crate::error::{WebFluentError, Result};
+use crate::themes::BuiltinCss;
 
 /// The output format for the build pipeline.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -40,7 +41,8 @@ pub struct ProjectConfig {
     pub i18n: Option<I18nConfig>,
 }
 
-/// Theme configuration — name, mode, and custom design tokens.
+/// Theme configuration — name, mode, custom design tokens, and how much of the
+/// engine's built-in stylesheet to emit.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ThemeConfig {
     #[serde(default = "default_theme_name")]
@@ -51,6 +53,11 @@ pub struct ThemeConfig {
     pub extends: Option<String>,
     #[serde(default)]
     pub tokens: HashMap<String, String>,
+    /// `full` (default) ships the engine's baseline design; `structural` ships only
+    /// layout and language mechanics, for projects that supply their own design.
+    /// Absent from existing `wf.json` files, so they keep building as before.
+    #[serde(default)]
+    pub builtin: BuiltinCss,
 }
 
 /// Build pipeline configuration — output directory, minification, SSG, and PDF settings.
@@ -242,6 +249,7 @@ impl Default for ThemeConfig {
             mode: default_theme_mode(),
             extends: None,
             tokens: HashMap::new(),
+            builtin: BuiltinCss::default(),
         }
     }
 }

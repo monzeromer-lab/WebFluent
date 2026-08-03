@@ -10,7 +10,7 @@
 use std::collections::HashMap;
 use crate::parser::ast::{ComponentDecl, Declaration, Program, Statement};
 use crate::config::ProjectConfig;
-use crate::codegen::{generate_css, JsCodegen};
+use crate::codegen::{generate_css_with, JsCodegen};
 use crate::codegen::node_id::{build_node_map, NodeMap};
 use crate::codegen::ssg::render_page_html_studio;
 
@@ -48,7 +48,11 @@ pub fn compile_studio(
 ) -> CompiledSite {
     let node_map = build_node_map(program);
 
-    let css = generate_css(&config.theme.name, &config.theme.tokens);
+    let css = generate_css_with(
+        &config.theme.name,
+        &config.theme.tokens,
+        config.theme.builtin,
+    );
 
     let mut js_gen = JsCodegen::new();
     if let Some(i18n) = &config.i18n {
