@@ -1052,40 +1052,10 @@ impl Parser {
         if matches!(self.current_type(), TokenType::Success | TokenType::Error | TokenType::Loading) {
             return true;
         }
+        // The vocabulary lives in `parser::vocabulary` as data (one source of
+        // truth for the parser, the lint and the LSP), not as a match arm here.
         if let TokenType::Identifier(name) = self.current_type() {
-            matches!(name.as_str(),
-                // Size
-                "small" | "medium" | "large" |
-                // Color
-                "primary" | "secondary" | "success" | "danger" | "warning" | "info" |
-                // Shape
-                "rounded" | "pill" | "square" |
-                // Elevation
-                "flat" | "elevated" | "outlined" |
-                // Width
-                "full" | "fit" |
-                // Text
-                "bold" | "italic" | "underline" | "uppercase" | "lowercase" |
-                // Alignment
-                "left" | "center" | "right" |
-                // Typography
-                "heading" | "subtitle" | "muted" |
-                // Heading levels
-                "h1" | "h2" | "h3" | "h4" | "h5" | "h6" |
-                // Other
-                "dismissible" | "block" | "bordered" | "controls" | "autoplay" |
-                // Input types
-                "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
-                "date" | "time" | "datetime" | "color" |
-                // Button types
-                "submit" | "reset" |
-                // Animation modifiers
-                "fadeIn" | "fadeOut" | "slideUp" | "slideDown" |
-                "slideLeft" | "slideRight" | "scaleIn" | "scaleOut" |
-                "bounce" | "shake" | "pulse" | "spin" |
-                // Animation speed
-                "fast" | "slow"
-            )
+            crate::parser::vocabulary::is_modifier_keyword(name)
         } else {
             false
         }

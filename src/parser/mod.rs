@@ -5,6 +5,8 @@
 
 pub mod ast;
 pub mod parser;
+pub mod vocabulary;
 
 pub use ast::*;
 pub use parser::Parser;
+pub use vocabulary::{MODIFIER_KEYWORDS, is_modifier_keyword};

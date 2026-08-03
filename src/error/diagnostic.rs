@@ -140,3 +140,40 @@ impl fmt::Display for A11yWarning {
         )
     }
 }
+
+/// A vocabulary warning (studio ask A-1): a bare word in argument position that
+/// resolves to nothing — not a modifier, not anything in scope — and therefore
+/// does nothing, silently. Warning severity by construction: it has its own
+/// type and entry point (`lint_vocabulary`) precisely so it cannot fail a
+/// compile that succeeds today; promotion to a gate error is a separate,
+/// later decision once existing projects are clean.
+#[derive(Debug, Clone, PartialEq)]
+pub struct VocabWarning {
+    /// Rule identifier (`"V01"`: dead bare-word argument).
+    pub rule_id: String,
+    /// Human-readable warning message.
+    pub message: String,
+    /// Source file path.
+    pub file: String,
+    /// 1-based line number.
+    pub line: usize,
+    /// 1-based column number.
+    pub column: usize,
+    /// Suggested fix ("did you mean `outlined`?"), when something is close
+    /// enough to suggest.
+    pub hint: Option<String>,
+}
+
+impl fmt::Display for VocabWarning {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "  Warning [{}]: {} at {}:{}:{}",
+            self.rule_id, self.message, self.file, self.line, self.column
+        )?;
+        if let Some(hint) = &self.hint {
+            write!(f, "\n    {}", hint)?;
+        }
+        Ok(())
+    }
+}
