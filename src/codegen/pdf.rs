@@ -756,7 +756,6 @@ impl PdfCodegen {
         let fs = self.current_font_size;
         let lh = fs * 1.5;
         let df = self.default_font.clone();
-        let ft = self.font_tag(&df);
         let indent = 16.0;
 
         for (idx, child) in ui.children.iter().enumerate() {
