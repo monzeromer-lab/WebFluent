@@ -912,7 +912,7 @@ checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
 
 [[package]]
 name = "webfluent"
-version = "0.5.0-alpha"
+version = "1.0.0"
 dependencies = [
  "clap",
  "serde",
