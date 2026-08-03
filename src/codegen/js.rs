@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::parser::ast::*;
+use crate::codegen::builtin::{builtin_to_html, heading_tag, input_type, is_void, modifier_to_class};
 use crate::codegen::node_id::NodeMap;
 use crate::runtime;
 
@@ -712,7 +713,14 @@ impl JsCodegen {
                     _ => {}
                 }
 
-                let (tag, class) = builtin_to_html(name);
+                let (base_tag, class) = builtin_to_html(name);
+                // A heading's level is part of the document outline, so it has to
+                // reach the tag; a class cannot express it.
+                let tag = if name == "Heading" {
+                    heading_tag(&ui.modifiers)
+                } else {
+                    base_tag
+                };
 
                 // Collect attributes
                 let mut attrs = Vec::new();
@@ -837,17 +845,10 @@ impl JsCodegen {
 
                 // Handle input type modifiers
                 for m in &ui.modifiers {
-                    match m.as_str() {
-                        "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
-                        "date" | "time" | "datetime" | "color" => {
-                            let t = if m == "datetime" { "datetime-local" } else { m.as_str() };
-                            attrs.push(format!("type: \"{}\"", t));
-                        }
-                        "submit" | "reset" => {
-                            attrs.push(format!("type: \"{}\"", m));
-                        }
-                        "required" => attrs.push("required: true".to_string()),
-                        _ => {}
+                    if let Some(t) = input_type(m) {
+                        attrs.push(format!("type: \"{}\"", t));
+                    } else if m == "required" {
+                        attrs.push("required: true".to_string());
                     }
                 }
 
@@ -897,6 +898,17 @@ impl JsCodegen {
                     }
                 }
 
+                // A void element cannot hold text. `WF.h("hr", {}, "label")` asks
+                // the runtime to append into a node that takes no children, and
+                // the text is simply lost; carry it as the accessible name.
+                if is_void(tag) {
+                    if let Some(text) = inner_text.take() {
+                        if !attrs.iter().any(|a| a.starts_with("alt:") || a.starts_with("title:")) {
+                            attrs.push(format!("title: {}", text));
+                        }
+                    }
+                }
+
                 // Studio: stamp the node id on the element's root. Injecting here
                 // covers the standard path and every special emitter that reuses
                 // `attrs`/`attrs_str` (Modal, Switch, Checkbox, Dropdown, Spacer).
@@ -910,30 +922,35 @@ impl JsCodegen {
                     format!("{{ {} }}", attrs.join(", "))
                 };
 
-                // Special components with complex structure
-                match name.as_str() {
+                // Components with a structure too complex for the generic path
+                // build their own subtree and append it themselves. They still
+                // have to honour the author's `style { }` and `transition { }`
+                // blocks, so they fall through to the shared tail below rather
+                // than returning — applying those blocks only on the generic
+                // path is what used to drop styling on nineteen components.
+                let built_by_special_emitter = match name.as_str() {
                     "Modal" | "Dialog" => {
                         self.emit_modal_dialog(name, &var, &attrs_str, ui, parent);
-                        return;
+                        true
                     }
                     "Tabs" => {
                         self.emit_tabs(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Switch" => {
                         self.emit_switch(&var, &attrs, ui, parent);
-                        return;
+                        true
                     }
                     "Checkbox" | "Radio" => {
                         self.emit_check_radio(name, &var, &attrs, ui, parent);
-                        return;
+                        true
                     }
                     "Dropdown" | "Menu" => {
                         self.emit_dropdown_menu(name, &var, &attrs, ui, parent);
-                        return;
+                        true
                     }
                     "Toast" => {
-                        // Toast is imperative, not DOM-based
+                        // Imperative, not DOM-based: there is no element to style.
                         if let Some(text) = &inner_text {
                             let variant = ui.modifiers.first().map(|m| m.as_str()).unwrap_or("info");
                             self.emit_line(&format!("WF.showToast({}, \"{}\");", text, variant));
@@ -943,49 +960,54 @@ impl JsCodegen {
                     "Spacer" => {
                         self.emit_line(&format!("const {} = WF.h(\"{}\", {});", var, tag, attrs_str));
                         self.emit_line(&format!("{}.appendChild({});", parent, var));
-                        return;
+                        true
                     }
                     "Sidebar" => {
                         self.emit_sidebar(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Breadcrumb" => {
                         self.emit_breadcrumb(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Tooltip" => {
                         self.emit_tooltip(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Avatar" => {
                         self.emit_avatar(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Skeleton" => {
                         self.emit_skeleton(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Carousel" => {
                         self.emit_carousel(&var, ui, parent);
-                        return;
+                        true
                     }
                     "IconButton" => {
                         self.emit_icon_button(&var, ui, parent);
-                        return;
+                        true
                     }
                     "Slider" => {
                         self.emit_slider(&var, ui, parent);
-                        return;
+                        true
                     }
                     "DatePicker" => {
                         self.emit_datepicker(&var, ui, parent);
-                        return;
+                        true
                     }
                     "FileUpload" => {
                         self.emit_file_upload(&var, ui, parent);
-                        return;
+                        true
                     }
-                    _ => {}
+                    _ => false,
+                };
+
+                if built_by_special_emitter {
+                    self.emit_style_and_transition(&var, ui);
+                    return;
                 }
 
                 // Standard element creation
@@ -1031,55 +1053,7 @@ impl JsCodegen {
                     }
                 }
 
-                // Apply style block
-                if let Some(style) = &ui.style_block {
-                    for prop in &style.properties {
-                        let (css_prop, val) = self.emit_style_decl(prop);
-                        self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
-                    }
-                    // Emit @media queries as a scoped <style> element
-                    if !style.media_queries.is_empty() {
-                        let scope_var = self.fresh_var();
-                        let scope_class = scope_var.replace("_e", "wf-s");
-                        self.emit_line(&format!("{}.classList.add(\"{}\");", var, scope_class));
-                        let mut css = String::new();
-                        for mq in &style.media_queries {
-                            css.push_str(&format!("{} {{ .{} {{ ", mq.condition, scope_class));
-                            for prop in &mq.properties {
-                                let val = self.emit_expr(&prop.value);
-                                let val_str = val.trim_matches('"');
-                                css.push_str(&format!("{}: {}; ", prop.name, val_str));
-                            }
-                            css.push_str("} } ");
-                        }
-                        self.emit_line(&format!(
-                            "{{ const _s = document.createElement('style'); _s.textContent = {}; document.head.appendChild(_s); }}",
-                            format!("\"{}\"", css.replace('"', "\\\""))
-                        ));
-                    }
-                }
-
-                // Apply transition block
-                if let Some(transition) = &ui.transition_block {
-                    let transitions: Vec<String> = transition.properties.iter().map(|p| {
-                        let easing = p.easing.as_deref().map(|e| match e {
-                            "ease" => "ease",
-                            "linear" => "linear",
-                            "easeIn" => "ease-in",
-                            "easeOut" => "ease-out",
-                            "easeInOut" => "ease-in-out",
-                            "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                            "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-                            "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
-                            other => other,
-                        }).unwrap_or("ease");
-                        format!("{} {} {}", p.property, p.duration, easing)
-                    }).collect();
-                    self.emit_line(&format!(
-                        "{}.style.transition = \"{}\";",
-                        var, transitions.join(", ")
-                    ));
-                }
+                self.emit_style_and_transition(&var, ui);
 
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
@@ -1115,6 +1089,72 @@ impl JsCodegen {
         }
     }
 
+    /// The class attribute for a built-in's root: its base class plus every
+    /// modifier class.
+    ///
+    /// The special emitters below used to hardcode the bare base class, so a
+    /// `Modal(large)` or a `Sidebar(elevated)` lost its variant while the same
+    /// modifier on a `Card` worked.
+    fn class_attr(&self, name: &str, ui: &UIElement) -> String {
+        let (_, base) = builtin_to_html(name);
+        crate::codegen::builtin::class_list(base, &ui.modifiers).join(" ")
+    }
+
+    /// Apply an element's `style { }` and `transition { }` blocks to `var`.
+    ///
+    /// Every path that creates an element root calls this — the generic one and
+    /// each special emitter — so an author's styling reaches a `Modal` or a
+    /// `Slider` as surely as it reaches a `Card`.
+    fn emit_style_and_transition(&mut self, var: &str, ui: &UIElement) {
+        if let Some(style) = &ui.style_block {
+            for prop in &style.properties {
+                let (css_prop, val) = self.emit_style_decl(prop);
+                self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
+            }
+            // Emit @media queries as a scoped <style> element
+            if !style.media_queries.is_empty() {
+                let scope_var = self.fresh_var();
+                let scope_class = scope_var.replace("_e", "wf-s");
+                self.emit_line(&format!("{}.classList.add(\"{}\");", var, scope_class));
+                let mut css = String::new();
+                for mq in &style.media_queries {
+                    css.push_str(&format!("{} {{ .{} {{ ", mq.condition, scope_class));
+                    for prop in &mq.properties {
+                        let val = self.emit_expr(&prop.value);
+                        let val_str = val.trim_matches('"');
+                        css.push_str(&format!("{}: {}; ", prop.name, val_str));
+                    }
+                    css.push_str("} } ");
+                }
+                self.emit_line(&format!(
+                    "{{ const _s = document.createElement('style'); _s.textContent = \"{}\"; document.head.appendChild(_s); }}",
+                    css.replace('"', "\\\"")
+                ));
+            }
+        }
+
+        if let Some(transition) = &ui.transition_block {
+            let transitions: Vec<String> = transition.properties.iter().map(|p| {
+                let easing = p.easing.as_deref().map(|e| match e {
+                    "ease" => "ease",
+                    "linear" => "linear",
+                    "easeIn" => "ease-in",
+                    "easeOut" => "ease-out",
+                    "easeInOut" => "ease-in-out",
+                    "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                    "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+                    "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
+                    other => other,
+                }).unwrap_or("ease");
+                format!("{} {} {}", p.property, p.duration, easing)
+            }).collect();
+            self.emit_line(&format!(
+                "{}.style.transition = \"{}\";",
+                var, transitions.join(", ")
+            ));
+        }
+    }
+
     // ─── Special component emitters ──────────────────
 
     fn emit_modal_dialog(&mut self, name: &str, var: &str, _attrs_str: &str, ui: &UIElement, parent: &str) {
@@ -1135,7 +1175,10 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, class, self.wf_node_inline(ui)));
+        // The root carries the modifier classes too; `class` stays the bare base
+        // because the sub-part classes (`__content`, `__header`) derive from it.
+        let root_classes = self.class_attr(name, ui);
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, root_classes, self.wf_node_inline(ui)));
 
         let content_var = self.fresh_var();
         let content_class = format!("{}__content", class);
@@ -1188,7 +1231,7 @@ impl JsCodegen {
         if let Some(state_name) = visible_state {
             self.emit_line(&format!(
                 "WF.effect(() => {{ {}.className = _{}() ? '{} open' : '{}'; }});",
-                var, state_name, class, class
+                var, state_name, root_classes, root_classes
             ));
         }
 
@@ -1196,7 +1239,7 @@ impl JsCodegen {
     }
 
     fn emit_tabs(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tabs\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Tabs", ui), self.wf_node_inline(ui)));
         let nav_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tabs__nav\" }});", nav_var));
 
@@ -1259,7 +1302,7 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"wf-switch\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"{}\"{} }});", var, self.class_attr("Switch", ui), self.wf_node_inline(ui)));
 
         if let Some(state) = &bind_var {
             let input_var = self.fresh_var();
@@ -1286,7 +1329,6 @@ impl JsCodegen {
 
     fn emit_check_radio(&mut self, name: &str, var: &str, _attrs: &[String], ui: &UIElement, parent: &str) {
         let input_type = if name == "Checkbox" { "checkbox" } else { "radio" };
-        let class = if name == "Checkbox" { "wf-checkbox" } else { "wf-radio" };
         let wf = self.wf_node_inline(ui);
 
         let bind_var = ui.args.iter().find_map(|a| {
@@ -1310,7 +1352,12 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"{}\"{} }});", var, class, wf));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"label\", {{ className: \"{}\"{} }});",
+            var,
+            self.class_attr(name, ui),
+            wf
+        ));
 
         let input_var = self.fresh_var();
         let mut input_attrs = format!("type: \"{}\"", input_type);
@@ -1371,11 +1418,12 @@ impl JsCodegen {
             }
         }).unwrap_or_else(|| "\"Menu\"".to_string());
 
+        let root_classes = self.class_attr(name, ui);
         let open_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.signal(false);", open_var));
         self.emit_line(&format!(
             "const {} = WF.h(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\"{} }});",
-            var, open_var, class, class, self.wf_node_inline(ui)
+            var, open_var, root_classes, root_classes, self.wf_node_inline(ui)
         ));
 
         let trigger_var = self.fresh_var();
@@ -1405,7 +1453,7 @@ impl JsCodegen {
     }
 
     fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"wf-sidebar\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"{}\"{} }});", var, self.class_attr("Sidebar", ui), self.wf_node_inline(ui)));
 
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
@@ -1482,7 +1530,7 @@ impl JsCodegen {
     }
 
     fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"wf-breadcrumb\", \"aria-label\": \"breadcrumb\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"{}\", \"aria-label\": \"breadcrumb\"{} }});", var, self.class_attr("Breadcrumb", ui), self.wf_node_inline(ui)));
 
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
@@ -1527,7 +1575,7 @@ impl JsCodegen {
             } else { None }
         }).unwrap_or_else(|| "\"\"".to_string());
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tooltip\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Tooltip", ui), self.wf_node_inline(ui)));
 
         // Render children (the trigger element)
         for child in &ui.children {
@@ -1630,7 +1678,7 @@ impl JsCodegen {
     }
 
     fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Carousel", ui), self.wf_node_inline(ui)));
 
         let track_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel__track\" }});", track_var));
@@ -1788,7 +1836,7 @@ impl JsCodegen {
             } else { None }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-slider\"{} }});", var, self.wf_node_inline(ui)));
+        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Slider", ui), self.wf_node_inline(ui)));
 
         if let Some(l) = &label {
             let label_var = self.fresh_var();
@@ -1852,8 +1900,16 @@ impl JsCodegen {
             } else { None }
         });
 
+        // Root on the component's own class, not the generic form-group: the
+        // static renderers key on `wf-datepicker`, and hydration has to find the
+        // same root they painted.
         let wrapper_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-form-group\"{} }});", wrapper_var, self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            wrapper_var,
+            self.class_attr("DatePicker", ui),
+            self.wf_node_inline(ui)
+        ));
 
         if let Some(l) = &label {
             let label_var = self.fresh_var();
@@ -1904,8 +1960,8 @@ impl JsCodegen {
 
         let wrapper_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"wf-file-upload\"{} }});",
-            wrapper_var, self.wf_node_inline(ui)
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            wrapper_var, self.class_attr("FileUpload", ui), self.wf_node_inline(ui)
         ));
 
         if let Some(l) = &label {
@@ -2581,130 +2637,6 @@ impl JsCodegen {
 }
 
 // ─── Utility functions ──────────────────────────────────
-
-fn builtin_to_html(name: &str) -> (&str, &str) {
-    match name {
-        "Container" => ("div", "wf-container"),
-        "Row" => ("div", "wf-row"),
-        "Column" => ("div", "wf-col"),
-        "Grid" => ("div", "wf-grid"),
-        "Stack" => ("div", "wf-stack"),
-        "Spacer" => ("div", "wf-spacer"),
-        "Divider" => ("hr", "wf-divider"),
-        "Navbar" => ("nav", "wf-navbar"),
-        "Sidebar" => ("aside", "wf-sidebar"),
-        "Breadcrumb" => ("nav", "wf-breadcrumb"),
-        "Link" => ("a", "wf-link"),
-        "Menu" => ("div", "wf-menu"),
-        "Tabs" => ("div", "wf-tabs"),
-        "TabPage" => ("div", "wf-tab-page"),
-        "Card" => ("div", "wf-card"),
-        "Table" => ("table", "wf-table"),
-        "Thead" => ("thead", ""),
-        "Tbody" => ("tbody", ""),
-        "Trow" => ("tr", ""),
-        "Tcell" => ("td", ""),
-        "List" => ("ul", "wf-list"),
-        "Badge" => ("span", "wf-badge"),
-        "Avatar" => ("div", "wf-avatar"),
-        "Tooltip" => ("div", "wf-tooltip"),
-        "Tag" => ("span", "wf-tag"),
-        "Input" => ("input", "wf-input"),
-        "Select" => ("select", "wf-select"),
-        "Option" => ("option", ""),
-        "Checkbox" => ("label", "wf-checkbox"),
-        "Radio" => ("label", "wf-radio"),
-        "Switch" => ("label", "wf-switch"),
-        "Slider" => ("input", "wf-slider"),
-        "DatePicker" => ("input", "wf-datepicker"),
-        "FileUpload" => ("input", "wf-file-upload"),
-        "Form" => ("form", "wf-form"),
-        "Alert" => ("div", "wf-alert"),
-        "Toast" => ("div", "wf-toast"),
-        "Modal" => ("dialog", "wf-modal"),
-        "Dialog" => ("dialog", "wf-dialog"),
-        "Spinner" => ("div", "wf-spinner"),
-        "Progress" => ("progress", "wf-progress"),
-        "Skeleton" => ("div", "wf-skeleton"),
-        "Button" => ("button", "wf-btn"),
-        "IconButton" => ("button", "wf-icon-btn"),
-        "ButtonGroup" => ("div", "wf-btn-group"),
-        "Dropdown" => ("div", "wf-dropdown"),
-        "Image" => ("img", "wf-image"),
-        "Video" => ("video", "wf-video"),
-        "Icon" => ("i", "wf-icon"),
-        "Carousel" => ("div", "wf-carousel"),
-        "Text" => ("p", "wf-text"),
-        "Heading" => ("h2", "wf-heading"),
-        "Code" => ("code", "wf-code"),
-        "Blockquote" => ("blockquote", "wf-blockquote"),
-        "Router" => ("div", "wf-router"),
-        "Route" => ("div", ""),
-        _ => ("div", ""),
-    }
-}
-
-fn modifier_to_class(base_class: &str, modifier: &str) -> String {
-    match modifier {
-        // Size
-        "small" => format!("{}--small", base_class),
-        "medium" => String::new(), // default, no class needed
-        "large" => format!("{}--large", base_class),
-        // Color
-        "primary" => format!("{}--primary", base_class),
-        "secondary" => format!("{}--secondary", base_class),
-        "success" => format!("{}--success", base_class),
-        "danger" => format!("{}--danger", base_class),
-        "warning" => format!("{}--warning", base_class),
-        "info" => format!("{}--info", base_class),
-        // Shape
-        "rounded" => format!("{}--rounded", base_class),
-        "pill" => format!("{}--pill", base_class),
-        "square" => format!("{}--square", base_class),
-        // Elevation
-        "flat" => format!("{}--flat", base_class),
-        "elevated" => format!("{}--elevated", base_class),
-        "outlined" => format!("{}--outlined", base_class),
-        // Width
-        "full" => format!("{}--full", base_class),
-        "fit" => format!("{}--fit", base_class),
-        // Text
-        "bold" => "wf-text--bold".to_string(),
-        "italic" => "wf-text--italic".to_string(),
-        "underline" => "wf-text--underline".to_string(),
-        "uppercase" => "wf-text--uppercase".to_string(),
-        "lowercase" => "wf-text--lowercase".to_string(),
-        // Alignment
-        "left" => "wf-text--left".to_string(),
-        "center" => "wf-text--center".to_string(),
-        "right" => "wf-text--right".to_string(),
-        // Typography
-        "heading" => "wf-text--heading".to_string(),
-        "subtitle" => "wf-text--subtitle".to_string(),
-        "muted" => "wf-text--muted".to_string(),
-        // Heading levels - change the tag via a class
-        "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => format!("wf-heading--{}", modifier),
-        // Dismissible
-        "dismissible" => format!("{}--dismissible", base_class),
-        // Block
-        "block" => format!("{}--block", base_class),
-        "bordered" => format!("{}--bordered", base_class),
-        // Fluid
-        "fluid" => format!("{}--fluid", base_class),
-        // Don't add input type modifiers as classes
-        "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
-        "date" | "time" | "datetime" | "color" | "submit" | "reset" | "required" |
-        "controls" | "autoplay" => String::new(),
-        // Animation modifiers
-        "fadeIn" | "fadeOut" | "slideUp" | "slideDown" |
-        "slideLeft" | "slideRight" | "scaleIn" | "scaleOut" |
-        "bounce" | "shake" | "pulse" | "spin" => format!("wf-animate-{}", modifier),
-        // Animation speed
-        "fast" => "wf-animate--fast".to_string(),
-        "slow" => "wf-animate--slow".to_string(),
-        _ => String::new(),
-    }
-}
 
 fn is_reactive_expr(expr_str: &str) -> bool {
     // Check for signal access pattern: _identifier()

@@ -8,7 +8,12 @@
 //! - [`pdf`] — generates PDF documents with layout, tables, and typography
 //! - [`slides`] — generates PDF slide decks (one Slide = one page)
 //! - [`node_id`] — deterministic node identity (`data-wf-node`) for the studio
+//!
+//! [`builtin`] holds the built-in component table every renderer reads, so the
+//! SPA bundle, the static paint and the template engine cannot disagree about
+//! what a `Card` or a `Heading` is.
 
+pub mod builtin;
 pub mod html;
 pub mod css;
 pub mod js;

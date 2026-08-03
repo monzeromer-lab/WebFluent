@@ -223,6 +223,9 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-form-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text); margin-bottom: var(--spacing-xs); display: block; }
 .wf-form-group { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 
+/* ─── Date Picker ───────────────────────────────────── */
+.wf-datepicker { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+
 /* ─── File Upload ──────────────────────────────────── */
 .wf-file-upload { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 .wf-file-upload input[type="file"] { padding: var(--spacing-sm); border: 2px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); cursor: pointer; transition: border-color var(--transition-fast); }

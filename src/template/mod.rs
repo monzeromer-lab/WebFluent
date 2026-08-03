@@ -4,6 +4,7 @@ use serde_json::Value;
 use crate::lexer::Lexer;
 use crate::parser::{Parser, Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart, Arg};
 use crate::parser::ast::{IfStmt, ForStmt};
+use crate::codegen::builtin::{builtin_to_html, class_list, heading_tag, input_type};
 use crate::codegen::css::generate_css;
 use crate::codegen::pdf::PdfCodegen;
 use crate::codegen::slides::SlidesCodegen;
@@ -552,23 +553,24 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
 }
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
-    let (tag, base_class) = builtin_to_html_tag(name);
+    let (tag, base_class) = builtin_to_html(name);
+    let class_str = class_list(base_class, &ui.modifiers).join(" ");
 
-    // Build class string
-    let mut classes = vec![base_class.to_string()];
-    for m in &ui.modifiers {
-        let mc = modifier_to_css_class(base_class, m);
-        if !mc.is_empty() {
-            classes.push(mc);
-        }
-    }
-    let class_str = classes.iter().filter(|c| !c.is_empty()).cloned().collect::<Vec<_>>().join(" ");
-
-    // Special handling
+    // Special handling. These build their tag inline, so they carry the author's
+    // `style { }` block themselves — returning early used to drop it.
+    let style_attr = style_block_attr(ui, ctx);
     match name {
-        "Spacer" => return format!("{}<div class=\"{}\"></div>\n", ctx.indent_str(), class_str),
-        "Divider" => return format!("{}<hr class=\"{}\">\n", ctx.indent_str(), class_str),
-        "Spinner" => return format!("{}<div class=\"{}\"></div>\n", ctx.indent_str(), class_str),
+        "Spacer" | "Spinner" => {
+            return format!("{}<div class=\"{}\"{}></div>\n", ctx.indent_str(), class_str, style_attr)
+        }
+        "Divider" => {
+            return format!("{}<hr class=\"{}\"{}>\n", ctx.indent_str(), class_str, style_attr)
+        }
+        // A wrapper carrying the component class, an optional label, and the
+        // input — the same shape the SPA and SSG renderers build.
+        "Slider" | "DatePicker" | "FileUpload" => {
+            return render_labelled_input(name, &class_str, &style_attr, ui, ctx);
+        }
         "Toast" | "Router" | "Route" => return String::new(),
         _ => {}
     }
@@ -640,16 +642,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
 
     // Input type from modifiers
     for m in &ui.modifiers {
-        match m.as_str() {
-            "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
-            "date" | "time" | "color" => {
-                let t = if m == "datetime" { "datetime-local" } else { m.as_str() };
-                attrs.push(format!("type=\"{}\"", t));
-            }
-            "block" if name == "Code" => {
-                // Already handled via class
-            }
-            _ => {}
+        if let Some(t) = input_type(m) {
+            attrs.push(format!("type=\"{}\"", t));
         }
     }
 
@@ -666,12 +660,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     let has_text = text_content.is_some();
 
     if !has_children && !has_text {
-        return format!("{}<{}{}></{}>​\n", indent, actual_tag, attrs_str, actual_tag);
+        return format!("{}<{}{}></{}>\n", indent, actual_tag, attrs_str, actual_tag);
     }
 
     if let Some(text) = &text_content {
         if !has_children {
-            return format!("{}<{}{}>{}</{}>​\n", indent, actual_tag, attrs_str, html_escape(text), actual_tag);
+            return format!("{}<{}{}>{}</{}>\n", indent, actual_tag, attrs_str, html_escape(text), actual_tag);
         }
     }
 
@@ -684,8 +678,100 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));
     ctx.indent -= 1;
-    result.push_str(&format!("{}</{}>​\n", indent, actual_tag));
+    result.push_str(&format!("{}</{}>\n", indent, actual_tag));
     result
+}
+
+/// An element's `style { }` block as a ready-to-append ` style="…"` attribute,
+/// or the empty string if it has none.
+fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext) -> String {
+    let Some(block) = &ui.style_block else {
+        return String::new();
+    };
+    let decls: Vec<String> = block
+        .properties
+        .iter()
+        .map(|p| format!("{}: {}", p.name, value_to_string(&ctx.eval_expr(&p.value))))
+        .collect();
+    if decls.is_empty() {
+        String::new()
+    } else {
+        format!(" style=\"{}\"", html_escape(&decls.join("; ")))
+    }
+}
+
+/// `Slider`, `DatePicker` and `FileUpload`: a wrapper carrying the component
+/// class, an optional `<label>`, and the input itself — the shape every renderer
+/// agrees on.
+fn render_labelled_input(
+    name: &str,
+    class_str: &str,
+    style_attr: &str,
+    ui: &UIElement,
+    ctx: &mut RenderContext,
+) -> String {
+    let named = |key: &str| -> Option<String> {
+        let arg = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == key => Some(v.clone()),
+            _ => None,
+        })?;
+        Some(value_to_string(&ctx.eval_expr(&arg)))
+    };
+
+    let indent = ctx.indent_str();
+    let label = named("label");
+    let (min, max, step, accept, value) = (
+        named("min"),
+        named("max"),
+        named("step"),
+        named("accept"),
+        named("value"),
+    );
+
+    let mut out = format!("{}<div class=\"{}\"{}>\n", indent, class_str, style_attr);
+    if let Some(l) = label {
+        out.push_str(&format!(
+            "{}    <label class=\"wf-form-label\">{}</label>\n",
+            indent,
+            html_escape(&l)
+        ));
+    }
+
+    let mut attrs = match name {
+        "Slider" => vec![
+            "type=\"range\"".to_string(),
+            format!("min=\"{}\"", min.clone().unwrap_or_else(|| "0".into())),
+            format!("max=\"{}\"", max.clone().unwrap_or_else(|| "100".into())),
+            format!("step=\"{}\"", step.unwrap_or_else(|| "1".into())),
+        ],
+        "DatePicker" => {
+            let mut a = vec!["type=\"date\"".to_string(), "class=\"wf-input\"".to_string()];
+            if let Some(v) = min {
+                a.push(format!("min=\"{}\"", html_escape(&v)));
+            }
+            if let Some(v) = max {
+                a.push(format!("max=\"{}\"", html_escape(&v)));
+            }
+            a
+        }
+        _ => {
+            let mut a = vec!["type=\"file\"".to_string(), "class=\"wf-input\"".to_string()];
+            if let Some(v) = accept {
+                a.push(format!("accept=\"{}\"", html_escape(&v)));
+            }
+            a
+        }
+    };
+    if let Some(v) = value {
+        attrs.push(format!("value=\"{}\"", html_escape(&v)));
+    }
+    if ui.modifiers.iter().any(|m| m == "multiple") {
+        attrs.push("multiple".to_string());
+    }
+
+    out.push_str(&format!("{}    <input {}>\n", indent, attrs.join(" ")));
+    out.push_str(&format!("{}</div>\n", indent));
+    out
 }
 
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
@@ -694,7 +780,7 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));
     ctx.indent -= 1;
-    result.push_str(&format!("{}</{}>​\n", indent, tag));
+    result.push_str(&format!("{}</{}>\n", indent, tag));
     result
 }
 
@@ -903,21 +989,6 @@ fn html_escape(s: &str) -> String {
      .replace('\u{FFFF}', "}")
 }
 
-fn heading_tag(modifiers: &[String]) -> &'static str {
-    for m in modifiers {
-        match m.as_str() {
-            "h1" => return "h1",
-            "h2" => return "h2",
-            "h3" => return "h3",
-            "h4" => return "h4",
-            "h5" => return "h5",
-            "h6" => return "h6",
-            _ => {}
-        }
-    }
-    "h2"
-}
-
 fn camel_to_kebab(s: &str) -> String {
     let mut result = String::new();
     for (i, ch) in s.chars().enumerate() {
@@ -927,105 +998,4 @@ fn camel_to_kebab(s: &str) -> String {
         result.push(ch.to_lowercase().next().unwrap());
     }
     result
-}
-
-fn builtin_to_html_tag(name: &str) -> (&'static str, &'static str) {
-    match name {
-        "Container" => ("div", "wf-container"),
-        "Row" => ("div", "wf-row"),
-        "Column" => ("div", "wf-col"),
-        "Grid" => ("div", "wf-grid"),
-        "Stack" => ("div", "wf-stack"),
-        "Spacer" => ("div", "wf-spacer"),
-        "Divider" => ("hr", "wf-divider"),
-        "Navbar" => ("nav", "wf-navbar"),
-        "Sidebar" => ("aside", "wf-sidebar"),
-        "Breadcrumb" => ("nav", "wf-breadcrumb"),
-        "Link" => ("a", "wf-link"),
-        "Menu" => ("div", "wf-menu"),
-        "Tabs" => ("div", "wf-tabs"),
-        "TabPage" => ("div", "wf-tab-page"),
-        "Card" => ("div", "wf-card"),
-        "Table" => ("table", "wf-table"),
-        "Thead" => ("thead", ""),
-        "Tbody" => ("tbody", ""),
-        "Trow" => ("tr", ""),
-        "Tcell" => ("td", ""),
-        "List" => ("ul", "wf-list"),
-        "Badge" => ("span", "wf-badge"),
-        "Avatar" => ("div", "wf-avatar"),
-        "Tooltip" => ("div", "wf-tooltip"),
-        "Tag" => ("span", "wf-tag"),
-        "Input" => ("input", "wf-input"),
-        "Select" => ("select", "wf-select"),
-        "Option" => ("option", ""),
-        "Checkbox" => ("label", "wf-checkbox"),
-        "Radio" => ("label", "wf-radio"),
-        "Switch" => ("label", "wf-switch"),
-        "Slider" => ("input", "wf-slider"),
-        "Form" => ("form", "wf-form"),
-        "Alert" => ("div", "wf-alert"),
-        "Modal" => ("div", "wf-modal"),
-        "Dialog" => ("div", "wf-dialog"),
-        "Spinner" => ("div", "wf-spinner"),
-        "Progress" => ("progress", "wf-progress"),
-        "Skeleton" => ("div", "wf-skeleton"),
-        "Button" => ("button", "wf-btn"),
-        "IconButton" => ("button", "wf-icon-btn"),
-        "ButtonGroup" => ("div", "wf-btn-group"),
-        "Dropdown" => ("div", "wf-dropdown"),
-        "Image" => ("img", "wf-image"),
-        "Video" => ("video", "wf-video"),
-        "Icon" => ("i", "wf-icon"),
-        "Carousel" => ("div", "wf-carousel"),
-        "Text" => ("p", "wf-text"),
-        "Heading" => ("h2", "wf-heading"),
-        "Code" => ("code", "wf-code"),
-        "Blockquote" => ("blockquote", "wf-blockquote"),
-        "Section" => ("section", "wf-section"),
-        "Paragraph" => ("p", "wf-text"),
-        "Document" => ("div", "wf-document"),
-        "Header" => ("header", "wf-header"),
-        "Footer" => ("footer", "wf-footer"),
-        _ => ("div", ""),
-    }
-}
-
-fn modifier_to_css_class(base_class: &str, modifier: &str) -> String {
-    match modifier {
-        "small" => format!("{}--small", base_class),
-        "medium" => String::new(),
-        "large" => format!("{}--large", base_class),
-        "primary" => format!("{}--primary", base_class),
-        "secondary" => format!("{}--secondary", base_class),
-        "success" => format!("{}--success", base_class),
-        "danger" => format!("{}--danger", base_class),
-        "warning" => format!("{}--warning", base_class),
-        "info" => format!("{}--info", base_class),
-        "rounded" => format!("{}--rounded", base_class),
-        "pill" => format!("{}--pill", base_class),
-        "flat" => format!("{}--flat", base_class),
-        "elevated" => format!("{}--elevated", base_class),
-        "outlined" => format!("{}--outlined", base_class),
-        "full" => format!("{}--full", base_class),
-        "bold" => "wf-text--bold".to_string(),
-        "italic" => "wf-text--italic".to_string(),
-        "center" => "wf-text--center".to_string(),
-        "right" => "wf-text--right".to_string(),
-        "heading" => "wf-text--heading".to_string(),
-        "muted" => "wf-text--muted".to_string(),
-        "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => format!("wf-heading--{}", modifier),
-        "dismissible" => format!("{}--dismissible", base_class),
-        "fluid" => format!("{}--fluid", base_class),
-        "block" => format!("{}--block", base_class),
-        "ordered" => format!("{}--ordered", base_class),
-        // Skip animation modifiers in template mode (no JS)
-        "fadeIn" | "fadeOut" | "slideUp" | "slideDown" | "slideLeft" | "slideRight" |
-        "scaleIn" | "scaleOut" | "bounce" | "shake" | "pulse" | "spin" |
-        "fast" | "slow" => String::new(),
-        // Skip input types (handled separately)
-        "text" | "email" | "password" | "number" | "search" | "tel" | "url" |
-        "date" | "time" | "color" | "submit" | "reset" => String::new(),
-        _ => String::new(),
-    }
 }

@@ -231,6 +231,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-slider__value { min-width: 2em; text-align: end; }
 .wf-form-label { display: block; margin-bottom: var(--spacing-xs); }
 .wf-form-group { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+.wf-datepicker { display: flex; flex-direction: column; gap: var(--spacing-xs); }
 
 /* ─── File Upload ──────────────────────────────────── */
 .wf-file-upload { display: flex; flex-direction: column; gap: var(--spacing-xs); }
