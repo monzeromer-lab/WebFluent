@@ -304,11 +304,11 @@ mod tests {
         let page = first_page(&p);
         let cfg = config();
 
-        let studio_html = render_page_html_studio(page, &cfg, None, &Default::default(), true, &map);
+        let studio_html = render_page_html_studio(page, &cfg, None, &Default::default(), true, &map, &Default::default());
         assert!(studio_html.contains("data-wf-node=\"Home:0.0\""));
         assert!(studio_html.contains("data-wf-node=\"Home:0.1\""));
 
-        let export_html = render_page_html(page, &cfg, None, &Default::default());
+        let export_html = render_page_html(page, &cfg, None, &Default::default(), &Default::default());
         assert!(!export_html.contains("data-wf-node"));
     }
 
@@ -351,7 +351,7 @@ mod tests {
         let mut jsgen = JsCodegen::new();
         jsgen.set_studio(map.clone());
         let js = jsgen.generate(&p);
-        let html = render_page_html_studio(page, &config(), None, &Default::default(), true, &map);
+        let html = render_page_html_studio(page, &config(), None, &Default::default(), true, &map, &Default::default());
 
         // The Heading's id is produced by the one shared map, so both stamp the same string.
         for id in ["Home:0", "Home:0.0", "Home:0.1"] {
@@ -402,7 +402,7 @@ mod tests {
         let app_body: Vec<Statement> = p.declarations.iter()
             .find_map(|d| if let Declaration::App(a) = d { Some(a.body.clone()) } else { None })
             .expect("app body");
-        let html = render_page_html_studio(page, &config(), Some(&app_body), &Default::default(), true, &map);
+        let html = render_page_html_studio(page, &config(), Some(&app_body), &Default::default(), true, &map, &Default::default());
         assert!(html.contains(&format!("data-wf-node=\"{}\"", row_id)), "SSG app wrapper not stamped");
     }
 

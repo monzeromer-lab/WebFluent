@@ -255,6 +255,105 @@ impl Token {
     }
 }
 
+/// The built-in component this token names, if it names one.
+///
+/// Built-in component names are lexed as dedicated keyword tokens, which is right
+/// in *element* position but wrong everywhere a plain name is expected: a page
+/// called `Menu` could be declared but never routed to, because
+/// `Route(path: "/menu", page: Menu)` hit the expression parser and failed with
+/// "Expected expression, got Menu". Every builtin name was affected — `Menu`,
+/// `Card`, `List`, `Table`, `Form`, `Alert`, `Modal`, `Link`, `Text`, `Image`,
+/// `Icon`, `Footer`, `Badge` — and `Menu` is the likeliest page name a restaurant
+/// site will ever have.
+///
+/// The parser uses this to accept such a token where a name is expected. Only
+/// component keywords are listed: control-flow and declaration keywords (`if`,
+/// `for`, `Page`, `style`) stay reserved.
+pub fn component_name(token: &TokenType) -> Option<&'static str> {
+    // Written as the inverse of the component arms of `keyword_or_identifier`
+    // below; the test at the bottom of this file asserts the two stay in step.
+    let name = match token {
+        // Layout
+        TokenType::Container => "Container",
+        TokenType::Row => "Row",
+        TokenType::Column => "Column",
+        TokenType::Grid => "Grid",
+        TokenType::Stack => "Stack",
+        TokenType::Spacer => "Spacer",
+        TokenType::Divider => "Divider",
+        // Navigation
+        TokenType::Navbar => "Navbar",
+        TokenType::Sidebar => "Sidebar",
+        TokenType::Breadcrumb => "Breadcrumb",
+        TokenType::Link => "Link",
+        TokenType::Menu => "Menu",
+        TokenType::Tabs => "Tabs",
+        TokenType::TabPage => "TabPage",
+        // Data display
+        TokenType::Card => "Card",
+        TokenType::Table => "Table",
+        TokenType::Thead => "Thead",
+        TokenType::Tbody => "Tbody",
+        TokenType::Trow => "Trow",
+        TokenType::Tcell => "Tcell",
+        TokenType::Badge => "Badge",
+        TokenType::Avatar => "Avatar",
+        TokenType::Tooltip => "Tooltip",
+        TokenType::Tag => "Tag",
+        // Data input
+        TokenType::Input => "Input",
+        TokenType::Select => "Select",
+        TokenType::Option => "Option",
+        TokenType::Checkbox => "Checkbox",
+        TokenType::Radio => "Radio",
+        TokenType::Switch => "Switch",
+        TokenType::Slider => "Slider",
+        TokenType::DatePicker => "DatePicker",
+        TokenType::FileUpload => "FileUpload",
+        TokenType::Form => "Form",
+        // Feedback
+        TokenType::Alert => "Alert",
+        TokenType::Toast => "Toast",
+        TokenType::Modal => "Modal",
+        TokenType::Dialog => "Dialog",
+        TokenType::Spinner => "Spinner",
+        TokenType::Progress => "Progress",
+        TokenType::Skeleton => "Skeleton",
+        // Actions
+        TokenType::Button => "Button",
+        TokenType::IconButton => "IconButton",
+        TokenType::ButtonGroup => "ButtonGroup",
+        TokenType::Dropdown => "Dropdown",
+        // Media
+        TokenType::Image => "Image",
+        TokenType::Video => "Video",
+        TokenType::Icon => "Icon",
+        TokenType::Carousel => "Carousel",
+        // Typography
+        TokenType::Text => "Text",
+        TokenType::Heading => "Heading",
+        TokenType::Code => "Code",
+        TokenType::Blockquote => "Blockquote",
+        // Document / slides
+        TokenType::Document => "Document",
+        TokenType::Section => "Section",
+        TokenType::Paragraph => "Paragraph",
+        TokenType::PageBreak => "PageBreak",
+        TokenType::Header => "Header",
+        TokenType::Footer => "Footer",
+        TokenType::Presentation => "Presentation",
+        TokenType::Slide => "Slide",
+        TokenType::TitleSlide => "TitleSlide",
+        TokenType::SectionSlide => "SectionSlide",
+        TokenType::TwoColumn => "TwoColumn",
+        TokenType::ImageSlide => "ImageSlide",
+        // `List` and `Map` lex as TYPE tokens (TypeList/TypeMap) and are resolved
+        // by context in the parser, so they are not listed here.
+        _ => return None,
+    };
+    Some(name)
+}
+
 pub fn keyword_or_identifier(word: &str) -> TokenType {
     match word {
         // Top-level

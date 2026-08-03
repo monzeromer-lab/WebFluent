@@ -585,18 +585,17 @@ const WF = (() => {
 
   // ─── Hydrate (SSG) ─────────────────────────────────
   function hydrate(renderFn, container) {
-    // If container already has pre-rendered content, keep it and
-    // run the render function to initialize signals, effects, and events.
-    // The render function builds DOM nodes that won't be inserted —
-    // instead, the existing DOM is kept and JS takes over.
-    if (container.children.length > 0) {
-      // Run render to initialize all signals and effects
-      renderFn();
-      // The effects will find and update the existing DOM nodes
-    } else {
-      // No pre-rendered content — fall back to full mount
-      mount(renderFn, container);
-    }
+    // The server paint is the FIRST paint — real HTML, instantly visible and
+    // crawlable — and the client render replaces it.
+    //
+    // This used to keep the pre-rendered DOM and call renderFn purely for its
+    // side effects, discarding the nodes it built. But effects and event
+    // listeners are bound to the nodes the render CREATES, so they were all
+    // attached to detached elements: reactive text never updated what you could
+    // see, and buttons on any pre-rendered page did nothing at all. Reusing the
+    // server's DOM needs node matching this runtime does not have, so until it
+    // does, replacing it is the behaviour that is actually correct.
+    mount(renderFn, container);
   }
 
   // ─── i18n ────────────────────────────────────────────

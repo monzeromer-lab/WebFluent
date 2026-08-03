@@ -8,7 +8,7 @@
 //! can resolve to code.
 
 use std::collections::HashMap;
-use crate::parser::ast::{Program, Declaration, Statement};
+use crate::parser::ast::{ComponentDecl, Declaration, Program, Statement};
 use crate::config::ProjectConfig;
 use crate::codegen::{generate_css, JsCodegen};
 use crate::codegen::node_id::{build_node_map, NodeMap};
@@ -66,6 +66,18 @@ pub fn compile_studio(
         if let Declaration::App(a) = d { Some(a.body.clone()) } else { None }
     });
 
+    // The component library, so the static paint EXPANDS calls to user components
+    // instead of leaving `<!--wf-component-->` placeholders: a page built from
+    // components used to paint empty until JS hydrated.
+    let components: HashMap<String, ComponentDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c) => Some((c.name.clone(), c.clone())),
+            _ => None,
+        })
+        .collect();
+
     let mut pages = Vec::new();
     for decl in &program.declarations {
         if let Declaration::Page(page) = decl {
@@ -79,6 +91,7 @@ pub fn compile_studio(
                 translations,
                 true, // studio mode: stamp data-wf-node
                 &node_map,
+                &components,
             );
             pages.push(CompiledPage { route: page.path.clone(), html });
         }

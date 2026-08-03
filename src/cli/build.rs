@@ -151,6 +151,16 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             if let Declaration::App(a) = d { Some(a.body.clone()) } else { None }
         });
         let app_stmts = app_body.as_deref();
+        // Expand user components into the static paint, so an exported site is a
+        // genuine static site rather than a page of placeholder comments.
+        let components: std::collections::HashMap<String, crate::parser::ast::ComponentDecl> = program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Component(c) => Some((c.name.clone(), c.clone())),
+                _ => None,
+            })
+            .collect();
 
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
@@ -160,7 +170,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
                 }
 
                 let page_html = crate::codegen::render_page_html(
-                    page, &config, app_stmts, &translations,
+                    page, &config, app_stmts, &translations, &components,
                 );
 
                 // Determine output path

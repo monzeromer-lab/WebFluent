@@ -181,7 +181,7 @@ impl Parser {
     fn parse_page(&mut self) -> Result<PageDecl> {
         let decl_mark = self.mark();
         self.expect(&TokenType::Page)?;
-        let name = self.expect_identifier()?;
+        let name = self.expect_declaration_name()?;
         self.expect(&TokenType::OpenParen)?;
 
         let mut path = String::new();
@@ -222,7 +222,7 @@ impl Parser {
     fn parse_component_decl(&mut self) -> Result<ComponentDecl> {
         let decl_mark = self.mark();
         self.expect(&TokenType::Component)?;
-        let name = self.expect_identifier()?;
+        let name = self.expect_declaration_name()?;
         self.expect(&TokenType::OpenParen)?;
 
         let mut props = Vec::new();
@@ -1700,6 +1700,18 @@ impl Parser {
                     ))
                 }
             }
+            // A built-in component name used where a plain name is expected — most
+            // importantly `Route(path: "/menu", page: Menu)`, which is the only way
+            // to reach a page called `Menu` and used to be a parse error. Component
+            // names lex as keyword tokens, which is right in element position and
+            // wrong here; in expression position they are just names.
+            ref other if crate::lexer::token::component_name(other).is_some() => {
+                let name = crate::lexer::token::component_name(other)
+                    .expect("guarded by the match arm")
+                    .to_string();
+                self.advance();
+                Ok(Expr::Identifier(name))
+            }
             _ => Err(self.error(format!("Expected expression, got {}", self.current_type()))),
         }
     }
@@ -1755,6 +1767,24 @@ impl Parser {
     }
 
     // ─── Utility ─────────────────────────────────────────
+
+    /// A **declaration name** — like [`Self::expect_identifier`], but a built-in
+    /// component name is also accepted.
+    ///
+    /// `Page Menu`, `Page Card`, `Component Section` are ordinary things to want,
+    /// and a page called `Menu` is the likeliest page a restaurant site will ever
+    /// have. Component names lex as keyword tokens, so they were rejected here and
+    /// (worse) at `Route(page: Menu)`, leaving such a page declarable but
+    /// unreachable. Only *declaration* names are widened: element position still
+    /// resolves a builtin keyword to the builtin, so `Card { }` inside a page is
+    /// unchanged whether or not a page named `Card` exists.
+    fn expect_declaration_name(&mut self) -> Result<String> {
+        if let Some(name) = crate::lexer::token::component_name(self.current_type()) {
+            self.advance();
+            return Ok(name.to_string());
+        }
+        self.expect_identifier()
+    }
 
     fn expect_identifier(&mut self) -> Result<String> {
         match self.current_type().clone() {
@@ -1936,6 +1966,65 @@ fn has_interpolation(s: &str) -> bool {
         i += 1;
     }
     false
+}
+
+#[cfg(test)]
+mod builtin_name_tests {
+    //! A page or component may be NAMED after a built-in, and still be routed to.
+    //!
+    //! Built-in component names lex as keyword tokens. That is right in element
+    //! position and wrong wherever a plain name is expected, so `Page Menu` could
+    //! not be declared and `Route(path: "/menu", page: Menu)` could not be written
+    //! — leaving the most obvious page a restaurant site could have unreachable.
+    use super::*;
+    use crate::lexer::Lexer;
+
+    fn parse(src: &str) -> Result<Program> {
+        let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
+        Parser::new(tokens, "<test>").parse()
+    }
+
+    /// Every built-in name works as a page name AND as its route target.
+    #[test]
+    fn builtin_names_work_as_page_names_and_route_targets() {
+        for name in [
+            "Menu", "Card", "Table", "Form", "Alert", "Modal", "Link", "Text", "Image", "Icon",
+            "Footer", "Badge", "Header", "Section", "Progress", "Tag",
+        ] {
+            let src = format!(
+                "App {{ Router {{ Route(path: \"/x\", page: {name}) }} }}\n\
+                 Page {name} (path: \"/x\") {{ Container {{ Text(\"hi\") }} }}\n"
+            );
+            assert!(parse(&src).is_ok(), "Page {name} should parse: {:?}", parse(&src).err());
+        }
+    }
+
+    /// The widening must not shadow the built-ins themselves: a page named `Menu`
+    /// that also *uses* `Menu` and `Card` still resolves both as elements.
+    #[test]
+    fn a_builtin_named_page_can_still_use_that_builtin() {
+        let src = "Page Menu (path: \"/menu\") {\n  Container {\n    Card(elevated) { Card.Body { Text(\"x\") } }\n    Menu(trigger: \"More\") { }\n  }\n}\n";
+        let program = parse(src).expect("should parse");
+        // One page, and the elements inside it are the BUILTINS, not references to
+        // the page — element position is untouched by the declaration-name change.
+        assert_eq!(program.declarations.len(), 1);
+    }
+
+    /// Components may be named after built-ins too.
+    #[test]
+    fn builtin_names_work_as_component_names() {
+        assert!(parse("Component Section (title: String) { Container { Text(title) } }\n").is_ok());
+        assert!(parse("Component Header (title: String) { Text(title) }\n").is_ok());
+    }
+
+    /// Control-flow and declaration keywords stay reserved — the widening covers
+    /// component names only.
+    #[test]
+    fn control_flow_keywords_are_still_reserved() {
+        assert!(parse("Page if (path: \"/x\") { Text(\"x\") }").is_err());
+        assert!(parse("Page for (path: \"/x\") { Text(\"x\") }").is_err());
+        assert!(parse("Page style (path: \"/x\") { Text(\"x\") }").is_err());
+    }
 }
 
 #[cfg(test)]

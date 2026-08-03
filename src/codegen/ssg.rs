@@ -4,13 +4,18 @@ use crate::codegen::node_id::NodeMap;
 use crate::config::ProjectConfig;
 
 /// Renders a page to static HTML for SSG (export mode — no studio attributes).
+///
+/// `components` are the program's `Component` declarations, so calls to them are
+/// **expanded** into the static paint rather than left as placeholders. Pass an
+/// empty map to render without them (the pre-expansion behaviour).
 pub fn render_page_html(
     page: &PageDecl,
     config: &ProjectConfig,
     app_body: Option<&[Statement]>,
     translations: &HashMap<String, HashMap<String, String>>,
+    components: &HashMap<String, ComponentDecl>,
 ) -> String {
-    render_page_html_studio(page, config, app_body, translations, false, &NodeMap::default())
+    render_page_html_studio(page, config, app_body, translations, false, &NodeMap::default(), components)
 }
 
 /// Like [`render_page_html`], but stamps `data-wf-node="<id>"` on element roots
@@ -23,6 +28,7 @@ pub fn render_page_html_studio(
     translations: &HashMap<String, HashMap<String, String>>,
     studio: bool,
     node_map: &NodeMap,
+    components: &HashMap<String, ComponentDecl>,
 ) -> String {
     let title = page.title.as_deref().unwrap_or(&config.name);
     let lang = if config.meta.lang.is_empty() { "en" } else { &config.meta.lang };
@@ -53,6 +59,8 @@ pub fn render_page_html_studio(
         link_base,
         studio,
         node_map: node_map.clone(),
+        components: components.clone(),
+        depth: 0,
     };
 
     // Render app shell (navbar, etc.) if available
@@ -107,7 +115,18 @@ struct SsgContext {
     /// Node ids keyed by element span (empty unless in studio mode). Matches the
     /// JS codegen's ids because both consult the same map.
     node_map: NodeMap,
+    /// The program's `Component` declarations, so a call to one can be expanded
+    /// into the static paint instead of a placeholder comment.
+    components: HashMap<String, ComponentDecl>,
+    /// Component-expansion depth, so a component that (directly or mutually)
+    /// calls itself stops instead of recursing forever.
+    depth: usize,
 }
+
+/// How deep component expansion may nest before it gives up and emits the old
+/// placeholder. Real component trees are only a few levels; anything deeper is a
+/// cycle, and a static renderer must terminate whatever the source says.
+const MAX_COMPONENT_DEPTH: usize = 12;
 
 impl SsgContext {
     fn indent_str(&self) -> String {
@@ -215,6 +234,144 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
     html
 }
 
+/// Expand a call to a user-declared `Component` into the static paint.
+///
+/// Before this, every `ComponentRef::UserDefined` rendered as `<!--wf-component-->`
+/// and the content appeared only once JS hydrated — so a page built from
+/// components painted empty, the "genuine static site" claim was false of any such
+/// page, and the SEO rule of exactly one `h1` was unfulfillable when the `h1` lived
+/// in a component. Expanding them substitutes the call's arguments for the
+/// component's props and renders its body in place.
+///
+/// Falls back to the placeholder when the component is unknown (a program that
+/// wouldn't pass the semantic gate anyway) or when expansion nests too deeply.
+fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> String {
+    let Some(decl) = ctx.components.get(name).cloned() else {
+        return format!("{}<!--wf-component-->\n", ctx.indent_str());
+    };
+    if ctx.depth >= MAX_COMPONENT_DEPTH {
+        return format!("{}<!--wf-component-->\n", ctx.indent_str());
+    }
+
+    let bindings = bind_props(&decl, call);
+    // The call's own children fill the component's `children` slot.
+    let slot: Vec<Statement> = call.children.clone();
+    let body: Vec<Statement> = decl
+        .body
+        .iter()
+        .map(|st| substitute_statement(st, &bindings, &slot))
+        .collect();
+
+    ctx.depth += 1;
+    let html = render_statements(&body, ctx);
+    ctx.depth -= 1;
+    html
+}
+
+/// Bind a call's arguments to a component's props: positional arguments fill the
+/// props in declaration order, named arguments bind by name, and any prop left
+/// unbound falls back to its declared default. A prop with neither is left
+/// unbound, so it renders as empty text exactly as the client would.
+fn bind_props(decl: &ComponentDecl, call: &UIElement) -> HashMap<String, Expr> {
+    let mut bound: HashMap<String, Expr> = HashMap::new();
+    let mut positional = 0usize;
+    for arg in &call.args {
+        match arg {
+            Arg::Positional(expr) => {
+                if let Some(prop) = decl.props.get(positional) {
+                    bound.insert(prop.name.clone(), expr.clone());
+                }
+                positional += 1;
+            }
+            Arg::Named(key, expr) => {
+                bound.insert(key.clone(), expr.clone());
+            }
+        }
+    }
+    for prop in &decl.props {
+        if !bound.contains_key(&prop.name)
+            && let Some(default) = &prop.default
+        {
+            bound.insert(prop.name.clone(), default.clone());
+        }
+    }
+    bound
+}
+
+/// Replace bound prop identifiers inside one statement, and fill `children`.
+fn substitute_statement(stmt: &Statement, bindings: &HashMap<String, Expr>, slot: &[Statement]) -> Statement {
+    let mut out = stmt.clone();
+    if let StatementKind::UIElement(ui) = &stmt.kind {
+        // The `children` keyword renders the caller's own block in its place.
+        if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "children") {
+            // A slot expands to its first statement; multiple children are wrapped
+            // by the caller's own element, so this is the shape the JS produces too.
+            if let Some(first) = slot.first() {
+                return first.clone();
+            }
+        }
+        out.kind = StatementKind::UIElement(substitute_ui(ui, bindings, slot));
+    }
+    out
+}
+
+/// Deep-substitute bound props through one element: its arguments, its style
+/// values, and its children.
+fn substitute_ui(ui: &UIElement, bindings: &HashMap<String, Expr>, slot: &[Statement]) -> UIElement {
+    let mut out = ui.clone();
+    out.args = ui
+        .args
+        .iter()
+        .map(|a| match a {
+            Arg::Positional(e) => Arg::Positional(substitute_expr(e, bindings)),
+            Arg::Named(k, e) => Arg::Named(k.clone(), substitute_expr(e, bindings)),
+        })
+        .collect();
+    if let Some(style) = &mut out.style_block {
+        for prop in &mut style.properties {
+            prop.value = substitute_expr(&prop.value, bindings);
+        }
+    }
+    out.children = ui
+        .children
+        .iter()
+        .map(|st| substitute_statement(st, bindings, slot))
+        .collect();
+    out
+}
+
+/// Replace a bound prop identifier with its value, recursing through the shapes a
+/// component body actually uses. An unbound identifier is left alone — it may be
+/// component-local state, which stays dynamic and renders empty here.
+fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
+    match expr {
+        Expr::Identifier(name) => bindings.get(name).cloned().unwrap_or_else(|| expr.clone()),
+        Expr::InterpolatedString(parts) => Expr::InterpolatedString(
+            parts
+                .iter()
+                .map(|p| match p {
+                    StringPart::Literal(l) => StringPart::Literal(l.clone()),
+                    StringPart::Expression(e) => StringPart::Expression(substitute_expr(e, bindings)),
+                })
+                .collect(),
+        ),
+        Expr::BinaryOp(l, op, r) => Expr::BinaryOp(
+            Box::new(substitute_expr(l, bindings)),
+            op.clone(),
+            Box::new(substitute_expr(r, bindings)),
+        ),
+        Expr::UnaryOp(op, e) => Expr::UnaryOp(op.clone(), Box::new(substitute_expr(e, bindings))),
+        Expr::PropertyAccess(obj, prop) => {
+            Expr::PropertyAccess(Box::new(substitute_expr(obj, bindings)), prop.clone())
+        }
+        Expr::FunctionCall(name, args) => Expr::FunctionCall(
+            name.clone(),
+            args.iter().map(|a| substitute_expr(a, bindings)).collect(),
+        ),
+        other => other.clone(),
+    }
+}
+
 fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
@@ -229,12 +386,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
             };
             render_tag(tag, &class, ui, ctx)
         }
-        ComponentRef::UserDefined(_name) => {
-            // Can't pre-render user components without expanding them
-            // Emit a placeholder div
-            let indent = ctx.indent_str();
-            format!("{}<!--wf-component-->\n", indent)
-        }
+        ComponentRef::UserDefined(name) => render_user_component(name, ui, ctx),
     }
 }
 
@@ -608,4 +760,97 @@ fn camel_to_kebab(s: &str) -> String {
         result.push(ch.to_lowercase().next().unwrap());
     }
     result
+}
+
+#[cfg(test)]
+mod component_expansion_tests {
+    //! A page built from components must PAINT its content, not a placeholder.
+    //!
+    //! Before this, every user component rendered as `<!--wf-component-->` and its
+    //! content existed only after JS hydrated — so a component-built page painted
+    //! empty, "genuine static site" was false of it, and an `h1` inside a component
+    //! never reached the served HTML.
+    use super::*;
+    use crate::lexer::Lexer;
+    use crate::parser::Parser;
+
+    fn render(src: &str) -> String {
+        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
+        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let components: HashMap<String, ComponentDecl> = program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Component(c) => Some((c.name.clone(), c.clone())),
+                _ => None,
+            })
+            .collect();
+        let page = program
+            .declarations
+            .iter()
+            .find_map(|d| if let Declaration::Page(p) = d { Some(p) } else { None })
+            .expect("a page");
+        let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
+        render_page_html(page, &cfg, None, &Default::default(), &components)
+    }
+
+    #[test]
+    fn a_component_call_is_expanded_with_its_props_bound() {
+        let html = render(
+            "Component Hero (title: String, tagline: String) {\n  Container { Heading(title, h1) Text(tagline) }\n}\n\
+             Page Home (path: \"/\") { Hero(\"Beit Qahwa\", \"Slow roasted\") }\n",
+        );
+        assert!(!html.contains("wf-component"), "no placeholder should survive: {html}");
+        assert!(html.contains("Beit Qahwa"), "the positional prop must render: {html}");
+        assert!(html.contains("Slow roasted"));
+        assert!(html.contains("<h1"), "an h1 inside a component must reach the HTML (SEO)");
+    }
+
+    #[test]
+    fn named_arguments_and_defaults_both_bind() {
+        let html = render(
+            "Component Item (name: String, note: String = \"none\") {\n  Text(name) Text(note)\n}\n\
+             Page Home (path: \"/\") { Item(name: \"Latte\") }\n",
+        );
+        assert!(html.contains("Latte"), "named arg: {html}");
+        assert!(html.contains("none"), "declared default fills an unbound prop: {html}");
+    }
+
+    #[test]
+    fn a_component_calling_a_component_expands_both() {
+        let html = render(
+            "Component Inner (t: String) { Text(t) }\n\
+             Component Outer (t: String) { Container { Inner(t) } }\n\
+             Page Home (path: \"/\") { Outer(\"nested\") }\n",
+        );
+        assert!(html.contains("nested"), "props thread through both levels: {html}");
+        assert!(!html.contains("wf-component"));
+    }
+
+    /// A component that calls itself must terminate — a static renderer cannot
+    /// loop forever whatever the source says.
+    #[test]
+    fn self_recursion_stops_at_the_depth_limit() {
+        let html = render(
+            "Component Loop (t: String) { Container { Loop(t) } }\n\
+             Page Home (path: \"/\") { Loop(\"x\") }\n",
+        );
+        assert!(html.contains("wf-component"), "the guard emits the placeholder at the limit");
+    }
+
+    /// An undeclared component keeps the old placeholder rather than panicking —
+    /// such a program fails the semantic gate anyway.
+    #[test]
+    fn an_unknown_component_still_renders_a_placeholder() {
+        let tokens = Lexer::new("Page Home (path: \"/\") { Ghost() }", "<t>").tokenize().unwrap();
+        let program = Parser::new(tokens, "<t>").parse().unwrap();
+        let page = program
+            .declarations
+            .iter()
+            .find_map(|d| if let Declaration::Page(p) = d { Some(p) } else { None })
+            .unwrap();
+        let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
+        let html = render_page_html(page, &cfg, None, &Default::default(), &Default::default());
+        assert!(html.contains("wf-component"));
+    }
 }
