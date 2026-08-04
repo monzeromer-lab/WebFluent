@@ -178,5 +178,26 @@ Page Animation (path: "/animation", description: "Transitions, animation modifie
         }
 
         Spacer(xl)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Reduced motion", h2)
+        Text("Some people have asked their system for less movement, usually because motion makes them ill. Every animation and transition the engine ships is already wrapped in that preference — the end state is kept, the movement is dropped. You do not have to do anything.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("@media (prefers-reduced-motion: reduce) \{
+  *, *::before, *::after \{
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  \}
+\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("If you write your own keyframes in a style block, they are not covered by this — add the same guard yourself.", muted, small)
     }
 }

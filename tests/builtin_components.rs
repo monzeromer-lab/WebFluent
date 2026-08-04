@@ -1153,3 +1153,60 @@ fn every_spec_source_parses() {
         failures.join("\n")
     );
 }
+
+/// A navigation item with a destination must be a link in every backend.
+///
+/// `Sidebar.Item(to: "/about")` rendered as `<a href>` under `wf build` and as a
+/// bare `<li>` with no destination in a static build — so a static site's
+/// sidebar did nothing until JavaScript ran, and a crawler saw a navigation
+/// panel containing no links at all. Sub-components sit outside the SPECS table,
+/// which is why the conformance suite did not catch it.
+#[test]
+fn a_navigation_item_with_a_destination_is_a_link_everywhere() {
+    let src = page("Sidebar { Sidebar.Item(to: \"/about\") { Text(\"About\") } }");
+    let mut failures = Vec::new();
+
+    for backend in Backend::ALL {
+        let Some(item) = first_with_class(backend, &src, "wf-sidebar__item") else {
+            failures.push(format!("{}: no sidebar item at all", backend.name()));
+            continue;
+        };
+        if item.tag != "a" {
+            failures.push(format!(
+                "{}: the item rendered as <{}>, which cannot be followed",
+                backend.name(),
+                item.tag
+            ));
+        }
+        match item.attr("href") {
+            Some(href) if href.contains("/about") => {}
+            other => failures.push(format!(
+                "{}: href is {:?}, expected the declared destination",
+                backend.name(),
+                other
+            )),
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "dead navigation:\n{}",
+        failures.join("\n")
+    );
+}
+
+/// A sub-component with no destination stays a plain item rather than becoming
+/// an empty link.
+#[test]
+fn a_navigation_item_without_a_destination_is_not_a_link() {
+    let src = page("Sidebar { Sidebar.Header { Text(\"Title\") } }");
+    for backend in Backend::ALL {
+        if let Some(el) = first_with_class(backend, &src, "wf-sidebar__header") {
+            assert_ne!(
+                el.tag,
+                "a",
+                "{}: a header with no `to:` should not be a link",
+                backend.name()
+            );
+        }
+    }
+}

@@ -50,48 +50,51 @@
                     </a>
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
-                <li class="wf-sidebar__item">
+                <a class="wf-sidebar__item" href="/WebFluent/">
                     <p class="wf-text">Home</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/getting-started">
                     <p class="wf-text">Get Started</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/guide">
                     <p class="wf-text">Guide</p>
-                </li>
+                </a>
                 <div class="wf-sidebar__divider">
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
-                <li class="wf-sidebar__item">
+                <a class="wf-sidebar__item" href="/WebFluent/components">
                     <p class="wf-text">Components</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/styling">
                     <p class="wf-text">Styling</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/animation">
                     <p class="wf-text">Animation</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/i18n">
                     <p class="wf-text">i18n</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/seo">
+                    <p class="wf-text">Search &amp; Sharing</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/ssg">
                     <p class="wf-text">SSG</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/pdf">
                     <p class="wf-text">PDF</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/template-engine">
                     <p class="wf-text">Template Engine</p>
-                </li>
+                </a>
                 <div class="wf-sidebar__divider">
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
-                <li class="wf-sidebar__item">
+                <a class="wf-sidebar__item" href="/WebFluent/accessibility">
                     <p class="wf-text">Accessibility</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/cli">
                     <p class="wf-text">CLI</p>
-                </li>
+                </a>
             </aside>
             <main id="wf-main">
                 <div class="wf-container wf-animate-fadeIn">
@@ -118,8 +121,8 @@ wf render template.wf --data data.json --format pdf -o report.pdf
 # Pipe JSON from stdin
 echo &#x27;{&quot;name&quot;:&quot;Monzer&quot;}&#x27; | wf render template.wf --format html
 
-# With theme
-wf render template.wf --data data.json --format html --theme dark</code>
+# Selecting one of several themes declared in the template
+wf render template.wf --data data.json --format html --theme Brand</code>
                         </div>
                     </div>
                     <div class="wf-spacer"></div>
@@ -146,7 +149,7 @@ wf render template.wf --data data.json --format html --theme dark</code>
                         </tr>
                         <tr>
                             <td>--theme</td>
-                            <td>Theme name (default: &quot;default&quot;)</td>
+                            <td>Which Theme declared in the template to use. Only needed when it declares more than one.</td>
                         </tr>
                     </table>
                     <div class="wf-spacer"></div>
@@ -246,11 +249,16 @@ fn main() -&gt; webfluent::Result&lt;()&gt; {
     let pdf_bytes = tpl.render_pdf(&amp;data)?;
     std::fs::write(&quot;invoice.pdf&quot;, pdf_bytes)?;
 
-    // With custom theme
-    let dark = Template::from_file(&quot;invoice.wf&quot;)?
-        .with_theme(&quot;dark&quot;)
+    // A template that declares `Theme Brand { ... }` uses it automatically.
+    // with_theme picks one when the template declares several; with_tokens
+    // layers machine-supplied values on top.
+    let branded = Template::from_file(&quot;invoice.wf&quot;)?
         .with_tokens(&amp;[(&quot;color-primary&quot;, &quot;#8B5CF6&quot;)]);
-    let html = dark.render_html(&amp;data)?;
+    let html = branded.render_html(&amp;data)?;
+
+    // Or take the two halves apart, to serve the CSS from its own URL under a
+    // strict Content-Security-Policy.
+    let (css, body) = branded.render_html_parts(&amp;data)?;
 
     Ok(())
 }</code>

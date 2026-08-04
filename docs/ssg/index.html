@@ -50,48 +50,51 @@
                     </a>
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
-                <li class="wf-sidebar__item">
+                <a class="wf-sidebar__item" href="/WebFluent/">
                     <p class="wf-text">Home</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/getting-started">
                     <p class="wf-text">Get Started</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/guide">
                     <p class="wf-text">Guide</p>
-                </li>
+                </a>
                 <div class="wf-sidebar__divider">
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
-                <li class="wf-sidebar__item">
+                <a class="wf-sidebar__item" href="/WebFluent/components">
                     <p class="wf-text">Components</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/styling">
                     <p class="wf-text">Styling</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/animation">
                     <p class="wf-text">Animation</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/i18n">
                     <p class="wf-text">i18n</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/seo">
+                    <p class="wf-text">Search &amp; Sharing</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/ssg">
                     <p class="wf-text">SSG</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/pdf">
                     <p class="wf-text">PDF</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/template-engine">
                     <p class="wf-text">Template Engine</p>
-                </li>
+                </a>
                 <div class="wf-sidebar__divider">
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
-                <li class="wf-sidebar__item">
+                <a class="wf-sidebar__item" href="/WebFluent/accessibility">
                     <p class="wf-text">Accessibility</p>
-                </li>
-                <li class="wf-sidebar__item">
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/cli">
                     <p class="wf-text">CLI</p>
-                </li>
+                </a>
             </aside>
             <main id="wf-main">
                 <div class="wf-container wf-animate-fadeIn">
@@ -229,6 +232,39 @@
                     <h2 class="wf-heading">Dynamic Routes</h2>
                     <p class="wf-text wf-text--muted">Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.</p>
                     <div class="wf-spacer"></div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Lists are painted, not deferred</h2>
+                    <p class="wf-text">A for loop over data the compiler can work out — a store&#x27;s seeded state, a literal list — is rendered into the HTML at build time. Only what genuinely depends on the running page is left to JavaScript.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Store PostStore {
+    state posts = [
+        { title: &quot;Slow roasting&quot;, tag: &quot;coffee&quot; },
+        { title: &quot;Closed Mondays&quot;, tag: &quot;shop&quot; }
+    ]
+}
+
+List {
+    for post in PostStore.posts {
+        Card { Heading(post.title, h2) Badge(post.tag) }
+    }
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted wf-text--small">Both cards, both titles and both tags are in the served HTML — visible to a crawler, and painted before the bundle has finished downloading. A list fetched from an API cannot be known at build time, so it stays a placeholder for the client to fill.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Sitemap and robots</h2>
+                    <p class="wf-text">Set meta.site_url and the build also writes sitemap.xml and robots.txt, covering every static route.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-row">
+                        <a class="wf-link" href="/WebFluent/seo">Read about search and sharing</a>
+                    </div>
                 </div>
             </main>
         </div>

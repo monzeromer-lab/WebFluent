@@ -12,6 +12,7 @@ App {
             Route(path: "/styling", page: Styling)
             Route(path: "/animation", page: Animation)
             Route(path: "/i18n", page: I18n)
+            Route(path: "/seo", page: Seo)
             Route(path: "/ssg", page: Ssg)
             Route(path: "/pdf", page: Pdf)
             Route(path: "/template-engine", page: TemplateEngine)

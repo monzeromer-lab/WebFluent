@@ -16,6 +16,7 @@ Component DocSidebar () {
         Sidebar.Item(to: "/styling", icon: "eye") { Text(t("nav.styling")) }
         Sidebar.Item(to: "/animation", icon: "star") { Text(t("nav.animation")) }
         Sidebar.Item(to: "/i18n", icon: "link") { Text(t("nav.i18n")) }
+        Sidebar.Item(to: "/seo", icon: "search") { Text(t("nav.seo")) }
         Sidebar.Item(to: "/ssg", icon: "download") { Text(t("nav.ssg")) }
         Sidebar.Item(to: "/pdf", icon: "copy") { Text(t("nav.pdf")) }
         Sidebar.Item(to: "/template-engine", icon: "settings") { Text(t("nav.template")) }

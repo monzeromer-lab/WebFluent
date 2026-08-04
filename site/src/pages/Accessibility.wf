@@ -69,5 +69,58 @@ Page Accessibility (path: "/accessibility", description: "The accessibility chec
         }
 
         Spacer(xl)
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("What the engine does without being asked", h2)
+        Text("The checks above tell you what to fix. Most of the work is already done in the output.")
+        Spacer(sm)
+
+        Row(gap: md) {
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Structure", h3)
+                        Text("Every page has a main landmark and a skip link ahead of the navigation. Heading modifiers produce real heading elements, so the document outline matches what is on screen.", muted, small)
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Keyboard", h3)
+                        Text("Tabs, menus and dialogs handle the keys their pattern requires. Focus is always visible, never removed, and always returned when a panel closes.", muted, small)
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Announcements", h3)
+                        Text("Alerts and toasts are live regions, so a screen reader hears them when they appear. Fetches say when they are loading and when they have finished.", muted, small)
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Motion and targets", h3)
+                        Text("Animations respect a reduced-motion preference. Every pointer target meets the 24 by 24 minimum, so a control is reachable with a thumb and not only a mouse.", muted, small)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Contrast, at compile time", h3)
+                        Text("Because a Theme is source the compiler reads, it can check colour pairings before you have written a page with them — something a tool working from CSS cannot do.", muted, small)
+                    }
+                }
+            }
+        }
     }
 }

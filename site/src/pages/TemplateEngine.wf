@@ -15,7 +15,7 @@ Page TemplateEngine (path: "/template-engine", description: "Render .wf template
 
         Card(outlined) {
             Card.Body {
-                Code("# Render to HTML\nwf render template.wf --data data.json --format html -o output.html\n\n# Render to HTML fragment (no <html> wrapper)\nwf render template.wf --data data.json --format fragment\n\n# Render to PDF\nwf render template.wf --data data.json --format pdf -o report.pdf\n\n# Pipe JSON from stdin\necho '\{\"name\":\"Monzer\"\}' | wf render template.wf --format html\n\n# With theme\nwf render template.wf --data data.json --format html --theme dark", block)
+                Code("# Render to HTML\nwf render template.wf --data data.json --format html -o output.html\n\n# Render to HTML fragment (no <html> wrapper)\nwf render template.wf --data data.json --format fragment\n\n# Render to PDF\nwf render template.wf --data data.json --format pdf -o report.pdf\n\n# Pipe JSON from stdin\necho '\{\"name\":\"Monzer\"\}' | wf render template.wf --format html\n\n# Selecting one of several themes declared in the template\nwf render template.wf --data data.json --format html --theme Brand", block)
             }
         }
 
@@ -26,7 +26,7 @@ Page TemplateEngine (path: "/template-engine", description: "Render .wf template
             Trow { Tcell("--data") Tcell("Path to JSON data file (reads stdin if omitted)") }
             Trow { Tcell("--format, -f") Tcell("Output format: html, fragment, or pdf") }
             Trow { Tcell("--output, -o") Tcell("Output file path (stdout if omitted)") }
-            Trow { Tcell("--theme") Tcell("Theme name (default: \"default\")") }
+            Trow { Tcell("--theme") Tcell("Which Theme declared in the template to use. Only needed when it declares more than one.") }
         }
 
         Spacer()
@@ -70,7 +70,7 @@ Page TemplateEngine (path: "/template-engine", description: "Render .wf template
         Card(outlined) {
             Card.Header { Text("main.rs", bold, muted) }
             Card.Body {
-                Code("use webfluent::Template;\nuse serde_json::json;\n\nfn main() -> webfluent::Result<()> \{\n    let tpl = Template::from_file(\"templates/invoice.wf\")?;\n\n    // HTML document (with embedded CSS)\n    let html = tpl.render_html(&json!(\{\n        \"number\": \"INV-001\",\n        \"customer\": \{ \"name\": \"Acme Corp\" \},\n        \"items\": [\{ \"name\": \"Widget\", \"price\": 9.99 \}],\n        \"paid\": true\n    \}))?;\n\n    // HTML fragment (no wrapper)\n    let fragment = tpl.render_html_fragment(&data)?;\n\n    // PDF bytes\n    let pdf_bytes = tpl.render_pdf(&data)?;\n    std::fs::write(\"invoice.pdf\", pdf_bytes)?;\n\n    // With custom theme\n    let dark = Template::from_file(\"invoice.wf\")?\n        .with_theme(\"dark\")\n        .with_tokens(&[(\"color-primary\", \"#8B5CF6\")]);\n    let html = dark.render_html(&data)?;\n\n    Ok(())\n\}", block)
+                Code("use webfluent::Template;\nuse serde_json::json;\n\nfn main() -> webfluent::Result<()> \{\n    let tpl = Template::from_file(\"templates/invoice.wf\")?;\n\n    // HTML document (with embedded CSS)\n    let html = tpl.render_html(&json!(\{\n        \"number\": \"INV-001\",\n        \"customer\": \{ \"name\": \"Acme Corp\" \},\n        \"items\": [\{ \"name\": \"Widget\", \"price\": 9.99 \}],\n        \"paid\": true\n    \}))?;\n\n    // HTML fragment (no wrapper)\n    let fragment = tpl.render_html_fragment(&data)?;\n\n    // PDF bytes\n    let pdf_bytes = tpl.render_pdf(&data)?;\n    std::fs::write(\"invoice.pdf\", pdf_bytes)?;\n\n    // A template that declares `Theme Brand { ... }` uses it automatically.\n    // with_theme picks one when the template declares several; with_tokens\n    // layers machine-supplied values on top.\n    let branded = Template::from_file(\"invoice.wf\")?\n        .with_tokens(&[(\"color-primary\", \"#8B5CF6\")]);\n    let html = branded.render_html(&data)?;\n\n    // Or take the two halves apart, to serve the CSS from its own URL under a\n    // strict Content-Security-Policy.\n    let (css, body) = branded.render_html_parts(&data)?;\n\n    Ok(())\n\}", block)
             }
         }
 

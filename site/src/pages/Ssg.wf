@@ -98,5 +98,30 @@ Page Ssg (path: "/ssg", description: "Pre-render every route to static HTML.", t
         Text("Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.", muted)
 
         Spacer(xl)
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Lists are painted, not deferred", h2)
+        Text("A for loop over data the compiler can work out — a store's seeded state, a literal list — is rendered into the HTML at build time. Only what genuinely depends on the running page is left to JavaScript.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Store PostStore \{\n    state posts = [\n        \{ title: \"Slow roasting\", tag: \"coffee\" \},\n        \{ title: \"Closed Mondays\", tag: \"shop\" \}\n    ]\n\}\n\nList \{\n    for post in PostStore.posts \{\n        Card \{ Heading(post.title, h2) Badge(post.tag) \}\n    \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Both cards, both titles and both tags are in the served HTML — visible to a crawler, and painted before the bundle has finished downloading. A list fetched from an API cannot be known at build time, so it stays a placeholder for the client to fill.", muted, small)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Sitemap and robots", h2)
+        Text("Set meta.site_url and the build also writes sitemap.xml and robots.txt, covering every static route.")
+        Spacer(sm)
+        Row(gap: sm) {
+            Link("Read about search and sharing", to: "/seo")
+        }
     }
 }

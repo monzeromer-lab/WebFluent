@@ -474,6 +474,21 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
             let class = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
+            // A sub-component with a `to:` is a link, and has to render as one.
+            // This used to drop the destination and emit a bare `<li>`, so every
+            // `Sidebar.Item` in a static build was dead until JavaScript ran —
+            // and a crawler saw a navigation panel containing no links at all.
+            if let Some(href) = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "to" => expr_to_static_string(v),
+                _ => None,
+            }) {
+                let href = if ctx.link_base.is_empty() {
+                    href
+                } else {
+                    format!("{}{}", ctx.link_base, href)
+                };
+                return render_linked_item(&class, &href, ui, ctx);
+            }
             let tag = match sub.as_str() {
                 "Item" => "li",
                 _ => "div",
@@ -798,6 +813,24 @@ fn render_for_static(for_stmt: &ForStmt, ctx: &mut SsgContext) -> Option<String>
     }
     ctx.scope = outer;
     Some(html)
+}
+
+/// A navigation item that carries a destination: an `<a>`, as the SPA builds it.
+fn render_linked_item(class: &str, href: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+    let indent = ctx.indent_str();
+    let wf = ctx.wf_node_attr_inline(ui);
+    let mut out = format!(
+        "{}<a class=\"{}\" href=\"{}\"{}>\n",
+        indent,
+        class,
+        html_escape(href),
+        wf
+    );
+    ctx.indent += 1;
+    out.push_str(&render_statements(&ui.children, ctx));
+    ctx.indent -= 1;
+    out.push_str(&format!("{}</a>\n", indent));
+    out
 }
 
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {

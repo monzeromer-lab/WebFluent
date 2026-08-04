@@ -539,5 +539,72 @@ Page Components (path: "/components", description: "Every built-in component, wi
         }
 
         Spacer(xl)
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("What you get for free", h2)
+        Text("Several components build more than their markup. You write the component; the browser and the runtime supply the behaviour that makes it usable with a keyboard and a screen reader.")
+        Spacer(sm)
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Modal and Dialog", h3)
+                        Text("These are real dialog elements, opened with showModal(). The browser traps focus inside, makes the rest of the page inert, closes on Escape and announces the dialog — none of which a styled div can do.", muted, small)
+                        Spacer(sm)
+                        Text("Bind visible to a state and the two stay in step, including when the browser closes the dialog itself.", muted, small)
+                        Spacer(sm)
+                        Code("Modal(title: \"Confirm\", visible: open) \{\n    Text(\"Are you sure?\")\n    Modal.Footer \{\n        Button(\"Cancel\") \{ open = false \}\n    \}\n\}", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Tabs", h3)
+                        Text("Wired as a tablist: each tab is linked to its panel and back, only the selected tab is in the tab order, and the arrow keys, Home and End move between them.", muted, small)
+                        Spacer(sm)
+                        Code("Tabs \{\n    TabPage(\"Overview\") \{ Text(\"...\") \}\n    TabPage(\"Details\") \{ Text(\"...\") \}\n\}", block)
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Sidebar", h3)
+                        Text("Below 768px it slides in from the edge with its own toggle, a scrim you can tap past, and Escape to close — rather than disappearing, which is what it used to do.", muted, small)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Alert, Toast and Dropdown", h3)
+                        Text("Alerts and toasts announce themselves — assertively for a failure, politely for a confirmation. A dropdown reports whether it is open and returns focus to its trigger when it closes.", muted, small)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Image", h2)
+        Text("Images default to lazy loading and asynchronous decoding, so one below the fold never delays the first paint.")
+        Spacer(sm)
+        Text("Give every image a width and a height. Without them the browser reserves no space and the page jumps when the image lands — the single most common cause of a layout that shifts under the reader.", muted)
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Image(src: \"/hero.png\", alt: \"A roastery at dawn\",\n      width: 1200, height: 630)\n\n// Above the fold? Load it straight away.\nImage(src: \"/logo.png\", alt: \"Ledger\", loading: \"eager\")", block)
+            }
+        }
+
     }
 }

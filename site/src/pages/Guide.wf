@@ -23,7 +23,11 @@ Page Guide (path: "/guide", description: "The language, end to end: pages, compo
                 Tcell("Description")
             }
             Trow { Tcell("path") Tcell("String") Tcell("URL route for this page (required)") }
-            Trow { Tcell("title") Tcell("String") Tcell("Document title") }
+            Trow { Tcell("title") Tcell("String") Tcell("Tab title, and the heading of a search result") }
+            Trow { Tcell("description") Tcell("String") Tcell("The snippet a search result and a link preview show") }
+            Trow { Tcell("image") Tcell("String") Tcell("Link-preview image, site-relative or absolute") }
+            Trow { Tcell("type") Tcell("String") Tcell("\"website\" (default) or \"article\"") }
+            Trow { Tcell("noindex") Tcell("Flag") Tcell("Bare word; keeps the page out of search and the sitemap") }
             Trow { Tcell("guard") Tcell("Expression") Tcell("Navigation guard — redirects if false") }
             Trow { Tcell("redirect") Tcell("String") Tcell("Redirect target when guard fails") }
         }

@@ -266,5 +266,28 @@ Page Styling (path: "/styling", description: "Themes, design tokens and style bl
         }
 
         Spacer(xl)
+        Heading("A scale that shrinks itself", h2)
+        Text("The type and spacing steps carry their own range, so a heading is smaller on a phone than on a desktop without any media query of yours. A hand-set font-size opts out of that — if you want a size to respond, use a token.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("// Responds to the viewport by itself.\nHeading(\"Invoicing\", h1)\n\n// Fixed at every width, because you said so.\nHeading(\"Invoicing\", h1) \{\n    style \{ font-size: \"3.25rem\" \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Bringing your own design", h2)
+        Text("Structural mode ships the layout and the mechanics — the grid, the off-canvas panel, the dialog, focus indication, reduced motion — and none of the engine's opinions about how any of it should look.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"theme\": \{\n    \"builtin\": \"structural\"\n  \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Your Theme still applies. In this mode it is not an override of a baseline — it is the entire palette the site has.", muted, small)
     }
 }

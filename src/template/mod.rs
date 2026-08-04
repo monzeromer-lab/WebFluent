@@ -584,6 +584,25 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
             let class = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
+            // A `to:` makes this a link; dropping it left a dead list item.
+            if let Some(dest) = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "to" => Some(v.clone()),
+                _ => None,
+            }) {
+                let href = value_to_string(&ctx.eval_expr(&dest));
+                let indent = ctx.indent_str();
+                let mut out = format!(
+                    "{}<a class=\"{}\" href=\"{}\">\n",
+                    indent,
+                    class,
+                    html_escape(&href)
+                );
+                ctx.indent += 1;
+                out.push_str(&render_statements(&ui.children, ctx));
+                ctx.indent -= 1;
+                out.push_str(&format!("{}</a>\n", indent));
+                return out;
+            }
             let tag = match sub.as_str() {
                 "Item" => "li",
                 _ => "div",
