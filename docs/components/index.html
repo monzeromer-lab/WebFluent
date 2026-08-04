@@ -4,688 +4,799 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Components Reference</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="Every built-in component, with the modifiers each accepts.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/components">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/components?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/components?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/components">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Components Reference">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Every built-in component, with the modifiers each accepts.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/components">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Components Reference">
+    <meta name="twitter:description" content="Every built-in component, with the modifiers each accepts.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/components#webpage","url":"https://monzeromer-lab.github.io/WebFluent/components","name":"Components Reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every built-in component, with the modifiers each accepts."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/components#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Components Reference","item":"https://monzeromer-lab.github.io/WebFluent/components"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">Components Reference</h1>​
-                <p class="wf-text wf-text--muted">50+ built-in components. Below are live interactive examples you can play with.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Buttons</h2>​
-                <p class="wf-text">Buttons support size, color, and shape modifiers.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <button class="wf-btn">Default</button>​
-                            <button class="wf-btn wf-btn--primary">Primary</button>​
-                            <button class="wf-btn wf-btn--success">Success</button>​
-                            <button class="wf-btn wf-btn--danger">Danger</button>​
-                            <button class="wf-btn wf-btn--warning">Warning</button>​
-                            <button class="wf-btn wf-btn--info">Info</button>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <button class="wf-btn wf-btn--primary wf-btn--small">Small</button>​
-                            <button class="wf-btn wf-btn--primary">Medium</button>​
-                            <button class="wf-btn wf-btn--primary wf-btn--large">Large</button>​
-                            <button class="wf-btn wf-btn--primary wf-btn--rounded">Rounded</button>​
-                            <button class="wf-btn wf-btn--primary wf-btn--full">Full Width</button>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Button(&quot;Primary&quot;, primary)
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">Components Reference</h1>
+                    <p class="wf-text wf-text--muted">50+ built-in components. Below are live interactive examples you can play with.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Buttons</h2>
+                    <p class="wf-text">Buttons support size, color, and shape modifiers.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-row">
+                                <button class="wf-btn">Default</button>
+                                <button class="wf-btn wf-btn--primary">Primary</button>
+                                <button class="wf-btn wf-btn--success">Success</button>
+                                <button class="wf-btn wf-btn--danger">Danger</button>
+                                <button class="wf-btn wf-btn--warning">Warning</button>
+                                <button class="wf-btn wf-btn--info">Info</button>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <button class="wf-btn wf-btn--primary wf-btn--small">Small</button>
+                                <button class="wf-btn wf-btn--primary">Medium</button>
+                                <button class="wf-btn wf-btn--primary wf-btn--large">Large</button>
+                                <button class="wf-btn wf-btn--primary wf-btn--rounded">Rounded</button>
+                                <button class="wf-btn wf-btn--primary wf-btn--full">Full Width</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Button(&quot;Primary&quot;, primary)
 Button(&quot;Large&quot;, primary, large)
 Button(&quot;Rounded&quot;, success, rounded)
-Button(&quot;Full Width&quot;, danger, full)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Cards</h2>​
-                <p class="wf-text">Cards are surfaces for grouping content. They support Header, Body, and Footer sub-components.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-row">
-                    <div class="wf-col">
-                        <div class="wf-card">
-                            <div class="wf-card__header">
-                                <p class="wf-text wf-text--bold">Default Card</p>​
-                            </div>​
-                            <div class="wf-card__body">
-                                <p class="wf-text wf-text--muted">Basic card with header and body.</p>​
-                            </div>​
-                            <div class="wf-card__footer">
-                                <button class="wf-btn wf-btn--primary wf-btn--small">
-                                    Action
-                                </button>​
-                            </div>​
-                        </div>​
-                    </div>​
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--elevated">
-                            <div class="wf-card__header">
-                                <p class="wf-text wf-text--bold">Elevated</p>​
-                            </div>​
-                            <div class="wf-card__body">
-                                <p class="wf-text wf-text--muted">Card with shadow elevation.</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--outlined">
-                            <div class="wf-card__header">
-                                <p class="wf-text wf-text--bold">Outlined</p>​
-                            </div>​
-                            <div class="wf-card__body">
-                                <p class="wf-text wf-text--muted">Card with border only.</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Form Controls</h2>​
-                <p class="wf-text">All form inputs support two-way binding with the bind: attribute.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-stack">
-                            <input class="wf-input" placeholder="Type here..." type="text">
-                            <!--wf-if-->
-                            <hr class="wf-divider">
-                            <select class="wf-select">
-                                Select
-                                <option>opt1</option>​
-                                <option>opt2</option>​
-                                <option>opt3</option>​
-                            </select>​
-                            <p class="wf-text wf-text--muted wf-text--small"></p>​
-                            <hr class="wf-divider">
-                            <label class="wf-checkbox">I agree to the terms</label>​
-                            <p class="wf-text wf-text--muted wf-text--small"></p>​
-                            <hr class="wf-divider">
-                            <div class="wf-row">
-                                <label class="wf-radio" value="a">Option A</label>​
-                                <label class="wf-radio" value="b">Option B</label>​
-                                <label class="wf-radio" value="c">Option C</label>​
-                            </div>​
-                            <p class="wf-text wf-text--muted wf-text--small"></p>​
-                            <hr class="wf-divider">
-                            <label class="wf-switch">Dark Mode</label>​
-                            <p class="wf-text wf-text--muted wf-text--small"></p>​
-                            <hr class="wf-divider">
-                            <input class="wf-slider" min="0" max="100" step="1">
-                            <p class="wf-text wf-text--muted wf-text--small"></p>​
-                            <hr class="wf-divider">
-                            <input class="wf-datepicker">
-                            <p class="wf-text wf-text--muted wf-text--small"></p>​
-                            <hr class="wf-divider">
-                            <input class="wf-file-upload" accept="image/*">
-                            <input class="wf-file-upload" accept=".pdf,.doc">
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Feedback</h2>​
-                <p class="wf-text">Alerts, modals, progress bars, and loading indicators.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-stack">
-                            <div class="wf-alert wf-alert--success">This is a success alert.</div>​
-                            <div class="wf-alert wf-alert--warning">This is a warning alert.</div>​
-                            <div class="wf-alert wf-alert--danger">This is a danger alert.</div>​
-                            <div class="wf-alert wf-alert--info">This is an info alert.</div>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <div class="wf-spinner"></div>
-                            <div class="wf-spinner wf-spinner--large wf-spinner--primary"></div>
-                            <progress class="wf-progress" max="100"></progress>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <button class="wf-btn wf-btn--primary">
-                            Open Modal
-                        </button>​
-                    </div>​
-                </div>​
-                <div class="wf-modal" title="Example Modal">
-                    <p class="wf-text">This is a real modal dialog. It was triggered by clicking the button.</p>​
+Button(&quot;Full Width&quot;, danger, full)</code>
+                        </div>
+                    </div>
                     <div class="wf-spacer"></div>
-                    <p class="wf-text wf-text--muted">The modal is controlled by a state variable.</p>​
-                    <div class="wf-modal__footer">
-                        <button class="wf-btn">
-                            Close
-                        </button>​
-                        <button class="wf-btn wf-btn--primary">
-                            Confirm
-                        </button>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Data Display</h2>​
-                <p class="wf-text">Tables, badges, avatars, tags, and tooltips.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <table class="wf-table">
-                            <thead>
-                                <td>Name</td>​
-                                <td>Role</td>​
-                                <td>Status</td>​
-                            </thead>​
-                            <tr>
-                                <td>Monzer Omer</td>​
-                                <td>Creator</td>​
-                                <td>Active</td>​
-                            </tr>​
-                            <tr>
-                                <td>Sara Ali</td>​
-                                <td>Designer</td>​
-                                <td>Active</td>​
-                            </tr>​
-                            <tr>
-                                <td>Omar Hassan</td>​
-                                <td>Developer</td>​
-                                <td>Away</td>​
-                            </tr>​
-                        </table>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <div class="wf-avatar wf-avatar--primary"></div>​
-                            <div class="wf-avatar wf-avatar--success"></div>​
-                            <div class="wf-avatar wf-avatar--info"></div>​
-                            <span class="wf-badge wf-badge--primary">Admin</span>​
-                            <span class="wf-badge wf-badge--success">Online</span>​
-                            <span class="wf-tag">WebFluent</span>​
-                            <span class="wf-tag">Rust</span>​
-                            <span class="wf-tag">Open Source</span>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Layout</h2>​
-                <p class="wf-text">Container, Row, Column, Grid, Stack, Spacer, Divider.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <p class="wf-text wf-text--bold">Grid with 3 columns:</p>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
-                            <div class="wf-card wf-card--outlined">
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Cards</h2>
+                    <p class="wf-text">Cards are surfaces for grouping content. They support Header, Body, and Footer sub-components.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-row">
+                        <div class="wf-col">
+                            <div class="wf-card">
+                                <div class="wf-card__header">
+                                    <p class="wf-text wf-text--bold">Default Card</p>
+                                </div>
                                 <div class="wf-card__body">
-                                    <p class="wf-text wf-text--center">Column 1</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-card wf-card--outlined">
+                                    <p class="wf-text wf-text--muted">Basic card with header and body.</p>
+                                </div>
+                                <div class="wf-card__footer">
+                                    <button class="wf-btn wf-btn--primary wf-btn--small">
+                                        Action
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__header">
+                                    <p class="wf-text wf-text--bold">Elevated</p>
+                                </div>
                                 <div class="wf-card__body">
-                                    <p class="wf-text wf-text--center">Column 2</p>​
-                                </div>​
-                            </div>​
+                                    <p class="wf-text wf-text--muted">Card with shadow elevation.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
                             <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__header">
+                                    <p class="wf-text wf-text--bold">Outlined</p>
+                                </div>
                                 <div class="wf-card__body">
-                                    <p class="wf-text wf-text--center">Column 3</p>​
-                                </div>​
-                            </div>​
-                        </div>​
+                                    <p class="wf-text wf-text--muted">Card with border only.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Form Controls</h2>
+                    <p class="wf-text">All form inputs support two-way binding with the bind: attribute.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-stack">
+                                <input class="wf-input" placeholder="Type here..." type="text">
+                                <hr class="wf-divider">
+                                <select class="wf-select">
+                                    Select
+                                    <option>opt1</option>
+                                    <option>opt2</option>
+                                    <option>opt3</option>
+                                </select>
+                                <p class="wf-text wf-text--muted wf-text--small">Selected: opt1</p>
+                                <hr class="wf-divider">
+                                <label class="wf-checkbox">I agree to the terms</label>
+                                <p class="wf-text wf-text--muted wf-text--small">Checked: false</p>
+                                <hr class="wf-divider">
+                                <div class="wf-row">
+                                    <label class="wf-radio" value="a">Option A</label>
+                                    <label class="wf-radio" value="b">Option B</label>
+                                    <label class="wf-radio" value="c">Option C</label>
+                                </div>
+                                <p class="wf-text wf-text--muted wf-text--small">Selected: a</p>
+                                <hr class="wf-divider">
+                                <label class="wf-switch">Dark Mode</label>
+                                <p class="wf-text wf-text--muted wf-text--small">Enabled: false</p>
+                                <hr class="wf-divider">
+                                <div class="wf-slider">
+                                    <label class="wf-form-label">Volume</label>
+                                    <input type="range" min="0" max="100" step="1">
+                                </div>
+                                <p class="wf-text wf-text--muted wf-text--small">Value: 50</p>
+                                <hr class="wf-divider">
+                                <div class="wf-datepicker">
+                                    <label class="wf-form-label">Pick a Date</label>
+                                    <input type="date" class="wf-input">
+                                </div>
+                                <p class="wf-text wf-text--muted wf-text--small">Selected: </p>
+                                <hr class="wf-divider">
+                                <div class="wf-file-upload">
+                                    <label class="wf-form-label">Upload Image</label>
+                                    <input type="file" class="wf-input" accept="image/*">
+                                </div>
+                                <div class="wf-file-upload">
+                                    <label class="wf-form-label">Documents</label>
+                                    <input type="file" class="wf-input" accept=".pdf,.doc">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Feedback</h2>
+                    <p class="wf-text">Alerts, modals, progress bars, and loading indicators.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-stack">
+                                <div role="status" class="wf-alert wf-alert--success">This is a success alert.</div>
+                                <div role="alert" class="wf-alert wf-alert--warning">This is a warning alert.</div>
+                                <div role="alert" class="wf-alert wf-alert--danger">This is a danger alert.</div>
+                                <div role="status" class="wf-alert wf-alert--info">This is an info alert.</div>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <div class="wf-spinner"></div>
+                                <div class="wf-spinner wf-spinner--large wf-spinner--primary"></div>
+                                <progress class="wf-progress" value="50" max="100"></progress>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <button class="wf-btn wf-btn--primary">
+                                Open Modal
+                            </button>
+                        </div>
+                    </div>
+                    <dialog class="wf-modal" title="Example Modal">
+                        <p class="wf-text">This is a real modal dialog. It was triggered by clicking the button.</p>
                         <div class="wf-spacer"></div>
-                        <p class="wf-text wf-text--bold">Row with Columns (6/6 split):</p>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <div class="wf-col">
+                        <p class="wf-text wf-text--muted">The modal is controlled by a state variable.</p>
+                        <div class="wf-modal__footer">
+                            <button class="wf-btn">
+                                Close
+                            </button>
+                            <button class="wf-btn wf-btn--primary">
+                                Confirm
+                            </button>
+                        </div>
+                    </dialog>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Data Display</h2>
+                    <p class="wf-text">Tables, badges, avatars, tags, and tooltips.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <table class="wf-table">
+                                <thead>
+                                    <td>Name</td>
+                                    <td>Role</td>
+                                    <td>Status</td>
+                                </thead>
+                                <tr>
+                                    <td>Monzer Omer</td>
+                                    <td>Creator</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>Sara Ali</td>
+                                    <td>Designer</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>Omar Hassan</td>
+                                    <td>Developer</td>
+                                    <td>Away</td>
+                                </tr>
+                            </table>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <div class="wf-avatar wf-avatar--primary"></div>
+                                <div class="wf-avatar wf-avatar--success"></div>
+                                <div class="wf-avatar wf-avatar--info"></div>
+                                <span class="wf-badge wf-badge--primary">Admin</span>
+                                <span class="wf-badge wf-badge--success">Online</span>
+                                <span class="wf-tag">WebFluent</span>
+                                <span class="wf-tag">Rust</span>
+                                <span class="wf-tag">Open Source</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Layout</h2>
+                    <p class="wf-text">Container, Row, Column, Grid, Stack, Spacer, Divider.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <p class="wf-text wf-text--bold">Grid with 3 columns:</p>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
                                 <div class="wf-card wf-card--outlined">
                                     <div class="wf-card__body">
-                                        <p class="wf-text wf-text--center">Left Half</p>​
-                                    </div>​
-                                </div>​
-                            </div>​
-                            <div class="wf-col">
+                                        <p class="wf-text wf-text--center">Column 1</p>
+                                    </div>
+                                </div>
                                 <div class="wf-card wf-card--outlined">
                                     <div class="wf-card__body">
-                                        <p class="wf-text wf-text--center">Right Half</p>​
-                                    </div>​
-                                </div>​
-                            </div>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <p class="wf-text wf-text--bold">Stack (vertical):</p>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-stack">
-                            <div class="wf-card wf-card--outlined">
-                                <div class="wf-card__body">
-                                    <p class="wf-text">Item 1</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-card wf-card--outlined">
-                                <div class="wf-card__body">
-                                    <p class="wf-text">Item 2</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-card wf-card--outlined">
-                                <div class="wf-card__body">
-                                    <p class="wf-text">Item 3</p>​
-                                </div>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Icons &amp; Icon Buttons</h2>​
-                <p class="wf-text">30 built-in SVG icons. Use Icon for display, IconButton for clickable actions.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <p class="wf-text wf-text--bold">Available Icons:</p>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
+                                        <p class="wf-text wf-text--center">Column 2</p>
+                                    </div>
+                                </div>
+                                <div class="wf-card wf-card--outlined">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text wf-text--center">Column 3</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <p class="wf-text wf-text--bold">Row with Columns (6/6 split):</p>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <div class="wf-col">
+                                    <div class="wf-card wf-card--outlined">
+                                        <div class="wf-card__body">
+                                            <p class="wf-text wf-text--center">Left Half</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="wf-col">
+                                    <div class="wf-card wf-card--outlined">
+                                        <div class="wf-card__body">
+                                            <p class="wf-text wf-text--center">Right Half</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <p class="wf-text wf-text--bold">Stack (vertical):</p>
+                            <div class="wf-spacer"></div>
                             <div class="wf-stack">
-                                <div class="wf-row">
-                                    <i class="wf-icon">home</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">home</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">search</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">search</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">user</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">user</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">settings</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">settings</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">mail</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">mail</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">bell</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">bell</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-stack">
-                                <div class="wf-row">
-                                    <i class="wf-icon">edit</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">edit</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">trash</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">trash</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">plus</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">plus</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">check</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">check</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">close</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">close</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">copy</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">copy</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-stack">
-                                <div class="wf-row">
-                                    <i class="wf-icon">star</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">star</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">heart</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">heart</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">eye</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">eye</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">download</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">download</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">upload</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">upload</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">link</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">link</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-stack">
-                                <div class="wf-row">
-                                    <i class="wf-icon">calendar</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">calendar</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">filter</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">filter</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">info</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">info</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">warning</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">warning</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">logout</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">logout</p>​
-                                </div>​
-                                <div class="wf-row">
-                                    <i class="wf-icon">menu</i>​
-                                    <p class="wf-text wf-text--muted wf-text--small">menu</p>​
-                                </div>​
-                            </div>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <p class="wf-text wf-text--bold">Icon Buttons:</p>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <button class="wf-icon-btn">Edit</button>​
-                            <button class="wf-icon-btn wf-icon-btn--danger">Delete</button>​
-                            <button class="wf-icon-btn wf-icon-btn--primary">Add</button>​
-                            <button class="wf-icon-btn wf-icon-btn--large">Search</button>​
-                            <button class="wf-icon-btn wf-icon-btn--small">Close</button>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Icon(&quot;home&quot;)
+                                <div class="wf-card wf-card--outlined">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text">Item 1</p>
+                                    </div>
+                                </div>
+                                <div class="wf-card wf-card--outlined">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text">Item 2</p>
+                                    </div>
+                                </div>
+                                <div class="wf-card wf-card--outlined">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text">Item 3</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Icons &amp; Icon Buttons</h2>
+                    <p class="wf-text">30 built-in SVG icons. Use Icon for display, IconButton for clickable actions.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <p class="wf-text wf-text--bold">Available Icons:</p>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <div class="wf-stack">
+                                    <div class="wf-row">
+                                        <i class="wf-icon">home</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">home</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">search</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">search</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">user</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">user</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">settings</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">settings</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">mail</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">mail</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">bell</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">bell</p>
+                                    </div>
+                                </div>
+                                <div class="wf-stack">
+                                    <div class="wf-row">
+                                        <i class="wf-icon">edit</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">edit</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">trash</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">trash</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">plus</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">plus</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">check</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">check</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">close</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">close</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">copy</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">copy</p>
+                                    </div>
+                                </div>
+                                <div class="wf-stack">
+                                    <div class="wf-row">
+                                        <i class="wf-icon">star</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">star</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">heart</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">heart</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">eye</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">eye</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">download</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">download</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">upload</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">upload</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">link</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">link</p>
+                                    </div>
+                                </div>
+                                <div class="wf-stack">
+                                    <div class="wf-row">
+                                        <i class="wf-icon">calendar</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">calendar</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">filter</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">filter</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">info</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">info</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">warning</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">warning</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">logout</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">logout</p>
+                                    </div>
+                                    <div class="wf-row">
+                                        <i class="wf-icon">menu</i>
+                                        <p class="wf-text wf-text--muted wf-text--small">menu</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <p class="wf-text wf-text--bold">Icon Buttons:</p>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <button class="wf-icon-btn">Edit</button>
+                                <button class="wf-icon-btn wf-icon-btn--danger">Delete</button>
+                                <button class="wf-icon-btn wf-icon-btn--primary">Add</button>
+                                <button class="wf-icon-btn wf-icon-btn--large">Search</button>
+                                <button class="wf-icon-btn wf-icon-btn--small">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Icon(&quot;home&quot;)
 Icon(&quot;search&quot;, large, primary)
 IconButton(icon: &quot;edit&quot;, label: &quot;Edit&quot;)
-IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;, danger)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Tooltips</h2>​
-                <p class="wf-text">Wrap any element in a Tooltip to show text on hover.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <div class="wf-tooltip">
-                                <button class="wf-btn wf-btn--primary">Hover me</button>​
-                            </div>​
-                            <div class="wf-tooltip">
-                                <button class="wf-btn wf-btn--danger">Delete</button>​
-                            </div>​
-                            <div class="wf-tooltip">
-                                <div class="wf-avatar wf-avatar--primary"></div>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Tooltip(text: &quot;Help text&quot;) {
+IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;, danger)</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Tooltips</h2>
+                    <p class="wf-text">Wrap any element in a Tooltip to show text on hover.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-row">
+                                <div class="wf-tooltip">
+                                    <button class="wf-btn wf-btn--primary">Hover me</button>
+                                </div>
+                                <div class="wf-tooltip">
+                                    <button class="wf-btn wf-btn--danger">Delete</button>
+                                </div>
+                                <div class="wf-tooltip">
+                                    <div class="wf-avatar wf-avatar--primary"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Tooltip(text: &quot;Help text&quot;) {
     Button(&quot;Hover me&quot;, primary)
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Sidebar</h2>​
-                <p class="wf-text">Sidebar navigation with header, items, and dividers. Items support icons and links.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <aside class="wf-sidebar">
-                                <div class="wf-sidebar__header">
-                                    <p class="wf-text wf-text--heading">My App</p>​
-                                </div>​
-                                <li class="wf-sidebar__item">
-                                    <p class="wf-text">Dashboard</p>​
-                                </li>​
-                                <li class="wf-sidebar__item">
-                                    <p class="wf-text">Settings</p>​
-                                </li>​
-                                <li class="wf-sidebar__item">
-                                    <p class="wf-text">Profile</p>​
-                                </li>​
-                                <div class="wf-sidebar__divider">
-                                </div>​
-                                <li class="wf-sidebar__item">
-                                    <p class="wf-text">Logout</p>​
-                                </li>​
-                            </aside>​
-                            <div class="wf-stack">
-                                <p class="wf-text wf-text--muted">The sidebar renders with proper structure:</p>​
-                                <p class="wf-text wf-text--small">Sidebar.Header for the title</p>​
-                                <p class="wf-text wf-text--small">Sidebar.Item with to: and icon: props</p>​
-                                <p class="wf-text wf-text--small">Sidebar.Divider for separation</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Sidebar {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Sidebar</h2>
+                    <p class="wf-text">Sidebar navigation with header, items, and dividers. Items support icons and links.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-row">
+                                <aside class="wf-sidebar">
+                                    <div class="wf-sidebar__header">
+                                        <p class="wf-text wf-text--heading">My App</p>
+                                    </div>
+                                    <li class="wf-sidebar__item">
+                                        <p class="wf-text">Dashboard</p>
+                                    </li>
+                                    <li class="wf-sidebar__item">
+                                        <p class="wf-text">Settings</p>
+                                    </li>
+                                    <li class="wf-sidebar__item">
+                                        <p class="wf-text">Profile</p>
+                                    </li>
+                                    <div class="wf-sidebar__divider">
+                                    </div>
+                                    <li class="wf-sidebar__item">
+                                        <p class="wf-text">Logout</p>
+                                    </li>
+                                </aside>
+                                <div class="wf-stack">
+                                    <p class="wf-text wf-text--muted">The sidebar renders with proper structure:</p>
+                                    <p class="wf-text wf-text--small">Sidebar.Header for the title</p>
+                                    <p class="wf-text wf-text--small">Sidebar.Item with to: and icon: props</p>
+                                    <p class="wf-text wf-text--small">Sidebar.Divider for separation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Sidebar {
     Sidebar.Header { Text(&quot;My App&quot;, heading) }
     Sidebar.Item(to: &quot;/&quot;, icon: &quot;home&quot;) { Text(&quot;Dashboard&quot;) }
     Sidebar.Item(icon: &quot;settings&quot;) { Text(&quot;Settings&quot;) }
     Sidebar.Divider()
     Sidebar.Item(icon: &quot;logout&quot;) { Text(&quot;Logout&quot;) }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Breadcrumb</h2>​
-                <p class="wf-text">Show navigation hierarchy with automatic separators.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <nav class="wf-breadcrumb">
-                            <li class="wf-breadcrumb__item">
-                                <p class="wf-text">Home</p>​
-                            </li>​
-                            <li class="wf-breadcrumb__item">
-                                <p class="wf-text">Components</p>​
-                            </li>​
-                            <li class="wf-breadcrumb__item">
-                                <p class="wf-text">Breadcrumb</p>​
-                            </li>​
-                        </nav>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Breadcrumb {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Breadcrumb</h2>
+                    <p class="wf-text">Show navigation hierarchy with automatic separators.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <nav aria-label="Breadcrumb" class="wf-breadcrumb">
+                                <li class="wf-breadcrumb__item">
+                                    <p class="wf-text">Home</p>
+                                </li>
+                                <li class="wf-breadcrumb__item">
+                                    <p class="wf-text">Components</p>
+                                </li>
+                                <li class="wf-breadcrumb__item">
+                                    <p class="wf-text">Breadcrumb</p>
+                                </li>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Breadcrumb {
     Breadcrumb.Item(to: &quot;/&quot;) { Text(&quot;Home&quot;) }
     Breadcrumb.Item(to: &quot;/docs&quot;) { Text(&quot;Docs&quot;) }
     Breadcrumb.Item { Text(&quot;Current Page&quot;) }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Skeleton Loading</h2>​
-                <p class="wf-text">Placeholder shapes that shimmer while content loads.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-stack">
-                            <div class="wf-skeleton"></div>​
-                            <div class="wf-skeleton"></div>​
-                            <div class="wf-skeleton"></div>​
-                            <div class="wf-spacer"></div>
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Skeleton Loading</h2>
+                    <p class="wf-text">Placeholder shapes that shimmer while content loads.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-stack">
+                                <div class="wf-skeleton" height="16px" width="80%"></div>
+                                <div class="wf-skeleton" height="16px" width="60%"></div>
+                                <div class="wf-skeleton" height="16px" width="40%"></div>
+                                <div class="wf-spacer"></div>
+                                <div class="wf-row">
+                                    <div class="wf-skeleton"></div>
+                                    <div class="wf-stack">
+                                        <div class="wf-skeleton" height="14px" width="120px"></div>
+                                        <div class="wf-skeleton" height="12px" width="80px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Skeleton(height: &quot;16px&quot;, width: &quot;80%&quot;)
+Skeleton(circle, size: &quot;48px&quot;)</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Dropdown &amp; Menu</h2>
+                    <p class="wf-text">Click-to-toggle dropdown menus with auto-close on outside click.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
                             <div class="wf-row">
-                                <div class="wf-skeleton"></div>​
-                                <div class="wf-stack">
-                                    <div class="wf-skeleton"></div>​
-                                    <div class="wf-skeleton"></div>​
-                                </div>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Skeleton(height: &quot;16px&quot;, width: &quot;80%&quot;)
-Skeleton(circle, size: &quot;48px&quot;)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Dropdown &amp; Menu</h2>​
-                <p class="wf-text">Click-to-toggle dropdown menus with auto-close on outside click.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <div class="wf-dropdown">
-                                Actions
-                                <li class="wf-dropdown__item">
-                                    <p class="wf-text">Edit</p>​
-                                </li>​
-                                <li class="wf-dropdown__item">
-                                    <p class="wf-text">Duplicate</p>​
-                                </li>​
-                                <div class="wf-dropdown__divider">
-                                </div>​
-                                <li class="wf-dropdown__item">
-                                    <p class="wf-text">Delete</p>​
-                                </li>​
-                            </div>​
-                            <div class="wf-menu">
-                                <li class="wf-menu__item">
-                                    <p class="wf-text">Profile</p>​
-                                </li>​
-                                <li class="wf-menu__item">
-                                    <p class="wf-text">Settings</p>​
-                                </li>​
-                                <div class="wf-menu__divider">
-                                </div>​
-                                <li class="wf-menu__item">
-                                    <p class="wf-text">Logout</p>​
-                                </li>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Dropdown(label: &quot;Actions&quot;) {
+                                <div class="wf-dropdown">
+                                    Actions
+                                    <li class="wf-dropdown__item">
+                                        <p class="wf-text">Edit</p>
+                                    </li>
+                                    <li class="wf-dropdown__item">
+                                        <p class="wf-text">Duplicate</p>
+                                    </li>
+                                    <div class="wf-dropdown__divider">
+                                    </div>
+                                    <li class="wf-dropdown__item">
+                                        <p class="wf-text">Delete</p>
+                                    </li>
+                                </div>
+                                <div class="wf-menu">
+                                    <li class="wf-menu__item">
+                                        <p class="wf-text">Profile</p>
+                                    </li>
+                                    <li class="wf-menu__item">
+                                        <p class="wf-text">Settings</p>
+                                    </li>
+                                    <div class="wf-menu__divider">
+                                    </div>
+                                    <li class="wf-menu__item">
+                                        <p class="wf-text">Logout</p>
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Dropdown(label: &quot;Actions&quot;) {
     Dropdown.Item { Text(&quot;Edit&quot;) }
     Dropdown.Divider()
     Dropdown.Item { Text(&quot;Delete&quot;) }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Navigation</h2>​
-                <p class="wf-text">Tabs let you switch between content panels.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <div class="wf-tabs">
-                            <div class="wf-tab-page">
-                                Profile
-                                <div class="wf-spacer"></div>
-                                <div class="wf-row">
-                                    <div class="wf-avatar wf-avatar--primary wf-avatar--large"></div>​
-                                    <div class="wf-stack">
-                                        <p class="wf-text wf-text--bold">Monzer Omer</p>​
-                                        <p class="wf-text wf-text--muted">Creator of WebFluent</p>​
-                                    </div>​
-                                </div>​
-                            </div>​
-                            <div class="wf-tab-page">
-                                Settings
-                                <div class="wf-spacer"></div>
-                                <label class="wf-switch">Enable notifications</label>​
-                                <div class="wf-spacer"></div>
-                                <input class="wf-slider" min="0" max="100">
-                            </div>​
-                            <div class="wf-tab-page">
-                                About
-                                <div class="wf-spacer"></div>
-                                <p class="wf-text">WebFluent is a web-first programming language.</p>​
-                                <p class="wf-text wf-text--muted">It compiles to HTML, CSS, and JavaScript.</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Typography</h2>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <h2 class="wf-heading wf-heading--h2">Heading h2</h2>​
-                        <h2 class="wf-heading wf-heading--h2">Heading h2</h2>​
-                        <h3 class="wf-heading wf-heading--h3">Heading h3</h3>​
-                        <div class="wf-spacer"></div>
-                        <p class="wf-text">Normal text paragraph.</p>​
-                        <p class="wf-text wf-text--bold">Bold text.</p>​
-                        <p class="wf-text wf-text--muted">Muted text.</p>​
-                        <p class="wf-text wf-text--primary">Primary colored.</p>​
-                        <p class="wf-text wf-text--danger">Danger colored.</p>​
-                        <p class="wf-text wf-text--small">Small text.</p>​
-                        <p class="wf-text">Uppercase.</p>​
-                        <p class="wf-text wf-text--center">Centered text.</p>​
-                        <div class="wf-spacer"></div>
-                        <blockquote class="wf-blockquote">The best way to predict the future is to create it.</blockquote>​
-                        <div class="wf-spacer"></div>
-                        <code class="wf-code">const greeting = &quot;Hello, WebFluent!&quot;;</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-row">
-                    <button class="wf-btn wf-btn--primary">
-                        Styling Guide
-                    </button>​
-                    <button class="wf-btn">
-                        Animation System
-                    </button>​
-                </div>​
-                <div class="wf-spacer"></div>
-            </div>​
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Navigation</h2>
+                    <p class="wf-text">Tabs let you switch between content panels.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <div class="wf-tabs">
+                                <div class="wf-tab-page">
+                                    Profile
+                                    <div class="wf-spacer"></div>
+                                    <div class="wf-row">
+                                        <div class="wf-avatar wf-avatar--primary wf-avatar--large"></div>
+                                        <div class="wf-stack">
+                                            <p class="wf-text wf-text--bold">Monzer Omer</p>
+                                            <p class="wf-text wf-text--muted">Creator of WebFluent</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="wf-tab-page">
+                                    Settings
+                                    <div class="wf-spacer"></div>
+                                    <label class="wf-switch">Enable notifications</label>
+                                    <div class="wf-spacer"></div>
+                                    <div class="wf-slider">
+                                        <label class="wf-form-label">Volume</label>
+                                        <input type="range" min="0" max="100" step="1">
+                                    </div>
+                                </div>
+                                <div class="wf-tab-page">
+                                    About
+                                    <div class="wf-spacer"></div>
+                                    <p class="wf-text">WebFluent is a web-first programming language.</p>
+                                    <p class="wf-text wf-text--muted">It compiles to HTML, CSS, and JavaScript.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Typography</h2>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <h2 class="wf-heading">Heading h2</h2>
+                            <h2 class="wf-heading">Heading h2</h2>
+                            <h3 class="wf-heading">Heading h3</h3>
+                            <div class="wf-spacer"></div>
+                            <p class="wf-text">Normal text paragraph.</p>
+                            <p class="wf-text wf-text--bold">Bold text.</p>
+                            <p class="wf-text wf-text--muted">Muted text.</p>
+                            <p class="wf-text wf-text--primary">Primary colored.</p>
+                            <p class="wf-text wf-text--danger">Danger colored.</p>
+                            <p class="wf-text wf-text--small">Small text.</p>
+                            <p class="wf-text wf-text--uppercase">Uppercase.</p>
+                            <p class="wf-text wf-text--center">Centered text.</p>
+                            <div class="wf-spacer"></div>
+                            <blockquote class="wf-blockquote">The best way to predict the future is to create it.</blockquote>
+                            <div class="wf-spacer"></div>
+                            <code class="wf-code">const greeting = &quot;Hello, WebFluent!&quot;;</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-row">
+                        <button class="wf-btn wf-btn--primary">
+                            Styling Guide
+                        </button>
+                        <button class="wf-btn">
+                            Animation System
+                        </button>
+                    </div>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

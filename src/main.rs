@@ -1,15 +1,15 @@
 #![allow(dead_code)]
 
 mod cli;
-mod lexer;
-mod parser;
 mod codegen;
-mod runtime;
-mod themes;
 mod config;
 mod error;
+mod lexer;
 mod linter;
+mod parser;
+mod runtime;
 mod template;
+mod themes;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -68,9 +68,10 @@ enum Commands {
         /// Output file (stdout if omitted)
         #[arg(short, long)]
         output: Option<PathBuf>,
-        /// Theme name
-        #[arg(long, default_value = "default")]
-        theme: String,
+        /// Which `Theme` declared in the template to render with. Only needed
+        /// when the template declares more than one.
+        #[arg(long)]
+        theme: Option<String>,
     },
 }
 
@@ -82,9 +83,19 @@ fn main() {
         Commands::Build { dir } => cli::build::run_build(&dir),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),
-        Commands::Render { template: tpl, data, format, output, theme } => {
-            cli::render::run_render(&tpl, data.as_deref(), &format, output.as_deref(), &theme)
-        }
+        Commands::Render {
+            template: tpl,
+            data,
+            format,
+            output,
+            theme,
+        } => cli::render::run_render(
+            &tpl,
+            data.as_deref(),
+            &format,
+            output.as_deref(),
+            theme.as_deref(),
+        ),
     };
 
     if let Err(e) = result {

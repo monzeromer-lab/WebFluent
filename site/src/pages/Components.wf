@@ -1,4 +1,4 @@
-Page Components (path: "/components", title: "Components Reference") {
+Page Components (path: "/components", description: "Every built-in component, with the modifiers each accepts.", title: "Components Reference") {
     state activeModal = false
     state alertVisible = true
     state switchVal = false

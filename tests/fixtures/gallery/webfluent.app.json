@@ -1,0 +1,13 @@
+{
+  "name": "gallery",
+  "version": "1.0.0",
+  "theme": {},
+  "build": {
+    "output": "build",
+    "output_type": "spa"
+  },
+  "meta": {
+    "title": "Component Gallery",
+    "description": "Every built-in component, once."
+  }
+}

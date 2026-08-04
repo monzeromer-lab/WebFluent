@@ -1,4 +1,4 @@
-Page Pdf (path: "/pdf", title: "PDF Generation") {
+Page Pdf (path: "/pdf", description: "Compile a .wf document straight to PDF.", title: "PDF Generation") {
     Container(fadeIn) {
         Spacer()
         Heading("PDF Generation", h1)

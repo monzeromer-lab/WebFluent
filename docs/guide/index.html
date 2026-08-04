@@ -4,70 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Language Guide</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="The language, end to end: pages, components, state and routing.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/guide">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/guide?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/guide?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/guide">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Language Guide">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The language, end to end: pages, components, state and routing.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/guide">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Language Guide">
+    <meta name="twitter:description" content="The language, end to end: pages, components, state and routing.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/guide#webpage","url":"https://monzeromer-lab.github.io/WebFluent/guide","name":"Language Guide","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The language, end to end: pages, components, state and routing."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/guide#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Language Guide","item":"https://monzeromer-lab.github.io/WebFluent/guide"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">Language Guide</h1>​
-                <p class="wf-text wf-text--muted">Learn the core concepts of WebFluent.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Pages</h2>​
-                <p class="wf-text">Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Page Home (path: &quot;/&quot;, title: &quot;Home&quot;) {
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">Language Guide</h1>
+                    <p class="wf-text wf-text--muted">Learn the core concepts of WebFluent.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Pages</h2>
+                    <p class="wf-text">Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Page Home (path: &quot;/&quot;, title: &quot;Home&quot;) {
     Container {
         Heading(&quot;Welcome&quot;, h1)
         Text(&quot;This is the home page.&quot;)
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--bold">Page attributes:</p>​
-                <table class="wf-table">
-                    <thead>
-                        <td>Attribute</td>​
-                        <td>Type</td>​
-                        <td>Description</td>​
-                    </thead>​
-                    <tr>
-                        <td>path</td>​
-                        <td>String</td>​
-                        <td>URL route for this page (required)</td>​
-                    </tr>​
-                    <tr>
-                        <td>title</td>​
-                        <td>String</td>​
-                        <td>Document title</td>​
-                    </tr>​
-                    <tr>
-                        <td>guard</td>​
-                        <td>Expression</td>​
-                        <td>Navigation guard — redirects if false</td>​
-                    </tr>​
-                    <tr>
-                        <td>redirect</td>​
-                        <td>String</td>​
-                        <td>Redirect target when guard fails</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Components</h2>​
-                <p class="wf-text">Reusable UI blocks that accept props and can have internal state.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Component UserCard (name: String, role: String, active: Bool = true) {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--bold">Page attributes:</p>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Attribute</td>
+                            <td>Type</td>
+                            <td>Description</td>
+                        </thead>
+                        <tr>
+                            <td>path</td>
+                            <td>String</td>
+                            <td>URL route for this page (required)</td>
+                        </tr>
+                        <tr>
+                            <td>title</td>
+                            <td>String</td>
+                            <td>Document title</td>
+                        </tr>
+                        <tr>
+                            <td>guard</td>
+                            <td>Expression</td>
+                            <td>Navigation guard — redirects if false</td>
+                        </tr>
+                        <tr>
+                            <td>redirect</td>
+                            <td>String</td>
+                            <td>Redirect target when guard fails</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Components</h2>
+                    <p class="wf-text">Reusable UI blocks that accept props and can have internal state.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Component UserCard (name: String, role: String, active: Bool = true) {
     Card(elevated) {
         Row(align: center, gap: md) {
             Avatar(initials: &quot;U&quot;, primary)
@@ -83,20 +165,20 @@
 }
 
 // Usage
-UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">State and Reactivity</h2>​
-                <p class="wf-text">State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Page Counter (path: &quot;/counter&quot;) {
+UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">State and Reactivity</h2>
+                    <p class="wf-text">State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Page Counter (path: &quot;/counter&quot;) {
     state count = 0
 
     Container {
@@ -104,27 +186,27 @@ UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>​
         Button(&quot;+1&quot;, primary) { count = count + 1 }
         Button(&quot;-1&quot;) { count = count - 1 }
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--bold">Derived state:</p>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">state items = [{name: &quot;A&quot;, price: 3}, {name: &quot;B&quot;, price: 2}]
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--bold">Derived state:</p>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">state items = [{name: &quot;A&quot;, price: 3}, {name: &quot;B&quot;, price: 2}]
 derived total = items.map(i =&gt; i.price).sum()
-derived isEmpty = items.length == 0</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Events</h2>​
-                <p class="wf-text">Event handlers are declared with on:event or via shorthand blocks on buttons.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Button(&quot;Submit&quot;) {
+derived isEmpty = items.length == 0</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Events</h2>
+                    <p class="wf-text">Event handlers are declared with on:event or via shorthand blocks on buttons.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Button(&quot;Submit&quot;) {
     on:click {
         submitForm()
     }
@@ -142,59 +224,59 @@ Input(text, placeholder: &quot;Search...&quot;) {
 }
 
 // Shorthand: block on Button defaults to on:click
-Button(&quot;Save&quot;) { save() }</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Control Flow</h2>​
-                <p class="wf-text wf-text--bold">Conditionals:</p>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">if isLoggedIn {
+Button(&quot;Save&quot;) { save() }</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Control Flow</h2>
+                    <p class="wf-text wf-text--bold">Conditionals:</p>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">if isLoggedIn {
     Text(&quot;Welcome back!&quot;)
 } else if isGuest {
     Text(&quot;Hello, guest&quot;)
 } else {
     Button(&quot;Log In&quot;) { navigate(&quot;/login&quot;) }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--bold">Loops:</p>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">for user in users {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--bold">Loops:</p>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">for user in users {
     UserCard(name: user.name, role: user.role)
 }
 
 // With index
 for item, index in items {
     Text(&quot;{index + 1}. {item}&quot;)
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--bold">Show/Hide (keeps element in DOM, toggles visibility):</p>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">show isExpanded {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--bold">Show/Hide (keeps element in DOM, toggles visibility):</p>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">show isExpanded {
     Card { Text(&quot;Expanded content&quot;) }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Stores</h2>​
-                <p class="wf-text">Stores hold shared state accessible from any page or component.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Store CartStore {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Stores</h2>
+                    <p class="wf-text">Stores hold shared state accessible from any page or component.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Store CartStore {
     state items = []
 
     derived total = items.map(i =&gt; i.price * i.quantity).sum()
@@ -215,18 +297,18 @@ Page Cart (path: &quot;/cart&quot;) {
 
     Text(&quot;Total: ${CartStore.total}&quot;)
     Button(&quot;Clear&quot;) { CartStore.clear() }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Routing</h2>​
-                <p class="wf-text">SPA routing is declared in the App file.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">App {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Routing</h2>
+                    <p class="wf-text">SPA routing is declared in the App file.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">App {
     Navbar {
         Navbar.Brand { Text(&quot;My App&quot;, heading) }
         Navbar.Links {
@@ -249,18 +331,18 @@ Button(&quot;Go Home&quot;) { navigate(&quot;/&quot;) }
 // Dynamic routes access params
 Page UserProfile (path: &quot;/user/:id&quot;) {
     Text(&quot;User ID: {params.id}&quot;)
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Data Fetching</h2>​
-                <p class="wf-text">Built-in async data loading with automatic loading, error, and success states.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">fetch users from &quot;/api/users&quot; {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Data Fetching</h2>
+                    <p class="wf-text">Built-in async data loading with automatic loading, error, and success states.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">fetch users from &quot;/api/users&quot; {
     loading {
         Spinner()
     }
@@ -279,18 +361,18 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
     success {
         Alert(&quot;Saved!&quot;, success)
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Return Values</h2>​
-                <p class="wf-text">Store actions can return values using the return keyword.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Store AuthStore {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Return Values</h2>
+                    <p class="wf-text">Store actions can return values using the return keyword.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Store AuthStore {
     state accessToken = &quot;&quot;
 
     action getHeaders() {
@@ -298,18 +380,18 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
         h[&quot;Authorization&quot;] = &quot;Bearer &quot; + accessToken
         return h
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Browser Globals</h2>​
-                <p class="wf-text">Standard browser APIs are available directly without any special syntax. They compile to their JavaScript equivalents.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">// Storage
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Browser Globals</h2>
+                    <p class="wf-text">Standard browser APIs are available directly without any special syntax. They compile to their JavaScript equivalents.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">// Storage
 localStorage.setItem(&quot;token&quot;, tok)
 sessionStorage.getItem(&quot;key&quot;)
 
@@ -324,80 +406,95 @@ text = JSON.stringify(obj)
 console.log(&quot;debug info&quot;)
 
 // Timers
-setTimeout(callback, 1000)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Available globals: window, document, console, localStorage, sessionStorage, JSON, Math, Date, setTimeout, setInterval, parseInt, parseFloat, Array, Object, Promise, Error, fetch, alert, confirm, prompt, and more.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Map Literals</h2>​
-                <p class="wf-text">Map literals support quoted string keys for HTTP headers and special field names. Reserved words also work as map keys.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">// Quoted keys for headers
+setTimeout(callback, 1000)</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Available globals: window, document, console, localStorage, sessionStorage, JSON, Math, Date, setTimeout, setInterval, parseInt, parseFloat, Array, Object, Promise, Error, fetch, alert, confirm, prompt, and more.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Map Literals</h2>
+                    <p class="wf-text">Map literals support quoted string keys for HTTP headers and special field names. Reserved words also work as map keys.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">// Quoted keys for headers
 headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, &quot;X-Api-Key&quot;: apiKey }
 
 // Reserved words as keys
-body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quot; }</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Operators</h2>​
-                <p class="wf-text">WebFluent supports all common comparison and logical operators.</p>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Operator</td>​
-                        <td>Description</td>​
-                    </thead>​
-                    <tr>
-                        <td>==</td>​
-                        <td>Equal</td>​
-                    </tr>​
-                    <tr>
-                        <td>!=</td>​
-                        <td>Not equal</td>​
-                    </tr>​
-                    <tr>
-                        <td>!==</td>​
-                        <td>Strict not equal (alias for !=)</td>​
-                    </tr>​
-                    <tr>
-                        <td>&lt; &gt; &lt;= &gt;=</td>​
-                        <td>Comparison</td>​
-                    </tr>​
-                    <tr>
-                        <td>&amp;&amp; ||</td>​
-                        <td>Logical AND / OR</td>​
-                    </tr>​
-                    <tr>
-                        <td>!</td>​
-                        <td>Logical NOT</td>​
-                    </tr>​
-                    <tr>
-                        <td>+ - * / %</td>​
-                        <td>Arithmetic</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <div class="wf-row">
-                    <button class="wf-btn wf-btn--primary">
-                        Components Reference
-                    </button>​
-                    <button class="wf-btn">
-                        Styling Guide
-                    </button>​
-                </div>​
-                <div class="wf-spacer"></div>
-            </div>​
+body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quot; }</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Operators</h2>
+                    <p class="wf-text">WebFluent supports all common comparison and logical operators.</p>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Operator</td>
+                            <td>Description</td>
+                        </thead>
+                        <tr>
+                            <td>==</td>
+                            <td>Equal</td>
+                        </tr>
+                        <tr>
+                            <td>!=</td>
+                            <td>Not equal</td>
+                        </tr>
+                        <tr>
+                            <td>!==</td>
+                            <td>Strict not equal (alias for !=)</td>
+                        </tr>
+                        <tr>
+                            <td>&lt; &gt; &lt;= &gt;=</td>
+                            <td>Comparison</td>
+                        </tr>
+                        <tr>
+                            <td>&amp;&amp; ||</td>
+                            <td>Logical AND / OR</td>
+                        </tr>
+                        <tr>
+                            <td>!</td>
+                            <td>Logical NOT</td>
+                        </tr>
+                        <tr>
+                            <td>+ - * / %</td>
+                            <td>Arithmetic</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-row">
+                        <button class="wf-btn wf-btn--primary">
+                            Components Reference
+                        </button>
+                        <button class="wf-btn">
+                            Styling Guide
+                        </button>
+                    </div>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

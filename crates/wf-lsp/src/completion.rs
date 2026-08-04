@@ -10,104 +10,308 @@ struct ComponentInfo {
 }
 
 const LAYOUT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Container", detail: "Responsive centered container" },
-    ComponentInfo { name: "Row", detail: "Horizontal flex row" },
-    ComponentInfo { name: "Column", detail: "Vertical flex column" },
-    ComponentInfo { name: "Grid", detail: "CSS grid layout" },
-    ComponentInfo { name: "Stack", detail: "Stacked/overlapping layout" },
-    ComponentInfo { name: "Spacer", detail: "Flexible space filler" },
-    ComponentInfo { name: "Divider", detail: "Horizontal divider line" },
+    ComponentInfo {
+        name: "Container",
+        detail: "Responsive centered container",
+    },
+    ComponentInfo {
+        name: "Row",
+        detail: "Horizontal flex row",
+    },
+    ComponentInfo {
+        name: "Column",
+        detail: "Vertical flex column",
+    },
+    ComponentInfo {
+        name: "Grid",
+        detail: "CSS grid layout",
+    },
+    ComponentInfo {
+        name: "Stack",
+        detail: "Stacked/overlapping layout",
+    },
+    ComponentInfo {
+        name: "Spacer",
+        detail: "Flexible space filler",
+    },
+    ComponentInfo {
+        name: "Divider",
+        detail: "Horizontal divider line",
+    },
 ];
 
 const NAV_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Navbar", detail: "Navigation bar" },
-    ComponentInfo { name: "Sidebar", detail: "Side navigation panel" },
-    ComponentInfo { name: "Breadcrumb", detail: "Breadcrumb navigation trail" },
-    ComponentInfo { name: "Link", detail: "Navigation link" },
-    ComponentInfo { name: "Menu", detail: "Dropdown menu" },
-    ComponentInfo { name: "Tabs", detail: "Tab navigation" },
-    ComponentInfo { name: "TabPage", detail: "Individual tab page" },
+    ComponentInfo {
+        name: "Navbar",
+        detail: "Navigation bar",
+    },
+    ComponentInfo {
+        name: "Sidebar",
+        detail: "Side navigation panel",
+    },
+    ComponentInfo {
+        name: "Breadcrumb",
+        detail: "Breadcrumb navigation trail",
+    },
+    ComponentInfo {
+        name: "Link",
+        detail: "Navigation link",
+    },
+    ComponentInfo {
+        name: "Menu",
+        detail: "Dropdown menu",
+    },
+    ComponentInfo {
+        name: "Tabs",
+        detail: "Tab navigation",
+    },
+    ComponentInfo {
+        name: "TabPage",
+        detail: "Individual tab page",
+    },
 ];
 
 const DATA_DISPLAY_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Card", detail: "Content card container" },
-    ComponentInfo { name: "Table", detail: "Data table" },
-    ComponentInfo { name: "Thead", detail: "Table header section" },
-    ComponentInfo { name: "Tbody", detail: "Table body section" },
-    ComponentInfo { name: "Trow", detail: "Table row" },
-    ComponentInfo { name: "Tcell", detail: "Table cell" },
-    ComponentInfo { name: "List", detail: "Ordered/unordered list" },
-    ComponentInfo { name: "Badge", detail: "Status badge / counter" },
-    ComponentInfo { name: "Avatar", detail: "User avatar image" },
-    ComponentInfo { name: "Tooltip", detail: "Hover tooltip" },
-    ComponentInfo { name: "Tag", detail: "Label tag / chip" },
+    ComponentInfo {
+        name: "Card",
+        detail: "Content card container",
+    },
+    ComponentInfo {
+        name: "Table",
+        detail: "Data table",
+    },
+    ComponentInfo {
+        name: "Thead",
+        detail: "Table header section",
+    },
+    ComponentInfo {
+        name: "Tbody",
+        detail: "Table body section",
+    },
+    ComponentInfo {
+        name: "Trow",
+        detail: "Table row",
+    },
+    ComponentInfo {
+        name: "Tcell",
+        detail: "Table cell",
+    },
+    ComponentInfo {
+        name: "List",
+        detail: "Ordered/unordered list",
+    },
+    ComponentInfo {
+        name: "Badge",
+        detail: "Status badge / counter",
+    },
+    ComponentInfo {
+        name: "Avatar",
+        detail: "User avatar image",
+    },
+    ComponentInfo {
+        name: "Tooltip",
+        detail: "Hover tooltip",
+    },
+    ComponentInfo {
+        name: "Tag",
+        detail: "Label tag / chip",
+    },
 ];
 
 const INPUT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Input", detail: "Text input field" },
-    ComponentInfo { name: "Select", detail: "Dropdown select" },
-    ComponentInfo { name: "Option", detail: "Select option" },
-    ComponentInfo { name: "Checkbox", detail: "Checkbox toggle" },
-    ComponentInfo { name: "Radio", detail: "Radio button" },
-    ComponentInfo { name: "Switch", detail: "Toggle switch" },
-    ComponentInfo { name: "Slider", detail: "Range slider" },
-    ComponentInfo { name: "DatePicker", detail: "Date picker input" },
-    ComponentInfo { name: "FileUpload", detail: "File upload input" },
-    ComponentInfo { name: "Form", detail: "Form wrapper" },
+    ComponentInfo {
+        name: "Input",
+        detail: "Text input field",
+    },
+    ComponentInfo {
+        name: "Select",
+        detail: "Dropdown select",
+    },
+    ComponentInfo {
+        name: "Option",
+        detail: "Select option",
+    },
+    ComponentInfo {
+        name: "Checkbox",
+        detail: "Checkbox toggle",
+    },
+    ComponentInfo {
+        name: "Radio",
+        detail: "Radio button",
+    },
+    ComponentInfo {
+        name: "Switch",
+        detail: "Toggle switch",
+    },
+    ComponentInfo {
+        name: "Slider",
+        detail: "Range slider",
+    },
+    ComponentInfo {
+        name: "DatePicker",
+        detail: "Date picker input",
+    },
+    ComponentInfo {
+        name: "FileUpload",
+        detail: "File upload input",
+    },
+    ComponentInfo {
+        name: "Form",
+        detail: "Form wrapper",
+    },
 ];
 
 const FEEDBACK_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Alert", detail: "Alert message banner" },
-    ComponentInfo { name: "Toast", detail: "Toast notification" },
-    ComponentInfo { name: "Modal", detail: "Modal overlay dialog" },
-    ComponentInfo { name: "Dialog", detail: "Confirmation dialog" },
-    ComponentInfo { name: "Spinner", detail: "Loading spinner" },
-    ComponentInfo { name: "Progress", detail: "Progress bar" },
-    ComponentInfo { name: "Skeleton", detail: "Skeleton loading placeholder" },
+    ComponentInfo {
+        name: "Alert",
+        detail: "Alert message banner",
+    },
+    ComponentInfo {
+        name: "Toast",
+        detail: "Toast notification",
+    },
+    ComponentInfo {
+        name: "Modal",
+        detail: "Modal overlay dialog",
+    },
+    ComponentInfo {
+        name: "Dialog",
+        detail: "Confirmation dialog",
+    },
+    ComponentInfo {
+        name: "Spinner",
+        detail: "Loading spinner",
+    },
+    ComponentInfo {
+        name: "Progress",
+        detail: "Progress bar",
+    },
+    ComponentInfo {
+        name: "Skeleton",
+        detail: "Skeleton loading placeholder",
+    },
 ];
 
 const ACTION_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Button", detail: "Clickable button" },
-    ComponentInfo { name: "IconButton", detail: "Icon-only button" },
-    ComponentInfo { name: "ButtonGroup", detail: "Group of related buttons" },
-    ComponentInfo { name: "Dropdown", detail: "Dropdown button" },
+    ComponentInfo {
+        name: "Button",
+        detail: "Clickable button",
+    },
+    ComponentInfo {
+        name: "IconButton",
+        detail: "Icon-only button",
+    },
+    ComponentInfo {
+        name: "ButtonGroup",
+        detail: "Group of related buttons",
+    },
+    ComponentInfo {
+        name: "Dropdown",
+        detail: "Dropdown button",
+    },
 ];
 
 const MEDIA_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Image", detail: "Responsive image" },
-    ComponentInfo { name: "Video", detail: "Video player" },
-    ComponentInfo { name: "Icon", detail: "SVG icon" },
-    ComponentInfo { name: "Carousel", detail: "Image carousel / slider" },
+    ComponentInfo {
+        name: "Image",
+        detail: "Responsive image",
+    },
+    ComponentInfo {
+        name: "Video",
+        detail: "Video player",
+    },
+    ComponentInfo {
+        name: "Icon",
+        detail: "SVG icon",
+    },
+    ComponentInfo {
+        name: "Carousel",
+        detail: "Image carousel / slider",
+    },
 ];
 
 const TYPOGRAPHY_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Text", detail: "Paragraph text" },
-    ComponentInfo { name: "Heading", detail: "Heading (h1-h6)" },
-    ComponentInfo { name: "Code", detail: "Code block / inline code" },
-    ComponentInfo { name: "Blockquote", detail: "Block quotation" },
+    ComponentInfo {
+        name: "Text",
+        detail: "Paragraph text",
+    },
+    ComponentInfo {
+        name: "Heading",
+        detail: "Heading (h1-h6)",
+    },
+    ComponentInfo {
+        name: "Code",
+        detail: "Code block / inline code",
+    },
+    ComponentInfo {
+        name: "Blockquote",
+        detail: "Block quotation",
+    },
 ];
 
 const DOCUMENT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Document", detail: "PDF document root" },
-    ComponentInfo { name: "Section", detail: "Document section" },
-    ComponentInfo { name: "Paragraph", detail: "Document paragraph" },
-    ComponentInfo { name: "PageBreak", detail: "PDF page break" },
-    ComponentInfo { name: "Header", detail: "Page header" },
-    ComponentInfo { name: "Footer", detail: "Page footer" },
+    ComponentInfo {
+        name: "Document",
+        detail: "PDF document root",
+    },
+    ComponentInfo {
+        name: "Section",
+        detail: "Document section",
+    },
+    ComponentInfo {
+        name: "Paragraph",
+        detail: "Document paragraph",
+    },
+    ComponentInfo {
+        name: "PageBreak",
+        detail: "PDF page break",
+    },
+    ComponentInfo {
+        name: "Header",
+        detail: "Page header",
+    },
+    ComponentInfo {
+        name: "Footer",
+        detail: "Page footer",
+    },
 ];
 
 const SLIDES_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Presentation", detail: "Slide deck root" },
-    ComponentInfo { name: "Slide", detail: "Freeform slide (one PDF page)" },
-    ComponentInfo { name: "TitleSlide", detail: "Title slide: TitleSlide(\"Title\", \"Subtitle\")" },
-    ComponentInfo { name: "SectionSlide", detail: "Section divider slide: SectionSlide(\"Label\")" },
-    ComponentInfo { name: "TwoColumn", detail: "Two-column slide; takes exactly 2 Container children" },
-    ComponentInfo { name: "ImageSlide", detail: "Image slide: ImageSlide(src: \"...\", caption: \"...\")" },
+    ComponentInfo {
+        name: "Presentation",
+        detail: "Slide deck root",
+    },
+    ComponentInfo {
+        name: "Slide",
+        detail: "Freeform slide (one PDF page)",
+    },
+    ComponentInfo {
+        name: "TitleSlide",
+        detail: "Title slide: TitleSlide(\"Title\", \"Subtitle\")",
+    },
+    ComponentInfo {
+        name: "SectionSlide",
+        detail: "Section divider slide: SectionSlide(\"Label\")",
+    },
+    ComponentInfo {
+        name: "TwoColumn",
+        detail: "Two-column slide; takes exactly 2 Container children",
+    },
+    ComponentInfo {
+        name: "ImageSlide",
+        detail: "Image slide: ImageSlide(src: \"...\", caption: \"...\")",
+    },
 ];
 
 const ROUTING_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Router", detail: "Client-side router outlet" },
-    ComponentInfo { name: "Route", detail: "Route definition" },
+    ComponentInfo {
+        name: "Router",
+        detail: "Client-side router outlet",
+    },
+    ComponentInfo {
+        name: "Route",
+        detail: "Route definition",
+    },
 ];
 
 const ALL_COMPONENT_GROUPS: &[&[ComponentInfo]] = &[
@@ -126,52 +330,76 @@ const ALL_COMPONENT_GROUPS: &[&[ComponentInfo]] = &[
 
 // Sub-component mappings: parent -> list of (child_suffix, detail)
 const SUB_COMPONENTS: &[(&str, &[(&str, &str)])] = &[
-    ("Card", &[
-        ("Header", "Card header section"),
-        ("Body", "Card body content"),
-        ("Footer", "Card footer section"),
-        ("Image", "Card image"),
-    ]),
-    ("Navbar", &[
-        ("Brand", "Navbar brand / logo area"),
-        ("Links", "Navbar link group"),
-        ("Actions", "Navbar action buttons"),
-    ]),
-    ("Modal", &[
-        ("Header", "Modal header"),
-        ("Body", "Modal body content"),
-        ("Footer", "Modal footer / actions"),
-    ]),
-    ("Dialog", &[
-        ("Header", "Dialog header"),
-        ("Body", "Dialog body content"),
-        ("Footer", "Dialog footer / actions"),
-    ]),
-    ("Tabs", &[
-        ("Tab", "Individual tab"),
-        ("Panel", "Tab panel content"),
-    ]),
-    ("Table", &[
-        ("Header", "Table header"),
-        ("Body", "Table body"),
-        ("Row", "Table row"),
-        ("Cell", "Table cell"),
-    ]),
-    ("Form", &[
-        ("Group", "Form field group"),
-        ("Actions", "Form action buttons"),
-    ]),
-    ("Sidebar", &[
-        ("Header", "Sidebar header"),
-        ("Content", "Sidebar content"),
-        ("Footer", "Sidebar footer"),
-    ]),
+    (
+        "Card",
+        &[
+            ("Header", "Card header section"),
+            ("Body", "Card body content"),
+            ("Footer", "Card footer section"),
+            ("Image", "Card image"),
+        ],
+    ),
+    (
+        "Navbar",
+        &[
+            ("Brand", "Navbar brand / logo area"),
+            ("Links", "Navbar link group"),
+            ("Actions", "Navbar action buttons"),
+        ],
+    ),
+    (
+        "Modal",
+        &[
+            ("Header", "Modal header"),
+            ("Body", "Modal body content"),
+            ("Footer", "Modal footer / actions"),
+        ],
+    ),
+    (
+        "Dialog",
+        &[
+            ("Header", "Dialog header"),
+            ("Body", "Dialog body content"),
+            ("Footer", "Dialog footer / actions"),
+        ],
+    ),
+    (
+        "Tabs",
+        &[("Tab", "Individual tab"), ("Panel", "Tab panel content")],
+    ),
+    (
+        "Table",
+        &[
+            ("Header", "Table header"),
+            ("Body", "Table body"),
+            ("Row", "Table row"),
+            ("Cell", "Table cell"),
+        ],
+    ),
+    (
+        "Form",
+        &[
+            ("Group", "Form field group"),
+            ("Actions", "Form action buttons"),
+        ],
+    ),
+    (
+        "Sidebar",
+        &[
+            ("Header", "Sidebar header"),
+            ("Content", "Sidebar content"),
+            ("Footer", "Sidebar footer"),
+        ],
+    ),
 ];
 
 const KEYWORDS: &[(&str, &str)] = &[
     ("state", "Declare reactive state variable"),
     ("derived", "Declare computed/derived value"),
-    ("effect", "Side-effect block that re-runs on dependency changes"),
+    (
+        "effect",
+        "Side-effect block that re-runs on dependency changes",
+    ),
     ("action", "Define a named action function"),
     ("if", "Conditional rendering"),
     ("else", "Else branch of conditional"),
@@ -242,39 +470,48 @@ const NAMED_ARGS: &[(&str, &str)] = &[
     ("redirect:", "Redirect path when guard fails"),
 ];
 
-const MODIFIERS: &[(&str, &str)] = &[
-    ("primary", "Primary style variant"),
-    ("secondary", "Secondary style variant"),
-    ("outline", "Outline / bordered variant"),
-    ("ghost", "Ghost / transparent variant"),
-    ("danger", "Danger / destructive variant"),
-    ("warning", "Warning style variant"),
-    ("success", "Success style variant"),
-    ("info", "Informational style variant"),
-    ("small", "Small size"),
-    ("large", "Large size"),
-    ("disabled", "Disabled state"),
-    ("full-width", "Full-width element"),
-    ("rounded", "Rounded corners"),
-    ("centered", "Center aligned"),
-    ("h1", "Heading level 1"),
-    ("h2", "Heading level 2"),
-    ("h3", "Heading level 3"),
-    ("h4", "Heading level 4"),
-    ("h5", "Heading level 5"),
-    ("h6", "Heading level 6"),
-    ("ordered", "Ordered list"),
-    ("unordered", "Unordered list"),
-    ("bold", "Bold text"),
-    ("italic", "Italic text"),
-    ("underline", "Underlined text"),
-    ("strikethrough", "Strikethrough text"),
-    ("text", "Text input type"),
-    ("email", "Email input type"),
-    ("password", "Password input type"),
-    ("number", "Number input type"),
-    ("horizontal", "Horizontal orientation"),
-    ("vertical", "Vertical orientation"),
+/// A one-line gloss for a modifier, keyed by the compiler's own vocabulary.
+///
+/// The list of *which* modifiers exist is never written here. This file used to
+/// carry its own copy, which is the drift `parser::vocabulary` was written to
+/// end — by the time anyone measured, the copy was missing 43 real modifiers and
+/// inventing eight that do not exist (`ghost`, `outline`, `centered`,
+/// `strikethrough`, `ordered`, `unordered`, `horizontal`, `vertical`). The
+/// editor was completing words the compiler then warned about.
+///
+/// A modifier with no gloss still completes; it just has no description.
+fn modifier_detail(modifier: &str) -> &'static str {
+    match modifier {
+        "small" | "medium" | "large" => "Size",
+        "primary" | "secondary" | "success" | "danger" | "warning" | "info" => "Colour variant",
+        "error" | "loading" => "State",
+        "rounded" | "pill" | "square" => "Shape",
+        "flat" | "elevated" | "outlined" => "Elevation",
+        "full" | "fit" => "Width",
+        "bold" | "italic" | "underline" | "uppercase" | "lowercase" => "Text style",
+        "left" | "center" | "right" => "Text alignment",
+        "heading" | "subtitle" | "muted" => "Typography",
+        "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => "Heading level",
+        "dismissible" | "block" | "bordered" => "Behaviour",
+        "controls" | "autoplay" => "Media",
+        "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"
+        | "datetime" | "color" => "Input type",
+        "submit" | "reset" => "Button type",
+        "fast" | "slow" => "Animation speed",
+        _ => "Animation",
+    }
+}
+
+/// Every attribute `Page (…)` accepts, which the completion list never offered.
+const PAGE_ATTRS: &[(&str, &str)] = &[
+    ("path", "URL route, e.g. \"/about\" or \"/user/:id\""),
+    ("title", "Browser tab title and search-result heading"),
+    ("description", "Search-result snippet and link-preview text"),
+    ("image", "Link-preview image, site-relative or absolute"),
+    ("type", "og:type — \"website\" or \"article\""),
+    ("noindex", "Keep this page out of search results"),
+    ("guard", "Expression that must hold for the route to render"),
+    ("redirect", "Path to redirect to when the guard fails"),
 ];
 
 // ---------------------------------------------------------------------------
@@ -298,11 +535,7 @@ fn top_level_snippets() -> Vec<CompletionItem> {
             "Store declaration",
             "Store ${1:Name} {\n\tstate ${2:value} = ${3:0}\n\t$0\n}",
         ),
-        snippet_item(
-            "App",
-            "App declaration",
-            "App {\n\t$0\n}",
-        ),
+        snippet_item("App", "App declaration", "App {\n\t$0\n}"),
     ]
 }
 
@@ -355,10 +588,10 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
     // Check for dot access: e.g. "Card."
     if let Some(dot_pos) = prefix.rfind('.') {
         let before_dot = prefix[..dot_pos].trim_end();
-        if let Some(word) = before_dot.split_whitespace().last() {
-            if word.chars().next().is_some_and(|c| c.is_uppercase()) {
-                return CompletionContext::DotAccess(word.to_string());
-            }
+        if let Some(word) = before_dot.split_whitespace().last()
+            && word.chars().next().is_some_and(|c| c.is_uppercase())
+        {
+            return CompletionContext::DotAccess(word.to_string());
         }
     }
 
@@ -443,10 +676,18 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
                     ..Default::default()
                 });
             }
-            for &(modifier, detail) in MODIFIERS {
+            for modifier in webfluent::parser::MODIFIER_KEYWORDS {
                 items.push(CompletionItem {
                     label: modifier.to_string(),
                     kind: Some(CompletionItemKind::ENUM_MEMBER),
+                    detail: Some(modifier_detail(modifier).to_string()),
+                    ..Default::default()
+                });
+            }
+            for &(attr, detail) in PAGE_ATTRS {
+                items.push(CompletionItem {
+                    label: format!("{attr}:"),
+                    kind: Some(CompletionItemKind::PROPERTY),
                     detail: Some(detail.to_string()),
                     ..Default::default()
                 });

@@ -20,7 +20,12 @@ pub struct Diagnostic {
 
 impl Diagnostic {
     /// Create a new diagnostic at the given source location.
-    pub fn new(message: impl Into<String>, file: impl Into<String>, line: usize, column: usize) -> Self {
+    pub fn new(
+        message: impl Into<String>,
+        file: impl Into<String>,
+        line: usize,
+        column: usize,
+    ) -> Self {
         Self {
             message: message.into(),
             file: file.into(),
@@ -39,7 +44,11 @@ impl Diagnostic {
 
 impl fmt::Display for Diagnostic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error: {} at {}:{}:{}", self.message, self.file, self.line, self.column)?;
+        write!(
+            f,
+            "Error: {} at {}:{}:{}",
+            self.message, self.file, self.line, self.column
+        )?;
         if let Some(hint) = &self.hint {
             write!(f, "\n  {}", hint)?;
         }
@@ -51,6 +60,9 @@ impl fmt::Display for Diagnostic {
 ///
 /// Covers lexing, parsing, code generation, configuration, and I/O errors.
 #[derive(Debug)]
+// Every variant names the stage it came from — `LexerError`, `ParseError`.
+// The shared suffix is the point, and these are public API.
+#[allow(clippy::enum_variant_names)]
 pub enum WebFluentError {
     /// Tokenization error (invalid characters, unterminated strings, etc.).
     LexerError(Diagnostic),

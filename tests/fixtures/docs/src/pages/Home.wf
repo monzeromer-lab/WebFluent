@@ -1,0 +1,15 @@
+Page Home (path: "/", description: "How we work, written down so nobody has to ask twice.", title: "Handbook") {
+    Container {
+        Heading(t("home.title"), h1)
+        Text(t("home.lede"), muted)
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card { Heading("Start here", h2) Text("Your first week, hour by hour.") }
+            }
+            Column(span: 6) {
+                Card { Heading("How we decide", h2) Text("Who decides what, and when.") }
+            }
+        }
+    }
+}

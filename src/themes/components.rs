@@ -61,13 +61,41 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-navbar__actions { display: flex; gap: var(--spacing-sm); align-items: center; margin-inline-start: auto; flex-shrink: 0; }
 
 /* ─── Sidebar ───────────────────────────────────────── */
-.wf-sidebar { width: 260px; min-height: 100vh; background: var(--color-surface); border-inline-end: 1px solid var(--color-border); padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs); flex-shrink: 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+/* `top` and `height` key off --wf-header-height rather than a hardcoded 56px:
+   the navbar wraps to two rows on a narrow screen, and the old constant left the
+   sidebar overlapping it. */
+.wf-sidebar { width: 260px; max-width: 85vw; background: var(--color-surface); border-inline-end: 1px solid var(--color-border); box-shadow: inset -1px 0 0 rgba(0,0,0,0.04); padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs); flex-shrink: 0; position: sticky; top: var(--wf-header-height); height: calc(100vh - var(--wf-header-height)); overflow-y: auto; }
 .wf-sidebar__header { padding: var(--spacing-sm) 0; font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); }
 .wf-sidebar__item { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); color: var(--color-text); cursor: pointer; transition: background var(--transition-fast); }
 .wf-sidebar__item:hover { background: var(--color-border); text-decoration: none; }
 .wf-sidebar__item.active { background: var(--color-primary); color: #fff; }
 .wf-sidebar__divider { border-top: 1px solid var(--color-border); margin: var(--spacing-sm) 0; }
 .wf-sidebar > .wf-text { padding: var(--spacing-xs) var(--spacing-md); letter-spacing: 0.05em; font-size: var(--font-size-xs); margin-top: var(--spacing-xs); }
+
+/* ─── Off-canvas controls ───────────────────────────── */
+/* Hidden until a breakpoint asks for them, so a wide layout is unchanged. */
+.wf-sidebar__toggle, .wf-navbar__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+.wf-sidebar__scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: rgba(0,0,0,0.4);
+}
+.wf-sidebar__scrim[hidden] { display: none; }
 
 /* ─── Breadcrumb ────────────────────────────────────── */
 .wf-breadcrumb { display: flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-muted); }
@@ -76,12 +104,15 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 
 /* ─── Link ──────────────────────────────────────────── */
 .wf-link { color: var(--color-primary); cursor: pointer; }
+/* A bare inline link keeps its text hit area; one used as navigation gets a
+   target a thumb can hit. */
+.wf-navbar__links .wf-link, .wf-sidebar .wf-link { min-height: 24px; display: inline-flex; align-items: center; }
 .wf-link:hover { text-decoration: underline; }
 .wf-link.active { font-weight: var(--font-weight-bold); }
 
 /* ─── Menu ──────────────────────────────────────────── */
 .wf-menu { position: relative; display: inline-block; }
-.wf-menu__trigger { cursor: pointer; }
+.wf-menu__trigger { cursor: pointer; min-height: 24px; display: inline-flex; align-items: center; }
 .wf-menu__items { position: absolute; top: 100%; left: 0; min-width: 180px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 50; display: none; padding: var(--spacing-xs) 0; }
 .wf-menu.open .wf-menu__items { display: block; }
 .wf-menu__item { padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; transition: background var(--transition-fast); }
@@ -141,7 +172,7 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 
 /* ─── Tag ───────────────────────────────────────────── */
 .wf-tag { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0.125rem var(--spacing-sm); font-size: var(--font-size-sm); border-radius: var(--radius-md); background: var(--color-surface); border: 1px solid var(--color-border); }
-.wf-tag__remove { cursor: pointer; opacity: 0.6; font-size: var(--font-size-xs); }
+.wf-tag__remove { cursor: pointer; opacity: 0.6; font-size: var(--font-size-xs); min-width: 24px; min-height: 24px; display: inline-flex; align-items: center; justify-content: center; }
 .wf-tag__remove:hover { opacity: 1; }
 
 /* ─── Button ────────────────────────────────────────── */
@@ -188,8 +219,8 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-dropdown__divider { border-top: 1px solid var(--color-border); margin: var(--spacing-xs) 0; }
 
 /* ─── Input ─────────────────────────────────────────── */
-.wf-input { display: block; width: 100%; padding: var(--spacing-sm) var(--spacing-md); font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
-.wf-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+.wf-input { display: block; width: 100%; padding: var(--spacing-sm) var(--spacing-md); font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.wf-input:focus-visible { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 .wf-input::placeholder { color: var(--color-text-muted); }
 .wf-input--small { padding: var(--spacing-xs) var(--spacing-sm); font-size: var(--font-size-sm); }
 .wf-input--large { padding: var(--spacing-md); font-size: var(--font-size-lg); }
@@ -197,19 +228,19 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-input--full { width: 100%; }
 
 /* ─── Select ────────────────────────────────────────── */
-.wf-select { display: block; width: 100%; padding: var(--spacing-sm) var(--spacing-md); font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); outline: none; appearance: none; cursor: pointer; }
-.wf-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+.wf-select { display: block; width: 100%; padding: var(--spacing-sm) var(--spacing-md); font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); appearance: none; cursor: pointer; }
+.wf-select:focus-visible { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 
 /* ─── Checkbox ──────────────────────────────────────── */
-.wf-checkbox { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; font-size: var(--font-size-base); }
-.wf-checkbox input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer; }
+.wf-checkbox { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; font-size: var(--font-size-base); min-height: 24px; padding: var(--spacing-xs) 0; }
+.wf-checkbox input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--color-primary); cursor: pointer; }
 
 /* ─── Radio ─────────────────────────────────────────── */
-.wf-radio { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; font-size: var(--font-size-base); }
-.wf-radio input[type="radio"] { width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer; }
+.wf-radio { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; font-size: var(--font-size-base); min-height: 24px; padding: var(--spacing-xs) 0; }
+.wf-radio input[type="radio"] { width: 20px; height: 20px; accent-color: var(--color-primary); cursor: pointer; }
 
 /* ─── Switch ────────────────────────────────────────── */
-.wf-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; }
+.wf-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; min-height: 24px; }
 .wf-switch__track { width: 44px; height: 24px; background: var(--color-border); border-radius: var(--radius-full); position: relative; transition: background var(--transition-fast); }
 .wf-switch__thumb { width: 20px; height: 20px; background: #fff; border-radius: var(--radius-full); position: absolute; top: 2px; left: 2px; transition: transform var(--transition-fast); box-shadow: var(--shadow-sm); }
 .wf-switch input:checked + .wf-switch__track { background: var(--color-primary); }
@@ -241,7 +272,7 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-alert--danger { background: #fef2f2; border-color: var(--color-danger); color: #991b1b; }
 .wf-alert--warning { background: #fffbeb; border-color: var(--color-warning); color: #92400e; }
 .wf-alert--info { background: #ecfeff; border-color: var(--color-info); color: #155e75; }
-.wf-alert__dismiss { margin-inline-start: auto; cursor: pointer; opacity: 0.6; background: none; border: none; font-size: var(--font-size-lg); color: inherit; }
+.wf-alert__dismiss { margin-inline-start: auto; cursor: pointer; opacity: 0.6; background: none; border: none; font-size: var(--font-size-lg); color: inherit; min-width: 24px; min-height: 24px; }
 .wf-alert__dismiss:hover { opacity: 1; }
 
 /* ─── Toast ─────────────────────────────────────────── */
@@ -256,18 +287,20 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 @keyframes wf-toast-out { from { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
 
 /* ─── Modal ─────────────────────────────────────────── */
-.wf-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
-.wf-modal.open { display: flex; }
-.wf-modal__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+/* A native <dialog>: the browser centres it, renders the backdrop, traps focus
+   and hides it while closed, so none of that is done here. */
+.wf-modal { border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
+.wf-modal::backdrop { background: rgba(0,0,0,0.5); }
+.wf-modal__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); max-width: 500px; width: 90vw; max-height: 90vh; overflow-y: auto; }
 .wf-modal__header { padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
 .wf-modal__header h3 { margin: 0; }
 .wf-modal__body { padding: var(--spacing-md); }
 .wf-modal__footer { padding: var(--spacing-md); border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
 
 /* ─── Dialog ────────────────────────────────────────── */
-.wf-dialog { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
-.wf-dialog.open { display: flex; }
-.wf-dialog__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); padding: var(--spacing-lg); max-width: 400px; width: 90%; display: flex; flex-direction: column; gap: var(--spacing-md); }
+.wf-dialog { border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
+.wf-dialog::backdrop { background: rgba(0,0,0,0.5); }
+.wf-dialog__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); padding: var(--spacing-lg); max-width: 400px; width: 90vw; display: flex; flex-direction: column; gap: var(--spacing-md); }
 
 /* ─── Spinner ───────────────────────────────────────── */
 .wf-spinner { width: 24px; height: 24px; border: 3px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; animation: wf-spin 0.6s linear infinite; display: inline-block; }
@@ -304,8 +337,9 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-carousel__track { display: flex; transition: transform var(--transition-normal); }
 .wf-carousel__slide { flex: 0 0 100%; min-width: 100%; }
 .wf-carousel__nav { position: absolute; bottom: var(--spacing-sm); left: 50%; transform: translateX(-50%); display: flex; gap: var(--spacing-xs); }
-.wf-carousel__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; }
-.wf-carousel__dot.active { background: #fff; }
+.wf-carousel__dot { width: 24px; height: 24px; padding: 8px; border-radius: 50%; background: transparent; border: none; cursor: pointer; display: inline-flex; box-sizing: border-box; }
+.wf-carousel__dot::after { content: ""; width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.5); }
+.wf-carousel__dot.active::after { background: #fff; }
 
 /* ─── Typography ────────────────────────────────────── */
 .wf-text { margin: 0; }
@@ -363,10 +397,22 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
   .wf-navbar__links { flex-wrap: wrap; gap: var(--spacing-xs); font-size: var(--font-size-sm); }
   .wf-navbar__brand { width: 100%; }
   .wf-navbar__actions { width: 100%; justify-content: flex-start; }
-  .wf-sidebar { display: none; }
+  /* Off-canvas, not gone: `.wf-sidebar` used to be `display: none` here, which
+     removed a site's entire navigation on a phone with no way to reach it. */
+  .wf-sidebar {
+    position: fixed;
+    inset-inline-start: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+    box-shadow: var(--shadow-lg);
+  }
+  .wf-sidebar[data-open="true"] { transform: none; }
+  .wf-sidebar__toggle { display: inline-flex; position: fixed; inset-inline-start: var(--spacing-sm); top: var(--spacing-sm); z-index: 201; }
+  .wf-sidebar__scrim { display: block; }
   .wf-container { padding: 0 var(--spacing-sm); }
-  h1.wf-heading { font-size: var(--font-size-2xl); }
-  h2.wf-heading { font-size: var(--font-size-xl); }
   .wf-table { font-size: var(--font-size-sm); }
   .wf-table th, .wf-table td { padding: var(--spacing-xs) var(--spacing-sm); }
   .wf-btn-group { flex-wrap: wrap; }
@@ -374,7 +420,18 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
   pre.wf-code { font-size: var(--font-size-xs); }
 }
 @media (max-width: 480px) {
-  .wf-navbar__links { display: none; }
+  /* The links used to be `display: none` with no menu behind them, so a phone
+     got a navbar with nothing in it. They collapse behind the navbar's own
+     toggle instead. */
+  .wf-navbar__toggle { display: inline-flex; }
+  .wf-navbar__links {
+    display: none;
+    order: 3;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .wf-navbar[data-open="true"] .wf-navbar__links { display: flex; }
   .wf-navbar__actions { margin-inline-start: auto; }
   body { font-size: var(--font-size-sm); }
 }
@@ -412,5 +469,40 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-card[style*="animation"]:hover { animation-iteration-count: 1 !important; animation-play-state: running; }
 .wf-anim-hover { transition: transform 0.15s ease; }
 .wf-anim-hover:hover { animation-iteration-count: 1 !important; }
+
+/* ─── Reduced Motion ────────────────────────────────── */
+/* A user who has asked their system for less motion has usually done so because
+   motion makes them ill. Honour it: keep the end state, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ─── Focus Visibility ──────────────────────────────── */
+/* Every focusable control needs a focus indicator a keyboard user can see. The
+   engine styled the input ring and left everything else to whatever the browser
+   happened to do. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.wf-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.wf-skip-link:focus { left: var(--spacing-sm); top: var(--spacing-sm); }
+
 "#
 }

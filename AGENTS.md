@@ -45,7 +45,19 @@ Page Home (path: "/", title: "Home") {
 ```
 
 - `path` — URL route. Supports dynamic segments: `/user/:id` (access via `params.id`)
-- `title` — Browser tab title
+- `title` — Browser tab title, and the heading of a search result
+- `description` — The snippet a search result and a link preview show
+- `image` — Link-preview image, site-relative or absolute
+- `type` — `"website"` (default) or `"article"`
+- `noindex` — Bare flag; keeps the page out of search results and out of the sitemap
+- `guard` — Expression that must hold for the route to render
+- `redirect` — Where to send the visitor when the guard fails
+
+```wf
+Page Post (path: "/blog/slow-roasting", title: "Slow roasting, explained",
+           description: "Why we take eleven minutes over it.",
+           type: "article", image: "/roast.png") { ... }
+```
 
 ### Components
 
@@ -661,23 +673,73 @@ Heading("Title", h1) {
 
 `@media` queries are emitted as scoped CSS `<style>` elements. Each element gets a unique class to ensure the query only applies to that element.
 
-### Design Tokens (in webfluent.app.json)
+### Themes
 
-```json
-{
-    "theme": {
-        "name": "default",
-        "tokens": {
-            "color-primary": "#3B82F6",
-            "color-secondary": "#8B5CF6",
-            "font-family": "Inter, sans-serif",
-            "radius-md": "0.5rem"
-        }
-    }
+A theme is written in WebFluent, in your own `src/`:
+
+```wf
+Theme Brand {
+    token color-primary: "#3B82F6"
+    token color-secondary: "#8B5CF6"
+    token font-family: "Inter, sans-serif"
+    token radius-md: "0.5rem"
 }
 ```
 
-Built-in themes: `default`, `dark`, `minimal`, `brutalist`
+Every token you do not name keeps its baseline value, so a theme is only as
+large as the difference you want. Declare one and it is used automatically;
+declare several and pick one with `"theme": { "name": "Brand" }`.
+
+Four starting points ship in `examples/themes/` — copy one into `src/` and edit
+it. They are ordinary source files, not engine settings.
+
+For values a machine supplies (a deploy pipeline injecting a brand colour),
+`theme.tokens` in `webfluent.app.json` still applies, on top of the theme:
+
+```json
+{ "theme": { "tokens": { "color-primary": "#8B5CF6" } } }
+```
+
+## Search and Sharing
+
+Set `meta.site_url` and the compiler writes everything a search engine and a link
+preview need. Without it, the tags that require an absolute URL are omitted
+rather than guessed at — a relative canonical causes problems later, so none is
+better than a wrong one.
+
+```json
+{
+  "meta": {
+    "site_url": "https://example.com",
+    "site_name": "Ledger",
+    "description": "Fallback for pages that set none",
+    "image": "/card.png",
+    "sitemap": true
+  }
+}
+```
+
+Every page then carries:
+
+- a self-referencing absolute `<link rel="canonical">`
+- Open Graph and Twitter card tags, built from the page's title, description and image
+- `<link rel="alternate" hreflang="…">` for each locale plus `x-default`, when i18n
+  declares more than one
+- JSON-LD (`WebSite`, `Organization`, `WebPage`/`Article`, and a `BreadcrumbList`
+  derived from the route)
+
+A build also writes `sitemap.xml` and `robots.txt`. Dynamic routes, catch-alls and
+`noindex` pages are left out of the sitemap. `priority` and `changefreq` are not
+emitted: Google ignores both.
+
+## Security headers
+
+`"build": { "csp": true }` emits a strict `Content-Security-Policy` meta tag and a
+`_headers` file for hosts that read one. The generated output already satisfies
+`script-src 'self'` with no `unsafe-inline` — the compiler writes external files
+and binds events with `addEventListener` rather than inline `on*` attributes. It
+is off by default because a site that later embeds a third-party script would
+find it blocked, and that should be a deliberate choice.
 
 ## i18n (Internationalization)
 
@@ -902,6 +964,24 @@ In strings, `{` starts interpolation. To use literal braces (e.g., in code block
 Code("function() \{ return 42; \}", block)
 ```
 
+## Compiler diagnostics
+
+All are warnings; none fails a build.
+
+| Rule | What it means |
+|---|---|
+| `A01`–`A12` | WCAG element checks — alt text, form labels, heading outline, table headers |
+| `A13` | A theme's colour pairing falls below the WCAG AA contrast ratio |
+| `S01` | A page has no title |
+| `S02` | A page has no description, so its search snippet is written for it |
+| `S03` | A description longer than ~160 characters, which a search result truncates |
+| `S04` | Two pages claim the same route |
+| `V01` | A bare word that resolves to nothing — a misspelled modifier or an undefined name |
+| `V02` | A real modifier whose class no stylesheet defines, e.g. `Alert(elevated)` |
+
+The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
+`Document` output, where an `h1` per slide or per section is correct.
+
 ## Configuration Reference (webfluent.app.json)
 
 ```json
@@ -910,15 +990,16 @@ Code("function() \{ return 42; \}", block)
     "version": "1.0.0",
     "author": "Name",
     "theme": {
-        "name": "default",
-        "mode": "light",
-        "tokens": {}
+        "name": "Brand",
+        "tokens": {},
+        "builtin": "full"
     },
     "build": {
         "output": "./build",
         "minify": true,
         "ssg": false,
         "base_path": "",
+        "csp": false,
         "output_type": "spa",
         "pdf": {
             "page_size": "A4",
@@ -976,7 +1057,7 @@ wf render template.wf --data data.json --format pdf -o report.pdf
 echo '{"name":"Monzer"}' | wf render template.wf --format html
 
 # With theme
-wf render template.wf --data data.json --format html --theme dark
+wf render template.wf --data data.json --format html --theme Brand
 ```
 
 ### Rust API
@@ -993,8 +1074,8 @@ let frag   = tpl.render_html_fragment(&json!({"name": "World"}))?;  // Fragment 
 let pdf    = tpl.render_pdf(&json!({"name": "World"}))?;            // Vec<u8>
 let slides = tpl.render_slides(&json!({"name": "World"}))?;         // Vec<u8> (PDF deck)
 
-// With theme
-let html = tpl.with_theme("dark")
+// Selecting one of several themes declared in the template
+let html = tpl.with_theme("Brand")
     .with_tokens(&[("color-primary", "#8B5CF6")])
     .render_html(&data)?;
 ```
@@ -1011,8 +1092,8 @@ const html = tpl.renderHtml({ name: "World" });           // Full HTML string
 const frag = tpl.renderHtmlFragment({ name: "World" });   // Fragment string
 const pdf  = tpl.renderPdf({ name: "World" });             // Buffer
 
-// With theme
-const html = tpl.withTheme('dark')
+// Selecting one of several themes declared in the template
+const html = tpl.withTheme('Brand')
     .withTokens({ 'color-primary': '#8B5CF6' })
     .renderHtml(data);
 ```

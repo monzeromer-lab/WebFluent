@@ -14,14 +14,14 @@
 //! use webfluent::Template;
 //! use serde_json::json;
 //!
-//! let tpl = Template::from_str(r#"
+//! let tpl = Template::from_str(r##"
 //!     Page Home (path: "/", title: "Hello") {
 //!         Container {
 //!             Heading("Hello, {name}!", h1)
 //!             Text("Welcome to WebFluent.")
 //!         }
 //!     }
-//! "#).unwrap();
+//! "##).unwrap();
 //!
 //! let html = tpl.render_html(&json!({"name": "World"})).unwrap();
 //! // Returns a full HTML document with embedded CSS
@@ -49,18 +49,27 @@
 //!
 //! ## Theming
 //!
-//! Override design tokens or switch themes:
+//! A theme is written in the template itself. Declare one and it is used; the
+//! tokens it does not name keep their baseline values.
 //!
-//! ```rust,no_run
+//! ```rust
 //! use webfluent::Template;
 //! use serde_json::json;
 //!
-//! let html = Template::from_str("Page P (path: \"/\") { Container { Text(\"Hello\") } }")
+//! let html = Template::from_str(r##"
+//!     Theme Brand {
+//!         token color-primary: "#0F766E"
+//!         token radius-md: "14px"
+//!     }
+//!     Page P (path: "/") { Container { Text("Hello") } }
+//! "##)
 //!     .unwrap()
-//!     .with_theme("dark")
-//!     .with_tokens(&[("color-primary", "#8B5CF6")])
+//!     .with_tokens(&[("color-secondary", "#8B5CF6")])
 //!     .render_html(&json!({}))
 //!     .unwrap();
+//!
+//! assert!(html.contains("--color-primary: #0F766E"));
+//! assert!(html.contains("--color-secondary: #8B5CF6"), "config tokens layer on top");
 //! ```
 //!
 //! ## Architecture
@@ -112,8 +121,10 @@ pub mod runtime;
 
 /// Design system — theme tokens and component CSS.
 ///
-/// Provides built-in themes (`default`, `dark`, `minimal`, `brutalist`) via
-/// [`themes::get_theme_tokens`] and component-level CSS via [`themes::component_css`].
+/// [`themes::resolve_tokens`] layers the baseline token set, the project's
+/// `Theme` declaration and any config overrides into the tokens a build ships.
+/// [`themes::component_css`] and [`themes::structural_css`] are the two
+/// stylesheets that sit under them.
 pub mod themes;
 
 /// Project configuration — loads and manages `webfluent.app.json`.
@@ -150,9 +161,12 @@ pub mod edit;
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;
 
-pub use template::Template;
-pub use error::{WebFluentError, Result, Diagnostic};
-pub use studio::{compile_studio, CompiledSite, CompiledPage};
-pub use codegen::node_id::{NodeMap, NodeInfo};
-pub use edit::{apply_edits, EditOp, ArgRef};
+pub use codegen::node_id::{NodeInfo, NodeMap};
+pub use edit::{ArgRef, EditOp, apply_edits};
+pub use error::{Diagnostic, Result, WebFluentError};
+pub use linter::lint_vocabulary as validate_vocabulary;
 pub use linter::validate_semantics;
+pub use studio::{
+    CompiledPage, CompiledSite, Diagnostic as StudioDiagnostic, ThemeInfo, compile_studio,
+};
+pub use template::Template;

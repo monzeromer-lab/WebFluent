@@ -14,6 +14,18 @@ pub async fn publish_diagnostics(
 
     for err in errors {
         match err {
+            // Every remaining variant carries a plain message rather than a
+            // positioned diagnostic, so it is reported against the file.
+            WebFluentError::EditError(message) => {
+                diagnostics.push(wf_diagnostic_to_lsp(
+                    message,
+                    1,
+                    1,
+                    DiagnosticSeverity::ERROR,
+                    "webfluent-edit",
+                    None,
+                ));
+            }
             WebFluentError::LexerError(diag) => {
                 diagnostics.push(wf_diagnostic_to_lsp(
                     &diag.message,
@@ -59,7 +71,10 @@ pub async fn publish_diagnostics(
     }
 
     for warning in a11y_warnings {
-        let message = format!("[{}] {}\n  Hint: {}", warning.rule_id, warning.message, warning.hint);
+        let message = format!(
+            "[{}] {}\n  Hint: {}",
+            warning.rule_id, warning.message, warning.hint
+        );
         diagnostics.push(wf_diagnostic_to_lsp(
             &message,
             warning.line,

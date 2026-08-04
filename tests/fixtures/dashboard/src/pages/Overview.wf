@@ -1,0 +1,34 @@
+Page Overview (path: "/", description: "What is on fire, and what is not.", title: "Overview") {
+    use IncidentStore
+
+    state counter = 0
+    derived doubled = counter * 2
+
+    Container {
+        Heading("Overview", h1)
+        Text("What is on fire, and what is not.", muted)
+
+        Row(gap: md) {
+            Column(span: 4) {
+                Card { Heading("Open", h2) Text("{IncidentStore.open}") }
+            }
+            Column(span: 4) {
+                Card { Heading("Closed", h2) Text("{IncidentStore.closed}") }
+            }
+            Column(span: 4) {
+                Card { Heading("Counter", h2) Text("count:{counter} doubled:{doubled}") }
+            }
+        }
+
+        Row(gap: sm) {
+            Button("Increment", primary) { counter = counter + 1 }
+            Button("Reset") { counter = 0 }
+        }
+
+        if counter > 2 {
+            Alert("You have clicked that rather a lot.", warning)
+        } else {
+            Text("Click increment a few times.", muted)
+        }
+    }
+}

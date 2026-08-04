@@ -16,13 +16,13 @@
 //! remaining ops (`AddModifier`/`RemoveModifier`, `InsertChild` at an index,
 //! `SetStyle`/`RemoveStyle`, `MoveNode`) build on the same machinery and land next.
 
-use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
+use crate::codegen::node_id;
+use crate::error::{Result, WebFluentError};
 use crate::lexer::Lexer;
 use crate::parser::Parser;
-use crate::parser::ast::{Program, UIElement, Arg, Expr, Span};
-use crate::codegen::node_id;
-use crate::error::{WebFluentError, Result};
+use crate::parser::ast::{Arg, Expr, Program, Span, UIElement};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Which argument of a node an op targets.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -41,18 +41,30 @@ pub enum EditOp {
     /// Replace the node's first positional string argument with `value` (quoted).
     SetText { node: String, value: String },
     /// Replace an argument's value with `value` (raw `.wf` expression text).
-    SetArg { node: String, arg: ArgRef, value: String },
+    SetArg {
+        node: String,
+        arg: ArgRef,
+        value: String,
+    },
     /// Add a modifier (e.g. `primary`, `large`) to the node.
     AddModifier { node: String, modifier: String },
     /// Remove a modifier from the node.
     RemoveModifier { node: String, modifier: String },
     /// Set a style property (`prop: value`) on the node, creating the `style { }`
     /// block if needed.
-    SetStyle { node: String, prop: String, value: String },
+    SetStyle {
+        node: String,
+        prop: String,
+        value: String,
+    },
     /// Remove a style property from the node's `style { }` block.
     RemoveStyle { node: String, prop: String },
     /// Insert the `wf` snippet as the node's child at `index` (appends if out of range).
-    InsertChild { node: String, index: usize, wf: String },
+    InsertChild {
+        node: String,
+        index: usize,
+        wf: String,
+    },
     /// Append the `wf` snippet as the last child of the node's block.
     AppendChild { node: String, wf: String },
     /// Replace the whole node with the `wf` snippet.
@@ -60,7 +72,11 @@ pub enum EditOp {
     /// Remove the whole node (and its line).
     RemoveNode { node: String },
     /// Move the node to be the child at `index` of `new_parent`.
-    MoveNode { node: String, new_parent: String, index: usize },
+    MoveNode {
+        node: String,
+        new_parent: String,
+        index: usize,
+    },
 }
 
 impl EditOp {
@@ -155,20 +171,43 @@ fn compute_patches(
             if let Some(paren) = ui.paren_span {
                 let close = paren.end as usize - 1; // the ')'
                 let empty = ui.args.is_empty() && ui.modifiers.is_empty();
-                let text = if empty { modifier.clone() } else { format!(", {}", modifier) };
-                one(Patch { start: close, end: close, text })
+                let text = if empty {
+                    modifier.clone()
+                } else {
+                    format!(", {}", modifier)
+                };
+                one(Patch {
+                    start: close,
+                    end: close,
+                    text,
+                })
             } else {
                 // No `( … )` yet — add one right after the component name.
                 let at = ident_end(source, ui.span.start as usize);
-                one(Patch { start: at, end: at, text: format!("({})", modifier) })
+                one(Patch {
+                    start: at,
+                    end: at,
+                    text: format!("({})", modifier),
+                })
             }
         }
         EditOp::RemoveModifier { modifier, .. } => {
-            let i = ui.modifiers.iter().position(|m| m == modifier).ok_or_else(|| {
-                edit_err(format!("remove_modifier: node has no modifier '{}'", modifier))
-            })?;
+            let i = ui
+                .modifiers
+                .iter()
+                .position(|m| m == modifier)
+                .ok_or_else(|| {
+                    edit_err(format!(
+                        "remove_modifier: node has no modifier '{}'",
+                        modifier
+                    ))
+                })?;
             let (start, end) = modifier_removal_range(source, ui.modifier_spans[i]);
-            one(Patch { start, end, text: String::new() })
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
         }
         EditOp::SetStyle { prop, value, .. } => {
             if let Some(sb) = &ui.style_block {
@@ -180,21 +219,42 @@ fn compute_patches(
                         None => format!("{}  ", line_indent(source, sb.body_span.end as usize)),
                     };
                     let at = sb.body_span.end as usize;
-                    one(Patch { start: at, end: at, text: format!("{}{}: {}\n", indent, prop, value) })
+                    one(Patch {
+                        start: at,
+                        end: at,
+                        text: format!("{}{}: {}\n", indent, prop, value),
+                    })
                 }
             } else {
                 // No style block — create one inside the element body.
-                one(append_child_patch(ui, &format!("style {{ {}: {} }}", prop, value), source))
+                one(append_child_patch(
+                    ui,
+                    &format!("style {{ {}: {} }}", prop, value),
+                    source,
+                ))
             }
         }
         EditOp::RemoveStyle { prop, .. } => {
-            let sb = ui.style_block.as_ref()
+            let sb = ui
+                .style_block
+                .as_ref()
                 .ok_or_else(|| edit_err("remove_style: node has no style block"))?;
-            let p = sb.properties.iter().find(|p| &p.name == prop).ok_or_else(|| {
-                edit_err(format!("remove_style: node has no style property '{}'", prop))
-            })?;
+            let p = sb
+                .properties
+                .iter()
+                .find(|p| &p.name == prop)
+                .ok_or_else(|| {
+                    edit_err(format!(
+                        "remove_style: node has no style property '{}'",
+                        prop
+                    ))
+                })?;
             let (start, end) = removal_range(source, p.span);
-            one(Patch { start, end, text: String::new() })
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
         }
         EditOp::InsertChild { index: idx, wf, .. } => {
             validate_snippet(wf)?;
@@ -210,9 +270,17 @@ fn compute_patches(
         }
         EditOp::RemoveNode { .. } => {
             let (start, end) = removal_range(source, ui.span);
-            one(Patch { start, end, text: String::new() })
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
         }
-        EditOp::MoveNode { new_parent, index: idx, .. } => {
+        EditOp::MoveNode {
+            new_parent,
+            index: idx,
+            ..
+        } => {
             let parent = index.get(new_parent.as_str()).ok_or_else(|| {
                 edit_err(format!("move_node: unknown new_parent '{}'", new_parent))
             })?;
@@ -220,7 +288,11 @@ fn compute_patches(
             let (rm_start, rm_end) = removal_range(source, ui.span);
             let insert = insert_child_patch(parent, *idx, &node_text, source);
             Ok(vec![
-                Patch { start: rm_start, end: rm_end, text: String::new() },
+                Patch {
+                    start: rm_start,
+                    end: rm_end,
+                    text: String::new(),
+                },
                 insert,
             ])
         }
@@ -228,7 +300,11 @@ fn compute_patches(
 }
 
 fn replace(span: Span, text: String) -> Patch {
-    Patch { start: span.start as usize, end: span.end as usize, text }
+    Patch {
+        start: span.start as usize,
+        end: span.end as usize,
+        text,
+    }
 }
 
 /// A patch that appends `wf` as the last child of `ui`'s block (creating a block
@@ -240,10 +316,18 @@ fn append_child_patch(ui: &UIElement, wf: &str, source: &str) -> Patch {
             None => format!("{}  ", line_indent(source, body.end as usize)),
         };
         let at = body.end as usize;
-        Patch { start: at, end: at, text: format!("{}{}\n", indent, wf) }
+        Patch {
+            start: at,
+            end: at,
+            text: format!("{}{}\n", indent, wf),
+        }
     } else {
         let at = ui.span.end as usize;
-        Patch { start: at, end: at, text: format!(" {{ {} }}", wf) }
+        Patch {
+            start: at,
+            end: at,
+            text: format!(" {{ {} }}", wf),
+        }
     }
 }
 
@@ -253,7 +337,11 @@ fn insert_child_patch(ui: &UIElement, index: usize, wf: &str, source: &str) -> P
         Some(child) => {
             let at = child.span.start as usize;
             let indent = line_indent(source, at);
-            Patch { start: at, end: at, text: format!("{}\n{}", wf, indent) }
+            Patch {
+                start: at,
+                end: at,
+                text: format!("{}\n{}", wf, indent),
+            }
         }
         None => append_child_patch(ui, wf, source),
     }
@@ -261,7 +349,7 @@ fn insert_child_patch(ui: &UIElement, index: usize, wf: &str, source: &str) -> P
 
 /// Apply patches right-to-left so earlier offsets stay valid; reject overlaps.
 fn apply_patches(source: &str, mut patches: Vec<Patch>) -> Result<String> {
-    patches.sort_by(|a, b| b.start.cmp(&a.start));
+    patches.sort_by_key(|p| std::cmp::Reverse(p.start));
     for w in patches.windows(2) {
         let (later, earlier) = (&w[0], &w[1]); // later has the greater start
         if earlier.end > later.start {
@@ -300,7 +388,9 @@ fn nth_positional(ui: &UIElement, n: usize) -> Option<usize> {
 
 /// Array index of the named argument `name`.
 fn named_arg_index(ui: &UIElement, name: &str) -> Option<usize> {
-    ui.args.iter().position(|a| matches!(a, Arg::Named(n, _) if n == name))
+    ui.args
+        .iter()
+        .position(|a| matches!(a, Arg::Named(n, _) if n == name))
 }
 
 // ─── Text helpers ────────────────────────────────────────
@@ -392,7 +482,9 @@ fn removal_range(source: &str, span: Span) -> (usize, usize) {
     let bytes = source.as_bytes();
 
     let line_start = source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-    let lead_is_ws = source[line_start..start].bytes().all(|b| b == b' ' || b == b'\t');
+    let lead_is_ws = source[line_start..start]
+        .bytes()
+        .all(|b| b == b' ' || b == b'\t');
     let new_start = if lead_is_ws { line_start } else { start };
 
     let mut new_end = end;
@@ -450,7 +542,14 @@ mod tests {
     #[test]
     fn set_text_replaces_label_and_leaves_rest_identical() {
         let id = id_of(SRC, "Heading");
-        let out = apply_edits(SRC, &[EditOp::SetText { node: id, value: "Goodbye".into() }]).unwrap();
+        let out = apply_edits(
+            SRC,
+            &[EditOp::SetText {
+                node: id,
+                value: "Goodbye".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Heading(\"Goodbye\", h1)"));
         assert!(!out.contains("Welcome"));
         // Everything except the one replaced token is byte-identical.
@@ -462,11 +561,15 @@ mod tests {
     #[test]
     fn set_arg_named_replaces_value() {
         let id = id_of(SRC, "Image");
-        let out = apply_edits(SRC, &[EditOp::SetArg {
-            node: id,
-            arg: ArgRef::Named("src".into()),
-            value: "\"/b.png\"".into(),
-        }]).unwrap();
+        let out = apply_edits(
+            SRC,
+            &[EditOp::SetArg {
+                node: id,
+                arg: ArgRef::Named("src".into()),
+                value: "\"/b.png\"".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Image(src: \"/b.png\", alt: \"a\")"));
         parse_program(&out).unwrap();
     }
@@ -474,21 +577,29 @@ mod tests {
     #[test]
     fn set_arg_positional_replaces_expr() {
         let id = id_of(SRC, "Heading");
-        let out = apply_edits(SRC, &[EditOp::SetArg {
-            node: id,
-            arg: ArgRef::Positional(0),
-            value: "\"Hi\"".into(),
-        }]).unwrap();
+        let out = apply_edits(
+            SRC,
+            &[EditOp::SetArg {
+                node: id,
+                arg: ArgRef::Positional(0),
+                value: "\"Hi\"".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Heading(\"Hi\", h1)"));
     }
 
     #[test]
     fn replace_node_swaps_whole_element() {
         let id = id_of(SRC, "Text(\"Body\")");
-        let out = apply_edits(SRC, &[EditOp::ReplaceNode {
-            node: id,
-            wf: "Button(\"Click\", primary)".into(),
-        }]).unwrap();
+        let out = apply_edits(
+            SRC,
+            &[EditOp::ReplaceNode {
+                node: id,
+                wf: "Button(\"Click\", primary)".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Button(\"Click\", primary)"));
         assert!(!out.contains("Text(\"Body\")"));
         parse_program(&out).unwrap();
@@ -506,10 +617,14 @@ mod tests {
     #[test]
     fn append_child_adds_into_block() {
         let id = id_of(SRC, "Container");
-        let out = apply_edits(SRC, &[EditOp::AppendChild {
-            node: id,
-            wf: "Button(\"New\")".into(),
-        }]).unwrap();
+        let out = apply_edits(
+            SRC,
+            &[EditOp::AppendChild {
+                node: id,
+                wf: "Button(\"New\")".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Button(\"New\")"));
         // Inserted after the existing children, still inside Container.
         let container = &out[out.find("Container").unwrap()..];
@@ -520,16 +635,24 @@ mod tests {
     #[test]
     fn malformed_snippet_is_rejected_without_touching_source() {
         let id = id_of(SRC, "Container");
-        let err = apply_edits(SRC, &[EditOp::AppendChild {
-            node: id,
-            wf: "Button(\"oops\"".into(), // missing ')'
-        }]);
+        let err = apply_edits(
+            SRC,
+            &[EditOp::AppendChild {
+                node: id,
+                wf: "Button(\"oops\"".into(), // missing ')'
+            }],
+        );
         assert!(err.is_err());
     }
 
     #[test]
     fn unknown_node_is_rejected() {
-        let err = apply_edits(SRC, &[EditOp::RemoveNode { node: "Nope:9".into() }]);
+        let err = apply_edits(
+            SRC,
+            &[EditOp::RemoveNode {
+                node: "Nope:9".into(),
+            }],
+        );
         assert!(err.is_err());
     }
 
@@ -537,10 +660,17 @@ mod tests {
     fn batch_of_ops_applies_and_recompiles() {
         let heading = id_of(SRC, "Heading");
         let text = id_of(SRC, "Text(\"Body\")");
-        let out = apply_edits(SRC, &[
-            EditOp::SetText { node: heading, value: "Hi".into() },
-            EditOp::RemoveNode { node: text },
-        ]).unwrap();
+        let out = apply_edits(
+            SRC,
+            &[
+                EditOp::SetText {
+                    node: heading,
+                    value: "Hi".into(),
+                },
+                EditOp::RemoveNode { node: text },
+            ],
+        )
+        .unwrap();
         assert!(out.contains("Heading(\"Hi\", h1)"));
         assert!(!out.contains("Text(\"Body\")"));
         parse_program(&out).unwrap();
@@ -550,7 +680,14 @@ mod tests {
     fn add_modifier_appends_into_parens() {
         let src = "Page P (path: \"/\") {\n  Button(\"Go\", primary)\n}\n";
         let id = id_of(src, "Button");
-        let out = apply_edits(src, &[EditOp::AddModifier { node: id, modifier: "large".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id,
+                modifier: "large".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Button(\"Go\", primary, large)"));
         parse_program(&out).unwrap();
     }
@@ -559,7 +696,14 @@ mod tests {
     fn add_modifier_is_idempotent() {
         let src = "Page P (path: \"/\") {\n  Button(\"Go\", primary)\n}\n";
         let id = id_of(src, "Button");
-        let out = apply_edits(src, &[EditOp::AddModifier { node: id, modifier: "primary".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id,
+                modifier: "primary".into(),
+            }],
+        )
+        .unwrap();
         assert_eq!(out, src); // already present → no change
     }
 
@@ -567,7 +711,14 @@ mod tests {
     fn add_modifier_creates_parens_when_none() {
         let src = "Page P (path: \"/\") {\n  Divider\n}\n";
         let id = id_of(src, "Divider");
-        let out = apply_edits(src, &[EditOp::AddModifier { node: id, modifier: "large".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id,
+                modifier: "large".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Divider(large)"));
         parse_program(&out).unwrap();
     }
@@ -576,11 +727,25 @@ mod tests {
     fn remove_modifier_handles_comma_middle_and_last() {
         let src = "Page P (path: \"/\") {\n  Button(\"Go\", primary, large)\n}\n";
         // middle/first modifier
-        let out = apply_edits(src, &[EditOp::RemoveModifier { node: id_of(src, "Button"), modifier: "primary".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::RemoveModifier {
+                node: id_of(src, "Button"),
+                modifier: "primary".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Button(\"Go\", large)"), "got: {}", out);
         parse_program(&out).unwrap();
         // last modifier
-        let out2 = apply_edits(src, &[EditOp::RemoveModifier { node: id_of(src, "Button"), modifier: "large".into() }]).unwrap();
+        let out2 = apply_edits(
+            src,
+            &[EditOp::RemoveModifier {
+                node: id_of(src, "Button"),
+                modifier: "large".into(),
+            }],
+        )
+        .unwrap();
         assert!(out2.contains("Button(\"Go\", primary)"), "got: {}", out2);
         parse_program(&out2).unwrap();
     }
@@ -596,7 +761,15 @@ mod tests {
     #[test]
     fn set_style_changes_existing_value() {
         let id = id_of(STYLE_SRC, "Card");
-        let out = apply_edits(STYLE_SRC, &[EditOp::SetStyle { node: id, prop: "color".into(), value: "blue".into() }]).unwrap();
+        let out = apply_edits(
+            STYLE_SRC,
+            &[EditOp::SetStyle {
+                node: id,
+                prop: "color".into(),
+                value: "blue".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("color: blue"));
         assert!(!out.contains("color: red"));
         parse_program(&out).unwrap();
@@ -606,7 +779,15 @@ mod tests {
     fn set_style_adds_new_property() {
         let id = id_of(STYLE_SRC, "Card");
         // CSS values with units are quoted strings in WebFluent.
-        let out = apply_edits(STYLE_SRC, &[EditOp::SetStyle { node: id, prop: "padding".into(), value: "\"10px\"".into() }]).unwrap();
+        let out = apply_edits(
+            STYLE_SRC,
+            &[EditOp::SetStyle {
+                node: id,
+                prop: "padding".into(),
+                value: "\"10px\"".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("color: red"));
         assert!(out.contains("padding: \"10px\""));
         parse_program(&out).unwrap();
@@ -616,7 +797,15 @@ mod tests {
     fn set_style_creates_block_when_none() {
         let src = "Page P (path: \"/\") {\n  Text(\"Hi\")\n}\n";
         let id = id_of(src, "Text");
-        let out = apply_edits(src, &[EditOp::SetStyle { node: id, prop: "color".into(), value: "red".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::SetStyle {
+                node: id,
+                prop: "color".into(),
+                value: "red".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("style"));
         assert!(out.contains("color: red"));
         parse_program(&out).unwrap();
@@ -633,7 +822,14 @@ mod tests {
                    \x20 }\n\
                    }\n";
         let id = id_of(src, "Card");
-        let out = apply_edits(src, &[EditOp::RemoveStyle { node: id, prop: "color".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::RemoveStyle {
+                node: id,
+                prop: "color".into(),
+            }],
+        )
+        .unwrap();
         assert!(!out.contains("color: red"));
         assert!(out.contains("padding: \"10px\""));
         parse_program(&out).unwrap();
@@ -641,9 +837,18 @@ mod tests {
 
     #[test]
     fn insert_child_at_index() {
-        let src = "Page P (path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n  }\n}\n";
+        let src =
+            "Page P (path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n  }\n}\n";
         let id = id_of(src, "Container");
-        let out = apply_edits(src, &[EditOp::InsertChild { node: id, index: 1, wf: "Button(\"x\")".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::InsertChild {
+                node: id,
+                index: 1,
+                wf: "Button(\"x\")".into(),
+            }],
+        )
+        .unwrap();
         let a = out.find("Text(\"a\")").unwrap();
         let btn = out.find("Button(\"x\")").unwrap();
         let b = out.find("Text(\"b\")").unwrap();
@@ -662,18 +867,33 @@ mod tests {
                    }\n";
         let text_id = id_of(src, "Text(\"item\")");
         let col_id = id_of(src, "Column");
-        let out = apply_edits(src, &[EditOp::MoveNode { node: text_id, new_parent: col_id, index: 0 }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::MoveNode {
+                node: text_id,
+                new_parent: col_id,
+                index: 0,
+            }],
+        )
+        .unwrap();
         parse_program(&out).unwrap();
         // Text is now under Column, and gone from the Row block.
         let col = &out[out.find("Column").unwrap()..];
         assert!(col.contains("Text(\"item\")"));
         let row_block = &out[out.find("Row").unwrap()..out.find("Column").unwrap()];
-        assert!(!row_block.contains("Text(\"item\")"), "still in row: {}", out);
+        assert!(
+            !row_block.contains("Text(\"item\")"),
+            "still in row: {}",
+            out
+        );
     }
 
     #[test]
     fn ops_serialize_as_tagged_json() {
-        let op = EditOp::SetText { node: "Home:0".into(), value: "Hi".into() };
+        let op = EditOp::SetText {
+            node: "Home:0".into(),
+            value: "Hi".into(),
+        };
         let json = serde_json::to_string(&op).unwrap();
         assert!(json.contains("\"op\":\"set_text\""));
         let back: EditOp = serde_json::from_str(&json).unwrap();
@@ -686,7 +906,14 @@ mod tests {
     fn multibyte_set_text_no_panic() {
         let src = "Page P (path: \"/\") {\n  Text(\"café ☕\")\n}\n";
         let id = id_of(src, "Text");
-        let out = apply_edits(src, &[EditOp::SetText { node: id, value: "münchen 🍺".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::SetText {
+                node: id,
+                value: "münchen 🍺".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Text(\"münchen 🍺\")"), "got: {}", out);
         parse_program(&out).unwrap();
     }
@@ -705,8 +932,19 @@ mod tests {
     fn multibyte_add_modifier_positions_correctly() {
         let src = "Page P (path: \"/\") {\n  Button(\"héllo café 🎉\", primary)\n}\n";
         let id = id_of(src, "Button");
-        let out = apply_edits(src, &[EditOp::AddModifier { node: id, modifier: "large".into() }]).unwrap();
-        assert!(out.contains("Button(\"héllo café 🎉\", primary, large)"), "got: {}", out);
+        let out = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id,
+                modifier: "large".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("Button(\"héllo café 🎉\", primary, large)"),
+            "got: {}",
+            out
+        );
         parse_program(&out).unwrap();
     }
 
@@ -714,7 +952,14 @@ mod tests {
     fn add_modifier_into_empty_parens() {
         let src = "Page P (path: \"/\") {\n  Button()\n}\n";
         let id = id_of(src, "Button");
-        let out = apply_edits(src, &[EditOp::AddModifier { node: id, modifier: "large".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id,
+                modifier: "large".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Button(large)"), "got: {}", out);
         parse_program(&out).unwrap();
     }
@@ -723,8 +968,19 @@ mod tests {
     fn add_modifier_after_named_arg() {
         let src = "Page P (path: \"/\") {\n  Image(src: \"/a.png\")\n}\n";
         let id = id_of(src, "Image");
-        let out = apply_edits(src, &[EditOp::AddModifier { node: id, modifier: "rounded".into() }]).unwrap();
-        assert!(out.contains("Image(src: \"/a.png\", rounded)"), "got: {}", out);
+        let out = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id,
+                modifier: "rounded".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("Image(src: \"/a.png\", rounded)"),
+            "got: {}",
+            out
+        );
         parse_program(&out).unwrap();
     }
 
@@ -732,7 +988,14 @@ mod tests {
     fn remove_only_modifier_stays_valid() {
         let src = "Page P (path: \"/\") {\n  Button(primary)\n}\n";
         let id = id_of(src, "Button");
-        let out = apply_edits(src, &[EditOp::RemoveModifier { node: id, modifier: "primary".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::RemoveModifier {
+                node: id,
+                modifier: "primary".into(),
+            }],
+        )
+        .unwrap();
         assert!(!out.contains("primary"));
         parse_program(&out).unwrap();
     }
@@ -744,7 +1007,14 @@ mod tests {
             "Page P (path: \"/\") {\n  Container {}\n}\n",
         ] {
             let id = id_of(src, "Container");
-            let out = apply_edits(src, &[EditOp::AppendChild { node: id, wf: "Button(\"b\")".into() }]).unwrap();
+            let out = apply_edits(
+                src,
+                &[EditOp::AppendChild {
+                    node: id,
+                    wf: "Button(\"b\")".into(),
+                }],
+            )
+            .unwrap();
             assert!(out.contains("Button(\"b\")"), "got: {}", out);
             parse_program(&out).unwrap();
         }
@@ -754,7 +1024,15 @@ mod tests {
     fn insert_child_index_zero_into_empty() {
         let src = "Page P (path: \"/\") {\n  Container {}\n}\n";
         let id = id_of(src, "Container");
-        let out = apply_edits(src, &[EditOp::InsertChild { node: id, index: 0, wf: "Text(\"x\")".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::InsertChild {
+                node: id,
+                index: 0,
+                wf: "Text(\"x\")".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Text(\"x\")"));
         parse_program(&out).unwrap();
     }
@@ -763,7 +1041,15 @@ mod tests {
     fn set_arg_positional_skips_named() {
         let src = "Page P (path: \"/\") {\n  Text(\"hi\", weight: bold)\n}\n";
         let id = id_of(src, "Text");
-        let out = apply_edits(src, &[EditOp::SetArg { node: id, arg: ArgRef::Positional(0), value: "\"bye\"".into() }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::SetArg {
+                node: id,
+                arg: ArgRef::Positional(0),
+                value: "\"bye\"".into(),
+            }],
+        )
+        .unwrap();
         assert!(out.contains("Text(\"bye\", weight: bold)"), "got: {}", out);
         parse_program(&out).unwrap();
     }
@@ -773,10 +1059,20 @@ mod tests {
         let src = "Page P (path: \"/\") {\n  Heading(\"Hello\", h1)\n}\n";
         let id = id_of(src, "Heading");
         // Both target the first positional arg → overlap → must reject (not corrupt).
-        let res = apply_edits(src, &[
-            EditOp::SetText { node: id.clone(), value: "A".into() },
-            EditOp::SetArg { node: id, arg: ArgRef::Positional(0), value: "\"B\"".into() },
-        ]);
+        let res = apply_edits(
+            src,
+            &[
+                EditOp::SetText {
+                    node: id.clone(),
+                    value: "A".into(),
+                },
+                EditOp::SetArg {
+                    node: id,
+                    arg: ArgRef::Positional(0),
+                    value: "\"B\"".into(),
+                },
+            ],
+        );
         assert!(res.is_err(), "expected overlap rejection");
     }
 
@@ -785,10 +1081,23 @@ mod tests {
         let src = "Page P (path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n    Text(\"c\")\n  }\n}\n";
         let a = id_of(src, "Text(\"a\")");
         let container = id_of(src, "Container");
-        let out = apply_edits(src, &[EditOp::MoveNode { node: a, new_parent: container, index: 2 }]).unwrap();
+        let out = apply_edits(
+            src,
+            &[EditOp::MoveNode {
+                node: a,
+                new_parent: container,
+                index: 2,
+            }],
+        )
+        .unwrap();
         parse_program(&out).unwrap();
         // Each element must survive exactly once — no dup, no drop.
-        assert_eq!(out.matches("Text(\"a\")").count(), 1, "a duplicated/lost: {}", out);
+        assert_eq!(
+            out.matches("Text(\"a\")").count(),
+            1,
+            "a duplicated/lost: {}",
+            out
+        );
         assert_eq!(out.matches("Text(\"b\")").count(), 1);
         assert_eq!(out.matches("Text(\"c\")").count(), 1);
     }
@@ -800,9 +1109,16 @@ mod tests {
         let text = id_of(src, "Text");
         // Moving a node into its own descendant must never produce invalid output:
         // either an error, or a result that reparses.
-        match apply_edits(src, &[EditOp::MoveNode { node: container, new_parent: text, index: 0 }]) {
-            Ok(out) => { parse_program(&out).unwrap(); }
-            Err(_) => {} // acceptable — refused rather than corrupt
+        // Refusing is acceptable; producing something that will not reparse is not.
+        if let Ok(out) = apply_edits(
+            src,
+            &[EditOp::MoveNode {
+                node: container,
+                new_parent: text,
+                index: 0,
+            }],
+        ) {
+            parse_program(&out).unwrap();
         }
     }
 }

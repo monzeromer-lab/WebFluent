@@ -87,15 +87,23 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-divider--label::before, .wf-divider--label::after { content: ""; flex: 1; border-top: 1px solid var(--color-border); }
 
 /* ─── Navbar ────────────────────────────────────────── */
-.wf-navbar { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-lg); position: sticky; top: 0; z-index: 100; }
+/* Opacity is mechanics here, not decoration: the bar is `position: sticky`, so
+   without a fill the page scrolls straight through it. */
+.wf-navbar { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-lg); background: var(--color-background); position: sticky; top: 0; z-index: 100; }
 .wf-navbar__brand { flex-shrink: 0; }
 .wf-navbar__links { display: flex; gap: var(--spacing-sm); align-items: center; flex-wrap: wrap; overflow-x: auto; }
 .wf-navbar__links a { padding: var(--spacing-xs) var(--spacing-sm); white-space: nowrap; }
 .wf-navbar__actions { display: flex; gap: var(--spacing-sm); align-items: center; margin-inline-start: auto; flex-shrink: 0; }
 
 /* ─── Sidebar ───────────────────────────────────────── */
-.wf-sidebar { width: 260px; padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs); flex-shrink: 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+/* The background is mechanics, not decoration: a sidebar that slides over the
+   page has to be opaque or the content reads straight through it. Structural
+   mode used to omit it entirely, which is why it looked transparent. */
+.wf-sidebar { width: 260px; max-width: 85vw; background: var(--color-surface); padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs); flex-shrink: 0; position: sticky; top: var(--wf-header-height); height: calc(100vh - var(--wf-header-height)); overflow-y: auto; }
 .wf-sidebar__header { padding: var(--spacing-sm) 0; }
+.wf-sidebar__toggle, .wf-navbar__toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; cursor: pointer; }
+.wf-sidebar__scrim { display: none; position: fixed; inset: 0; z-index: 199; background: rgba(0,0,0,0.4); }
+.wf-sidebar__scrim[hidden] { display: none; }
 .wf-sidebar__item { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; }
 .wf-sidebar__divider { border-top: 1px solid var(--color-border); margin: var(--spacing-sm) 0; }
 .wf-sidebar > .wf-text { padding: var(--spacing-xs) var(--spacing-md); margin-top: var(--spacing-xs); }
@@ -261,8 +269,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @keyframes wf-toast-out { from { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
 
 /* ─── Modal (overlay) ───────────────────────────────── */
-.wf-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
-.wf-modal.open { display: flex; }
+.wf-modal { border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
+.wf-modal::backdrop { background: rgba(0,0,0,0.5); }
 .wf-modal__content { background: var(--color-background); max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
 .wf-modal__header { padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; }
 .wf-modal__header h3 { margin: 0; }
@@ -270,8 +278,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-modal__footer { padding: var(--spacing-md); display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
 
 /* ─── Dialog (overlay) ──────────────────────────────── */
-.wf-dialog { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
-.wf-dialog.open { display: flex; }
+.wf-dialog { border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
+.wf-dialog::backdrop { background: rgba(0,0,0,0.5); }
 .wf-dialog__content { background: var(--color-background); padding: var(--spacing-lg); max-width: 400px; width: 90%; display: flex; flex-direction: column; gap: var(--spacing-md); }
 
 /* ─── Spinner (mechanism paint) ─────────────────────── */
@@ -309,7 +317,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-carousel__track { display: flex; }
 .wf-carousel__slide { flex: 0 0 100%; min-width: 100%; }
 .wf-carousel__nav { position: absolute; bottom: var(--spacing-sm); left: 50%; transform: translateX(-50%); display: flex; gap: var(--spacing-xs); }
-.wf-carousel__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; }
+.wf-carousel__dot { width: 24px; height: 24px; padding: 8px; border: none; cursor: pointer; display: inline-flex; box-sizing: border-box; }
 .wf-carousel__dot.active { background: #fff; }
 
 /* ─── Typography: requested modifiers only ──────────── */
@@ -362,14 +370,27 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
   .wf-navbar__links { flex-wrap: wrap; gap: var(--spacing-xs); }
   .wf-navbar__brand { width: 100%; }
   .wf-navbar__actions { width: 100%; justify-content: flex-start; }
-  .wf-sidebar { display: none; }
+  .wf-sidebar {
+    position: fixed;
+    inset-inline-start: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+  .wf-sidebar[data-open="true"] { transform: none; }
+  .wf-sidebar__toggle { display: inline-flex; position: fixed; inset-inline-start: var(--spacing-sm); top: var(--spacing-sm); z-index: 201; }
+  .wf-sidebar__scrim { display: block; }
   .wf-container { padding: 0 var(--spacing-sm); }
   .wf-table th, .wf-table td { padding: var(--spacing-xs) var(--spacing-sm); }
   .wf-btn-group { flex-wrap: wrap; }
   .wf-modal__content, .wf-dialog__content { width: 95%; }
 }
 @media (max-width: 480px) {
-  .wf-navbar__links { display: none; }
+  .wf-navbar__toggle { display: inline-flex; }
+  .wf-navbar__links { display: none; order: 3; width: 100%; flex-direction: column; align-items: stretch; }
+  .wf-navbar[data-open="true"] .wf-navbar__links { display: flex; }
   .wf-navbar__actions { margin-inline-start: auto; }
 }
 
@@ -406,5 +427,32 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-card[style*="animation"]:hover { animation-iteration-count: 1 !important; animation-play-state: running; }
 .wf-anim-hover { transition: transform 0.15s ease; }
 .wf-anim-hover:hover { animation-iteration-count: 1 !important; }
+
+/* ─── Focus Visibility ──────────────────────────────── */
+/* Structural mode ships no design, but a keyboard user still has to be able to
+   see where they are — this sheet had no focus rule at all, which left the
+   indicator to whatever the browser happened to do under the author's CSS. */
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* ─── Hit Areas ─────────────────────────────────────── */
+/* WCAG 2.2 §2.5.8 sets 24×24 as the floor for a pointer target. */
+.wf-checkbox, .wf-radio, .wf-switch, .wf-menu__trigger { min-height: 24px; }
+.wf-tag__remove, .wf-alert__dismiss { min-width: 24px; min-height: 24px; }
+
+/* ─── Reduced Motion ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Skip Link ─────────────────────────────────────── */
+/* Opaque: the link appears over page content when focused, and a transparent
+   one is unreadable exactly when it is needed. */
+.wf-skip-link { position: absolute; left: -9999px; top: 0; z-index: 10000; padding: 0.5rem 1rem; background: var(--color-background); color: var(--color-text); }
+.wf-skip-link:focus { left: 0.5rem; top: 0.5rem; }
 "#
 }

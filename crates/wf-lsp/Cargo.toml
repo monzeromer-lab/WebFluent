@@ -1,6 +1,6 @@
 [package]
 name = "wf-lsp"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2024"
 description = "Language Server Protocol implementation for WebFluent"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]

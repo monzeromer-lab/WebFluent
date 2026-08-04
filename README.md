@@ -41,11 +41,13 @@ Page Home (path: "/") {
 
 **Design System**
 - Design tokens for colors, spacing, typography, radii, shadows
-- 4 built-in themes: default, dark, minimal, brutalist
+- Themes written in the language: `Theme Brand { token color-primary: "#0F766E" }`
 - Variant modifiers: `primary`, `large`, `rounded`, `elevated`, `bold`, `center`, ...
 - Custom style blocks on any component
 - Responsive grid with breakpoint modifiers
-- One-line theme switching via config
+- Four example themes to copy and edit in `examples/themes/`
+- SEO by default: canonical URLs, Open Graph and Twitter cards, JSON-LD, `sitemap.xml` and `robots.txt`
+- Accessibility built in: native `<dialog>` modals, ARIA-wired tabs and menus, live regions, a skip link, and compile-time contrast checks
 
 **Animation**
 - 12 built-in animations: fadeIn, slideUp, scaleIn, bounce, shake, pulse, ...
@@ -323,11 +325,13 @@ Button("Custom") {
 {
     "name": "My App",
     "theme": {
-        "name": "default",
         "tokens": {
-            "color-primary": "#8B5CF6",
-            "font-family": "Poppins, sans-serif"
+            "color-primary": "#8B5CF6"
         }
+    },
+    "meta": {
+        "site_url": "https://example.com",
+        "site_name": "My App"
     },
     "build": {
         "output": "./build",

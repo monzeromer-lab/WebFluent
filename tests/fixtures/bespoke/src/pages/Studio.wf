@@ -1,0 +1,113 @@
+// Structural CSS mode: the engine ships layout and mechanics, the author ships
+// every pixel of the design. Nothing here inherits the built-in look.
+Page Studio (path: "/", description: "One thing, made slowly, eleven times a year.", title: "Bespoke") {
+    state open = false
+
+    Container {
+        style {
+            max-width: "68rem"
+            padding: "0 2rem"
+            font-family: "'Editorial New', Georgia, serif"
+            color: "#1C1917"
+            background: "#FAF9F6"
+        }
+
+        Row(align: center, justify: between) {
+            style {
+                padding: "2rem 0"
+                border-bottom: "1px solid #1C1917"
+            }
+            Heading("Atelier", h1) {
+                style {
+                    font-size: "1.5rem"
+                    font-weight: "400"
+                    letter-spacing: "0.3em"
+                    text-transform: "uppercase"
+                }
+            }
+            Button("Enquire") {
+                style {
+                    background: "transparent"
+                    border: "1px solid #1C1917"
+                    border-radius: "0"
+                    padding: "0.75rem 2rem"
+                    letter-spacing: "0.15em"
+                    text-transform: "uppercase"
+                    font-size: "0.75rem"
+                }
+                open = true
+            }
+        }
+
+        Stack {
+            style { padding: "6rem 0" }
+
+            Text("Established 2019", muted) {
+                style {
+                    letter-spacing: "0.3em"
+                    text-transform: "uppercase"
+                    font-size: "0.7rem"
+                }
+            }
+
+            Heading("We make one thing, slowly", h2) {
+                style {
+                    font-size: "4rem"
+                    font-weight: "400"
+                    line-height: "1.05"
+                    max-width: "18ch"
+                    margin: "1.5rem 0"
+                }
+            }
+
+            Text("Each piece is cut, joined and finished by the same pair of hands. We take eleven commissions a year.") {
+                style {
+                    max-width: "46ch"
+                    font-size: "1.125rem"
+                    line-height: "1.7"
+                }
+            }
+        }
+
+        Grid(columns: 2) {
+            style {
+                gap: "1px"
+                background: "#1C1917"
+                margin-bottom: "6rem"
+            }
+
+            Card {
+                style {
+                    background: "#FAF9F6"
+                    border: "none"
+                    border-radius: "0"
+                    padding: "3rem"
+                }
+                Heading("Commission", h3) { style { font-weight: "400" } }
+                Text("Eleven a year, booked eighteen months out.")
+            }
+            Card {
+                style {
+                    background: "#FAF9F6"
+                    border: "none"
+                    border-radius: "0"
+                    padding: "3rem"
+                }
+                Heading("Restore", h3) { style { font-weight: "400" } }
+                Text("We take back anything we made, whenever.")
+            }
+        }
+
+        Modal(title: "Enquire", visible: open) {
+            style { background: "rgba(28, 25, 23, 0.85)" }
+            Text("Tell us what you have in mind.")
+            Form {
+                Input(text, placeholder: "Your name")
+                Input(email, placeholder: "Your email")
+            }
+            Modal.Footer {
+                Button("Close") { open = false }
+            }
+        }
+    }
+}

@@ -1,0 +1,75 @@
+Page Invoice (path: "/", description: "Invoice INV-0042.", title: "Invoice INV-0042") {
+    Document(page_size: "A4") {
+        Header {
+            Text("Ledger Ltd — 14 Wharf Road, London", muted, small, right)
+        }
+
+        Footer {
+            Text("Payable within 30 days. Late payment attracts statutory interest.", muted, small, center)
+        }
+
+        Section {
+            Heading("Invoice INV-0042", h1)
+
+            Row {
+                Column(span: 6) {
+                    Text("Billed to", bold)
+                    Text("Beit Qahwa Roasters")
+                    Text("3 Mill Lane, Bristol")
+                }
+                Column(span: 6) {
+                    Text("Issued", bold)
+                    Text("4 August 2026")
+                    Text("Due 3 September 2026")
+                }
+            }
+
+            Divider
+
+            Heading("Work performed", h2)
+
+            Table {
+                Thead {
+                    Trow {
+                        Tcell("Description")
+                        Tcell("Hours")
+                        Tcell("Rate")
+                        Tcell("Amount")
+                    }
+                }
+                Tbody {
+                    Trow {
+                        Tcell("Storefront rebuild")
+                        Tcell("32")
+                        Tcell("£85")
+                        Tcell("£2,720")
+                    }
+                    Trow {
+                        Tcell("Payment integration")
+                        Tcell("12")
+                        Tcell("£85")
+                        Tcell("£1,020")
+                    }
+                    Trow {
+                        Tcell("Handover and training")
+                        Tcell("4")
+                        Tcell("£85")
+                        Tcell("£340")
+                    }
+                }
+            }
+
+            Spacer
+
+            Text("Total due: £4,080", bold, right)
+
+            PageBreak
+
+            Heading("Terms", h2)
+            Paragraph {
+                Text("Payment by bank transfer to the account named on the covering email. Reference the invoice number so it reconciles without a phone call.")
+            }
+            Blockquote("Thank you for the work — it was a good one.")
+        }
+    }
+}

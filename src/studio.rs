@@ -7,12 +7,12 @@
 //! writing files, and always stamps node ids (studio mode) so a preview click
 //! can resolve to code.
 
-use std::collections::HashMap;
-use crate::parser::ast::{ComponentDecl, Declaration, Program, Statement};
+use crate::codegen::node_id::{NodeMap, build_node_map};
+use crate::codegen::ssg::{SiteContext, render_page_html_studio};
+use crate::codegen::{JsCodegen, generate_css_with};
 use crate::config::ProjectConfig;
-use crate::codegen::{generate_css_with, JsCodegen};
-use crate::codegen::node_id::{build_node_map, NodeMap};
-use crate::codegen::ssg::render_page_html_studio;
+use crate::parser::ast::{ComponentDecl, Declaration, Program, Statement};
+use std::collections::HashMap;
 
 /// A pre-rendered page keyed by its route.
 #[derive(Debug, Clone)]
@@ -34,6 +34,55 @@ pub struct CompiledSite {
     pub js: String,
     /// `node_id ↔ span ↔ path` sidecar for click-to-code and structured edits.
     pub node_map: NodeMap,
+
+    /// The design tokens this compile resolved, after the baseline, the
+    /// project's `Theme` and any config overrides have been layered.
+    ///
+    /// The studio's inspector needs the values a swatch should actually show,
+    /// which is not what any single one of those three sources says.
+    pub tokens: HashMap<String, String>,
+
+    /// The `Theme` declarations in the source, by name, with the span of each.
+    ///
+    /// Enough for the studio to list the themes a project has, jump to one, and
+    /// know which it is previewing.
+    pub themes: Vec<ThemeInfo>,
+
+    /// Accessibility findings for this compile: the existing WCAG element checks
+    /// plus contrast ratios over the resolved tokens.
+    ///
+    /// The studio can surface these against the node they belong to rather than
+    /// waiting for the author to read build output they may never see.
+    pub diagnostics: Vec<Diagnostic>,
+
+    /// Why a theme failed to resolve, if it did.
+    ///
+    /// The preview falls back to the baseline rather than going blank, so
+    /// without this the studio would show a working page and never mention that
+    /// the author's theme is not the one on screen.
+    pub theme_error: Option<String>,
+}
+
+/// A `Theme` declaration, as the studio needs to see it.
+#[derive(Debug, Clone)]
+pub struct ThemeInfo {
+    pub name: String,
+    /// Token names the theme sets, in source order.
+    pub tokens: Vec<String>,
+    /// Byte offset of the declaration, for click-to-code.
+    pub offset: u32,
+    pub line: u32,
+}
+
+/// One accessibility finding, flattened for the studio.
+#[derive(Debug, Clone)]
+pub struct Diagnostic {
+    /// Rule identifier, e.g. `A11` or `A13`.
+    pub rule: String,
+    pub message: String,
+    pub file: String,
+    pub line: usize,
+    pub hint: String,
 }
 
 /// Compile a program for the studio preview: node ids stamped, SSG pages + CSS +
@@ -48,11 +97,43 @@ pub fn compile_studio(
 ) -> CompiledSite {
     let node_map = build_node_map(program);
 
-    let css = generate_css_with(
-        &config.theme.name,
-        &config.theme.tokens,
-        config.theme.builtin,
-    );
+    // A theme that fails to resolve must not take the preview down with it: the
+    // studio shows a live page while the author is still typing, so fall back to
+    // the baseline and let `wf build` be the one that refuses. The reason is
+    // handed back rather than swallowed, so the studio can say why the page does
+    // not look the way the source says it should.
+    let (tokens, theme_error) = match crate::themes::resolve_tokens(program, &config.theme) {
+        Ok(tokens) => (tokens, None),
+        Err(e) => (crate::themes::tokens::default_tokens(), Some(e.to_string())),
+    };
+    let css = generate_css_with(&tokens, config.theme.builtin);
+
+    let themes: Vec<ThemeInfo> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Theme(t) => Some(ThemeInfo {
+                name: t.name.clone(),
+                tokens: t.tokens.iter().map(|tok| tok.name.clone()).collect(),
+                offset: t.span.start,
+                line: t.span.line,
+            }),
+            _ => None,
+        })
+        .collect();
+
+    let mut diagnostics: Vec<Diagnostic> = crate::linter::lint_accessibility(program)
+        .into_iter()
+        .chain(crate::linter::lint_contrast(program, &tokens))
+        .map(|w| Diagnostic {
+            rule: w.rule_id.clone(),
+            message: w.message.clone(),
+            file: w.file.clone(),
+            line: w.line,
+            hint: w.hint.clone(),
+        })
+        .collect();
+    diagnostics.sort_by(|a, b| a.rule.cmp(&b.rule).then(a.line.cmp(&b.line)));
 
     let mut js_gen = JsCodegen::new();
     if let Some(i18n) = &config.i18n {
@@ -67,7 +148,11 @@ pub fn compile_studio(
 
     // The shared app shell (navbar/footer around the Router), if any.
     let app_body: Option<Vec<Statement>> = program.declarations.iter().find_map(|d| {
-        if let Declaration::App(a) = d { Some(a.body.clone()) } else { None }
+        if let Declaration::App(a) = d {
+            Some(a.body.clone())
+        } else {
+            None
+        }
     });
 
     // The component library, so the static paint EXPANDS calls to user components
@@ -88,20 +173,31 @@ pub fn compile_studio(
             if page.path.contains(':') {
                 continue; // dynamic route — not pre-rendered
             }
-            let html = render_page_html_studio(
-                page,
+            let site = SiteContext {
                 config,
-                app_body.as_deref(),
+                app_body: app_body.as_deref(),
                 translations,
-                true, // studio mode: stamp data-wf-node
-                &node_map,
-                &components,
-            );
-            pages.push(CompiledPage { route: page.path.clone(), html });
+                components: &components,
+                program,
+            };
+            let html = render_page_html_studio(page, &site, true, &node_map);
+            pages.push(CompiledPage {
+                route: page.path.clone(),
+                html,
+            });
         }
     }
 
-    CompiledSite { pages, css, js, node_map }
+    CompiledSite {
+        pages,
+        css,
+        js,
+        node_map,
+        tokens,
+        themes,
+        diagnostics,
+        theme_error,
+    }
 }
 
 #[cfg(test)]

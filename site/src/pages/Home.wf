@@ -1,4 +1,4 @@
-Page Home (path: "/", title: "WebFluent — The Web-First Language") {
+Page Home (path: "/", description: "WebFluent — the web-first language that compiles to HTML, CSS, JavaScript and PDF.", title: "WebFluent — The Web-First Language") {
     state counter = 0
     state taskInput = ""
     state showDemo = false

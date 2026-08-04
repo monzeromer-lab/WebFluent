@@ -16,38 +16,88 @@
 /// …?") needs them in the table.
 pub const MODIFIER_KEYWORDS: &[&str] = &[
     // Size
-    "small", "medium", "large",
+    "small",
+    "medium",
+    "large",
     // Color
-    "primary", "secondary", "success", "danger", "warning", "info",
+    "primary",
+    "secondary",
+    "success",
+    "danger",
+    "warning",
+    "info",
     // State words (keyword-lexed; see the doc comment)
-    "error", "loading",
+    "error",
+    "loading",
     // Shape
-    "rounded", "pill", "square",
+    "rounded",
+    "pill",
+    "square",
     // Elevation
-    "flat", "elevated", "outlined",
+    "flat",
+    "elevated",
+    "outlined",
     // Width
-    "full", "fit",
+    "full",
+    "fit",
     // Text
-    "bold", "italic", "underline", "uppercase", "lowercase",
+    "bold",
+    "italic",
+    "underline",
+    "uppercase",
+    "lowercase",
     // Alignment
-    "left", "center", "right",
+    "left",
+    "center",
+    "right",
     // Typography
-    "heading", "subtitle", "muted",
+    "heading",
+    "subtitle",
+    "muted",
     // Heading levels
-    "h1", "h2", "h3", "h4", "h5", "h6",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
     // Other
-    "dismissible", "block", "bordered", "controls", "autoplay",
+    "dismissible",
+    "block",
+    "bordered",
+    "controls",
+    "autoplay",
     // Input types
-    "text", "email", "password", "number", "search", "tel", "url",
-    "date", "time", "datetime", "color",
+    "text",
+    "email",
+    "password",
+    "number",
+    "search",
+    "tel",
+    "url",
+    "date",
+    "time",
+    "datetime",
+    "color",
     // Button types
-    "submit", "reset",
+    "submit",
+    "reset",
     // Animation modifiers
-    "fadeIn", "fadeOut", "slideUp", "slideDown",
-    "slideLeft", "slideRight", "scaleIn", "scaleOut",
-    "bounce", "shake", "pulse", "spin",
+    "fadeIn",
+    "fadeOut",
+    "slideUp",
+    "slideDown",
+    "slideLeft",
+    "slideRight",
+    "scaleIn",
+    "scaleOut",
+    "bounce",
+    "shake",
+    "pulse",
+    "spin",
     // Animation speed
-    "fast", "slow",
+    "fast",
+    "slow",
 ];
 
 /// Whether `word` is in the modifier vocabulary.

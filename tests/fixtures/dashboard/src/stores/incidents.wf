@@ -1,0 +1,24 @@
+Store IncidentStore {
+    state incidents = [
+        { id: 1, title: "Payment webhook timing out", severity: "high", resolved: false },
+        { id: 2, title: "Stale cache on the pricing page", severity: "low", resolved: false },
+        { id: 3, title: "Duplicate signup emails", severity: "medium", resolved: true }
+    ]
+    state filter = "all"
+
+    derived open = incidents.filter(i => !i.resolved).length
+    derived closed = incidents.filter(i => i.resolved).length
+
+    action resolve(id: Number) {
+        state hit = incidents.filter(i => i.id == id)[0]
+        hit.resolved = true
+    }
+
+    action report(title: String) {
+        incidents = incidents.concat([{ id: incidents.length + 1, title: title, severity: "medium", resolved: false }])
+    }
+
+    action setFilter(value: String) {
+        filter = value
+    }
+}

@@ -1,19 +1,23 @@
+use crate::error::{Result, WebFluentError};
+use crate::template::Template;
 use std::fs;
 use std::io::{self, Read};
 use std::path::Path;
-use crate::error::{WebFluentError, Result};
-use crate::template::Template;
 
 pub fn run_render(
     template_path: &Path,
     data_path: Option<&Path>,
     format: &str,
     output_path: Option<&Path>,
-    theme: &str,
+    theme: Option<&str>,
 ) -> Result<()> {
     // Read template
     let source = fs::read_to_string(template_path).map_err(|e| {
-        WebFluentError::IoError(format!("Failed to read template '{}': {}", template_path.display(), e))
+        WebFluentError::IoError(format!(
+            "Failed to read template '{}': {}",
+            template_path.display(),
+            e
+        ))
     })?;
 
     // Read JSON data
@@ -24,17 +28,19 @@ pub fn run_render(
     } else {
         // Read from stdin
         let mut buf = String::new();
-        io::stdin().read_to_string(&mut buf).map_err(|e| {
-            WebFluentError::IoError(format!("Failed to read stdin: {}", e))
-        })?;
+        io::stdin()
+            .read_to_string(&mut buf)
+            .map_err(|e| WebFluentError::IoError(format!("Failed to read stdin: {}", e)))?;
         buf
     };
 
-    let data: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| {
-        WebFluentError::ConfigError(format!("Invalid JSON data: {}", e))
-    })?;
+    let data: serde_json::Value = serde_json::from_str(&json_str)
+        .map_err(|e| WebFluentError::ConfigError(format!("Invalid JSON data: {}", e)))?;
 
-    let tpl = Template::from_str(&source)?.with_theme(theme);
+    let mut tpl = Template::from_str(&source)?;
+    if let Some(name) = theme {
+        tpl = tpl.with_theme(name);
+    }
 
     match format {
         "html" => {
@@ -54,9 +60,10 @@ pub fn run_render(
             write_output(output_path, &pdf)?;
         }
         _ => {
-            return Err(WebFluentError::ConfigError(
-                format!("Unknown format '{}'. Use 'html', 'html-fragment', 'pdf', or 'slides'.", format)
-            ));
+            return Err(WebFluentError::ConfigError(format!(
+                "Unknown format '{}'. Use 'html', 'html-fragment', 'pdf', or 'slides'.",
+                format
+            )));
         }
     }
 
@@ -75,9 +82,9 @@ fn write_output(path: Option<&Path>, data: &[u8]) -> Result<()> {
         fs::write(p, data)?;
     } else {
         use std::io::Write;
-        io::stdout().write_all(data).map_err(|e| {
-            WebFluentError::IoError(format!("Failed to write stdout: {}", e))
-        })?;
+        io::stdout()
+            .write_all(data)
+            .map_err(|e| WebFluentError::IoError(format!("Failed to write stdout: {}", e)))?;
     }
     Ok(())
 }

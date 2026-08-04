@@ -1,0 +1,9 @@
+{
+  "name": "invoice",
+  "build": {
+    "output": "build",
+    "output_type": "pdf",
+    "pdf": { "page_size": "A4", "output_filename": "invoice.pdf" }
+  },
+  "meta": { "title": "Invoice" }
+}

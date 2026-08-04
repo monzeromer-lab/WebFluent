@@ -8,53 +8,59 @@
 //! from `pdf.rs` rather than extracted to a shared module — see implementation
 //! plan for the rationale.
 
-use std::collections::HashSet;
-use crate::config::project::SlidesConfig;
-use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart, Arg};
 use crate::codegen::style::{
-    Background, Color, LinearGradient, StyleProps,
-    gradient_endpoints, luminance, parse_color as style_parse_color,
+    Background, Color, LinearGradient, StyleProps, gradient_endpoints, luminance,
+    parse_color as style_parse_color,
 };
+use crate::config::project::SlidesConfig;
+use crate::parser::{
+    Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
+};
+use std::collections::HashSet;
 
 // ─── Base14 Font Metrics ────────────────────────────────────────────
 
 const HELVETICA_WIDTHS: [u16; 95] = [
-    278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
-    556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
-    1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
-    667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
-    333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
-    556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
+    278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556,
+    556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667,
+    611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667,
+    667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500,
+    222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
 ];
 
 const HELVETICA_BOLD_WIDTHS: [u16; 95] = [
-    278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278,
-    556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611,
-    975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778,
-    667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556,
-    333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611,
-    611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584,
+    278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556,
+    556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667,
+    611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667,
+    667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556,
+    278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584,
 ];
 
 const TIMES_WIDTHS: [u16; 95] = [
-    250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278,
-    500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444,
-    921, 722, 667, 667, 722, 611, 556, 722, 722, 333, 389, 722, 611, 889, 722, 722,
-    556, 722, 667, 556, 611, 722, 722, 944, 722, 722, 611, 333, 278, 333, 469, 500,
-    333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500, 278, 778, 500, 500,
-    500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
+    250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278, 500, 500, 500,
+    500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444, 921, 722, 667, 667, 722, 611,
+    556, 722, 722, 333, 389, 722, 611, 889, 722, 722, 556, 722, 667, 556, 611, 722, 722, 944, 722,
+    722, 611, 333, 278, 333, 469, 500, 333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500,
+    278, 778, 500, 500, 500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
 ];
 
 const COURIER_WIDTH: u16 = 600;
 
 fn char_width(ch: char, font: &str) -> u16 {
     let code = ch as u32;
-    if code < 32 || code > 126 { return 500; }
+    if !(32..=126).contains(&code) {
+        return 500;
+    }
     let idx = (code - 32) as usize;
-    if font.contains("Courier") { COURIER_WIDTH }
-    else if font.contains("Times") { TIMES_WIDTHS[idx] }
-    else if font.contains("Bold") { HELVETICA_BOLD_WIDTHS[idx] }
-    else { HELVETICA_WIDTHS[idx] }
+    if font.contains("Courier") {
+        COURIER_WIDTH
+    } else if font.contains("Times") {
+        TIMES_WIDTHS[idx]
+    } else if font.contains("Bold") {
+        HELVETICA_BOLD_WIDTHS[idx]
+    } else {
+        HELVETICA_WIDTHS[idx]
+    }
 }
 
 fn text_width(text: &str, font: &str, font_size: f64) -> f64 {
@@ -65,18 +71,24 @@ fn text_width(text: &str, font: &str, font_size: f64) -> f64 {
 fn slide_dimensions(size: &str, w_override: Option<f64>, h_override: Option<f64>) -> (f64, f64) {
     let (mut w, mut h) = match size.to_uppercase().as_str() {
         "16:9" => (960.0, 540.0),
-        "4:3"  => (720.0, 540.0),
+        "4:3" => (720.0, 540.0),
         "A4-LANDSCAPE" | "A4LANDSCAPE" => (841.89, 595.28),
         s => parse_explicit_dims(s).unwrap_or((960.0, 540.0)),
     };
-    if let Some(ow) = w_override { w = ow; }
-    if let Some(oh) = h_override { h = oh; }
+    if let Some(ow) = w_override {
+        w = ow;
+    }
+    if let Some(oh) = h_override {
+        h = oh;
+    }
     (w, h)
 }
 
 fn parse_explicit_dims(s: &str) -> Option<(f64, f64)> {
-    let parts: Vec<&str> = s.split(|c| c == 'x' || c == 'X').collect();
-    if parts.len() != 2 { return None; }
+    let parts: Vec<&str> = s.split(['x', 'X']).collect();
+    if parts.len() != 2 {
+        return None;
+    }
     let w = parts[0].trim().parse::<f64>().ok()?;
     let h = parts[1].trim().parse::<f64>().ok()?;
     Some((w, h))
@@ -90,10 +102,14 @@ struct PdfObj {
     data: Vec<u8>,
 }
 
-struct ContentStream { ops: Vec<u8> }
+struct ContentStream {
+    ops: Vec<u8>,
+}
 
 impl ContentStream {
-    fn new() -> Self { Self { ops: Vec::new() } }
+    fn new() -> Self {
+        Self { ops: Vec::new() }
+    }
     fn op(&mut self, s: &str) {
         self.ops.extend_from_slice(s.as_bytes());
         self.ops.push(b'\n');
@@ -104,8 +120,12 @@ impl ContentStream {
     fn set_color(&mut self, r: f64, g: f64, b: f64) {
         self.op(&format!("{} {} {} rg", fmt_f64(r), fmt_f64(g), fmt_f64(b)));
     }
-    fn begin_text(&mut self) { self.op("BT"); }
-    fn end_text(&mut self)   { self.op("ET"); }
+    fn begin_text(&mut self) {
+        self.op("BT");
+    }
+    fn end_text(&mut self) {
+        self.op("ET");
+    }
     fn text_position(&mut self, x: f64, y: f64) {
         self.op(&format!("{} {} Td", fmt_f64(x), fmt_f64(y)));
     }
@@ -120,10 +140,20 @@ impl ContentStream {
         self.end_text();
     }
     fn rect(&mut self, x: f64, y: f64, w: f64, h: f64) {
-        self.op(&format!("{} {} {} {} re", fmt_f64(x), fmt_f64(y), fmt_f64(w), fmt_f64(h)));
+        self.op(&format!(
+            "{} {} {} {} re",
+            fmt_f64(x),
+            fmt_f64(y),
+            fmt_f64(w),
+            fmt_f64(h)
+        ));
     }
-    fn fill(&mut self) { self.op("f"); }
-    fn stroke(&mut self) { self.op("S"); }
+    fn fill(&mut self) {
+        self.op("f");
+    }
+    fn stroke(&mut self) {
+        self.op("S");
+    }
     fn set_stroke_color(&mut self, r: f64, g: f64, b: f64) {
         self.op(&format!("{} {} {} RG", fmt_f64(r), fmt_f64(g), fmt_f64(b)));
     }
@@ -133,21 +163,58 @@ impl ContentStream {
     /// Rounded rectangle path (no fill/stroke — caller invokes `fill()` or `stroke()`).
     fn rounded_rect_path(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
         let r = r.min(w / 2.0).min(h / 2.0);
-        if r < 0.5 { self.rect(x, y, w, h); return; }
+        if r < 0.5 {
+            self.rect(x, y, w, h);
+            return;
+        }
         let k = 0.5523;
         let kr = k * r;
         self.op(&format!("{} {} m", fmt_f64(x + r), fmt_f64(y)));
         self.op(&format!("{} {} l", fmt_f64(x + w - r), fmt_f64(y)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w-r+kr), fmt_f64(y), fmt_f64(x+w), fmt_f64(y+r-kr), fmt_f64(x+w), fmt_f64(y+r)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + w - r + kr),
+            fmt_f64(y),
+            fmt_f64(x + w),
+            fmt_f64(y + r - kr),
+            fmt_f64(x + w),
+            fmt_f64(y + r)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x + w), fmt_f64(y + h - r)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w), fmt_f64(y+h-r+kr), fmt_f64(x+w-r+kr), fmt_f64(y+h), fmt_f64(x+w-r), fmt_f64(y+h)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + w),
+            fmt_f64(y + h - r + kr),
+            fmt_f64(x + w - r + kr),
+            fmt_f64(y + h),
+            fmt_f64(x + w - r),
+            fmt_f64(y + h)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x + r), fmt_f64(y + h)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+r-kr), fmt_f64(y+h), fmt_f64(x), fmt_f64(y+h-r+kr), fmt_f64(x), fmt_f64(y+h-r)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + r - kr),
+            fmt_f64(y + h),
+            fmt_f64(x),
+            fmt_f64(y + h - r + kr),
+            fmt_f64(x),
+            fmt_f64(y + h - r)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x), fmt_f64(y + r)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x), fmt_f64(y+r-kr), fmt_f64(x+r-kr), fmt_f64(y), fmt_f64(x+r), fmt_f64(y)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x),
+            fmt_f64(y + r - kr),
+            fmt_f64(x + r - kr),
+            fmt_f64(y),
+            fmt_f64(x + r),
+            fmt_f64(y)
+        ));
         self.op("h");
     }
-    fn bytes(&self) -> &[u8] { &self.ops }
+    fn bytes(&self) -> &[u8] {
+        &self.ops
+    }
 }
 
 // ─── Codegen ────────────────────────────────────────────────────────
@@ -157,7 +224,10 @@ struct GradientInstance {
     tag: String,
     start: Color,
     end: Color,
-    x0: f64, y0: f64, x1: f64, y1: f64,
+    x0: f64,
+    y0: f64,
+    x1: f64,
+    y1: f64,
 }
 
 /// Slide deck PDF generator. Each `Slide` (or layout variant) is exactly one page;
@@ -193,7 +263,9 @@ pub struct SlidesCodegen {
 impl SlidesCodegen {
     pub fn new(config: &SlidesConfig) -> Self {
         let (w, h) = slide_dimensions(&config.size, config.width, config.height);
-        let deck_background = config.background_color.as_deref()
+        let deck_background = config
+            .background_color
+            .as_deref()
             .and_then(style_parse_color)
             .map(Background::Color);
         let chrome_color_override = config.chrome_color.as_deref().and_then(style_parse_color);
@@ -230,11 +302,15 @@ impl SlidesCodegen {
         cg
     }
 
-    pub fn slide_count(&self) -> usize { self.current_slide }
+    pub fn slide_count(&self) -> usize {
+        self.current_slide
+    }
 
     fn register_font(&mut self, base_font: &str) -> String {
         for (tag, name) in &self.fonts {
-            if name == base_font { return tag.clone(); }
+            if name == base_font {
+                return tag.clone();
+            }
         }
         let tag = format!("F{}", self.fonts.len() + 1);
         self.fonts.push((tag.clone(), base_font.to_string()));
@@ -243,7 +319,9 @@ impl SlidesCodegen {
 
     fn font_tag(&self, base_font: &str) -> String {
         for (tag, name) in &self.fonts {
-            if name == base_font { return tag.clone(); }
+            if name == base_font {
+                return tag.clone();
+            }
         }
         "F1".to_string()
     }
@@ -254,7 +332,10 @@ impl SlidesCodegen {
 
     fn add_object(&mut self, data: &[u8]) -> usize {
         let id = self.objects.len() + 1;
-        self.objects.push(PdfObj { id, data: data.to_vec() });
+        self.objects.push(PdfObj {
+            id,
+            data: data.to_vec(),
+        });
         id
     }
 
@@ -277,12 +358,17 @@ impl SlidesCodegen {
         // Pass 2: emit pages.
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
-                for stmt in &page.body { self.emit_top_statement(stmt); }
+                for stmt in &page.body {
+                    self.emit_top_statement(stmt);
+                }
             }
         }
 
         for idx in &self.overflow_warnings {
-            eprintln!("warning[slides]: slide {} content overflows; truncated", idx);
+            eprintln!(
+                "warning[slides]: slide {} content overflows; truncated",
+                idx
+            );
         }
 
         self.serialize()
@@ -292,7 +378,9 @@ impl SlidesCodegen {
         let mut n = 0;
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
-                for stmt in &page.body { n += count_slides_in_stmt(stmt); }
+                for stmt in &page.body {
+                    n += count_slides_in_stmt(stmt);
+                }
             }
         }
         n
@@ -304,7 +392,9 @@ impl SlidesCodegen {
         if let StatementKind::UIElement(ui) = &stmt.kind {
             if let ComponentRef::BuiltIn(name) = &ui.component {
                 if name == "Presentation" {
-                    for child in &ui.children { self.emit_slide(child); }
+                    for child in &ui.children {
+                        self.emit_slide(child);
+                    }
                 }
             }
         }
@@ -326,12 +416,15 @@ impl SlidesCodegen {
         if let Some(s) = &style {
             self.warn_unsupported(name, &s.unknown);
         }
-        let slide_bg = style.as_ref().and_then(|s| s.background.clone())
+        let slide_bg = style
+            .as_ref()
+            .and_then(|s| s.background.clone())
             .or_else(|| self.deck_background.clone());
 
         // SectionSlide ignores the bg fill here — it has its own full-bleed band logic
         // driven by modifier color, but a per-slide style.background still wins if set.
-        let apply_bg = !matches!(name, "SectionSlide") || style.as_ref().map_or(false, |s| s.background.is_some());
+        let apply_bg = !matches!(name, "SectionSlide")
+            || style.as_ref().is_some_and(|s| s.background.is_some());
 
         if apply_bg {
             if let Some(bg) = &slide_bg {
@@ -343,11 +436,11 @@ impl SlidesCodegen {
         }
 
         match name {
-            "Slide"        => self.emit_freeform_slide(ui),
-            "TitleSlide"   => self.emit_title_slide(ui),
+            "Slide" => self.emit_freeform_slide(ui),
+            "TitleSlide" => self.emit_title_slide(ui),
             "SectionSlide" => self.emit_section_slide(ui),
-            "TwoColumn"    => self.emit_two_column(ui),
-            "ImageSlide"   => self.emit_image_slide(ui),
+            "TwoColumn" => self.emit_two_column(ui),
+            "ImageSlide" => self.emit_image_slide(ui),
             _ => {}
         }
         self.finalize_slide();
@@ -375,8 +468,12 @@ impl SlidesCodegen {
         let ((x0, y0), (x1, y1)) = gradient_endpoints(g.angle_deg, x, y, w, h);
         self.shadings.push(GradientInstance {
             tag: tag.clone(),
-            start: g.start, end: g.end,
-            x0, y0, x1, y1,
+            start: g.start,
+            end: g.end,
+            x0,
+            y0,
+            x1,
+            y1,
         });
         tag
     }
@@ -399,7 +496,10 @@ impl SlidesCodegen {
         for prop in unknown {
             let key = format!("{}::{}", component, prop);
             if self.warned_styles.insert(key) {
-                eprintln!("warning[slides]: unsupported style property '{}' on {}", prop, component);
+                eprintln!(
+                    "warning[slides]: unsupported style property '{}' on {}",
+                    prop, component
+                );
             }
         }
     }
@@ -422,7 +522,9 @@ impl SlidesCodegen {
         let content_id = self.add_stream_object(stream.bytes());
         let page_data = format!(
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {} {}] /Contents {} 0 R >>",
-            fmt_f64(self.page_width), fmt_f64(self.page_height), content_id
+            fmt_f64(self.page_width),
+            fmt_f64(self.page_height),
+            content_id
         );
         self.add_object(page_data.as_bytes());
     }
@@ -434,20 +536,24 @@ impl SlidesCodegen {
         let color = self.effective_chrome_color();
         self.current_stream.set_color(color.0, color.1, color.2);
         if let Some(footer) = self.footer_text.clone() {
-            self.current_stream.text_at(self.margin, baseline, &ft, chrome_size, &footer);
+            self.current_stream
+                .text_at(self.margin, baseline, &ft, chrome_size, &footer);
         }
         if self.show_slide_numbers {
             let label = format!("{} / {}", self.current_slide, self.total_slides);
             let tw = text_width(&label, "Helvetica", chrome_size);
             let x = self.page_width - self.margin - tw;
-            self.current_stream.text_at(x, baseline, &ft, chrome_size, &label);
+            self.current_stream
+                .text_at(x, baseline, &ft, chrome_size, &label);
         }
     }
 
     /// Resolves chrome color: explicit override wins; otherwise auto-flip on
     /// the current slide's background luminance — light bg → dark grey, dark bg → light grey.
     fn effective_chrome_color(&self) -> Color {
-        if let Some(c) = self.chrome_color_override { return c; }
+        if let Some(c) = self.chrome_color_override {
+            return c;
+        }
         if self.current_slide_bg_luminance < 0.5 {
             (0.78, 0.78, 0.78)
         } else {
@@ -458,7 +564,9 @@ impl SlidesCodegen {
     // ─── Layout: freeform Slide ─────────────────────────────
 
     fn emit_freeform_slide(&mut self, ui: &UIElement) {
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
     }
 
     // ─── Layout: TitleSlide ─────────────────────────────────
@@ -483,7 +591,8 @@ impl SlidesCodegen {
         let tx = ((self.page_width - tw) / 2.0).max(0.0);
         let ft = self.font_tag("Helvetica-Bold");
         self.current_stream.set_color(0.05, 0.05, 0.10);
-        self.current_stream.text_at(tx, title_baseline, &ft, title_size, &title);
+        self.current_stream
+            .text_at(tx, title_baseline, &ft, title_size, &title);
 
         if !subtitle.is_empty() {
             let sub_baseline = title_baseline - title_size * 0.15 - gap - sub_size * 0.85;
@@ -491,7 +600,8 @@ impl SlidesCodegen {
             let sx = ((self.page_width - sw) / 2.0).max(0.0);
             let ft = self.font_tag("Helvetica");
             self.current_stream.set_color(0.40, 0.40, 0.45);
-            self.current_stream.text_at(sx, sub_baseline, &ft, sub_size, &subtitle);
+            self.current_stream
+                .text_at(sx, sub_baseline, &ft, sub_size, &subtitle);
         }
     }
 
@@ -503,7 +613,8 @@ impl SlidesCodegen {
 
         // Full-bleed background.
         self.current_stream.set_color(color.0, color.1, color.2);
-        self.current_stream.rect(0.0, 0.0, self.page_width, self.page_height);
+        self.current_stream
+            .rect(0.0, 0.0, self.page_width, self.page_height);
         self.current_stream.fill();
 
         // Centered white label.
@@ -519,10 +630,21 @@ impl SlidesCodegen {
     // ─── Layout: TwoColumn ──────────────────────────────────
 
     fn emit_two_column(&mut self, ui: &UIElement) {
-        let cols: Vec<&UIElement> = ui.children.iter().filter_map(|c| {
-            if let StatementKind::UIElement(u) = &c.kind { Some(u) } else { None }
-        }).take(2).collect();
-        if cols.len() < 2 { return; }
+        let cols: Vec<&UIElement> = ui
+            .children
+            .iter()
+            .filter_map(|c| {
+                if let StatementKind::UIElement(u) = &c.kind {
+                    Some(u)
+                } else {
+                    None
+                }
+            })
+            .take(2)
+            .collect();
+        if cols.len() < 2 {
+            return;
+        }
 
         let gutter = 24.0;
         let half = (self.page_width - 2.0 * self.margin - gutter) / 2.0;
@@ -533,14 +655,18 @@ impl SlidesCodegen {
         // Left column: from margin to (margin + half).
         self.margin_left = self.margin;
         self.margin_right = self.page_width - (self.margin + half);
-        for c in &cols[0].children { self.emit_statement(c); }
+        for c in &cols[0].children {
+            self.emit_statement(c);
+        }
         let left_end_y = self.cursor_y;
 
         // Right column: from (margin + half + gutter) to (page_width - margin).
         self.cursor_y = saved_y;
         self.margin_left = self.margin + half + gutter;
         self.margin_right = self.margin;
-        for c in &cols[1].children { self.emit_statement(c); }
+        for c in &cols[1].children {
+            self.emit_statement(c);
+        }
         let right_end_y = self.cursor_y;
 
         self.margin_left = saved_left;
@@ -563,7 +689,11 @@ impl SlidesCodegen {
         // Reserve space for caption (if any).
         let caption_size = 16.0;
         let caption_gap = 16.0;
-        let caption_h = if caption.is_empty() { 0.0 } else { caption_size + caption_gap };
+        let caption_h = if caption.is_empty() {
+            0.0
+        } else {
+            caption_size + caption_gap
+        };
 
         // Image area: fill 80% of available content (height-wise), centered.
         let avail_w = self.page_width - 2.0 * self.margin;
@@ -587,7 +717,9 @@ impl SlidesCodegen {
         self.current_stream.text_at(
             img_x + (img_w - lw) / 2.0,
             img_y + img_h / 2.0 - lbl_size * 0.3,
-            &ft, lbl_size, lbl,
+            &ft,
+            lbl_size,
+            lbl,
         );
 
         if !caption.is_empty() {
@@ -596,7 +728,8 @@ impl SlidesCodegen {
             let cy = self.margin + caption_size * 0.4;
             let ft = self.font_tag("Helvetica");
             self.current_stream.set_color(0.40, 0.40, 0.45);
-            self.current_stream.text_at(cx, cy, &ft, caption_size, &caption);
+            self.current_stream
+                .text_at(cx, cy, &ft, caption_size, &caption);
         }
     }
 
@@ -606,12 +739,16 @@ impl SlidesCodegen {
         match &stmt.kind {
             StatementKind::UIElement(ui) => self.emit_ui_element(ui),
             StatementKind::If(if_stmt) => {
-                for s in &if_stmt.then_body { self.emit_statement(s); }
+                for s in &if_stmt.then_body {
+                    self.emit_statement(s);
+                }
             }
             StatementKind::For(for_stmt) => {
                 if let Expr::ListLiteral(items) = &for_stmt.iterable {
                     for _ in items {
-                        for s in &for_stmt.body { self.emit_statement(s); }
+                        for s in &for_stmt.body {
+                            self.emit_statement(s);
+                        }
                     }
                 }
             }
@@ -624,22 +761,28 @@ impl SlidesCodegen {
             ComponentRef::BuiltIn(n) => n.clone(),
             ComponentRef::SubComponent(p, s) => format!("{}.{}", p, s),
             ComponentRef::UserDefined(_) => {
-                for c in &ui.children { self.emit_statement(c); }
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
                 return;
             }
         };
         match name.as_str() {
-            "Text"     => self.emit_text(ui),
-            "Heading"  => self.emit_heading(ui),
-            "Spacer"   => { self.cursor_y -= self.spacer_size(ui); }
-            "Divider"  => self.emit_divider(),
-            "List"     => self.emit_list(ui),
+            "Text" => self.emit_text(ui),
+            "Heading" => self.emit_heading(ui),
+            "Spacer" => {
+                self.cursor_y -= self.spacer_size(ui);
+            }
+            "Divider" => self.emit_divider(),
+            "List" => self.emit_list(ui),
             "Container" | "Column" | "Stack" | "Grid" | "Section" | "Card" => {
                 self.emit_container(ui, &name);
             }
             _ => {
                 // Unknown component inside a slide — recurse into children for graceful degradation.
-                for c in &ui.children { self.emit_statement(c); }
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
             }
         }
     }
@@ -665,7 +808,9 @@ impl SlidesCodegen {
             Some(s) if container_has_box_styling(&s) => s,
             _ => {
                 // No box styling — preserve existing behavior (recurse only).
-                for c in &ui.children { self.emit_statement(c); }
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
                 return;
             }
         };
@@ -674,7 +819,9 @@ impl SlidesCodegen {
         let parent_w = self.content_width();
         let outer_x = self.margin_left;
         let mut outer_w = s.width.map(|d| d.resolve(parent_w)).unwrap_or(parent_w);
-        if outer_w > parent_w { outer_w = parent_w; }
+        if outer_w > parent_w {
+            outer_w = parent_w;
+        }
         let explicit_h = s.height.map(|d| d.resolve(self.page_height));
 
         let saved_left = self.margin_left;
@@ -683,14 +830,16 @@ impl SlidesCodegen {
 
         // Inset child rendering by padding.
         let pad = s.padding;
-        self.margin_left  = outer_x + pad.left;
+        self.margin_left = outer_x + pad.left;
         self.margin_right = self.page_width - (outer_x + outer_w) + pad.right;
-        self.cursor_y     -= pad.top;
+        self.cursor_y -= pad.top;
 
         // Snapshot stream length so we can splice bg/border behind children.
         let splice_at = self.current_stream.ops.len();
 
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
 
         self.cursor_y -= pad.bottom;
 
@@ -782,28 +931,45 @@ impl SlidesCodegen {
 
     fn emit_text(&mut self, ui: &UIElement) {
         let text = self.text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
         let (font, size, color, align) = self.text_style(ui);
         self.render_wrapped_text(&text, &font, size, color, &align);
     }
 
     fn emit_heading(&mut self, ui: &UIElement) {
         let text = self.text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
         let mut level = 2;
         let mut color = (0.05, 0.05, 0.10);
         for m in &ui.modifiers {
             match m.as_str() {
-                "h1" => level = 1, "h2" => level = 2, "h3" => level = 3,
-                "h4" => level = 4, "h5" => level = 5, "h6" => level = 6,
+                "h1" => level = 1,
+                "h2" => level = 2,
+                "h3" => level = 3,
+                "h4" => level = 4,
+                "h5" => level = 5,
+                "h6" => level = 6,
                 "muted" => color = (0.4, 0.4, 0.4),
                 _ => {}
             }
         }
         // Slide-scaled heading sizes (~2x PDF sizes).
-        let size = match level { 1=>48.0, 2=>36.0, 3=>28.0, 4=>22.0, 5=>18.0, _=>16.0 };
+        let size = match level {
+            1 => 48.0,
+            2 => 36.0,
+            3 => 28.0,
+            4 => 22.0,
+            5 => 18.0,
+            _ => 16.0,
+        };
         let (_, _, sc, align) = self.text_style(ui);
-        if sc != (0.0, 0.0, 0.0) { color = sc; }
+        if sc != (0.0, 0.0, 0.0) {
+            color = sc;
+        }
         self.cursor_y -= size * 0.3;
         self.render_wrapped_text(&text, "Helvetica-Bold", size, color, &align);
         self.cursor_y -= size * 0.2;
@@ -811,13 +977,20 @@ impl SlidesCodegen {
 
     fn emit_divider(&mut self) {
         let gap = 16.0;
-        if self.cursor_y - gap < self.margin { self.slide_overflowed = true; return; }
+        if self.cursor_y - gap < self.margin {
+            self.slide_overflowed = true;
+            return;
+        }
         let y = self.cursor_y - gap / 2.0;
         let stroke_w = 1.0;
         // Use a thin filled rect as a divider (no stroke ops in our minimal stream).
         self.current_stream.set_color(0.80, 0.80, 0.80);
-        self.current_stream.rect(self.margin_left, y - stroke_w / 2.0,
-                                  self.content_width(), stroke_w);
+        self.current_stream.rect(
+            self.margin_left,
+            y - stroke_w / 2.0,
+            self.content_width(),
+            stroke_w,
+        );
         self.current_stream.fill();
         self.cursor_y -= gap;
     }
@@ -833,15 +1006,31 @@ impl SlidesCodegen {
                 _ => continue,
             };
             let text = self.text_content(item);
-            if text.is_empty() { continue; }
-            if self.cursor_y - lh < self.margin { self.slide_overflowed = true; return; }
-            let marker = if ordered { format!("{}.", idx + 1) } else { "•".to_string() };
+            if text.is_empty() {
+                continue;
+            }
+            if self.cursor_y - lh < self.margin {
+                self.slide_overflowed = true;
+                return;
+            }
+            let marker = if ordered {
+                format!("{}.", idx + 1)
+            } else {
+                "•".to_string()
+            };
             let ft = self.font_tag(&self.default_font.clone());
             self.current_stream.set_color(0.35, 0.35, 0.35);
-            self.current_stream.text_at(self.margin_left, self.cursor_y, &ft, fs, &marker);
+            self.current_stream
+                .text_at(self.margin_left, self.cursor_y, &ft, fs, &marker);
             let saved_l = self.margin_left;
             self.margin_left += indent;
-            self.render_wrapped_text(&text, &self.default_font.clone(), fs, (0.10, 0.10, 0.10), "");
+            self.render_wrapped_text(
+                &text,
+                &self.default_font.clone(),
+                fs,
+                (0.10, 0.10, 0.10),
+                "",
+            );
             self.margin_left = saved_l;
         }
         self.cursor_y -= 6.0;
@@ -849,7 +1038,14 @@ impl SlidesCodegen {
 
     // ─── Word-wrapped text, clip on overflow ────────────────
 
-    fn render_wrapped_text(&mut self, text: &str, font: &str, size: f64, color: (f64, f64, f64), align: &str) {
+    fn render_wrapped_text(
+        &mut self,
+        text: &str,
+        font: &str,
+        size: f64,
+        color: (f64, f64, f64),
+        align: &str,
+    ) {
         let ft = self.font_tag(font);
         let lh = size * 1.4;
         let aw = self.content_width();
@@ -858,7 +1054,10 @@ impl SlidesCodegen {
         for line in text.split('\n') {
             let words: Vec<&str> = line.split_whitespace().collect();
             if words.is_empty() {
-                if self.cursor_y - lh * 0.5 < self.margin { self.slide_overflowed = true; return; }
+                if self.cursor_y - lh * 0.5 < self.margin {
+                    self.slide_overflowed = true;
+                    return;
+                }
                 self.cursor_y -= lh * 0.5;
                 continue;
             }
@@ -867,22 +1066,35 @@ impl SlidesCodegen {
             for w in &words {
                 let ww = text_width(w, font, size);
                 if !cl.is_empty() && cw + sw + ww > aw {
-                    if self.cursor_y - lh < self.margin { self.slide_overflowed = true; return; }
+                    if self.cursor_y - lh < self.margin {
+                        self.slide_overflowed = true;
+                        return;
+                    }
                     let x = self.text_x_for_align(&cl, font, size, align);
                     self.current_stream.set_color(color.0, color.1, color.2);
-                    self.current_stream.text_at(x, self.cursor_y, &ft, size, &cl);
+                    self.current_stream
+                        .text_at(x, self.cursor_y, &ft, size, &cl);
                     self.cursor_y -= lh;
-                    cl = w.to_string(); cw = ww;
+                    cl = w.to_string();
+                    cw = ww;
                 } else {
-                    if !cl.is_empty() { cl.push(' '); cw += sw; }
-                    cl.push_str(w); cw += ww;
+                    if !cl.is_empty() {
+                        cl.push(' ');
+                        cw += sw;
+                    }
+                    cl.push_str(w);
+                    cw += ww;
                 }
             }
             if !cl.is_empty() {
-                if self.cursor_y - lh < self.margin { self.slide_overflowed = true; return; }
+                if self.cursor_y - lh < self.margin {
+                    self.slide_overflowed = true;
+                    return;
+                }
                 let x = self.text_x_for_align(&cl, font, size, align);
                 self.current_stream.set_color(color.0, color.1, color.2);
-                self.current_stream.text_at(x, self.cursor_y, &ft, size, &cl);
+                self.current_stream
+                    .text_at(x, self.cursor_y, &ft, size, &cl);
                 self.cursor_y -= lh;
             }
         }
@@ -890,9 +1102,11 @@ impl SlidesCodegen {
 
     fn text_x_for_align(&self, text: &str, font: &str, size: f64, align: &str) -> f64 {
         match align {
-            "center" => self.margin_left + (self.content_width() - text_width(text, font, size)) / 2.0,
-            "right"  => self.page_width - self.margin_right - text_width(text, font, size),
-            _        => self.margin_left,
+            "center" => {
+                self.margin_left + (self.content_width() - text_width(text, font, size)) / 2.0
+            }
+            "right" => self.page_width - self.margin_right - text_width(text, font, size),
+            _ => self.margin_left,
         }
     }
 
@@ -911,7 +1125,9 @@ impl SlidesCodegen {
         let mut i = 0;
         for arg in &ui.args {
             if let Arg::Positional(expr) = arg {
-                if i == index { return self.expr_to_string(expr); }
+                if i == index {
+                    return self.expr_to_string(expr);
+                }
                 i += 1;
             }
         }
@@ -945,27 +1161,43 @@ impl SlidesCodegen {
         let mut align = String::new();
         for m in &ui.modifiers {
             match m.as_str() {
-                "bold"    => font = format!("{}-Bold", font.split('-').next().unwrap_or("Helvetica")),
-                "muted"   => color = (0.4, 0.4, 0.4),
+                "bold" => font = format!("{}-Bold", font.split('-').next().unwrap_or("Helvetica")),
+                "muted" => color = (0.4, 0.4, 0.4),
                 "primary" => color = (0.098, 0.098, 0.647),
-                "danger"  => color = (0.86, 0.21, 0.27),
+                "danger" => color = (0.86, 0.21, 0.27),
                 "success" => color = (0.16, 0.65, 0.27),
                 "warning" => color = (0.90, 0.56, 0.0),
-                "info"    => color = (0.0, 0.47, 0.84),
-                "small"   => size = self.default_font_size * 0.85,
-                "large"   => size = self.default_font_size * 1.25,
-                "center"  => align = "center".to_string(),
-                "right"   => align = "right".to_string(),
+                "info" => color = (0.0, 0.47, 0.84),
+                "small" => size = self.default_font_size * 0.85,
+                "large" => size = self.default_font_size * 1.25,
+                "center" => align = "center".to_string(),
+                "right" => align = "right".to_string(),
                 _ => {}
             }
         }
         if let Some(style) = &ui.style_block {
             for sp in &style.properties {
                 match sp.name.as_str() {
-                    "font-size" => { if let Expr::NumberLiteral(n) = sp.value { size = n; } }
-                    "font-family" | "font" => { if let Expr::StringLiteral(s) = &sp.value { font = s.clone(); } }
-                    "color" => { if let Expr::StringLiteral(s) = &sp.value { color = parse_color(s); } }
-                    "text-align" => { if let Expr::StringLiteral(s) = &sp.value { align = s.clone(); } }
+                    "font-size" => {
+                        if let Expr::NumberLiteral(n) = sp.value {
+                            size = n;
+                        }
+                    }
+                    "font-family" | "font" => {
+                        if let Expr::StringLiteral(s) = &sp.value {
+                            font = s.clone();
+                        }
+                    }
+                    "color" => {
+                        if let Expr::StringLiteral(s) = &sp.value {
+                            color = parse_color(s);
+                        }
+                    }
+                    "text-align" => {
+                        if let Expr::StringLiteral(s) = &sp.value {
+                            align = s.clone();
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -1008,16 +1240,26 @@ impl SlidesCodegen {
 
         // Fonts
         for (i, (_, bf)) in self.fonts.iter().enumerate() {
-            final_objects.push((font_start + i,
-                format!("<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>", bf).into_bytes()));
+            final_objects.push((
+                font_start + i,
+                format!(
+                    "<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>",
+                    bf
+                )
+                .into_bytes(),
+            ));
         }
 
         // Gradient functions (Type 2 axial, exponential interpolation).
         for (i, g) in self.shadings.iter().enumerate() {
             let func_obj = format!(
                 "<< /FunctionType 2 /Domain [0 1] /N 1 /C0 [{} {} {}] /C1 [{} {} {}] >>",
-                fmt_f64(g.start.0), fmt_f64(g.start.1), fmt_f64(g.start.2),
-                fmt_f64(g.end.0),   fmt_f64(g.end.1),   fmt_f64(g.end.2),
+                fmt_f64(g.start.0),
+                fmt_f64(g.start.1),
+                fmt_f64(g.start.2),
+                fmt_f64(g.end.0),
+                fmt_f64(g.end.1),
+                fmt_f64(g.end.2),
             );
             final_objects.push((shading_func_start + i, func_obj.into_bytes()));
         }
@@ -1027,7 +1269,11 @@ impl SlidesCodegen {
             let func_id = shading_func_start + i;
             let shading_obj = format!(
                 "<< /ShadingType 2 /ColorSpace /DeviceRGB /Coords [{} {} {} {}] /Function {} 0 R /Extend [true true] >>",
-                fmt_f64(g.x0), fmt_f64(g.y0), fmt_f64(g.x1), fmt_f64(g.y1), func_id,
+                fmt_f64(g.x0),
+                fmt_f64(g.y0),
+                fmt_f64(g.x1),
+                fmt_f64(g.y1),
+                func_id,
             );
             final_objects.push((shading_dict_start + i, shading_obj.into_bytes()));
         }
@@ -1044,7 +1290,10 @@ impl SlidesCodegen {
         let resources_dict = if shading_entries.is_empty() {
             format!("<< /Font << {} >> >>", fe)
         } else {
-            format!("<< /Font << {} >> /Shading << {} >> >>", fe, shading_entries)
+            format!(
+                "<< /Font << {} >> /Shading << {} >> >>",
+                fe, shading_entries
+            )
         };
         final_objects.push((resources_id, resources_dict.into_bytes()));
 
@@ -1067,8 +1316,19 @@ impl SlidesCodegen {
         }
 
         // 2: Pages
-        let kids: Vec<String> = new_page_ids.iter().map(|id| format!("{} 0 R", id)).collect();
-        final_objects.push((2, format!("<< /Type /Pages /Kids [{}] /Count {} >>", kids.join(" "), new_page_ids.len()).into_bytes()));
+        let kids: Vec<String> = new_page_ids
+            .iter()
+            .map(|id| format!("{} 0 R", id))
+            .collect();
+        final_objects.push((
+            2,
+            format!(
+                "<< /Type /Pages /Kids [{}] /Count {} >>",
+                kids.join(" "),
+                new_page_ids.len()
+            )
+            .into_bytes(),
+        ));
 
         final_objects.sort_by_key(|(id, _)| *id);
 
@@ -1086,9 +1346,18 @@ impl SlidesCodegen {
         out.extend_from_slice(format!("xref\n0 {}\n", total_objects + 1).as_bytes());
         out.extend_from_slice(b"0000000000 65535 f \n");
         for id in 1..=total_objects {
-            out.extend_from_slice(format!("{:010} 00000 n \n", offsets.get(id).copied().unwrap_or(0)).as_bytes());
+            out.extend_from_slice(
+                format!("{:010} 00000 n \n", offsets.get(id).copied().unwrap_or(0)).as_bytes(),
+            );
         }
-        out.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n", total_objects + 1, xref_offset).as_bytes());
+        out.extend_from_slice(
+            format!(
+                "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n",
+                total_objects + 1,
+                xref_offset
+            )
+            .as_bytes(),
+        );
         out
     }
 }
@@ -1121,9 +1390,16 @@ fn count_slides_in_stmt(stmt: &Statement) -> usize {
                 for child in &ui.children {
                     if let StatementKind::UIElement(c) = &child.kind {
                         if let ComponentRef::BuiltIn(cn) = &c.component {
-                            if matches!(cn.as_str(),
-                                "Slide" | "TitleSlide" | "SectionSlide" | "TwoColumn" | "ImageSlide"
-                            ) { n += 1; }
+                            if matches!(
+                                cn.as_str(),
+                                "Slide"
+                                    | "TitleSlide"
+                                    | "SectionSlide"
+                                    | "TwoColumn"
+                                    | "ImageSlide"
+                            ) {
+                                n += 1;
+                            }
                         }
                     }
                 }
@@ -1139,9 +1415,9 @@ fn modifier_color(mods: &[String], default: (f64, f64, f64)) -> (f64, f64, f64) 
         match m.as_str() {
             "primary" => return (0.39, 0.39, 0.95),
             "success" => return (0.16, 0.65, 0.27),
-            "danger"  => return (0.86, 0.21, 0.27),
+            "danger" => return (0.86, 0.21, 0.27),
             "warning" => return (0.90, 0.56, 0.0),
-            "info"    => return (0.0, 0.47, 0.84),
+            "info" => return (0.0, 0.47, 0.84),
             _ => {}
         }
     }
@@ -1149,17 +1425,27 @@ fn modifier_color(mods: &[String], default: (f64, f64, f64)) -> (f64, f64, f64) 
 }
 
 fn fmt_f64(v: f64) -> String {
-    if v == v.floor() { format!("{:.0}", v) } else { format!("{:.2}", v) }
+    if v == v.floor() {
+        format!("{:.0}", v)
+    } else {
+        format!("{:.2}", v)
+    }
 }
 
 fn char_to_winansi(ch: char) -> u8 {
     match ch {
-        '\u{2014}' => 0x97, '\u{2013}' => 0x96,
-        '\u{2018}' => 0x91, '\u{2019}' => 0x92,
-        '\u{201C}' => 0x93, '\u{201D}' => 0x94,
-        '\u{2022}' => 0x95, '\u{2026}' => 0x85,
-        '\u{2122}' => 0x99, '\u{00A9}' => 0xA9,
-        '\u{00AE}' => 0xAE, '\u{00B0}' => 0xB0,
+        '\u{2014}' => 0x97,
+        '\u{2013}' => 0x96,
+        '\u{2018}' => 0x91,
+        '\u{2019}' => 0x92,
+        '\u{201C}' => 0x93,
+        '\u{201D}' => 0x94,
+        '\u{2022}' => 0x95,
+        '\u{2026}' => 0x85,
+        '\u{2122}' => 0x99,
+        '\u{00A9}' => 0xA9,
+        '\u{00AE}' => 0xAE,
+        '\u{00B0}' => 0xB0,
         '\u{20AC}' => 0x80,
         c if (c as u32) < 256 => c as u8,
         _ => b'?',
@@ -1167,7 +1453,9 @@ fn char_to_winansi(ch: char) -> u8 {
 }
 
 fn text_to_pdf_hex(text: &str) -> String {
-    text.chars().map(|ch| format!("{:02X}", char_to_winansi(ch))).collect()
+    text.chars()
+        .map(|ch| format!("{:02X}", char_to_winansi(ch)))
+        .collect()
 }
 
 fn parse_color(s: &str) -> (f64, f64, f64) {

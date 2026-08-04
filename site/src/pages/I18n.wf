@@ -1,4 +1,4 @@
-Page I18n (path: "/i18n", title: "Internationalization") {
+Page I18n (path: "/i18n", description: "Translations, locales and right-to-left layout.", title: "Internationalization") {
     Container(fadeIn) {
         Spacer()
         Heading("Internationalization (i18n)", h1)

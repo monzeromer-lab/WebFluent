@@ -4,25 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Generation</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="Compile a .wf document straight to PDF.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/pdf">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/pdf?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/pdf?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/pdf">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PDF Generation">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Compile a .wf document straight to PDF.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/pdf">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="PDF Generation">
+    <meta name="twitter:description" content="Compile a .wf document straight to PDF.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/pdf#webpage","url":"https://monzeromer-lab.github.io/WebFluent/pdf","name":"PDF Generation","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Compile a .wf document straight to PDF."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/pdf#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"PDF Generation","item":"https://monzeromer-lab.github.io/WebFluent/pdf"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">PDF Generation</h1>​
-                <p class="wf-text wf-text--muted">Generate PDF documents directly from .wf source files. No external dependencies — raw PDF 1.7 output.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Enable PDF Output</h2>​
-                <p class="wf-text">Set the output type to pdf in your project config.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">{
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">PDF Generation</h1>
+                    <p class="wf-text wf-text--muted">Generate PDF documents directly from .wf source files. No external dependencies — raw PDF 1.7 output.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Enable PDF Output</h2>
+                    <p class="wf-text">Set the output type to pdf in your project config.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">{
   &quot;build&quot;: {
     &quot;output_type&quot;: &quot;pdf&quot;,
     &quot;pdf&quot;: {
@@ -33,31 +115,31 @@
       &quot;output_filename&quot;: &quot;report.pdf&quot;
     }
   }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Quick Start</h2>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">wf init my-report --template pdf
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Quick Start</h2>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">wf init my-report --template pdf
 cd my-report
-wf build</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">This creates a sample PDF project and builds it to build/my-report.pdf.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Document Structure</h2>​
-                <p class="wf-text">PDF documents use the same .wf syntax. Wrap content in a Document element with optional Header and Footer.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Page Report (path: &quot;/&quot;, title: &quot;Q1 Report&quot;) {
+wf build</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">This creates a sample PDF project and builds it to build/my-report.pdf.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Document Structure</h2>
+                    <p class="wf-text">PDF documents use the same .wf syntax. Wrap content in a Document element with optional Header and Footer.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Page Report (path: &quot;/&quot;, title: &quot;Q1 Report&quot;) {
     Document(page_size: &quot;A4&quot;) {
         Header {
             Text(&quot;Company Inc.&quot;, muted, small, right)
@@ -95,228 +177,243 @@ wf build</code>​
             }
         }
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Supported Components</h2>​
-                <p class="wf-text">These components render in PDF output:</p>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Component</td>​
-                        <td>PDF Behavior</td>​
-                    </thead>​
-                    <tr>
-                        <td>Document</td>​
-                        <td>Root element. Sets page size via page_size arg.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Header / Footer</td>​
-                        <td>Repeated on every page. Positioned in margins.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Section</td>​
-                        <td>Groups content with spacing.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Paragraph</td>​
-                        <td>Block of text with paragraph spacing.</td>​
-                    </tr>​
-                    <tr>
-                        <td>PageBreak</td>​
-                        <td>Forces a new page.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Heading(text, h1..h6)</td>​
-                        <td>Bold heading. h1=28pt, h2=22pt, h3=18pt...</td>​
-                    </tr>​
-                    <tr>
-                        <td>Text(text)</td>​
-                        <td>Body text with word wrapping.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Table / Thead / Tbody / Trow / Tcell</td>​
-                        <td>Gridded table with borders and header styling.</td>​
-                    </tr>​
-                    <tr>
-                        <td>List</td>​
-                        <td>Bulleted list. Add ordered modifier for numbered.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Code(text, block)</td>​
-                        <td>Monospace code with gray background.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Blockquote</td>​
-                        <td>Indented text with left bar.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Divider</td>​
-                        <td>Horizontal line.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Alert(text, variant)</td>​
-                        <td>Colored box with left accent bar.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Badge / Tag</td>​
-                        <td>Colored pill with white text.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Progress(value, max)</td>​
-                        <td>Horizontal bar.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Card</td>​
-                        <td>Bordered box around children.</td>​
-                    </tr>​
-                    <tr>
-                        <td>Image(src)</td>​
-                        <td>Placeholder rectangle (JPEG planned).</td>​
-                    </tr>​
-                    <tr>
-                        <td>Spacer</td>​
-                        <td>Vertical space. Modifiers: sm, md, lg, xl.</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Rejected Components</h2>​
-                <p class="wf-text">Interactive and web-only components cause compile-time errors in PDF mode:</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">error[pdf]: 'Button' cannot be used in PDF output (Page Report)
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Supported Components</h2>
+                    <p class="wf-text">These components render in PDF output:</p>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Component</td>
+                            <td>PDF Behavior</td>
+                        </thead>
+                        <tr>
+                            <td>Document</td>
+                            <td>Root element. Sets page size via page_size arg.</td>
+                        </tr>
+                        <tr>
+                            <td>Header / Footer</td>
+                            <td>Repeated on every page. Positioned in margins.</td>
+                        </tr>
+                        <tr>
+                            <td>Section</td>
+                            <td>Groups content with spacing.</td>
+                        </tr>
+                        <tr>
+                            <td>Paragraph</td>
+                            <td>Block of text with paragraph spacing.</td>
+                        </tr>
+                        <tr>
+                            <td>PageBreak</td>
+                            <td>Forces a new page.</td>
+                        </tr>
+                        <tr>
+                            <td>Heading(text, h1..h6)</td>
+                            <td>Bold heading. h1=28pt, h2=22pt, h3=18pt...</td>
+                        </tr>
+                        <tr>
+                            <td>Text(text)</td>
+                            <td>Body text with word wrapping.</td>
+                        </tr>
+                        <tr>
+                            <td>Table / Thead / Tbody / Trow / Tcell</td>
+                            <td>Gridded table with borders and header styling.</td>
+                        </tr>
+                        <tr>
+                            <td>List</td>
+                            <td>Bulleted list. Add ordered modifier for numbered.</td>
+                        </tr>
+                        <tr>
+                            <td>Code(text, block)</td>
+                            <td>Monospace code with gray background.</td>
+                        </tr>
+                        <tr>
+                            <td>Blockquote</td>
+                            <td>Indented text with left bar.</td>
+                        </tr>
+                        <tr>
+                            <td>Divider</td>
+                            <td>Horizontal line.</td>
+                        </tr>
+                        <tr>
+                            <td>Alert(text, variant)</td>
+                            <td>Colored box with left accent bar.</td>
+                        </tr>
+                        <tr>
+                            <td>Badge / Tag</td>
+                            <td>Colored pill with white text.</td>
+                        </tr>
+                        <tr>
+                            <td>Progress(value, max)</td>
+                            <td>Horizontal bar.</td>
+                        </tr>
+                        <tr>
+                            <td>Card</td>
+                            <td>Bordered box around children.</td>
+                        </tr>
+                        <tr>
+                            <td>Image(src)</td>
+                            <td>Placeholder rectangle (JPEG planned).</td>
+                        </tr>
+                        <tr>
+                            <td>Spacer</td>
+                            <td>Vertical space. Modifiers: sm, md, lg, xl.</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Rejected Components</h2>
+                    <p class="wf-text">Interactive and web-only components cause compile-time errors in PDF mode:</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">error[pdf]: &#x27;Button&#x27; cannot be used in PDF output (Page Report)
   — interactive elements are not supported in PDF
 
-error[pdf]: 'Input' cannot be used in PDF output (Page Report)
-  — interactive elements are not supported in PDF</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Rejected: Button, Input, Select, Checkbox, Switch, Slider, Form, Modal, Dialog, Toast, Router, Navbar, Sidebar, Tabs, Video, Carousel, and all event handlers.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Page Sizes</h2>​
-                <table class="wf-table">
-                    <thead>
-                        <td>Value</td>​
-                        <td>Dimensions (points)</td>​
-                        <td>Dimensions (mm)</td>​
-                    </thead>​
-                    <tr>
-                        <td>A4</td>​
-                        <td>595 x 842</td>​
-                        <td>210 x 297</td>​
-                    </tr>​
-                    <tr>
-                        <td>A3</td>​
-                        <td>842 x 1191</td>​
-                        <td>297 x 420</td>​
-                    </tr>​
-                    <tr>
-                        <td>A5</td>​
-                        <td>420 x 595</td>​
-                        <td>148 x 210</td>​
-                    </tr>​
-                    <tr>
-                        <td>Letter</td>​
-                        <td>612 x 792</td>​
-                        <td>216 x 279</td>​
-                    </tr>​
-                    <tr>
-                        <td>Legal</td>​
-                        <td>612 x 1008</td>​
-                        <td>216 x 356</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Fonts</h2>​
-                <p class="wf-text">PDF output uses the 14 standard PDF base fonts. No embedding needed.</p>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Font Family</td>​
-                        <td>Variants</td>​
-                    </thead>​
-                    <tr>
-                        <td>Helvetica</td>​
-                        <td>Regular, Bold, Oblique, BoldOblique</td>​
-                    </tr>​
-                    <tr>
-                        <td>Times</td>​
-                        <td>Roman, Bold, Italic, BoldItalic</td>​
-                    </tr>​
-                    <tr>
-                        <td>Courier</td>​
-                        <td>Regular, Bold, Oblique, BoldOblique</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Set the default font in config or override per-element with style blocks:</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Heading(&quot;Title&quot;, h1) {
+error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
+  — interactive elements are not supported in PDF</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Rejected: Button, Input, Select, Checkbox, Switch, Slider, Form, Modal, Dialog, Toast, Router, Navbar, Sidebar, Tabs, Video, Carousel, and all event handlers.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Page Sizes</h2>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Value</td>
+                            <td>Dimensions (points)</td>
+                            <td>Dimensions (mm)</td>
+                        </thead>
+                        <tr>
+                            <td>A4</td>
+                            <td>595 x 842</td>
+                            <td>210 x 297</td>
+                        </tr>
+                        <tr>
+                            <td>A3</td>
+                            <td>842 x 1191</td>
+                            <td>297 x 420</td>
+                        </tr>
+                        <tr>
+                            <td>A5</td>
+                            <td>420 x 595</td>
+                            <td>148 x 210</td>
+                        </tr>
+                        <tr>
+                            <td>Letter</td>
+                            <td>612 x 792</td>
+                            <td>216 x 279</td>
+                        </tr>
+                        <tr>
+                            <td>Legal</td>
+                            <td>612 x 1008</td>
+                            <td>216 x 356</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Fonts</h2>
+                    <p class="wf-text">PDF output uses the 14 standard PDF base fonts. No embedding needed.</p>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Font Family</td>
+                            <td>Variants</td>
+                        </thead>
+                        <tr>
+                            <td>Helvetica</td>
+                            <td>Regular, Bold, Oblique, BoldOblique</td>
+                        </tr>
+                        <tr>
+                            <td>Times</td>
+                            <td>Roman, Bold, Italic, BoldItalic</td>
+                        </tr>
+                        <tr>
+                            <td>Courier</td>
+                            <td>Regular, Bold, Oblique, BoldOblique</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Set the default font in config or override per-element with style blocks:</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Heading(&quot;Title&quot;, h1) {
     style {
         font-family: &quot;Helvetica-Bold&quot;
         color: &quot;#1a1a2e&quot;
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Styling in PDF</h2>​
-                <p class="wf-text">Style blocks support these properties in PDF output:</p>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Property</td>​
-                        <td>Values</td>​
-                        <td>Example</td>​
-                    </thead>​
-                    <tr>
-                        <td>font-size</td>​
-                        <td>Number (points)</td>​
-                        <td>font-size: 14</td>​
-                    </tr>​
-                    <tr>
-                        <td>font-family</td>​
-                        <td>Base14 font name</td>​
-                        <td>font-family: &quot;Courier&quot;</td>​
-                    </tr>​
-                    <tr>
-                        <td>color</td>​
-                        <td>Hex color</td>​
-                        <td>color: &quot;#333333&quot;</td>​
-                    </tr>​
-                    <tr>
-                        <td>text-align</td>​
-                        <td>left, center, right</td>​
-                        <td>text-align: &quot;center&quot;</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Modifiers also work: bold, muted, primary, danger, success, warning, info, small, large, center, right.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Auto Page Breaks</h2>​
-                <p class="wf-text wf-text--muted">Content automatically flows to a new page when it reaches the bottom margin. Headers and footers are rendered on every page, including auto-generated ones.</p>​
-                <div class="wf-spacer"></div>
-            </div>​
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Styling in PDF</h2>
+                    <p class="wf-text">Style blocks support these properties in PDF output:</p>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Property</td>
+                            <td>Values</td>
+                            <td>Example</td>
+                        </thead>
+                        <tr>
+                            <td>font-size</td>
+                            <td>Number (points)</td>
+                            <td>font-size: 14</td>
+                        </tr>
+                        <tr>
+                            <td>font-family</td>
+                            <td>Base14 font name</td>
+                            <td>font-family: &quot;Courier&quot;</td>
+                        </tr>
+                        <tr>
+                            <td>color</td>
+                            <td>Hex color</td>
+                            <td>color: &quot;#333333&quot;</td>
+                        </tr>
+                        <tr>
+                            <td>text-align</td>
+                            <td>left, center, right</td>
+                            <td>text-align: &quot;center&quot;</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Modifiers also work: bold, muted, primary, danger, success, warning, info, small, large, center, right.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Auto Page Breaks</h2>
+                    <p class="wf-text wf-text--muted">Content automatically flows to a new page when it reaches the bottom margin. Headers and footers are rendered on every page, including auto-generated ones.</p>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

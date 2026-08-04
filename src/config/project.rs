@@ -1,9 +1,9 @@
+use crate::error::{Result, WebFluentError};
+use crate::themes::BuiltinCss;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use crate::error::{WebFluentError, Result};
-use crate::themes::BuiltinCss;
 
 /// The output format for the build pipeline.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -19,7 +19,9 @@ pub enum OutputType {
     Slides,
 }
 
-fn default_output_type() -> OutputType { OutputType::Spa }
+fn default_output_type() -> OutputType {
+    OutputType::Spa
+}
 
 /// Root project configuration, loaded from `webfluent.app.json`.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -43,14 +45,18 @@ pub struct ProjectConfig {
 
 /// Theme configuration — name, mode, custom design tokens, and how much of the
 /// engine's built-in stylesheet to emit.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ThemeConfig {
-    #[serde(default = "default_theme_name")]
-    pub name: String,
-    #[serde(default = "default_theme_mode")]
-    pub mode: String,
+    /// The `Theme` declaration this build uses, by name.
+    ///
+    /// Optional: a project that declares exactly one theme does not need to name
+    /// it, and one that declares none gets the baseline tokens. `"default"` is
+    /// the baseline. This used to select one of four palettes the engine carried
+    /// in Rust; those are now example `.wf` files you copy and edit.
     #[serde(default)]
-    pub extends: Option<String>,
+    pub name: Option<String>,
+    /// Token overrides applied after the theme, for values a machine supplies —
+    /// a deploy pipeline injecting a brand colour, or the studio's inspector.
     #[serde(default)]
     pub tokens: HashMap<String, String>,
     /// `full` (default) ships the engine's baseline design; `structural` ships only
@@ -74,6 +80,14 @@ pub struct BuildConfig {
     /// Base path for deployment (e.g., "/WebFluent" for GitHub Pages project sites)
     #[serde(default)]
     pub base_path: String,
+    /// Emit a strict `Content-Security-Policy` meta tag, and a `_headers` file
+    /// for hosts that read one.
+    ///
+    /// Off by default: the generated output already satisfies the policy, but a
+    /// site that later embeds a third-party script would find it blocked, and
+    /// that is a decision to make deliberately rather than inherit.
+    #[serde(default)]
+    pub csp: bool,
     /// Output type: "spa" (default), "static", "pdf", or "slides"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
@@ -112,11 +126,21 @@ pub struct PdfMargins {
     pub right: f64,
 }
 
-fn default_page_size() -> String { "A4".to_string() }
-fn default_margins() -> PdfMargins { PdfMargins::default() }
-fn default_font() -> String { "Helvetica".to_string() }
-fn default_font_size() -> f64 { 12.0 }
-fn default_margin() -> f64 { 72.0 }
+fn default_page_size() -> String {
+    "A4".to_string()
+}
+fn default_margins() -> PdfMargins {
+    PdfMargins::default()
+}
+fn default_font() -> String {
+    "Helvetica".to_string()
+}
+fn default_font_size() -> f64 {
+    12.0
+}
+fn default_margin() -> f64 {
+    72.0
+}
 
 /// Slides output configuration — page size, fonts, slide chrome.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -154,10 +178,18 @@ pub struct SlidesConfig {
     pub output_filename: Option<String>,
 }
 
-fn default_slide_size() -> String { "16:9".to_string() }
-fn default_slide_font() -> String { "Helvetica".to_string() }
-fn default_slide_font_size() -> f64 { 24.0 }
-fn default_slide_margin() -> f64 { 60.0 }
+fn default_slide_size() -> String {
+    "16:9".to_string()
+}
+fn default_slide_font() -> String {
+    "Helvetica".to_string()
+}
+fn default_slide_font_size() -> f64 {
+    24.0
+}
+fn default_slide_margin() -> f64 {
+    60.0
+}
 
 impl Default for SlidesConfig {
     fn default() -> Self {
@@ -218,6 +250,29 @@ pub struct MetaConfig {
     pub favicon: String,
     #[serde(default = "default_lang")]
     pub lang: String,
+
+    /// The site's own origin, e.g. `https://example.com`.
+    ///
+    /// A canonical link, an `og:url`, a sitemap entry and an hreflang alternate
+    /// all have to be absolute — Google's guidance is explicit that a relative
+    /// canonical "can cause problems in the long run". Without this the engine
+    /// emits none of them rather than emitting a wrong one.
+    #[serde(default)]
+    pub site_url: String,
+
+    /// The organisation or person behind the site, for `Organization`
+    /// structured data and `og:site_name`. Defaults to the project name.
+    #[serde(default)]
+    pub site_name: String,
+
+    /// A default sharing image for pages that do not name their own.
+    #[serde(default)]
+    pub image: String,
+
+    /// Emit `sitemap.xml` and `robots.txt`. On by default for static builds,
+    /// which are the ones a crawler can read.
+    #[serde(default = "default_true")]
+    pub sitemap: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -230,28 +285,40 @@ pub struct I18nConfig {
     pub dir: String,
 }
 
-fn default_locale() -> String { "en".to_string() }
-fn default_locales() -> Vec<String> { vec!["en".to_string()] }
-fn default_translations_dir() -> String { "src/translations".to_string() }
+fn default_locale() -> String {
+    "en".to_string()
+}
+fn default_locales() -> Vec<String> {
+    vec!["en".to_string()]
+}
+fn default_translations_dir() -> String {
+    "src/translations".to_string()
+}
 
-fn default_version() -> String { "0.1.0".to_string() }
-fn default_theme_name() -> String { "default".to_string() }
-fn default_theme_mode() -> String { "light".to_string() }
-fn default_output_dir() -> String { "./build".to_string() }
-fn default_port() -> u16 { 3000 }
-fn default_true() -> bool { true }
-fn default_lang() -> String { "en".to_string() }
+fn default_version() -> String {
+    "0.1.0".to_string()
+}
+/// The policy the generated output satisfies without exception.
+///
+/// `script-src 'self'` and `style-src 'self'` are only possible because the
+/// compiler emits external files and binds events with `addEventListener`
+/// rather than inline `on*` attributes — the refactor most codebases have to
+/// make before a strict policy is even reachable.
+pub const CSP_POLICY: &str = "default-src 'self'; script-src 'self'; style-src 'self'; \
+img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; \
+frame-ancestors 'none'; form-action 'self'";
 
-impl Default for ThemeConfig {
-    fn default() -> Self {
-        Self {
-            name: default_theme_name(),
-            mode: default_theme_mode(),
-            extends: None,
-            tokens: HashMap::new(),
-            builtin: BuiltinCss::default(),
-        }
-    }
+fn default_output_dir() -> String {
+    "./build".to_string()
+}
+fn default_port() -> u16 {
+    3000
+}
+fn default_true() -> bool {
+    true
+}
+fn default_lang() -> String {
+    "en".to_string()
 }
 
 impl Default for BuildConfig {
@@ -262,6 +329,7 @@ impl Default for BuildConfig {
             sourcemap: false,
             ssg: false,
             base_path: String::new(),
+            csp: false,
             output_type: OutputType::Spa,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
@@ -285,6 +353,10 @@ impl Default for MetaConfig {
             description: String::new(),
             favicon: String::new(),
             lang: default_lang(),
+            site_url: String::new(),
+            site_name: String::new(),
+            image: String::new(),
+            sitemap: true,
         }
     }
 }
@@ -294,7 +366,7 @@ impl ProjectConfig {
         let config_path = project_dir.join("webfluent.app.json");
         if !config_path.exists() {
             return Err(WebFluentError::ConfigError(
-                "webfluent.app.json not found. Run 'wf init' to create a project.".to_string()
+                "webfluent.app.json not found. Run 'wf init' to create a project.".to_string(),
             ));
         }
         let content = fs::read_to_string(&config_path)?;

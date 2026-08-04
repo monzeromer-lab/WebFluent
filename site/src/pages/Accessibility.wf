@@ -1,4 +1,4 @@
-Page Accessibility (path: "/accessibility", title: "Accessibility Linting") {
+Page Accessibility (path: "/accessibility", description: "The accessibility checks the compiler runs, and what each one means.", title: "Accessibility Linting") {
     Container(fadeIn) {
         Spacer()
         Heading("Accessibility Linting", h1)
@@ -33,7 +33,14 @@ Page Accessibility (path: "/accessibility", title: "Accessibility Linting") {
             Trow { Tcell("A09") Tcell("Video") Tcell("Must have controls attribute") }
             Trow { Tcell("A10") Tcell("Table") Tcell("Must have Thead header row") }
             Trow { Tcell("A11") Tcell("Heading") Tcell("Levels must not skip (h1 to h3)") }
-            Trow { Tcell("A12") Tcell("Page") Tcell("Must have exactly one h1") }
+            Trow { Tcell("A12") Tcell("Page") Tcell("Must have exactly one h1 (not for Presentation or Document)") }
+            Trow { Tcell("A13") Tcell("Theme") Tcell("Colour pairings must clear the WCAG AA contrast ratio") }
+            Trow { Tcell("S01") Tcell("Page") Tcell("Must have a title") }
+            Trow { Tcell("S02") Tcell("Page") Tcell("Should have a description, or its search snippet gets written for it") }
+            Trow { Tcell("S03") Tcell("Page") Tcell("A description over ~160 characters is truncated in results") }
+            Trow { Tcell("S04") Tcell("Page") Tcell("Two pages must not claim one route") }
+            Trow { Tcell("V01") Tcell("Any") Tcell("A bare word that resolves to nothing") }
+            Trow { Tcell("V02") Tcell("Any") Tcell("A real modifier whose class no stylesheet defines") }
         }
 
         Spacer()

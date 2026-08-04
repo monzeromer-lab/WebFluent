@@ -1,4 +1,4 @@
-Page GettingStarted (path: "/getting-started", title: "Getting Started") {
+Page GettingStarted (path: "/getting-started", description: "Install WebFluent and build your first page.", title: "Getting Started") {
     Container(fadeIn) {
         Spacer()
         Heading("Getting Started", h1)

@@ -1,0 +1,35 @@
+// A sidebar shell with the router nested two levels down — the layout the docs
+// call out as the one that used to lose its router.
+App {
+    Row {
+        style {
+            min-height: "100vh"
+        }
+
+        Sidebar {
+            style {
+                width: "240px"
+                background: "#0B1120"
+            }
+
+            Sidebar.Header { Text("Ops Console", bold) }
+            Sidebar.Item(to: "/", icon: "home") { Text("Overview") }
+            Sidebar.Item(to: "/incidents", icon: "alert") { Text("Incidents") }
+            Sidebar.Divider
+            Sidebar.Item(to: "/settings", icon: "cog") { Text("Settings") }
+        }
+
+        Container {
+            style {
+                flex: "1"
+                padding: "2rem"
+            }
+
+            Router {
+                Route(path: "/", page: Overview)
+                Route(path: "/incidents", page: Incidents)
+                Route(path: "/settings", page: Settings)
+            }
+        }
+    }
+}

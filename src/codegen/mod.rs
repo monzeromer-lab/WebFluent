@@ -14,22 +14,25 @@
 //! what a `Card` or a `Heading` is.
 
 pub mod builtin;
-pub mod html;
 pub mod css;
+pub mod html;
 pub mod js;
-pub mod ssg;
+pub mod node_id;
 pub mod pdf;
+pub mod seo;
 pub mod slides;
+pub mod ssg;
+pub mod static_eval;
 pub mod style;
 pub mod style_tokens;
-pub mod node_id;
 
-pub use html::generate_html;
+#[allow(unused_imports)]
 pub use css::{generate_css, generate_css_with};
+pub use html::generate_html;
 pub use js::JsCodegen;
-pub use ssg::render_page_html;
 pub use pdf::PdfCodegen;
 pub use slides::SlidesCodegen;
+pub use ssg::render_page_html;
 // The studio node-identity API (`node_id::{NodeMap, NodeInfo, build_node_map}`
 // and `ssg::render_page_html_studio`) is reachable via `pub mod node_id` and
 // `pub mod ssg`; Milestone 2 will re-export the ergonomic subset it consumes.

@@ -1,4 +1,4 @@
-Page TemplateEngine (path: "/template-engine", title: "Template Engine") {
+Page TemplateEngine (path: "/template-engine", description: "Render .wf templates with JSON data from Rust.", title: "Template Engine") {
     Container(fadeIn) {
         Spacer()
         Heading(t("tpl.title"), h1)

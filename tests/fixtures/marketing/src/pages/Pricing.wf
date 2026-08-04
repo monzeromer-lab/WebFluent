@@ -1,0 +1,50 @@
+Page Pricing (path: "/pricing", description: "Two plans, both cheaper than chasing payment yourself.", title: "Pricing") {
+    state annual = true
+
+    Container {
+        Heading("Pricing", h1) {
+            style {
+                text-align: "center"
+                margin-top: "4rem"
+            }
+        }
+        Text("Two plans. Both cheaper than the afternoon you spend chasing payment.", muted, center)
+
+        Row(gap: sm, justify: center, align: center) {
+            Text("Monthly")
+            Switch(bind: annual, label: "Bill annually")
+        }
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card {
+                    style { padding: "2rem" }
+                    Heading("Solo", h2)
+                    Text("£9 a month", bold)
+                    List {
+                        Text("Unlimited invoices")
+                        Text("Automatic reminders")
+                    }
+                    Button("Choose Solo", full, pill)
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    style {
+                        padding: "2rem"
+                        border: "2px solid #0F766E"
+                    }
+                    Badge("Most chosen", primary, pill)
+                    Heading("Studio", h2)
+                    Text("£29 a month", bold)
+                    List {
+                        Text("Everything in Solo")
+                        Text("Five seats")
+                        Text("Reconciliation export")
+                    }
+                    Button("Choose Studio", primary, full, pill)
+                }
+            }
+        }
+    }
+}

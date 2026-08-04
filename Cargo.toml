@@ -1,6 +1,6 @@
 [package]
 name = "webfluent"
-version = "1.0.0"
+version = "2.0.0"
 edition = "2024"
 description = "The Web-First Language — compiles to HTML, CSS, JavaScript, and PDF. 50+ built-in components, reactivity, routing, i18n, SSG, and template engine."
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]

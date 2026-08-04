@@ -25,11 +25,20 @@
 
 use std::collections::HashSet;
 
+use crate::codegen::builtin::{builtin_to_html, modifier_to_class};
 use crate::error::VocabWarning;
 use crate::parser::vocabulary::MODIFIER_KEYWORDS;
 use crate::parser::{
-    Arg, Declaration, Expr, Program, Statement, StatementKind, UIElement,
+    Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
+
+/// The sheet a default build ships, computed once.
+///
+/// Structural builds carry fewer rules, so checking against the full sheet is
+/// the conservative choice: it reports only classes *no* mode defines.
+fn stylesheet() -> &'static str {
+    crate::themes::component_css()
+}
 
 /// Lint every UI element's positional arguments against the modifier vocabulary
 /// and the program's own names. Returns one warning per dead word (empty =
@@ -45,8 +54,8 @@ pub fn lint_vocabulary(program: &Program, file: &str) -> Vec<VocabWarning> {
                 (&c.body, c.props.iter().map(|p| p.name.clone()).collect())
             }
             Declaration::App(a) => (&a.body, Vec::new()),
-            // Stores hold no UI.
-            Declaration::Store(_) => continue,
+            // Stores and themes hold no UI.
+            Declaration::Store(_) | Declaration::Theme(_) => continue,
         };
         // Hoisted, order-independent scope for the whole declaration: warning on
         // a name that IS declared somewhere would be a false positive, and a
@@ -54,7 +63,7 @@ pub fn lint_vocabulary(program: &Program, file: &str) -> Vec<VocabWarning> {
         let mut scope = globals.clone();
         scope.extend(props);
         hoist_names(body, &mut scope);
-        walk(body, file, &mut scope, &mut warnings);
+        walk(body, file, &scope, &mut warnings);
     }
 
     warnings
@@ -77,7 +86,7 @@ fn global_names(program: &Program) -> HashSet<String> {
                 names.insert(s.name.clone());
                 hoist_names(&s.body, &mut names);
             }
-            Declaration::App(_) => {}
+            Declaration::App(_) | Declaration::Theme(_) => {}
         }
     }
     names
@@ -145,6 +154,7 @@ fn walk(stmts: &[Statement], file: &str, scope: &HashSet<String>, out: &mut Vec<
         match &stmt.kind {
             StatementKind::UIElement(el) => {
                 check_element(el, file, scope, out);
+                check_dead_variants(el, file, stylesheet(), out);
                 walk(&el.children, file, scope, out);
             }
             StatementKind::If(i) => {
@@ -174,6 +184,77 @@ fn walk(stmts: &[Statement], file: &str, scope: &HashSet<String>, out: &mut Vec<
             _ => {}
         }
     }
+}
+
+/// V02: a real modifier that produces a class no stylesheet defines.
+///
+/// The class for a variant is built as `{base}--{modifier}` for *any* pairing,
+/// so `Alert(elevated)` emits `.wf-alert--elevated` and `Text(pill)` emits
+/// `.wf-text--pill`. Both parse, neither is a typo, and neither changes a pixel:
+/// the stylesheet has no such rule. That is the same failure [`lint_vocabulary`]
+/// exists to catch — a word the author wrote, every layer reported success for,
+/// and nothing happened — arriving by a different route.
+///
+/// Suppressing the class in the codegen was the alternative, and it is the wrong
+/// one: `{base}--{modifier}` is a documented styling hook, so an author may have
+/// written the rule themselves. Saying so is right; deciding for them is not.
+fn check_dead_variants(el: &UIElement, file: &str, stylesheet: &str, out: &mut Vec<VocabWarning>) {
+    let ComponentRef::BuiltIn(name) = &el.component else {
+        return;
+    };
+    let (_, base) = builtin_to_html(name);
+    if base.is_empty() {
+        return;
+    }
+
+    for (i, modifier) in el.modifiers.iter().enumerate() {
+        let class = modifier_to_class(base, modifier);
+        // Only per-component variants. A shared typography class like
+        // `wf-text--bold` applies wherever it lands, and animation classes are
+        // driven by keyframes the sheet always carries.
+        if class.is_empty() || !class.starts_with(base) || class.starts_with("wf-animate") {
+            continue;
+        }
+        if defines_class(stylesheet, &class) {
+            continue;
+        }
+        let (line, column) = el
+            .modifier_spans
+            .get(i)
+            .map(|s| (s.line as usize, s.col as usize))
+            .unwrap_or((el.span.line as usize, el.span.col as usize));
+        out.push(VocabWarning {
+            rule_id: "V02".to_string(),
+            message: format!(
+                "`{modifier}` on {name} produces the class `{class}`, which no stylesheet defines"
+            ),
+            file: file.to_string(),
+            line,
+            column,
+            hint: Some(format!(
+                "Either drop it, or add a `.{class}` rule — the engine emits the class either way"
+            )),
+        });
+    }
+}
+
+/// Whether `stylesheet` has a rule for `class`, matched at a selector boundary
+/// so `.wf-btn` does not find `.wf-btn-group`.
+fn defines_class(stylesheet: &str, class: &str) -> bool {
+    let needle = format!(".{class}");
+    let mut rest = stylesheet;
+    while let Some(i) = rest.find(&needle) {
+        let after = &rest[i + needle.len()..];
+        if after
+            .chars()
+            .next()
+            .is_none_or(|c| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+        {
+            return true;
+        }
+        rest = after;
+    }
+    false
 }
 
 fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut Vec<VocabWarning>) {
@@ -275,7 +356,7 @@ mod tests {
     }
 
     #[test]
-    fn a_typoed_state_name_suggests_the_state(){
+    fn a_typoed_state_name_suggests_the_state() {
         // Ask A-4's case: the mistake lands at argument position, where the
         // span exists.
         let w = lint(r#"Page Home (path: "/") { state count = 0 Text(cuont) }"#);
@@ -313,7 +394,9 @@ mod tests {
     fn named_arguments_are_not_checked() {
         // Named args reference actions, pages, options — a different namespace
         // with different failure modes; flagging them here would false-positive.
-        let w = lint(r#"Page Home (path: "/") { state n = 0 action bump() { n = n + 1 } Button("Go", onClick: bump) }"#);
+        let w = lint(
+            r#"Page Home (path: "/") { state n = 0 action bump() { n = n + 1 } Button("Go", onClick: bump) }"#,
+        );
         assert_eq!(w, Vec::new());
     }
 
@@ -346,5 +429,75 @@ mod tests {
         assert_eq!(levenshtein("centered", "center"), 2);
         assert_eq!(levenshtein("huge", "large"), 3);
         assert_eq!(levenshtein("same", "same"), 0);
+    }
+}
+
+#[cfg(test)]
+mod dead_variant_tests {
+    //! A modifier that is spelled right and still does nothing.
+    //!
+    //! `lint_vocabulary` already catches invented words. This catches the other
+    //! half: a word from the real vocabulary, on a component whose stylesheet
+    //! section has no rule for it.
+    use super::*;
+    use crate::lexer::Lexer;
+    use crate::parser::Parser;
+
+    fn warnings(src: &str) -> Vec<VocabWarning> {
+        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
+        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        lint_vocabulary(&program, "<t>")
+            .into_iter()
+            .filter(|w| w.rule_id == "V02")
+            .collect()
+    }
+
+    #[test]
+    fn a_variant_the_stylesheet_defines_is_silent() {
+        assert!(
+            warnings(r#"Page P (path: "/") { Button("Save", primary) }"#).is_empty(),
+            "`.wf-btn--primary` exists"
+        );
+        assert!(warnings(r#"Page P (path: "/") { Card(elevated) { Text("x") } }"#).is_empty());
+    }
+
+    #[test]
+    fn a_variant_with_no_rule_behind_it_is_reported() {
+        let w = warnings(r#"Page P (path: "/") { Alert("Careful", elevated) }"#);
+        assert_eq!(w.len(), 1, "{w:?}");
+        assert!(
+            w[0].message.contains("wf-alert--elevated"),
+            "{}",
+            w[0].message
+        );
+        assert!(
+            w[0].hint.as_ref().unwrap().contains("add a"),
+            "{:?}",
+            w[0].hint
+        );
+    }
+
+    /// Typography and animation classes apply wherever they land, so they are
+    /// never a per-component gap.
+    #[test]
+    fn shared_and_animated_classes_are_not_flagged() {
+        assert!(
+            warnings(r#"Page P (path: "/") { Card(bold) { Text("x") } }"#).is_empty(),
+            "`wf-text--bold` styles whatever it is put on"
+        );
+        assert!(
+            warnings(r#"Page P (path: "/") { Card(fadeIn) { Text("x") } }"#).is_empty(),
+            "animation classes are carried by keyframes, not per component"
+        );
+    }
+
+    #[test]
+    fn the_warning_points_at_the_modifier_itself() {
+        let w = warnings("Page P (path: \"/\") {\n    Alert(\"x\", pill)\n}");
+        assert_eq!(w.len(), 1);
+        assert_eq!(
+            w[0].line, 2,
+            "the warning should name the line the word is on"
+        );
     }
 }

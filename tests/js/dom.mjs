@@ -48,8 +48,20 @@ class Element extends Node_ {
     if (i < 0) this.childNodes.push(n); else this.childNodes.splice(i, 0, n);
     return n;
   }
-  setAttribute(k, v) { this.attributes.set(k, String(v)); }
-  getAttribute(k) { return this.attributes.has(k) ? this.attributes.get(k) : null; }
+  get className() { return this.classList.toString(); }
+  set className(v) {
+    this.classList._set = new Set(String(v).split(/\s+/).filter(Boolean));
+  }
+  get id() { return this.getAttribute("id") || ""; }
+  set id(v) { this.setAttribute("id", v); }
+  setAttribute(k, v) {
+    if (k === "class") { this.className = v; return; }
+    this.attributes.set(k, String(v));
+  }
+  getAttribute(k) {
+    if (k === "class") { const c = this.classList.toString(); return c === "" ? null : c; }
+    return this.attributes.has(k) ? this.attributes.get(k) : null;
+  }
   hasAttribute(k) { return this.attributes.has(k); }
   removeAttribute(k) { this.attributes.delete(k); }
   addEventListener(type, fn) {
@@ -66,23 +78,63 @@ class Element extends Node_ {
     return true;
   }
   click() { this.dispatchEvent({ type: "click" }); }
+  remove() { this.parentNode?.removeChild(this); }
+
+  // <dialog>: the real element hides itself while closed, traps focus and fires
+  // `close` on Escape. The shim models the observable part — the `open`
+  // property, the attribute and the close event — so a test can tell whether
+  // the runtime drove it correctly.
+  get open() { return this.hasAttribute("open"); }
+  set open(v) { if (v) this.setAttribute("open", ""); else this.removeAttribute("open"); }
+  showModal() { this.setAttribute("open", ""); this.setAttribute("aria-modal", "true"); }
+  show() { this.setAttribute("open", ""); }
+  close(returnValue) {
+    this.removeAttribute("open");
+    this.removeAttribute("aria-modal");
+    this.returnValue = returnValue;
+    this.dispatchEvent({ type: "close", target: this });
+  }
+  focus() { this.ownerDocument_ = true; }
   get textContent() { return this.childNodes.map((n) => n.textContent).join(""); }
   set textContent(v) { this.childNodes = []; this.appendChild(new TextNode(v)); }
   get innerHTML() { return this.textContent; }
   set innerHTML(v) { if (v === "") this.childNodes = []; }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) {
-    const m = /^\[([\w-]+)="(.*)"\]$/.exec(sel);
+    const attr = /^\[([\w-]+)="(.*)"\]$/.exec(sel);
+    const cls = /^\.([\w-]+)$/.exec(sel);
+    const id = /^#([\w-]+)$/.exec(sel);
+    const matches = (c) => {
+      if (attr) return c.getAttribute(attr[1]) === attr[2];
+      if (cls) return c.classList.contains(cls[1]);
+      if (id) return c.getAttribute("id") === id[1];
+      return c.tagName.toLowerCase() === sel.toLowerCase();
+    };
     const out = [];
     const walk = (el) => {
       for (const c of el.children) {
-        if (m ? c.getAttribute(m[1]) === m[2] : c.tagName.toLowerCase() === sel.toLowerCase()) out.push(c);
+        if (matches(c)) out.push(c);
         walk(c);
       }
     };
     walk(this);
     return out;
   }
+
+  /// Every descendant element, for assertions that count or scan the tree.
+  all() {
+    const out = [];
+    const walk = (el) => { for (const c of el.children) { out.push(c); walk(c); } };
+    walk(this);
+    return out;
+  }
+}
+
+/// A fragment appends its children into the parent and empties itself, exactly
+/// as the DOM does — the runtime branches on `instanceof DocumentFragment` to
+/// know when to collect children before that happens.
+class DocumentFragment extends Element {
+  constructor() { super("#document-fragment"); }
 }
 
 export function makeDom() {
@@ -90,7 +142,7 @@ export function makeDom() {
     createElement: (t) => new Element(t),
     createTextNode: (t) => new TextNode(t),
     createComment: () => new TextNode(""),
-    createDocumentFragment: () => new Element("fragment"),
+    createDocumentFragment: () => new DocumentFragment(),
     body: new Element("body"),
     documentElement: new Element("html"),
     addEventListener() {},
@@ -110,5 +162,5 @@ export function makeDom() {
     getComputedStyle: () => ({}),
     matchMedia: () => ({ matches: false, addEventListener() {} }),
   };
-  return { window, document, Element, TextNode, Node: Node_ };
+  return { window, document, Element, TextNode, DocumentFragment, Node: Node_ };
 }

@@ -4,153 +4,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Static Site Generation</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="Pre-render every route to static HTML.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/ssg">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/ssg?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/ssg?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/ssg">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Static Site Generation">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Pre-render every route to static HTML.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/ssg">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Static Site Generation">
+    <meta name="twitter:description" content="Pre-render every route to static HTML.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/ssg#webpage","url":"https://monzeromer-lab.github.io/WebFluent/ssg","name":"Static Site Generation","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Pre-render every route to static HTML."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/ssg#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Static Site Generation","item":"https://monzeromer-lab.github.io/WebFluent/ssg"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">Static Site Generation (SSG)</h1>​
-                <p class="wf-text wf-text--muted">Pre-render pages to HTML at build time for instant content visibility. JavaScript hydrates the page for interactivity.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Enable SSG</h2>​
-                <p class="wf-text">One config flag is all you need.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">{
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">Static Site Generation (SSG)</h1>
+                    <p class="wf-text wf-text--muted">Pre-render pages to HTML at build time for instant content visibility. JavaScript hydrates the page for interactivity.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Enable SSG</h2>
+                    <p class="wf-text">One config flag is all you need.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">{
   &quot;build&quot;: {
     &quot;ssg&quot;: true
   }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">How It Works</h2>​
-                <div class="wf-row">
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--elevated">
-                            <div class="wf-card__body">
-                                <h2 class="wf-heading wf-heading--h2">1. Build</h2>​
-                                <p class="wf-text wf-text--muted">The compiler walks the AST for each page and generates static HTML from the component tree.</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--elevated">
-                            <div class="wf-card__body">
-                                <h2 class="wf-heading wf-heading--h2">2. Serve</h2>​
-                                <p class="wf-text wf-text--muted">The browser loads pre-rendered HTML. Content is visible immediately — no blank white screen.</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--elevated">
-                            <div class="wf-card__body">
-                                <h2 class="wf-heading wf-heading--h2">3. Hydrate</h2>​
-                                <p class="wf-text wf-text--muted">JavaScript runs and hydrates the page: attaches events, initializes state, fills dynamic content.</p>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Build Output</h2>​
-                <div class="wf-row">
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--outlined">
-                            <div class="wf-card__body">
-                                <p class="wf-text wf-text--bold">SPA (default)</p>​
-                                <code class="wf-code">build/
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">How It Works</h2>
+                    <div class="wf-row">
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h2 class="wf-heading">1. Build</h2>
+                                    <p class="wf-text wf-text--muted">The compiler walks the AST for each page and generates static HTML from the component tree.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h2 class="wf-heading">2. Serve</h2>
+                                    <p class="wf-text wf-text--muted">The browser loads pre-rendered HTML. Content is visible immediately — no blank white screen.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h2 class="wf-heading">3. Hydrate</h2>
+                                    <p class="wf-text wf-text--muted">JavaScript runs and hydrates the page: attaches events, initializes state, fills dynamic content.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Build Output</h2>
+                    <div class="wf-row">
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__body">
+                                    <p class="wf-text wf-text--bold">SPA (default)</p>
+                                    <code class="wf-code wf-code--block">build/
 ├── index.html       # Empty shell
 ├── app.js
-└── styles.css</code>​
-                            </div>​
-                        </div>​
-                    </div>​
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--outlined">
-                            <div class="wf-card__body">
-                                <p class="wf-text wf-text--bold">SSG mode</p>​
-                                <code class="wf-code">build/
+└── styles.css</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__body">
+                                    <p class="wf-text wf-text--bold">SSG mode</p>
+                                    <code class="wf-code wf-code--block">build/
 ├── index.html       # Pre-rendered /
 ├── about/
 │   └── index.html   # Pre-rendered /about
 ├── blog/
 │   └── index.html   # Pre-rendered /blog
 ├── app.js
-└── styles.css</code>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">What Gets Pre-Rendered</h2>​
-                <table class="wf-table">
-                    <thead>
-                        <td>Element</td>​
-                        <td>SSG Behavior</td>​
-                    </thead>​
-                    <tr>
-                        <td>Static text, headings, components</td>​
-                        <td>Fully rendered to HTML</td>​
-                    </tr>​
-                    <tr>
-                        <td>Container, Row, Column, Card, etc.</td>​
-                        <td>Full HTML with classes</td>​
-                    </tr>​
-                    <tr>
-                        <td>Modifiers (primary, large, etc.)</td>​
-                        <td>CSS classes applied</td>​
-                    </tr>​
-                    <tr>
-                        <td>Animation modifiers (fadeIn, etc.)</td>​
-                        <td>Animation classes applied</td>​
-                    </tr>​
-                    <tr>
-                        <td>t() i18n calls</td>​
-                        <td>Default locale text rendered</td>​
-                    </tr>​
-                    <tr>
-                        <td>State-dependent text</td>​
-                        <td>Empty placeholder (filled by JS)</td>​
-                    </tr>​
-                    <tr>
-                        <td>if / for blocks</td>​
-                        <td>Comment placeholder (filled by JS)</td>​
-                    </tr>​
-                    <tr>
-                        <td>show blocks</td>​
-                        <td>Rendered but hidden (display:none)</td>​
-                    </tr>​
-                    <tr>
-                        <td>fetch blocks</td>​
-                        <td>Loading block if present, else placeholder</td>​
-                    </tr>​
-                    <tr>
-                        <td>Event handlers</td>​
-                        <td>Attached during hydration</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Dynamic Routes</h2>​
-                <p class="wf-text wf-text--muted">Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.</p>​
-                <div class="wf-spacer"></div>
-            </div>​
+└── styles.css</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">What Gets Pre-Rendered</h2>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Element</td>
+                            <td>SSG Behavior</td>
+                        </thead>
+                        <tr>
+                            <td>Static text, headings, components</td>
+                            <td>Fully rendered to HTML</td>
+                        </tr>
+                        <tr>
+                            <td>Container, Row, Column, Card, etc.</td>
+                            <td>Full HTML with classes</td>
+                        </tr>
+                        <tr>
+                            <td>Modifiers (primary, large, etc.)</td>
+                            <td>CSS classes applied</td>
+                        </tr>
+                        <tr>
+                            <td>Animation modifiers (fadeIn, etc.)</td>
+                            <td>Animation classes applied</td>
+                        </tr>
+                        <tr>
+                            <td>t() i18n calls</td>
+                            <td>Default locale text rendered</td>
+                        </tr>
+                        <tr>
+                            <td>State-dependent text</td>
+                            <td>Empty placeholder (filled by JS)</td>
+                        </tr>
+                        <tr>
+                            <td>if / for blocks</td>
+                            <td>Comment placeholder (filled by JS)</td>
+                        </tr>
+                        <tr>
+                            <td>show blocks</td>
+                            <td>Rendered but hidden (display:none)</td>
+                        </tr>
+                        <tr>
+                            <td>fetch blocks</td>
+                            <td>Loading block if present, else placeholder</td>
+                        </tr>
+                        <tr>
+                            <td>Event handlers</td>
+                            <td>Attached during hydration</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Dynamic Routes</h2>
+                    <p class="wf-text wf-text--muted">Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.</p>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

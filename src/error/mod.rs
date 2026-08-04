@@ -2,4 +2,4 @@
 
 pub mod diagnostic;
 
-pub use diagnostic::{Diagnostic, WebFluentError, Result, A11yWarning, VocabWarning};
+pub use diagnostic::{A11yWarning, Diagnostic, Result, VocabWarning, WebFluentError};

@@ -1,15 +1,20 @@
-use std::collections::HashMap;
-use std::fs;
-use serde_json::Value;
-use crate::lexer::Lexer;
-use crate::parser::{Parser, Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart, Arg};
-use crate::parser::ast::{IfStmt, ForStmt};
-use crate::codegen::builtin::{builtin_to_html, class_list, heading_tag, input_type};
+use crate::codegen::builtin::{
+    builtin_to_html, class_list, heading_tag, implicit_role, input_type, landmark_label,
+};
 use crate::codegen::css::generate_css;
 use crate::codegen::pdf::PdfCodegen;
 use crate::codegen::slides::SlidesCodegen;
 use crate::config::project::{PdfConfig, SlidesConfig};
-use crate::error::{WebFluentError, Result};
+use crate::error::{Result, WebFluentError};
+use crate::lexer::Lexer;
+use crate::parser::ast::{ForStmt, IfStmt};
+use crate::parser::{
+    Arg, ComponentRef, Declaration, Expr, Parser, Program, Statement, StatementKind, StringPart,
+    UIElement,
+};
+use serde_json::Value;
+use std::collections::HashMap;
+use std::fs;
 
 /// A compiled WebFluent template ready for rendering with JSON data.
 ///
@@ -22,11 +27,11 @@ use crate::error::{WebFluentError, Result};
 /// use webfluent::Template;
 /// use serde_json::json;
 ///
-/// let tpl = Template::from_str(r#"
+/// let tpl = Template::from_str(r##"
 ///     Page Home (path: "/", title: "Hello") {
 ///         Container { Heading("Hello, {name}!", h1) }
 ///     }
-/// "#).unwrap();
+/// "##).unwrap();
 ///
 /// let html = tpl.render_html(&json!({"name": "World"})).unwrap();
 /// assert!(html.contains("Hello, World!"));
@@ -34,25 +39,33 @@ use crate::error::{WebFluentError, Result};
 ///
 /// # Theming
 ///
-/// Use [`with_theme`](Template::with_theme) and [`with_tokens`](Template::with_tokens)
-/// to customize the design system:
+/// Declare a `Theme` in the template. [`with_theme`](Template::with_theme)
+/// picks one when the source declares several; [`with_tokens`](Template::with_tokens)
+/// layers machine-supplied values on top.
 ///
-/// ```rust,no_run
+/// ```rust
 /// # use webfluent::Template;
 /// # use serde_json::json;
-/// let html = Template::from_str("Page P (path: \"/\") { Text(\"Hi\") }")
+/// let html = Template::from_str(r##"
+///     Theme Brand { token color-primary: "#0F766E" }
+///     Page P (path: "/") { Text("Hi") }
+/// "##)
 ///     .unwrap()
-///     .with_theme("dark")
-///     .with_tokens(&[("color-primary", "#8B5CF6")])
+///     .with_tokens(&[("color-secondary", "#8B5CF6")])
 ///     .render_html(&json!({}))
 ///     .unwrap();
+/// assert!(html.contains("--color-primary: #0F766E"));
 /// ```
 pub struct Template {
     source: String,
-    theme: String,
+    theme: Option<String>,
     custom_tokens: HashMap<String, String>,
 }
 
+// `Template::from_str` is documented public API used throughout the README and
+// the docs site; it predates any `FromStr` impl and renaming it would break every
+// consumer to satisfy a naming lint.
+#[allow(clippy::should_implement_trait)]
 impl Template {
     /// Create a template from a `.wf` source string.
     ///
@@ -72,7 +85,7 @@ impl Template {
 
         Ok(Self {
             source: source.to_string(),
-            theme: "default".to_string(),
+            theme: None,
             custom_tokens: HashMap::new(),
         })
     }
@@ -90,12 +103,28 @@ impl Template {
         Self::from_str(&source)
     }
 
-    /// Set the theme for rendering (builder pattern).
+    /// Select which `Theme` declared in the template to render with.
     ///
-    /// Built-in themes: `"default"`, `"dark"`, `"minimal"`, `"brutalist"`.
+    /// Only needed when the source declares more than one. A template with a
+    /// single `Theme` uses it automatically, and one with none renders on the
+    /// baseline tokens.
+    ///
+    /// This used to name one of four palettes the engine carried; those are now
+    /// example `.wf` files you copy into your own source.
     pub fn with_theme(mut self, theme: &str) -> Self {
-        self.theme = theme.to_string();
+        self.theme = Some(theme.to_string());
         self
+    }
+
+    /// The design tokens this template renders with.
+    fn tokens(&self) -> Result<HashMap<String, String>> {
+        let program = self.parse()?;
+        let config = crate::config::project::ThemeConfig {
+            name: self.theme.clone(),
+            tokens: self.custom_tokens.clone(),
+            builtin: Default::default(),
+        };
+        crate::themes::resolve_tokens(&program, &config)
     }
 
     /// Override design tokens (builder pattern).
@@ -118,7 +147,7 @@ impl Template {
     /// interpolation and in `for`/`if` blocks.
     pub fn render_html(&self, data: &Value) -> Result<String> {
         let fragment = self.render_html_fragment(data)?;
-        let css = generate_css(&self.theme, &self.custom_tokens);
+        let css = generate_css(&self.tokens()?);
 
         Ok(format!(
             r#"<!DOCTYPE html>
@@ -138,10 +167,39 @@ impl Template {
         ))
     }
 
+    /// Render the stylesheet and the markup separately.
+    ///
+    /// [`render_html`](Template::render_html) inlines the CSS in a `<style>`
+    /// block, which is right for a self-contained document — an email, an
+    /// attachment, anything that travels without a server. It is also the one
+    /// output of this compiler a strict `Content-Security-Policy` rejects, since
+    /// `style-src 'self'` does not cover inline styles.
+    ///
+    /// A caller serving over HTTP can take the two halves, put the CSS at its own
+    /// URL and link it, and keep the policy strict:
+    ///
+    /// ```rust
+    /// # use webfluent::Template;
+    /// # use serde_json::json;
+    /// let tpl = Template::from_str("Page P (path: \"/\") { Text(\"Hi\") }").unwrap();
+    /// let (css, body) = tpl.render_html_parts(&json!({})).unwrap();
+    /// // Serve `css` at /styles.css, and link it from your own shell.
+    /// assert!(css.contains(":root"));
+    /// assert!(body.contains("Hi"));
+    /// ```
+    pub fn render_html_parts(&self, data: &Value) -> Result<(String, String)> {
+        Ok((
+            generate_css(&self.tokens()?),
+            self.render_html_fragment(data)?,
+        ))
+    }
+
     /// Render to an HTML fragment (no `<html>`/`<head>`/`<body>` wrapper).
     ///
     /// Useful for embedding rendered content into an existing page or email template.
-    /// Does not include CSS — use [`render_html`](Template::render_html) for a complete document.
+    /// Does not include CSS — use [`render_html`](Template::render_html) for a complete
+    /// document, or [`render_html_parts`](Template::render_html_parts) to serve the CSS
+    /// separately.
     pub fn render_html_fragment(&self, data: &Value) -> Result<String> {
         let program = self.parse()?;
         let mut ctx = RenderContext::new(data);
@@ -220,7 +278,9 @@ impl Template {
             }
         }
 
-        Ok(Program { declarations: new_decls })
+        Ok(Program {
+            declarations: new_decls,
+        })
     }
 }
 
@@ -275,7 +335,9 @@ impl<'a> RenderContext<'a> {
                 }
                 Value::String(result)
             }
-            Expr::NumberLiteral(n) => Value::Number(serde_json::Number::from_f64(*n).unwrap_or(serde_json::Number::from(0))),
+            Expr::NumberLiteral(n) => Value::Number(
+                serde_json::Number::from_f64(*n).unwrap_or(serde_json::Number::from(0)),
+            ),
             Expr::BoolLiteral(b) => Value::Bool(*b),
             Expr::Null => Value::Null,
             Expr::Identifier(name) => self.resolve_var(name),
@@ -317,7 +379,10 @@ impl<'a> RenderContext<'a> {
                     crate::parser::ast::UnaryOp::Not => Value::Bool(!is_truthy(&val)),
                     crate::parser::ast::UnaryOp::Neg => {
                         if let Some(n) = val.as_f64() {
-                            Value::Number(serde_json::Number::from_f64(-n).unwrap_or(serde_json::Number::from(0)))
+                            Value::Number(
+                                serde_json::Number::from_f64(-n)
+                                    .unwrap_or(serde_json::Number::from(0)),
+                            )
                         } else {
                             Value::Null
                         }
@@ -341,9 +406,15 @@ impl<'a> RenderContext<'a> {
                         _ => Value::Null,
                     },
                     "includes" => {
-                        let needle = if let Some(a) = args.first() { self.eval_expr(a) } else { Value::Null };
+                        let needle = if let Some(a) = args.first() {
+                            self.eval_expr(a)
+                        } else {
+                            Value::Null
+                        };
                         match (&parent, &needle) {
-                            (Value::String(s), Value::String(n)) => Value::Bool(s.contains(n.as_str())),
+                            (Value::String(s), Value::String(n)) => {
+                                Value::Bool(s.contains(n.as_str()))
+                            }
                             (Value::Array(arr), _) => Value::Bool(arr.contains(&needle)),
                             _ => Value::Bool(false),
                         }
@@ -351,7 +422,9 @@ impl<'a> RenderContext<'a> {
                     "join" => {
                         let sep = if let Some(a) = args.first() {
                             value_to_string(&self.eval_expr(a))
-                        } else { ", ".to_string() };
+                        } else {
+                            ", ".to_string()
+                        };
                         match &parent {
                             Value::Array(arr) => {
                                 let parts: Vec<String> = arr.iter().map(value_to_string).collect();
@@ -379,7 +452,8 @@ impl<'a> RenderContext<'a> {
                 Value::Array(items.iter().map(|e| self.eval_expr(e)).collect())
             }
             Expr::MapLiteral(pairs) => {
-                let map: serde_json::Map<String, Value> = pairs.iter()
+                let map: serde_json::Map<String, Value> = pairs
+                    .iter()
                     .map(|(k, v)| (k.clone(), self.eval_expr(v)))
                     .collect();
                 Value::Object(map)
@@ -479,7 +553,8 @@ fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext) -> String {
             // Push loop variable into locals
             let old_item = ctx.locals.insert(for_stmt.item.clone(), item.clone());
             let old_index = if let Some(idx_var) = &for_stmt.index {
-                ctx.locals.insert(idx_var.clone(), Value::Number(serde_json::Number::from(i)))
+                ctx.locals
+                    .insert(idx_var.clone(), Value::Number(serde_json::Number::from(i)))
             } else {
                 None
             };
@@ -508,10 +583,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
-            let class = format!("wf-{}__{}",
-                parent.to_lowercase(),
-                camel_to_kebab(sub)
-            );
+            let class = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
             let tag = match sub.as_str() {
                 "Item" => "li",
                 _ => "div",
@@ -561,10 +633,20 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     let style_attr = style_block_attr(ui, ctx);
     match name {
         "Spacer" | "Spinner" => {
-            return format!("{}<div class=\"{}\"{}></div>\n", ctx.indent_str(), class_str, style_attr)
+            return format!(
+                "{}<div class=\"{}\"{}></div>\n",
+                ctx.indent_str(),
+                class_str,
+                style_attr
+            );
         }
         "Divider" => {
-            return format!("{}<hr class=\"{}\"{}>\n", ctx.indent_str(), class_str, style_attr)
+            return format!(
+                "{}<hr class=\"{}\"{}>\n",
+                ctx.indent_str(),
+                class_str,
+                style_attr
+            );
         }
         // A wrapper carrying the component class, an optional label, and the
         // input — the same shape the SPA and SSG renderers build.
@@ -579,38 +661,52 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     let mut text_content: Option<String> = None;
     let mut inline_style: Option<String> = None;
 
+    if let Some(role) = implicit_role(name, &ui.modifiers) {
+        attrs.push(format!("role=\"{}\"", role));
+    }
+    if let Some(label) = landmark_label(name) {
+        attrs.push(format!("aria-label=\"{}\"", label));
+    }
+
     if !class_str.is_empty() {
         attrs.push(format!("class=\"{}\"", class_str));
     }
 
     for arg in &ui.args {
         match arg {
-            Arg::Named(key, val) => {
-                match key.as_str() {
-                    "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" |
-                    "step" | "accept" | "role" | "value" | "title" | "width" | "height" => {
-                        let resolved = ctx.eval_expr(val);
-                        attrs.push(format!("{}=\"{}\"", key, html_escape(&value_to_string(&resolved))));
-                    }
-                    "to" => {
-                        let resolved = ctx.eval_expr(val);
-                        attrs.push(format!("href=\"{}\"", html_escape(&value_to_string(&resolved))));
-                    }
-                    "label" => {
-                        let resolved = ctx.eval_expr(val);
-                        text_content = Some(value_to_string(&resolved));
-                    }
-                    "columns" => {
-                        if let Expr::NumberLiteral(n) = val {
-                            inline_style = Some(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
-                        }
-                    }
-                    "required" | "disabled" | "controls" => {
-                        attrs.push(key.to_string());
-                    }
-                    _ => {}
+            Arg::Named(key, val) => match key.as_str() {
+                "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
+                | "accept" | "role" | "value" | "title" | "width" | "height" | "loading"
+                | "decoding" | "fetchpriority" => {
+                    let resolved = ctx.eval_expr(val);
+                    attrs.push(format!(
+                        "{}=\"{}\"",
+                        key,
+                        html_escape(&value_to_string(&resolved))
+                    ));
                 }
-            }
+                "to" => {
+                    let resolved = ctx.eval_expr(val);
+                    attrs.push(format!(
+                        "href=\"{}\"",
+                        html_escape(&value_to_string(&resolved))
+                    ));
+                }
+                "label" => {
+                    let resolved = ctx.eval_expr(val);
+                    text_content = Some(value_to_string(&resolved));
+                }
+                "columns" => {
+                    if let Expr::NumberLiteral(n) = val {
+                        inline_style =
+                            Some(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
+                    }
+                }
+                "required" | "disabled" | "controls" => {
+                    attrs.push(key.to_string());
+                }
+                _ => {}
+            },
             Arg::Positional(expr) => {
                 if text_content.is_none() {
                     let resolved = ctx.eval_expr(expr);
@@ -640,6 +736,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         attrs.push(format!("style=\"{}\"", html_escape(style)));
     }
 
+    if name == "Image" {
+        for (key, default) in [("loading", "lazy"), ("decoding", "async")] {
+            if !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == key))
+            {
+                attrs.push(format!("{}=\"{}\"", key, default));
+            }
+        }
+    }
+
     // Input type from modifiers
     for m in &ui.modifiers {
         if let Some(t) = input_type(m) {
@@ -647,9 +755,17 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         }
     }
 
-    let actual_tag = if name == "Heading" { heading_tag(&ui.modifiers) } else { tag };
+    let actual_tag = if name == "Heading" {
+        heading_tag(&ui.modifiers)
+    } else {
+        tag
+    };
     let indent = ctx.indent_str();
-    let attrs_str = if attrs.is_empty() { String::new() } else { format!(" {}", attrs.join(" ")) };
+    let attrs_str = if attrs.is_empty() {
+        String::new()
+    } else {
+        format!(" {}", attrs.join(" "))
+    };
 
     // Self-closing tags
     if matches!(actual_tag, "input" | "img" | "hr" | "br") {
@@ -665,7 +781,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
 
     if let Some(text) = &text_content {
         if !has_children {
-            return format!("{}<{}{}>{}</{}>\n", indent, actual_tag, attrs_str, html_escape(text), actual_tag);
+            return format!(
+                "{}<{}{}>{}</{}>\n",
+                indent,
+                actual_tag,
+                attrs_str,
+                html_escape(text),
+                actual_tag
+            );
         }
     }
 
@@ -745,7 +868,10 @@ fn render_labelled_input(
             format!("step=\"{}\"", step.unwrap_or_else(|| "1".into())),
         ],
         "DatePicker" => {
-            let mut a = vec!["type=\"date\"".to_string(), "class=\"wf-input\"".to_string()];
+            let mut a = vec![
+                "type=\"date\"".to_string(),
+                "class=\"wf-input\"".to_string(),
+            ];
             if let Some(v) = min {
                 a.push(format!("min=\"{}\"", html_escape(&v)));
             }
@@ -755,7 +881,10 @@ fn render_labelled_input(
             a
         }
         _ => {
-            let mut a = vec!["type=\"file\"".to_string(), "class=\"wf-input\"".to_string()];
+            let mut a = vec![
+                "type=\"file\"".to_string(),
+                "class=\"wf-input\"".to_string(),
+            ];
             if let Some(v) = accept {
                 a.push(format!("accept=\"{}\"", html_escape(&v)));
             }
@@ -823,7 +952,10 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                         };
                         child_ctx.locals.insert(for_stmt.item.clone(), item.clone());
                         if let Some(idx_var) = &for_stmt.index {
-                            child_ctx.locals.insert(idx_var.clone(), Value::Number(serde_json::Number::from(i)));
+                            child_ctx.locals.insert(
+                                idx_var.clone(),
+                                Value::Number(serde_json::Number::from(i)),
+                            );
                         }
                         result.extend(resolve_statements(&for_stmt.body, &child_ctx));
                     }
@@ -846,12 +978,14 @@ fn resolve_ui_element(ui: &UIElement, ctx: &RenderContext) -> UIElement {
     let mut new_ui = ui.clone();
 
     // Resolve args
-    new_ui.args = ui.args.iter().map(|arg| {
-        match arg {
+    new_ui.args = ui
+        .args
+        .iter()
+        .map(|arg| match arg {
             Arg::Positional(expr) => Arg::Positional(resolve_expr(expr, ctx)),
             Arg::Named(key, expr) => Arg::Named(key.clone(), resolve_expr(expr, ctx)),
-        }
-    }).collect();
+        })
+        .collect();
 
     // Resolve children
     new_ui.children = resolve_statements(&ui.children, ctx);
@@ -951,21 +1085,40 @@ fn eval_binary_op(left: &Value, op: &crate::parser::ast::BinOp, right: &Value) -
             match (left, right) {
                 (Value::String(l), _) => Value::String(format!("{}{}", l, value_to_string(right))),
                 (_, Value::String(r)) => Value::String(format!("{}{}", value_to_string(left), r)),
-                _ => Value::Number(serde_json::Number::from_f64(as_f64(left) + as_f64(right)).unwrap_or(serde_json::Number::from(0))),
+                _ => Value::Number(
+                    serde_json::Number::from_f64(as_f64(left) + as_f64(right))
+                        .unwrap_or(serde_json::Number::from(0)),
+                ),
             }
         }
-        BinOp::Sub => Value::Number(serde_json::Number::from_f64(as_f64(left) - as_f64(right)).unwrap_or(serde_json::Number::from(0))),
-        BinOp::Mul => Value::Number(serde_json::Number::from_f64(as_f64(left) * as_f64(right)).unwrap_or(serde_json::Number::from(0))),
+        BinOp::Sub => Value::Number(
+            serde_json::Number::from_f64(as_f64(left) - as_f64(right))
+                .unwrap_or(serde_json::Number::from(0)),
+        ),
+        BinOp::Mul => Value::Number(
+            serde_json::Number::from_f64(as_f64(left) * as_f64(right))
+                .unwrap_or(serde_json::Number::from(0)),
+        ),
         BinOp::Div => {
             let r = as_f64(right);
-            if r == 0.0 { Value::Null } else {
-                Value::Number(serde_json::Number::from_f64(as_f64(left) / r).unwrap_or(serde_json::Number::from(0)))
+            if r == 0.0 {
+                Value::Null
+            } else {
+                Value::Number(
+                    serde_json::Number::from_f64(as_f64(left) / r)
+                        .unwrap_or(serde_json::Number::from(0)),
+                )
             }
         }
         BinOp::Mod => {
             let r = as_f64(right);
-            if r == 0.0 { Value::Null } else {
-                Value::Number(serde_json::Number::from_f64(as_f64(left) % r).unwrap_or(serde_json::Number::from(0)))
+            if r == 0.0 {
+                Value::Null
+            } else {
+                Value::Number(
+                    serde_json::Number::from_f64(as_f64(left) % r)
+                        .unwrap_or(serde_json::Number::from(0)),
+                )
             }
         }
     }
@@ -982,11 +1135,15 @@ fn as_f64(val: &Value) -> f64 {
 
 fn html_escape(s: &str) -> String {
     s.replace('&', "&amp;")
-     .replace('<', "&lt;")
-     .replace('>', "&gt;")
-     .replace('"', "&quot;")
-     .replace('\u{FFFE}', "{")
-     .replace('\u{FFFF}', "}")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        // Also `'`: the renderers quote every attribute with `"`, but that is an
+        // invariant nothing enforced, and one single-quoted attribute would have
+        // turned this into an injection point.
+        .replace('\'', "&#x27;")
+        .replace('\u{FFFE}', "{")
+        .replace('\u{FFFF}', "}")
 }
 
 fn camel_to_kebab(s: &str) -> String {

@@ -1,7 +1,7 @@
-use std::path::Path;
-use std::fs;
 use crate::config::ProjectConfig;
 use crate::error::Result;
+use std::fs;
+use std::path::Path;
 
 pub fn run_serve(project_dir: &Path) -> Result<()> {
     let config = ProjectConfig::load(project_dir)?;
@@ -43,10 +43,19 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
             }
         };
 
-        let response = tiny_http::Response::from_data(content)
-            .with_header(
-                tiny_http::Header::from_bytes("Content-Type", content_type).unwrap()
-            );
+        // The same headers the built output asks a host for, so a policy problem
+        // surfaces in development rather than on the deployed site.
+        let mut response = tiny_http::Response::from_data(content)
+            .with_header(tiny_http::Header::from_bytes("Content-Type", content_type).unwrap());
+        for (name, value) in [
+            ("X-Content-Type-Options", "nosniff"),
+            ("Referrer-Policy", "strict-origin-when-cross-origin"),
+            ("X-Frame-Options", "DENY"),
+        ] {
+            if let Ok(header) = tiny_http::Header::from_bytes(name, value) {
+                response.add_header(header);
+            }
+        }
 
         let _ = request.respond(response);
     }

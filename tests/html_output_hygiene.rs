@@ -75,16 +75,23 @@ fn output_contains_no_invisible_or_noncharacter_junk() {
             if count > 0 {
                 let at = out.find(*ch).unwrap();
                 let start = at.saturating_sub(40);
-                let ctx: String = out[start..(at + 10).min(out.len())]
-                    .replace(*ch, "␣");
+                let ctx: String = out[start..(at + 10).min(out.len())].replace(*ch, "␣");
                 failures.push(format!(
                     "{}: {} occurrences of {} (U+{:04X}); first near: …{}…",
-                    backend.name(), count, name, *ch as u32, ctx.trim()
+                    backend.name(),
+                    count,
+                    name,
+                    *ch as u32,
+                    ctx.trim()
                 ));
             }
         }
     }
-    assert!(failures.is_empty(), "junk characters in output:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "junk characters in output:\n{}",
+        failures.join("\n")
+    );
 }
 
 /// Void elements take no children and no closing tag. `<hr>Text</hr>` is not
@@ -107,7 +114,9 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
                 if out.contains(&close) {
                     failures.push(format!(
                         "`{}` in {} emitted a closing {}",
-                        body, backend.name(), close
+                        body,
+                        backend.name(),
+                        close
                     ));
                 }
             }
@@ -119,7 +128,10 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
                     if VOID_ELEMENTS.contains(&e.tag.as_str()) && e.raw.contains("}, ") {
                         failures.push(format!(
                             "`{}` in {} gave <{}> a child: {}",
-                            body, backend.name(), e.tag, e.raw.trim()
+                            body,
+                            backend.name(),
+                            e.tag,
+                            e.raw.trim()
                         ));
                     }
                 }
@@ -136,7 +148,10 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
                             if !after.trim().is_empty() {
                                 failures.push(format!(
                                     "`{}` in {} put text after <{}>: {:?}",
-                                    body, backend.name(), void, after.trim()
+                                    body,
+                                    backend.name(),
+                                    void,
+                                    after.trim()
                                 ));
                             }
                         }
@@ -145,7 +160,11 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
             }
         }
     }
-    assert!(failures.is_empty(), "void element misuse:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "void element misuse:\n{}",
+        failures.join("\n")
+    );
 }
 
 /// Text from the source must not be able to close a tag or open a new one.
@@ -172,7 +191,11 @@ fn assert_escaped(src: &str) {
             ));
         }
     }
-    assert!(failures.is_empty(), "escaping failure:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "escaping failure:\n{}",
+        failures.join("\n")
+    );
 }
 
 /// Attribute values must be escaped so a quote in the source cannot end the
@@ -190,7 +213,11 @@ fn attribute_values_are_escaped() {
             ));
         }
     }
-    assert!(failures.is_empty(), "attribute escaping failure:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "attribute escaping failure:\n{}",
+        failures.join("\n")
+    );
 }
 
 /// Every non-void element opened in the static output must be closed, in order.
@@ -203,7 +230,11 @@ fn static_html_tags_are_balanced() {
             failures.push(format!("{}: {}", backend.name(), e));
         }
     }
-    assert!(failures.is_empty(), "unbalanced markup:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "unbalanced markup:\n{}",
+        failures.join("\n")
+    );
 }
 
 fn check_balanced(html: &str) -> Result<(), String> {
@@ -221,9 +252,7 @@ fn check_balanced(html: &str) -> Result<(), String> {
             let name = name.trim().to_ascii_lowercase();
             match stack.pop() {
                 Some(open) if open == name => {}
-                Some(open) => {
-                    return Err(format!("</{}> closed while <{}> was open", name, open))
-                }
+                Some(open) => return Err(format!("</{}> closed while <{}> was open", name, open)),
                 None => return Err(format!("</{}> with nothing open", name)),
             }
         } else {
@@ -233,7 +262,8 @@ fn check_balanced(html: &str) -> Result<(), String> {
                 .unwrap_or("")
                 .trim_end_matches('/')
                 .to_ascii_lowercase();
-            if !name.is_empty() && !VOID_ELEMENTS.contains(&name.as_str()) && !inner.ends_with('/') {
+            if !name.is_empty() && !VOID_ELEMENTS.contains(&name.as_str()) && !inner.ends_with('/')
+            {
                 stack.push(name);
             }
         }
@@ -257,13 +287,22 @@ fn no_internal_placeholders_leak_into_output() {
             Backend::Spa => spa_generated(KITCHEN_SINK),
             _ => raw_output(backend, KITCHEN_SINK),
         };
-        for marker in ["wf-component", "_StyleBlock", "undefined", "[object Object]"] {
+        for marker in [
+            "wf-component",
+            "_StyleBlock",
+            "undefined",
+            "[object Object]",
+        ] {
             if out.contains(marker) {
                 failures.push(format!("{} leaked `{}`", backend.name(), marker));
             }
         }
     }
-    assert!(failures.is_empty(), "internal markers in output:\n{}", failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "internal markers in output:\n{}",
+        failures.join("\n")
+    );
 }
 
 /// The SPA bundle must be syntactically valid JavaScript. A codegen bug that
@@ -314,9 +353,18 @@ fn generated_js_is_syntactically_valid() {
         prev = b;
     }
 
-    assert!(in_str.is_none(), "generated JS ends inside an unterminated string literal");
-    assert_eq!(depth_curly, 0, "generated JS has unbalanced braces ({depth_curly:+})");
-    assert_eq!(depth_paren, 0, "generated JS has unbalanced parens ({depth_paren:+})");
+    assert!(
+        in_str.is_none(),
+        "generated JS ends inside an unterminated string literal"
+    );
+    assert_eq!(
+        depth_curly, 0,
+        "generated JS has unbalanced braces ({depth_curly:+})"
+    );
+    assert_eq!(
+        depth_paren, 0,
+        "generated JS has unbalanced parens ({depth_paren:+})"
+    );
 }
 
 /// Indentation aside, the static renderers must not emit an element whose class
@@ -331,5 +379,9 @@ fn no_empty_class_attributes() {
             failures.push(backend.name().to_string());
         }
     }
-    assert!(failures.is_empty(), "empty class attributes in: {}", failures.join(", "));
+    assert!(
+        failures.is_empty(),
+        "empty class attributes in: {}",
+        failures.join(", ")
+    );
 }

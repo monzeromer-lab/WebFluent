@@ -1,14 +1,15 @@
+use crate::error::Result;
 use std::fs;
 use std::path::Path;
-use crate::error::Result;
 
 pub fn run_init(name: &str, template: &str) -> Result<()> {
     let project_dir = Path::new(name);
 
     if project_dir.exists() {
-        return Err(crate::error::WebFluentError::IoError(
-            format!("Directory '{}' already exists", name)
-        ));
+        return Err(crate::error::WebFluentError::IoError(format!(
+            "Directory '{}' already exists",
+            name
+        )));
     }
 
     match template {
@@ -17,12 +18,18 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
         "pdf" => generate_pdf(name, project_dir)?,
         "slides" => generate_slides(name, project_dir)?,
         _ => {
-            eprintln!("Unknown template '{}'. Use 'spa', 'static', 'pdf', or 'slides'.", template);
+            eprintln!(
+                "Unknown template '{}'. Use 'spa', 'static', 'pdf', or 'slides'.",
+                template
+            );
             std::process::exit(1);
         }
     }
 
-    println!("Created new WebFluent project: {} (template: {})", name, template);
+    println!(
+        "Created new WebFluent project: {} (template: {})",
+        name, template
+    );
     println!();
     println!("  cd {}", name);
     println!("  wf build");
@@ -42,14 +49,14 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     fs::create_dir_all(dir.join("public"))?;
 
     // ── Config ──
-    fs::write(dir.join("webfluent.app.json"), format!(r#"{{
+    fs::write(
+        dir.join("webfluent.app.json"),
+        format!(
+            r#"{{
   "name": "{}",
   "version": "1.0.0",
   "author": "",
-  "theme": {{
-    "name": "default",
-    "mode": "light"
-  }},
+  "theme": {{}},
   "build": {{
     "output": "./build",
     "minify": true,
@@ -63,10 +70,16 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     "description": "Built with WebFluent",
     "lang": "en"
   }}
-}}"#, name, name))?;
+}}"#,
+            name, name
+        ),
+    )?;
 
     // ── App.wf ──
-    fs::write(dir.join("src/App.wf"), format!(r#"App {{
+    fs::write(
+        dir.join("src/App.wf"),
+        format!(
+            r#"App {{
     use AuthStore
 
     Navbar {{
@@ -95,10 +108,15 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
         Route(path: "/settings", page: Settings)
         Route(path: "/profile", page: Profile)
     }}
-}}"#, name))?;
+}}"#,
+            name
+        ),
+    )?;
 
     // ── Home.wf ──
-    fs::write(dir.join("src/pages/Home.wf"), r#"Page Home (path: "/", title: "Dashboard") {
+    fs::write(
+        dir.join("src/pages/Home.wf"),
+        r#"Page Home (path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
     use AuthStore
     use TaskStore
 
@@ -161,10 +179,13 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Tasks.wf ──
-    fs::write(dir.join("src/pages/Tasks.wf"), r#"Page Tasks (path: "/tasks", title: "Tasks") {
+    fs::write(
+        dir.join("src/pages/Tasks.wf"),
+        r#"Page Tasks (path: "/tasks", description: "Everything on the list, and what is left of it.", title: "Tasks") {
     use TaskStore
 
     state newTask = ""
@@ -231,10 +252,13 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Settings.wf ──
-    fs::write(dir.join("src/pages/Settings.wf"), r#"Page Settings (path: "/settings", title: "Settings") {
+    fs::write(
+        dir.join("src/pages/Settings.wf"),
+        r#"Page Settings (path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
     state username = "demo_user"
     state email = "user@example.com"
     state notifications = true
@@ -321,10 +345,13 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Profile.wf ──
-    fs::write(dir.join("src/pages/Profile.wf"), r#"Page Profile (path: "/profile", title: "Profile") {
+    fs::write(
+        dir.join("src/pages/Profile.wf"),
+        r#"Page Profile (path: "/profile", description: "Your details and how they appear to others.", title: "Profile") {
     use AuthStore
 
     state editing = false
@@ -402,10 +429,13 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Components ──
-    fs::write(dir.join("src/components/TaskItem.wf"), r#"Component TaskItem (title: String, done: Bool, priority: String) {
+    fs::write(
+        dir.join("src/components/TaskItem.wf"),
+        r#"Component TaskItem (title: String, done: Bool, priority: String) {
     Card(outlined) {
         Row(align: center, justify: between) {
             Row(align: center, gap: md) {
@@ -417,9 +447,12 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
-    fs::write(dir.join("src/components/StatCard.wf"), r#"Component StatCard (title: String, value: Number, color: String) {
+    fs::write(
+        dir.join("src/components/StatCard.wf"),
+        r#"Component StatCard (title: String, value: Number, color: String) {
     Card(elevated, fadeIn) {
         Card.Body {
             Text(title, muted, small)
@@ -429,16 +462,22 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             borderLeft: "4px solid var(--color-primary)"
         }
     }
-}"#)?;
+}"#,
+    )?;
 
-    fs::write(dir.join("src/components/ThemeToggle.wf"), r#"Component ThemeToggle () {
+    fs::write(
+        dir.join("src/components/ThemeToggle.wf"),
+        r#"Component ThemeToggle () {
     state isDark = false
 
     Switch(bind: isDark, label: "Dark Mode")
-}"#)?;
+}"#,
+    )?;
 
     // ── Stores ──
-    fs::write(dir.join("src/stores/tasks.wf"), r#"Store TaskStore {
+    fs::write(
+        dir.join("src/stores/tasks.wf"),
+        r#"Store TaskStore {
     state tasks = [
         { id: 1, title: "Learn WebFluent", done: false, priority: "high" },
         { id: 2, title: "Build a dashboard", done: false, priority: "medium" },
@@ -472,9 +511,12 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     action setFilter(value: String) {
         filter = value
     }
-}"#)?;
+}"#,
+    )?;
 
-    fs::write(dir.join("src/stores/auth.wf"), r#"Store AuthStore {
+    fs::write(
+        dir.join("src/stores/auth.wf"),
+        r#"Store AuthStore {
     state user = null
     state authToken = ""
 
@@ -490,7 +532,8 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
         authToken = ""
         navigate("/")
     }
-}"#)?;
+}"#,
+    )?;
 
     Ok(())
 }
@@ -507,14 +550,14 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     fs::create_dir_all(dir.join("public"))?;
 
     // ── Config (SSG + i18n enabled) ──
-    fs::write(dir.join("webfluent.app.json"), format!(r#"{{
+    fs::write(
+        dir.join("webfluent.app.json"),
+        format!(
+            r#"{{
   "name": "{}",
   "version": "1.0.0",
   "author": "",
-  "theme": {{
-    "name": "default",
-    "mode": "light"
-  }},
+  "theme": {{}},
   "build": {{
     "output": "./build",
     "minify": true,
@@ -533,10 +576,15 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     "locales": ["en", "ar"],
     "dir": "src/translations"
   }}
-}}"#, name, name))?;
+}}"#,
+            name, name
+        ),
+    )?;
 
     // ── Translations ──
-    fs::write(dir.join("src/translations/en.json"), r#"{
+    fs::write(
+        dir.join("src/translations/en.json"),
+        r#"{
     "nav.home": "Home",
     "nav.about": "About",
     "nav.blog": "Blog",
@@ -585,9 +633,12 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 
     "footer.built": "Built with WebFluent",
     "footer.rights": "All rights reserved."
-}"#)?;
+}"#,
+    )?;
 
-    fs::write(dir.join("src/translations/ar.json"), r#"{
+    fs::write(
+        dir.join("src/translations/ar.json"),
+        r#"{
     "nav.home": "الرئيسية",
     "nav.about": "من نحن",
     "nav.blog": "المدونة",
@@ -636,10 +687,14 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 
     "footer.built": "مبني بواسطة ويب فلونت",
     "footer.rights": "جميع الحقوق محفوظة."
-}"#)?;
+}"#,
+    )?;
 
     // ── App.wf ──
-    fs::write(dir.join("src/App.wf"), format!(r#"App {{
+    fs::write(
+        dir.join("src/App.wf"),
+        format!(
+            r#"App {{
     Navbar {{
         Navbar.Brand {{
             Text("{}", heading)
@@ -664,10 +719,15 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     }}
 
     Footer
-}}"#, name))?;
+}}"#,
+            name
+        ),
+    )?;
 
     // ── Home.wf ──
-    fs::write(dir.join("src/pages/Home.wf"), r#"Page Home (path: "/", title: "Home") {
+    fs::write(
+        dir.join("src/pages/Home.wf"),
+        r#"Page Home (path: "/", description: "An overview of what needs your attention today.", title: "Home") {
     Container {
         Spacer(xl)
 
@@ -699,10 +759,13 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 
         Spacer(xl)
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── About.wf ──
-    fs::write(dir.join("src/pages/About.wf"), r#"Page About (path: "/about", title: "About") {
+    fs::write(
+        dir.join("src/pages/About.wf"),
+        r#"Page About (path: "/about", description: "Who we are and what we do.", title: "About") {
     Container(fadeIn) {
         Heading(t("about.title"), h1)
 
@@ -737,10 +800,13 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Blog.wf ──
-    fs::write(dir.join("src/pages/Blog.wf"), r#"Page Blog (path: "/blog", title: "Blog") {
+    fs::write(
+        dir.join("src/pages/Blog.wf"),
+        r#"Page Blog (path: "/blog", description: "Writing from the team.", title: "Blog") {
     Container(fadeIn) {
         Heading(t("blog.title"), h1)
         Text(t("blog.subtitle"), muted)
@@ -791,10 +857,13 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Contact.wf ──
-    fs::write(dir.join("src/pages/Contact.wf"), r#"Page Contact (path: "/contact", title: "Contact") {
+    fs::write(
+        dir.join("src/pages/Contact.wf"),
+        r#"Page Contact (path: "/contact", description: "How to reach us.", title: "Contact") {
     state name = ""
     state email = ""
     state subject = "general"
@@ -859,10 +928,13 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             }
         }
     }
-}"#)?;
+}"#,
+    )?;
 
     // ── Components ──
-    fs::write(dir.join("src/components/FeatureCard.wf"), r#"Component FeatureCard (title: String, description: String, icon: String) {
+    fs::write(
+        dir.join("src/components/FeatureCard.wf"),
+        r#"Component FeatureCard (title: String, description: String, icon: String) {
     Card(elevated, scaleIn) {
         Card.Body {
             Icon(icon, primary, large)
@@ -871,9 +943,12 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             Text(description, muted)
         }
     }
-}"#)?;
+}"#,
+    )?;
 
-    fs::write(dir.join("src/components/TeamMember.wf"), r#"Component TeamMember (name: String, role: String, initials: String) {
+    fs::write(
+        dir.join("src/components/TeamMember.wf"),
+        r#"Component TeamMember (name: String, role: String, initials: String) {
     Row(align: center, gap: md) {
         Avatar(initials: initials, primary)
         Stack {
@@ -881,9 +956,12 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             Text(role, muted, small)
         }
     }
-}"#)?;
+}"#,
+    )?;
 
-    fs::write(dir.join("src/components/Footer.wf"), r#"Component Footer () {
+    fs::write(
+        dir.join("src/components/Footer.wf"),
+        r#"Component Footer () {
     Divider()
     Container {
         Spacer()
@@ -893,7 +971,8 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
         }
         Spacer()
     }
-}"#)?;
+}"#,
+    )?;
 
     Ok(())
 }
@@ -901,7 +980,10 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
     fs::create_dir_all(project_dir.join("src/pages"))?;
 
-    fs::write(project_dir.join("webfluent.app.json"), format!(r#"{{
+    fs::write(
+        project_dir.join("webfluent.app.json"),
+        format!(
+            r#"{{
   "name": "{name}",
   "version": "0.1.0",
   "build": {{
@@ -915,9 +997,14 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
       "output_filename": "{name}.pdf"
     }}
   }}
-}}"#))?;
+}}"#
+        ),
+    )?;
 
-    fs::write(project_dir.join("src/pages/Report.wf"), format!(r#"Page Report (path: "/", title: "{name} Report") {{
+    fs::write(
+        project_dir.join("src/pages/Report.wf"),
+        format!(
+            r#"Page Report (path: "/", description: "A generated report.", title: "{name} Report") {{
     Document(page_size: "A4") {{
         Header {{
             Text("{name}", muted, small, right)
@@ -1018,7 +1105,9 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
         }}
     }}
 }}
-"#))?;
+"#
+        ),
+    )?;
 
     Ok(())
 }
@@ -1030,7 +1119,10 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
 fn generate_slides(name: &str, project_dir: &Path) -> Result<()> {
     fs::create_dir_all(project_dir.join("src/pages"))?;
 
-    fs::write(project_dir.join("webfluent.app.json"), format!(r#"{{
+    fs::write(
+        project_dir.join("webfluent.app.json"),
+        format!(
+            r#"{{
   "name": "{name}",
   "version": "0.1.0",
   "build": {{
@@ -1046,9 +1138,14 @@ fn generate_slides(name: &str, project_dir: &Path) -> Result<()> {
       "output_filename": "{name}.pdf"
     }}
   }}
-}}"#))?;
+}}"#
+        ),
+    )?;
 
-    fs::write(project_dir.join("src/pages/Deck.wf"), format!(r#"Page Deck (path: "/", title: "{name}") {{
+    fs::write(
+        project_dir.join("src/pages/Deck.wf"),
+        format!(
+            r#"Page Deck (path: "/", description: "A slide deck.", title: "{name}") {{
     Presentation {{
         TitleSlide("{name}", "Built with WebFluent")
 
@@ -1087,7 +1184,9 @@ fn generate_slides(name: &str, project_dir: &Path) -> Result<()> {
         }}
     }}
 }}
-"#))?;
+"#
+        ),
+    )?;
 
     Ok(())
 }

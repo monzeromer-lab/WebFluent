@@ -1,6 +1,6 @@
+use crate::error::Result;
 use std::fs;
 use std::path::Path;
-use crate::error::Result;
 
 pub fn run_generate(kind: &str, name: &str, project_dir: &Path) -> Result<()> {
     match kind {
@@ -8,7 +8,10 @@ pub fn run_generate(kind: &str, name: &str, project_dir: &Path) -> Result<()> {
         "component" => generate_component(name, project_dir),
         "store" => generate_store(name, project_dir),
         _ => {
-            eprintln!("Unknown generator '{}'. Use: page, component, or store", kind);
+            eprintln!(
+                "Unknown generator '{}'. Use: page, component, or store",
+                kind
+            );
             Ok(())
         }
     }
@@ -19,13 +22,16 @@ fn generate_page(name: &str, project_dir: &Path) -> Result<()> {
     fs::create_dir_all(&dir)?;
 
     let path_slug = name.to_lowercase();
-    let content = format!(r#"Page {} (path: "/{}", title: "{}") {{
+    let content = format!(
+        r#"Page {} (path: "/{}", title: "{}") {{
     Container {{
         Heading("{}", h1)
         Text("This is the {} page.")
     }}
 }}
-"#, name, path_slug, name, name, name);
+"#,
+        name, path_slug, name, name, name
+    );
 
     let file_path = dir.join(format!("{}.wf", name));
     if file_path.exists() {
@@ -42,12 +48,15 @@ fn generate_component(name: &str, project_dir: &Path) -> Result<()> {
     let dir = project_dir.join("src/components");
     fs::create_dir_all(&dir)?;
 
-    let content = format!(r#"Component {} () {{
+    let content = format!(
+        r#"Component {} () {{
     Card {{
         Text("{} component")
     }}
 }}
-"#, name, name);
+"#,
+        name, name
+    );
 
     let file_path = dir.join(format!("{}.wf", name));
     if file_path.exists() {
@@ -64,14 +73,17 @@ fn generate_store(name: &str, project_dir: &Path) -> Result<()> {
     let dir = project_dir.join("src/stores");
     fs::create_dir_all(&dir)?;
 
-    let content = format!(r#"Store {} {{
+    let content = format!(
+        r#"Store {} {{
     state items = []
 
     action add(item: String) {{
         items.push(item)
     }}
 }}
-"#, name);
+"#,
+        name
+    );
 
     let file_name = name.to_lowercase();
     let file_path = dir.join(format!("{}.wf", file_name));

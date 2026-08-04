@@ -1,0 +1,92 @@
+# Everything that must hold before a change lands.
+#
+# There was no such workflow: only `release.yml`, which runs on a tag. That is
+# why the language server sat broken through several refactors without anyone
+# noticing — `cargo build` at the repository root builds the root package alone,
+# so nothing in the repository ever compiled `crates/wf-lsp`. The `--workspace`
+# flag below is the point of this file as much as the tests are.
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Build, lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Formatting first: it is the cheapest failure to diagnose.
+      - name: Formatting
+        run: cargo fmt --all -- --check
+
+      # `--workspace` so the language server is compiled, and `--all-targets` so
+      # tests and examples are linted too. Warnings are errors here because the
+      # tree is at zero and staying there is easier than getting back.
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Build
+        run: cargo build --workspace
+
+      # Covers the unit suites, the component conformance suite, the CSS
+      # invariants, both end-to-end suites, and — through `e2e_rendered` — the
+      # JavaScript suites that run the compiled bundles in a DOM.
+      - name: Tests
+        run: cargo test --workspace
+
+      # `e2e_rendered` skips rather than fails when Node is absent, so run the
+      # JavaScript suites directly too. A skip that nobody reads is a gap.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript suites
+        run: |
+          node --test tests/js/hydrate.test.mjs
+          node --test tests/js/rendered_site.test.mjs
+
+  scaffolds:
+    name: Scaffolds build clean
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build the compiler
+        run: cargo build --release
+
+      # Every template `wf init` writes must build without a warning. Twice now a
+      # new lint has fired on the tool's own starting point, which teaches every
+      # new user that warnings are noise.
+      - name: Every template builds without warnings
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/scaffolds && cd /tmp/scaffolds
+          for template in spa static pdf slides; do
+            "$GITHUB_WORKSPACE/target/release/wf" init "s_$template" -t "$template"
+            output=$(cd "s_$template" && "$GITHUB_WORKSPACE/target/release/wf" build 2>&1)
+            echo "$output"
+            if echo "$output" | grep -q 'Warning \['; then
+              echo "::error::the $template scaffold does not build clean"
+              exit 1
+            fi
+          done
+
+      # The documentation site is a real WebFluent project; if the compiler
+      # breaks it, the compiler is broken.
+      - name: Documentation site builds
+        run: cargo run --release -- build -d site

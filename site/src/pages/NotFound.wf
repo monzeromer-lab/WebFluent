@@ -1,4 +1,4 @@
-Page NotFound (path: "/404", title: "Page Not Found") {
+Page NotFound (path: "/404", description: "That page does not exist.", title: "Page Not Found") {
     Container(fadeIn) {
         Spacer(xl)
 

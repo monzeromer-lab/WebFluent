@@ -1,22 +1,53 @@
-use std::collections::HashMap;
-use crate::parser::ast::*;
-use crate::codegen::builtin::{builtin_to_html, class_list, heading_tag, input_type};
+use crate::codegen::builtin::{
+    builtin_to_html, class_list, heading_tag, implicit_role, input_type, landmark_label,
+};
 use crate::codegen::node_id::NodeMap;
+use crate::codegen::static_eval::{Scope, Static, eval};
 use crate::config::ProjectConfig;
+use crate::parser::ast::*;
+use std::collections::HashMap;
 
 /// Renders a page to static HTML for SSG (export mode — no studio attributes).
 ///
 /// `components` are the program's `Component` declarations, so calls to them are
 /// **expanded** into the static paint rather than left as placeholders. Pass an
 /// empty map to render without them (the pre-expansion behaviour).
-pub fn render_page_html(
-    page: &PageDecl,
-    config: &ProjectConfig,
-    app_body: Option<&[Statement]>,
-    translations: &HashMap<String, HashMap<String, String>>,
-    components: &HashMap<String, ComponentDecl>,
-) -> String {
-    render_page_html_studio(page, config, app_body, translations, false, &NodeMap::default(), components)
+pub fn render_page_html(page: &PageDecl, site: &SiteContext) -> String {
+    render_page_html_studio(page, site, false, &NodeMap::default())
+}
+
+/// Everything a page render needs that is a property of the *site* rather than
+/// of the page: the config, the shared app shell, translations, the component
+/// library and the program the build-time scope reads.
+///
+/// These used to be five separate parameters threaded through two public
+/// functions, which had grown to eight arguments apiece.
+pub struct SiteContext<'a> {
+    pub config: &'a ProjectConfig,
+    /// The `App` shell's body, if the project has one.
+    pub app_body: Option<&'a [Statement]>,
+    pub translations: &'a HashMap<String, HashMap<String, String>>,
+    /// The program's components, so calls to them expand into the static paint.
+    pub components: &'a HashMap<String, ComponentDecl>,
+    /// The whole program, for the build-time scope that resolves seeded lists.
+    pub program: &'a Program,
+}
+
+impl<'a> SiteContext<'a> {
+    /// A context with no shell, no translations and no components — enough to
+    /// render a single self-contained page.
+    pub fn bare(config: &'a ProjectConfig, program: &'a Program) -> Self {
+        use std::sync::OnceLock;
+        static EMPTY_T: OnceLock<HashMap<String, HashMap<String, String>>> = OnceLock::new();
+        static EMPTY_C: OnceLock<HashMap<String, ComponentDecl>> = OnceLock::new();
+        Self {
+            config,
+            app_body: None,
+            translations: EMPTY_T.get_or_init(HashMap::new),
+            components: EMPTY_C.get_or_init(HashMap::new),
+            program,
+        }
+    }
 }
 
 /// Like [`render_page_html`], but stamps `data-wf-node="<id>"` on element roots
@@ -24,21 +55,32 @@ pub fn render_page_html(
 /// they match the JS codegen exactly).
 pub fn render_page_html_studio(
     page: &PageDecl,
-    config: &ProjectConfig,
-    app_body: Option<&[Statement]>,
-    translations: &HashMap<String, HashMap<String, String>>,
+    site: &SiteContext,
     studio: bool,
     node_map: &NodeMap,
-    components: &HashMap<String, ComponentDecl>,
 ) -> String {
+    let SiteContext {
+        config,
+        app_body,
+        translations,
+        components,
+        program,
+    } = *site;
     let title = page.title.as_deref().unwrap_or(&config.name);
-    let lang = if config.meta.lang.is_empty() { "en" } else { &config.meta.lang };
+    let lang = if config.meta.lang.is_empty() {
+        "en"
+    } else {
+        &config.meta.lang
+    };
 
-    let default_locale = config.i18n.as_ref()
+    let default_locale = config
+        .i18n
+        .as_ref()
         .map(|i| i.default_locale.as_str())
         .unwrap_or("en");
 
-    let default_messages = translations.get(default_locale)
+    let default_messages = translations
+        .get(default_locale)
         .cloned()
         .unwrap_or_default();
 
@@ -61,6 +103,7 @@ pub fn render_page_html_studio(
         studio,
         node_map: node_map.clone(),
         components: components.clone(),
+        scope: Scope::from_program(program, &page.body),
         depth: 0,
     };
 
@@ -69,14 +112,24 @@ pub fn render_page_html_studio(
     if let Some(app_stmts) = app_body {
         render_app_shell_ssg(app_stmts, &page.body, &mut ctx, &mut body_html);
     } else {
-        body_html = render_statements(&page.body, &mut ctx);
+        // With no shell there is no Router to stand in for `<main>`, so the page
+        // body is the main content itself.
+        body_html = format!(
+            "{}<main id=\"wf-main\">\n{}{}</main>\n",
+            ctx.indent_str(),
+            {
+                ctx.indent += 1;
+                let inner = render_statements(&page.body, &mut ctx);
+                ctx.indent -= 1;
+                inner
+            },
+            ctx.indent_str()
+        );
     }
 
-    let description_meta = if config.meta.description.is_empty() {
-        String::new()
-    } else {
-        format!("    <meta name=\"description\" content=\"{}\">\n", config.meta.description)
-    };
+    // Description, canonical, sharing card, language alternates and JSON-LD, all
+    // derived from what the page and the config already say.
+    let description_meta = crate::codegen::seo::head_tags(page, config, program);
 
     // Calculate relative path prefix based on page route depth
     let route = page.path.trim_start_matches('/');
@@ -94,15 +147,22 @@ pub fn render_page_html_studio(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}    <link rel="stylesheet" href="{}/styles.css">
+{}{}    <link rel="stylesheet" href="{}/styles.css">
+    <script src="{}/app.js" defer></script>
 </head>
 <body>
-    <div id="app">
+{}    <div id="app">
 {}    </div>
-    <script src="{}/app.js"></script>
 </body>
 </html>"#,
-        lang, title, description_meta, base, body_html, base
+        lang,
+        title,
+        description_meta,
+        crate::codegen::html::csp_meta(config),
+        base,
+        base,
+        crate::codegen::html::SKIP_LINK,
+        body_html
     )
 }
 
@@ -122,6 +182,10 @@ struct SsgContext {
     /// Component-expansion depth, so a component that (directly or mutually)
     /// calls itself stops instead of recursing forever.
     depth: usize,
+    /// What the compiler could work out about this page's data, so lists and
+    /// conditionals over seeded values paint statically instead of waiting for
+    /// JavaScript. Anything it could not resolve is simply absent.
+    scope: Scope,
 }
 
 /// How deep component expansion may nest before it gives up and emits the old
@@ -149,7 +213,9 @@ impl SsgContext {
 
     /// Space-prefixed form for embedding directly inside a `<tag …>` (empty when absent).
     fn wf_node_attr_inline(&self, ui: &UIElement) -> String {
-        self.wf_node_attr(ui).map(|a| format!(" {}", a)).unwrap_or_default()
+        self.wf_node_attr(ui)
+            .map(|a| format!(" {}", a))
+            .unwrap_or_default()
     }
 }
 
@@ -167,14 +233,25 @@ fn render_app_shell_ssg(
                 _ => "",
             };
             if name == "Router" {
-                // Replace Router with page content
+                // Replace Router with page content, inside the `<main>` landmark
+                // the skip link targets.
+                html.push_str(&format!("{}<main id=\"wf-main\">\n", ctx.indent_str()));
+                ctx.indent += 1;
                 html.push_str(&render_statements(page_body, ctx));
+                ctx.indent -= 1;
+                html.push_str(&format!("{}</main>\n", ctx.indent_str()));
             } else if stmt_contains_router(stmt) {
                 // This is a layout wrapper (like Row) containing the Router
                 // Render the wrapper tag with children, substituting the Router
                 let (tag, class) = builtin_to_html(name);
                 let indent = ctx.indent_str();
-                html.push_str(&format!("{}<{} class=\"{}\"{}>\n", indent, tag, class, ctx.wf_node_attr_inline(ui)));
+                html.push_str(&format!(
+                    "{}<{} class=\"{}\"{}>\n",
+                    indent,
+                    tag,
+                    class,
+                    ctx.wf_node_attr_inline(ui)
+                ));
                 ctx.indent += 1;
                 render_app_shell_ssg(&ui.children, page_body, ctx, html);
                 ctx.indent -= 1;
@@ -205,19 +282,28 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
     for stmt in stmts {
         match &stmt.kind {
             StatementKind::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
-            StatementKind::If(_) => {
-                // Dynamic — emit placeholder comment
-                html.push_str(&format!("{}<!--wf-if-->\n", ctx.indent_str()));
-            }
-            StatementKind::For(_) => {
-                html.push_str(&format!("{}<!--wf-for-->\n", ctx.indent_str()));
-            }
+            // A condition over seeded data has a knowable answer, so paint the
+            // branch it takes. One that depends on the running page does not, and
+            // stays a placeholder for the client to fill.
+            StatementKind::If(if_stmt) => match render_if_static(if_stmt, ctx) {
+                Some(rendered) => html.push_str(&rendered),
+                None => html.push_str(&format!("{}<!--wf-if-->\n", ctx.indent_str())),
+            },
+            // Likewise a list: a store's seeded rows are in the AST, and leaving
+            // them to JavaScript meant the page's main content reached neither a
+            // crawler nor the first paint.
+            StatementKind::For(for_stmt) => match render_for_static(for_stmt, ctx) {
+                Some(rendered) => html.push_str(&rendered),
+                None => html.push_str(&format!("{}<!--wf-for-->\n", ctx.indent_str())),
+            },
             StatementKind::Show(show) => {
                 // Render content but hidden
                 let inner = render_statements(&show.body, ctx);
                 html.push_str(&format!(
                     "{}<div style=\"display:none\">\n{}{}</div>\n",
-                    ctx.indent_str(), inner, ctx.indent_str()
+                    ctx.indent_str(),
+                    inner,
+                    ctx.indent_str()
                 ));
             }
             StatementKind::Fetch(fetch) => {
@@ -300,7 +386,11 @@ fn bind_props(decl: &ComponentDecl, call: &UIElement) -> HashMap<String, Expr> {
 }
 
 /// Replace bound prop identifiers inside one statement, and fill `children`.
-fn substitute_statement(stmt: &Statement, bindings: &HashMap<String, Expr>, slot: &[Statement]) -> Statement {
+fn substitute_statement(
+    stmt: &Statement,
+    bindings: &HashMap<String, Expr>,
+    slot: &[Statement],
+) -> Statement {
     let mut out = stmt.clone();
     if let StatementKind::UIElement(ui) = &stmt.kind {
         // The `children` keyword renders the caller's own block in its place.
@@ -318,7 +408,11 @@ fn substitute_statement(stmt: &Statement, bindings: &HashMap<String, Expr>, slot
 
 /// Deep-substitute bound props through one element: its arguments, its style
 /// values, and its children.
-fn substitute_ui(ui: &UIElement, bindings: &HashMap<String, Expr>, slot: &[Statement]) -> UIElement {
+fn substitute_ui(
+    ui: &UIElement,
+    bindings: &HashMap<String, Expr>,
+    slot: &[Statement],
+) -> UIElement {
     let mut out = ui.clone();
     out.args = ui
         .args
@@ -352,7 +446,9 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
                 .iter()
                 .map(|p| match p {
                     StringPart::Literal(l) => StringPart::Literal(l.clone()),
-                    StringPart::Expression(e) => StringPart::Expression(substitute_expr(e, bindings)),
+                    StringPart::Expression(e) => {
+                        StringPart::Expression(substitute_expr(e, bindings))
+                    }
                 })
                 .collect(),
         ),
@@ -377,10 +473,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         ComponentRef::SubComponent(parent, sub) => {
-            let class = format!("wf-{}__{}",
-                parent.to_lowercase(),
-                camel_to_kebab(sub)
-            );
+            let class = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
             let tag = match sub.as_str() {
                 "Item" => "li",
                 _ => "div",
@@ -411,13 +504,19 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         "Spacer" | "Spinner" => {
             return format!(
                 "{}<div class=\"{}\"{}{}></div>\n",
-                ctx.indent_str(), class_str, wf, inline_style
+                ctx.indent_str(),
+                class_str,
+                wf,
+                inline_style
             );
         }
         "Divider" => {
             return format!(
                 "{}<hr class=\"{}\"{}{}>\n",
-                ctx.indent_str(), class_str, wf, inline_style
+                ctx.indent_str(),
+                class_str,
+                wf,
+                inline_style
             );
         }
         // A label above an input, inside a wrapper carrying the component class.
@@ -436,6 +535,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     // Extract attributes and text content
     let mut attrs = Vec::new();
     let mut text_content: Option<String> = None;
+
+    if let Some(role) = implicit_role(name, &ui.modifiers) {
+        attrs.push(format!("role=\"{}\"", role));
+    }
+    if let Some(label) = landmark_label(name) {
+        attrs.push(format!("aria-label=\"{}\"", label));
+    }
 
     if !class_str.is_empty() {
         attrs.push(format!("class=\"{}\"", class_str));
@@ -456,14 +562,15 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         match arg {
             Arg::Named(key, val) => {
                 match key.as_str() {
-                    "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" |
-                    "step" | "accept" | "role" | "value" => {
-                        if let Some(s) = expr_to_static_string(val) {
+                    "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
+                    | "accept" | "role" | "value" | "width" | "height" | "loading" | "decoding"
+                    | "fetchpriority" => {
+                        if let Some(s) = static_attr(val, &ctx.scope) {
                             attrs.push(format!("{}=\"{}\"", key, html_escape(&s)));
                         }
                     }
                     "to" => {
-                        if let Some(s) = expr_to_static_string(val) {
+                        if let Some(s) = static_attr(val, &ctx.scope) {
                             // Use config base_path for absolute links
                             let href = if ctx.link_base.is_empty() {
                                 s.clone()
@@ -477,30 +584,46 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     "disabled" => attrs.push("disabled".to_string()),
                     "controls" => attrs.push("controls".to_string()),
                     "title" => {
-                        if let Some(s) = expr_to_static_string(val) {
+                        if let Some(s) = static_attr(val, &ctx.scope) {
                             attrs.push(format!("title=\"{}\"", html_escape(&s)));
                         }
                     }
                     "label" => {
                         // For checkbox/radio/switch/slider, the label is visible text
-                        if let Some(s) = expr_to_static_string(val) {
+                        if let Some(s) = static_attr(val, &ctx.scope) {
                             text_content = Some(s);
                         }
                     }
                     "columns" => {
                         if let Expr::NumberLiteral(n) = val {
-                            style_decls.push(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
+                            style_decls
+                                .push(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
                         }
                     }
-                    "visible" | "bind" | "checked" | "icon" | "span" |
-                    "gap" | "align" | "justify" => {} // Skip runtime-only attrs
+                    "visible" | "bind" | "checked" | "icon" | "span" | "gap" | "align"
+                    | "justify" => {} // Skip runtime-only attrs
                     _ => {}
                 }
             }
             Arg::Positional(expr) => {
                 if text_content.is_none() {
-                    text_content = resolve_text(expr, &ctx.default_messages);
+                    text_content = resolve_text_scoped(expr, &ctx.default_messages, &ctx.scope);
                 }
+            }
+        }
+    }
+
+    // Reserve space and keep offscreen images off the critical path. Without
+    // dimensions the browser allocates none, and the page shifts when the image
+    // arrives.
+    if name == "Image" {
+        for (key, default) in [("loading", "lazy"), ("decoding", "async")] {
+            if !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == key))
+            {
+                attrs.push(format!("{}=\"{}\"", key, default));
             }
         }
     }
@@ -521,7 +644,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
 
     // Emit the collected inline styles (style block + any grid columns) as one attr.
     if !style_decls.is_empty() {
-        attrs.push(format!("style=\"{}\"", html_escape(&style_decls.join("; "))));
+        attrs.push(format!(
+            "style=\"{}\"",
+            html_escape(&style_decls.join("; "))
+        ));
     }
 
     let indent = ctx.indent_str();
@@ -549,7 +675,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     if let Some(text) = &text_content {
         // Inline text
         if !has_children {
-            return format!("{}<{}{}>{}</{}>\n", indent, actual_tag, attrs_str, html_escape(text), actual_tag);
+            return format!(
+                "{}<{}{}>{}</{}>\n",
+                indent,
+                actual_tag,
+                attrs_str,
+                html_escape(text),
+                actual_tag
+            );
         }
         result.push_str(&format!("{}    {}\n", indent, html_escape(text)));
     }
@@ -583,7 +716,10 @@ fn render_labelled_input(
     };
 
     let indent = ctx.indent_str();
-    let mut out = format!("{}<div class=\"{}\"{}{}>\n", indent, class_str, wf, inline_style);
+    let mut out = format!(
+        "{}<div class=\"{}\"{}{}>\n",
+        indent, class_str, wf, inline_style
+    );
 
     if let Some(label) = named("label") {
         out.push_str(&format!(
@@ -600,8 +736,14 @@ fn render_labelled_input(
             format!("max=\"{}\"", named("max").unwrap_or_else(|| "100".into())),
             format!("step=\"{}\"", named("step").unwrap_or_else(|| "1".into())),
         ],
-        "DatePicker" => vec!["type=\"date\"".to_string(), "class=\"wf-input\"".to_string()],
-        _ => vec!["type=\"file\"".to_string(), "class=\"wf-input\"".to_string()],
+        "DatePicker" => vec![
+            "type=\"date\"".to_string(),
+            "class=\"wf-input\"".to_string(),
+        ],
+        _ => vec![
+            "type=\"file\"".to_string(),
+            "class=\"wf-input\"".to_string(),
+        ],
     };
     for key in ["min", "max", "accept", "value"] {
         if name != "Slider" || !matches!(key, "min" | "max") {
@@ -614,9 +756,48 @@ fn render_labelled_input(
         input_attrs.push("multiple".to_string());
     }
 
-    out.push_str(&format!("{}    <input {}>\n", indent, input_attrs.join(" ")));
+    out.push_str(&format!(
+        "{}    <input {}>\n",
+        indent,
+        input_attrs.join(" ")
+    ));
     out.push_str(&format!("{}</div>\n", indent));
     out
+}
+
+/// Paint the branch a resolvable condition takes, or `None` to defer to the client.
+fn render_if_static(if_stmt: &IfStmt, ctx: &mut SsgContext) -> Option<String> {
+    if eval(&if_stmt.condition, &ctx.scope)?.truthy() {
+        return Some(render_statements(&if_stmt.then_body, ctx));
+    }
+    for (cond, body) in &if_stmt.else_if_branches {
+        if eval(cond, &ctx.scope)?.truthy() {
+            return Some(render_statements(body, ctx));
+        }
+    }
+    Some(match &if_stmt.else_body {
+        Some(body) => render_statements(body, ctx),
+        None => String::new(),
+    })
+}
+
+/// Paint one copy of the body per item, or `None` to defer to the client.
+fn render_for_static(for_stmt: &ForStmt, ctx: &mut SsgContext) -> Option<String> {
+    let Static::List(items) = eval(&for_stmt.iterable, &ctx.scope)? else {
+        return None;
+    };
+
+    let outer = ctx.scope.clone();
+    let mut html = String::new();
+    for (i, item) in items.iter().enumerate() {
+        ctx.scope = outer.with(&for_stmt.item, item.clone());
+        if let Some(index_name) = &for_stmt.index {
+            ctx.scope = ctx.scope.with(index_name, Static::Num(i as f64));
+        }
+        html.push_str(&render_statements(&for_stmt.body, ctx));
+    }
+    ctx.scope = outer;
+    Some(html)
 }
 
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
@@ -628,7 +809,10 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> S
     } else {
         format!(" style=\"{}\"", html_escape(&decls.join("; ")))
     };
-    let mut result = format!("{}<{} class=\"{}\"{}{}>\n", indent, tag, class, wf, style_attr);
+    let mut result = format!(
+        "{}<{} class=\"{}\"{}{}>\n",
+        indent, tag, class, wf, style_attr
+    );
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));
     ctx.indent -= 1;
@@ -652,10 +836,20 @@ fn style_block_decls(ui: &UIElement) -> Vec<String> {
             // resolve a bare design-token keyword (`font-size: xl`) to its `var(--…)`;
             // otherwise fall back to a static literal (quoted CSS / number).
             let prop = canonical_style_prop(&p.name);
-            let value = resolve_style_token(&prop, &p.value).or_else(|| expr_to_static_string(&p.value))?;
+            let value =
+                resolve_style_token(&prop, &p.value).or_else(|| expr_to_static_string(&p.value))?;
             Some(format!("{prop}: {value}"))
         })
         .collect()
+}
+
+/// An attribute value the compiler can write out, consulting the build-time
+/// scope so a loop binding reaches `src=`, `href=` and the rest.
+fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {
+    expr_to_static_string(expr).or_else(|| match eval(expr, scope)? {
+        Static::List(_) | Static::Map(_) => None,
+        value => Some(value.to_text()),
+    })
 }
 
 /// Try to resolve an expression to a static string.
@@ -666,6 +860,22 @@ fn expr_to_static_string(expr: &Expr) -> Option<String> {
         Expr::BoolLiteral(b) => Some(format!("{}", b)),
         _ => None, // Dynamic — can't resolve
     }
+}
+
+/// Resolve text content, including i18n t() calls and anything the build-time
+/// scope knows — which is what lets `Tcell(row.title)` inside a resolved loop
+/// paint the actual title rather than nothing.
+fn resolve_text_scoped(
+    expr: &Expr,
+    messages: &HashMap<String, String>,
+    scope: &Scope,
+) -> Option<String> {
+    resolve_text(expr, messages).or_else(|| match eval(expr, scope)? {
+        // A collection has no text form; painting "" would be a lie about what
+        // the running page shows.
+        Static::List(_) | Static::Map(_) => None,
+        value => Some(value.to_text()),
+    })
 }
 
 /// Resolve text content, including i18n t() calls.
@@ -694,11 +904,15 @@ fn resolve_text(expr: &Expr, messages: &HashMap<String, String>) -> Option<Strin
 
 fn html_escape(s: &str) -> String {
     s.replace('&', "&amp;")
-     .replace('<', "&lt;")
-     .replace('>', "&gt;")
-     .replace('"', "&quot;")
-     .replace('\u{FFFE}', "{")
-     .replace('\u{FFFF}', "}")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        // Also `'`: the renderers quote every attribute with `"`, but that is an
+        // invariant nothing enforced, and one single-quoted attribute would have
+        // turned this into an injection point.
+        .replace('\'', "&#x27;")
+        .replace('\u{FFFE}', "{")
+        .replace('\u{FFFF}', "}")
 }
 
 fn camel_to_kebab(s: &str) -> String {
@@ -738,10 +952,25 @@ mod component_expansion_tests {
         let page = program
             .declarations
             .iter()
-            .find_map(|d| if let Declaration::Page(p) = d { Some(p) } else { None })
+            .find_map(|d| {
+                if let Declaration::Page(p) = d {
+                    Some(p)
+                } else {
+                    None
+                }
+            })
             .expect("a page");
         let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
-        render_page_html(page, &cfg, None, &Default::default(), &components)
+        render_page_html(
+            page,
+            &SiteContext {
+                config: &cfg,
+                app_body: None,
+                translations: &Default::default(),
+                components: &components,
+                program: &program,
+            },
+        )
     }
 
     #[test]
@@ -750,10 +979,19 @@ mod component_expansion_tests {
             "Component Hero (title: String, tagline: String) {\n  Container { Heading(title, h1) Text(tagline) }\n}\n\
              Page Home (path: \"/\") { Hero(\"Beit Qahwa\", \"Slow roasted\") }\n",
         );
-        assert!(!html.contains("wf-component"), "no placeholder should survive: {html}");
-        assert!(html.contains("Beit Qahwa"), "the positional prop must render: {html}");
+        assert!(
+            !html.contains("wf-component"),
+            "no placeholder should survive: {html}"
+        );
+        assert!(
+            html.contains("Beit Qahwa"),
+            "the positional prop must render: {html}"
+        );
         assert!(html.contains("Slow roasted"));
-        assert!(html.contains("<h1"), "an h1 inside a component must reach the HTML (SEO)");
+        assert!(
+            html.contains("<h1"),
+            "an h1 inside a component must reach the HTML (SEO)"
+        );
     }
 
     #[test]
@@ -763,7 +1001,10 @@ mod component_expansion_tests {
              Page Home (path: \"/\") { Item(name: \"Latte\") }\n",
         );
         assert!(html.contains("Latte"), "named arg: {html}");
-        assert!(html.contains("none"), "declared default fills an unbound prop: {html}");
+        assert!(
+            html.contains("none"),
+            "declared default fills an unbound prop: {html}"
+        );
     }
 
     #[test]
@@ -773,7 +1014,10 @@ mod component_expansion_tests {
              Component Outer (t: String) { Container { Inner(t) } }\n\
              Page Home (path: \"/\") { Outer(\"nested\") }\n",
         );
-        assert!(html.contains("nested"), "props thread through both levels: {html}");
+        assert!(
+            html.contains("nested"),
+            "props thread through both levels: {html}"
+        );
         assert!(!html.contains("wf-component"));
     }
 
@@ -785,22 +1029,33 @@ mod component_expansion_tests {
             "Component Loop (t: String) { Container { Loop(t) } }\n\
              Page Home (path: \"/\") { Loop(\"x\") }\n",
         );
-        assert!(html.contains("wf-component"), "the guard emits the placeholder at the limit");
+        assert!(
+            html.contains("wf-component"),
+            "the guard emits the placeholder at the limit"
+        );
     }
 
     /// An undeclared component keeps the old placeholder rather than panicking —
     /// such a program fails the semantic gate anyway.
     #[test]
     fn an_unknown_component_still_renders_a_placeholder() {
-        let tokens = Lexer::new("Page Home (path: \"/\") { Ghost() }", "<t>").tokenize().unwrap();
+        let tokens = Lexer::new("Page Home (path: \"/\") { Ghost() }", "<t>")
+            .tokenize()
+            .unwrap();
         let program = Parser::new(tokens, "<t>").parse().unwrap();
         let page = program
             .declarations
             .iter()
-            .find_map(|d| if let Declaration::Page(p) = d { Some(p) } else { None })
+            .find_map(|d| {
+                if let Declaration::Page(p) = d {
+                    Some(p)
+                } else {
+                    None
+                }
+            })
             .unwrap();
         let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
-        let html = render_page_html(page, &cfg, None, &Default::default(), &Default::default());
+        let html = render_page_html(page, &SiteContext::bare(&cfg, &program));
         assert!(html.contains("wf-component"));
     }
 }

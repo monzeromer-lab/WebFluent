@@ -2,6 +2,8 @@ use std::fmt;
 
 /// All token types produced by the WebFluent lexer.
 #[derive(Debug, Clone, PartialEq)]
+// `EOF` is the conventional spelling in a lexer, and this enum is public.
+#[allow(clippy::upper_case_acronyms)]
 pub enum TokenType {
     // Top-level declarations
     Page,
@@ -499,7 +501,6 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
 
         // List (as component, not type - handled by context)
         // "List" handled above as TypeList, we'll use context in parser
-
         _ => TokenType::Identifier(word.to_string()),
     }
 }

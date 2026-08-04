@@ -1,44 +1,46 @@
-use std::collections::HashSet;
-use crate::config::project::PdfConfig;
-use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef, Expr, StringPart};
 use crate::codegen::style::{
-    Background, Color as StyleColor, LinearGradient, StyleProps,
-    gradient_endpoints,
+    Background, Color as StyleColor, LinearGradient, StyleProps, gradient_endpoints,
 };
+use crate::config::project::PdfConfig;
+use crate::parser::{
+    ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
+};
+use std::collections::HashSet;
+
+/// One run of text with the styling the layout resolved for it: the text, the
+/// font tag, the size, and the colour.
+type LaidOutText = (String, String, f64, (f64, f64, f64));
 
 // ─── Base14 Font Metrics (Helvetica) ────────────────────────────────
 const HELVETICA_WIDTHS: [u16; 95] = [
-    278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
-    556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
-    1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
-    667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
-    333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
-    556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
+    278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556,
+    556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667,
+    611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667,
+    667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500,
+    222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
 ];
 
 const HELVETICA_BOLD_WIDTHS: [u16; 95] = [
-    278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278,
-    556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611,
-    975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778,
-    667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556,
-    333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611,
-    611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584,
+    278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556,
+    556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667,
+    611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667,
+    667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556,
+    278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584,
 ];
 
 const TIMES_WIDTHS: [u16; 95] = [
-    250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278,
-    500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444,
-    921, 722, 667, 667, 722, 611, 556, 722, 722, 333, 389, 722, 611, 889, 722, 722,
-    556, 722, 667, 556, 611, 722, 722, 944, 722, 722, 611, 333, 278, 333, 469, 500,
-    333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500, 278, 778, 500, 500,
-    500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
+    250, 333, 408, 500, 500, 833, 778, 180, 333, 333, 500, 564, 250, 333, 250, 278, 500, 500, 500,
+    500, 500, 500, 500, 500, 500, 500, 278, 278, 564, 564, 564, 444, 921, 722, 667, 667, 722, 611,
+    556, 722, 722, 333, 389, 722, 611, 889, 722, 722, 556, 722, 667, 556, 611, 722, 722, 944, 722,
+    722, 611, 333, 278, 333, 469, 500, 333, 444, 500, 444, 500, 444, 333, 500, 500, 278, 278, 500,
+    278, 778, 500, 500, 500, 500, 333, 389, 278, 500, 500, 722, 500, 500, 444, 480, 200, 480, 541,
 ];
 
 const COURIER_WIDTH: u16 = 600;
 
 fn char_width(ch: char, font: &str) -> u16 {
     let code = ch as u32;
-    if code < 32 || code > 126 {
+    if !(32..=126).contains(&code) {
         return 500;
     }
     let idx = (code - 32) as usize;
@@ -72,7 +74,9 @@ fn truncate_text(text: &str, font: &str, font_size: f64, max_width: f64) -> Stri
     let mut end = 0;
     for (i, ch) in text.char_indices() {
         let cw = char_width(ch, font) as f64 * font_size / 1000.0;
-        if w + cw > target { break; }
+        if w + cw > target {
+            break;
+        }
         w += cw;
         end = i + ch.len_utf8();
     }
@@ -104,7 +108,9 @@ struct ContentStream {
 }
 
 impl ContentStream {
-    fn new() -> Self { Self { ops: Vec::new() } }
+    fn new() -> Self {
+        Self { ops: Vec::new() }
+    }
 
     fn op(&mut self, s: &str) {
         self.ops.extend_from_slice(s.as_bytes());
@@ -120,8 +126,12 @@ impl ContentStream {
     fn set_stroke_color(&mut self, r: f64, g: f64, b: f64) {
         self.op(&format!("{} {} {} RG", fmt_f64(r), fmt_f64(g), fmt_f64(b)));
     }
-    fn begin_text(&mut self) { self.op("BT"); }
-    fn end_text(&mut self)   { self.op("ET"); }
+    fn begin_text(&mut self) {
+        self.op("BT");
+    }
+    fn end_text(&mut self) {
+        self.op("ET");
+    }
     fn text_position(&mut self, x: f64, y: f64) {
         self.op(&format!("{} {} Td", fmt_f64(x), fmt_f64(y)));
     }
@@ -136,12 +146,28 @@ impl ContentStream {
         self.end_text();
     }
     fn rect(&mut self, x: f64, y: f64, w: f64, h: f64) {
-        self.op(&format!("{} {} {} {} re", fmt_f64(x), fmt_f64(y), fmt_f64(w), fmt_f64(h)));
+        self.op(&format!(
+            "{} {} {} {} re",
+            fmt_f64(x),
+            fmt_f64(y),
+            fmt_f64(w),
+            fmt_f64(h)
+        ));
     }
-    fn fill(&mut self)   { self.op("f"); }
-    fn stroke(&mut self) { self.op("S"); }
+    fn fill(&mut self) {
+        self.op("f");
+    }
+    fn stroke(&mut self) {
+        self.op("S");
+    }
     fn line(&mut self, x1: f64, y1: f64, x2: f64, y2: f64) {
-        self.op(&format!("{} {} m {} {} l S", fmt_f64(x1), fmt_f64(y1), fmt_f64(x2), fmt_f64(y2)));
+        self.op(&format!(
+            "{} {} m {} {} l S",
+            fmt_f64(x1),
+            fmt_f64(y1),
+            fmt_f64(x2),
+            fmt_f64(y2)
+        ));
     }
     fn set_line_width(&mut self, w: f64) {
         self.op(&format!("{} w", fmt_f64(w)));
@@ -149,37 +175,109 @@ impl ContentStream {
     /// Rounded rect path only (no fill/stroke). Caller must invoke `fill()` or `stroke()`.
     fn rounded_rect_path(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
         let r = r.min(w / 2.0).min(h / 2.0);
-        if r < 0.5 { self.rect(x, y, w, h); return; }
+        if r < 0.5 {
+            self.rect(x, y, w, h);
+            return;
+        }
         let k = 0.5523;
         let kr = k * r;
         self.op(&format!("{} {} m", fmt_f64(x + r), fmt_f64(y)));
         self.op(&format!("{} {} l", fmt_f64(x + w - r), fmt_f64(y)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w-r+kr), fmt_f64(y), fmt_f64(x+w), fmt_f64(y+r-kr), fmt_f64(x+w), fmt_f64(y+r)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + w - r + kr),
+            fmt_f64(y),
+            fmt_f64(x + w),
+            fmt_f64(y + r - kr),
+            fmt_f64(x + w),
+            fmt_f64(y + r)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x + w), fmt_f64(y + h - r)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w), fmt_f64(y+h-r+kr), fmt_f64(x+w-r+kr), fmt_f64(y+h), fmt_f64(x+w-r), fmt_f64(y+h)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + w),
+            fmt_f64(y + h - r + kr),
+            fmt_f64(x + w - r + kr),
+            fmt_f64(y + h),
+            fmt_f64(x + w - r),
+            fmt_f64(y + h)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x + r), fmt_f64(y + h)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+r-kr), fmt_f64(y+h), fmt_f64(x), fmt_f64(y+h-r+kr), fmt_f64(x), fmt_f64(y+h-r)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + r - kr),
+            fmt_f64(y + h),
+            fmt_f64(x),
+            fmt_f64(y + h - r + kr),
+            fmt_f64(x),
+            fmt_f64(y + h - r)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x), fmt_f64(y + r)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x), fmt_f64(y+r-kr), fmt_f64(x+r-kr), fmt_f64(y), fmt_f64(x+r), fmt_f64(y)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x),
+            fmt_f64(y + r - kr),
+            fmt_f64(x + r - kr),
+            fmt_f64(y),
+            fmt_f64(x + r),
+            fmt_f64(y)
+        ));
         self.op("h");
     }
     fn rounded_rect(&mut self, x: f64, y: f64, w: f64, h: f64, r: f64) {
         let r = r.min(w / 2.0).min(h / 2.0);
-        if r < 0.5 { self.rect(x, y, w, h); return; }
+        if r < 0.5 {
+            self.rect(x, y, w, h);
+            return;
+        }
         let k = 0.5523;
         let kr = k * r;
         self.op(&format!("{} {} m", fmt_f64(x + r), fmt_f64(y)));
         self.op(&format!("{} {} l", fmt_f64(x + w - r), fmt_f64(y)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w-r+kr), fmt_f64(y), fmt_f64(x+w), fmt_f64(y+r-kr), fmt_f64(x+w), fmt_f64(y+r)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + w - r + kr),
+            fmt_f64(y),
+            fmt_f64(x + w),
+            fmt_f64(y + r - kr),
+            fmt_f64(x + w),
+            fmt_f64(y + r)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x + w), fmt_f64(y + h - r)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+w), fmt_f64(y+h-r+kr), fmt_f64(x+w-r+kr), fmt_f64(y+h), fmt_f64(x+w-r), fmt_f64(y+h)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + w),
+            fmt_f64(y + h - r + kr),
+            fmt_f64(x + w - r + kr),
+            fmt_f64(y + h),
+            fmt_f64(x + w - r),
+            fmt_f64(y + h)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x + r), fmt_f64(y + h)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x+r-kr), fmt_f64(y+h), fmt_f64(x), fmt_f64(y+h-r+kr), fmt_f64(x), fmt_f64(y+h-r)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x + r - kr),
+            fmt_f64(y + h),
+            fmt_f64(x),
+            fmt_f64(y + h - r + kr),
+            fmt_f64(x),
+            fmt_f64(y + h - r)
+        ));
         self.op(&format!("{} {} l", fmt_f64(x), fmt_f64(y + r)));
-        self.op(&format!("{} {} {} {} {} {} c", fmt_f64(x), fmt_f64(y+r-kr), fmt_f64(x+r-kr), fmt_f64(y), fmt_f64(x+r), fmt_f64(y)));
+        self.op(&format!(
+            "{} {} {} {} {} {} c",
+            fmt_f64(x),
+            fmt_f64(y + r - kr),
+            fmt_f64(x + r - kr),
+            fmt_f64(y),
+            fmt_f64(x + r),
+            fmt_f64(y)
+        ));
         self.op("h");
     }
-    fn bytes(&self) -> &[u8] { &self.ops }
+    fn bytes(&self) -> &[u8] {
+        &self.ops
+    }
 }
 
 // ─── PDF Writer ─────────────────────────────────────────────────────
@@ -194,7 +292,10 @@ struct GradientInstance {
     tag: String,
     start: StyleColor,
     end: StyleColor,
-    x0: f64, y0: f64, x1: f64, y1: f64,
+    x0: f64,
+    y0: f64,
+    x1: f64,
+    y1: f64,
 }
 
 /// PDF code generator — renders the AST to a PDF document using Base14 fonts.
@@ -270,7 +371,9 @@ impl PdfCodegen {
 
     fn register_font(&mut self, base_font: &str) -> String {
         for (tag, name) in &self.fonts {
-            if name == base_font { return tag.clone(); }
+            if name == base_font {
+                return tag.clone();
+            }
         }
         let tag = format!("F{}", self.fonts.len() + 1);
         self.fonts.push((tag.clone(), base_font.to_string()));
@@ -279,7 +382,9 @@ impl PdfCodegen {
 
     fn font_tag(&self, base_font: &str) -> String {
         for (tag, name) in &self.fonts {
-            if name == base_font { return tag.clone(); }
+            if name == base_font {
+                return tag.clone();
+            }
         }
         "F1".to_string()
     }
@@ -312,7 +417,9 @@ impl PdfCodegen {
             // Header baseline: inside top margin, 30pt from page top
             self.cursor_y = self.page_height - 30.0;
             let stmts = self.header_stmts.clone();
-            for s in &stmts { self.emit_statement(s); }
+            for s in &stmts {
+                self.emit_statement(s);
+            }
             self.cursor_y = saved;
             self.in_header_footer = false;
         }
@@ -329,7 +436,9 @@ impl PdfCodegen {
             // So we start the footer cursor at margin_bottom - 6, which is ~66pt from page bottom.
             self.cursor_y = self.margin_bottom - 6.0;
             let stmts = self.footer_stmts.clone();
-            for s in &stmts { self.emit_statement(s); }
+            for s in &stmts {
+                self.emit_statement(s);
+            }
             self.cursor_y = saved;
             self.in_header_footer = false;
         }
@@ -341,7 +450,9 @@ impl PdfCodegen {
         let content_id = self.add_stream_object(stream_data.bytes());
         let page_data = format!(
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {} {}] /Contents {} 0 R >>",
-            fmt_f64(self.page_width), fmt_f64(self.page_height), content_id
+            fmt_f64(self.page_width),
+            fmt_f64(self.page_height),
+            content_id
         );
         let page_obj_id = self.add_object(page_data.as_bytes());
         self.pages.push(page_obj_id);
@@ -349,7 +460,10 @@ impl PdfCodegen {
 
     fn add_object(&mut self, data: &[u8]) -> usize {
         let id = self.objects.len() + 1;
-        self.objects.push(PdfObj { id, data: data.to_vec() });
+        self.objects.push(PdfObj {
+            id,
+            data: data.to_vec(),
+        });
         id
     }
 
@@ -363,10 +477,14 @@ impl PdfCodegen {
         self.add_object(&data)
     }
 
-    fn mark_content(&mut self) { self.page_has_content = true; }
+    fn mark_content(&mut self) {
+        self.page_has_content = true;
+    }
 
     fn substitute_page_vars(&self, text: &str) -> String {
-        if !self.in_header_footer { return text.to_string(); }
+        if !self.in_header_footer {
+            return text.to_string();
+        }
         text.replace("{page}", &self.current_page_number.to_string())
             .replace("{pages}", "###")
     }
@@ -375,18 +493,24 @@ impl PdfCodegen {
         let total = self.current_page_number;
         let total_str = format!("{:<3}", total);
         let placeholder_hex = "232323";
-        let replacement_hex: String = total_str.chars()
-            .map(|ch| format!("{:02X}", ch as u8)).collect();
+        let replacement_hex: String = total_str
+            .chars()
+            .map(|ch| format!("{:02X}", ch as u8))
+            .collect();
         for obj in &mut self.objects {
             // Only process stream objects (they contain hex text)
             let data_str = String::from_utf8_lossy(&obj.data).to_string();
             if data_str.contains(placeholder_hex) {
-                obj.data = data_str.replace(placeholder_hex, &replacement_hex).into_bytes();
+                obj.data = data_str
+                    .replace(placeholder_hex, &replacement_hex)
+                    .into_bytes();
             }
         }
     }
 
-    pub fn page_count(&self) -> usize { self.pages.len() }
+    pub fn page_count(&self) -> usize {
+        self.pages.len()
+    }
 
     // ─── Main Entry ──────────────────────────────────────────
 
@@ -394,7 +518,9 @@ impl PdfCodegen {
         self.start_new_page();
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
-                for stmt in &page.body { self.emit_statement(stmt); }
+                for stmt in &page.body {
+                    self.emit_statement(stmt);
+                }
             }
         }
         self.finalize_page();
@@ -408,12 +534,16 @@ impl PdfCodegen {
         match &stmt.kind {
             StatementKind::UIElement(ui) => self.emit_ui_element(ui),
             StatementKind::If(if_stmt) => {
-                for s in &if_stmt.then_body { self.emit_statement(s); }
+                for s in &if_stmt.then_body {
+                    self.emit_statement(s);
+                }
             }
             StatementKind::For(for_stmt) => {
                 if let Expr::ListLiteral(items) = &for_stmt.iterable {
                     for _item in items {
-                        for s in &for_stmt.body { self.emit_statement(s); }
+                        for s in &for_stmt.body {
+                            self.emit_statement(s);
+                        }
                     }
                 }
             }
@@ -426,41 +556,62 @@ impl PdfCodegen {
             ComponentRef::BuiltIn(n) => n.clone(),
             ComponentRef::SubComponent(p, s) => format!("{}.{}", p, s),
             ComponentRef::UserDefined(_) => {
-                for c in &ui.children { self.emit_statement(c); }
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
                 return;
             }
         };
         match name.as_str() {
-            "Document"  => self.emit_document(ui),
-            "Section"   => self.emit_section(ui),
+            "Document" => self.emit_document(ui),
+            "Section" => self.emit_section(ui),
             "Paragraph" => self.emit_paragraph(ui),
-            "Header"    => { self.header_stmts = ui.children.clone(); }
-            "Footer"    => { self.footer_stmts = ui.children.clone(); }
-            "PageBreak" => { self.finalize_page(); self.start_new_page(); }
-            "Text"      => self.emit_text(ui),
-            "Heading"   => self.emit_heading(ui),
-            "Table"     => self.emit_table(ui),
-            "Thead" | "Tbody" => { for c in &ui.children { self.emit_statement(c); } }
-            "Trow"      => {}
-            "Code"      => self.emit_code(ui),
-            "Blockquote"=> self.emit_blockquote(ui),
-            "Image"     => self.emit_image(ui),
-            "Divider"   => self.emit_divider(),
-            "Row"       => self.emit_row(ui),
+            "Header" => {
+                self.header_stmts = ui.children.clone();
+            }
+            "Footer" => {
+                self.footer_stmts = ui.children.clone();
+            }
+            "PageBreak" => {
+                self.finalize_page();
+                self.start_new_page();
+            }
+            "Text" => self.emit_text(ui),
+            "Heading" => self.emit_heading(ui),
+            "Table" => self.emit_table(ui),
+            "Thead" | "Tbody" => {
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
+            }
+            "Trow" => {}
+            "Code" => self.emit_code(ui),
+            "Blockquote" => self.emit_blockquote(ui),
+            "Image" => self.emit_image(ui),
+            "Divider" => self.emit_divider(),
+            "Row" => self.emit_row(ui),
             "Container" | "Column" | "Grid" | "Stack" => {
                 self.emit_container(ui, &name);
             }
-            "Spacer"    => { self.cursor_y -= self.get_spacer_size(ui); }
+            "Spacer" => {
+                self.cursor_y -= self.get_spacer_size(ui);
+            }
             "List" | "TypeList" => self.emit_list(ui),
             "Badge" | "Tag" => self.emit_badge(ui),
-            "Alert"     => self.emit_alert(ui),
-            "Progress"  => self.emit_progress(ui),
-            "Card"      => self.emit_card(ui),
+            "Alert" => self.emit_alert(ui),
+            "Progress" => self.emit_progress(ui),
+            "Card" => self.emit_card(ui),
             "Card.Header" | "Card.Body" | "Card.Footer" => {
-                for c in &ui.children { self.emit_statement(c); }
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
             }
             "Avatar" | "Icon" => {}
-            _ => { for c in &ui.children { self.emit_statement(c); } }
+            _ => {
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
+            }
         }
     }
 
@@ -472,14 +623,16 @@ impl PdfCodegen {
             if let crate::parser::Arg::Named(name, value) = arg {
                 if name == "justify" {
                     if let Expr::Identifier(v) = value {
-                        if v == "between" { justify_between = true; }
+                        if v == "between" {
+                            justify_between = true;
+                        }
                     }
                 }
             }
         }
 
         if justify_between && ui.children.len() >= 2 {
-            let mut items: Vec<(String, String, f64, (f64, f64, f64))> = Vec::new();
+            let mut items: Vec<LaidOutText> = Vec::new();
             for c in &ui.children {
                 if let StatementKind::UIElement(cu) = &c.kind {
                     let t = self.extract_text_content(cu);
@@ -488,7 +641,10 @@ impl PdfCodegen {
                 }
             }
             if items.len() >= 2 {
-                let lh = items.iter().map(|(_, _, s, _)| *s * 1.5).fold(0.0f64, f64::max);
+                let lh = items
+                    .iter()
+                    .map(|(_, _, s, _)| *s * 1.5)
+                    .fold(0.0f64, f64::max);
                 self.check_page_break(lh);
 
                 // Left item
@@ -496,7 +652,8 @@ impl PdfCodegen {
                 if !t.is_empty() {
                     let ft = self.font_tag(f);
                     self.current_stream.set_color(col.0, col.1, col.2);
-                    self.current_stream.text_at(self.margin_left, self.cursor_y, &ft, sz, t);
+                    self.current_stream
+                        .text_at(self.margin_left, self.cursor_y, &ft, sz, t);
                 }
                 // Right item
                 let last = items.len() - 1;
@@ -513,7 +670,9 @@ impl PdfCodegen {
                 return;
             }
         }
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
     }
 
     // ─── Document / Section ─────────────────────────────────
@@ -531,12 +690,16 @@ impl PdfCodegen {
                 }
             }
         }
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
     }
 
     fn emit_section(&mut self, ui: &UIElement) {
         self.cursor_y -= 8.0;
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
         self.cursor_y -= 4.0;
     }
 
@@ -548,7 +711,11 @@ impl PdfCodegen {
                 if !text.is_empty() {
                     let (cf, cs, cc, ca) = self.extract_text_style(tu);
                     let f = if cf != self.default_font { &cf } else { &font };
-                    let s = if (cs - self.default_font_size).abs() > 0.1 { cs } else { size };
+                    let s = if (cs - self.default_font_size).abs() > 0.1 {
+                        cs
+                    } else {
+                        size
+                    };
                     let c = if cc != (0.0, 0.0, 0.0) { cc } else { color };
                     let a = if !ca.is_empty() { &ca } else { &align };
                     self.render_wrapped_text(&text, f, s, c, a);
@@ -562,7 +729,9 @@ impl PdfCodegen {
 
     fn emit_text(&mut self, ui: &UIElement) {
         let text = self.extract_text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
         let (font, size, color, align) = self.extract_text_style(ui);
         self.render_wrapped_text(&text, &font, size, color, &align);
     }
@@ -571,23 +740,38 @@ impl PdfCodegen {
 
     fn emit_heading(&mut self, ui: &UIElement) {
         let text = self.extract_text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
 
         let mut level = 2;
         let mut color = (0.0, 0.0, 0.0);
         for m in &ui.modifiers {
             match m.as_str() {
-                "h1" => level = 1, "h2" => level = 2, "h3" => level = 3,
-                "h4" => level = 4, "h5" => level = 5, "h6" => level = 6,
+                "h1" => level = 1,
+                "h2" => level = 2,
+                "h3" => level = 3,
+                "h4" => level = 4,
+                "h5" => level = 5,
+                "h6" => level = 6,
                 "primary" => color = (0.098, 0.098, 0.647),
                 "muted" => color = (0.4, 0.4, 0.4),
                 _ => {}
             }
         }
-        let size = match level { 1=>28.0, 2=>22.0, 3=>18.0, 4=>16.0, 5=>14.0, _=>12.0 };
+        let size = match level {
+            1 => 28.0,
+            2 => 22.0,
+            3 => 18.0,
+            4 => 16.0,
+            5 => 14.0,
+            _ => 12.0,
+        };
         let font = "Helvetica-Bold".to_string();
         let (_, _, sc, align) = self.extract_text_style(ui);
-        if sc != (0.0, 0.0, 0.0) { color = sc; }
+        if sc != (0.0, 0.0, 0.0) {
+            color = sc;
+        }
 
         self.cursor_y -= size * 0.4;
         self.check_page_break(size * 1.5);
@@ -612,7 +796,12 @@ impl PdfCodegen {
         let line_y = self.cursor_y - half;
         self.current_stream.set_stroke_color(0.80, 0.80, 0.80);
         self.current_stream.set_line_width(0.5);
-        self.current_stream.line(self.margin_left, line_y, self.page_width - self.margin_right, line_y);
+        self.current_stream.line(
+            self.margin_left,
+            line_y,
+            self.page_width - self.margin_right,
+            line_y,
+        );
 
         self.cursor_y -= total_gap;
         self.mark_content();
@@ -627,20 +816,34 @@ impl PdfCodegen {
         for child in &ui.children {
             if let StatementKind::UIElement(section) = &child.kind {
                 let sn = match &section.component {
-                    ComponentRef::BuiltIn(n) => n.clone(), _ => String::new(),
+                    ComponentRef::BuiltIn(n) => n.clone(),
+                    _ => String::new(),
                 };
                 let hdr = sn == "Thead";
                 for rs in &section.children {
                     if let StatementKind::UIElement(row) = &rs.kind {
-                        let cells: Vec<String> = row.children.iter().filter_map(|c| {
-                            if let StatementKind::UIElement(cell) = &c.kind { Some(self.extract_text_content(cell)) } else { None }
-                        }).collect();
-                        if !cells.is_empty() { rows.push(cells); is_header.push(hdr); }
+                        let cells: Vec<String> = row
+                            .children
+                            .iter()
+                            .filter_map(|c| {
+                                if let StatementKind::UIElement(cell) = &c.kind {
+                                    Some(self.extract_text_content(cell))
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect();
+                        if !cells.is_empty() {
+                            rows.push(cells);
+                            is_header.push(hdr);
+                        }
                     }
                 }
             }
         }
-        if rows.is_empty() { return; }
+        if rows.is_empty() {
+            return;
+        }
 
         let num_cols = rows.iter().map(|r| r.len()).max().unwrap_or(1);
         let cw = self.content_width();
@@ -655,7 +858,9 @@ impl PdfCodegen {
             let mut mx = 1usize;
             for ct in row {
                 let l = self.count_wrapped_lines(ct, &self.default_font.clone(), fs, cell_tw);
-                if l > mx { mx = l; }
+                if l > mx {
+                    mx = l;
+                }
             }
             row_heights.push(((mx as f64 * lh) + cell_pad * 2.0).max(fs * 2.0));
         }
@@ -684,7 +889,11 @@ impl PdfCodegen {
             self.current_stream.rect(table_x, bot, cw, rh);
             self.current_stream.stroke();
 
-            let fn_ = if is_header[ri] { "Helvetica-Bold".to_string() } else { self.default_font.clone() };
+            let fn_ = if is_header[ri] {
+                "Helvetica-Bold".to_string()
+            } else {
+                self.default_font.clone()
+            };
             let ft = self.font_tag(&fn_);
             for (ci, ct) in row.iter().enumerate() {
                 let cx = table_x + ci as f64 * col_w;
@@ -693,7 +902,16 @@ impl PdfCodegen {
                     self.current_stream.line(cx, top, cx, bot);
                 }
                 self.current_stream.set_color(0.0, 0.0, 0.0);
-                self.render_cell_text(ct, &fn_, &ft, fs, cx + cell_pad, top - cell_pad - fs, cell_tw, lh);
+                self.render_cell_text(
+                    ct,
+                    &fn_,
+                    &ft,
+                    fs,
+                    cx + cell_pad,
+                    top - cell_pad - fs,
+                    cell_tw,
+                    lh,
+                );
             }
             self.cursor_y = bot;
         }
@@ -701,44 +919,76 @@ impl PdfCodegen {
     }
 
     fn count_wrapped_lines(&self, text: &str, font: &str, size: f64, max_w: f64) -> usize {
-        if max_w <= 0.0 || text.is_empty() { return 1; }
+        if max_w <= 0.0 || text.is_empty() {
+            return 1;
+        }
         let sw = text_width(" ", font, size);
         let mut count = 0usize;
         for line in text.split('\n') {
             count += 1;
             let words: Vec<&str> = line.split_whitespace().collect();
-            if words.is_empty() { continue; }
+            if words.is_empty() {
+                continue;
+            }
             let mut cw = 0.0;
             for (i, w) in words.iter().enumerate() {
                 let ww = text_width(w, font, size);
                 let need = if i > 0 { sw + ww } else { ww };
-                if cw > 0.0 && cw + need > max_w { count += 1; cw = ww; }
-                else { cw += need; }
+                if cw > 0.0 && cw + need > max_w {
+                    count += 1;
+                    cw = ww;
+                } else {
+                    cw += need;
+                }
             }
         }
         count.max(1)
     }
 
-    fn render_cell_text(&mut self, text: &str, font: &str, font_tag: &str, size: f64,
-                        x: f64, mut y: f64, max_w: f64, lh: f64) {
+    // A table cell needs its text, its font, the tag that font is registered
+    // under, its size, and the box to lay it out in. Bundling them would trade
+    // one long signature for a struct built at every call site.
+    #[allow(clippy::too_many_arguments)]
+    fn render_cell_text(
+        &mut self,
+        text: &str,
+        font: &str,
+        font_tag: &str,
+        size: f64,
+        x: f64,
+        mut y: f64,
+        max_w: f64,
+        lh: f64,
+    ) {
         let sw = text_width(" ", font, size);
         for line in text.split('\n') {
             let words: Vec<&str> = line.split_whitespace().collect();
-            if words.is_empty() { y -= lh; continue; }
+            if words.is_empty() {
+                y -= lh;
+                continue;
+            }
             let mut cl = String::new();
             let mut cw = 0.0;
             for w in &words {
                 let ww = text_width(w, font, size);
                 if !cl.is_empty() && cw + sw + ww > max_w {
                     self.current_stream.text_at(x, y, font_tag, size, &cl);
-                    y -= lh; cl = w.to_string(); cw = ww;
+                    y -= lh;
+                    cl = w.to_string();
+                    cw = ww;
                 } else {
-                    if !cl.is_empty() { cl.push(' '); cw += sw; }
-                    cl.push_str(w); cw += ww;
+                    if !cl.is_empty() {
+                        cl.push(' ');
+                        cw += sw;
+                    }
+                    cl.push_str(w);
+                    cw += ww;
                 }
             }
             if !cl.is_empty() {
-                if cw > max_w { cl = truncate_text(&cl, font, size, max_w); }
+                if cw > max_w {
+                    cl = truncate_text(&cl, font, size, max_w);
+                }
                 self.current_stream.text_at(x, y, font_tag, size, &cl);
                 y -= lh;
             }
@@ -766,15 +1016,27 @@ impl PdfCodegen {
             };
             if let Some(item) = item_opt {
                 let text = self.extract_text_content(item);
-                if text.is_empty() { continue; }
+                if text.is_empty() {
+                    continue;
+                }
 
                 self.check_page_break(lh);
 
                 // Draw marker at margin_left, same baseline as text
-                let marker = if ordered { format!("{}.", idx + 1) } else { "-".to_string() };
+                let marker = if ordered {
+                    format!("{}.", idx + 1)
+                } else {
+                    "-".to_string()
+                };
                 let marker_font = self.font_tag(&df);
                 self.current_stream.set_color(0.35, 0.35, 0.35);
-                self.current_stream.text_at(self.margin_left, self.cursor_y, &marker_font, fs, &marker);
+                self.current_stream.text_at(
+                    self.margin_left,
+                    self.cursor_y,
+                    &marker_font,
+                    fs,
+                    &marker,
+                );
 
                 // Draw body text indented past the marker
                 let saved_ml = self.margin_left;
@@ -792,7 +1054,9 @@ impl PdfCodegen {
 
     fn emit_code(&mut self, ui: &UIElement) {
         let text = self.extract_text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
         let is_block = ui.modifiers.iter().any(|m| m == "block");
 
         if is_block {
@@ -815,7 +1079,10 @@ impl PdfCodegen {
                     rem = &rem[take..];
                     let ch = chunk.len() as f64 * clh + pv * 2.0;
                     self.render_code_block(chunk, cfs, clh, pv, ph, ch);
-                    if !rem.is_empty() { self.finalize_page(); self.start_new_page(); }
+                    if !rem.is_empty() {
+                        self.finalize_page();
+                        self.start_new_page();
+                    }
                 }
             }
         } else {
@@ -823,7 +1090,13 @@ impl PdfCodegen {
             let lh = self.current_font_size * 1.5;
             self.check_page_break(lh);
             self.current_stream.set_color(0.2, 0.2, 0.2);
-            self.current_stream.text_at(self.margin_left, self.cursor_y, &ft, self.current_font_size, &text);
+            self.current_stream.text_at(
+                self.margin_left,
+                self.cursor_y,
+                &ft,
+                self.current_font_size,
+                &text,
+            );
             self.cursor_y -= lh;
             self.mark_content();
         }
@@ -835,11 +1108,21 @@ impl PdfCodegen {
 
         // Background (drawn FIRST, behind text)
         self.current_stream.set_color(0.95, 0.95, 0.95);
-        self.current_stream.rect(self.margin_left, self.cursor_y - bh, self.content_width(), bh);
+        self.current_stream.rect(
+            self.margin_left,
+            self.cursor_y - bh,
+            self.content_width(),
+            bh,
+        );
         self.current_stream.fill();
         self.current_stream.set_stroke_color(0.85, 0.85, 0.85);
         self.current_stream.set_line_width(0.5);
-        self.current_stream.rect(self.margin_left, self.cursor_y - bh, self.content_width(), bh);
+        self.current_stream.rect(
+            self.margin_left,
+            self.cursor_y - bh,
+            self.content_width(),
+            bh,
+        );
         self.current_stream.stroke();
 
         // Text (drawn AFTER background)
@@ -847,7 +1130,8 @@ impl PdfCodegen {
         let mut y = self.cursor_y - pv - fs;
         for line in lines {
             let dl = truncate_text(line, "Courier", fs, mtw);
-            self.current_stream.text_at(self.margin_left + ph, y, &ft, fs, &dl);
+            self.current_stream
+                .text_at(self.margin_left + ph, y, &ft, fs, &dl);
             y -= lh;
         }
         self.cursor_y -= bh + 8.0;
@@ -862,17 +1146,21 @@ impl PdfCodegen {
 
     fn emit_blockquote(&mut self, ui: &UIElement) {
         let bar_width = 3.0;
-        let bar_x = 8.0;       // offset from margin_left
+        let bar_x = 8.0; // offset from margin_left
         let text_indent = 20.0; // text starts here from margin_left
 
         let mut texts = Vec::new();
         for c in &ui.children {
             if let StatementKind::UIElement(tu) = &c.kind {
                 let t = self.extract_text_content(tu);
-                if !t.is_empty() { texts.push(t); }
+                if !t.is_empty() {
+                    texts.push(t);
+                }
             }
         }
-        if texts.is_empty() { return; }
+        if texts.is_empty() {
+            return;
+        }
 
         let full = texts.join("\n");
         let font = self.default_font.clone();
@@ -904,9 +1192,8 @@ impl PdfCodegen {
         let bar_h = bar_top - bar_bot;
         if bar_h > 0.0 {
             self.current_stream.set_color(0.70, 0.70, 0.70);
-            self.current_stream.rounded_rect(
-                saved + bar_x, bar_bot, bar_width, bar_h, 1.5,
-            );
+            self.current_stream
+                .rounded_rect(saved + bar_x, bar_bot, bar_width, bar_h, 1.5);
             self.current_stream.fill();
         }
 
@@ -918,35 +1205,63 @@ impl PdfCodegen {
     fn emit_image(&mut self, ui: &UIElement) {
         let mut width = 200.0f64;
         let mut height = 150.0f64;
+        let mut label: Option<String> = None;
+
+        // A PDF cannot embed a bitmap without a JPEG/PNG decoder, so an image
+        // becomes a placeholder box. It should at least say *what* is missing:
+        // the box used to read "[Image]" whatever the picture was, which tells a
+        // reader nothing and throws away the alt text the author wrote.
         for arg in &ui.args {
             if let crate::parser::Arg::Named(name, value) = arg {
-                if let Expr::StringLiteral(_s) = value {
-                    match name.as_str() { "src" => {} _ => {} }
+                match (name.as_str(), value) {
+                    ("alt", Expr::StringLiteral(text)) if !text.is_empty() => {
+                        label = Some(format!("[{text}]"));
+                    }
+                    ("width", Expr::NumberLiteral(n)) => width = *n,
+                    ("height", Expr::NumberLiteral(n)) => height = *n,
+                    _ => {}
                 }
             }
         }
+
         if let Some(style) = &ui.style_block {
             for sp in &style.properties {
                 match sp.name.as_str() {
-                    "width"  => { if let Expr::NumberLiteral(n) = sp.value { width = n; } }
-                    "height" => { if let Expr::NumberLiteral(n) = sp.value { height = n; } }
+                    "width" => {
+                        if let Expr::NumberLiteral(n) = sp.value {
+                            width = n;
+                        }
+                    }
+                    "height" => {
+                        if let Expr::NumberLiteral(n) = sp.value {
+                            height = n;
+                        }
+                    }
                     _ => {}
                 }
             }
         }
         self.check_page_break(height + 8.0);
         self.current_stream.set_color(0.93, 0.93, 0.93);
-        self.current_stream.rect(self.margin_left, self.cursor_y - height, width, height);
+        self.current_stream
+            .rect(self.margin_left, self.cursor_y - height, width, height);
         self.current_stream.fill();
         self.current_stream.set_stroke_color(0.8, 0.8, 0.8);
         self.current_stream.set_line_width(1.0);
-        self.current_stream.rect(self.margin_left, self.cursor_y - height, width, height);
+        self.current_stream
+            .rect(self.margin_left, self.cursor_y - height, width, height);
         self.current_stream.stroke();
         let ft = self.font_tag(&self.default_font.clone());
-        let lbl = "[Image]";
+        let lbl = label.as_deref().unwrap_or("[Image]");
         let lw = text_width(lbl, &self.default_font, 10.0);
         self.current_stream.set_color(0.5, 0.5, 0.5);
-        self.current_stream.text_at(self.margin_left + (width - lw) / 2.0, self.cursor_y - height / 2.0, &ft, 10.0, lbl);
+        self.current_stream.text_at(
+            self.margin_left + (width - lw) / 2.0,
+            self.cursor_y - height / 2.0,
+            &ft,
+            10.0,
+            lbl,
+        );
         self.cursor_y -= height + 8.0;
         self.mark_content();
     }
@@ -970,7 +1285,9 @@ impl PdfCodegen {
         let start_pages = self.pages.len();
         self.cursor_y -= pad;
 
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
 
         self.cursor_y -= pad;
         let end_y = self.cursor_y;
@@ -995,7 +1312,9 @@ impl PdfCodegen {
 
     fn emit_badge(&mut self, ui: &UIElement) {
         let text = self.extract_text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
 
         let sz = 9.0;
         let ft = self.font_tag("Helvetica-Bold");
@@ -1011,13 +1330,15 @@ impl PdfCodegen {
         let color = self.modifier_color(&ui.modifiers);
         let pill_y = self.cursor_y - sz - pad; // bottom of pill
         self.current_stream.set_color(color.0, color.1, color.2);
-        self.current_stream.rounded_rect(self.margin_left, pill_y, bw, bh, br);
+        self.current_stream
+            .rounded_rect(self.margin_left, pill_y, bw, bh, br);
         self.current_stream.fill();
 
         // Text centered in pill
         let text_y = pill_y + pad;
         self.current_stream.set_color(1.0, 1.0, 1.0);
-        self.current_stream.text_at(self.margin_left + pad, text_y, &ft, sz, &text);
+        self.current_stream
+            .text_at(self.margin_left + pad, text_y, &ft, sz, &text);
 
         self.cursor_y -= bh + 6.0;
         self.mark_content();
@@ -1027,7 +1348,9 @@ impl PdfCodegen {
 
     fn emit_alert(&mut self, ui: &UIElement) {
         let text = self.extract_text_content(ui);
-        if text.is_empty() { return; }
+        if text.is_empty() {
+            return;
+        }
 
         let color = self.modifier_color(&ui.modifiers);
         let pad = 12.0;
@@ -1044,13 +1367,19 @@ impl PdfCodegen {
         let box_bot = box_top - box_h;
 
         // Background (drawn first)
-        self.current_stream.set_color(color.0 * 0.15 + 0.85, color.1 * 0.15 + 0.85, color.2 * 0.15 + 0.85);
-        self.current_stream.rect(self.margin_left, box_bot, self.content_width(), box_h);
+        self.current_stream.set_color(
+            color.0 * 0.15 + 0.85,
+            color.1 * 0.15 + 0.85,
+            color.2 * 0.15 + 0.85,
+        );
+        self.current_stream
+            .rect(self.margin_left, box_bot, self.content_width(), box_h);
         self.current_stream.fill();
 
         // Left accent bar
         self.current_stream.set_color(color.0, color.1, color.2);
-        self.current_stream.rect(self.margin_left, box_bot, 3.0, box_h);
+        self.current_stream
+            .rect(self.margin_left, box_bot, 3.0, box_h);
         self.current_stream.fill();
 
         // Text (drawn after background)
@@ -1062,17 +1391,26 @@ impl PdfCodegen {
 
         for raw_line in text.split('\n') {
             let words: Vec<&str> = raw_line.split_whitespace().collect();
-            if words.is_empty() { ty -= lh; continue; }
+            if words.is_empty() {
+                ty -= lh;
+                continue;
+            }
             let mut cl = String::new();
             let mut cw = 0.0;
             for w in &words {
                 let ww = text_width(w, &font, fs);
                 if !cl.is_empty() && cw + sw + ww > tw_avail {
                     self.current_stream.text_at(text_x, ty, &ft, fs, &cl);
-                    ty -= lh; cl = w.to_string(); cw = ww;
+                    ty -= lh;
+                    cl = w.to_string();
+                    cw = ww;
                 } else {
-                    if !cl.is_empty() { cl.push(' '); cw += sw; }
-                    cl.push_str(w); cw += ww;
+                    if !cl.is_empty() {
+                        cl.push(' ');
+                        cw += sw;
+                    }
+                    cl.push_str(w);
+                    cw += ww;
                 }
             }
             if !cl.is_empty() {
@@ -1091,22 +1429,29 @@ impl PdfCodegen {
         let mut val = 0.0f64;
         let mut max = 100.0f64;
         for arg in &ui.args {
-            if let crate::parser::Arg::Named(n, v) = arg {
-                if let Expr::NumberLiteral(num) = v {
-                    match n.as_str() { "value" => val = *num, "max" => max = *num, _ => {} }
+            if let crate::parser::Arg::Named(n, Expr::NumberLiteral(num)) = arg {
+                match n.as_str() {
+                    "value" => val = *num,
+                    "max" => max = *num,
+                    _ => {}
                 }
             }
         }
         let bh = 8.0;
         let br = bh / 2.0;
-        let frac = (val / max).min(1.0).max(0.0);
+        let frac = if max > 0.0 {
+            (val / max).clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
 
         self.check_page_break(bh + 8.0);
 
         // Track (behind fill)
         let bar_y = self.cursor_y - bh;
         self.current_stream.set_color(0.9, 0.9, 0.9);
-        self.current_stream.rounded_rect(self.margin_left, bar_y, self.content_width(), bh, br);
+        self.current_stream
+            .rounded_rect(self.margin_left, bar_y, self.content_width(), bh, br);
         self.current_stream.fill();
 
         // Fill
@@ -1114,7 +1459,8 @@ impl PdfCodegen {
         if fw > 0.5 {
             let color = self.modifier_color(&ui.modifiers);
             self.current_stream.set_color(color.0, color.1, color.2);
-            self.current_stream.rounded_rect(self.margin_left, bar_y, fw, bh, br);
+            self.current_stream
+                .rounded_rect(self.margin_left, bar_y, fw, bh, br);
             self.current_stream.fill();
         }
         self.cursor_y -= bh + 8.0;
@@ -1126,7 +1472,14 @@ impl PdfCodegen {
     // Renders text at cursor_y (baseline), then decrements cursor_y
     // by line_height for each line rendered.
 
-    fn render_wrapped_text(&mut self, text: &str, font: &str, size: f64, color: (f64, f64, f64), align: &str) {
+    fn render_wrapped_text(
+        &mut self,
+        text: &str,
+        font: &str,
+        size: f64,
+        color: (f64, f64, f64),
+        align: &str,
+    ) {
         let ft = self.font_tag(font);
         let lh = size * 1.5;
         let aw = self.content_width();
@@ -1134,7 +1487,10 @@ impl PdfCodegen {
 
         for line in text.split('\n') {
             let words: Vec<&str> = line.split_whitespace().collect();
-            if words.is_empty() { self.cursor_y -= lh * 0.5; continue; }
+            if words.is_empty() {
+                self.cursor_y -= lh * 0.5;
+                continue;
+            }
 
             let mut cl = String::new();
             let mut cw = 0.0;
@@ -1145,20 +1501,27 @@ impl PdfCodegen {
                     self.check_page_break(lh);
                     let x = self.text_x_for_align(&cl, font, size, align);
                     self.current_stream.set_color(color.0, color.1, color.2);
-                    self.current_stream.text_at(x, self.cursor_y, &ft, size, &cl);
+                    self.current_stream
+                        .text_at(x, self.cursor_y, &ft, size, &cl);
                     self.cursor_y -= lh;
                     self.mark_content();
-                    cl = w.to_string(); cw = ww;
+                    cl = w.to_string();
+                    cw = ww;
                 } else {
-                    if !cl.is_empty() { cl.push(' '); cw += sw; }
-                    cl.push_str(w); cw += ww;
+                    if !cl.is_empty() {
+                        cl.push(' ');
+                        cw += sw;
+                    }
+                    cl.push_str(w);
+                    cw += ww;
                 }
             }
             if !cl.is_empty() {
                 self.check_page_break(lh);
                 let x = self.text_x_for_align(&cl, font, size, align);
                 self.current_stream.set_color(color.0, color.1, color.2);
-                self.current_stream.text_at(x, self.cursor_y, &ft, size, &cl);
+                self.current_stream
+                    .text_at(x, self.cursor_y, &ft, size, &cl);
                 self.cursor_y -= lh;
                 self.mark_content();
             }
@@ -1167,9 +1530,11 @@ impl PdfCodegen {
 
     fn text_x_for_align(&self, text: &str, font: &str, size: f64, align: &str) -> f64 {
         match align {
-            "center" => self.margin_left + (self.content_width() - text_width(text, font, size)) / 2.0,
-            "right"  => self.page_width - self.margin_right - text_width(text, font, size),
-            _        => self.margin_left,
+            "center" => {
+                self.margin_left + (self.content_width() - text_width(text, font, size)) / 2.0
+            }
+            "right" => self.page_width - self.margin_right - text_width(text, font, size),
+            _ => self.margin_left,
         }
     }
 
@@ -1214,26 +1579,42 @@ impl PdfCodegen {
         for m in &ui.modifiers {
             match m.as_str() {
                 "bold" => font = format!("{}-Bold", font.split('-').next().unwrap_or("Helvetica")),
-                "muted"   => color = (0.4, 0.4, 0.4),
+                "muted" => color = (0.4, 0.4, 0.4),
                 "primary" => color = (0.098, 0.098, 0.647),
-                "danger"  => color = (0.86, 0.21, 0.27),
+                "danger" => color = (0.86, 0.21, 0.27),
                 "success" => color = (0.16, 0.65, 0.27),
                 "warning" => color = (0.90, 0.56, 0.0),
-                "info"    => color = (0.0, 0.47, 0.84),
-                "small"   => size = self.default_font_size * 0.85,
-                "large"   => size = self.default_font_size * 1.25,
-                "center"  => align = "center".to_string(),
-                "right"   => align = "right".to_string(),
+                "info" => color = (0.0, 0.47, 0.84),
+                "small" => size = self.default_font_size * 0.85,
+                "large" => size = self.default_font_size * 1.25,
+                "center" => align = "center".to_string(),
+                "right" => align = "right".to_string(),
                 _ => {}
             }
         }
         if let Some(style) = &ui.style_block {
             for sp in &style.properties {
                 match sp.name.as_str() {
-                    "font-size" => { if let Expr::NumberLiteral(n) = sp.value { size = n; } }
-                    "font-family" | "font" => { if let Expr::StringLiteral(s) = &sp.value { font = s.clone(); } }
-                    "color" => { if let Expr::StringLiteral(s) = &sp.value { color = parse_color(s); } }
-                    "text-align" => { if let Expr::StringLiteral(s) = &sp.value { align = s.clone(); } }
+                    "font-size" => {
+                        if let Expr::NumberLiteral(n) = sp.value {
+                            size = n;
+                        }
+                    }
+                    "font-family" | "font" => {
+                        if let Expr::StringLiteral(s) = &sp.value {
+                            font = s.clone();
+                        }
+                    }
+                    "color" => {
+                        if let Expr::StringLiteral(s) = &sp.value {
+                            color = parse_color(s);
+                        }
+                    }
+                    "text-align" => {
+                        if let Expr::StringLiteral(s) = &sp.value {
+                            align = s.clone();
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -1246,9 +1627,9 @@ impl PdfCodegen {
             match m.as_str() {
                 "primary" => return (0.39, 0.39, 0.95),
                 "success" => return (0.16, 0.65, 0.27),
-                "danger"  => return (0.86, 0.21, 0.27),
+                "danger" => return (0.86, 0.21, 0.27),
                 "warning" => return (0.90, 0.56, 0.0),
-                "info"    => return (0.0, 0.47, 0.84),
+                "info" => return (0.0, 0.47, 0.84),
                 _ => {}
             }
         }
@@ -1282,7 +1663,9 @@ impl PdfCodegen {
         let s = match style {
             Some(s) if container_has_box_styling_pdf(&s) => s,
             _ => {
-                for c in &ui.children { self.emit_statement(c); }
+                for c in &ui.children {
+                    self.emit_statement(c);
+                }
                 return;
             }
         };
@@ -1290,7 +1673,9 @@ impl PdfCodegen {
         let parent_w = self.content_width();
         let outer_x = self.margin_left;
         let mut outer_w = s.width.map(|d| d.resolve(parent_w)).unwrap_or(parent_w);
-        if outer_w > parent_w { outer_w = parent_w; }
+        if outer_w > parent_w {
+            outer_w = parent_w;
+        }
         let explicit_h = s.height.map(|d| d.resolve(self.page_height));
 
         let saved_left = self.margin_left;
@@ -1298,12 +1683,14 @@ impl PdfCodegen {
         let saved_y = self.cursor_y;
 
         let pad = s.padding;
-        self.margin_left  = outer_x + pad.left;
+        self.margin_left = outer_x + pad.left;
         self.margin_right = self.page_width - (outer_x + outer_w) + pad.right;
-        self.cursor_y     -= pad.top;
+        self.cursor_y -= pad.top;
 
         let splice_at = self.current_stream.ops.len();
-        for c in &ui.children { self.emit_statement(c); }
+        for c in &ui.children {
+            self.emit_statement(c);
+        }
         self.cursor_y -= pad.bottom;
 
         self.margin_left = saved_left;
@@ -1323,18 +1710,36 @@ impl PdfCodegen {
         }
     }
 
-    fn register_gradient_pdf(&mut self, g: &LinearGradient, x: f64, y: f64, w: f64, h: f64) -> String {
+    fn register_gradient_pdf(
+        &mut self,
+        g: &LinearGradient,
+        x: f64,
+        y: f64,
+        w: f64,
+        h: f64,
+    ) -> String {
         let tag = format!("Sh{}", self.shadings.len() + 1);
         let ((x0, y0), (x1, y1)) = gradient_endpoints(g.angle_deg, x, y, w, h);
         self.shadings.push(GradientInstance {
             tag: tag.clone(),
-            start: g.start, end: g.end,
-            x0, y0, x1, y1,
+            start: g.start,
+            end: g.end,
+            x0,
+            y0,
+            x1,
+            y1,
         });
         tag
     }
 
-    fn build_box_decoration_pdf(&mut self, s: &StyleProps, x: f64, y: f64, w: f64, h: f64) -> Vec<u8> {
+    fn build_box_decoration_pdf(
+        &mut self,
+        s: &StyleProps,
+        x: f64,
+        y: f64,
+        w: f64,
+        h: f64,
+    ) -> Vec<u8> {
         let mut tmp = ContentStream::new();
         let radius = s.border_radius.unwrap_or(0.0);
 
@@ -1394,7 +1799,10 @@ impl PdfCodegen {
         for prop in unknown {
             let key = format!("{}::{}", component, prop);
             if self.warned_styles.insert(key) {
-                eprintln!("warning[pdf]: unsupported style property '{}' on {}", prop, component);
+                eprintln!(
+                    "warning[pdf]: unsupported style property '{}' on {}",
+                    prop, component
+                );
             }
         }
     }
@@ -1420,16 +1828,26 @@ impl PdfCodegen {
 
         // Fonts
         for (i, (_, bf)) in self.fonts.iter().enumerate() {
-            final_objects.push((font_start + i,
-                format!("<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>", bf).into_bytes()));
+            final_objects.push((
+                font_start + i,
+                format!(
+                    "<< /Type /Font /Subtype /Type1 /BaseFont /{} /Encoding /WinAnsiEncoding >>",
+                    bf
+                )
+                .into_bytes(),
+            ));
         }
 
         // Gradient functions + shading dicts (Type 2 axial).
         for (i, g) in self.shadings.iter().enumerate() {
             let func_obj = format!(
                 "<< /FunctionType 2 /Domain [0 1] /N 1 /C0 [{} {} {}] /C1 [{} {} {}] >>",
-                fmt_f64(g.start.0), fmt_f64(g.start.1), fmt_f64(g.start.2),
-                fmt_f64(g.end.0),   fmt_f64(g.end.1),   fmt_f64(g.end.2),
+                fmt_f64(g.start.0),
+                fmt_f64(g.start.1),
+                fmt_f64(g.start.2),
+                fmt_f64(g.end.0),
+                fmt_f64(g.end.1),
+                fmt_f64(g.end.2),
             );
             final_objects.push((shading_func_start + i, func_obj.into_bytes()));
         }
@@ -1437,7 +1855,11 @@ impl PdfCodegen {
             let func_id = shading_func_start + i;
             let shading_obj = format!(
                 "<< /ShadingType 2 /ColorSpace /DeviceRGB /Coords [{} {} {} {}] /Function {} 0 R /Extend [true true] >>",
-                fmt_f64(g.x0), fmt_f64(g.y0), fmt_f64(g.x1), fmt_f64(g.y1), func_id,
+                fmt_f64(g.x0),
+                fmt_f64(g.y0),
+                fmt_f64(g.x1),
+                fmt_f64(g.y1),
+                func_id,
             );
             final_objects.push((shading_dict_start + i, shading_obj.into_bytes()));
         }
@@ -1454,7 +1876,10 @@ impl PdfCodegen {
         let resources_dict = if shading_entries.is_empty() {
             format!("<< /Font << {} >> >>", fe)
         } else {
-            format!("<< /Font << {} >> /Shading << {} >> >>", fe, shading_entries)
+            format!(
+                "<< /Font << {} >> /Shading << {} >> >>",
+                fe, shading_entries
+            )
         };
         final_objects.push((resources_id, resources_dict.into_bytes()));
 
@@ -1477,8 +1902,19 @@ impl PdfCodegen {
         }
 
         // 2: Pages
-        let kids: Vec<String> = new_page_ids.iter().map(|id| format!("{} 0 R", id)).collect();
-        final_objects.push((2, format!("<< /Type /Pages /Kids [{}] /Count {} >>", kids.join(" "), new_page_ids.len()).into_bytes()));
+        let kids: Vec<String> = new_page_ids
+            .iter()
+            .map(|id| format!("{} 0 R", id))
+            .collect();
+        final_objects.push((
+            2,
+            format!(
+                "<< /Type /Pages /Kids [{}] /Count {} >>",
+                kids.join(" "),
+                new_page_ids.len()
+            )
+            .into_bytes(),
+        ));
 
         final_objects.sort_by_key(|(id, _)| *id);
 
@@ -1496,9 +1932,18 @@ impl PdfCodegen {
         out.extend_from_slice(format!("xref\n0 {}\n", total_objects + 1).as_bytes());
         out.extend_from_slice(b"0000000000 65535 f \n");
         for id in 1..=total_objects {
-            out.extend_from_slice(format!("{:010} 00000 n \n", offsets.get(id).copied().unwrap_or(0)).as_bytes());
+            out.extend_from_slice(
+                format!("{:010} 00000 n \n", offsets.get(id).copied().unwrap_or(0)).as_bytes(),
+            );
         }
-        out.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n", total_objects + 1, xref_offset).as_bytes());
+        out.extend_from_slice(
+            format!(
+                "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n",
+                total_objects + 1,
+                xref_offset
+            )
+            .as_bytes(),
+        );
         out
     }
 }
@@ -1516,18 +1961,29 @@ fn container_has_box_styling_pdf(s: &StyleProps) -> bool {
 }
 
 fn fmt_f64(v: f64) -> String {
-    if v == v.floor() { format!("{:.0}", v) } else { format!("{:.2}", v) }
+    if v == v.floor() {
+        format!("{:.0}", v)
+    } else {
+        format!("{:.2}", v)
+    }
 }
 
 fn char_to_winansi(ch: char) -> u8 {
     match ch {
-        '\u{FFFE}' => b'{', '\u{FFFF}' => b'}',
-        '\u{2014}' => 0x97, '\u{2013}' => 0x96,
-        '\u{2018}' => 0x91, '\u{2019}' => 0x92,
-        '\u{201C}' => 0x93, '\u{201D}' => 0x94,
-        '\u{2022}' => 0x95, '\u{2026}' => 0x85,
-        '\u{2122}' => 0x99, '\u{00A9}' => 0xA9,
-        '\u{00AE}' => 0xAE, '\u{00B0}' => 0xB0,
+        '\u{FFFE}' => b'{',
+        '\u{FFFF}' => b'}',
+        '\u{2014}' => 0x97,
+        '\u{2013}' => 0x96,
+        '\u{2018}' => 0x91,
+        '\u{2019}' => 0x92,
+        '\u{201C}' => 0x93,
+        '\u{201D}' => 0x94,
+        '\u{2022}' => 0x95,
+        '\u{2026}' => 0x85,
+        '\u{2122}' => 0x99,
+        '\u{00A9}' => 0xA9,
+        '\u{00AE}' => 0xAE,
+        '\u{00B0}' => 0xB0,
         '\u{20AC}' => 0x80,
         c if (c as u32) < 256 => c as u8,
         _ => b'?',
@@ -1535,7 +1991,9 @@ fn char_to_winansi(ch: char) -> u8 {
 }
 
 fn text_to_pdf_hex(text: &str) -> String {
-    text.chars().map(|ch| format!("{:02X}", char_to_winansi(ch))).collect()
+    text.chars()
+        .map(|ch| format!("{:02X}", char_to_winansi(ch)))
+        .collect()
 }
 
 fn parse_color(s: &str) -> (f64, f64, f64) {

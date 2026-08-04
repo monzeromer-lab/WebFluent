@@ -1,4 +1,4 @@
-Page Styling (path: "/styling", title: "Design System & Styling") {
+Page Styling (path: "/styling", description: "Themes, design tokens and style blocks.", title: "Design System & Styling") {
     Container(fadeIn) {
         Spacer()
         Heading("Design System & Styling", h1)
@@ -120,17 +120,30 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
         Spacer()
 
         Heading("Themes", h2)
-        Text("4 built-in themes. Set in webfluent.app.json. Each preview below shows the actual colors and style of that theme.")
+        Text("A theme is written in WebFluent, in your own source, next to the code it dresses. Declare one and every built-in component follows it.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Theme Ledger \{\n    token color-primary: \"#0F766E\"\n    token color-secondary: \"#134E4A\"\n    token font-family: \"'Söhne', system-ui, sans-serif\"\n    token radius-md: \"14px\"\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Every token you do not name keeps its baseline value, so a theme is only as large as the difference you want. Declare one theme and it is used automatically; declare several and name the one you want with \"theme\": \{ \"name\": \"Ledger\" \} in webfluent.app.json.", muted, small)
+
+        Spacer()
+
+        Heading("Example themes", h3)
+        Text("Four starting points ship in examples/themes/. Copy one into your src/ and edit it — they are ordinary source files, not engine settings.")
         Spacer(sm)
         Grid(columns: 2, gap: md) {
             Card {
                 Card.Body {
                     Row(gap: sm, align: center) {
-                        Badge("default", primary)
-                        Text("Default", bold)
+                        Badge("baseline", primary)
+                        Text("Baseline", bold)
                     }
                     Spacer(sm)
-                    Text("Clean, modern light theme with blue primary.", muted, small)
+                    Text("What you get with no theme declared: clean, modern, blue primary.", muted, small)
                     Spacer(sm)
                     Row(gap: sm) {
                         Button("Primary", primary, small)
@@ -140,7 +153,7 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
                     Spacer(sm)
                     Progress(value: 65, max: 100, primary)
                     Spacer(sm)
-                    Code("\"theme\": \{ \"name\": \"default\" \}", block)
+                    Text("No declaration needed.", muted, small)
                 }
                 style {
                     background: "#ffffff"
@@ -165,7 +178,7 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
                     Spacer(sm)
                     Progress(value: 80, max: 100, info)
                     Spacer(sm)
-                    Code("\"theme\": \{ \"name\": \"dark\" \}", block)
+                    Code("examples/themes/dark.wf", block)
                 }
                 style {
                     background: "#0F172A"
@@ -190,7 +203,7 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
                     Spacer(sm)
                     Progress(value: 50, max: 100)
                     Spacer(sm)
-                    Code("\"theme\": \{ \"name\": \"minimal\" \}", block)
+                    Code("examples/themes/minimal.wf", block)
                 }
                 style {
                     background: "#ffffff"
@@ -214,7 +227,7 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
                     Spacer(sm)
                     Progress(value: 90, max: 100, danger)
                     Spacer(sm)
-                    Code("\"theme\": \{ \"name\": \"brutalist\" \}", block)
+                    Code("examples/themes/brutalist.wf", block)
                 }
                 style {
                     background: "#ffffff"
@@ -231,11 +244,11 @@ Page Styling (path: "/styling", title: "Design System & Styling") {
         Spacer()
 
         Heading("Custom Tokens", h2)
-        Text("Override any design token in your config to customize the theme.")
+        Text("A theme covers the design. For values a machine supplies — a deploy pipeline injecting a brand colour — config tokens still apply, on top of whatever the theme set.")
         Spacer(sm)
         Card(outlined) {
             Card.Body {
-                Code("\{\n  \"theme\": \{\n    \"name\": \"default\",\n    \"tokens\": \{\n      \"color-primary\": \"#8B5CF6\",\n      \"color-secondary\": \"#EC4899\",\n      \"font-family\": \"Poppins, sans-serif\",\n      \"radius-md\": \"1rem\"\n    \}\n  \}\n\}", block)
+                Code("\{\n  \"theme\": \{\n    \"tokens\": \{\n      \"color-primary\": \"#8B5CF6\"\n    \}\n  \}\n\}", block)
             }
         }
 

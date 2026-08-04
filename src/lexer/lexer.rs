@@ -1,5 +1,5 @@
-use crate::error::{Diagnostic, WebFluentError, Result};
 use super::token::{Token, TokenType, keyword_or_identifier};
+use crate::error::{Diagnostic, Result, WebFluentError};
 
 /// The WebFluent lexer — tokenizes `.wf` source code into a token stream.
 pub struct Lexer {
@@ -149,9 +149,12 @@ impl Lexer {
                         self.advance();
                         t
                     } else {
-                        return Err(WebFluentError::LexerError(
-                            Diagnostic::new("Unexpected character '|', did you mean '||'?", &self.file, self.line, self.column)
-                        ));
+                        return Err(WebFluentError::LexerError(Diagnostic::new(
+                            "Unexpected character '|', did you mean '||'?",
+                            &self.file,
+                            self.line,
+                            self.column,
+                        )));
                     }
                 }
 
@@ -171,9 +174,12 @@ impl Lexer {
                 '@' => self.read_at_rule(),
 
                 _ => {
-                    return Err(WebFluentError::LexerError(
-                        Diagnostic::new(format!("Unexpected character '{}'", ch), &self.file, self.line, self.column)
-                    ));
+                    return Err(WebFluentError::LexerError(Diagnostic::new(
+                        format!("Unexpected character '{}'", ch),
+                        &self.file,
+                        self.line,
+                        self.column,
+                    )));
                 }
             };
 
@@ -240,9 +246,12 @@ impl Lexer {
             }
             self.advance();
         }
-        Err(WebFluentError::LexerError(
-            Diagnostic::new("Unterminated block comment", &self.file, start_line, start_col)
-        ))
+        Err(WebFluentError::LexerError(Diagnostic::new(
+            "Unterminated block comment",
+            &self.file,
+            start_line,
+            start_col,
+        )))
     }
 
     fn single_token(&mut self, token_type: TokenType) -> Token {
@@ -277,9 +286,12 @@ impl Lexer {
             if self.current() == '\\' {
                 self.advance();
                 if self.pos >= self.source.len() {
-                    return Err(WebFluentError::LexerError(
-                        Diagnostic::new("Unterminated string literal", &self.file, start_line, start_col)
-                    ));
+                    return Err(WebFluentError::LexerError(Diagnostic::new(
+                        "Unterminated string literal",
+                        &self.file,
+                        start_line,
+                        start_col,
+                    )));
                 }
                 match self.current() {
                     'n' => value.push('\n'),
@@ -301,13 +313,20 @@ impl Lexer {
         }
 
         if self.pos >= self.source.len() {
-            return Err(WebFluentError::LexerError(
-                Diagnostic::new("Unterminated string literal", &self.file, start_line, start_col)
-            ));
+            return Err(WebFluentError::LexerError(Diagnostic::new(
+                "Unterminated string literal",
+                &self.file,
+                start_line,
+                start_col,
+            )));
         }
 
         self.advance(); // skip closing "
-        Ok(Token::new(TokenType::StringLiteral(value), start_line, start_col))
+        Ok(Token::new(
+            TokenType::StringLiteral(value),
+            start_line,
+            start_col,
+        ))
     }
 
     fn read_number(&mut self) -> Result<Token> {
@@ -340,12 +359,19 @@ impl Lexer {
         }
 
         let value: f64 = num_str.parse().map_err(|_| {
-            WebFluentError::LexerError(
-                Diagnostic::new(format!("Invalid number '{}'", num_str), &self.file, start_line, start_col)
-            )
+            WebFluentError::LexerError(Diagnostic::new(
+                format!("Invalid number '{}'", num_str),
+                &self.file,
+                start_line,
+                start_col,
+            ))
         })?;
 
-        Ok(Token::new(TokenType::NumberLiteral(value), start_line, start_col))
+        Ok(Token::new(
+            TokenType::NumberLiteral(value),
+            start_line,
+            start_col,
+        ))
     }
 
     fn read_identifier(&mut self) -> Result<Token> {
@@ -377,11 +403,18 @@ impl Lexer {
                 }
             }
             if event_name.is_empty() {
-                return Err(WebFluentError::LexerError(
-                    Diagnostic::new("Expected event name after 'on:'", &self.file, start_line, start_col)
-                ));
+                return Err(WebFluentError::LexerError(Diagnostic::new(
+                    "Expected event name after 'on:'",
+                    &self.file,
+                    start_line,
+                    start_col,
+                )));
             }
-            return Ok(Token::new(TokenType::Event(event_name), start_line, start_col));
+            return Ok(Token::new(
+                TokenType::Event(event_name),
+                start_line,
+                start_col,
+            ));
         }
 
         // Check for dot-accessed sub-components like Navbar.Brand, Card.Header, etc.

@@ -1,4 +1,4 @@
-Page Animation (path: "/animation", title: "Animation System") {
+Page Animation (path: "/animation", description: "Transitions, animation modifiers and reduced-motion behaviour.", title: "Animation System") {
     state showCard = false
 
     Container(fadeIn) {

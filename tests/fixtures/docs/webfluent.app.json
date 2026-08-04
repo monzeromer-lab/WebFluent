@@ -1,0 +1,26 @@
+{
+  "name": "docs",
+  "theme": {
+    "name": "minimal"
+  },
+  "build": {
+    "output": "build",
+    "output_type": "static",
+    "ssg": true,
+    "base_path": "/handbook"
+  },
+  "meta": {
+    "title": "Handbook",
+    "description": "The team handbook.",
+    "lang": "en",
+    "site_url": "https://handbook.example",
+    "site_name": "The Handbook"
+  },
+  "i18n": {
+    "default_locale": "en",
+    "locales": [
+      "en",
+      "ar"
+    ]
+  }
+}

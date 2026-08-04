@@ -1,6 +1,7 @@
 //! Design system — theme tokens and the built-in stylesheets.
 //!
-//! - [`get_theme_tokens`] — returns CSS custom properties for a given theme name
+//! - [`resolve_tokens`] — the design tokens a build ships, from its `Theme`
+//!   declaration, the baseline, and any config overrides
 //! - [`component_css`] — the original sheet: layout *and* the engine's baseline design
 //! - [`structural_css`] — the same layout with that baseline design removed
 //!
@@ -9,12 +10,13 @@
 use serde::{Deserialize, Serialize};
 
 pub mod components;
+pub mod resolve;
 pub mod structural;
 pub mod tokens;
 
 pub use components::component_css;
+pub use resolve::resolve_tokens;
 pub use structural::structural_css;
-pub use tokens::get_theme_tokens;
 
 /// How much of the engine's built-in stylesheet a build emits.
 ///

@@ -30,7 +30,12 @@ pub struct Span {
 
 impl Span {
     pub fn new(start: u32, end: u32, line: u32, col: u32) -> Self {
-        Self { start, end, line, col }
+        Self {
+            start,
+            end,
+            line,
+            col,
+        }
     }
 
     /// A placeholder span (all zeros) for nodes constructed outside the parser.
@@ -62,6 +67,32 @@ pub enum Declaration {
     Component(ComponentDecl),
     Store(StoreDecl),
     App(AppDecl),
+    Theme(ThemeDecl),
+}
+
+// ─── Themes ──────────────────────────────────────────────
+
+/// A design system, declared in the language: `Theme Brand { token … }`.
+///
+/// The engine used to ship four named palettes as Rust maps, so the only way to
+/// change a project's design was a JSON file that named one of them or listed
+/// overrides. A theme is design work, and design work belongs next to the code
+/// it dresses — in the same language, under the same review, in the same file
+/// tree as the `style { }` blocks it sits behind.
+#[derive(Debug, Clone)]
+pub struct ThemeDecl {
+    pub name: String,
+    pub tokens: Vec<ThemeToken>,
+    pub span: Span,
+}
+
+/// One design token: `token color-primary: "#0F766E"`.
+#[derive(Debug, Clone)]
+pub struct ThemeToken {
+    /// The token name without the `--` prefix, e.g. `color-primary`.
+    pub name: String,
+    pub value: Expr,
+    pub span: Span,
 }
 
 // ─── Pages ───────────────────────────────────────────────
@@ -74,6 +105,19 @@ pub struct PageDecl {
     pub title: Option<String>,
     pub guard: Option<Expr>,
     pub redirect: Option<String>,
+
+    // ── Search and sharing ──
+    /// The snippet a search result and a link preview show. Falls back to the
+    /// project description; a page with neither has its snippet written for it
+    /// by whatever crawled it.
+    pub description: Option<String>,
+    /// The image a shared link previews with, as a site-relative or absolute URL.
+    pub image: Option<String>,
+    /// `og:type` — `website` for most pages, `article` for a post.
+    pub page_type: Option<String>,
+    /// Keep this page out of search results (`robots: noindex`).
+    pub noindex: bool,
+
     pub body: Vec<Statement>,
 
     // ── Source spans (additive) ──

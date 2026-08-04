@@ -1,0 +1,44 @@
+Page Deck (path: "/", description: "Quarterly review, Q3 2026.", title: "Quarterly Review") {
+    Presentation {
+        TitleSlide {
+            Heading("Quarterly Review", h1)
+            Text("Q3 2026 — Ledger", muted)
+        }
+
+        SectionSlide {
+            Heading("Where we are", h1)
+        }
+
+        Slide {
+            Heading("The numbers", h2)
+            List {
+                Text("Revenue up 34% on Q2")
+                Text("Churn down to 1.8%")
+                Text("Two enterprise accounts signed")
+            }
+        }
+
+        TwoColumn {
+            Column(span: 6) {
+                Heading("What worked", h3)
+                List {
+                    Text("Shipping the reminders feature")
+                    Text("Cutting onboarding to one screen")
+                }
+            }
+            Column(span: 6) {
+                Heading("What did not", h3)
+                List {
+                    Text("The pricing experiment")
+                    Text("Hiring on the timeline we set")
+                }
+            }
+        }
+
+        Slide {
+            Heading("Next quarter", h2)
+            Text("Reconciliation export, then the mobile app.")
+            Blockquote("One big thing, done properly.")
+        }
+    }
+}

@@ -4,25 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internationalization</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="Translations, locales and right-to-left layout.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/i18n">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/i18n?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/i18n?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/i18n">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Internationalization">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Translations, locales and right-to-left layout.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/i18n">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Internationalization">
+    <meta name="twitter:description" content="Translations, locales and right-to-left layout.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/i18n#webpage","url":"https://monzeromer-lab.github.io/WebFluent/i18n","name":"Internationalization","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Translations, locales and right-to-left layout."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Internationalization","item":"https://monzeromer-lab.github.io/WebFluent/i18n"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">Internationalization (i18n)</h1>​
-                <p class="wf-text wf-text--muted">Built-in multi-language support with reactive locale switching and automatic RTL.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Setup</h2>​
-                <p class="wf-text">Create a JSON file per locale in your translations directory.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">// src/translations/en.json
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">Internationalization (i18n)</h1>
+                    <p class="wf-text wf-text--muted">Built-in multi-language support with reactive locale switching and automatic RTL.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Setup</h2>
+                    <p class="wf-text">Create a JSON file per locale in your translations directory.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">// src/translations/en.json
 {
     &quot;greeting&quot;: &quot;Hello, {name}!&quot;,
     &quot;nav.home&quot;: &quot;Home&quot;,
@@ -34,31 +116,31 @@
     &quot;greeting&quot;: &quot;!أهلاً، {name}&quot;,
     &quot;nav.home&quot;: &quot;الرئيسية&quot;,
     &quot;nav.about&quot;: &quot;حول&quot;
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--bold">Add i18n config to webfluent.app.json:</p>​
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">{
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--bold">Add i18n config to webfluent.app.json:</p>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">{
   &quot;i18n&quot;: {
     &quot;defaultLocale&quot;: &quot;en&quot;,
     &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;],
     &quot;dir&quot;: &quot;src/translations&quot;
   }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">The t() Function</h2>​
-                <p class="wf-text">Use t() to look up translated text. It is reactive — all t() calls update when the locale changes.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">// Simple key lookup
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">The t() Function</h2>
+                    <p class="wf-text">Use t() to look up translated text. It is reactive — all t() calls update when the locale changes.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">// Simple key lookup
 Text(t(&quot;nav.home&quot;))
 
 // With interpolation
@@ -66,79 +148,94 @@ Text(t(&quot;greeting&quot;, name: user.name))
 
 // In any component
 Button(t(&quot;actions.save&quot;), primary)
-Heading(t(&quot;page.title&quot;), h1)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Locale Switching</h2>​
-                <p class="wf-text">Switch the locale at runtime with setLocale(). All translated text updates instantly.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Button(&quot;English&quot;) { setLocale(&quot;en&quot;) }
+Heading(t(&quot;page.title&quot;), h1)</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Locale Switching</h2>
+                    <p class="wf-text">Switch the locale at runtime with setLocale(). All translated text updates instantly.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Button(&quot;English&quot;) { setLocale(&quot;en&quot;) }
 Button(&quot;العربية&quot;) { setLocale(&quot;ar&quot;) }
 Button(&quot;Espanol&quot;) { setLocale(&quot;es&quot;) }
 
 // Access current locale
 Text(&quot;Current: {locale}&quot;)
-Text(&quot;Direction: {dir}&quot;)</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">RTL Support</h2>​
-                <p class="wf-text">WebFluent automatically detects RTL locales and updates the document direction.</p>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Locale</td>​
-                        <td>Direction</td>​
-                    </thead>​
-                    <tr>
-                        <td>ar (Arabic)</td>​
-                        <td>RTL</td>​
-                    </tr>​
-                    <tr>
-                        <td>he (Hebrew)</td>​
-                        <td>RTL</td>​
-                    </tr>​
-                    <tr>
-                        <td>fa (Farsi)</td>​
-                        <td>RTL</td>​
-                    </tr>​
-                    <tr>
-                        <td>ur (Urdu)</td>​
-                        <td>RTL</td>​
-                    </tr>​
-                    <tr>
-                        <td>All others</td>​
-                        <td>LTR</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">When setLocale(&quot;ar&quot;) is called, the HTML element gets dir=&quot;rtl&quot; and lang=&quot;ar&quot; automatically.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Fallback Behavior</h2>​
-                <p class="wf-text">If a key is missing in the current locale:</p>​
-                <div class="wf-stack">
-                    <p class="wf-text">1. Falls back to the defaultLocale translation</p>​
-                    <p class="wf-text">2. If still missing, returns the key itself (e.g., &quot;nav.home&quot;)</p>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">SSG + i18n</h2>​
-                <p class="wf-text wf-text--muted">When both SSG and i18n are enabled, pages are pre-rendered with the default locale text. After JavaScript loads, locale switching works normally.</p>​
-                <div class="wf-spacer"></div>
-            </div>​
+Text(&quot;Direction: {dir}&quot;)</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">RTL Support</h2>
+                    <p class="wf-text">WebFluent automatically detects RTL locales and updates the document direction.</p>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Locale</td>
+                            <td>Direction</td>
+                        </thead>
+                        <tr>
+                            <td>ar (Arabic)</td>
+                            <td>RTL</td>
+                        </tr>
+                        <tr>
+                            <td>he (Hebrew)</td>
+                            <td>RTL</td>
+                        </tr>
+                        <tr>
+                            <td>fa (Farsi)</td>
+                            <td>RTL</td>
+                        </tr>
+                        <tr>
+                            <td>ur (Urdu)</td>
+                            <td>RTL</td>
+                        </tr>
+                        <tr>
+                            <td>All others</td>
+                            <td>LTR</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">When setLocale(&quot;ar&quot;) is called, the HTML element gets dir=&quot;rtl&quot; and lang=&quot;ar&quot; automatically.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Fallback Behavior</h2>
+                    <p class="wf-text">If a key is missing in the current locale:</p>
+                    <div class="wf-stack">
+                        <p class="wf-text">1. Falls back to the defaultLocale translation</p>
+                        <p class="wf-text">2. If still missing, returns the key itself (e.g., &quot;nav.home&quot;)</p>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">SSG + i18n</h2>
+                    <p class="wf-text wf-text--muted">When both SSG and i18n are enabled, pages are pre-rendered with the default locale text. After JavaScript loads, locale switching works normally.</p>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

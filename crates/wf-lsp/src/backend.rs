@@ -4,7 +4,7 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 use webfluent::lexer::Lexer;
 use webfluent::linter::lint_accessibility;
-use webfluent::parser::{Declaration, Program, Statement, Parser};
+use webfluent::parser::{Declaration, Parser, Program, Statement, StatementKind};
 
 use crate::completion::provide_completions;
 use crate::diagnostics::publish_diagnostics;
@@ -141,10 +141,7 @@ impl LanguageServer for Backend {
         self.documents.remove(&uri_str);
     }
 
-    async fn completion(
-        &self,
-        params: CompletionParams,
-    ) -> Result<Option<CompletionResponse>> {
+    async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
         let uri_str = params.text_document_position.text_document.uri.to_string();
         let position = params.text_document_position.position;
 
@@ -198,28 +195,18 @@ fn build_document_symbols(program: &Program) -> Vec<SymbolInformation> {
 
     for decl in &program.declarations {
         match decl {
+            // Themes and stores contribute no document symbols.
+            Declaration::Theme(_) => {}
             Declaration::Page(page) => {
-                symbols.push(make_symbol(
-                    &page.name,
-                    SymbolKind::CLASS,
-                    "Page",
-                ));
+                symbols.push(make_symbol(&page.name, SymbolKind::CLASS, "Page"));
                 collect_body_symbols(&page.body, &mut symbols);
             }
             Declaration::Component(comp) => {
-                symbols.push(make_symbol(
-                    &comp.name,
-                    SymbolKind::CLASS,
-                    "Component",
-                ));
+                symbols.push(make_symbol(&comp.name, SymbolKind::CLASS, "Component"));
                 collect_body_symbols(&comp.body, &mut symbols);
             }
             Declaration::Store(store) => {
-                symbols.push(make_symbol(
-                    &store.name,
-                    SymbolKind::MODULE,
-                    "Store",
-                ));
+                symbols.push(make_symbol(&store.name, SymbolKind::MODULE, "Store"));
                 collect_body_symbols(&store.body, &mut symbols);
             }
             Declaration::App(_app) => {
@@ -233,27 +220,17 @@ fn build_document_symbols(program: &Program) -> Vec<SymbolInformation> {
 
 fn collect_body_symbols(stmts: &[Statement], symbols: &mut Vec<SymbolInformation>) {
     for stmt in stmts {
-        match stmt {
-            Statement::State(s) => {
-                symbols.push(make_symbol(
-                    &s.name,
-                    SymbolKind::VARIABLE,
-                    "state",
-                ));
+        // A `Statement` carries its span alongside the kind; matching the kind
+        // directly is what this used to do, before spans were added.
+        match &stmt.kind {
+            StatementKind::State(s) => {
+                symbols.push(make_symbol(&s.name, SymbolKind::VARIABLE, "state"));
             }
-            Statement::Derived(d) => {
-                symbols.push(make_symbol(
-                    &d.name,
-                    SymbolKind::VARIABLE,
-                    "derived",
-                ));
+            StatementKind::Derived(d) => {
+                symbols.push(make_symbol(&d.name, SymbolKind::VARIABLE, "derived"));
             }
-            Statement::Action(a) => {
-                symbols.push(make_symbol(
-                    &a.name,
-                    SymbolKind::FUNCTION,
-                    "action",
-                ));
+            StatementKind::Action(a) => {
+                symbols.push(make_symbol(&a.name, SymbolKind::FUNCTION, "action"));
             }
             _ => {}
         }

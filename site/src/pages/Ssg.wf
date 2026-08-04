@@ -1,4 +1,4 @@
-Page Ssg (path: "/ssg", title: "Static Site Generation") {
+Page Ssg (path: "/ssg", description: "Pre-render every route to static HTML.", title: "Static Site Generation") {
     Container(fadeIn) {
         Spacer()
         Heading("Static Site Generation (SSG)", h1)

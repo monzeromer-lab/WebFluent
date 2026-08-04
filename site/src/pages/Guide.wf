@@ -1,4 +1,4 @@
-Page Guide (path: "/guide", title: "Language Guide") {
+Page Guide (path: "/guide", description: "The language, end to end: pages, components, state and routing.", title: "Language Guide") {
     Container(fadeIn) {
         Spacer()
         Heading("Language Guide", h1)

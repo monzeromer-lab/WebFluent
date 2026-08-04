@@ -68,11 +68,12 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         // ─── Feedback ────────────────────────────────────
         "Alert" => ("div", "wf-alert"),
         "Toast" => ("div", "wf-toast"),
-        // `div`, not `dialog`: the stylesheet drives visibility with an `.open`
-        // class (`.wf-modal.open { display: flex }`), which a `<dialog>` would
-        // fight with its own `open` attribute and UA styles.
-        "Modal" => ("div", "wf-modal"),
-        "Dialog" => ("div", "wf-dialog"),
+        // `<dialog>`, driven by `showModal()`. The browser then supplies focus
+        // trapping, an inert background, Escape-to-close, `aria-modal` and the
+        // `::backdrop` — every one of which a `div` with an `.open` class has to
+        // reimplement, and none of which this engine had.
+        "Modal" => ("dialog", "wf-modal"),
+        "Dialog" => ("dialog", "wf-dialog"),
         "Spinner" => ("div", "wf-spinner"),
         "Progress" => ("progress", "wf-progress"),
         "Skeleton" => ("div", "wf-skeleton"),
@@ -176,16 +177,16 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "bordered" => format!("{}--bordered", base_class),
 
         // ─── Attributes, not classes ─────────────────────
-        "text" | "email" | "password" | "number" | "search" | "tel" | "url"
-        | "date" | "time" | "datetime" | "color" | "submit" | "reset"
-        | "required" | "controls" | "autoplay" => String::new(),
+        "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"
+        | "datetime" | "color" | "submit" | "reset" | "required" | "controls" | "autoplay" => {
+            String::new()
+        }
 
         // ─── Animation ───────────────────────────────────
         // Pure CSS keyframes, so they apply in static output too. The template
         // renderer used to drop them on the grounds that it emits no JS.
-        "fadeIn" | "fadeOut" | "slideUp" | "slideDown" | "slideLeft"
-        | "slideRight" | "scaleIn" | "scaleOut" | "bounce" | "shake" | "pulse"
-        | "spin" => format!("wf-animate-{}", modifier),
+        "fadeIn" | "fadeOut" | "slideUp" | "slideDown" | "slideLeft" | "slideRight" | "scaleIn"
+        | "scaleOut" | "bounce" | "shake" | "pulse" | "spin" => format!("wf-animate-{}", modifier),
         "fast" => "wf-animate--fast".to_string(),
         "slow" => "wf-animate--slow".to_string(),
 
@@ -251,10 +252,46 @@ pub fn input_type(modifier: &str) -> Option<&'static str> {
     })
 }
 
+/// The implicit ARIA role a built-in carries, if the tag does not already give
+/// it one.
+///
+/// An `Alert` is a live region: a screen reader has to be told about it when it
+/// appears, or the user never learns the thing failed. `role="alert"` is
+/// assertive and interrupts, which is right for a failure and wrong for a
+/// confirmation — so the severity picks between `alert` and the polite `status`.
+/// A landmark's accessible name, where the tag alone leaves it ambiguous.
+///
+/// `Navbar` and `Breadcrumb` both render `<nav>`, and a page with both gives a
+/// screen-reader user two identical "navigation" entries to choose between.
+pub fn landmark_label(name: &str) -> Option<&'static str> {
+    match name {
+        "Navbar" => Some("Main"),
+        "Breadcrumb" => Some("Breadcrumb"),
+        _ => None,
+    }
+}
+
+pub fn implicit_role(name: &str, modifiers: &[String]) -> Option<&'static str> {
+    match name {
+        "Alert" => Some(
+            if modifiers
+                .iter()
+                .any(|m| m == "danger" || m == "error" || m == "warning")
+            {
+                "alert"
+            } else {
+                "status"
+            },
+        ),
+        "Spinner" => Some("status"),
+        _ => None,
+    }
+}
+
 /// HTML void elements — no children, no closing tag.
 pub const VOID_ELEMENTS: &[&str] = &[
-    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
-    "param", "source", "track", "wbr",
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
+    "track", "wbr",
 ];
 
 /// Whether `tag` is a void element, and so cannot be given children.
@@ -297,7 +334,10 @@ mod tests {
 
     #[test]
     fn class_list_starts_with_the_base_class_and_drops_empties() {
-        let classes = class_list("wf-btn", &["primary".into(), "medium".into(), "large".into()]);
+        let classes = class_list(
+            "wf-btn",
+            &["primary".into(), "medium".into(), "large".into()],
+        );
         assert_eq!(classes, vec!["wf-btn", "wf-btn--primary", "wf-btn--large"]);
     }
 
@@ -305,7 +345,10 @@ mod tests {
     fn a_classless_component_yields_no_class_at_all() {
         let (tag, class) = builtin_to_html("Thead");
         assert_eq!((tag, class), ("thead", ""));
-        assert!(class_list(class, &[]).is_empty(), "no empty class attribute");
+        assert!(
+            class_list(class, &[]).is_empty(),
+            "no empty class attribute"
+        );
     }
 
     #[test]

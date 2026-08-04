@@ -80,8 +80,16 @@ fn group_suffixes(group: &str) -> &'static [&'static str] {
         "spacing" => &["xs", "sm", "md", "lg", "xl", "2xl", "3xl"],
         // `text-muted` can't be a bare identifier (the `-`), so it's not listed.
         "color" => &[
-            "primary", "secondary", "success", "danger", "warning", "info", "background", "surface",
-            "text", "border",
+            "primary",
+            "secondary",
+            "success",
+            "danger",
+            "warning",
+            "info",
+            "background",
+            "surface",
+            "text",
+            "border",
         ],
         "radius" => &["none", "sm", "md", "lg", "xl", "full"],
         "shadow" => &["none", "sm", "md", "lg", "xl"],
@@ -103,18 +111,42 @@ mod tests {
     fn resolves_font_size_token() {
         // The exact case from the field report: `font-size: xl` must become a token
         // reference, not a `_xl()` signal call.
-        assert_eq!(resolve_style_token("font-size", &ident("xl")).as_deref(), Some("var(--font-size-xl)"));
-        assert_eq!(resolve_style_token("font-size", &ident("base")).as_deref(), Some("var(--font-size-base)"));
+        assert_eq!(
+            resolve_style_token("font-size", &ident("xl")).as_deref(),
+            Some("var(--font-size-xl)")
+        );
+        assert_eq!(
+            resolve_style_token("font-size", &ident("base")).as_deref(),
+            Some("var(--font-size-base)")
+        );
     }
 
     #[test]
     fn resolves_spacing_color_radius_shadow() {
-        assert_eq!(resolve_style_token("padding", &ident("md")).as_deref(), Some("var(--spacing-md)"));
-        assert_eq!(resolve_style_token("padding-inline-start", &ident("lg")).as_deref(), Some("var(--spacing-lg)"));
-        assert_eq!(resolve_style_token("background", &ident("surface")).as_deref(), Some("var(--color-surface)"));
-        assert_eq!(resolve_style_token("color", &ident("primary")).as_deref(), Some("var(--color-primary)"));
-        assert_eq!(resolve_style_token("border-radius", &ident("md")).as_deref(), Some("var(--radius-md)"));
-        assert_eq!(resolve_style_token("box-shadow", &ident("lg")).as_deref(), Some("var(--shadow-lg)"));
+        assert_eq!(
+            resolve_style_token("padding", &ident("md")).as_deref(),
+            Some("var(--spacing-md)")
+        );
+        assert_eq!(
+            resolve_style_token("padding-inline-start", &ident("lg")).as_deref(),
+            Some("var(--spacing-lg)")
+        );
+        assert_eq!(
+            resolve_style_token("background", &ident("surface")).as_deref(),
+            Some("var(--color-surface)")
+        );
+        assert_eq!(
+            resolve_style_token("color", &ident("primary")).as_deref(),
+            Some("var(--color-primary)")
+        );
+        assert_eq!(
+            resolve_style_token("border-radius", &ident("md")).as_deref(),
+            Some("var(--radius-md)")
+        );
+        assert_eq!(
+            resolve_style_token("box-shadow", &ident("lg")).as_deref(),
+            Some("var(--shadow-lg)")
+        );
     }
 
     #[test]
@@ -137,7 +169,13 @@ mod tests {
         // A property with no token group.
         assert_eq!(resolve_style_token("z-index", &ident("xl")), None);
         // A quoted/number value is never a token (only bare identifiers are).
-        assert_eq!(resolve_style_token("font-size", &Expr::StringLiteral("1.25rem".into())), None);
-        assert_eq!(resolve_style_token("padding", &Expr::NumberLiteral(16.0)), None);
+        assert_eq!(
+            resolve_style_token("font-size", &Expr::StringLiteral("1.25rem".into())),
+            None
+        );
+        assert_eq!(
+            resolve_style_token("padding", &Expr::NumberLiteral(16.0)),
+            None
+        );
     }
 }

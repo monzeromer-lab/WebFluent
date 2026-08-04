@@ -339,7 +339,7 @@ The design system is built on **tokens** — named values for colors, spacing, t
 Changing the entire design is a one-line change:
 
 ```json
-{ "theme": { "name": "dark" } }
+Theme dark { token color-background: "#0F172A" }
 ```
 
 Or use a custom theme:

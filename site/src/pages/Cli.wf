@@ -1,4 +1,4 @@
-Page Cli (path: "/cli", title: "CLI Reference") {
+Page Cli (path: "/cli", description: "Every wf command and what it does.", title: "CLI Reference") {
     Container(fadeIn) {
         Spacer()
         Heading("CLI Reference", h1)

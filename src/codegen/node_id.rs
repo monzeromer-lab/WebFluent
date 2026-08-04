@@ -23,8 +23,8 @@
 //! target of a `data-wf-node` click), and it keeps the sidecar a faithful index
 //! of the source rather than only of the rendered subset.
 
+use crate::parser::ast::{Declaration, Program, Span, Statement, StatementKind, UIElement};
 use std::collections::HashMap;
-use crate::parser::ast::{Program, Declaration, Statement, StatementKind, UIElement, Span};
 
 /// A node's path id, e.g. `"Home:2.0.3"`.
 pub type NodeId = String;
@@ -79,7 +79,11 @@ impl NodeMap {
         self.by_span.insert(span, id.clone());
         self.nodes.insert(
             id.clone(),
-            NodeInfo { span, path: id, component: component.to_string() },
+            NodeInfo {
+                span,
+                path: id,
+                component: component.to_string(),
+            },
         );
     }
 }
@@ -118,8 +122,8 @@ pub fn visit_nodes<'a>(program: &'a Program, visit: &mut dyn FnMut(&'a UIElement
             Declaration::Page(p) => (&p.body, p.name.as_str(), "page"),
             Declaration::Component(c) => (&c.body, c.name.as_str(), "component"),
             Declaration::App(a) => (&a.body, "App", "app"),
-            // Stores hold no UI.
-            Declaration::Store(_) => continue,
+            // Stores and themes hold no UI.
+            Declaration::Store(_) | Declaration::Theme(_) => continue,
         };
         let owner = if name_counts.get(name).copied().unwrap_or(0) > 1 {
             format!("{}#{}", name, kind)
@@ -136,13 +140,18 @@ fn decl_owner_name(decl: &Declaration) -> Option<&str> {
         Declaration::Page(p) => Some(&p.name),
         Declaration::Component(c) => Some(&c.name),
         Declaration::App(_) => Some("App"),
-        Declaration::Store(_) => None,
+        Declaration::Store(_) | Declaration::Theme(_) => None,
     }
 }
 
 /// Walk a statement list, numbering each statement by its position. The first
 /// level of a declaration uses `Comp:i`; deeper levels append `.i`.
-fn walk_body<'a>(stmts: &'a [Statement], component: &str, prefix: Option<&str>, visit: &mut dyn FnMut(&'a UIElement, &str, &str)) {
+fn walk_body<'a>(
+    stmts: &'a [Statement],
+    component: &str,
+    prefix: Option<&str>,
+    visit: &mut dyn FnMut(&'a UIElement, &str, &str),
+) {
     for (i, stmt) in stmts.iter().enumerate() {
         let seg = match prefix {
             None => format!("{}:{}", component, i),
@@ -157,7 +166,12 @@ fn walk_body<'a>(stmts: &'a [Statement], component: &str, prefix: Option<&str>, 
 /// Single-body control flow (`for`/`show`) indexes its body directly under `seg`.
 /// Multi-body statements (`if`/`fetch`) insert a short branch discriminator so a
 /// then-branch child cannot collide with an else-branch child.
-fn walk_stmt<'a>(stmt: &'a Statement, component: &str, seg: &str, visit: &mut dyn FnMut(&'a UIElement, &str, &str)) {
+fn walk_stmt<'a>(
+    stmt: &'a Statement,
+    component: &str,
+    seg: &str,
+    visit: &mut dyn FnMut(&'a UIElement, &str, &str),
+) {
     match &stmt.kind {
         StatementKind::UIElement(ui) => {
             visit(ui, seg, component);
@@ -166,7 +180,12 @@ fn walk_stmt<'a>(stmt: &'a Statement, component: &str, seg: &str, visit: &mut dy
         StatementKind::For(f) => walk_body(&f.body, component, Some(seg), visit),
         StatementKind::Show(s) => walk_body(&s.body, component, Some(seg), visit),
         StatementKind::If(if_stmt) => {
-            walk_body(&if_stmt.then_body, component, Some(&format!("{}.t", seg)), visit);
+            walk_body(
+                &if_stmt.then_body,
+                component,
+                Some(&format!("{}.t", seg)),
+                visit,
+            );
             for (k, (_, body)) in if_stmt.else_if_branches.iter().enumerate() {
                 walk_body(body, component, Some(&format!("{}.ei{}", seg, k)), visit);
             }
@@ -196,12 +215,13 @@ mod tests {
     //! studio compiles stamp `data-wf-node`; export compiles do not; and the JS
     //! and SSG generators agree on the id for any node they both stamp.
     use super::*;
+    use crate::codegen::JsCodegen;
+    use crate::codegen::ssg::SiteContext;
+    use crate::codegen::ssg::{render_page_html, render_page_html_studio};
+    use crate::config::ProjectConfig;
     use crate::lexer::Lexer;
     use crate::parser::Parser;
     use crate::parser::ast::PageDecl;
-    use crate::codegen::JsCodegen;
-    use crate::codegen::ssg::{render_page_html, render_page_html_studio};
-    use crate::config::ProjectConfig;
 
     fn program(src: &str) -> Program {
         let toks = Lexer::new(src, "<test>").tokenize().expect("lex");
@@ -213,10 +233,13 @@ mod tests {
     }
 
     fn first_page(p: &Program) -> &PageDecl {
-        p.declarations.iter().find_map(|d| match d {
-            Declaration::Page(pg) => Some(pg),
-            _ => None,
-        }).expect("a page")
+        p.declarations
+            .iter()
+            .find_map(|d| match d {
+                Declaration::Page(pg) => Some(pg),
+                _ => None,
+            })
+            .expect("a page")
     }
 
     const SRC: &str = "Page Home (path: \"/\") {\n\
@@ -251,8 +274,14 @@ mod tests {
         let p = program(SRC);
         let a = build_node_map(&p);
         let b = build_node_map(&p);
-        let mut va: Vec<_> = a.iter().map(|(id, i)| (id.clone(), i.span.start, i.span.end)).collect();
-        let mut vb: Vec<_> = b.iter().map(|(id, i)| (id.clone(), i.span.start, i.span.end)).collect();
+        let mut va: Vec<_> = a
+            .iter()
+            .map(|(id, i)| (id.clone(), i.span.start, i.span.end))
+            .collect();
+        let mut vb: Vec<_> = b
+            .iter()
+            .map(|(id, i)| (id.clone(), i.span.start, i.span.end))
+            .collect();
         va.sort();
         vb.sort();
         assert_eq!(va, vb);
@@ -273,10 +302,19 @@ mod tests {
         let p = program(src);
         let map = build_node_map(&p);
         // if is statement 0: then -> P:0.t.0, else -> P:0.e.0 (no collision).
-        assert_eq!(map.info("P:0.t.0").map(|i| i.span.slice(src)), Some("Text(\"then\")"));
-        assert_eq!(map.info("P:0.e.0").map(|i| i.span.slice(src)), Some("Text(\"else\")"));
+        assert_eq!(
+            map.info("P:0.t.0").map(|i| i.span.slice(src)),
+            Some("Text(\"then\")")
+        );
+        assert_eq!(
+            map.info("P:0.e.0").map(|i| i.span.slice(src)),
+            Some("Text(\"else\")")
+        );
         // for is statement 1: body -> P:1.0
-        assert_eq!(map.info("P:1.0").map(|i| i.span.slice(src)), Some("Text(\"row\")"));
+        assert_eq!(
+            map.info("P:1.0").map(|i| i.span.slice(src)),
+            Some("Text(\"row\")")
+        );
     }
 
     #[test]
@@ -304,11 +342,11 @@ mod tests {
         let page = first_page(&p);
         let cfg = config();
 
-        let studio_html = render_page_html_studio(page, &cfg, None, &Default::default(), true, &map, &Default::default());
+        let studio_html = render_page_html_studio(page, &SiteContext::bare(&cfg, &p), true, &map);
         assert!(studio_html.contains("data-wf-node=\"Home:0.0\""));
         assert!(studio_html.contains("data-wf-node=\"Home:0.1\""));
 
-        let export_html = render_page_html(page, &cfg, None, &Default::default(), &Default::default());
+        let export_html = render_page_html(page, &SiteContext::bare(&cfg, &p));
         assert!(!export_html.contains("data-wf-node"));
     }
 
@@ -331,13 +369,16 @@ mod tests {
         let js = jsgen.generate(&p);
 
         for comp in ["Switch", "Checkbox", "Modal", "Dropdown", "Tabs"] {
-            let id = map.iter()
+            let id = map
+                .iter()
                 .find(|(_, info)| info.span.slice(src).starts_with(comp))
                 .map(|(id, _)| id.clone())
                 .unwrap_or_else(|| panic!("no map entry for {}", comp));
             assert!(
                 js.contains(&format!("\"data-wf-node\": \"{}\"", id)),
-                "{} root (id {}) not stamped", comp, id
+                "{} root (id {}) not stamped",
+                comp,
+                id
             );
         }
     }
@@ -351,12 +392,20 @@ mod tests {
         let mut jsgen = JsCodegen::new();
         jsgen.set_studio(map.clone());
         let js = jsgen.generate(&p);
-        let html = render_page_html_studio(page, &config(), None, &Default::default(), true, &map, &Default::default());
+        let html = render_page_html_studio(page, &SiteContext::bare(&config(), &p), true, &map);
 
         // The Heading's id is produced by the one shared map, so both stamp the same string.
         for id in ["Home:0", "Home:0.0", "Home:0.1"] {
-            assert!(js.contains(&format!("\"data-wf-node\": \"{}\"", id)), "js missing {}", id);
-            assert!(html.contains(&format!("data-wf-node=\"{}\"", id)), "html missing {}", id);
+            assert!(
+                js.contains(&format!("\"data-wf-node\": \"{}\"", id)),
+                "js missing {}",
+                id
+            );
+            assert!(
+                html.contains(&format!("data-wf-node=\"{}\"", id)),
+                "html missing {}",
+                id
+            );
         }
     }
 
@@ -367,7 +416,10 @@ mod tests {
                    Page Profile (path: \"/me\") { Container { Heading(\"Me\", h1) } }\n";
         let p = program(src);
         let map = build_node_map(&p);
-        assert!(map.info("Profile#component:0").is_some(), "component node id");
+        assert!(
+            map.info("Profile#component:0").is_some(),
+            "component node id"
+        );
         assert!(map.info("Profile#page:0").is_some(), "page node id");
         assert!(map.info("Profile#page:0.0").is_some(), "page child id");
         // All ids distinct (no collision-collapse).
@@ -388,7 +440,8 @@ mod tests {
                    }\n";
         let p = program(src);
         let map = build_node_map(&p);
-        let row_id = map.iter()
+        let row_id = map
+            .iter()
             .find(|(_, i)| i.span.slice(src).starts_with("Row"))
             .map(|(id, _)| id.clone())
             .expect("Row wrapper id");
@@ -396,14 +449,39 @@ mod tests {
         let mut jsgen = JsCodegen::new();
         jsgen.set_studio(map.clone());
         let js = jsgen.generate(&p);
-        assert!(js.contains(&format!("\"data-wf-node\": \"{}\"", row_id)), "JS app wrapper not stamped");
+        assert!(
+            js.contains(&format!("\"data-wf-node\": \"{}\"", row_id)),
+            "JS app wrapper not stamped"
+        );
 
         let page = first_page(&p);
-        let app_body: Vec<Statement> = p.declarations.iter()
-            .find_map(|d| if let Declaration::App(a) = d { Some(a.body.clone()) } else { None })
+        let app_body: Vec<Statement> = p
+            .declarations
+            .iter()
+            .find_map(|d| {
+                if let Declaration::App(a) = d {
+                    Some(a.body.clone())
+                } else {
+                    None
+                }
+            })
             .expect("app body");
-        let html = render_page_html_studio(page, &config(), Some(&app_body), &Default::default(), true, &map, &Default::default());
-        assert!(html.contains(&format!("data-wf-node=\"{}\"", row_id)), "SSG app wrapper not stamped");
+        let html = render_page_html_studio(
+            page,
+            &SiteContext {
+                config: &config(),
+                app_body: Some(&app_body),
+                translations: &Default::default(),
+                components: &Default::default(),
+                program: &p,
+            },
+            true,
+            &map,
+        );
+        assert!(
+            html.contains(&format!("data-wf-node=\"{}\"", row_id)),
+            "SSG app wrapper not stamped"
+        );
     }
 
     #[test]
@@ -424,12 +502,25 @@ mod tests {
         jsgen.set_studio(map.clone());
         let js = jsgen.generate(&p);
 
-        for needle in ["Sidebar.Header", "Sidebar.Item", "TabPage", "Breadcrumb.Item", "Carousel.Slide", "Modal.Footer"] {
-            let id = map.iter()
+        for needle in [
+            "Sidebar.Header",
+            "Sidebar.Item",
+            "TabPage",
+            "Breadcrumb.Item",
+            "Carousel.Slide",
+            "Modal.Footer",
+        ] {
+            let id = map
+                .iter()
                 .find(|(_, i)| i.span.slice(src).starts_with(needle))
                 .map(|(id, _)| id.clone())
                 .unwrap_or_else(|| panic!("no map entry for {}", needle));
-            assert!(js.contains(&format!("\"data-wf-node\": \"{}\"", id)), "{} not stamped in JS (id {})", needle, id);
+            assert!(
+                js.contains(&format!("\"data-wf-node\": \"{}\"", id)),
+                "{} not stamped in JS (id {})",
+                needle,
+                id
+            );
         }
     }
 }

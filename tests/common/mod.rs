@@ -14,12 +14,13 @@
 
 use std::collections::HashMap;
 
-use webfluent::codegen::{render_page_html, JsCodegen};
+use webfluent::Template;
+use webfluent::codegen::ssg::SiteContext;
+use webfluent::codegen::{JsCodegen, render_page_html};
 use webfluent::config::ProjectConfig;
 use webfluent::lexer::Lexer;
-use webfluent::parser::ast::*;
 use webfluent::parser::Parser;
-use webfluent::Template;
+use webfluent::parser::ast::*;
 
 /// Which renderer produced an element. Reported in assertion messages so a
 /// failure names the backend that drifted.
@@ -114,14 +115,23 @@ pub fn ssg_html(src: &str) -> String {
     let page = program
         .declarations
         .iter()
-        .find_map(|d| if let Declaration::Page(p) = d { Some(p) } else { None })
+        .find_map(|d| {
+            if let Declaration::Page(p) = d {
+                Some(p)
+            } else {
+                None
+            }
+        })
         .expect("source must declare a page");
     render_page_html(
         page,
-        &test_config(),
-        app_body.as_deref(),
-        &HashMap::new(),
-        &components,
+        &SiteContext {
+            config: &test_config(),
+            app_body: app_body.as_deref(),
+            translations: &HashMap::new(),
+            components: &components,
+            program: &program,
+        },
     )
 }
 
@@ -173,13 +183,23 @@ pub fn first_with_class(backend: Backend, src: &str, class: &str) -> Option<Elem
 }
 
 /// Drop the SSG document shell so only the page body remains.
+///
+/// The shell is `<div id="app">` wrapping a `<main id="wf-main">` landmark; both
+/// are structure the renderer supplies, not the component under test.
 fn strip_document(html: &str) -> String {
-    match html.split_once("<div id=\"app\">") {
+    let body = match html.split_once("<div id=\"app\">") {
         Some((_, rest)) => rest
             .rsplit_once("</div>")
             .map(|(body, _)| body.to_string())
             .unwrap_or_else(|| rest.to_string()),
         None => html.to_string(),
+    };
+    match body.split_once("<main id=\"wf-main\">") {
+        Some((_, rest)) => rest
+            .rsplit_once("</main>")
+            .map(|(inner, _)| inner.to_string())
+            .unwrap_or(rest.to_string()),
+        None => body,
     }
 }
 
@@ -268,10 +288,11 @@ fn extract_js_class(obj: &str) -> String {
     let inner = obj.trim().trim_start_matches('{').trim_end_matches('}');
     // Take only the `className` property, not every string in the object —
     // `src:`/`alt:` values are not classes.
-    let Some(prop) = split_top_level_commas(inner)
-        .into_iter()
-        .find(|p| p.trim_start().trim_start_matches('"').starts_with("className"))
-    else {
+    let Some(prop) = split_top_level_commas(inner).into_iter().find(|p| {
+        p.trim_start()
+            .trim_start_matches('"')
+            .starts_with("className")
+    }) else {
         return String::new();
     };
     let Some((_, value)) = prop.split_once(':') else {
@@ -395,7 +416,11 @@ fn parse_html_attrs(s: &str) -> HashMap<String, String> {
             i += 1;
         }
         let name_start = i;
-        while i < bytes.len() && bytes[i] != b'=' && !bytes[i].is_ascii_whitespace() && bytes[i] != b'>' {
+        while i < bytes.len()
+            && bytes[i] != b'='
+            && !bytes[i].is_ascii_whitespace()
+            && bytes[i] != b'>'
+        {
             i += 1;
         }
         if name_start == i {
@@ -446,8 +471,8 @@ fn split_classes(s: &str) -> Vec<String> {
 
 /// HTML void elements — must never be given children or a closing tag.
 pub const VOID_ELEMENTS: &[&str] = &[
-    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
-    "param", "source", "track", "wbr",
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
+    "track", "wbr",
 ];
 
 /// Every modifier the parser accepts, from the single-source vocabulary table.
@@ -457,7 +482,7 @@ pub fn all_modifiers() -> Vec<&'static str> {
 
 /// The full stylesheet a default build ships.
 pub fn built_in_css() -> String {
-    webfluent::codegen::generate_css("default", &HashMap::new())
+    webfluent::codegen::generate_css(&webfluent::themes::tokens::default_tokens())
 }
 
 /// Whether the built-in stylesheet defines a rule for `class`.

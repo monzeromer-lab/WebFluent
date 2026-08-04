@@ -26,10 +26,10 @@
 //! gate is worse than missing one. A runtime `ReferenceError`, surfaced by the
 //! preview's runtime-error bridge, is the backstop for those.
 
-use std::collections::HashSet;
 use crate::error::Diagnostic;
-use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef};
 use crate::parser::ast::{Arg, Expr, Span};
+use crate::parser::{ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
+use std::collections::HashSet;
 
 /// Run every semantic check over a parsed program, returning one [`Diagnostic`]
 /// per problem (empty = clean), in declaration order.
@@ -49,7 +49,8 @@ pub fn validate_semantics(program: &Program, file: &str) -> Vec<Diagnostic> {
             Declaration::Page(p) => &p.body,
             Declaration::Component(c) => &c.body,
             Declaration::App(a) => &a.body,
-            Declaration::Store(_) => continue, // stores hold no UI
+            // Neither holds UI.
+            Declaration::Store(_) | Declaration::Theme(_) => continue,
         };
         walk_stmts(body, &pages, &components, file, &mut diags);
     }
@@ -104,7 +105,9 @@ fn check_dupes<'a>(
         if !seen.insert(name) {
             diags.push(
                 diag(
-                    format!("duplicate {kind} `{name}`: a {kind} with this name is already declared"),
+                    format!(
+                        "duplicate {kind} `{name}`: a {kind} with this name is already declared"
+                    ),
                     file,
                     span,
                 )
@@ -174,7 +177,9 @@ fn check_element(
                     file,
                     ui.span,
                 )
-                .with_hint(format!("declare `Component {name} {{ … }}` or check the spelling")),
+                .with_hint(format!(
+                    "declare `Component {name} {{ … }}` or check the spelling"
+                )),
             );
         }
     }
@@ -197,11 +202,15 @@ fn check_routes(program: &Program, pages: &HashSet<&str>, file: &str, diags: &mu
             if !pages.contains(page) {
                 diags.push(
                     diag(
-                        format!("Route targets unknown page `{page}`: no `Page {page}` is declared"),
+                        format!(
+                            "Route targets unknown page `{page}`: no `Page {page}` is declared"
+                        ),
                         file,
                         span,
                     )
-                    .with_hint(format!("declare `Page {page} (path: …) {{ … }}` or fix the `page:` name")),
+                    .with_hint(format!(
+                        "declare `Page {page} (path: …) {{ … }}` or fix the `page:` name"
+                    )),
                 );
             }
         }
@@ -283,7 +292,11 @@ mod tests {
         let src = "Page Home (path: \"/\") {\n  Container {\n    ProfileCard()\n  }\n}\n";
         let diags = check(src);
         assert_eq!(diags.len(), 1);
-        assert!(diags[0].message.contains("ProfileCard"), "msg: {}", diags[0].message);
+        assert!(
+            diags[0].message.contains("ProfileCard"),
+            "msg: {}",
+            diags[0].message
+        );
         assert_eq!(diags[0].line, 3, "line of the undefined component");
     }
 
@@ -309,7 +322,11 @@ mod tests {
                    App { Router { Route(path: \"/x\", page: Missing) } }\n";
         let diags = check(src);
         assert_eq!(diags.len(), 1, "diags: {:?}", diags);
-        assert!(diags[0].message.contains("Missing"), "msg: {}", diags[0].message);
+        assert!(
+            diags[0].message.contains("Missing"),
+            "msg: {}",
+            diags[0].message
+        );
     }
 
     #[test]
@@ -327,7 +344,11 @@ mod tests {
         let src = "Page Home (path: \"/\") { Text(\"hi\") }\n\
                    App {\n  Router { Route(path: \"/\", page: Home) }\n  \
                    Router { Route(path: \"/x\", page: Ghost) }\n}\n";
-        assert!(check(src).is_empty(), "a dropped route must not be flagged; diags: {:?}", check(src));
+        assert!(
+            check(src).is_empty(),
+            "a dropped route must not be flagged; diags: {:?}",
+            check(src)
+        );
     }
 
     #[test]

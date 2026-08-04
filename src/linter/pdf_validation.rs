@@ -1,18 +1,41 @@
-use crate::parser::{Program, Declaration, Statement, StatementKind, UIElement, ComponentRef};
+use crate::parser::{ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
 
 /// Interactive or web-only components that are not allowed in PDF output
 pub(crate) const REJECTED_COMPONENTS: &[&str] = &[
     // Data input (interactive)
-    "Button", "IconButton", "ButtonGroup", "Input", "Select", "Option",
-    "Checkbox", "Radio", "Switch", "Slider", "DatePicker", "FileUpload", "Form",
+    "Button",
+    "IconButton",
+    "ButtonGroup",
+    "Input",
+    "Select",
+    "Option",
+    "Checkbox",
+    "Radio",
+    "Switch",
+    "Slider",
+    "DatePicker",
+    "FileUpload",
+    "Form",
     "Dropdown",
     // Feedback (interactive)
-    "Modal", "Dialog", "Toast", "Spinner", "Skeleton",
+    "Modal",
+    "Dialog",
+    "Toast",
+    "Spinner",
+    "Skeleton",
     // Navigation (web-only)
-    "Router", "Route", "Navbar", "Sidebar", "Menu", "Tabs", "TabPage",
-    "Breadcrumb", "Link",
+    "Router",
+    "Route",
+    "Navbar",
+    "Sidebar",
+    "Menu",
+    "Tabs",
+    "TabPage",
+    "Breadcrumb",
+    "Link",
     // Media (interactive)
-    "Video", "Carousel",
+    "Video",
+    "Carousel",
     // Layout (web-only)
     "Tooltip",
 ];
@@ -26,8 +49,11 @@ pub struct PdfValidationError {
 
 impl std::fmt::Display for PdfValidationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "error[pdf]: '{}' cannot be used in PDF output ({}) — {}",
-            self.component, self.context, self.reason)
+        write!(
+            f,
+            "error[pdf]: '{}' cannot be used in PDF output ({}) — {}",
+            self.component, self.context, self.reason
+        )
     }
 }
 
@@ -112,15 +138,35 @@ fn validate_ui_element(ui: &UIElement, context: &str, errors: &mut Vec<PdfValida
     };
 
     if REJECTED_COMPONENTS.contains(&name.as_str()) {
-        let reason = if matches!(name.as_str(),
-            "Button" | "Input" | "Select" | "Checkbox" | "Radio" | "Switch" |
-            "Slider" | "DatePicker" | "FileUpload" | "Form" | "Dropdown" |
-            "IconButton" | "ButtonGroup" | "Option"
+        let reason = if matches!(
+            name.as_str(),
+            "Button"
+                | "Input"
+                | "Select"
+                | "Checkbox"
+                | "Radio"
+                | "Switch"
+                | "Slider"
+                | "DatePicker"
+                | "FileUpload"
+                | "Form"
+                | "Dropdown"
+                | "IconButton"
+                | "ButtonGroup"
+                | "Option"
         ) {
             "interactive elements are not supported in PDF".to_string()
-        } else if matches!(name.as_str(),
-            "Router" | "Route" | "Navbar" | "Sidebar" | "Menu" | "Tabs" |
-            "TabPage" | "Breadcrumb" | "Link"
+        } else if matches!(
+            name.as_str(),
+            "Router"
+                | "Route"
+                | "Navbar"
+                | "Sidebar"
+                | "Menu"
+                | "Tabs"
+                | "TabPage"
+                | "Breadcrumb"
+                | "Link"
         ) {
             "navigation components are web-only".to_string()
         } else {

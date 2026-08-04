@@ -1,0 +1,14 @@
+{
+  "name": "bespoke",
+  "theme": {
+    "builtin": "structural"
+  },
+  "build": {
+    "output": "build",
+    "output_type": "spa"
+  },
+  "meta": {
+    "title": "Bespoke",
+    "description": "A design that owes the engine nothing."
+  }
+}

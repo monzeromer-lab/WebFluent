@@ -4,131 +4,213 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLI Reference</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="Every wf command and what it does.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/cli">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/cli?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/cli?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/cli">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CLI Reference">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Every wf command and what it does.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/cli">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CLI Reference">
+    <meta name="twitter:description" content="Every wf command and what it does.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/cli#webpage","url":"https://monzeromer-lab.github.io/WebFluent/cli","name":"CLI Reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every wf command and what it does."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/cli#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"CLI Reference","item":"https://monzeromer-lab.github.io/WebFluent/cli"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">CLI Reference</h1>​
-                <p class="wf-text wf-text--muted">The WebFluent command-line interface.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">wf init</h2>​
-                <p class="wf-text">Create a new WebFluent project.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">wf init &lt;name&gt; [--template spa|static|pdf]</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Argument</td>​
-                        <td>Description</td>​
-                    </thead>​
-                    <tr>
-                        <td>name</td>​
-                        <td>Project name (creates a directory)</td>​
-                    </tr>​
-                    <tr>
-                        <td>--template, -t</td>​
-                        <td>Template: spa (default), static, or pdf</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">SPA: interactive app with routing and state. Static: SSG site with i18n. PDF: document generation with tables, headings, and auto page breaks.</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">wf build</h2>​
-                <p class="wf-text">Compile .wf files to HTML, CSS, and JavaScript.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">wf build [--dir DIR]</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Option</td>​
-                        <td>Description</td>​
-                    </thead>​
-                    <tr>
-                        <td>--dir, -d</td>​
-                        <td>Project directory (default: current directory)</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">The build pipeline: Lex all .wf files, parse to AST, run accessibility linter, generate HTML + CSS + JS, write to output directory.</p>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text">Output depends on config:</p>​
-                <div class="wf-stack">
-                    <p class="wf-text">SPA mode (default): single index.html + app.js + styles.css</p>​
-                    <p class="wf-text">SSG mode (ssg: true): one HTML per page + app.js + styles.css</p>​
-                    <p class="wf-text">PDF mode (output_type: pdf): a single .pdf file</p>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">wf serve</h2>​
-                <p class="wf-text">Start a development server that serves the built output.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">wf serve [--dir DIR]</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <p class="wf-text wf-text--muted">Serves files from the build directory. SPA fallback: all routes serve index.html so client-side routing works. Port is configured in webfluent.app.json (default: 3000).</p>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">wf generate</h2>​
-                <p class="wf-text">Scaffold a new page, component, or store.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">wf generate &lt;kind&gt; &lt;name&gt; [--dir DIR]</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <table class="wf-table">
-                    <thead>
-                        <td>Kind</td>​
-                        <td>Creates</td>​
-                        <td>Example</td>​
-                    </thead>​
-                    <tr>
-                        <td>page</td>​
-                        <td>src/pages/Name.wf</td>​
-                        <td>wf generate page About</td>​
-                    </tr>​
-                    <tr>
-                        <td>component</td>​
-                        <td>src/components/Name.wf</td>​
-                        <td>wf generate component Header</td>​
-                    </tr>​
-                    <tr>
-                        <td>store</td>​
-                        <td>src/stores/name.wf</td>​
-                        <td>wf generate store CartStore</td>​
-                    </tr>​
-                </table>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Configuration</h2>​
-                <p class="wf-text">All config is in webfluent.app.json at the project root.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">{
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">CLI Reference</h1>
+                    <p class="wf-text wf-text--muted">The WebFluent command-line interface.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">wf init</h2>
+                    <p class="wf-text">Create a new WebFluent project.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">wf init &lt;name&gt; [--template spa|static|pdf]</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Argument</td>
+                            <td>Description</td>
+                        </thead>
+                        <tr>
+                            <td>name</td>
+                            <td>Project name (creates a directory)</td>
+                        </tr>
+                        <tr>
+                            <td>--template, -t</td>
+                            <td>Template: spa (default), static, or pdf</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">SPA: interactive app with routing and state. Static: SSG site with i18n. PDF: document generation with tables, headings, and auto page breaks.</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">wf build</h2>
+                    <p class="wf-text">Compile .wf files to HTML, CSS, and JavaScript.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">wf build [--dir DIR]</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Option</td>
+                            <td>Description</td>
+                        </thead>
+                        <tr>
+                            <td>--dir, -d</td>
+                            <td>Project directory (default: current directory)</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">The build pipeline: Lex all .wf files, parse to AST, run accessibility linter, generate HTML + CSS + JS, write to output directory.</p>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text">Output depends on config:</p>
+                    <div class="wf-stack">
+                        <p class="wf-text">SPA mode (default): single index.html + app.js + styles.css</p>
+                        <p class="wf-text">SSG mode (ssg: true): one HTML per page + app.js + styles.css</p>
+                        <p class="wf-text">PDF mode (output_type: pdf): a single .pdf file</p>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">wf serve</h2>
+                    <p class="wf-text">Start a development server that serves the built output.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">wf serve [--dir DIR]</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted">Serves files from the build directory. SPA fallback: all routes serve index.html so client-side routing works. Port is configured in webfluent.app.json (default: 3000).</p>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">wf generate</h2>
+                    <p class="wf-text">Scaffold a new page, component, or store.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">wf generate &lt;kind&gt; &lt;name&gt; [--dir DIR]</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <table class="wf-table">
+                        <thead>
+                            <td>Kind</td>
+                            <td>Creates</td>
+                            <td>Example</td>
+                        </thead>
+                        <tr>
+                            <td>page</td>
+                            <td>src/pages/Name.wf</td>
+                            <td>wf generate page About</td>
+                        </tr>
+                        <tr>
+                            <td>component</td>
+                            <td>src/components/Name.wf</td>
+                            <td>wf generate component Header</td>
+                        </tr>
+                        <tr>
+                            <td>store</td>
+                            <td>src/stores/name.wf</td>
+                            <td>wf generate store CartStore</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Configuration</h2>
+                    <p class="wf-text">All config is in webfluent.app.json at the project root.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">{
   &quot;name&quot;: &quot;My App&quot;,
   &quot;version&quot;: &quot;1.0.0&quot;,
   &quot;author&quot;: &quot;Your Name&quot;,
@@ -159,14 +241,29 @@
     &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;],
     &quot;dir&quot;: &quot;src/translations&quot;
   }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-            </div>​
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

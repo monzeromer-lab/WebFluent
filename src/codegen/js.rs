@@ -1,8 +1,11 @@
-use std::collections::HashMap;
-use crate::parser::ast::*;
-use crate::codegen::builtin::{builtin_to_html, heading_tag, input_type, is_void, modifier_to_class};
+use crate::codegen::builtin::{
+    builtin_to_html, heading_tag, implicit_role, input_type, is_void, landmark_label,
+    modifier_to_class,
+};
 use crate::codegen::node_id::NodeMap;
+use crate::parser::ast::*;
 use crate::runtime;
+use std::collections::HashMap;
 
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
@@ -14,6 +17,13 @@ pub struct JsCodegen {
     stores: Vec<String>,
     /// Track current component/page prop names (not signals)
     current_props: Vec<String>,
+    /// Names bound by an enclosing `for` loop, innermost last.
+    ///
+    /// `WF.listRender` calls the body with the item as a plain parameter, so a
+    /// reference to it must stay plain. Treating it as state instead emitted
+    /// `_item()` against a binding named `item` — a `ReferenceError` the moment
+    /// a non-empty list rendered.
+    loop_bindings: Vec<String>,
     /// i18n: default locale and translations (locale -> key -> value)
     i18n_default_locale: Option<String>,
     i18n_translations: HashMap<String, HashMap<String, String>>,
@@ -28,6 +38,12 @@ pub struct JsCodegen {
     node_ids: NodeMap,
 }
 
+impl Default for JsCodegen {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl JsCodegen {
     pub fn new() -> Self {
         Self {
@@ -36,6 +52,7 @@ impl JsCodegen {
             components: Vec::new(),
             stores: Vec::new(),
             current_props: Vec::new(),
+            loop_bindings: Vec::new(),
             i18n_default_locale: None,
             i18n_translations: HashMap::new(),
             ssg_mode: false,
@@ -45,7 +62,11 @@ impl JsCodegen {
         }
     }
 
-    pub fn set_i18n(&mut self, default_locale: String, translations: HashMap<String, HashMap<String, String>>) {
+    pub fn set_i18n(
+        &mut self,
+        default_locale: String,
+        translations: HashMap<String, HashMap<String, String>>,
+    ) {
         self.i18n_default_locale = Some(default_locale);
         self.i18n_translations = translations;
     }
@@ -100,7 +121,9 @@ impl JsCodegen {
     /// existing JS attrs object literal built inline by a special emitter; empty
     /// when not in studio mode / the node has no id.
     fn wf_node_inline(&self, ui: &UIElement) -> String {
-        self.wf_node_entry(ui).map(|e| format!(", {}", e)).unwrap_or_default()
+        self.wf_node_entry(ui)
+            .map(|e| format!(", {}", e))
+            .unwrap_or_default()
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
@@ -157,16 +180,29 @@ impl JsCodegen {
         }
 
         // If no App declaration, auto-mount first page
-        let has_app = program.declarations.iter().any(|d| matches!(d, Declaration::App(_)));
+        let has_app = program
+            .declarations
+            .iter()
+            .any(|d| matches!(d, Declaration::App(_)));
         if !has_app {
-            let pages: Vec<&PageDecl> = program.declarations.iter().filter_map(|d| {
-                if let Declaration::Page(p) = d { Some(p) } else { None }
-            }).collect();
+            let pages: Vec<&PageDecl> = program
+                .declarations
+                .iter()
+                .filter_map(|d| {
+                    if let Declaration::Page(p) = d {
+                        Some(p)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
 
             if pages.len() == 1 {
                 let mount_fn = if self.ssg_mode { "hydrate" } else { "mount" };
+                // Into the main landmark, not the bare container: a page with no
+                // router still needs one, and the skip link still has to land.
                 self.emit_line(&format!(
-                    "WF.{}(() => Page_{}({{}}), document.getElementById('app'));",
+                    "WF.{}(() => Page_{}({{}}), WF.mainOf(document.getElementById('app')));",
                     mount_fn, pages[0].name
                 ));
             } else if !pages.is_empty() {
@@ -183,7 +219,7 @@ impl JsCodegen {
                 }
                 self.indent -= 1;
                 self.emit_line("];");
-                self.emit_line("const container = document.getElementById('app');");
+                self.emit_line("const container = WF.mainOf(document.getElementById('app'));");
                 self.emit_line("WF.createRouter(routes, container);");
                 self.indent -= 1;
                 self.emit_line("})();");
@@ -200,14 +236,30 @@ impl JsCodegen {
         self.indent += 1;
 
         // Collect store state names for context
-        let store_state_names: Vec<String> = store.body.iter().filter_map(|s| {
-            if let StatementKind::State(st) = &s.kind { Some(st.name.clone()) } else { None }
-        }).collect();
+        let store_state_names: Vec<String> = store
+            .body
+            .iter()
+            .filter_map(|s| {
+                if let StatementKind::State(st) = &s.kind {
+                    Some(st.name.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         // Collect state
-        let states: Vec<&StateDecl> = store.body.iter().filter_map(|s| {
-            if let StatementKind::State(st) = &s.kind { Some(st) } else { None }
-        }).collect();
+        let states: Vec<&StateDecl> = store
+            .body
+            .iter()
+            .filter_map(|s| {
+                if let StatementKind::State(st) = &s.kind {
+                    Some(st)
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         if !states.is_empty() {
             self.emit_line("state: {");
@@ -221,9 +273,17 @@ impl JsCodegen {
         }
 
         // Collect derived
-        let derived: Vec<&DerivedDecl> = store.body.iter().filter_map(|s| {
-            if let StatementKind::Derived(d) = &s.kind { Some(d) } else { None }
-        }).collect();
+        let derived: Vec<&DerivedDecl> = store
+            .body
+            .iter()
+            .filter_map(|s| {
+                if let StatementKind::Derived(d) = &s.kind {
+                    Some(d)
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         if !derived.is_empty() {
             self.emit_line("derived: {");
@@ -237,17 +297,31 @@ impl JsCodegen {
         }
 
         // Collect actions
-        let actions: Vec<&ActionDecl> = store.body.iter().filter_map(|s| {
-            if let StatementKind::Action(a) = &s.kind { Some(a) } else { None }
-        }).collect();
+        let actions: Vec<&ActionDecl> = store
+            .body
+            .iter()
+            .filter_map(|s| {
+                if let StatementKind::Action(a) = &s.kind {
+                    Some(a)
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         if !actions.is_empty() {
             self.emit_line("actions: {");
             self.indent += 1;
             for a in &actions {
                 let params: Vec<String> = a.params.iter().map(|p| p.name.clone()).collect();
-                self.emit_line(&format!("{}: (store{}) => {{", a.name,
-                    if params.is_empty() { String::new() } else { format!(", {}", params.join(", ")) }
+                self.emit_line(&format!(
+                    "{}: (store{}) => {{",
+                    a.name,
+                    if params.is_empty() {
+                        String::new()
+                    } else {
+                        format!(", {}", params.join(", "))
+                    }
                 ));
                 self.indent += 1;
                 for stmt in &a.body {
@@ -273,7 +347,7 @@ impl JsCodegen {
                 if store_states.contains(name) {
                     format!("store.{}", name)
                 } else {
-                    format!("{}", name)
+                    name.to_string()
                 }
             }
             Expr::PropertyAccess(base, prop) => {
@@ -289,10 +363,18 @@ impl JsCodegen {
                 let l = self.emit_store_expr(left, store_states);
                 let r = self.emit_store_expr(right, store_states);
                 let op_str = match op {
-                    BinOp::Add => "+", BinOp::Sub => "-", BinOp::Mul => "*",
-                    BinOp::Div => "/", BinOp::Mod => "%", BinOp::Eq => "===",
-                    BinOp::Neq => "!==", BinOp::Lt => "<", BinOp::Gt => ">",
-                    BinOp::Lte => "<=", BinOp::Gte => ">=", BinOp::And => "&&",
+                    BinOp::Add => "+",
+                    BinOp::Sub => "-",
+                    BinOp::Mul => "*",
+                    BinOp::Div => "/",
+                    BinOp::Mod => "%",
+                    BinOp::Eq => "===",
+                    BinOp::Neq => "!==",
+                    BinOp::Lt => "<",
+                    BinOp::Gt => ">",
+                    BinOp::Lte => "<=",
+                    BinOp::Gte => ">=",
+                    BinOp::And => "&&",
                     BinOp::Or => "||",
                 };
                 format!("({} {} {})", l, op_str, r)
@@ -306,7 +388,10 @@ impl JsCodegen {
             }
             Expr::MethodCall(obj, method, args) => {
                 let obj_str = self.emit_store_expr(obj, store_states);
-                let args_str: Vec<String> = args.iter().map(|a| self.emit_store_expr(a, store_states)).collect();
+                let args_str: Vec<String> = args
+                    .iter()
+                    .map(|a| self.emit_store_expr(a, store_states))
+                    .collect();
                 match method.as_str() {
                     "push" => format!("{}.push({})", obj_str, args_str.join(", ")),
                     "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
@@ -320,13 +405,17 @@ impl JsCodegen {
                 format!("({} => {})", param, body_str)
             }
             Expr::ListLiteral(items) => {
-                let items_str: Vec<String> = items.iter().map(|i| self.emit_store_expr(i, store_states)).collect();
+                let items_str: Vec<String> = items
+                    .iter()
+                    .map(|i| self.emit_store_expr(i, store_states))
+                    .collect();
                 format!("[{}]", items_str.join(", "))
             }
             Expr::MapLiteral(entries) => {
-                let entries_str: Vec<String> = entries.iter().map(|(k, v)| {
-                    format!("{}: {}", k, self.emit_store_expr(v, store_states))
-                }).collect();
+                let entries_str: Vec<String> = entries
+                    .iter()
+                    .map(|(k, v)| format!("{}: {}", k, self.emit_store_expr(v, store_states)))
+                    .collect();
                 format!("{{ {} }}", entries_str.join(", "))
             }
             // For other expr types, fall back to the regular emitter
@@ -334,7 +423,16 @@ impl JsCodegen {
         }
     }
 
-    fn emit_store_statement(&mut self, stmt: &Statement, store_states: &[String], action_params: &[String]) {
+    // `action_params` is scope threaded through the recursion: a nested statement
+    // needs to know which names are the enclosing action's parameters, even
+    // though this level never reads it.
+    #[allow(clippy::only_used_in_recursion)]
+    fn emit_store_statement(
+        &mut self,
+        stmt: &Statement,
+        store_states: &[String],
+        action_params: &[String],
+    ) {
         match &stmt.kind {
             StatementKind::Assignment(a) => {
                 let value = self.emit_store_expr(&a.value, store_states);
@@ -390,7 +488,10 @@ impl JsCodegen {
             return;
         }
 
-        let default_locale = self.i18n_default_locale.clone().unwrap_or_else(|| "en".to_string());
+        let default_locale = self
+            .i18n_default_locale
+            .clone()
+            .unwrap_or_else(|| "en".to_string());
         let translations = self.i18n_translations.clone();
 
         self.emit_line("WF.i18n = WF.createI18n(");
@@ -444,14 +545,21 @@ impl JsCodegen {
         // Set current props so emit_expr treats them as plain variables, not signals
         self.current_props = params.clone();
 
-        self.emit_line(&format!("function Component_{}({}) {{", comp.name, destructure));
+        self.emit_line(&format!(
+            "function Component_{}({}) {{",
+            comp.name, destructure
+        ));
         self.indent += 1;
 
         // Emit state declarations first
         for stmt in &comp.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!("const _{} = {};", s.name, self.signal_init(&s.name, &val)));
+                self.emit_line(&format!(
+                    "const _{} = {};",
+                    s.name,
+                    self.signal_init(&s.name, &val)
+                ));
             }
         }
 
@@ -481,7 +589,11 @@ impl JsCodegen {
         for stmt in &page.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!("const _{} = {};", s.name, self.signal_init(&s.name, &val)));
+                self.emit_line(&format!(
+                    "const _{} = {};",
+                    s.name,
+                    self.signal_init(&s.name, &val)
+                ));
             }
         }
 
@@ -549,6 +661,9 @@ impl JsCodegen {
     }
 
     /// Recursively emit App body statements, replacing Router with a router element
+    // `has_router` is the same: it tells a deeper level whether a Router has
+    // already been placed, which only matters below this one.
+    #[allow(clippy::only_used_in_recursion)]
     fn emit_app_tree(&mut self, stmts: &[Statement], parent: &str, has_router: bool) {
         for stmt in stmts {
             if let StatementKind::UIElement(ui) = &stmt.kind {
@@ -558,9 +673,11 @@ impl JsCodegen {
                 };
 
                 if name == "Router" {
-                    // Replace Router with the router container element
-                    self.emit_line("const _routerEl = document.createElement('div');");
-                    self.emit_line("_routerEl.id = 'wf-router';");
+                    // The router's container holds whatever the current route
+                    // paints, which is the page's main content — so it is the
+                    // `<main>` landmark, and the target the skip link jumps to.
+                    self.emit_line("const _routerEl = document.createElement('main');");
+                    self.emit_line("_routerEl.id = 'wf-main';");
                     self.emit_line("_routerEl.style.flex = '1';");
                     self.emit_line(&format!("{}.appendChild(_routerEl);", parent));
                     continue;
@@ -586,7 +703,10 @@ impl JsCodegen {
                     }
                     self.emit_line(&format!(
                         "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
-                        var, tag, classes.join(" "), self.wf_node_inline(ui)
+                        var,
+                        tag,
+                        classes.join(" "),
+                        self.wf_node_inline(ui)
                     ));
                     // Apply style block if present
                     if let Some(style) = &ui.style_block {
@@ -666,7 +786,11 @@ impl JsCodegen {
             StatementKind::State(_) => {} // Already handled
             StatementKind::Derived(d) => {
                 let val = self.emit_expr(&d.value);
-                self.emit_line(&format!("const _{} = {};", d.name, self.computed_init(&d.name, &val)));
+                self.emit_line(&format!(
+                    "const _{} = {};",
+                    d.name,
+                    self.computed_init(&d.name, &val)
+                ));
             }
             StatementKind::Effect(e) => {
                 self.emit_line("WF.effect(() => {");
@@ -706,7 +830,10 @@ impl JsCodegen {
             ComponentRef::BuiltIn(name) => {
                 match name.as_str() {
                     "Children" => {
-                        self.emit_line(&format!("if (typeof _children === 'function') {}.appendChild(_children());", parent));
+                        self.emit_line(&format!(
+                            "if (typeof _children === 'function') {}.appendChild(_children());",
+                            parent
+                        ));
                         return;
                     }
                     "_StyleBlock" => return, // Style blocks handled via attrs
@@ -760,13 +887,16 @@ impl JsCodegen {
                                         // Handle Modal/Dialog visibility
                                         attrs.push(format!(
                                             "className: () => _{}() ? '{} open' : '{}'",
-                                            state_name, classes.join(" "), classes.join(" ")
+                                            state_name,
+                                            classes.join(" "),
+                                            classes.join(" ")
                                         ));
                                     }
                                 }
-                                "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" |
-                                "step" | "accept" | "label" | "required" | "disabled" | "controls" |
-                                "autoplay" | "role" => {
+                                "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max"
+                                | "step" | "accept" | "label" | "required" | "disabled"
+                                | "controls" | "autoplay" | "role" | "width" | "height"
+                                | "loading" | "decoding" | "fetchpriority" => {
                                     let v = self.emit_expr(val);
                                     attrs.push(format!("{}: {}", key, v));
                                 }
@@ -798,11 +928,17 @@ impl JsCodegen {
                                     match key.as_str() {
                                         "gap" => classes.push(format!("{}--gap-{}", class, v_str)),
                                         "align" => {
-                                            if v_str == "center" { classes.push(format!("{}--center", class)); }
+                                            if v_str == "center" {
+                                                classes.push(format!("{}--center", class));
+                                            }
                                         }
                                         "justify" => {
-                                            if v_str == "between" { classes.push(format!("{}--between", class)); }
-                                            if v_str == "end" { classes.push(format!("{}--end", class)); }
+                                            if v_str == "between" {
+                                                classes.push(format!("{}--between", class));
+                                            }
+                                            if v_str == "end" {
+                                                classes.push(format!("{}--end", class));
+                                            }
                                         }
                                         _ => {}
                                     }
@@ -853,7 +989,8 @@ impl JsCodegen {
                 }
 
                 // Classes attr
-                let class_str = classes.iter()
+                let class_str = classes
+                    .iter()
                     .filter(|c| !c.is_empty())
                     .cloned()
                     .collect::<Vec<_>>()
@@ -869,16 +1006,24 @@ impl JsCodegen {
                 // Handle events
                 for handler in &ui.events {
                     let body = self.emit_event_body(&handler.body);
-                    attrs.push(format!("\"on:{}\": (event) => {{ {} }}", handler.event, body));
+                    attrs.push(format!(
+                        "\"on:{}\": (event) => {{ {} }}",
+                        handler.event, body
+                    ));
                 }
 
                 // If element has a block with just statements (Button shorthand click)
                 if ui.events.is_empty() && !ui.children.is_empty() {
                     // Check if children are all action-like statements (assignments, method calls)
-                    let all_actions = ui.children.iter().all(|s| matches!(&s.kind,
-                        StatementKind::Assignment(_) | StatementKind::MethodCall(_) |
-                        StatementKind::Navigate(_) | StatementKind::ExprStatement(_)
-                    ));
+                    let all_actions = ui.children.iter().all(|s| {
+                        matches!(
+                            &s.kind,
+                            StatementKind::Assignment(_)
+                                | StatementKind::MethodCall(_)
+                                | StatementKind::Navigate(_)
+                                | StatementKind::ExprStatement(_)
+                        )
+                    });
 
                     if all_actions && matches!(name.as_str(), "Button" | "IconButton") {
                         let body = self.emit_statements_inline(&ui.children);
@@ -898,12 +1043,49 @@ impl JsCodegen {
                     }
                 }
 
+                // An image with no intrinsic size gets no space reserved, so the
+                // page reflows around it when it lands — the single largest
+                // source of layout shift on a content site. Lazy loading and
+                // async decoding keep offscreen images off the critical path.
+                if name == "Image" {
+                    for (key, default) in [("loading", "lazy"), ("decoding", "async")] {
+                        if !attrs.iter().any(|a| a.starts_with(&format!("{}:", key)))
+                            && !ui
+                                .args
+                                .iter()
+                                .any(|a| matches!(a, Arg::Named(k, _) if k == key))
+                        {
+                            attrs.push(format!("{}: \"{}\"", key, default));
+                        }
+                    }
+                }
+
+                // A live region has to be announced when it appears; a class
+                // alone tells assistive technology nothing.
+                if let Some(role) = implicit_role(name, &ui.modifiers) {
+                    if !attrs.iter().any(|a| a.starts_with("role:")) {
+                        attrs.push(format!("role: \"{}\"", role));
+                    }
+                }
+
+                // Two `<nav>` landmarks on a page are two entries called
+                // "navigation" in a screen reader's landmark list, with nothing
+                // to choose between them.
+                if let Some(label) = landmark_label(name) {
+                    if !attrs.iter().any(|a| a.starts_with("\"aria-label\":")) {
+                        attrs.push(format!("\"aria-label\": \"{}\"", label));
+                    }
+                }
+
                 // A void element cannot hold text. `WF.h("hr", {}, "label")` asks
                 // the runtime to append into a node that takes no children, and
                 // the text is simply lost; carry it as the accessible name.
                 if is_void(tag) {
                     if let Some(text) = inner_text.take() {
-                        if !attrs.iter().any(|a| a.starts_with("alt:") || a.starts_with("title:")) {
+                        if !attrs
+                            .iter()
+                            .any(|a| a.starts_with("alt:") || a.starts_with("title:"))
+                        {
                             attrs.push(format!("title: {}", text));
                         }
                     }
@@ -952,13 +1134,17 @@ impl JsCodegen {
                     "Toast" => {
                         // Imperative, not DOM-based: there is no element to style.
                         if let Some(text) = &inner_text {
-                            let variant = ui.modifiers.first().map(|m| m.as_str()).unwrap_or("info");
+                            let variant =
+                                ui.modifiers.first().map(|m| m.as_str()).unwrap_or("info");
                             self.emit_line(&format!("WF.showToast({}, \"{}\");", text, variant));
                         }
                         return;
                     }
                     "Spacer" => {
-                        self.emit_line(&format!("const {} = WF.h(\"{}\", {});", var, tag, attrs_str));
+                        self.emit_line(&format!(
+                            "const {} = WF.h(\"{}\", {});",
+                            var, tag, attrs_str
+                        ));
                         self.emit_line(&format!("{}.appendChild({});", parent, var));
                         true
                     }
@@ -1023,11 +1209,17 @@ impl JsCodegen {
                 }
 
                 if children_arr.is_empty() && ui.children.is_empty() {
-                    self.emit_line(&format!("const {} = WF.h(\"{}\", {});", var, tag, attrs_str));
+                    self.emit_line(&format!(
+                        "const {} = WF.h(\"{}\", {});",
+                        var, tag, attrs_str
+                    ));
                 } else if !children_arr.is_empty() && ui.children.is_empty() {
                     self.emit_line(&format!(
                         "const {} = WF.h(\"{}\", {}, {});",
-                        var, tag, attrs_str, children_arr.join(", ")
+                        var,
+                        tag,
+                        attrs_str,
+                        children_arr.join(", ")
                     ));
                 } else {
                     let extra = if children_arr.is_empty() {
@@ -1035,16 +1227,24 @@ impl JsCodegen {
                     } else {
                         format!(", {}", children_arr.join(", "))
                     };
-                    self.emit_line(&format!("const {} = WF.h(\"{}\", {}{});", var, tag, attrs_str, extra));
+                    self.emit_line(&format!(
+                        "const {} = WF.h(\"{}\", {}{});",
+                        var, tag, attrs_str, extra
+                    ));
                 }
 
                 // Emit children
                 let is_action_shorthand = ui.events.is_empty()
                     && !ui.children.is_empty()
-                    && ui.children.iter().all(|s| matches!(&s.kind,
-                        StatementKind::Assignment(_) | StatementKind::MethodCall(_) |
-                        StatementKind::Navigate(_) | StatementKind::ExprStatement(_)
-                    ))
+                    && ui.children.iter().all(|s| {
+                        matches!(
+                            &s.kind,
+                            StatementKind::Assignment(_)
+                                | StatementKind::MethodCall(_)
+                                | StatementKind::Navigate(_)
+                                | StatementKind::ExprStatement(_)
+                        )
+                    })
                     && matches!(name.as_str(), "Button" | "IconButton");
 
                 if !is_action_shorthand {
@@ -1053,13 +1253,29 @@ impl JsCodegen {
                     }
                 }
 
+                // A `Navbar.Links` group collapses behind a toggle on a narrow
+                // screen. The rule that used to apply there was `display: none`
+                // with nothing to bring it back, so the links were simply gone.
+                // Navbars whose links are direct children wrap instead and need
+                // no control, so none is emitted for them.
+                if name == "Navbar" && has_subcomponent(ui, "Navbar", "Links") {
+                    let toggle_var = self.fresh_var();
+                    self.emit_line(&format!(
+                        "const {} = WF.h(\"button\", {{ className: \"wf-navbar__toggle\",                          type: \"button\", \"aria-label\": \"Menu\", \"aria-expanded\": \"false\" }}, \"\\u2630\");",
+                        toggle_var
+                    ));
+                    self.emit_line(&format!("{}.appendChild({});", var, toggle_var));
+                    self.emit_line(&format!("WF.offCanvas({}, {}, null);", var, toggle_var));
+                }
+
                 self.emit_style_and_transition(&var, ui);
 
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
 
             ComponentRef::SubComponent(parent_name, sub_name) => {
-                let class = format!("wf-{}__{}",
+                let class = format!(
+                    "wf-{}__{}",
                     parent_name.to_lowercase(),
                     camel_to_kebab(sub_name)
                 );
@@ -1070,7 +1286,10 @@ impl JsCodegen {
 
                 self.emit_line(&format!(
                     "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
-                    var, tag, class, self.wf_node_inline(ui)
+                    var,
+                    tag,
+                    class,
+                    self.wf_node_inline(ui)
                 ));
                 for child in &ui.children {
                     self.emit_statement_dom(child, &var);
@@ -1134,67 +1353,117 @@ impl JsCodegen {
         }
 
         if let Some(transition) = &ui.transition_block {
-            let transitions: Vec<String> = transition.properties.iter().map(|p| {
-                let easing = p.easing.as_deref().map(|e| match e {
-                    "ease" => "ease",
-                    "linear" => "linear",
-                    "easeIn" => "ease-in",
-                    "easeOut" => "ease-out",
-                    "easeInOut" => "ease-in-out",
-                    "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                    "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-                    "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
-                    other => other,
-                }).unwrap_or("ease");
-                format!("{} {} {}", p.property, p.duration, easing)
-            }).collect();
+            let transitions: Vec<String> = transition
+                .properties
+                .iter()
+                .map(|p| {
+                    let easing = p
+                        .easing
+                        .as_deref()
+                        .map(|e| match e {
+                            "ease" => "ease",
+                            "linear" => "linear",
+                            "easeIn" => "ease-in",
+                            "easeOut" => "ease-out",
+                            "easeInOut" => "ease-in-out",
+                            "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                            "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+                            "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
+                            other => other,
+                        })
+                        .unwrap_or("ease");
+                    format!("{} {} {}", p.property, p.duration, easing)
+                })
+                .collect();
             self.emit_line(&format!(
                 "{}.style.transition = \"{}\";",
-                var, transitions.join(", ")
+                var,
+                transitions.join(", ")
             ));
         }
     }
 
     // ─── Special component emitters ──────────────────
 
-    fn emit_modal_dialog(&mut self, name: &str, var: &str, _attrs_str: &str, ui: &UIElement, parent: &str) {
-        let class = if name == "Modal" { "wf-modal" } else { "wf-dialog" };
+    fn emit_modal_dialog(
+        &mut self,
+        name: &str,
+        var: &str,
+        _attrs_str: &str,
+        ui: &UIElement,
+        parent: &str,
+    ) {
+        let class = if name == "Modal" {
+            "wf-modal"
+        } else {
+            "wf-dialog"
+        };
         let title = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "title" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "title" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         // Check for visible binding
         let visible_state = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "visible" {
-                    if let Expr::Identifier(s) = v { return Some(s.clone()); }
+                    if let Expr::Identifier(s) = v {
+                        return Some(s.clone());
+                    }
                 }
                 None
-            } else { None }
+            } else {
+                None
+            }
         });
 
         // The root carries the modifier classes too; `class` stays the bare base
         // because the sub-part classes (`__content`, `__header`) derive from it.
         let root_classes = self.class_attr(name, ui);
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, root_classes, self.wf_node_inline(ui)));
+        // A real `<dialog>`: the browser then traps focus inside it, makes the
+        // rest of the page inert, closes on Escape and exposes `aria-modal`.
+        let title_id = format!("wf-dlg-{}", var.trim_start_matches("_e"));
+        let labelled = if title.is_some() {
+            format!(", \"aria-labelledby\": \"{}\"", title_id)
+        } else {
+            String::new()
+        };
+        self.emit_line(&format!(
+            "const {} = WF.h(\"dialog\", {{ className: \"{}\"{}{} }});",
+            var,
+            root_classes,
+            labelled,
+            self.wf_node_inline(ui)
+        ));
 
         let content_var = self.fresh_var();
         let content_class = format!("{}__content", class);
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\" }});", content_var, content_class));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\" }});",
+            content_var, content_class
+        ));
 
         if let Some(t) = title {
             let header_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}__header\" }}, WF.h(\"h3\", {{}}, {}));",
-                header_var, class, t
+                "const {} = WF.h(\"div\", {{ className: \"{}__header\" }}, WF.h(\"h3\", {{ id: \"{}\" }}, {}));",
+                header_var, class, title_id, t
             ));
             self.emit_line(&format!("{}.appendChild({});", content_var, header_var));
         }
 
         let body_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}__body\" }});", body_var, class));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}__body\" }});",
+            body_var, class
+        ));
 
         // Check for Modal.Footer
         let mut footer_stmts = Vec::new();
@@ -1202,7 +1471,8 @@ impl JsCodegen {
         let mut body_stmts = Vec::new();
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
-                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer") {
+                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
+                {
                     footer_stmts = ui_child.children.clone();
                     footer_wf = self.wf_node_inline(ui_child);
                     continue;
@@ -1218,54 +1488,84 @@ impl JsCodegen {
 
         if !footer_stmts.is_empty() {
             let footer_var = self.fresh_var();
-            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}__footer\"{} }});", footer_var, class, footer_wf));
+            self.emit_line(&format!(
+                "const {} = WF.h(\"div\", {{ className: \"{}__footer\"{} }});",
+                footer_var, class, footer_wf
+            ));
             for child in &footer_stmts {
-                self.emit_statement_dom(&child, &footer_var);
+                self.emit_statement_dom(child, &footer_var);
             }
             self.emit_line(&format!("{}.appendChild({});", content_var, footer_var));
         }
 
         self.emit_line(&format!("{}.appendChild({});", var, content_var));
 
-        // Visibility binding
+        // Visibility binding. `WF.bindDialog` drives `showModal()`/`close()` and
+        // writes the signal back when the browser closes the dialog itself — via
+        // Escape or the backdrop — so the state cannot drift out of sync with
+        // what is on screen.
         if let Some(state_name) = visible_state {
-            self.emit_line(&format!(
-                "WF.effect(() => {{ {}.className = _{}() ? '{} open' : '{}'; }});",
-                var, state_name, root_classes, root_classes
-            ));
+            self.emit_line(&format!("WF.bindDialog({}, _{});", var, state_name));
         }
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
     fn emit_tabs(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Tabs", ui), self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            var,
+            self.class_attr("Tabs", ui),
+            self.wf_node_inline(ui)
+        ));
+        // `role="tablist"` and the tab/panel wiring below are what tell a screen
+        // reader these buttons are tabs at all. Without them the widget is a row
+        // of unrelated buttons next to unrelated divs.
         let nav_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tabs__nav\" }});", nav_var));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\" }});",
+            nav_var
+        ));
+        let group = var.trim_start_matches("_e").to_string();
 
         // Collect tab pages
-        let tab_pages: Vec<(&UIElement, usize)> = ui.children.iter().enumerate().filter_map(|(i, s)| {
-            if let StatementKind::UIElement(ui_child) = &s.kind {
-                if matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage") {
-                    return Some((ui_child, i));
+        let tab_pages: Vec<(&UIElement, usize)> = ui
+            .children
+            .iter()
+            .enumerate()
+            .filter_map(|(i, s)| {
+                if let StatementKind::UIElement(ui_child) = &s.kind {
+                    if matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage") {
+                        return Some((ui_child, i));
+                    }
                 }
-            }
-            None
-        }).collect();
+                None
+            })
+            .collect();
 
         let active_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.signal(0);", active_var));
 
         // Create tab buttons
         for (i, (tab, _)) in tab_pages.iter().enumerate() {
-            let label = tab.args.first().map(|a| {
-                if let Arg::Positional(expr) = a { self.emit_expr(expr) } else { format!("\"Tab {}\"", i) }
-            }).unwrap_or_else(|| format!("\"Tab {}\"", i));
+            let label = tab
+                .args
+                .first()
+                .map(|a| {
+                    if let Arg::Positional(expr) = a {
+                        self.emit_expr(expr)
+                    } else {
+                        format!("\"Tab {}\"", i)
+                    }
+                })
+                .unwrap_or_else(|| format!("\"Tab {}\"", i));
 
+            // Roving tabindex: only the selected tab is in the tab order, and
+            // the arrow keys move between them (see `WF.tablist`).
             let btn_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"button\", {{ className: () => {}() === {} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\", \"on:click\": () => {}.set({}) }}, {});",
-                btn_var, active_var, i, active_var, i, label
+                "const {} = WF.h(\"button\", {{ className: () => {}() === {} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\",                  role: \"tab\", type: \"button\", id: \"wf-tab-{}-{}\",                  \"aria-controls\": \"wf-tabpanel-{}-{}\",                  \"aria-selected\": () => {}() === {} ? \"true\" : \"false\",                  tabindex: () => {}() === {} ? 0 : -1,                  \"on:click\": () => {}.set({}) }}, {});",
+                btn_var, active_var, i, group, i, group, i, active_var, i, active_var, i, active_var, i, label
             ));
             self.emit_line(&format!("{}.appendChild({});", nav_var, btn_var));
         }
@@ -1275,7 +1575,10 @@ impl JsCodegen {
         // Create tab content
         for (i, (tab, _)) in tab_pages.iter().enumerate() {
             let page_var = self.fresh_var();
-            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-tab-page\"{} }});", page_var, self.wf_node_inline(tab)));
+            self.emit_line(&format!(
+                "const {} = WF.h(\"div\", {{ className: \"wf-tab-page\", role: \"tabpanel\",                  id: \"wf-tabpanel-{}-{}\", \"aria-labelledby\": \"wf-tab-{}-{}\", tabindex: 0{} }});",
+                page_var, group, i, group, i, self.wf_node_inline(tab)
+            ));
             for child in &tab.children {
                 self.emit_statement_dom(child, &page_var);
             }
@@ -1286,6 +1589,10 @@ impl JsCodegen {
             self.emit_line(&format!("{}.appendChild({});", var, page_var));
         }
 
+        // Arrow keys, Home and End move between tabs, which is what the WAI-ARIA
+        // pattern requires and what a keyboard user will try.
+        self.emit_line(&format!("WF.tablist({}, {});", nav_var, active_var));
+
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -1293,22 +1600,35 @@ impl JsCodegen {
         let bind_var = attrs.iter().find_map(|a| {
             if a.starts_with("value: () => _") {
                 Some(a.replace("value: () => _", "").replace("()", ""))
-            } else { None }
+            } else {
+                None
+            }
         });
 
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "label" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "label" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"label\", {{ className: \"{}\"{} }});", var, self.class_attr("Switch", ui), self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"label\", {{ className: \"{}\"{} }});",
+            var,
+            self.class_attr("Switch", ui),
+            self.wf_node_inline(ui)
+        ));
 
         if let Some(state) = &bind_var {
             let input_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"input\", {{ type: \"checkbox\", checked: () => _{}(), \"on:change\": () => _{}.set(!_{}()) }});",
-                input_var, state, state, state
+                "const {} = WF.h(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => _{}(), \"aria-checked\": () => _{}() ? \"true\" : \"false\",                  \"on:change\": () => _{}.set(!_{}()) }});",
+                input_var, state, state, state, state
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
         }
@@ -1327,29 +1647,56 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
-    fn emit_check_radio(&mut self, name: &str, var: &str, _attrs: &[String], ui: &UIElement, parent: &str) {
-        let input_type = if name == "Checkbox" { "checkbox" } else { "radio" };
+    fn emit_check_radio(
+        &mut self,
+        name: &str,
+        var: &str,
+        _attrs: &[String],
+        ui: &UIElement,
+        parent: &str,
+    ) {
+        let input_type = if name == "Checkbox" {
+            "checkbox"
+        } else {
+            "radio"
+        };
         let wf = self.wf_node_inline(ui);
 
         let bind_var = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "bind" {
-                    if let Expr::Identifier(s) = v { return Some(s.clone()); }
+                    if let Expr::Identifier(s) = v {
+                        return Some(s.clone());
+                    }
                 }
                 None
-            } else { None }
+            } else {
+                None
+            }
         });
 
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "label" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "label" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         let radio_value = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "value" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "value" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         self.emit_line(&format!(
@@ -1379,8 +1726,14 @@ impl JsCodegen {
         // Handle checked prop (non-bind)
         let checked_val = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "checked" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "checked" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         if bind_var.is_none() {
             if let Some(cv) = checked_val {
@@ -1395,10 +1748,16 @@ impl JsCodegen {
         // Emit events from ui.events
         for handler in &ui.events {
             let body = self.emit_event_body(&handler.body);
-            input_attrs.push_str(&format!(", \"on:{}\": (e) => {{ {} }}", handler.event, body));
+            input_attrs.push_str(&format!(
+                ", \"on:{}\": (e) => {{ {} }}",
+                handler.event, body
+            ));
         }
 
-        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"input\", {{ {} }});",
+            input_var, input_attrs
+        ));
         self.emit_line(&format!("{}.appendChild({});", var, input_var));
 
         if let Some(l) = label {
@@ -1408,34 +1767,57 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
-    fn emit_dropdown_menu(&mut self, name: &str, var: &str, _attrs: &[String], ui: &UIElement, parent: &str) {
-        let class = if name == "Dropdown" { "wf-dropdown" } else { "wf-menu" };
+    fn emit_dropdown_menu(
+        &mut self,
+        name: &str,
+        var: &str,
+        _attrs: &[String],
+        ui: &UIElement,
+        parent: &str,
+    ) {
+        let class = if name == "Dropdown" {
+            "wf-dropdown"
+        } else {
+            "wf-menu"
+        };
 
-        let label = ui.args.iter().find_map(|a| {
-            match a {
+        let label = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
                 Arg::Named(k, v) if k == "label" || k == "trigger" => Some(self.emit_expr(v)),
                 _ => None,
-            }
-        }).unwrap_or_else(|| "\"Menu\"".to_string());
+            })
+            .unwrap_or_else(|| "\"Menu\"".to_string());
 
         let root_classes = self.class_attr(name, ui);
         let open_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.signal(false);", open_var));
         self.emit_line(&format!(
             "const {} = WF.h(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\"{} }});",
-            var, open_var, root_classes, root_classes, self.wf_node_inline(ui)
+            var,
+            open_var,
+            root_classes,
+            root_classes,
+            self.wf_node_inline(ui)
         ));
 
+        // `aria-expanded` is the only thing that tells a screen reader whether
+        // the menu is open; the class ternary is visual only.
+        let items_id = format!("wf-menu-{}", var.trim_start_matches("_e"));
         let trigger_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"button\", {{ className: \"wf-btn\", \"on:click\": () => {}.set(!{}()) }}, {});",
-            trigger_var, open_var, open_var, label
+            "const {} = WF.h(\"button\", {{ className: \"wf-btn\", type: \"button\",              \"aria-haspopup\": \"true\", \"aria-controls\": \"{}\",              \"aria-expanded\": () => {}() ? \"true\" : \"false\",              \"on:click\": () => {}.set(!{}()) }}, {});",
+            trigger_var, items_id, open_var, open_var, open_var, label
         ));
         self.emit_line(&format!("{}.appendChild({});", var, trigger_var));
 
         let items_var = self.fresh_var();
         let items_class = format!("{}__items", class);
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\" }});", items_var, items_class));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
+            items_var, items_class, items_id
+        ));
 
         for child in &ui.children {
             self.emit_statement_dom(child, &items_var);
@@ -1443,80 +1825,102 @@ impl JsCodegen {
 
         self.emit_line(&format!("{}.appendChild({});", var, items_var));
 
-        // Close on click outside
+        // Close on click outside, and on Escape with focus returned to the
+        // trigger — a keyboard user who opens a menu must be able to leave it.
         self.emit_line(&format!(
-            "document.addEventListener('click', (e) => {{ if (!{}.contains(e.target)) {}.set(false); }});",
-            var, open_var
+            "WF.bindPopup({}, {}, {});",
+            var, trigger_var, open_var
         ));
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
     fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"aside\", {{ className: \"{}\"{} }});", var, self.class_attr("Sidebar", ui), self.wf_node_inline(ui)));
+        let sidebar_id = var.trim_start_matches("_e").to_string();
+        self.emit_line(&format!(
+            "const {} = WF.h(\"aside\", {{ className: \"{}\", id: \"wf-sidebar-{}\"{} }});",
+            var,
+            self.class_attr("Sidebar", ui),
+            sidebar_id,
+            self.wf_node_inline(ui)
+        ));
 
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
                 match &ui_child.component {
-                    ComponentRef::SubComponent(p, sub) if p == "Sidebar" => {
-                        match sub.as_str() {
-                            "Header" => {
-                                let h_var = self.fresh_var();
-                                self.emit_line(&format!(
+                    ComponentRef::SubComponent(p, sub) if p == "Sidebar" => match sub.as_str() {
+                        "Header" => {
+                            let h_var = self.fresh_var();
+                            self.emit_line(&format!(
                                     "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__header\"{} }});",
                                     h_var, self.wf_node_inline(ui_child)
                                 ));
-                                for c in &ui_child.children {
-                                    self.emit_statement_dom(c, &h_var);
-                                }
-                                self.emit_line(&format!("{}.appendChild({});", var, h_var));
+                            for c in &ui_child.children {
+                                self.emit_statement_dom(c, &h_var);
                             }
-                            "Item" => {
-                                let item_var = self.fresh_var();
-                                let to = ui_child.args.iter().find_map(|a| {
-                                    if let Arg::Named(k, v) = a {
-                                        if k == "to" { Some(self.emit_expr(v)) } else { None }
-                                    } else { None }
-                                });
-                                let icon = ui_child.args.iter().find_map(|a| {
-                                    if let Arg::Named(k, v) = a {
-                                        if k == "icon" { Some(self.emit_expr(v)) } else { None }
-                                    } else { None }
-                                });
-                                if let Some(href) = to {
-                                    let bp = if self.base_path.is_empty() { String::new() } else { format!("WF._basePath + ") };
-                                    self.emit_line(&format!(
+                            self.emit_line(&format!("{}.appendChild({});", var, h_var));
+                        }
+                        "Item" => {
+                            let item_var = self.fresh_var();
+                            let to = ui_child.args.iter().find_map(|a| {
+                                if let Arg::Named(k, v) = a {
+                                    if k == "to" {
+                                        Some(self.emit_expr(v))
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    None
+                                }
+                            });
+                            let icon = ui_child.args.iter().find_map(|a| {
+                                if let Arg::Named(k, v) = a {
+                                    if k == "icon" {
+                                        Some(self.emit_expr(v))
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    None
+                                }
+                            });
+                            if let Some(href) = to {
+                                let bp = if self.base_path.is_empty() {
+                                    String::new()
+                                } else {
+                                    "WF._basePath + ".to_string()
+                                };
+                                self.emit_line(&format!(
                                         "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {}{} }});",
                                         item_var, bp, href, self.wf_node_inline(ui_child)
                                     ));
-                                } else {
-                                    self.emit_line(&format!(
+                            } else {
+                                self.emit_line(&format!(
                                         "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__item\"{} }});",
                                         item_var, self.wf_node_inline(ui_child)
                                     ));
-                                }
-                                if let Some(ic) = icon {
-                                    self.emit_line(&format!(
+                            }
+                            if let Some(ic) = icon {
+                                self.emit_line(&format!(
                                         "{}.appendChild(WF.h(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
                                         item_var, ic
                                     ));
-                                }
-                                for c in &ui_child.children {
-                                    self.emit_statement_dom(c, &item_var);
-                                }
-                                self.emit_line(&format!("{}.appendChild({});", var, item_var));
                             }
-                            "Divider" => {
-                                self.emit_line(&format!(
+                            for c in &ui_child.children {
+                                self.emit_statement_dom(c, &item_var);
+                            }
+                            self.emit_line(&format!("{}.appendChild({});", var, item_var));
+                        }
+                        "Divider" => {
+                            self.emit_line(&format!(
                                     "{}.appendChild(WF.h(\"div\", {{ className: \"wf-sidebar__divider\"{} }}));",
                                     var, self.wf_node_inline(ui_child)
                                 ));
-                            }
-                            _ => {
-                                self.emit_statement_dom(child, var);
-                            }
                         }
-                    }
+                        _ => {
+                            self.emit_statement_dom(child, var);
+                        }
+                    },
                     _ => {
                         self.emit_statement_dom(child, var);
                     }
@@ -1527,22 +1931,60 @@ impl JsCodegen {
         }
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
+
+        // Below the sidebar breakpoint the panel slides over the page, so it
+        // needs something to open it — without a control the 768px rule simply
+        // removed a site's navigation on a phone. The control follows the panel
+        // so the panel stays the component's root; CSS fixes it to the corner on
+        // a narrow screen and hides it on a wide one.
+        let scrim_var = self.fresh_var();
+        let toggle_var = self.fresh_var();
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__scrim\", hidden: true }});",
+            scrim_var
+        ));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": \"wf-sidebar-{}\" }}, \"\\u2630\");",
+            toggle_var, sidebar_id
+        ));
+        self.emit_line(&format!("{}.appendChild({});", parent, scrim_var));
+        self.emit_line(&format!("{}.appendChild({});", parent, toggle_var));
+        self.emit_line(&format!(
+            "WF.offCanvas({}, {}, {});",
+            var, toggle_var, scrim_var
+        ));
     }
 
     fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"nav\", {{ className: \"{}\", \"aria-label\": \"breadcrumb\"{} }});", var, self.class_attr("Breadcrumb", ui), self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"nav\", {{ className: \"{}\", \"aria-label\": \"breadcrumb\"{} }});",
+            var,
+            self.class_attr("Breadcrumb", ui),
+            self.wf_node_inline(ui)
+        ));
 
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
-                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Breadcrumb" && s == "Item") {
+                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Breadcrumb" && s == "Item")
+                {
                     let item_var = self.fresh_var();
                     let to = ui_child.args.iter().find_map(|a| {
                         if let Arg::Named(k, v) = a {
-                            if k == "to" { Some(self.emit_expr(v)) } else { None }
-                        } else { None }
+                            if k == "to" {
+                                Some(self.emit_expr(v))
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
                     });
                     if let Some(href) = to {
-                        let bp = if self.base_path.is_empty() { String::new() } else { format!("WF._basePath + ") };
+                        let bp = if self.base_path.is_empty() {
+                            String::new()
+                        } else {
+                            "WF._basePath + ".to_string()
+                        };
                         self.emit_line(&format!(
                             "const {} = WF.h(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{}{} }});",
                             item_var, bp, href, self.wf_node_inline(ui_child)
@@ -1569,13 +2011,32 @@ impl JsCodegen {
     }
 
     fn emit_tooltip(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        let text = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "text" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
-        }).unwrap_or_else(|| "\"\"".to_string());
+        let text = ui
+            .args
+            .iter()
+            .find_map(|a| {
+                if let Arg::Named(k, v) = a {
+                    if k == "text" {
+                        Some(self.emit_expr(v))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| "\"\"".to_string());
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Tooltip", ui), self.wf_node_inline(ui)));
+        // The tip is only reachable if the thing it describes points at it;
+        // `role="tooltip"` alone announces nothing, because nothing refers to it.
+        let tip_id = format!("wf-tip-{}", var.trim_start_matches("_e"));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\", \"aria-describedby\": \"{}\"{} }});",
+            var,
+            self.class_attr("Tooltip", ui),
+            tip_id,
+            self.wf_node_inline(ui)
+        ));
 
         // Render children (the trigger element)
         for child in &ui.children {
@@ -1585,8 +2046,8 @@ impl JsCodegen {
         // Add tooltip text span
         let tip_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\" }}, {});",
-            tip_var, text
+            "const {} = WF.h(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: \"{}\" }}, {});",
+            tip_var, tip_id, text
         ));
         self.emit_line(&format!("{}.appendChild({});", var, tip_var));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -1595,18 +2056,36 @@ impl JsCodegen {
     fn emit_avatar(&mut self, var: &str, ui: &UIElement, parent: &str) {
         let src = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "src" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "src" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let alt = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "alt" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "alt" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let initials = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "initials" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "initials" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         let mut cls = "wf-avatar".to_string();
@@ -1644,24 +2123,51 @@ impl JsCodegen {
     fn emit_skeleton(&mut self, var: &str, ui: &UIElement, parent: &str) {
         let height = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "height" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "height" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let width = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "width" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "width" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let size = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "size" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "size" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         let is_circle = ui.modifiers.iter().any(|m| m == "circle");
-        let cls = if is_circle { "wf-skeleton wf-skeleton--circle" } else { "wf-skeleton" };
+        let cls = if is_circle {
+            "wf-skeleton wf-skeleton--circle"
+        } else {
+            "wf-skeleton"
+        };
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, cls, self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            var,
+            cls,
+            self.wf_node_inline(ui)
+        ));
         if let Some(h) = &height {
             self.emit_line(&format!("{}.style.height = {};", var, h));
         }
@@ -1670,28 +2176,42 @@ impl JsCodegen {
         }
         if is_circle {
             if let Some(s) = &size {
-                if height.is_none() { self.emit_line(&format!("{}.style.height = {};", var, s)); }
-                if width.is_none() { self.emit_line(&format!("{}.style.width = {};", var, s)); }
+                if height.is_none() {
+                    self.emit_line(&format!("{}.style.height = {};", var, s));
+                }
+                if width.is_none() {
+                    self.emit_line(&format!("{}.style.width = {};", var, s));
+                }
             }
         }
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
     fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Carousel", ui), self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            var,
+            self.class_attr("Carousel", ui),
+            self.wf_node_inline(ui)
+        ));
 
         let track_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel__track\" }});", track_var));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"wf-carousel__track\" }});",
+            track_var
+        ));
 
         // Collect slides
         let mut slide_count = 0;
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
-                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Carousel" && s == "Slide") {
+                if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Carousel" && s == "Slide")
+                {
                     let slide_var = self.fresh_var();
                     self.emit_line(&format!(
                         "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\"{} }});",
-                        slide_var, self.wf_node_inline(ui_child)
+                        slide_var,
+                        self.wf_node_inline(ui_child)
                     ));
                     for c in &ui_child.children {
                         self.emit_statement_dom(c, &slide_var);
@@ -1714,7 +2234,10 @@ impl JsCodegen {
             self.emit_line(&format!("const {} = WF.signal(0);", idx_var));
 
             let nav_var = self.fresh_var();
-            self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"wf-carousel__nav\" }});", nav_var));
+            self.emit_line(&format!(
+                "const {} = WF.h(\"div\", {{ className: \"wf-carousel__nav\" }});",
+                nav_var
+            ));
 
             for i in 0..slide_count {
                 let dot_var = self.fresh_var();
@@ -1730,14 +2253,22 @@ impl JsCodegen {
             let autoplay = ui.args.iter().any(|a| {
                 matches!(a, Arg::Named(k, v) if k == "autoplay" && matches!(v, Expr::BoolLiteral(true)))
             });
-            let interval = ui.args.iter().find_map(|a| {
-                if let Arg::Named(k, v) = a {
-                    if k == "interval" {
-                        if let Expr::NumberLiteral(n) = v { return Some(*n as u32); }
+            let interval = ui
+                .args
+                .iter()
+                .find_map(|a| {
+                    if let Arg::Named(k, v) = a {
+                        if k == "interval" {
+                            if let Expr::NumberLiteral(n) = v {
+                                return Some(*n as u32);
+                            }
+                        }
+                        None
+                    } else {
+                        None
                     }
-                    None
-                } else { None }
-            }).unwrap_or(5000);
+                })
+                .unwrap_or(5000);
 
             if autoplay {
                 self.emit_line(&format!(
@@ -1751,16 +2282,32 @@ impl JsCodegen {
     }
 
     fn emit_icon_button(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        let icon = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "icon" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
-        }).unwrap_or_else(|| "\"\"".to_string());
+        let icon = ui
+            .args
+            .iter()
+            .find_map(|a| {
+                if let Arg::Named(k, v) = a {
+                    if k == "icon" {
+                        Some(self.emit_expr(v))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| "\"\"".to_string());
 
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "label" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "label" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         let mut cls = "wf-icon-btn".to_string();
@@ -1782,10 +2329,15 @@ impl JsCodegen {
 
         // Click handler from children (same as Button shorthand)
         if ui.events.is_empty() && !ui.children.is_empty() {
-            let all_actions = ui.children.iter().all(|s| matches!(&s.kind,
-                StatementKind::Assignment(_) | StatementKind::MethodCall(_) |
-                StatementKind::Navigate(_) | StatementKind::ExprStatement(_)
-            ));
+            let all_actions = ui.children.iter().all(|s| {
+                matches!(
+                    &s.kind,
+                    StatementKind::Assignment(_)
+                        | StatementKind::MethodCall(_)
+                        | StatementKind::Navigate(_)
+                        | StatementKind::ExprStatement(_)
+                )
+            });
             if all_actions {
                 let body = self.emit_statements_inline(&ui.children);
                 btn_attrs.push_str(&format!(", \"on:click\": (e) => {{ {} }}", body));
@@ -1793,7 +2345,10 @@ impl JsCodegen {
         }
         for handler in &ui.events {
             let body = self.emit_event_body(&handler.body);
-            btn_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+            btn_attrs.push_str(&format!(
+                ", \"on:{}\": (event) => {{ {} }}",
+                handler.event, body
+            ));
         }
         if let Some(entry) = self.wf_node_entry(ui) {
             btn_attrs.push_str(&format!(", {}", entry));
@@ -1810,33 +2365,78 @@ impl JsCodegen {
         let bind_var = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "bind" {
-                    if let Expr::Identifier(s) = v { return Some(s.clone()); }
+                    if let Expr::Identifier(s) = v {
+                        return Some(s.clone());
+                    }
                 }
                 None
-            } else { None }
+            } else {
+                None
+            }
         });
-        let min_val = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "min" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
-        }).unwrap_or_else(|| "0".to_string());
-        let max_val = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "max" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
-        }).unwrap_or_else(|| "100".to_string());
-        let step = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "step" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
-        }).unwrap_or_else(|| "1".to_string());
+        let min_val = ui
+            .args
+            .iter()
+            .find_map(|a| {
+                if let Arg::Named(k, v) = a {
+                    if k == "min" {
+                        Some(self.emit_expr(v))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| "0".to_string());
+        let max_val = ui
+            .args
+            .iter()
+            .find_map(|a| {
+                if let Arg::Named(k, v) = a {
+                    if k == "max" {
+                        Some(self.emit_expr(v))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| "100".to_string());
+        let step = ui
+            .args
+            .iter()
+            .find_map(|a| {
+                if let Arg::Named(k, v) = a {
+                    if k == "step" {
+                        Some(self.emit_expr(v))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| "1".to_string());
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "label" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "label" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
-        self.emit_line(&format!("const {} = WF.h(\"div\", {{ className: \"{}\"{} }});", var, self.class_attr("Slider", ui), self.wf_node_inline(ui)));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            var,
+            self.class_attr("Slider", ui),
+            self.wf_node_inline(ui)
+        ));
 
         if let Some(l) = &label {
             let label_var = self.fresh_var();
@@ -1848,7 +2448,10 @@ impl JsCodegen {
         }
 
         let input_var = self.fresh_var();
-        let mut input_attrs = format!("type: \"range\", min: {}, max: {}, step: {}", min_val, max_val, step);
+        let mut input_attrs = format!(
+            "type: \"range\", min: {}, max: {}, step: {}",
+            min_val, max_val, step
+        );
         if let Some(state) = &bind_var {
             input_attrs.push_str(&format!(
                 ", value: () => _{}(), \"on:input\": (e) => _{}.set(Number(e.target.value))",
@@ -1857,9 +2460,15 @@ impl JsCodegen {
         }
         for handler in &ui.events {
             let body = self.emit_event_body(&handler.body);
-            input_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+            input_attrs.push_str(&format!(
+                ", \"on:{}\": (event) => {{ {} }}",
+                handler.event, body
+            ));
         }
-        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"input\", {{ {} }});",
+            input_var, input_attrs
+        ));
         self.emit_line(&format!("{}.appendChild({});", var, input_var));
 
         // Show current value if bound
@@ -1879,25 +2488,47 @@ impl JsCodegen {
         let bind_var = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "bind" {
-                    if let Expr::Identifier(s) = v { return Some(s.clone()); }
+                    if let Expr::Identifier(s) = v {
+                        return Some(s.clone());
+                    }
                 }
                 None
-            } else { None }
+            } else {
+                None
+            }
         });
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "label" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "label" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let min = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "min" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "min" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let max = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "max" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "max" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
 
         // Root on the component's own class, not the generic form-group: the
@@ -1936,9 +2567,15 @@ impl JsCodegen {
         }
         for handler in &ui.events {
             let body = self.emit_event_body(&handler.body);
-            input_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+            input_attrs.push_str(&format!(
+                ", \"on:{}\": (event) => {{ {} }}",
+                handler.event, body
+            ));
         }
-        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"input\", {{ {} }});",
+            input_var, input_attrs
+        ));
         self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
 
         self.emit_line(&format!("const {} = {};", var, wrapper_var));
@@ -1948,20 +2585,34 @@ impl JsCodegen {
     fn emit_file_upload(&mut self, var: &str, ui: &UIElement, parent: &str) {
         let accept = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "accept" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "accept" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
-                if k == "label" { Some(self.emit_expr(v)) } else { None }
-            } else { None }
+                if k == "label" {
+                    Some(self.emit_expr(v))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         });
         let multiple = ui.modifiers.iter().any(|m| m == "multiple");
 
         let wrapper_var = self.fresh_var();
         self.emit_line(&format!(
             "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
-            wrapper_var, self.class_attr("FileUpload", ui), self.wf_node_inline(ui)
+            wrapper_var,
+            self.class_attr("FileUpload", ui),
+            self.wf_node_inline(ui)
         ));
 
         if let Some(l) = &label {
@@ -1983,9 +2634,15 @@ impl JsCodegen {
         }
         for handler in &ui.events {
             let body = self.emit_event_body(&handler.body);
-            input_attrs.push_str(&format!(", \"on:{}\": (event) => {{ {} }}", handler.event, body));
+            input_attrs.push_str(&format!(
+                ", \"on:{}\": (event) => {{ {} }}",
+                handler.event, body
+            ));
         }
-        self.emit_line(&format!("const {} = WF.h(\"input\", {{ {} }});", input_var, input_attrs));
+        self.emit_line(&format!(
+            "const {} = WF.h(\"input\", {{ {} }});",
+            input_var, input_attrs
+        ));
         self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
 
         self.emit_line(&format!("const {} = {};", var, wrapper_var));
@@ -2005,7 +2662,10 @@ impl JsCodegen {
         self.emit_line("() => {");
         self.indent += 1;
         let then_var = self.fresh_var();
-        self.emit_line(&format!("const {} = document.createDocumentFragment();", then_var));
+        self.emit_line(&format!(
+            "const {} = document.createDocumentFragment();",
+            then_var
+        ));
         for stmt in &if_stmt.then_body {
             self.emit_statement_dom(stmt, &then_var);
         }
@@ -2018,7 +2678,10 @@ impl JsCodegen {
             self.emit_line("() => {");
             self.indent += 1;
             let else_var = self.fresh_var();
-            self.emit_line(&format!("const {} = document.createDocumentFragment();", else_var));
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                else_var
+            ));
             for stmt in else_body {
                 self.emit_statement_dom(stmt, &else_var);
             }
@@ -2029,7 +2692,10 @@ impl JsCodegen {
             self.emit_line("() => {");
             self.indent += 1;
             let elif_var = self.fresh_var();
-            self.emit_line(&format!("const {} = document.createDocumentFragment();", elif_var));
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                elif_var
+            ));
             let elif = IfStmt {
                 condition: if_stmt.else_if_branches[0].0.clone(),
                 animate: if_stmt.animate.clone(),
@@ -2067,12 +2733,27 @@ impl JsCodegen {
 
         self.emit_line(&format!("({}{}) => {{", for_stmt.item, index_param));
         self.indent += 1;
+
+        // The item and index are ordinary parameters of this callback for as
+        // long as we are inside it, not signals. Pushed as a stack so a nested
+        // loop's binding does not erase the outer one's.
+        let bound = self.loop_bindings.len();
+        self.loop_bindings.push(for_stmt.item.clone());
+        if let Some(idx) = &for_stmt.index {
+            self.loop_bindings.push(idx.clone());
+        }
+
         let item_var = self.fresh_var();
-        self.emit_line(&format!("const {} = document.createDocumentFragment();", item_var));
+        self.emit_line(&format!(
+            "const {} = document.createDocumentFragment();",
+            item_var
+        ));
         for stmt in &for_stmt.body {
             self.emit_statement_dom(stmt, &item_var);
         }
         self.emit_line(&format!("return {};", item_var));
+
+        self.loop_bindings.truncate(bound);
         self.indent -= 1;
         self.emit_line("},");
 
@@ -2092,7 +2773,10 @@ impl JsCodegen {
         self.emit_line("() => {");
         self.indent += 1;
         let content_var = self.fresh_var();
-        self.emit_line(&format!("const {} = document.createDocumentFragment();", content_var));
+        self.emit_line(&format!(
+            "const {} = document.createDocumentFragment();",
+            content_var
+        ));
         for stmt in &show_stmt.body {
             self.emit_statement_dom(stmt, &content_var);
         }
@@ -2148,14 +2832,20 @@ impl JsCodegen {
             format!("{{ {} }}", opts.join(", "))
         };
 
-        self.emit_line(&format!("const {} = WF.wfFetch({}, {}, {{", var, url, opts_str));
+        self.emit_line(&format!(
+            "const {} = WF.wfFetch({}, {}, {{",
+            var, url, opts_str
+        ));
         self.indent += 1;
 
         if let Some(loading) = &fetch.loading_block {
             self.emit_line("loading: () => {");
             self.indent += 1;
             let l_var = self.fresh_var();
-            self.emit_line(&format!("const {} = document.createDocumentFragment();", l_var));
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                l_var
+            ));
             for stmt in loading {
                 self.emit_statement_dom(stmt, &l_var);
             }
@@ -2170,7 +2860,10 @@ impl JsCodegen {
             // Create signal alias so _{err_var}() resolves inside the callback body
             self.emit_line(&format!("const _{} = () => {};", err_var, err_var));
             let e_var = self.fresh_var();
-            self.emit_line(&format!("const {} = document.createDocumentFragment();", e_var));
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                e_var
+            ));
             for stmt in error_body {
                 self.emit_statement_dom(stmt, &e_var);
             }
@@ -2183,9 +2876,15 @@ impl JsCodegen {
             self.emit_line(&format!("success: ({}) => {{", fetch.variable));
             self.indent += 1;
             // Create signal alias so _{variable}() resolves inside the callback body
-            self.emit_line(&format!("const _{} = () => {};", fetch.variable, fetch.variable));
+            self.emit_line(&format!(
+                "const _{} = () => {};",
+                fetch.variable, fetch.variable
+            ));
             let s_var = self.fresh_var();
-            self.emit_line(&format!("const {} = document.createDocumentFragment();", s_var));
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                s_var
+            ));
             for stmt in success_body {
                 self.emit_statement_dom(stmt, &s_var);
             }
@@ -2230,7 +2929,11 @@ impl JsCodegen {
                 self.emit_line(&format!("console.log({});", val));
             }
             StatementKind::Animate(anim) => {
-                let dur = anim.duration.as_deref().map(|d| format!(", \"{}\"", d)).unwrap_or_default();
+                let dur = anim
+                    .duration
+                    .as_deref()
+                    .map(|d| format!(", \"{}\"", d))
+                    .unwrap_or_default();
                 self.emit_line(&format!(
                     "WF.animateEl(\"{}\", \"{}\"{});",
                     anim.target, anim.animation, dur
@@ -2285,12 +2988,24 @@ impl JsCodegen {
             opts.push(format!("{}: {}", opt.key, val));
         }
 
-        let method = fetch.options.iter().find_map(|o| {
-            if o.key == "method" { Some(self.emit_expr(&o.value)) } else { None }
-        }).unwrap_or_else(|| "\"GET\"".to_string());
+        let method = fetch
+            .options
+            .iter()
+            .find_map(|o| {
+                if o.key == "method" {
+                    Some(self.emit_expr(&o.value))
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| "\"GET\"".to_string());
 
         let body = fetch.options.iter().find_map(|o| {
-            if o.key == "body" { Some(self.emit_expr(&o.value)) } else { None }
+            if o.key == "body" {
+                Some(self.emit_expr(&o.value))
+            } else {
+                None
+            }
         });
 
         self.emit_line(&format!("fetch({}, {{", url));
@@ -2348,7 +3063,8 @@ impl JsCodegen {
     fn emit_expr(&self, expr: &Expr) -> String {
         match expr {
             Expr::StringLiteral(s) => {
-                let escaped = s.replace('\\', "\\\\")
+                let escaped = s
+                    .replace('\\', "\\\\")
                     .replace('"', "\\\"")
                     .replace('\n', "\\n")
                     .replace('\r', "\\r")
@@ -2388,20 +3104,53 @@ impl JsCodegen {
                 }
                 // Browser globals should NOT be prefixed
                 const BROWSER_GLOBALS: &[&str] = &[
-                    "window", "document", "console", "localStorage", "sessionStorage",
-                    "JSON", "Math", "Date", "setTimeout", "setInterval", "clearTimeout", "clearInterval",
-                    "parseInt", "parseFloat", "Array", "Object", "String", "Number", "Boolean",
-                    "Promise", "Error", "Map", "Set", "RegExp", "Infinity", "NaN", "undefined",
-                    "encodeURIComponent", "decodeURIComponent", "encodeURI", "decodeURI",
-                    "atob", "btoa", "fetch", "alert", "confirm", "prompt",
-                    "requestAnimationFrame", "cancelAnimationFrame",
+                    "window",
+                    "document",
+                    "console",
+                    "localStorage",
+                    "sessionStorage",
+                    "JSON",
+                    "Math",
+                    "Date",
+                    "setTimeout",
+                    "setInterval",
+                    "clearTimeout",
+                    "clearInterval",
+                    "parseInt",
+                    "parseFloat",
+                    "Array",
+                    "Object",
+                    "String",
+                    "Number",
+                    "Boolean",
+                    "Promise",
+                    "Error",
+                    "Map",
+                    "Set",
+                    "RegExp",
+                    "Infinity",
+                    "NaN",
+                    "undefined",
+                    "encodeURIComponent",
+                    "decodeURIComponent",
+                    "encodeURI",
+                    "decodeURI",
+                    "atob",
+                    "btoa",
+                    "fetch",
+                    "alert",
+                    "confirm",
+                    "prompt",
+                    "requestAnimationFrame",
+                    "cancelAnimationFrame",
                 ];
                 if BROWSER_GLOBALS.contains(&name.as_str()) {
-                    return format!("{}", name);
+                    return name.to_string();
                 }
                 // Store references, component props, and built-in names stay as-is
                 if self.stores.contains(name)
                     || self.current_props.contains(name)
+                    || self.loop_bindings.contains(name)
                     || name == "params"
                     || name == "value"
                     || name == "key"
@@ -2409,7 +3158,7 @@ impl JsCodegen {
                     || name == "e"
                     || name.starts_with("_")
                 {
-                    format!("{}", name)
+                    name.to_string()
                 } else {
                     // State variable (signal) — access via _name()
                     format!("_{}()", name)
@@ -2512,7 +3261,12 @@ impl JsCodegen {
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                 // Check if it's a store function
                 if self.stores.contains(name) {
-                    format!("{}.{}({})", name, args_str.first().unwrap_or(&String::new()), args_str.get(1..).unwrap_or(&[]).join(", "))
+                    format!(
+                        "{}.{}({})",
+                        name,
+                        args_str.first().unwrap_or(&String::new()),
+                        args_str.get(1..).unwrap_or(&[]).join(", ")
+                    )
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -2522,9 +3276,10 @@ impl JsCodegen {
                 format!("[{}]", items_str.join(", "))
             }
             Expr::MapLiteral(entries) => {
-                let entries_str: Vec<String> = entries.iter().map(|(k, v)| {
-                    format!("{}: {}", k, self.emit_expr(v))
-                }).collect();
+                let entries_str: Vec<String> = entries
+                    .iter()
+                    .map(|(k, v)| format!("{}: {}", k, self.emit_expr(v)))
+                    .collect();
                 format!("{{ {} }}", entries_str.join(", "))
             }
             Expr::Lambda(param, body) => {
@@ -2597,7 +3352,10 @@ impl JsCodegen {
                     let then_body = self.emit_statements_inline(&if_stmt.then_body);
                     if let Some(else_body) = &if_stmt.else_body {
                         let else_str = self.emit_statements_inline(else_body);
-                        parts.push(format!("if ({}) {{ {} }} else {{ {} }}", cond, then_body, else_str));
+                        parts.push(format!(
+                            "if ({}) {{ {} }} else {{ {} }}",
+                            cond, then_body, else_str
+                        ));
                     } else {
                         parts.push(format!("if ({}) {{ {} }}", cond, then_body));
                     }
@@ -2636,6 +3394,15 @@ impl JsCodegen {
     }
 }
 
+/// Whether `ui` directly contains a `Parent.Sub` element.
+fn has_subcomponent(ui: &UIElement, parent: &str, sub: &str) -> bool {
+    ui.children.iter().any(|stmt| {
+        matches!(&stmt.kind, StatementKind::UIElement(child)
+            if matches!(&child.component, ComponentRef::SubComponent(p, s)
+                if p == parent && s == sub))
+    })
+}
+
 // ─── Utility functions ──────────────────────────────────
 
 fn is_reactive_expr(expr_str: &str) -> bool {
@@ -2654,7 +3421,10 @@ fn is_reactive_expr(expr_str: &str) -> bool {
         }
     }
     // Also check for WF.i18n.t( which is reactive (locale changes)
-    if expr_str.contains("WF.i18n.t(") || expr_str.contains("WF.i18n.locale()") || expr_str.contains("WF.i18n.dir()") {
+    if expr_str.contains("WF.i18n.t(")
+        || expr_str.contains("WF.i18n.locale()")
+        || expr_str.contains("WF.i18n.dir()")
+    {
         return true;
     }
     false
@@ -2685,4 +3455,123 @@ fn camel_to_kebab(s: &str) -> String {
         result.push(ch.to_lowercase().next().unwrap());
     }
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::lexer::Lexer;
+    use crate::parser::Parser;
+
+    fn compile(src: &str) -> String {
+        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
+        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        JsCodegen::new().generate(&program)
+    }
+
+    /// `WF.listRender` hands the body its item as a plain callback parameter, so
+    /// every reference to it must stay plain.
+    ///
+    /// The identifier path treated anything that was not a prop or a store as
+    /// state, so a loop over `tasks` bound `task` and then read `_task()` —
+    /// `ReferenceError` on the first non-empty list. `wf init -t spa` shipped it.
+    #[test]
+    fn a_loop_variable_is_a_plain_binding_not_a_signal() {
+        let js = compile(
+            "Page P (path: \"/\") {\n\
+             \x20   state items = []\n\
+             \x20   for item in items { Text(item.title) }\n\
+             }",
+        );
+        assert!(
+            js.contains("item.title"),
+            "the loop body should read the binding directly:\n{js}"
+        );
+        assert!(
+            !js.contains("_item()"),
+            "the loop variable was emitted as a signal:\n{js}"
+        );
+    }
+
+    /// The same has to hold inside an event handler nested in the loop, which is
+    /// where the pattern actually shows up — a row with a button acting on it.
+    #[test]
+    fn a_loop_variable_survives_into_a_nested_event_handler() {
+        let js = compile(
+            "Store S { state rows = []\n action pick(id: Number) { } }\n\
+             Page P (path: \"/\") {\n\
+             \x20   use S\n\
+             \x20   for row in S.rows { Button(\"Pick\") { S.pick(row.id) } }\n\
+             }",
+        );
+        assert!(
+            js.contains("S.pick(row.id)"),
+            "handler lost the binding:\n{js}"
+        );
+        assert!(
+            !js.contains("_row()"),
+            "handler treated the binding as state:\n{js}"
+        );
+    }
+
+    /// An index binding is a parameter too.
+    #[test]
+    fn a_loop_index_is_a_plain_binding() {
+        let js = compile(
+            "Page P (path: \"/\") {\n\
+             \x20   state items = []\n\
+             \x20   for item, i in items { Text(\"{i}: {item.name}\") }\n\
+             }",
+        );
+        assert!(
+            !js.contains("_i()"),
+            "the index was emitted as a signal:\n{js}"
+        );
+        assert!(
+            !js.contains("_item()"),
+            "the item was emitted as a signal:\n{js}"
+        );
+    }
+
+    /// A nested loop must not erase the outer binding when it finishes.
+    #[test]
+    fn nested_loops_each_keep_their_own_binding() {
+        let js = compile(
+            "Page P (path: \"/\") {\n\
+             \x20   state groups = []\n\
+             \x20   for group in groups {\n\
+             \x20       for member in group.members { Text(member.name) }\n\
+             \x20       Text(group.title)\n\
+             \x20   }\n\
+             }",
+        );
+        assert!(
+            !js.contains("_member()"),
+            "inner binding became a signal:\n{js}"
+        );
+        assert!(
+            !js.contains("_group()"),
+            "the outer binding was lost after the inner loop closed:\n{js}"
+        );
+        assert!(
+            js.contains("group.title"),
+            "outer binding missing after nesting:\n{js}"
+        );
+    }
+
+    /// State that is genuinely state must still be read as a signal — the fix
+    /// above must not make everything plain.
+    #[test]
+    fn state_outside_a_loop_is_still_a_signal() {
+        let js = compile(
+            "Page P (path: \"/\") {\n\
+             \x20   state count = 0\n\
+             \x20   Text(\"{count}\")\n\
+             }",
+        );
+        assert!(
+            js.contains("_count()"),
+            "state stopped being reactive:\n{js}"
+        );
+    }
 }

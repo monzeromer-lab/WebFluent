@@ -1,0 +1,194 @@
+// Every built-in component the language has, written the way the docs show them.
+// If a component regresses, this page is where it shows up first.
+Page Gallery (path: "/", description: "Every built-in component, rendered once.", title: "Component Gallery") {
+    state query = ""
+    state agreed = false
+    state plan = "pro"
+    state volume = 40
+    state modalOpen = false
+
+    Container {
+        Heading("Component Gallery", h1)
+        Text("Every built-in, rendered once.", muted, subtitle)
+
+        // ── Layout ──────────────────────────────────
+        Heading("Layout", h2)
+        Row(gap: md, align: center, justify: between) {
+            Column(span: 4) { Text("Column of four") }
+            Column(span: 8) { Text("Column of eight") }
+        }
+        Grid(columns: 3) {
+            Card { Text("Grid cell one") }
+            Card { Text("Grid cell two") }
+            Card { Text("Grid cell three") }
+        }
+        Stack(gap: sm) {
+            Text("Stacked first")
+            Text("Stacked second")
+        }
+        Spacer
+        Divider
+
+        // ── Navigation ──────────────────────────────
+        Heading("Navigation", h2)
+        Navbar {
+            Text("Brand", bold)
+            Link("Home", to: "/")
+            Link("Docs", to: "/docs")
+        }
+        Breadcrumb {
+            Link("Root", to: "/")
+            Link("Section", to: "/section")
+            Text("Current")
+        }
+        Menu(label: "Actions") {
+            Text("Rename")
+            Text("Duplicate")
+        }
+        Tabs {
+            TabPage("Overview") { Text("The overview tab body.") }
+            TabPage("Details") { Text("The details tab body.") }
+        }
+
+        // ── Data display ────────────────────────────
+        Heading("Data display", h2)
+        Card(elevated) {
+            Card.Header { Heading("Card header", h3) }
+            Card.Body { Text("Card body copy.") }
+            Card.Footer { Button("Card action", primary) }
+        }
+        Table {
+            Thead {
+                Trow {
+                    Tcell("Item")
+                    Tcell("Status")
+                }
+            }
+            Tbody {
+                Trow {
+                    Tcell("Widget")
+                    Tcell("Active")
+                }
+                Trow {
+                    Tcell("Gadget")
+                    Tcell("Pending")
+                }
+            }
+        }
+        List {
+            Text("First list item")
+            Text("Second list item")
+        }
+        Row(gap: sm, align: center) {
+            Badge("New", success)
+            Badge("Beta", primary, pill)
+            Tag("design")
+            Avatar(initials: "MO", large)
+            Tooltip(text: "Helpful hint") { Text("Hover me") }
+        }
+
+        // ── Data input ──────────────────────────────
+        Heading("Data input", h2)
+        Form {
+            Input(text, bind: query, placeholder: "Search the gallery")
+            Input(email, placeholder: "you@example.com")
+            Input(password, placeholder: "Password")
+            Input(datetime, placeholder: "When")
+            Select {
+                Option("Starter")
+                Option("Pro")
+                Option("Enterprise")
+            }
+            Checkbox(bind: agreed, label: "I agree to the terms")
+            Radio(bind: plan, value: "pro", label: "Pro plan")
+            Switch(bind: agreed, label: "Email me updates")
+            Slider(bind: volume, label: "Volume", min: 0, max: 100, step: 5)
+            DatePicker(label: "Start date")
+            FileUpload(label: "Attach a file", accept: ".png,.jpg")
+            Button("Submit", primary, submit)
+        }
+
+        // ── Feedback ────────────────────────────────
+        Heading("Feedback", h2)
+        Alert("Saved successfully.", success)
+        Alert("Something needs attention.", warning)
+        Alert("That did not work.", danger)
+        Alert("For your information.", info)
+        Spinner
+        Spinner(large)
+        Progress(value: 60, max: 100)
+        Skeleton
+        Modal(title: "Confirm", visible: modalOpen) {
+            Text("Are you sure?")
+            Modal.Footer {
+                Button("Cancel") { modalOpen = false }
+                Button("Confirm", primary) { modalOpen = false }
+            }
+        }
+        Dialog(title: "Notice") {
+            Text("A dialog body.")
+        }
+
+        // ── Actions ─────────────────────────────────
+        Heading("Actions", h2)
+        Row(gap: sm, align: center) {
+            Button("Default")
+            Button("Primary", primary)
+            Button("Secondary", secondary)
+            Button("Success", success)
+            Button("Danger", danger)
+            Button("Warning", warning)
+            Button("Info", info)
+            Button("Small", small)
+            Button("Large", large)
+            Button("Pill", pill)
+            Button("Rounded", rounded)
+            Button("Outlined", outlined)
+        }
+        ButtonGroup {
+            Button("Left")
+            Button("Middle")
+            Button("Right")
+        }
+        IconButton(icon: "plus", label: "Add an item", primary)
+        Dropdown(label: "More") {
+            Text("Export")
+            Text("Archive")
+        }
+
+        // ── Media ───────────────────────────────────
+        Heading("Media", h2)
+        Image(src: "/logo.png", alt: "The project logo", rounded)
+        Video(src: "/clip.mp4", controls)
+        Icon("star", large, primary)
+        Carousel {
+            Image(src: "/one.png", alt: "Slide one")
+            Image(src: "/two.png", alt: "Slide two")
+        }
+
+        // ── Typography ──────────────────────────────
+        Heading("Typography", h2)
+        Heading("Level three", h3)
+        Heading("Level four", h4)
+        Heading("Level five", h5)
+        Heading("Level six", h6)
+        Text("Bold text", bold)
+        Text("Italic text", italic)
+        Text("Underlined text", underline)
+        Text("Uppercased text", uppercase)
+        Text("Lowercased text", lowercase)
+        Text("Centred text", center)
+        Text("Right-aligned text", right)
+        Text("Muted text", muted)
+        Code("let answer = 42")
+        Blockquote("A quotation worth keeping.")
+
+        // ── Document structure ──────────────────────
+        Heading("Document structure", h2)
+        Section {
+            Header { Text("A section header") }
+            Paragraph { Text("A paragraph inside a section.") }
+            Footer { Text("A section footer") }
+        }
+    }
+}

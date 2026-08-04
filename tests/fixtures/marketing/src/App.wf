@@ -1,0 +1,30 @@
+App {
+    Navbar {
+        style {
+            background: "rgba(255, 255, 255, 0.9)"
+            border-bottom: "1px solid #E2E8F0"
+        }
+
+        Text("Ledger", bold)
+
+        Link("Features", to: "/")
+        Link("Pricing", to: "/pricing")
+
+        Button("Start free", primary, pill)
+    }
+
+    Router {
+        Route(path: "/", page: Home)
+        Route(path: "/pricing", page: Pricing)
+        Route(path: "*", page: NotFound)
+    }
+
+    Footer {
+        style {
+            padding: "3rem 1.5rem"
+            background: "#0F172A"
+            color: "#94A3B8"
+        }
+        Text("© 2026 Ledger. Every invoice, eventually paid.", small, center)
+    }
+}

@@ -494,6 +494,13 @@ const WF = (() => {
     const error = signal(null);
     const data = signal(null);
 
+    // A screen reader is told the region is still filling, and then told once —
+    // politely — when it has. Without this a fetch completes in silence and the
+    // user has no way to know the content arrived.
+    wrapper.setAttribute("aria-live", "polite");
+    wrapper.setAttribute("aria-busy", "true");
+    effect(() => { wrapper.setAttribute("aria-busy", loading() ? "true" : "false"); });
+
     // Show loading
     if (callbacks.loading) {
       const loadingEl = document.createElement("div");
@@ -559,19 +566,151 @@ const WF = (() => {
   }
 
   // ─── Toast ───────────────────────────────────────────
+  //
+  // A live region only announces changes made *after* it is in the document, so
+  // the container is created once up front rather than lazily on the first
+  // toast — otherwise the first notification, the one most worth hearing, is
+  // the one that is silently dropped.
   let toastContainer = null;
 
-  function showToast(message, variant, duration) {
+  function _toastContainer() {
     if (!toastContainer) {
       toastContainer = document.createElement("div");
       toastContainer.className = "wf-toast-container";
+      // `polite` waits for a pause rather than interrupting; not atomic, so a
+      // second toast announces itself rather than re-reading the whole stack.
+      toastContainer.setAttribute("role", "status");
+      toastContainer.setAttribute("aria-live", "polite");
+      toastContainer.setAttribute("aria-atomic", "false");
       document.body.appendChild(toastContainer);
     }
+    return toastContainer;
+  }
+
+  function showToast(message, variant, duration) {
+    const container = _toastContainer();
     const toast = document.createElement("div");
     toast.className = `wf-toast wf-toast--${variant || "info"}`;
     toast.textContent = message;
-    toastContainer.appendChild(toast);
+    container.appendChild(toast);
     setTimeout(() => { toast.classList.add("wf-toast--exit"); setTimeout(() => toast.remove(), 300); }, duration || 3000);
+  }
+
+  // ─── Dialogs, popups and tablists ────────────────────
+
+  /// Drive a `<dialog>` from a boolean signal.
+  ///
+  /// `showModal()` is what buys the focus trap, the inert background, Escape to
+  /// close and `aria-modal`. The browser can close the dialog without us — via
+  /// Escape or the backdrop — so the `close` event writes back to the signal;
+  /// without that the state says "open" while the screen says otherwise, and the
+  /// next toggle appears to do nothing.
+  function bindDialog(el, openSignal) {
+    effect(() => {
+      const shouldBeOpen = openSignal();
+      if (shouldBeOpen && !el.open) {
+        if (el.showModal) el.showModal();
+        else el.setAttribute("open", "");
+      } else if (!shouldBeOpen && el.open) {
+        if (el.close) el.close();
+        else el.removeAttribute("open");
+      }
+    });
+    el.addEventListener("close", () => {
+      if (openSignal()) openSignal.set(false);
+    });
+  }
+
+  /// Close a popup on Escape or an outside click, returning focus to its trigger.
+  ///
+  /// A keyboard user who opens a menu must be able to leave it without tabbing
+  /// through every item, and must land back where they were.
+  function bindPopup(root, trigger, openSignal) {
+    document.addEventListener("click", (e) => {
+      if (!root.contains(e.target)) openSignal.set(false);
+    });
+    root.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && openSignal()) {
+        openSignal.set(false);
+        if (trigger && trigger.focus) trigger.focus();
+        if (e.stopPropagation) e.stopPropagation();
+      }
+    });
+  }
+
+  /// Arrow-key navigation for a `role="tablist"`.
+  ///
+  /// The WAI-ARIA pattern puts only the selected tab in the tab order and moves
+  /// between tabs with the arrow keys, so Tab leaves the widget rather than
+  /// walking through every tab in it.
+  function tablist(nav, activeSignal) {
+    nav.addEventListener("keydown", (e) => {
+      const tabs = nav.querySelectorAll("button");
+      if (!tabs.length) return;
+      const current = activeSignal();
+      let next = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (current + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (current - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") next = 0;
+      else if (e.key === "End") next = tabs.length - 1;
+      if (next === null) return;
+      if (e.preventDefault) e.preventDefault();
+      activeSignal.set(next);
+      if (tabs[next] && tabs[next].focus) tabs[next].focus();
+    });
+  }
+
+  /// The `<main>` landmark inside `container`, created if it is not there.
+  ///
+  /// A page needs exactly one main landmark and the skip link needs something to
+  /// jump to, whether the page has a router (which supplies its own) or mounts
+  /// straight into `#app`. In an SSG build the static paint already contains it,
+  /// so this finds that one rather than nesting a second inside it.
+  function mainOf(container) {
+    if (!container) return container;
+    if (container.tagName === "MAIN") return container;
+    const existing = container.querySelector && container.querySelector("main");
+    if (existing) return existing;
+    const el = document.createElement("main");
+    el.id = "wf-main";
+    container.appendChild(el);
+    return el;
+  }
+
+  /// Wire an off-canvas panel to a toggle button.
+  ///
+  /// Below the breakpoint the panel slides over the page and the toggle is the
+  /// only way to reach it — so the button carries `aria-expanded`, Escape closes
+  /// it, focus returns to the button, and a scrim catches the click outside.
+  /// Above the breakpoint the CSS ignores all of it and the panel is just a
+  /// column.
+  function offCanvas(panel, toggle, scrim) {
+    if (!panel || !toggle) return;
+    let open = false;
+
+    const apply = () => {
+      panel.setAttribute("data-open", open ? "true" : "false");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      if (scrim) {
+        if (open) scrim.removeAttribute("hidden");
+        else scrim.setAttribute("hidden", "");
+      }
+    };
+
+    const set = (next, restoreFocus) => {
+      open = next;
+      apply();
+      if (!next && restoreFocus && toggle.focus) toggle.focus();
+    };
+
+    toggle.addEventListener("click", () => set(!open, false));
+    if (scrim) scrim.addEventListener("click", () => set(false, true));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && open) set(false, true);
+    });
+
+    apply();
+    return { open: () => set(true, false), close: () => set(false, false) };
   }
 
   // ─── Mount ───────────────────────────────────────────
@@ -779,6 +918,7 @@ const WF = (() => {
     createI18n,
     wfFetch, showToast,
     mount, hydrate, setSsgMode, setBasePath,
+    bindDialog, bindPopup, tablist, mainOf, offCanvas,
     __debug, __reg,
     get _basePath() { return _basePath; },
     i18n: null,

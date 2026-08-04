@@ -1,0 +1,13 @@
+Page NotFound (path: "*", description: "Nothing lives at this address.", title: "Not found") {
+    Container {
+        Stack(gap: md) {
+            style {
+                padding: "8rem 0"
+                text-align: "center"
+            }
+            Heading("That page has been invoiced away", h1)
+            Text("Nothing lives at this address.", muted)
+            Link("Back to safety", to: "/")
+        }
+    }
+}

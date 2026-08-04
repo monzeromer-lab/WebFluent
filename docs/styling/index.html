@@ -4,318 +4,427 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Design System & Styling</title>
-    <meta name="description" content="A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.">
+    <meta name="description" content="Themes, design tokens and style blocks.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/styling">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/styling?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/styling?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/styling">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Design System &amp; Styling">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Themes, design tokens and style blocks.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/styling">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Design System &amp; Styling">
+    <meta name="twitter:description" content="Themes, design tokens and style blocks.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/styling#webpage","url":"https://monzeromer-lab.github.io/WebFluent/styling","name":"Design System \u0026 Styling","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Themes, design tokens and style blocks."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/styling#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Design System \u0026 Styling","item":"https://monzeromer-lab.github.io/WebFluent/styling"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
 </head>
 <body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
-        <!--wf-component-->
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">
+                    EN
+                </button>
+                <button class="wf-btn wf-btn--small">
+                    AR
+                </button>
+            </div>
+        </nav>
         <div class="wf-row">
-            <!--wf-component-->
-            <div class="wf-container wf-animate-fadeIn">
-                <div class="wf-spacer"></div>
-                <h1 class="wf-heading wf-heading--h1">Design System &amp; Styling</h1>​
-                <p class="wf-text wf-text--muted">Token-based design system. Every component uses design tokens for colors, spacing, typography. Change the entire look with a config update.</p>​
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Variant Modifiers</h2>​
-                <p class="wf-text">Apply common styles with modifier keywords.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__header">
-                        <p class="wf-text wf-text--bold">Size Modifiers</p>​
-                    </div>​
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <button class="wf-btn wf-btn--primary wf-btn--small">Small</button>​
-                            <button class="wf-btn wf-btn--primary">Medium</button>​
-                            <button class="wf-btn wf-btn--primary wf-btn--large">Large</button>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__header">
-                        <p class="wf-text wf-text--bold">Color Modifiers</p>​
-                    </div>​
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <button class="wf-btn wf-btn--primary">Primary</button>​
-                            <button class="wf-btn wf-btn--secondary">Secondary</button>​
-                            <button class="wf-btn wf-btn--success">Success</button>​
-                            <button class="wf-btn wf-btn--danger">Danger</button>​
-                            <button class="wf-btn wf-btn--warning">Warning</button>​
-                            <button class="wf-btn wf-btn--info">Info</button>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <span class="wf-badge wf-badge--primary">Primary</span>​
-                            <span class="wf-badge wf-badge--success">Success</span>​
-                            <span class="wf-badge wf-badge--danger">Danger</span>​
-                            <span class="wf-badge wf-badge--warning">Warning</span>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__header">
-                        <p class="wf-text wf-text--bold">Shape and Elevation</p>​
-                    </div>​
-                    <div class="wf-card__body">
-                        <div class="wf-row">
-                            <button class="wf-btn wf-btn--primary">Default</button>​
-                            <button class="wf-btn wf-btn--primary wf-btn--rounded">Rounded</button>​
-                            <button class="wf-btn wf-btn--primary wf-btn--full">Full Width</button>​
-                        </div>​
-                        <div class="wf-spacer"></div>
-                        <div class="wf-row">
-                            <div class="wf-card">
-                                <div class="wf-card__body">
-                                    <p class="wf-text">Default</p>​
-                                </div>​
-                            </div>​
-                            <div class="wf-card wf-card--elevated">
-                                <div class="wf-card__body">
-                                    <p class="wf-text">Elevated</p>​
-                                </div>​
-                            </div>​
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Home</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Get Started</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Guide</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Components</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Styling</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Animation</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">i18n</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">SSG</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">PDF</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Template Engine</p>
+                </li>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">Accessibility</p>
+                </li>
+                <li class="wf-sidebar__item">
+                    <p class="wf-text">CLI</p>
+                </li>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">Design System &amp; Styling</h1>
+                    <p class="wf-text wf-text--muted">Token-based design system. Every component uses design tokens for colors, spacing, typography. Change the entire look with a config update.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Variant Modifiers</h2>
+                    <p class="wf-text">Apply common styles with modifier keywords.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__header">
+                            <p class="wf-text wf-text--bold">Size Modifiers</p>
+                        </div>
+                        <div class="wf-card__body">
+                            <div class="wf-row">
+                                <button class="wf-btn wf-btn--primary wf-btn--small">Small</button>
+                                <button class="wf-btn wf-btn--primary">Medium</button>
+                                <button class="wf-btn wf-btn--primary wf-btn--large">Large</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__header">
+                            <p class="wf-text wf-text--bold">Color Modifiers</p>
+                        </div>
+                        <div class="wf-card__body">
+                            <div class="wf-row">
+                                <button class="wf-btn wf-btn--primary">Primary</button>
+                                <button class="wf-btn wf-btn--secondary">Secondary</button>
+                                <button class="wf-btn wf-btn--success">Success</button>
+                                <button class="wf-btn wf-btn--danger">Danger</button>
+                                <button class="wf-btn wf-btn--warning">Warning</button>
+                                <button class="wf-btn wf-btn--info">Info</button>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <span class="wf-badge wf-badge--primary">Primary</span>
+                                <span class="wf-badge wf-badge--success">Success</span>
+                                <span class="wf-badge wf-badge--danger">Danger</span>
+                                <span class="wf-badge wf-badge--warning">Warning</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__header">
+                            <p class="wf-text wf-text--bold">Shape and Elevation</p>
+                        </div>
+                        <div class="wf-card__body">
+                            <div class="wf-row">
+                                <button class="wf-btn wf-btn--primary">Default</button>
+                                <button class="wf-btn wf-btn--primary wf-btn--rounded">Rounded</button>
+                                <button class="wf-btn wf-btn--primary wf-btn--full">Full Width</button>
+                            </div>
+                            <div class="wf-spacer"></div>
+                            <div class="wf-row">
+                                <div class="wf-card">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text">Default</p>
+                                    </div>
+                                </div>
+                                <div class="wf-card wf-card--elevated">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text">Elevated</p>
+                                    </div>
+                                </div>
+                                <div class="wf-card wf-card--outlined">
+                                    <div class="wf-card__body">
+                                        <p class="wf-text">Outlined</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__header">
+                            <p class="wf-text wf-text--bold">Text Modifiers</p>
+                        </div>
+                        <div class="wf-card__body">
+                            <p class="wf-text wf-text--bold">Bold text.</p>
+                            <p class="wf-text wf-text--italic">Italic text.</p>
+                            <p class="wf-text wf-text--uppercase">Uppercase text.</p>
+                            <p class="wf-text wf-text--muted">Muted text.</p>
+                            <p class="wf-text wf-text--primary">Primary colored text.</p>
+                            <p class="wf-text wf-text--small">Small text.</p>
+                            <p class="wf-text wf-text--large">Large text.</p>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Design Tokens</h2>
+                    <p class="wf-text">All styling is built on tokens — CSS custom properties. Override any token in your config.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-row">
+                        <div class="wf-col">
                             <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__header">
+                                    <p class="wf-text wf-text--bold">Colors</p>
+                                </div>
                                 <div class="wf-card__body">
-                                    <p class="wf-text">Outlined</p>​
-                                </div>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__header">
-                        <p class="wf-text wf-text--bold">Text Modifiers</p>​
-                    </div>​
-                    <div class="wf-card__body">
-                        <p class="wf-text wf-text--bold">Bold text.</p>​
-                        <p class="wf-text wf-text--italic">Italic text.</p>​
-                        <p class="wf-text">Uppercase text.</p>​
-                        <p class="wf-text wf-text--muted">Muted text.</p>​
-                        <p class="wf-text wf-text--primary">Primary colored text.</p>​
-                        <p class="wf-text wf-text--small">Small text.</p>​
-                        <p class="wf-text wf-text--large">Large text.</p>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Design Tokens</h2>​
-                <p class="wf-text">All styling is built on tokens — CSS custom properties. Override any token in your config.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-row">
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--outlined">
-                            <div class="wf-card__header">
-                                <p class="wf-text wf-text--bold">Colors</p>​
-                            </div>​
+                                    <table class="wf-table">
+                                        <thead>
+                                            <td>Token</td>
+                                            <td>Value</td>
+                                        </thead>
+                                        <tr>
+                                            <td>color-primary</td>
+                                            <td>#3B82F6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>color-success</td>
+                                            <td>#22C55E</td>
+                                        </tr>
+                                        <tr>
+                                            <td>color-danger</td>
+                                            <td>#EF4444</td>
+                                        </tr>
+                                        <tr>
+                                            <td>color-warning</td>
+                                            <td>#F59E0B</td>
+                                        </tr>
+                                        <tr>
+                                            <td>color-text</td>
+                                            <td>#0F172A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>color-border</td>
+                                            <td>#E2E8F0</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__header">
+                                    <p class="wf-text wf-text--bold">Spacing and Radius</p>
+                                </div>
+                                <div class="wf-card__body">
+                                    <table class="wf-table">
+                                        <thead>
+                                            <td>Token</td>
+                                            <td>Value</td>
+                                        </thead>
+                                        <tr>
+                                            <td>spacing-xs</td>
+                                            <td>0.25rem</td>
+                                        </tr>
+                                        <tr>
+                                            <td>spacing-sm</td>
+                                            <td>0.5rem</td>
+                                        </tr>
+                                        <tr>
+                                            <td>spacing-md</td>
+                                            <td>1rem</td>
+                                        </tr>
+                                        <tr>
+                                            <td>spacing-lg</td>
+                                            <td>1.5rem</td>
+                                        </tr>
+                                        <tr>
+                                            <td>radius-md</td>
+                                            <td>0.5rem</td>
+                                        </tr>
+                                        <tr>
+                                            <td>radius-full</td>
+                                            <td>9999px</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Themes</h2>
+                    <p class="wf-text">A theme is written in WebFluent, in your own source, next to the code it dresses. Declare one and every built-in component follows it.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Theme Ledger {
+    token color-primary: &quot;#0F766E&quot;
+    token color-secondary: &quot;#134E4A&quot;
+    token font-family: &quot;&#x27;Söhne&#x27;, system-ui, sans-serif&quot;
+    token radius-md: &quot;14px&quot;
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <p class="wf-text wf-text--muted wf-text--small">Every token you do not name keeps its baseline value, so a theme is only as large as the difference you want. Declare one theme and it is used automatically; declare several and name the one you want with &quot;theme&quot;: { &quot;name&quot;: &quot;Ledger&quot; } in webfluent.app.json.</p>
+                    <div class="wf-spacer"></div>
+                    <h3 class="wf-heading">Example themes</h3>
+                    <p class="wf-text">Four starting points ship in examples/themes/. Copy one into your src/ and edit it — they are ordinary source files, not engine settings.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
+                        <div class="wf-card" style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 0.75rem">
                             <div class="wf-card__body">
-                                <table class="wf-table">
-                                    <thead>
-                                        <td>Token</td>​
-                                        <td>Value</td>​
-                                    </thead>​
-                                    <tr>
-                                        <td>color-primary</td>​
-                                        <td>#3B82F6</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>color-success</td>​
-                                        <td>#22C55E</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>color-danger</td>​
-                                        <td>#EF4444</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>color-warning</td>​
-                                        <td>#F59E0B</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>color-text</td>​
-                                        <td>#0F172A</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>color-border</td>​
-                                        <td>#E2E8F0</td>​
-                                    </tr>​
-                                </table>​
-                            </div>​
-                        </div>​
-                    </div>​
-                    <div class="wf-col">
-                        <div class="wf-card wf-card--outlined">
-                            <div class="wf-card__header">
-                                <p class="wf-text wf-text--bold">Spacing and Radius</p>​
-                            </div>​
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--primary">baseline</span>
+                                    <p class="wf-text wf-text--bold">Baseline</p>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <p class="wf-text wf-text--muted wf-text--small">What you get with no theme declared: clean, modern, blue primary.</p>
+                                <div class="wf-spacer"></div>
+                                <div class="wf-row">
+                                    <button class="wf-btn wf-btn--primary wf-btn--small">Primary</button>
+                                    <button class="wf-btn wf-btn--success wf-btn--small">Success</button>
+                                    <span class="wf-badge wf-badge--info">Tag</span>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <progress class="wf-progress wf-progress--primary" value="65" max="100"></progress>
+                                <div class="wf-spacer"></div>
+                                <p class="wf-text wf-text--muted wf-text--small">No declaration needed.</p>
+                            </div>
+                        </div>
+                        <div class="wf-card" style="background: #0F172A; color: #E2E8F0; border: 1px solid #334155; border-radius: 0.75rem">
                             <div class="wf-card__body">
-                                <table class="wf-table">
-                                    <thead>
-                                        <td>Token</td>​
-                                        <td>Value</td>​
-                                    </thead>​
-                                    <tr>
-                                        <td>spacing-xs</td>​
-                                        <td>0.25rem</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>spacing-sm</td>​
-                                        <td>0.5rem</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>spacing-md</td>​
-                                        <td>1rem</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>spacing-lg</td>​
-                                        <td>1.5rem</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>radius-md</td>​
-                                        <td>0.5rem</td>​
-                                    </tr>​
-                                    <tr>
-                                        <td>radius-full</td>​
-                                        <td>9999px</td>​
-                                    </tr>​
-                                </table>​
-                            </div>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Themes</h2>​
-                <p class="wf-text">4 built-in themes. Set in webfluent.app.json. Each preview below shows the actual colors and style of that theme.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-grid" style="grid-template-columns: repeat(2, 1fr)">
-                    <div class="wf-card">
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--secondary">dark</span>
+                                    <p class="wf-text wf-text--bold">Dark</p>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <p class="wf-text wf-text--small">Dark backgrounds with light text and vibrant accents.</p>
+                                <div class="wf-spacer"></div>
+                                <div class="wf-row">
+                                    <button class="wf-btn wf-btn--primary wf-btn--small">Primary</button>
+                                    <button class="wf-btn wf-btn--danger wf-btn--small">Danger</button>
+                                    <span class="wf-badge wf-badge--success">Live</span>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <progress class="wf-progress wf-progress--info" value="80" max="100"></progress>
+                                <div class="wf-spacer"></div>
+                                <code class="wf-code wf-code--block">examples/themes/dark.wf</code>
+                            </div>
+                        </div>
+                        <div class="wf-card" style="background: #ffffff; border: 2px solid #000000; border-radius: 0">
+                            <div class="wf-card__body">
+                                <div class="wf-row">
+                                    <span class="wf-badge">minimal</span>
+                                    <p class="wf-text wf-text--bold">Minimal</p>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <p class="wf-text wf-text--small">Black and white. No shadows, no border-radius. Pure content.</p>
+                                <div class="wf-spacer"></div>
+                                <div class="wf-row">
+                                    <button class="wf-btn wf-btn--small">Action</button>
+                                    <span class="wf-badge">Note</span>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <progress class="wf-progress" value="50" max="100"></progress>
+                                <div class="wf-spacer"></div>
+                                <code class="wf-code wf-code--block">examples/themes/minimal.wf</code>
+                            </div>
+                        </div>
+                        <div class="wf-card" style="background: #ffffff; border: 3px solid #000000; border-radius: 0; box-shadow: 4px 4px 0 #000000; font-family: monospace">
+                            <div class="wf-card__body">
+                                <div class="wf-row">
+                                    <span class="wf-badge wf-badge--danger">brutalist</span>
+                                    <p class="wf-text wf-text--bold">Brutalist</p>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <p class="wf-text wf-text--small">Monospace font, bold red primary, hard offset shadows.</p>
+                                <div class="wf-spacer"></div>
+                                <div class="wf-row">
+                                    <button class="wf-btn wf-btn--danger wf-btn--small">Action</button>
+                                    <span class="wf-badge wf-badge--danger">Alert</span>
+                                </div>
+                                <div class="wf-spacer"></div>
+                                <progress class="wf-progress wf-progress--danger" value="90" max="100"></progress>
+                                <div class="wf-spacer"></div>
+                                <code class="wf-code wf-code--block">examples/themes/brutalist.wf</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Custom Tokens</h2>
+                    <p class="wf-text">A theme covers the design. For values a machine supplies — a deploy pipeline injecting a brand colour — config tokens still apply, on top of whatever the theme set.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--primary">default</span>​
-                                <p class="wf-text wf-text--bold">Default</p>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <p class="wf-text wf-text--muted wf-text--small">Clean, modern light theme with blue primary.</p>​
-                            <div class="wf-spacer"></div>
-                            <div class="wf-row">
-                                <button class="wf-btn wf-btn--primary wf-btn--small">Primary</button>​
-                                <button class="wf-btn wf-btn--success wf-btn--small">Success</button>​
-                                <span class="wf-badge wf-badge--info">Tag</span>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <progress class="wf-progress wf-progress--primary" value="65" max="100"></progress>​
-                            <div class="wf-spacer"></div>
-                            <code class="wf-code">&quot;theme&quot;: { &quot;name&quot;: &quot;default&quot; }</code>​
-                        </div>​
-                    </div>​
-                    <div class="wf-card">
-                        <div class="wf-card__body">
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--secondary">dark</span>​
-                                <p class="wf-text wf-text--bold">Dark</p>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <p class="wf-text wf-text--small">Dark backgrounds with light text and vibrant accents.</p>​
-                            <div class="wf-spacer"></div>
-                            <div class="wf-row">
-                                <button class="wf-btn wf-btn--primary wf-btn--small">Primary</button>​
-                                <button class="wf-btn wf-btn--danger wf-btn--small">Danger</button>​
-                                <span class="wf-badge wf-badge--success">Live</span>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <progress class="wf-progress wf-progress--info" value="80" max="100"></progress>​
-                            <div class="wf-spacer"></div>
-                            <code class="wf-code">&quot;theme&quot;: { &quot;name&quot;: &quot;dark&quot; }</code>​
-                        </div>​
-                    </div>​
-                    <div class="wf-card">
-                        <div class="wf-card__body">
-                            <div class="wf-row">
-                                <span class="wf-badge">minimal</span>​
-                                <p class="wf-text wf-text--bold">Minimal</p>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <p class="wf-text wf-text--small">Black and white. No shadows, no border-radius. Pure content.</p>​
-                            <div class="wf-spacer"></div>
-                            <div class="wf-row">
-                                <button class="wf-btn wf-btn--small">Action</button>​
-                                <span class="wf-badge">Note</span>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <progress class="wf-progress" value="50" max="100"></progress>​
-                            <div class="wf-spacer"></div>
-                            <code class="wf-code">&quot;theme&quot;: { &quot;name&quot;: &quot;minimal&quot; }</code>​
-                        </div>​
-                    </div>​
-                    <div class="wf-card">
-                        <div class="wf-card__body">
-                            <div class="wf-row">
-                                <span class="wf-badge wf-badge--danger">brutalist</span>​
-                                <p class="wf-text wf-text--bold">Brutalist</p>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <p class="wf-text wf-text--small">Monospace font, bold red primary, hard offset shadows.</p>​
-                            <div class="wf-spacer"></div>
-                            <div class="wf-row">
-                                <button class="wf-btn wf-btn--danger wf-btn--small">Action</button>​
-                                <span class="wf-badge wf-badge--danger">Alert</span>​
-                            </div>​
-                            <div class="wf-spacer"></div>
-                            <progress class="wf-progress wf-progress--danger" value="90" max="100"></progress>​
-                            <div class="wf-spacer"></div>
-                            <code class="wf-code">&quot;theme&quot;: { &quot;name&quot;: &quot;brutalist&quot; }</code>​
-                        </div>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Custom Tokens</h2>​
-                <p class="wf-text">Override any design token in your config to customize the theme.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">{
+                            <code class="wf-code wf-code--block">{
   &quot;theme&quot;: {
-    &quot;name&quot;: &quot;default&quot;,
     &quot;tokens&quot;: {
-      &quot;color-primary&quot;: &quot;#8B5CF6&quot;,
-      &quot;color-secondary&quot;: &quot;#EC4899&quot;,
-      &quot;font-family&quot;: &quot;Poppins, sans-serif&quot;,
-      &quot;radius-md&quot;: &quot;1rem&quot;
+      &quot;color-primary&quot;: &quot;#8B5CF6&quot;
     }
   }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-                <hr class="wf-divider">
-                <div class="wf-spacer"></div>
-                <h2 class="wf-heading wf-heading--h2">Style Blocks</h2>​
-                <p class="wf-text">Override styles on any component with inline style blocks.</p>​
-                <div class="wf-spacer"></div>
-                <div class="wf-card wf-card--outlined">
-                    <div class="wf-card__body">
-                        <code class="wf-code">Button(&quot;Custom&quot;) {
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Style Blocks</h2>
+                    <p class="wf-text">Override styles on any component with inline style blocks.</p>
+                    <div class="wf-spacer"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">Button(&quot;Custom&quot;) {
     style {
         background: &quot;#8B5CF6&quot;
         padding: xl
         radius: lg
     }
-}</code>​
-                    </div>​
-                </div>​
-                <div class="wf-spacer"></div>
-            </div>​
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                </div>
+            </main>
         </div>
-        <!--wf-component-->
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
     </div>
-    <script src="../app.js"></script>
 </body>
 </html>

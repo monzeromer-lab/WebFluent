@@ -1,6 +1,6 @@
-use crate::lexer::{Token, TokenType};
-use crate::error::{Diagnostic, WebFluentError, Result};
 use super::ast::*;
+use crate::error::{Diagnostic, Result, WebFluentError};
+use crate::lexer::{Token, TokenType};
 
 /// The parsed `( … )` argument + modifier group of an element, with spans.
 /// Produced by [`Parser::parse_paren_args`].
@@ -82,7 +82,11 @@ impl Parser {
         if std::mem::discriminant(self.current_type()) == std::mem::discriminant(expected) {
             Ok(self.advance())
         } else {
-            Err(self.error(format!("Expected {}, got {}", expected, self.current_type())))
+            Err(self.error(format!(
+                "Expected {}, got {}",
+                expected,
+                self.current_type()
+            )))
         }
     }
 
@@ -101,9 +105,12 @@ impl Parser {
 
     fn error(&self, message: String) -> WebFluentError {
         let token = self.current();
-        WebFluentError::ParseError(
-            Diagnostic::new(message, &self.file, token.line, token.column)
-        )
+        WebFluentError::ParseError(Diagnostic::new(
+            message,
+            &self.file,
+            token.line,
+            token.column,
+        ))
     }
 
     // ─── Span helpers ────────────────────────────────────
@@ -135,7 +142,8 @@ impl Parser {
     }
 
     fn is_builtin_component(&self) -> bool {
-        matches!(self.current_type(),
+        matches!(
+            self.current_type(),
             TokenType::Container | TokenType::Row | TokenType::Column |
             TokenType::Grid | TokenType::Stack | TokenType::Spacer | TokenType::Divider |
             TokenType::Navbar | TokenType::Sidebar | TokenType::Breadcrumb |
@@ -172,7 +180,11 @@ impl Parser {
             TokenType::Component => Ok(Declaration::Component(self.parse_component_decl()?)),
             TokenType::Store => Ok(Declaration::Store(self.parse_store()?)),
             TokenType::App => Ok(Declaration::App(self.parse_app()?)),
-            _ => Err(self.error(format!("Expected Page, Component, Store, or App declaration, got {}", self.current_type()))),
+            TokenType::Theme => Ok(Declaration::Theme(self.parse_theme()?)),
+            _ => Err(self.error(format!(
+                "Expected Page, Component, Store, Theme, or App declaration, got {}",
+                self.current_type()
+            ))),
         }
     }
 
@@ -188,16 +200,44 @@ impl Parser {
         let mut title = None;
         let mut guard = None;
         let mut redirect = None;
+        let mut description = None;
+        let mut image = None;
+        let mut page_type = None;
+        let mut noindex = false;
 
         // Parse page attributes
         while !self.check(&TokenType::CloseParen) {
             let attr_name = self.expect_identifier()?;
+
+            // A flag attribute reads as a bare word — `Page Draft (path: "/d", noindex)`.
+            // Everything else takes `name: value`.
+            if attr_name == "noindex" && !self.check(&TokenType::Colon) {
+                noindex = true;
+                if self.check(&TokenType::Comma) {
+                    self.advance();
+                }
+                continue;
+            }
+
             self.expect(&TokenType::Colon)?;
             match attr_name.as_str() {
                 "path" => path = self.expect_string()?,
                 "title" => title = Some(self.expect_string()?),
                 "guard" => guard = Some(self.parse_expression()?),
                 "redirect" => redirect = Some(self.expect_string()?),
+                "description" => description = Some(self.expect_string()?),
+                "image" => image = Some(self.expect_string()?),
+                "type" => page_type = Some(self.expect_string()?),
+                "noindex" => {
+                    // `noindex: true`, or bare `noindex` for the common case.
+                    noindex = match self.current_type().clone() {
+                        TokenType::BoolLiteral(b) => {
+                            self.advance();
+                            b
+                        }
+                        _ => true,
+                    };
+                }
                 _ => return Err(self.error(format!("Unknown page attribute '{}'", attr_name))),
             }
             if !self.check(&TokenType::CloseParen) {
@@ -210,7 +250,16 @@ impl Parser {
         let (body, body_span) = self.parse_block_spanned()?;
 
         Ok(PageDecl {
-            name, path, title, guard, redirect, body,
+            name,
+            path,
+            title,
+            description,
+            image,
+            page_type,
+            noindex,
+            guard,
+            redirect,
+            body,
             span: self.span_since(decl_mark),
             header_span,
             body_span,
@@ -238,7 +287,9 @@ impl Parser {
         let (body, body_span) = self.parse_block_spanned()?;
 
         Ok(ComponentDecl {
-            name, props, body,
+            name,
+            props,
+            body,
             span: self.span_since(decl_mark),
             header_span,
             body_span,
@@ -255,17 +306,40 @@ impl Parser {
         } else {
             None
         };
-        Ok(PropDecl { name, prop_type, optional, default })
+        Ok(PropDecl {
+            name,
+            prop_type,
+            optional,
+            default,
+        })
     }
 
     fn parse_type(&mut self) -> Result<WfType> {
         match self.current_type() {
-            TokenType::TypeString => { self.advance(); Ok(WfType::String) }
-            TokenType::TypeNumber => { self.advance(); Ok(WfType::Number) }
-            TokenType::TypeBool => { self.advance(); Ok(WfType::Bool) }
-            TokenType::TypeList => { self.advance(); Ok(WfType::List) }
-            TokenType::TypeMap => { self.advance(); Ok(WfType::Map) }
-            _ => Err(self.error(format!("Expected type (String, Number, Bool, List, Map), got {}", self.current_type()))),
+            TokenType::TypeString => {
+                self.advance();
+                Ok(WfType::String)
+            }
+            TokenType::TypeNumber => {
+                self.advance();
+                Ok(WfType::Number)
+            }
+            TokenType::TypeBool => {
+                self.advance();
+                Ok(WfType::Bool)
+            }
+            TokenType::TypeList => {
+                self.advance();
+                Ok(WfType::List)
+            }
+            TokenType::TypeMap => {
+                self.advance();
+                Ok(WfType::Map)
+            }
+            _ => Err(self.error(format!(
+                "Expected type (String, Number, Bool, List, Map), got {}",
+                self.current_type()
+            ))),
         }
     }
 
@@ -278,7 +352,8 @@ impl Parser {
         let header_span = self.span_since(decl_mark);
         let (body, body_span) = self.parse_block_spanned()?;
         Ok(StoreDecl {
-            name, body,
+            name,
+            body,
             span: self.span_since(decl_mark),
             header_span,
             body_span,
@@ -323,7 +398,10 @@ impl Parser {
         // here, so stamping the whole-statement span once covers them all.
         let stmt_mark = self.mark();
         let kind = self.parse_statement_kind()?;
-        Ok(Statement { kind, span: self.span_since(stmt_mark) })
+        Ok(Statement {
+            kind,
+            span: self.span_since(stmt_mark),
+        })
     }
 
     fn parse_statement_kind(&mut self) -> Result<StatementKind> {
@@ -408,7 +486,10 @@ impl Parser {
             let param_name = self.expect_identifier()?;
             self.expect(&TokenType::Colon)?;
             let param_type = self.parse_type()?;
-            params.push(ParamDecl { name: param_name, param_type });
+            params.push(ParamDecl {
+                name: param_name,
+                param_type,
+            });
             if !self.check(&TokenType::CloseParen) {
                 self.expect(&TokenType::Comma)?;
             }
@@ -507,7 +588,13 @@ impl Parser {
 
         let body = self.parse_block()?;
 
-        Ok(StatementKind::For(ForStmt { item, index, iterable, animate, body }))
+        Ok(StatementKind::For(ForStmt {
+            item,
+            index,
+            iterable,
+            animate,
+            body,
+        }))
     }
 
     fn parse_show_stmt(&mut self) -> Result<StatementKind> {
@@ -518,7 +605,11 @@ impl Parser {
         let animate = self.parse_optional_animate_clause()?;
 
         let body = self.parse_block()?;
-        Ok(StatementKind::Show(ShowStmt { condition, animate, body }))
+        Ok(StatementKind::Show(ShowStmt {
+            condition,
+            animate,
+            body,
+        }))
     }
 
     /// Parse optional `, animate(enter, exit, duration: "300ms", ...)` clause
@@ -526,7 +617,9 @@ impl Parser {
         // Check for comma followed by `animate`
         if self.check(&TokenType::Comma) {
             // Look ahead: is next token `animate`?
-            if self.pos + 1 < self.tokens.len() && matches!(self.tokens[self.pos + 1].token_type, TokenType::Animate) {
+            if self.pos + 1 < self.tokens.len()
+                && matches!(self.tokens[self.pos + 1].token_type, TokenType::Animate)
+            {
                 self.advance(); // skip comma
                 return Ok(Some(self.parse_animate_config()?));
             }
@@ -579,7 +672,14 @@ impl Parser {
 
         self.expect(&TokenType::CloseParen)?;
 
-        Ok(AnimateConfig { enter, exit, duration, delay, stagger, easing })
+        Ok(AnimateConfig {
+            enter,
+            exit,
+            duration,
+            delay,
+            stagger,
+            easing,
+        })
     }
 
     // ─── Fetch ───────────────────────────────────────────
@@ -633,7 +733,11 @@ impl Parser {
                     self.advance();
                     success_block = Some(self.parse_block()?);
                 }
-                _ => return Err(self.error("Expected 'loading', 'error', or 'success' in fetch block".to_string())),
+                _ => {
+                    return Err(self.error(
+                        "Expected 'loading', 'error', or 'success' in fetch block".to_string(),
+                    ));
+                }
             }
         }
 
@@ -680,7 +784,9 @@ impl Parser {
             if self.match_token(&TokenType::DoubleEquals) {
                 let right = self.parse_fetch_url_comparison()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Eq, Box::new(right));
-            } else if self.match_token(&TokenType::NotEquals) || self.match_token(&TokenType::StrictNotEqual) {
+            } else if self.match_token(&TokenType::NotEquals)
+                || self.match_token(&TokenType::StrictNotEqual)
+            {
                 let right = self.parse_fetch_url_comparison()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Neq, Box::new(right));
             } else {
@@ -898,7 +1004,13 @@ impl Parser {
         let (args, modifiers, arg_spans, modifier_spans, paren_span) =
             if self.check(&TokenType::OpenParen) {
                 let p = self.parse_paren_args()?;
-                (p.args, p.modifiers, p.arg_spans, p.modifier_spans, Some(p.paren_span))
+                (
+                    p.args,
+                    p.modifiers,
+                    p.arg_spans,
+                    p.modifier_spans,
+                    Some(p.paren_span),
+                )
             } else {
                 (Vec::new(), Vec::new(), Vec::new(), Vec::new(), None)
             };
@@ -1030,7 +1142,10 @@ impl Parser {
                 self.advance();
                 n
             } else {
-                return Err(self.error(format!("Expected sub-component name, got {}", self.current_type())));
+                return Err(self.error(format!(
+                    "Expected sub-component name, got {}",
+                    self.current_type()
+                )));
             };
             Ok(ComponentRef::SubComponent(name, sub))
         } else {
@@ -1049,7 +1164,10 @@ impl Parser {
 
     fn is_modifier(&self) -> bool {
         // Keywords that can also be used as modifiers
-        if matches!(self.current_type(), TokenType::Success | TokenType::Error | TokenType::Loading) {
+        if matches!(
+            self.current_type(),
+            TokenType::Success | TokenType::Error | TokenType::Loading
+        ) {
             return true;
         }
         // The vocabulary lives in `parser::vocabulary` as data (one source of
@@ -1090,36 +1208,127 @@ impl Parser {
         })
     }
 
-    fn parse_style_property(&mut self) -> Result<StyleProperty> {
-        // Support hyphenated property names: border-radius, font-size, etc.
-        // Also accept keywords (transition, etc.) as CSS property names
-        let prop_mark = self.mark();
+    /// A hyphenated name: `border-radius`, `color-text-muted`.
+    ///
+    /// The lexer splits these into identifiers around `Minus`, so both CSS
+    /// properties and design tokens reassemble them the same way.
+    fn parse_hyphenated_name(&mut self) -> Result<String> {
         let mut name = self.expect_css_property_name()?;
         while self.check(&TokenType::Minus) {
             self.advance(); // consume -
             let part = self.expect_css_property_name()?;
             name = format!("{}-{}", name, part);
         }
+        Ok(name)
+    }
+
+    /// `Theme Brand { token color-primary: "#0F766E" … }`
+    fn parse_theme(&mut self) -> Result<ThemeDecl> {
+        let mark = self.mark();
+        self.expect(&TokenType::Theme)?;
+
+        let name = match self.current_type().clone() {
+            TokenType::Identifier(n) => {
+                self.advance();
+                n
+            }
+            other => {
+                return Err(self.error(format!(
+                    "Expected a theme name after `Theme`, got {}",
+                    other
+                )));
+            }
+        };
+
+        self.expect(&TokenType::OpenBrace)?;
+        let mut tokens = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
+            let token_mark = self.mark();
+            if !self.check(&TokenType::Token) {
+                return Err(self.error(format!(
+                    "A theme body holds `token <name>: <value>` entries, got {}",
+                    self.current_type()
+                )));
+            }
+            self.advance();
+            let token_name = self.parse_hyphenated_name()?;
+            self.expect(&TokenType::Colon)?;
+            let value = self.parse_expression()?;
+            tokens.push(ThemeToken {
+                name: token_name,
+                value,
+                span: self.span_since(token_mark),
+            });
+        }
+        self.expect(&TokenType::CloseBrace)?;
+
+        Ok(ThemeDecl {
+            name,
+            tokens,
+            span: self.span_since(mark),
+        })
+    }
+
+    fn parse_style_property(&mut self) -> Result<StyleProperty> {
+        // Support hyphenated property names: border-radius, font-size, etc.
+        // Also accept keywords (transition, etc.) as CSS property names
+        let prop_mark = self.mark();
+        let name = self.parse_hyphenated_name()?;
         self.expect(&TokenType::Colon)?;
         let value_mark = self.mark();
         let value = self.parse_expression()?;
         let value_span = self.span_since(value_mark);
-        Ok(StyleProperty { name, value, span: self.span_since(prop_mark), value_span })
+        Ok(StyleProperty {
+            name,
+            value,
+            span: self.span_since(prop_mark),
+            value_span,
+        })
     }
 
     fn expect_css_property_name(&mut self) -> Result<String> {
         match self.current_type().clone() {
-            TokenType::Identifier(name) => { self.advance(); Ok(name) }
+            TokenType::Identifier(name) => {
+                self.advance();
+                Ok(name)
+            }
             // Allow WebFluent keywords as CSS property names in style blocks
-            TokenType::Transition => { self.advance(); Ok("transition".to_string()) }
-            TokenType::Loading => { self.advance(); Ok("loading".to_string()) }
-            TokenType::Error => { self.advance(); Ok("error".to_string()) }
-            TokenType::Success => { self.advance(); Ok("success".to_string()) }
-            TokenType::Action => { self.advance(); Ok("action".to_string()) }
-            TokenType::State => { self.advance(); Ok("state".to_string()) }
-            TokenType::Style => { self.advance(); Ok("style".to_string()) }
-            TokenType::Show => { self.advance(); Ok("show".to_string()) }
-            _ => Err(self.error(format!("Expected CSS property name, got {}", self.current_type()))),
+            TokenType::Transition => {
+                self.advance();
+                Ok("transition".to_string())
+            }
+            TokenType::Loading => {
+                self.advance();
+                Ok("loading".to_string())
+            }
+            TokenType::Error => {
+                self.advance();
+                Ok("error".to_string())
+            }
+            TokenType::Success => {
+                self.advance();
+                Ok("success".to_string())
+            }
+            TokenType::Action => {
+                self.advance();
+                Ok("action".to_string())
+            }
+            TokenType::State => {
+                self.advance();
+                Ok("state".to_string())
+            }
+            TokenType::Style => {
+                self.advance();
+                Ok("style".to_string())
+            }
+            TokenType::Show => {
+                self.advance();
+                Ok("show".to_string())
+            }
+            _ => Err(self.error(format!(
+                "Expected CSS property name, got {}",
+                self.current_type()
+            ))),
         }
     }
 
@@ -1164,18 +1373,20 @@ impl Parser {
         for (i, part) in parts.iter().enumerate() {
             if i > 0 {
                 let prev = &parts[i - 1];
-                let is_unit = part.chars().next().map_or(false, |c| c.is_alphabetic())
+                let is_unit = part.chars().next().is_some_and(|c| c.is_alphabetic())
                     && prev.chars().all(|c| c.is_ascii_digit() || c == '.');
                 // No space: around hyphens, inside parens, before colon, number+unit (768px)
-                if part == "-" || prev == "-"
-                    || prev == "(" || part == ")"
+                // No space around hyphens, inside parens, before a colon, or
+                // between a number and its unit (`768px`). A space after the
+                // colon is wanted, and is what the fallback gives — the arm that
+                // used to spell that out separately was identical to it.
+                let joined = part == "-"
+                    || prev == "-"
+                    || prev == "("
+                    || part == ")"
                     || part == ":"
-                    || is_unit
-                {
-                    // no space
-                } else if prev == ":" {
-                    condition.push(' ');
-                } else {
+                    || is_unit;
+                if !joined {
                     condition.push(' ');
                 }
             }
@@ -1189,7 +1400,10 @@ impl Parser {
         }
         self.expect(&TokenType::CloseBrace)?;
 
-        Ok(MediaQuery { condition, properties })
+        Ok(MediaQuery {
+            condition,
+            properties,
+        })
     }
 
     fn parse_style_statement(&mut self) -> Result<StatementKind> {
@@ -1223,7 +1437,10 @@ impl Parser {
             let property = self.expect_identifier()?;
             // Duration: next token should be a string like "200ms" or an identifier like "fast"
             let duration = match self.current_type().clone() {
-                TokenType::StringLiteral(s) => { self.advance(); s }
+                TokenType::StringLiteral(s) => {
+                    self.advance();
+                    s
+                }
                 TokenType::Identifier(s) => {
                     self.advance();
                     match s.as_str() {
@@ -1241,7 +1458,17 @@ impl Parser {
             };
             // Optional easing
             let easing = if let TokenType::Identifier(name) = self.current_type() {
-                if matches!(name.as_str(), "ease" | "linear" | "easeIn" | "easeOut" | "easeInOut" | "spring" | "bouncy" | "smooth") {
+                if matches!(
+                    name.as_str(),
+                    "ease"
+                        | "linear"
+                        | "easeIn"
+                        | "easeOut"
+                        | "easeInOut"
+                        | "spring"
+                        | "bouncy"
+                        | "smooth"
+                ) {
                     let e = name.clone();
                     self.advance();
                     Some(e)
@@ -1251,7 +1478,11 @@ impl Parser {
             } else {
                 None
             };
-            properties.push(TransitionProperty { property, duration, easing });
+            properties.push(TransitionProperty {
+                property,
+                duration,
+                easing,
+            });
         }
         self.expect(&TokenType::CloseBrace)?;
         Ok(TransitionBlock { properties })
@@ -1271,7 +1502,11 @@ impl Parser {
             None
         };
         self.expect(&TokenType::CloseParen)?;
-        Ok(StatementKind::Animate(AnimateStmt { target, animation, duration }))
+        Ok(StatementKind::Animate(AnimateStmt {
+            target,
+            animation,
+            duration,
+        }))
     }
 
     // ─── Events ──────────────────────────────────────────
@@ -1281,7 +1516,9 @@ impl Parser {
             self.advance();
             name
         } else {
-            return Err(self.error("Expected event handler (on:click, on:submit, etc.)".to_string()));
+            return Err(
+                self.error("Expected event handler (on:click, on:submit, etc.)".to_string())
+            );
         };
         let body = self.parse_block()?;
         Ok(EventHandler { event, body })
@@ -1321,7 +1558,10 @@ impl Parser {
             // Check for assignment
             if self.match_token(&TokenType::Equals) {
                 let value = self.parse_expression()?;
-                return Ok(StatementKind::Assignment(Assignment { target: expr, value }));
+                return Ok(StatementKind::Assignment(Assignment {
+                    target: expr,
+                    value,
+                }));
             }
 
             // It's an expression statement (method call result, etc.)
@@ -1339,7 +1579,10 @@ impl Parser {
 
             if self.match_token(&TokenType::Equals) {
                 let value = self.parse_expression()?;
-                return Ok(StatementKind::Assignment(Assignment { target: expr, value }));
+                return Ok(StatementKind::Assignment(Assignment {
+                    target: expr,
+                    value,
+                }));
             }
 
             return Ok(StatementKind::ExprStatement(expr));
@@ -1358,7 +1601,7 @@ impl Parser {
         if self.check(&TokenType::OpenParen) {
             // Could be a user-defined component or a function call
             // Treat uppercase-starting names as components
-            if name.chars().next().map_or(false, |c| c.is_uppercase()) {
+            if name.chars().next().is_some_and(|c| c.is_uppercase()) {
                 // User-defined component with a `( … )` argument group.
                 let p = self.parse_paren_args()?;
                 let body = self.parse_element_body()?;
@@ -1393,7 +1636,7 @@ impl Parser {
         }
 
         // Bare identifier — could be a component usage without parens
-        if name.chars().next().map_or(false, |c| c.is_uppercase()) {
+        if name.chars().next().is_some_and(|c| c.is_uppercase()) {
             let body = self.parse_element_body()?;
             return Ok(StatementKind::UIElement(UIElement {
                 component: ComponentRef::UserDefined(name),
@@ -1445,7 +1688,9 @@ impl Parser {
             if self.match_token(&TokenType::DoubleEquals) {
                 let right = self.parse_comparison()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Eq, Box::new(right));
-            } else if self.match_token(&TokenType::NotEquals) || self.match_token(&TokenType::StrictNotEqual) {
+            } else if self.match_token(&TokenType::NotEquals)
+                || self.match_token(&TokenType::StrictNotEqual)
+            {
                 let right = self.parse_comparison()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Neq, Box::new(right));
             } else {
@@ -1570,12 +1815,10 @@ impl Parser {
                 }
             }
             TokenType::NumberLiteral(n) => {
-                let n = n;
                 self.advance();
                 Ok(Expr::NumberLiteral(n))
             }
             TokenType::BoolLiteral(b) => {
-                let b = b;
                 self.advance();
                 Ok(Expr::BoolLiteral(b))
             }
@@ -1699,7 +1942,7 @@ impl Parser {
                 }
                 let mut expr_str = String::new();
                 let mut depth = 1;
-                while let Some(c) = chars.next() {
+                for c in chars.by_ref() {
                     if c == '{' {
                         depth += 1;
                         expr_str.push(c);
@@ -1718,7 +1961,9 @@ impl Parser {
                 let tokens = lexer.tokenize().map_err(|e| {
                     WebFluentError::ParseError(Diagnostic::new(
                         format!("Error in string interpolation: {}", e),
-                        &self.file, 0, 0,
+                        &self.file,
+                        0,
+                        0,
                     ))
                 })?;
                 let mut parser = Parser::new(tokens, &self.file);
@@ -1763,9 +2008,18 @@ impl Parser {
                 Ok(name)
             }
             // Allow some keywords to be used as identifiers in certain contexts
-            TokenType::Loading => { self.advance(); Ok("loading".to_string()) }
-            TokenType::Error => { self.advance(); Ok("error".to_string()) }
-            TokenType::Success => { self.advance(); Ok("success".to_string()) }
+            TokenType::Loading => {
+                self.advance();
+                Ok("loading".to_string())
+            }
+            TokenType::Error => {
+                self.advance();
+                Ok("error".to_string())
+            }
+            TokenType::Success => {
+                self.advance();
+                Ok("success".to_string())
+            }
             _ => Err(self.error(format!("Expected identifier, got {}", self.current_type()))),
         }
     }
@@ -1887,7 +2141,12 @@ impl Parser {
             TokenType::SectionSlide => "SectionSlide",
             TokenType::TwoColumn => "TwoColumn",
             TokenType::ImageSlide => "ImageSlide",
-            _ => return Err(self.error(format!("Expected map key (identifier, string, or keyword), got {}", self.current_type()))),
+            _ => {
+                return Err(self.error(format!(
+                    "Expected map key (identifier, string, or keyword), got {}",
+                    self.current_type()
+                )));
+            }
         };
         let result = key.to_string();
         self.advance();
@@ -1900,7 +2159,10 @@ impl Parser {
                 self.advance();
                 Ok(s)
             }
-            _ => Err(self.error(format!("Expected string literal, got {}", self.current_type()))),
+            _ => Err(self.error(format!(
+                "Expected string literal, got {}",
+                self.current_type()
+            ))),
         }
     }
 }
@@ -1912,30 +2174,121 @@ fn has_interpolation(s: &str) -> bool {
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
     while i < chars.len() {
-        if chars[i] == '{' {
-            if i + 1 < chars.len() {
-                let next = chars[i + 1];
-                if next.is_alphabetic() || next == '_' {
-                    // Scan to matching } — must not contain \n, :, or ,
-                    // (Those indicate map/object literals, not interpolation)
-                    let mut j = i + 2;
-                    let mut valid = true;
-                    while j < chars.len() && chars[j] != '}' {
-                        if chars[j] == '\n' || chars[j] == ':' || chars[j] == ',' {
-                            valid = false;
-                            break;
-                        }
-                        j += 1;
+        if chars[i] == '{' && i + 1 < chars.len() {
+            let next = chars[i + 1];
+            if next.is_alphabetic() || next == '_' {
+                // Scan to matching } — must not contain \n, :, or ,
+                // (Those indicate map/object literals, not interpolation)
+                let mut j = i + 2;
+                let mut valid = true;
+                while j < chars.len() && chars[j] != '}' {
+                    if chars[j] == '\n' || chars[j] == ':' || chars[j] == ',' {
+                        valid = false;
+                        break;
                     }
-                    if valid && j < chars.len() && chars[j] == '}' {
-                        return true;
-                    }
+                    j += 1;
+                }
+                if valid && j < chars.len() && chars[j] == '}' {
+                    return true;
                 }
             }
         }
         i += 1;
     }
     false
+}
+
+#[cfg(test)]
+mod theme_tests {
+    //! `Theme` and `token` were reserved in the lexer but had no syntax, so
+    //! writing the thing the keywords name was a parse error. The engine's design
+    //! system lived in Rust maps selected from JSON; it lives here now.
+    use super::*;
+    use crate::lexer::Lexer;
+
+    fn parse(src: &str) -> Result<Program> {
+        let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
+        Parser::new(tokens, "<test>").parse()
+    }
+
+    fn theme_of(src: &str) -> ThemeDecl {
+        parse(src)
+            .expect("should parse")
+            .declarations
+            .into_iter()
+            .find_map(|d| match d {
+                Declaration::Theme(t) => Some(t),
+                _ => None,
+            })
+            .expect("a theme declaration")
+    }
+
+    #[test]
+    fn a_theme_declares_named_tokens() {
+        let theme = theme_of(
+            "Theme Brand {\n\
+             \x20   token color-primary: \"#0F766E\"\n\
+             \x20   token radius-md: \"14px\"\n\
+             }",
+        );
+        assert_eq!(theme.name, "Brand");
+        assert_eq!(theme.tokens.len(), 2);
+        assert_eq!(theme.tokens[0].name, "color-primary");
+        assert!(matches!(&theme.tokens[0].value, Expr::StringLiteral(s) if s == "#0F766E"));
+    }
+
+    /// Token names are hyphenated, which the lexer splits around `Minus`. They
+    /// reassemble through the same path CSS property names use.
+    #[test]
+    fn token_names_of_any_depth_reassemble() {
+        let theme = theme_of(
+            "Theme T {\n\
+             \x20   token color-text-muted: \"#94A3B8\"\n\
+             \x20   token animation-easing-default: \"ease\"\n\
+             \x20   token transition-fast: \"150ms ease\"\n\
+             }",
+        );
+        let names: Vec<&str> = theme.tokens.iter().map(|t| t.name.as_str()).collect();
+        assert_eq!(
+            names,
+            [
+                "color-text-muted",
+                "animation-easing-default",
+                "transition-fast"
+            ],
+            "a keyword-lexed segment like `transition` must survive as a token name"
+        );
+    }
+
+    #[test]
+    fn an_empty_theme_is_allowed() {
+        assert!(theme_of("Theme Bare { }").tokens.is_empty());
+    }
+
+    #[test]
+    fn a_theme_sits_alongside_the_rest_of_a_program() {
+        let program = parse(
+            "Theme Brand { token color-primary: \"#000\" }\n\
+             Store S { state x = 1 }\n\
+             Page P (path: \"/\") { Text(\"hi\") }",
+        )
+        .expect("should parse");
+        assert_eq!(program.declarations.len(), 3);
+    }
+
+    #[test]
+    fn a_theme_body_rejects_anything_that_is_not_a_token() {
+        let err = parse("Theme T { state x = 1 }").unwrap_err().to_string();
+        assert!(
+            err.contains("token"),
+            "the error should name the syntax: {err}"
+        );
+    }
+
+    #[test]
+    fn a_theme_needs_a_name() {
+        assert!(parse("Theme { token a: \"b\" }").is_err());
+    }
 }
 
 #[cfg(test)]
@@ -1965,7 +2318,11 @@ mod builtin_name_tests {
                 "App {{ Router {{ Route(path: \"/x\", page: {name}) }} }}\n\
                  Page {name} (path: \"/x\") {{ Container {{ Text(\"hi\") }} }}\n"
             );
-            assert!(parse(&src).is_ok(), "Page {name} should parse: {:?}", parse(&src).err());
+            assert!(
+                parse(&src).is_ok(),
+                "Page {name} should parse: {:?}",
+                parse(&src).err()
+            );
         }
     }
 
@@ -2020,8 +2377,12 @@ mod span_tests {
                 }
                 StatementKind::If(i) => {
                     collect(&i.then_body, out);
-                    for (_, b) in &i.else_if_branches { collect(b, out); }
-                    if let Some(b) = &i.else_body { collect(b, out); }
+                    for (_, b) in &i.else_if_branches {
+                        collect(b, out);
+                    }
+                    if let Some(b) = &i.else_body {
+                        collect(b, out);
+                    }
                 }
                 StatementKind::For(f) => collect(&f.body, out),
                 StatementKind::Show(sh) => collect(&sh.body, out),
@@ -2039,7 +2400,7 @@ mod span_tests {
                 Declaration::Page(p) => collect(&p.body, &mut out),
                 Declaration::Component(c) => collect(&c.body, &mut out),
                 Declaration::App(a) => collect(&a.body, &mut out),
-                Declaration::Store(_) => {}
+                Declaration::Store(_) | Declaration::Theme(_) => {}
             }
         }
         out
@@ -2056,21 +2417,30 @@ mod span_tests {
         let program = parse(src);
         let uis = ui_elements(&program);
 
-        let heading = uis.iter().find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Heading")).unwrap();
+        let heading = uis
+            .iter()
+            .find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Heading"))
+            .unwrap();
         assert_eq!(heading.span.slice(src), "Heading(\"Welcome\", h1)");
         assert_eq!(heading.paren_span.unwrap().slice(src), "(\"Welcome\", h1)");
         assert_eq!(heading.arg_spans[0].slice(src), "\"Welcome\"");
         assert_eq!(heading.modifiers, vec!["h1"]);
         assert_eq!(heading.modifier_spans[0].slice(src), "h1");
 
-        let button = uis.iter().find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Button")).unwrap();
+        let button = uis
+            .iter()
+            .find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Button"))
+            .unwrap();
         assert!(button.span.slice(src).starts_with("Button("));
         assert!(button.span.slice(src).ends_with('}'));
         assert_eq!(button.arg_spans[0].slice(src), "\"Click me\"");
         assert_eq!(button.modifier_spans[0].slice(src), "primary");
         assert_eq!(button.modifier_spans[1].slice(src), "large");
         // body_span is exactly the `{ … }` interior (braces excluded).
-        assert_eq!(button.body_span.unwrap().slice(src).trim(), "on:click { log(\"hi\") }");
+        assert_eq!(
+            button.body_span.unwrap().slice(src).trim(),
+            "on:click { log(\"hi\") }"
+        );
     }
 
     #[test]
@@ -2083,7 +2453,10 @@ mod span_tests {
         };
         assert!(page.span.slice(src).starts_with("Page Home"));
         assert!(page.span.slice(src).ends_with('}'));
-        assert_eq!(page.header_span.slice(src), "Page Home (path: \"/\", title: \"Hi\")");
+        assert_eq!(
+            page.header_span.slice(src),
+            "Page Home (path: \"/\", title: \"Hi\")"
+        );
         assert_eq!(page.body_span.slice(src).trim(), "Text(\"x\")");
     }
 
@@ -2094,7 +2467,10 @@ mod span_tests {
         let src = "Page P (path: \"/\") {\n  Text(\"héllo → café\")\n}\n";
         let program = parse(src);
         let uis = ui_elements(&program);
-        let text = uis.iter().find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Text")).unwrap();
+        let text = uis
+            .iter()
+            .find(|u| matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Text"))
+            .unwrap();
         assert_eq!(text.arg_spans[0].slice(src), "\"héllo → café\"");
         assert_eq!(text.span.slice(src), "Text(\"héllo → café\")");
     }
