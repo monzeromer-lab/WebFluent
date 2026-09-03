@@ -402,26 +402,6 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
 
     let trimmed_prefix = prefix.trim_end();
 
-    // Check for `use ` immediately before cursor
-    if trimmed_prefix.ends_with("use") || trimmed_prefix.ends_with("use ") {
-        return CompletionContext::UseStore;
-    }
-
-    // Check for `on:` immediately before cursor
-    if trimmed_prefix.ends_with("on:") {
-        return CompletionContext::EventTrigger;
-    }
-
-    // Check for dot access: e.g. "Navbar." or "CartStore."
-    if let Some(dot_pos) = prefix.rfind('.') {
-        let before_dot = prefix[..dot_pos].trim_end();
-        if let Some(word) = before_dot.split(|c: char| !c.is_alphanumeric() && c != '_').next_back() {
-            if !word.is_empty() {
-                return CompletionContext::DotAccess(word.to_string());
-            }
-        }
-    }
-
     // Count open/close parens and braces up to cursor to determine nesting
     let text_up_to_cursor: String = lines
         .iter()
@@ -434,10 +414,19 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
     let mut paren_depth: i32 = 0;
     let mut brace_depth: i32 = 0;
     let mut in_string = false;
+    let mut escaped = false;
     let mut last_top_decl = String::new();
 
     let mut chars = text_up_to_cursor.chars().peekable();
     while let Some(ch) = chars.next() {
+        if escaped {
+            escaped = false;
+            continue;
+        }
+        if ch == '\\' {
+            escaped = true;
+            continue;
+        }
         match ch {
             '"' => in_string = !in_string,
             '(' if !in_string => paren_depth += 1,
@@ -462,6 +451,32 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
                 }
             }
             _ => {}
+        }
+    }
+
+    if !in_string {
+        // Check for `use ` immediately before cursor
+        if trimmed_prefix == "use" || trimmed_prefix.ends_with(" use") || trimmed_prefix.ends_with("\tuse") {
+            return CompletionContext::UseStore;
+        }
+
+        // Check for `on:` immediately before cursor
+        if trimmed_prefix.ends_with("on:") {
+            return CompletionContext::EventTrigger;
+        }
+
+        // Check for dot access: e.g. "Navbar." or "Navbar.It"
+        if let Some(dot_pos) = prefix.rfind('.') {
+            let after_dot = &prefix[dot_pos + 1..];
+            // Must only be an optional alphanumeric word being typed directly after the dot
+            if after_dot.chars().all(|c| c.is_alphanumeric() || c == '_') {
+                let before_dot = prefix[..dot_pos].trim_end();
+                if let Some(word) = before_dot.split(|c: char| !c.is_alphanumeric() && c != '_').next_back() {
+                    if !word.is_empty() && word.chars().next().map_or(false, |c| c.is_uppercase()) {
+                        return CompletionContext::DotAccess(word.to_string());
+                    }
+                }
+            }
         }
     }
 
