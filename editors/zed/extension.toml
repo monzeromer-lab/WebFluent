@@ -4,12 +4,11 @@ description = "WebFluent language support — syntax highlighting, diagnostics, 
 version = "0.2.0"
 schema_version = 1
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
-repository = "file:///tmp/WF-Local"
+repository = "https://github.com/monzeromer-lab/WebFluent"
 
 [grammars.webfluent]
-repository = "file:///tmp/WF-Local"
-commit = "886e890b4c43720587a839a1df0ef74dba1ca719"
-path = "editors/tree-sitter-webfluent"
+repository = "file:///tmp/WF-Grammar"
+commit = "460f867a54abb81b9431199669a23c051bb36591"
 
 [language_servers.wf-lsp]
 name = "WebFluent LSP"
