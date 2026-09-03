@@ -1,25 +1,37 @@
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+
 use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 use webfluent::lexer::Lexer;
-use webfluent::linter::lint_accessibility;
-use webfluent::parser::{Declaration, Parser, Program, Statement, StatementKind};
+use webfluent::linter::{lint_accessibility, lint_contrast, lint_vocabulary, validate_semantics};
+use webfluent::parser::{Parser, Program};
+use webfluent::themes::resolve_tokens;
 
+use crate::code_actions::provide_code_actions;
 use crate::completion::provide_completions;
-use crate::diagnostics::publish_diagnostics;
+use crate::definition::find_definition;
+use crate::diagnostics::publish_all_diagnostics;
 use crate::hover::provide_hover;
+use crate::line_index::LineIndex;
+use crate::symbols::build_document_symbols;
 
 /// Per-document cached state.
 pub struct DocumentState {
     pub source: String,
+    pub index: LineIndex,
     pub program: Option<Program>,
+    /// Last successfully parsed AST snapshot, keeping hover/completions alive during typing.
+    pub last_valid_program: Option<Program>,
 }
 
 /// The WebFluent LSP backend.
 pub struct Backend {
     pub client: Client,
     pub documents: DashMap<String, DocumentState>,
+    pub supports_hierarchical_symbols: Arc<AtomicBool>,
 }
 
 impl Backend {
@@ -27,13 +39,15 @@ impl Backend {
         Self {
             client,
             documents: DashMap::new(),
+            supports_hierarchical_symbols: Arc::new(AtomicBool::new(true)),
         }
     }
 
-    /// Parse a document and cache results; publish diagnostics.
+    /// Parse a document and cache results; run all compiler linters and publish diagnostics.
     async fn on_change(&self, uri: Url, text: String) {
         let uri_str = uri.to_string();
         let file = uri.path().to_string();
+        let index = LineIndex::new(&text);
 
         let mut lexer = Lexer::new(&text, &file);
         let tokens = lexer.tokenize();
@@ -43,37 +57,94 @@ impl Backend {
                 let mut parser = Parser::new(tokens, &file);
                 match parser.parse() {
                     Ok(program) => {
+                        let semantic_diagnostics = validate_semantics(&program, &file);
+                        let vocab_warnings = lint_vocabulary(&program, &file);
                         let a11y_warnings = lint_accessibility(&program);
+                        let resolved = resolve_tokens(&program, &Default::default()).unwrap_or_default();
+                        let contrast_warnings = lint_contrast(&program, &resolved);
+
                         self.documents.insert(
                             uri_str.clone(),
                             DocumentState {
-                                source: text,
-                                program: Some(program),
+                                source: text.clone(),
+                                index: index.clone(),
+                                program: Some(program.clone()),
+                                last_valid_program: Some(program),
                             },
                         );
-                        publish_diagnostics(&self.client, &uri, &[], &a11y_warnings).await;
+
+                        publish_all_diagnostics(
+                            &self.client,
+                            &uri,
+                            &text,
+                            &index,
+                            &[],
+                            &semantic_diagnostics,
+                            &a11y_warnings,
+                            &vocab_warnings,
+                            &contrast_warnings,
+                        )
+                        .await;
                     }
                     Err(e) => {
+                        let previous_valid = self
+                            .documents
+                            .get(&uri_str)
+                            .and_then(|doc| doc.last_valid_program.clone());
+
                         self.documents.insert(
                             uri_str.clone(),
                             DocumentState {
-                                source: text,
+                                source: text.clone(),
+                                index: index.clone(),
                                 program: None,
+                                last_valid_program: previous_valid,
                             },
                         );
-                        publish_diagnostics(&self.client, &uri, &[e], &[]).await;
+
+                        publish_all_diagnostics(
+                            &self.client,
+                            &uri,
+                            &text,
+                            &index,
+                            &[e],
+                            &[],
+                            &[],
+                            &[],
+                            &[],
+                        )
+                        .await;
                     }
                 }
             }
             Err(e) => {
+                let previous_valid = self
+                    .documents
+                    .get(&uri_str)
+                    .and_then(|doc| doc.last_valid_program.clone());
+
                 self.documents.insert(
                     uri_str.clone(),
                     DocumentState {
-                        source: text,
+                        source: text.clone(),
+                        index: index.clone(),
                         program: None,
+                        last_valid_program: previous_valid,
                     },
                 );
-                publish_diagnostics(&self.client, &uri, &[e], &[]).await;
+
+                publish_all_diagnostics(
+                    &self.client,
+                    &uri,
+                    &text,
+                    &index,
+                    &[e],
+                    &[],
+                    &[],
+                    &[],
+                    &[],
+                )
+                .await;
             }
         }
     }
@@ -81,19 +152,34 @@ impl Backend {
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
-    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
+        if let Some(text_doc) = &params.capabilities.text_document {
+            if let Some(doc_sym) = &text_doc.document_symbol {
+                let hierarchical = doc_sym.hierarchical_document_symbol_support.unwrap_or(false);
+                self.supports_hierarchical_symbols
+                    .store(hierarchical, Ordering::Relaxed);
+            }
+        }
+
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
                     TextDocumentSyncKind::FULL,
                 )),
                 completion_provider: Some(CompletionOptions {
-                    trigger_characters: Some(vec![".".to_string(), ":".to_string()]),
+                    trigger_characters: Some(vec![
+                        ".".to_string(),
+                        ":".to_string(),
+                        "(".to_string(),
+                        " ".to_string(),
+                    ]),
                     resolve_provider: Some(false),
                     ..Default::default()
                 }),
                 hover_provider: Some(HoverProviderCapability::Simple(true)),
                 document_symbol_provider: Some(OneOf::Left(true)),
+                definition_provider: Some(OneOf::Left(true)),
+                code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
                 diagnostic_provider: Some(DiagnosticServerCapabilities::Options(
                     DiagnosticOptions {
                         identifier: Some("webfluent".to_string()),
@@ -108,14 +194,17 @@ impl LanguageServer for Backend {
             },
             server_info: Some(ServerInfo {
                 name: "wf-lsp".to_string(),
-                version: Some("0.1.0".to_string()),
+                version: Some(env!("CARGO_PKG_VERSION").to_string()),
             }),
         })
     }
 
     async fn initialized(&self, _: InitializedParams) {
         self.client
-            .log_message(MessageType::INFO, "WebFluent LSP server initialized")
+            .log_message(
+                MessageType::INFO,
+                format!("WebFluent LSP v{} initialized", env!("CARGO_PKG_VERSION")),
+            )
             .await;
     }
 
@@ -146,7 +235,11 @@ impl LanguageServer for Backend {
         let position = params.text_document_position.position;
 
         let items = if let Some(doc) = self.documents.get(&uri_str) {
-            provide_completions(&doc.source, position)
+            let prog = doc
+                .program
+                .as_ref()
+                .or(doc.last_valid_program.as_ref());
+            provide_completions(&doc.source, position, prog)
         } else {
             vec![]
         };
@@ -163,7 +256,11 @@ impl LanguageServer for Backend {
         let position = params.text_document_position_params.position;
 
         if let Some(doc) = self.documents.get(&uri_str) {
-            Ok(provide_hover(&doc.source, position))
+            let prog = doc
+                .program
+                .as_ref()
+                .or(doc.last_valid_program.as_ref());
+            Ok(provide_hover(&doc.source, position, prog))
         } else {
             Ok(None)
         }
@@ -173,81 +270,45 @@ impl LanguageServer for Backend {
         &self,
         params: DocumentSymbolParams,
     ) -> Result<Option<DocumentSymbolResponse>> {
-        let uri_str = params.text_document.uri.to_string();
+        let uri = params.text_document.uri;
+        let uri_str = uri.to_string();
 
-        let symbols = if let Some(doc) = self.documents.get(&uri_str) {
-            if let Some(program) = &doc.program {
-                build_document_symbols(program)
-            } else {
-                vec![]
-            }
-        } else {
-            vec![]
-        };
-
-        Ok(Some(DocumentSymbolResponse::Flat(symbols)))
-    }
-}
-
-/// Build document symbols from a parsed program.
-fn build_document_symbols(program: &Program) -> Vec<SymbolInformation> {
-    let mut symbols = Vec::new();
-
-    for decl in &program.declarations {
-        match decl {
-            // Themes and stores contribute no document symbols.
-            Declaration::Theme(_) => {}
-            Declaration::Page(page) => {
-                symbols.push(make_symbol(&page.name, SymbolKind::CLASS, "Page"));
-                collect_body_symbols(&page.body, &mut symbols);
-            }
-            Declaration::Component(comp) => {
-                symbols.push(make_symbol(&comp.name, SymbolKind::CLASS, "Component"));
-                collect_body_symbols(&comp.body, &mut symbols);
-            }
-            Declaration::Store(store) => {
-                symbols.push(make_symbol(&store.name, SymbolKind::MODULE, "Store"));
-                collect_body_symbols(&store.body, &mut symbols);
-            }
-            Declaration::App(_app) => {
-                symbols.push(make_symbol("App", SymbolKind::CLASS, "App"));
+        if let Some(doc) = self.documents.get(&uri_str) {
+            if let Some(program) = doc.program.as_ref().or(doc.last_valid_program.as_ref()) {
+                let hierarchical = self.supports_hierarchical_symbols.load(Ordering::Relaxed);
+                return Ok(Some(build_document_symbols(
+                    program,
+                    &doc.source,
+                    &doc.index,
+                    &uri,
+                    hierarchical,
+                )));
             }
         }
+
+        Ok(Some(DocumentSymbolResponse::Flat(vec![])))
     }
 
-    symbols
-}
+    async fn goto_definition(
+        &self,
+        params: GotoDefinitionParams,
+    ) -> Result<Option<GotoDefinitionResponse>> {
+        let uri = params.text_document_position_params.text_document.uri;
+        let uri_str = uri.to_string();
+        let position = params.text_document_position_params.position;
 
-fn collect_body_symbols(stmts: &[Statement], symbols: &mut Vec<SymbolInformation>) {
-    for stmt in stmts {
-        // A `Statement` carries its span alongside the kind; matching the kind
-        // directly is what this used to do, before spans were added.
-        match &stmt.kind {
-            StatementKind::State(s) => {
-                symbols.push(make_symbol(&s.name, SymbolKind::VARIABLE, "state"));
+        if let Some(doc) = self.documents.get(&uri_str) {
+            if let Some(program) = doc.program.as_ref().or(doc.last_valid_program.as_ref()) {
+                return Ok(find_definition(program, &doc.source, &doc.index, &uri, position));
             }
-            StatementKind::Derived(d) => {
-                symbols.push(make_symbol(&d.name, SymbolKind::VARIABLE, "derived"));
-            }
-            StatementKind::Action(a) => {
-                symbols.push(make_symbol(&a.name, SymbolKind::FUNCTION, "action"));
-            }
-            _ => {}
         }
-    }
-}
 
-#[allow(deprecated)]
-fn make_symbol(name: &str, kind: SymbolKind, container: &str) -> SymbolInformation {
-    SymbolInformation {
-        name: name.to_string(),
-        kind,
-        tags: None,
-        deprecated: None,
-        location: Location {
-            uri: Url::parse("file:///unknown").unwrap(),
-            range: Range::default(),
-        },
-        container_name: Some(container.to_string()),
+        Ok(None)
+    }
+
+    async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
+        let uri = params.text_document.uri.clone();
+        let actions = provide_code_actions(&uri, params);
+        Ok(Some(actions))
     }
 }

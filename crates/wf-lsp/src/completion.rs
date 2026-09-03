@@ -1,4 +1,6 @@
 use tower_lsp::lsp_types::*;
+use webfluent::parser::ast::*;
+use webfluent::parser::vocabulary::MODIFIER_KEYWORDS;
 
 // ---------------------------------------------------------------------------
 // Static data
@@ -10,308 +12,104 @@ struct ComponentInfo {
 }
 
 const LAYOUT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Container",
-        detail: "Responsive centered container",
-    },
-    ComponentInfo {
-        name: "Row",
-        detail: "Horizontal flex row",
-    },
-    ComponentInfo {
-        name: "Column",
-        detail: "Vertical flex column",
-    },
-    ComponentInfo {
-        name: "Grid",
-        detail: "CSS grid layout",
-    },
-    ComponentInfo {
-        name: "Stack",
-        detail: "Stacked/overlapping layout",
-    },
-    ComponentInfo {
-        name: "Spacer",
-        detail: "Flexible space filler",
-    },
-    ComponentInfo {
-        name: "Divider",
-        detail: "Horizontal divider line",
-    },
+    ComponentInfo { name: "Container", detail: "Responsive centered container" },
+    ComponentInfo { name: "Row", detail: "Horizontal flex row" },
+    ComponentInfo { name: "Column", detail: "Vertical flex column" },
+    ComponentInfo { name: "Grid", detail: "CSS grid layout (cols:, gap:)" },
+    ComponentInfo { name: "Stack", detail: "Stacked/overlapping layout" },
+    ComponentInfo { name: "Spacer", detail: "Flexible space filler" },
+    ComponentInfo { name: "Divider", detail: "Horizontal divider line" },
 ];
 
 const NAV_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Navbar",
-        detail: "Navigation bar",
-    },
-    ComponentInfo {
-        name: "Sidebar",
-        detail: "Side navigation panel",
-    },
-    ComponentInfo {
-        name: "Breadcrumb",
-        detail: "Breadcrumb navigation trail",
-    },
-    ComponentInfo {
-        name: "Link",
-        detail: "Navigation link",
-    },
-    ComponentInfo {
-        name: "Menu",
-        detail: "Dropdown menu",
-    },
-    ComponentInfo {
-        name: "Tabs",
-        detail: "Tab navigation",
-    },
-    ComponentInfo {
-        name: "TabPage",
-        detail: "Individual tab page",
-    },
+    ComponentInfo { name: "Navbar", detail: "Navigation bar (Navbar.Brand, Navbar.Links, Navbar.Actions)" },
+    ComponentInfo { name: "Sidebar", detail: "Side navigation panel (Sidebar.Header, Sidebar.Item, Sidebar.Divider)" },
+    ComponentInfo { name: "Breadcrumb", detail: "Breadcrumb navigation trail (Breadcrumb.Item)" },
+    ComponentInfo { name: "Link", detail: "Navigation link (to:, href:)" },
+    ComponentInfo { name: "Menu", detail: "Dropdown menu (Menu.Item)" },
+    ComponentInfo { name: "Tabs", detail: "Tab navigation with TabPage children" },
+    ComponentInfo { name: "TabPage", detail: "Individual tab page" },
 ];
 
 const DATA_DISPLAY_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Card",
-        detail: "Content card container",
-    },
-    ComponentInfo {
-        name: "Table",
-        detail: "Data table",
-    },
-    ComponentInfo {
-        name: "Thead",
-        detail: "Table header section",
-    },
-    ComponentInfo {
-        name: "Tbody",
-        detail: "Table body section",
-    },
-    ComponentInfo {
-        name: "Trow",
-        detail: "Table row",
-    },
-    ComponentInfo {
-        name: "Tcell",
-        detail: "Table cell",
-    },
-    ComponentInfo {
-        name: "List",
-        detail: "Ordered/unordered list",
-    },
-    ComponentInfo {
-        name: "Badge",
-        detail: "Status badge / counter",
-    },
-    ComponentInfo {
-        name: "Avatar",
-        detail: "User avatar image",
-    },
-    ComponentInfo {
-        name: "Tooltip",
-        detail: "Hover tooltip",
-    },
-    ComponentInfo {
-        name: "Tag",
-        detail: "Label tag / chip",
-    },
+    ComponentInfo { name: "Card", detail: "Content card container (Card.Header, Card.Body, Card.Footer)" },
+    ComponentInfo { name: "Table", detail: "Data table (Thead, Tbody, Trow, Tcell)" },
+    ComponentInfo { name: "Thead", detail: "Table header section" },
+    ComponentInfo { name: "Tbody", detail: "Table body section" },
+    ComponentInfo { name: "Trow", detail: "Table row" },
+    ComponentInfo { name: "Tcell", detail: "Table cell" },
+    ComponentInfo { name: "List", detail: "Ordered/unordered list" },
+    ComponentInfo { name: "Badge", detail: "Status badge / counter" },
+    ComponentInfo { name: "Avatar", detail: "User avatar image" },
+    ComponentInfo { name: "Tooltip", detail: "Hover tooltip" },
+    ComponentInfo { name: "Tag", detail: "Label tag / chip" },
 ];
 
 const INPUT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Input",
-        detail: "Text input field",
-    },
-    ComponentInfo {
-        name: "Select",
-        detail: "Dropdown select",
-    },
-    ComponentInfo {
-        name: "Option",
-        detail: "Select option",
-    },
-    ComponentInfo {
-        name: "Checkbox",
-        detail: "Checkbox toggle",
-    },
-    ComponentInfo {
-        name: "Radio",
-        detail: "Radio button",
-    },
-    ComponentInfo {
-        name: "Switch",
-        detail: "Toggle switch",
-    },
-    ComponentInfo {
-        name: "Slider",
-        detail: "Range slider",
-    },
-    ComponentInfo {
-        name: "DatePicker",
-        detail: "Date picker input",
-    },
-    ComponentInfo {
-        name: "FileUpload",
-        detail: "File upload input",
-    },
-    ComponentInfo {
-        name: "Form",
-        detail: "Form wrapper",
-    },
+    ComponentInfo { name: "Input", detail: "Text input field (text, email, password, number, bind:)" },
+    ComponentInfo { name: "Select", detail: "Dropdown select with Option children (bind:)" },
+    ComponentInfo { name: "Option", detail: "Select option (value:)" },
+    ComponentInfo { name: "Checkbox", detail: "Checkbox toggle (bind:)" },
+    ComponentInfo { name: "Radio", detail: "Radio button (bind:, value:)" },
+    ComponentInfo { name: "Switch", detail: "Toggle switch (bind:)" },
+    ComponentInfo { name: "Slider", detail: "Range slider (min:, max:, step:, bind:)" },
+    ComponentInfo { name: "DatePicker", detail: "Date picker input (bind:)" },
+    ComponentInfo { name: "FileUpload", detail: "File upload input (accept:, bind:)" },
+    ComponentInfo { name: "Form", detail: "Form wrapper (on:submit:)" },
 ];
 
 const FEEDBACK_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Alert",
-        detail: "Alert message banner",
-    },
-    ComponentInfo {
-        name: "Toast",
-        detail: "Toast notification",
-    },
-    ComponentInfo {
-        name: "Modal",
-        detail: "Modal overlay dialog",
-    },
-    ComponentInfo {
-        name: "Dialog",
-        detail: "Confirmation dialog",
-    },
-    ComponentInfo {
-        name: "Spinner",
-        detail: "Loading spinner",
-    },
-    ComponentInfo {
-        name: "Progress",
-        detail: "Progress bar",
-    },
-    ComponentInfo {
-        name: "Skeleton",
-        detail: "Skeleton loading placeholder",
-    },
+    ComponentInfo { name: "Alert", detail: "Alert message banner (success, warning, danger, info, dismissible)" },
+    ComponentInfo { name: "Toast", detail: "Toast notification" },
+    ComponentInfo { name: "Modal", detail: "Modal overlay dialog (Modal.Header, Modal.Body, Modal.Footer, visible:)" },
+    ComponentInfo { name: "Dialog", detail: "Confirmation dialog (Dialog.Header, Dialog.Body, Dialog.Footer, visible:)" },
+    ComponentInfo { name: "Spinner", detail: "Loading spinner" },
+    ComponentInfo { name: "Progress", detail: "Progress bar (value:, max:)" },
+    ComponentInfo { name: "Skeleton", detail: "Skeleton loading placeholder" },
 ];
 
 const ACTION_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Button",
-        detail: "Clickable button",
-    },
-    ComponentInfo {
-        name: "IconButton",
-        detail: "Icon-only button",
-    },
-    ComponentInfo {
-        name: "ButtonGroup",
-        detail: "Group of related buttons",
-    },
-    ComponentInfo {
-        name: "Dropdown",
-        detail: "Dropdown button",
-    },
+    ComponentInfo { name: "Button", detail: "Clickable button (primary, secondary, outlined, danger, large)" },
+    ComponentInfo { name: "IconButton", detail: "Icon-only button (icon:, label:)" },
+    ComponentInfo { name: "ButtonGroup", detail: "Group of related buttons" },
+    ComponentInfo { name: "Dropdown", detail: "Dropdown button with Dropdown.Item" },
 ];
 
 const MEDIA_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Image",
-        detail: "Responsive image",
-    },
-    ComponentInfo {
-        name: "Video",
-        detail: "Video player",
-    },
-    ComponentInfo {
-        name: "Icon",
-        detail: "SVG icon",
-    },
-    ComponentInfo {
-        name: "Carousel",
-        detail: "Image carousel / slider",
-    },
+    ComponentInfo { name: "Image", detail: "Responsive image (src:, alt:)" },
+    ComponentInfo { name: "Video", detail: "Video player (src:, controls:, autoplay:, loop:)" },
+    ComponentInfo { name: "Icon", detail: "Vector icon" },
+    ComponentInfo { name: "Carousel", detail: "Image carousel with Carousel.Slide" },
 ];
 
 const TYPOGRAPHY_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Text",
-        detail: "Paragraph text",
-    },
-    ComponentInfo {
-        name: "Heading",
-        detail: "Heading (h1-h6)",
-    },
-    ComponentInfo {
-        name: "Code",
-        detail: "Code block / inline code",
-    },
-    ComponentInfo {
-        name: "Blockquote",
-        detail: "Block quotation",
-    },
+    ComponentInfo { name: "Text", detail: "Paragraph text (bold, italic, muted, uppercase)" },
+    ComponentInfo { name: "Heading", detail: "Heading (h1-h6)" },
+    ComponentInfo { name: "Code", detail: "Code block / inline code" },
+    ComponentInfo { name: "Blockquote", detail: "Block quotation" },
 ];
 
 const DOCUMENT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Document",
-        detail: "PDF document root",
-    },
-    ComponentInfo {
-        name: "Section",
-        detail: "Document section",
-    },
-    ComponentInfo {
-        name: "Paragraph",
-        detail: "Document paragraph",
-    },
-    ComponentInfo {
-        name: "PageBreak",
-        detail: "PDF page break",
-    },
-    ComponentInfo {
-        name: "Header",
-        detail: "Page header",
-    },
-    ComponentInfo {
-        name: "Footer",
-        detail: "Page footer",
-    },
+    ComponentInfo { name: "Document", detail: "PDF document root (title:)" },
+    ComponentInfo { name: "Section", detail: "Document section" },
+    ComponentInfo { name: "Paragraph", detail: "Document paragraph" },
+    ComponentInfo { name: "PageBreak", detail: "PDF page break" },
+    ComponentInfo { name: "Header", detail: "Page header" },
+    ComponentInfo { name: "Footer", detail: "Page footer" },
 ];
 
 const SLIDES_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Presentation",
-        detail: "Slide deck root",
-    },
-    ComponentInfo {
-        name: "Slide",
-        detail: "Freeform slide (one PDF page)",
-    },
-    ComponentInfo {
-        name: "TitleSlide",
-        detail: "Title slide: TitleSlide(\"Title\", \"Subtitle\")",
-    },
-    ComponentInfo {
-        name: "SectionSlide",
-        detail: "Section divider slide: SectionSlide(\"Label\")",
-    },
-    ComponentInfo {
-        name: "TwoColumn",
-        detail: "Two-column slide; takes exactly 2 Container children",
-    },
-    ComponentInfo {
-        name: "ImageSlide",
-        detail: "Image slide: ImageSlide(src: \"...\", caption: \"...\")",
-    },
+    ComponentInfo { name: "Presentation", detail: "Slide deck root (title:)" },
+    ComponentInfo { name: "Slide", detail: "Freeform slide (one output page)" },
+    ComponentInfo { name: "TitleSlide", detail: "Title slide: TitleSlide(\"Title\", \"Subtitle\")" },
+    ComponentInfo { name: "SectionSlide", detail: "Section divider slide: SectionSlide(\"Label\")" },
+    ComponentInfo { name: "TwoColumn", detail: "Two-column slide; takes exactly 2 Container children" },
+    ComponentInfo { name: "ImageSlide", detail: "Image slide: ImageSlide(src: \"...\", caption: \"...\")" },
 ];
 
 const ROUTING_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo {
-        name: "Router",
-        detail: "Client-side router outlet",
-    },
-    ComponentInfo {
-        name: "Route",
-        detail: "Route definition",
-    },
+    ComponentInfo { name: "Router", detail: "Client-side router outlet" },
+    ComponentInfo { name: "Route", detail: "Route definition (path:, page:)" },
 ];
 
 const ALL_COMPONENT_GROUPS: &[&[ComponentInfo]] = &[
@@ -328,17 +126,8 @@ const ALL_COMPONENT_GROUPS: &[&[ComponentInfo]] = &[
     ROUTING_COMPONENTS,
 ];
 
-// Sub-component mappings: parent -> list of (child_suffix, detail)
+// Sub-component mappings matching the actual WebFluent standard library
 const SUB_COMPONENTS: &[(&str, &[(&str, &str)])] = &[
-    (
-        "Card",
-        &[
-            ("Header", "Card header section"),
-            ("Body", "Card body content"),
-            ("Footer", "Card footer section"),
-            ("Image", "Card image"),
-        ],
-    ),
     (
         "Navbar",
         &[
@@ -348,77 +137,89 @@ const SUB_COMPONENTS: &[(&str, &[(&str, &str)])] = &[
         ],
     ),
     (
+        "Sidebar",
+        &[
+            ("Header", "Sidebar header section"),
+            ("Item", "Sidebar navigation link item: Sidebar.Item(\"Label\", to: \"/route\")"),
+            ("Divider", "Sidebar horizontal divider"),
+        ],
+    ),
+    (
+        "Breadcrumb",
+        &[
+            ("Item", "Breadcrumb link item: Breadcrumb.Item(\"Label\", to: \"/route\")"),
+        ],
+    ),
+    (
+        "Carousel",
+        &[
+            ("Slide", "Carousel slide wrapper: Carousel.Slide { ... }"),
+        ],
+    ),
+    (
+        "Card",
+        &[
+            ("Header", "Card header section"),
+            ("Body", "Card body content"),
+            ("Footer", "Card footer section"),
+        ],
+    ),
+    (
         "Modal",
         &[
-            ("Header", "Modal header"),
-            ("Body", "Modal body content"),
-            ("Footer", "Modal footer / actions"),
+            ("Header", "Modal dialog header"),
+            ("Body", "Modal dialog body"),
+            ("Footer", "Modal dialog footer"),
         ],
     ),
     (
         "Dialog",
         &[
             ("Header", "Dialog header"),
-            ("Body", "Dialog body content"),
-            ("Footer", "Dialog footer / actions"),
+            ("Body", "Dialog body"),
+            ("Footer", "Dialog footer"),
         ],
     ),
     (
-        "Tabs",
-        &[("Tab", "Individual tab"), ("Panel", "Tab panel content")],
-    ),
-    (
-        "Table",
+        "Dropdown",
         &[
-            ("Header", "Table header"),
-            ("Body", "Table body"),
-            ("Row", "Table row"),
-            ("Cell", "Table cell"),
+            ("Item", "Dropdown menu item"),
         ],
     ),
     (
-        "Form",
+        "Menu",
         &[
-            ("Group", "Form field group"),
-            ("Actions", "Form action buttons"),
-        ],
-    ),
-    (
-        "Sidebar",
-        &[
-            ("Header", "Sidebar header"),
-            ("Content", "Sidebar content"),
-            ("Footer", "Sidebar footer"),
+            ("Item", "Menu list item"),
         ],
     ),
 ];
 
 const KEYWORDS: &[(&str, &str)] = &[
     ("state", "Declare reactive state variable"),
-    ("derived", "Declare computed/derived value"),
-    (
-        "effect",
-        "Side-effect block that re-runs on dependency changes",
-    ),
+    ("derived", "Declare computed/derived signal"),
+    ("effect", "Side-effect block that re-runs on dependency changes"),
     ("action", "Define a named action function"),
     ("if", "Conditional rendering"),
     ("else", "Else branch of conditional"),
     ("for", "List rendering / iteration"),
     ("in", "Iterator source in for-loop"),
-    ("show", "Conditionally show/hide an element"),
-    ("use", "Import a store into scope"),
+    ("show", "Conditionally show/hide an element via CSS display"),
+    ("use", "Import a store into current scope"),
     ("fetch", "Async data fetching block"),
     ("navigate", "Client-side navigation"),
-    ("log", "Log expression to console"),
+    ("log", "Log expression to browser console"),
+    ("return", "Return from an action"),
     ("animate", "Apply animation to element"),
     ("style", "Inline style block"),
     ("transition", "CSS transition block"),
+    ("Theme", "Design system theme declaration"),
+    ("token", "Design token declaration"),
 ];
 
 const EVENTS: &[(&str, &str)] = &[
     ("click", "Mouse click event"),
     ("dblclick", "Double click event"),
-    ("input", "Input value changed"),
+    ("input", "Input value changed (real-time)"),
     ("change", "Value committed / changed"),
     ("submit", "Form submission"),
     ("focus", "Element gained focus"),
@@ -427,17 +228,7 @@ const EVENTS: &[(&str, &str)] = &[
     ("keyup", "Key released"),
     ("mouseenter", "Mouse entered element"),
     ("mouseleave", "Mouse left element"),
-    ("mouseover", "Mouse over element"),
-    ("mouseout", "Mouse left element (including children)"),
     ("scroll", "Element scrolled"),
-    ("resize", "Element resized"),
-    ("load", "Resource loaded"),
-    ("error", "Error occurred"),
-    ("touchstart", "Touch began"),
-    ("touchend", "Touch ended"),
-    ("dragstart", "Drag started"),
-    ("dragend", "Drag ended"),
-    ("drop", "Item dropped"),
 ];
 
 const NAMED_ARGS: &[(&str, &str)] = &[
@@ -451,12 +242,7 @@ const NAMED_ARGS: &[(&str, &str)] = &[
     ("to:", "Navigation target path"),
     ("label:", "Accessible label text"),
     ("icon:", "Icon name"),
-    ("type:", "Input type (text, email, password, number, etc.)"),
-    ("value:", "Initial / current value"),
-    ("min:", "Minimum value"),
-    ("max:", "Maximum value"),
-    ("step:", "Step increment"),
-    ("cols:", "Number of grid columns"),
+    ("columns:", "Number of grid columns"),
     ("gap:", "Grid / flex gap spacing"),
     ("visible:", "Visibility binding for modals / dialogs"),
     ("disabled:", "Disable the element"),
@@ -464,26 +250,63 @@ const NAMED_ARGS: &[(&str, &str)] = &[
     ("controls:", "Show media controls"),
     ("autoplay:", "Auto-play media"),
     ("loop:", "Loop media playback"),
-    ("method:", "HTTP method for fetch"),
-    ("headers:", "HTTP headers for fetch"),
+    ("caption:", "Caption text for ImageSlide"),
+    ("interval:", "Interval in ms for Carousel"),
     ("guard:", "Route guard condition"),
     ("redirect:", "Redirect path when guard fails"),
+    ("accept:", "Accepted file types for FileUpload"),
 ];
 
-/// A one-line gloss for a modifier, keyed by the compiler's own vocabulary.
-///
-/// The list of *which* modifiers exist is never written here. This file used to
-/// carry its own copy, which is the drift `parser::vocabulary` was written to
-/// end — by the time anyone measured, the copy was missing 43 real modifiers and
-/// inventing eight that do not exist (`ghost`, `outline`, `centered`,
-/// `strikethrough`, `ordered`, `unordered`, `horizontal`, `vertical`). The
-/// editor was completing words the compiler then warned about.
-///
-/// A modifier with no gloss still completes; it just has no description.
+const PAGE_ATTRS: &[(&str, &str)] = &[
+    ("path", "URL route, e.g. \"/about\" or \"/user/:id\""),
+    ("title", "Browser tab title and search-result heading"),
+    ("description", "Search-result snippet and link-preview text"),
+    ("image", "Link-preview image, site-relative or absolute"),
+    ("type", "og:type \u{2014} \"website\" or \"article\""),
+    ("noindex", "Keep this page out of search results"),
+    ("guard", "Expression that must hold for the route to render"),
+    ("redirect", "Path to redirect to when the guard fails"),
+];
+
+const BASELINE_TOKENS: &[(&str, &str)] = &[
+    ("color-primary", "Primary brand accent color"),
+    ("color-secondary", "Secondary neutral color"),
+    ("color-success", "Success notification color"),
+    ("color-danger", "Destructive / error color"),
+    ("color-warning", "Warning / alert color"),
+    ("color-info", "Informational color"),
+    ("color-background", "Main background surface color"),
+    ("color-surface", "Elevated card/surface color"),
+    ("color-text", "Primary foreground text color"),
+    ("color-text-muted", "Secondary muted text color"),
+    ("color-border", "Border perimeter color"),
+    ("font-family", "Body font family"),
+    ("font-family-mono", "Monospace font family"),
+    ("font-size-xs", "Fluid extra-small font size"),
+    ("font-size-sm", "Fluid small font size"),
+    ("font-size-base", "Fluid base font size (1rem)"),
+    ("font-size-lg", "Fluid large font size"),
+    ("font-size-xl", "Fluid extra-large font size"),
+    ("font-size-2xl", "Fluid 2xl font size"),
+    ("font-size-3xl", "Fluid 3xl font size"),
+    ("spacing-xs", "Extra-small spacing (0.25rem)"),
+    ("spacing-sm", "Small spacing (0.5rem)"),
+    ("spacing-md", "Medium spacing (1rem)"),
+    ("spacing-lg", "Large spacing (1.5rem)"),
+    ("spacing-xl", "Fluid extra-large spacing"),
+    ("radius-sm", "Small border radius (0.25rem)"),
+    ("radius-md", "Medium border radius (0.5rem)"),
+    ("radius-lg", "Large border radius (1rem)"),
+    ("radius-full", "Fully rounded pill radius (9999px)"),
+    ("shadow-sm", "Subtle elevation shadow"),
+    ("shadow-md", "Medium surface shadow"),
+    ("shadow-lg", "High elevation shadow"),
+];
+
 fn modifier_detail(modifier: &str) -> &'static str {
     match modifier {
         "small" | "medium" | "large" => "Size",
-        "primary" | "secondary" | "success" | "danger" | "warning" | "info" => "Colour variant",
+        "primary" | "secondary" | "success" | "danger" | "warning" | "info" => "Color variant",
         "error" | "loading" => "State",
         "rounded" | "pill" | "square" => "Shape",
         "flat" | "elevated" | "outlined" => "Elevation",
@@ -492,7 +315,7 @@ fn modifier_detail(modifier: &str) -> &'static str {
         "left" | "center" | "right" => "Text alignment",
         "heading" | "subtitle" | "muted" => "Typography",
         "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => "Heading level",
-        "dismissible" | "block" | "bordered" => "Behaviour",
+        "dismissible" | "block" | "bordered" => "Behavior",
         "controls" | "autoplay" => "Media",
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"
         | "datetime" | "color" => "Input type",
@@ -502,18 +325,6 @@ fn modifier_detail(modifier: &str) -> &'static str {
     }
 }
 
-/// Every attribute `Page (…)` accepts, which the completion list never offered.
-const PAGE_ATTRS: &[(&str, &str)] = &[
-    ("path", "URL route, e.g. \"/about\" or \"/user/:id\""),
-    ("title", "Browser tab title and search-result heading"),
-    ("description", "Search-result snippet and link-preview text"),
-    ("image", "Link-preview image, site-relative or absolute"),
-    ("type", "og:type — \"website\" or \"article\""),
-    ("noindex", "Keep this page out of search results"),
-    ("guard", "Expression that must hold for the route to render"),
-    ("redirect", "Path to redirect to when the guard fails"),
-];
-
 // ---------------------------------------------------------------------------
 // Top-level snippets
 // ---------------------------------------------------------------------------
@@ -522,20 +333,25 @@ fn top_level_snippets() -> Vec<CompletionItem> {
     vec![
         snippet_item(
             "Page",
-            "Page declaration",
+            "Page route declaration",
             "Page ${1:Name} (path: \"${2:/}\", title: \"${3:Title}\") {\n\t$0\n}",
         ),
         snippet_item(
             "Component",
-            "Component declaration",
+            "Reusable component declaration",
             "Component ${1:Name} (${2:props}) {\n\t$0\n}",
         ),
         snippet_item(
             "Store",
-            "Store declaration",
+            "Shared state store declaration",
             "Store ${1:Name} {\n\tstate ${2:value} = ${3:0}\n\t$0\n}",
         ),
-        snippet_item("App", "App declaration", "App {\n\t$0\n}"),
+        snippet_item(
+            "Theme",
+            "Design system theme declaration",
+            "Theme ${1:Brand} {\n\ttoken ${2:color-primary}: \"${3:#3B82F6}\"\n\t$0\n}",
+        ),
+        snippet_item("App", "Root app declaration", "App {\n\t$0\n}"),
     ]
 }
 
@@ -556,15 +372,19 @@ fn snippet_item(label: &str, detail: &str, insert_text: &str) -> CompletionItem 
 
 #[derive(Debug)]
 enum CompletionContext {
-    /// Cursor is right after a `.` — provide sub-component completions for `parent`.
+    /// Cursor is right after a `.` — provide sub-components or store members for `parent`.
     DotAccess(String),
+    /// Cursor is after `use ` — provide store names.
+    UseStore,
+    /// Cursor is inside `Theme { ... }` — provide design token suggestions.
+    InsideTheme,
     /// Cursor is after `on:` — provide event names.
     EventTrigger,
-    /// Cursor is inside `( )` — provide named args.
+    /// Cursor is inside `( )` — provide named args, modifiers, in-scope identifiers.
     InsideParens,
     /// Cursor is inside `{ }` — provide components and keywords.
     InsideBraces,
-    /// Cursor is at top level — provide Page, Component, Store, App.
+    /// Cursor is at top level — provide Page, Component, Store, Theme, App.
     TopLevel,
 }
 
@@ -580,22 +400,29 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
         current_line
     };
 
+    let trimmed_prefix = prefix.trim_end();
+
+    // Check for `use ` immediately before cursor
+    if trimmed_prefix.ends_with("use") || trimmed_prefix.ends_with("use ") {
+        return CompletionContext::UseStore;
+    }
+
     // Check for `on:` immediately before cursor
-    if prefix.trim_end().ends_with("on:") {
+    if trimmed_prefix.ends_with("on:") {
         return CompletionContext::EventTrigger;
     }
 
-    // Check for dot access: e.g. "Card."
+    // Check for dot access: e.g. "Navbar." or "CartStore."
     if let Some(dot_pos) = prefix.rfind('.') {
         let before_dot = prefix[..dot_pos].trim_end();
-        if let Some(word) = before_dot.split_whitespace().last()
-            && word.chars().next().is_some_and(|c| c.is_uppercase())
-        {
-            return CompletionContext::DotAccess(word.to_string());
+        if let Some(word) = before_dot.split(|c: char| !c.is_alphanumeric() && c != '_').next_back() {
+            if !word.is_empty() {
+                return CompletionContext::DotAccess(word.to_string());
+            }
         }
     }
 
-    // Count open/close parens and braces up to cursor to determine nesting.
+    // Count open/close parens and braces up to cursor to determine nesting
     let text_up_to_cursor: String = lines
         .iter()
         .take(line_idx)
@@ -607,14 +434,33 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
     let mut paren_depth: i32 = 0;
     let mut brace_depth: i32 = 0;
     let mut in_string = false;
+    let mut last_top_decl = String::new();
 
-    for ch in text_up_to_cursor.chars() {
+    let mut chars = text_up_to_cursor.chars().peekable();
+    while let Some(ch) = chars.next() {
         match ch {
             '"' => in_string = !in_string,
             '(' if !in_string => paren_depth += 1,
             ')' if !in_string => paren_depth -= 1,
             '{' if !in_string => brace_depth += 1,
             '}' if !in_string => brace_depth -= 1,
+            _ if !in_string && brace_depth == 0 => {
+                // Record declaration keyword if at top-level
+                if ch.is_alphabetic() {
+                    let mut word = String::new();
+                    word.push(ch);
+                    while let Some(&next_ch) = chars.peek() {
+                        if next_ch.is_alphanumeric() {
+                            word.push(chars.next().unwrap());
+                        } else {
+                            break;
+                        }
+                    }
+                    if word == "Theme" || word == "Page" || word == "Component" || word == "Store" || word == "App" {
+                        last_top_decl = word;
+                    }
+                }
+            }
             _ => {}
         }
     }
@@ -624,6 +470,9 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
     }
 
     if brace_depth > 0 {
+        if last_top_decl == "Theme" {
+            return CompletionContext::InsideTheme;
+        }
         return CompletionContext::InsideBraces;
     }
 
@@ -634,12 +483,17 @@ fn detect_context(source: &str, position: Position) -> CompletionContext {
 // Public API
 // ---------------------------------------------------------------------------
 
-pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionItem> {
+pub fn provide_completions(
+    source: &str,
+    position: Position,
+    program: Option<&Program>,
+) -> Vec<CompletionItem> {
     let ctx = detect_context(source, position);
     let mut items = Vec::new();
 
     match ctx {
         CompletionContext::DotAccess(parent) => {
+            // 1. Check built-in sub-components
             for &(p, children) in SUB_COMPONENTS {
                 if p == parent {
                     for &(child, detail) in children {
@@ -651,8 +505,81 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
                             ..Default::default()
                         });
                     }
-                    break;
+                    return items;
                 }
+            }
+
+            // 2. Check Store members if parent is a Store in program
+            if let Some(prog) = program {
+                for decl in &prog.declarations {
+                    if let Declaration::Store(s) = decl {
+                        if s.name == parent {
+                            for stmt in &s.body {
+                                match &stmt.kind {
+                                    StatementKind::State(st) => {
+                                        items.push(CompletionItem {
+                                            label: st.name.clone(),
+                                            kind: Some(CompletionItemKind::VARIABLE),
+                                            detail: Some(format!("Store state of {}", s.name)),
+                                            ..Default::default()
+                                        });
+                                    }
+                                    StatementKind::Derived(d) => {
+                                        items.push(CompletionItem {
+                                            label: d.name.clone(),
+                                            kind: Some(CompletionItemKind::VARIABLE),
+                                            detail: Some(format!("Store derived signal of {}", s.name)),
+                                            ..Default::default()
+                                        });
+                                    }
+                                    StatementKind::Action(a) => {
+                                        items.push(CompletionItem {
+                                            label: a.name.clone(),
+                                            kind: Some(CompletionItemKind::FUNCTION),
+                                            detail: Some(format!("Store action of {}", s.name)),
+                                            ..Default::default()
+                                        });
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            return items;
+                        }
+                    }
+                }
+            }
+        }
+
+        CompletionContext::UseStore => {
+            if let Some(prog) = program {
+                for decl in &prog.declarations {
+                    if let Declaration::Store(s) = decl {
+                        items.push(CompletionItem {
+                            label: s.name.clone(),
+                            kind: Some(CompletionItemKind::MODULE),
+                            detail: Some("Shared reactive store".to_string()),
+                            ..Default::default()
+                        });
+                    }
+                }
+            }
+        }
+
+        CompletionContext::InsideTheme => {
+            items.push(snippet_item(
+                "token",
+                "Declare design token: token <name>: <value>",
+                "token ${1:name}: \"${2:value}\"",
+            ));
+            for &(name, desc) in BASELINE_TOKENS {
+                items.push(CompletionItem {
+                    label: format!("token {name}"),
+                    kind: Some(CompletionItemKind::CONSTANT),
+                    detail: Some(desc.to_string()),
+                    insert_text: Some(format!("token {name}: \"${{1:value}}\"")),
+                    insert_text_format: Some(InsertTextFormat::SNIPPET),
+                    ..Default::default()
+                });
             }
         }
 
@@ -668,6 +595,7 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
         }
 
         CompletionContext::InsideParens => {
+            // Named arguments
             for &(arg, detail) in NAMED_ARGS {
                 items.push(CompletionItem {
                     label: arg.to_string(),
@@ -676,7 +604,8 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
                     ..Default::default()
                 });
             }
-            for modifier in webfluent::parser::MODIFIER_KEYWORDS {
+            // Canonical modifiers
+            for modifier in MODIFIER_KEYWORDS {
                 items.push(CompletionItem {
                     label: modifier.to_string(),
                     kind: Some(CompletionItemKind::ENUM_MEMBER),
@@ -684,6 +613,7 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
                     ..Default::default()
                 });
             }
+            // Page attributes
             for &(attr, detail) in PAGE_ATTRS {
                 items.push(CompletionItem {
                     label: format!("{attr}:"),
@@ -692,10 +622,35 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
                     ..Default::default()
                 });
             }
+            // In-scope variables (state, derived, props) if program is available
+            if let Some(prog) = program {
+                for decl in &prog.declarations {
+                    match decl {
+                        Declaration::Page(p) => {
+                            collect_stmt_identifiers(&p.body, &mut items);
+                        }
+                        Declaration::Component(c) => {
+                            for p in &c.props {
+                                items.push(CompletionItem {
+                                    label: p.name.clone(),
+                                    kind: Some(CompletionItemKind::VARIABLE),
+                                    detail: Some(format!("Prop of {}", c.name)),
+                                    ..Default::default()
+                                });
+                            }
+                            collect_stmt_identifiers(&c.body, &mut items);
+                        }
+                        Declaration::Store(s) => {
+                            collect_stmt_identifiers(&s.body, &mut items);
+                        }
+                        _ => {}
+                    }
+                }
+            }
         }
 
         CompletionContext::InsideBraces => {
-            // Components
+            // Built-in components
             for group in ALL_COMPONENT_GROUPS {
                 for info in *group {
                     items.push(CompletionItem {
@@ -704,6 +659,19 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
                         detail: Some(info.detail.to_string()),
                         ..Default::default()
                     });
+                }
+            }
+            // User-defined components in program
+            if let Some(prog) = program {
+                for decl in &prog.declarations {
+                    if let Declaration::Component(c) = decl {
+                        items.push(CompletionItem {
+                            label: c.name.clone(),
+                            kind: Some(CompletionItemKind::CLASS),
+                            detail: Some("User-defined component".to_string()),
+                            ..Default::default()
+                        });
+                    }
                 }
             }
             // Keywords
@@ -723,4 +691,36 @@ pub fn provide_completions(source: &str, position: Position) -> Vec<CompletionIt
     }
 
     items
+}
+
+fn collect_stmt_identifiers(stmts: &[Statement], items: &mut Vec<CompletionItem>) {
+    for stmt in stmts {
+        match &stmt.kind {
+            StatementKind::State(s) => {
+                items.push(CompletionItem {
+                    label: s.name.clone(),
+                    kind: Some(CompletionItemKind::VARIABLE),
+                    detail: Some("Reactive state variable".to_string()),
+                    ..Default::default()
+                });
+            }
+            StatementKind::Derived(d) => {
+                items.push(CompletionItem {
+                    label: d.name.clone(),
+                    kind: Some(CompletionItemKind::VARIABLE),
+                    detail: Some("Computed derived signal".to_string()),
+                    ..Default::default()
+                });
+            }
+            StatementKind::Action(a) => {
+                items.push(CompletionItem {
+                    label: a.name.clone(),
+                    kind: Some(CompletionItemKind::FUNCTION),
+                    detail: Some("Action function".to_string()),
+                    ..Default::default()
+                });
+            }
+            _ => {}
+        }
+    }
 }

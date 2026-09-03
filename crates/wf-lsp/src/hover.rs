@@ -1,443 +1,878 @@
 use tower_lsp::lsp_types::*;
+use webfluent::codegen::builtin::{builtin_to_html, implicit_role, landmark_label};
+use webfluent::parser::ast::*;
+use webfluent::parser::vocabulary::MODIFIER_KEYWORDS;
 
 // ---------------------------------------------------------------------------
 // Built-in component documentation
 // ---------------------------------------------------------------------------
 
-const COMPONENT_DOCS: &[(&str, &str)] = &[
+struct BuiltinDoc {
+    name: &'static str,
+    summary: &'static str,
+    example: &'static str,
+    subcomponents: &'static [&'static str],
+}
+
+const BUILTIN_DOCS: &[BuiltinDoc] = &[
     // Layout
-    (
-        "Container",
-        "**Container** — Responsive centered container with max-width and horizontal padding.",
-    ),
-    (
-        "Row",
-        "**Row** — Horizontal flex layout. Children are laid out in a row.",
-    ),
-    (
-        "Column",
-        "**Column** — Vertical flex layout. Children are laid out in a column.",
-    ),
-    (
-        "Grid",
-        "**Grid** — CSS Grid layout. Use `cols:` to set column count and `gap:` for spacing.",
-    ),
-    (
-        "Stack",
-        "**Stack** — Stacked/overlapping layout where children are layered on top of each other.",
-    ),
-    (
-        "Spacer",
-        "**Spacer** — Flexible space that fills available room in a flex container.",
-    ),
-    (
-        "Divider",
-        "**Divider** — A horizontal divider line for separating content.",
-    ),
+    BuiltinDoc {
+        name: "Container",
+        summary: "Responsive centered container with max-width and horizontal padding.",
+        example: "Container {\n  Heading(\"Welcome\", h1)\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Row",
+        summary: "Horizontal flex layout container.",
+        example: "Row(gap: md) {\n  Button(\"Left\")\n  Button(\"Right\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Column",
+        summary: "Vertical flex layout container.",
+        example: "Column(gap: sm) {\n  Text(\"Item 1\")\n  Text(\"Item 2\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Grid",
+        summary: "CSS Grid layout. Use `columns:` or `cols:` to set column count and `gap:` for spacing.",
+        example: "Grid(columns: 3, gap: md) {\n  Card { ... }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Stack",
+        summary: "Stacked/overlapping layout where children are layered on top of each other.",
+        example: "Stack {\n  Image(src: \"/bg.jpg\", alt: \"\")\n  Text(\"Overlay text\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Spacer",
+        summary: "Flexible space filler that expands to take up remaining room in a flex container.",
+        example: "Row {\n  Text(\"Left\")\n  Spacer\n  Text(\"Right\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Divider",
+        summary: "Horizontal visual divider rule.",
+        example: "Divider",
+        subcomponents: &[],
+    },
+
     // Navigation
-    (
-        "Navbar",
-        "**Navbar** — Top navigation bar. Sub-components: `Navbar.Brand`, `Navbar.Links`, `Navbar.Actions`.",
-    ),
-    (
-        "Sidebar",
-        "**Sidebar** — Side navigation panel. Sub-components: `Sidebar.Header`, `Sidebar.Content`, `Sidebar.Footer`.",
-    ),
-    (
-        "Breadcrumb",
-        "**Breadcrumb** — Breadcrumb trail showing the current page hierarchy.",
-    ),
-    (
-        "Link",
-        "**Link** — Navigation link. Use `to:` for internal routes or `href:` for external URLs.",
-    ),
-    ("Menu", "**Menu** — Dropdown menu component."),
-    (
-        "Tabs",
-        "**Tabs** — Tab navigation with multiple panels. Sub-components: `Tabs.Tab`, `Tabs.Panel`.",
-    ),
-    (
-        "TabPage",
-        "**TabPage** — Individual page within a tab group.",
-    ),
-    // Data display
-    (
-        "Card",
-        "**Card** — Content card with optional header, body, and footer. Sub-components: `Card.Header`, `Card.Body`, `Card.Footer`, `Card.Image`.",
-    ),
-    (
-        "Table",
-        "**Table** — Data table. Use `Thead`, `Tbody`, `Trow`, `Tcell` for structure.",
-    ),
-    (
-        "Thead",
-        "**Thead** — Table header section containing header row(s).",
-    ),
-    (
-        "Tbody",
-        "**Tbody** — Table body section containing data rows.",
-    ),
-    ("Trow", "**Trow** — A row within a table header or body."),
-    ("Tcell", "**Tcell** — A cell within a table row."),
-    (
-        "List",
-        "**List** — Ordered or unordered list. Use `ordered` / `unordered` modifiers.",
-    ),
-    ("Badge", "**Badge** — Small status indicator or counter."),
-    (
-        "Avatar",
-        "**Avatar** — User avatar, typically a circular image.",
-    ),
-    ("Tooltip", "**Tooltip** — Floating tooltip shown on hover."),
-    (
-        "Tag",
-        "**Tag** — Label tag or chip for categories and statuses.",
-    ),
+    BuiltinDoc {
+        name: "Navbar",
+        summary: "Top navigation bar. Houses branding, links, and action buttons.",
+        example: "Navbar {\n  Navbar.Brand { Text(\"Logo\") }\n  Navbar.Links { Link(\"Home\", to: \"/\") }\n  Navbar.Actions { Button(\"Sign in\") }\n}",
+        subcomponents: &["Navbar.Brand", "Navbar.Links", "Navbar.Actions"],
+    },
+    BuiltinDoc {
+        name: "Sidebar",
+        summary: "Side navigation panel. Contains headers, navigation items, and dividers.",
+        example: "Sidebar {\n  Sidebar.Header { Text(\"Dashboard\") }\n  Sidebar.Item(\"Overview\", to: \"/overview\")\n  Sidebar.Divider\n  Sidebar.Item(\"Settings\", to: \"/settings\")\n}",
+        subcomponents: &["Sidebar.Header", "Sidebar.Item", "Sidebar.Divider"],
+    },
+    BuiltinDoc {
+        name: "Breadcrumb",
+        summary: "Breadcrumb trail showing current page hierarchy.",
+        example: "Breadcrumb {\n  Breadcrumb.Item(\"Home\", to: \"/\")\n  Breadcrumb.Item(\"Docs\", to: \"/docs\")\n  Breadcrumb.Item(\"Guide\")\n}",
+        subcomponents: &["Breadcrumb.Item"],
+    },
+    BuiltinDoc {
+        name: "Link",
+        summary: "Navigation hyperlink. Use `to:` for internal routes or `href:` for external URLs.",
+        example: "Link(\"Documentation\", to: \"/docs\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Menu",
+        summary: "Dropdown menu component.",
+        example: "Menu {\n  Menu.Item(\"Edit\")\n  Menu.Item(\"Delete\")\n}",
+        subcomponents: &["Menu.Item"],
+    },
+    BuiltinDoc {
+        name: "Tabs",
+        summary: "Tabbed container switching between multiple panels via `TabPage` children.",
+        example: "Tabs {\n  TabPage(\"Overview\") { Text(\"Tab 1 content\") }\n  TabPage(\"Settings\") { Text(\"Tab 2 content\") }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "TabPage",
+        summary: "Individual tab page panel within a `Tabs` component.",
+        example: "TabPage(\"Details\") {\n  Text(\"Content here\")\n}",
+        subcomponents: &[],
+    },
+
+    // Data Display
+    BuiltinDoc {
+        name: "Card",
+        summary: "Structured card surface with optional Header, Body, and Footer sections.",
+        example: "Card(elevated) {\n  Card.Header { Heading(\"Title\", h3) }\n  Card.Body { Text(\"Main body text\") }\n  Card.Footer { Button(\"Action\") }\n}",
+        subcomponents: &["Card.Header", "Card.Body", "Card.Footer"],
+    },
+    BuiltinDoc {
+        name: "Table",
+        summary: "Structured data table. Uses `Thead`, `Tbody`, `Trow`, and `Tcell`.",
+        example: "Table {\n  Thead { Trow { Tcell(\"Name\") Tcell(\"Role\") } }\n  Tbody { Trow { Tcell(\"Alice\") Tcell(\"Admin\") } }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Thead",
+        summary: "Table header section.",
+        example: "Thead { Trow { Tcell(\"Col 1\") Tcell(\"Col 2\") } }",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Tbody",
+        summary: "Table body section containing data rows.",
+        example: "Tbody { for item in items { Trow { Tcell(item.name) } } }",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Trow",
+        summary: "Table row.",
+        example: "Trow { Tcell(\"Data\") }",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Tcell",
+        summary: "Table cell.",
+        example: "Tcell(\"Value\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "List",
+        summary: "List container.",
+        example: "List {\n  for item in items { Text(item) }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Badge",
+        summary: "Small status indicator, pill, or counter.",
+        example: "Badge(\"New\", primary, pill)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Avatar",
+        summary: "User avatar image or initials display.",
+        example: "Avatar(src: \"/user.jpg\", alt: \"User Profile\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Tooltip",
+        summary: "Hover tooltip displaying contextual hints.",
+        example: "Tooltip(text: \"More info\") {\n  Button(\"Help\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Tag",
+        summary: "Compact category or status chip.",
+        example: "Tag(\"Rust\", outlined)",
+        subcomponents: &[],
+    },
+
     // Inputs
-    (
-        "Input",
-        "**Input** — Text input field. Use modifiers like `text`, `email`, `password`, `number`. Supports `bind:` for two-way binding.",
-    ),
-    (
-        "Select",
-        "**Select** — Dropdown select with `Option` children. Supports `bind:`.",
-    ),
-    (
-        "Option",
-        "**Option** — An option within a `Select` dropdown.",
-    ),
-    (
-        "Checkbox",
-        "**Checkbox** — Boolean toggle checkbox. Use `bind:` and `label:`.",
-    ),
-    (
-        "Radio",
-        "**Radio** — Radio button for single-choice selection. Use `bind:` and `label:`.",
-    ),
-    (
-        "Switch",
-        "**Switch** — Toggle switch (on/off). Use `bind:` and `label:`.",
-    ),
-    (
-        "Slider",
-        "**Slider** — Range slider input. Use `min:`, `max:`, `step:`, `bind:`.",
-    ),
-    (
-        "DatePicker",
-        "**DatePicker** — Date selection input. Supports `bind:`.",
-    ),
-    (
-        "FileUpload",
-        "**FileUpload** — File upload input with drag-and-drop support.",
-    ),
-    (
-        "Form",
-        "**Form** — Form wrapper. Use `on:submit` for handling submissions.",
-    ),
+    BuiltinDoc {
+        name: "Input",
+        summary: "Interactive form input. Supports modifiers (`text`, `email`, `password`, `number`) and `bind:`.",
+        example: "Input(\"Enter email...\", email, bind: userEmail)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Select",
+        summary: "Dropdown selection control populated with `Option` children.",
+        example: "Select(bind: chosenRole) {\n  Option(\"Admin\", value: \"admin\")\n  Option(\"User\", value: \"user\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Option",
+        summary: "Individual option inside a `Select` element.",
+        example: "Option(\"Label\", value: \"val\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Checkbox",
+        summary: "Boolean toggle checkbox.",
+        example: "Checkbox(\"I accept terms\", bind: accepted)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Radio",
+        summary: "Single-choice radio button.",
+        example: "Radio(\"Option A\", name: \"choice\", value: \"a\", bind: selectedChoice)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Switch",
+        summary: "Modern toggle switch (on/off).",
+        example: "Switch(\"Enable notifications\", bind: notificationsEnabled)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Slider",
+        summary: "Range slider input.",
+        example: "Slider(min: 0, max: 100, step: 5, bind: volume)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "DatePicker",
+        summary: "Date selection calendar input.",
+        example: "DatePicker(bind: selectedDate)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "FileUpload",
+        summary: "File upload input with drag-and-drop support.",
+        example: "FileUpload(accept: \".png,.jpg\", bind: uploadedFile)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Form",
+        summary: "Form wrapper handling submission and inputs.",
+        example: "Form(on:submit: handleSubmit) {\n  Input(\"Name\", bind: name)\n  Button(\"Save\", submit, primary)\n}",
+        subcomponents: &[],
+    },
+
     // Feedback
-    (
-        "Alert",
-        "**Alert** — Alert message banner. Use `success`, `warning`, `danger`, `info` modifiers.",
-    ),
-    ("Toast", "**Toast** — Toast notification popup."),
-    (
-        "Modal",
-        "**Modal** — Full-screen overlay dialog. Use `visible:` binding and `title:`. Sub-components: `Modal.Header`, `Modal.Body`, `Modal.Footer`.",
-    ),
-    (
-        "Dialog",
-        "**Dialog** — Confirmation dialog. Use `visible:` and `title:`. Sub-components: `Dialog.Header`, `Dialog.Body`, `Dialog.Footer`.",
-    ),
-    ("Spinner", "**Spinner** — Loading spinner indicator."),
-    (
-        "Progress",
-        "**Progress** — Progress bar. Use `value:`, `min:`, `max:`.",
-    ),
-    (
-        "Skeleton",
-        "**Skeleton** — Skeleton loading placeholder that mimics content shape.",
-    ),
+    BuiltinDoc {
+        name: "Alert",
+        summary: "Notice banner for feedback. Modifiers: `success`, `warning`, `danger`, `info`.",
+        example: "Alert(\"Changes saved successfully!\", success, dismissible)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Toast",
+        summary: "Floating notification toast message.",
+        example: "Toast(\"Saved\", success)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Modal",
+        summary: "Accessible dialog modal dialog overlay.",
+        example: "Modal(title: \"Confirm Action\", visible: isModalOpen) {\n  Modal.Body { Text(\"Are you sure?\") }\n  Modal.Footer { Button(\"Cancel\") Button(\"Confirm\", danger) }\n}",
+        subcomponents: &["Modal.Header", "Modal.Body", "Modal.Footer"],
+    },
+    BuiltinDoc {
+        name: "Dialog",
+        summary: "Confirmation modal dialog.",
+        example: "Dialog(title: \"Delete?\", visible: showConfirm) {\n  Text(\"This cannot be undone.\")\n}",
+        subcomponents: &["Dialog.Header", "Dialog.Body", "Dialog.Footer"],
+    },
+    BuiltinDoc {
+        name: "Spinner",
+        summary: "Animated loading spinner indicator.",
+        example: "Spinner(large, primary)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Progress",
+        summary: "Progress bar showing completion status.",
+        example: "Progress(value: 75, max: 100, primary)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Skeleton",
+        summary: "Content loading placeholder skeleton.",
+        example: "Skeleton(rounded)",
+        subcomponents: &[],
+    },
+
     // Actions
-    (
-        "Button",
-        "**Button** — Clickable button. Modifiers: `primary`, `secondary`, `outline`, `ghost`, `danger`, `small`, `large`.",
-    ),
-    (
-        "IconButton",
-        "**IconButton** — Icon-only button. Requires `icon:` and `label:` for accessibility.",
-    ),
-    (
-        "ButtonGroup",
-        "**ButtonGroup** — Group of related buttons displayed together.",
-    ),
-    ("Dropdown", "**Dropdown** — Button with a dropdown menu."),
+    BuiltinDoc {
+        name: "Button",
+        summary: "Clickable action button. Modifiers: `primary`, `secondary`, `outlined`, `danger`, `small`, `large`.",
+        example: "Button(\"Submit\", primary, large, onClick: handleClick)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "IconButton",
+        summary: "Icon-only button requiring `icon:` and `label:` for accessibility.",
+        example: "IconButton(icon: \"search\", label: \"Search items\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "ButtonGroup",
+        summary: "Group of cohesive buttons displayed inline.",
+        example: "ButtonGroup {\n  Button(\"Day\")\n  Button(\"Week\")\n  Button(\"Month\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Dropdown",
+        summary: "Button triggering a dropdown popover menu.",
+        example: "Dropdown(\"Options\") {\n  Dropdown.Item(\"Profile\")\n  Dropdown.Item(\"Logout\")\n}",
+        subcomponents: &["Dropdown.Item"],
+    },
+
     // Media
-    (
-        "Image",
-        "**Image** — Responsive image. Requires `src:` and `alt:` for accessibility.",
-    ),
-    (
-        "Video",
-        "**Video** — Video player. Use `src:`, `controls:`, `autoplay:`, `loop:`.",
-    ),
-    (
-        "Icon",
-        "**Icon** — SVG icon. Use `icon:` to specify the icon name.",
-    ),
-    (
-        "Carousel",
-        "**Carousel** — Image carousel / slider with navigation.",
-    ),
+    BuiltinDoc {
+        name: "Image",
+        summary: "Responsive image element. Requires `src:` and `alt:` for accessibility.",
+        example: "Image(src: \"/hero.png\", alt: \"Hero banner\", rounded)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Video",
+        summary: "HTML5 video player. Supports `controls:`, `autoplay:`, `loop:`.",
+        example: "Video(src: \"/intro.mp4\", controls: true)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Icon",
+        summary: "Vector icon element. Specify icon name via positional argument or `icon:`.",
+        example: "Icon(\"check\", small)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Carousel",
+        summary: "Slide show / carousel container for cycling through `Carousel.Slide` items.",
+        example: "Carousel(autoplay: true, interval: 3000) {\n  Carousel.Slide { Image(src: \"/1.jpg\", alt: \"Slide 1\") }\n  Carousel.Slide { Image(src: \"/2.jpg\", alt: \"Slide 2\") }\n}",
+        subcomponents: &["Carousel.Slide"],
+    },
+
     // Typography
-    (
-        "Text",
-        "**Text** — Paragraph text. Supports `bold`, `italic`, `underline`, `strikethrough` modifiers.",
-    ),
-    (
-        "Heading",
-        "**Heading** — Heading element. Use `h1`–`h6` modifiers for level.",
-    ),
-    ("Code", "**Code** — Code block or inline code snippet."),
-    (
-        "Blockquote",
-        "**Blockquote** — Block quotation for cited text.",
-    ),
-    // Document/PDF
-    (
-        "Document",
-        "**Document** — Root element for PDF document output.",
-    ),
-    ("Section", "**Section** — A section within a PDF document."),
-    (
-        "Paragraph",
-        "**Paragraph** — A paragraph within a PDF document.",
-    ),
-    (
-        "PageBreak",
-        "**PageBreak** — Forces a page break in PDF output.",
-    ),
-    ("Header", "**Header** — Repeated page header in PDF output."),
-    ("Footer", "**Footer** — Repeated page footer in PDF output."),
+    BuiltinDoc {
+        name: "Text",
+        summary: "Paragraph or inline text block. Modifiers: `bold`, `italic`, `muted`, `uppercase`, etc.",
+        example: "Text(\"Hello world\", bold, muted)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Heading",
+        summary: "Section heading element. Use `h1` through `h6` modifiers to set heading depth.",
+        example: "Heading(\"Main Section\", h2)",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Code",
+        summary: "Inline code snippet or preformatted code block.",
+        example: "Code(\"let x = 42;\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Blockquote",
+        summary: "Quotation block for quoted references.",
+        example: "Blockquote(\"Simplicity is prerequisite for reliability.\")",
+        subcomponents: &[],
+    },
+
+    // PDF / Document output
+    BuiltinDoc {
+        name: "Document",
+        summary: "Root container for print and PDF document compilation.",
+        example: "Document(title: \"Invoice\") {\n  Section { Paragraph(\"Content\") }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Section",
+        summary: "Structural section in a PDF document.",
+        example: "Section(title: \"Summary\") {\n  Paragraph(\"...\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Paragraph",
+        summary: "Text paragraph within a PDF document.",
+        example: "Paragraph(\"Document text\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "PageBreak",
+        summary: "Explicit page break separator in PDF document compilation.",
+        example: "PageBreak",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Header",
+        summary: "Repeating header in PDF document output.",
+        example: "Header { Text(\"Company Report\") }",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Footer",
+        summary: "Repeating footer in PDF document output.",
+        example: "Footer { Text(\"Confidential\") }",
+        subcomponents: &[],
+    },
+
+    // Slides & Presentations
+    BuiltinDoc {
+        name: "Presentation",
+        summary: "Root presentation container for slide deck compilation.",
+        example: "Presentation(title: \"Tech Talk\") {\n  TitleSlide(\"WebFluent 2.0\", \"Next-gen Web\")\n  Slide { ... }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Slide",
+        summary: "Freeform 16:9 presentation slide (one output page).",
+        example: "Slide {\n  Heading(\"Architecture\", h2)\n  Text(\"Key principles...\")\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "TitleSlide",
+        summary: "Title slide layout: `TitleSlide(\"Title\", \"Subtitle\")`.",
+        example: "TitleSlide(\"WebFluent\", \"Declarative Web Language\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "SectionSlide",
+        summary: "Section divider slide: `SectionSlide(\"Section Label\")`.",
+        example: "SectionSlide(\"Deep Dive\")",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "TwoColumn",
+        summary: "Two-column slide layout. Takes exactly two `Container` children.",
+        example: "TwoColumn {\n  Container { Text(\"Left content\") }\n  Container { Text(\"Right content\") }\n}",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "ImageSlide",
+        summary: "Slide with full-frame image and optional caption: `ImageSlide(src: \"...\", caption: \"...\")`.",
+        example: "ImageSlide(src: \"/diagram.png\", caption: \"System Overview\")",
+        subcomponents: &[],
+    },
+
     // Routing
-    (
-        "Router",
-        "**Router** — Client-side router outlet that renders the matched page.",
-    ),
-    ("Route", "**Route** — Route definition within a Router."),
+    BuiltinDoc {
+        name: "Router",
+        summary: "Client-side router outlet that renders the matched page based on current URL path.",
+        example: "Router",
+        subcomponents: &[],
+    },
+    BuiltinDoc {
+        name: "Route",
+        summary: "Route mapping associating a path with a page destination.",
+        example: "Route(path: \"/about\", page: AboutPage)",
+        subcomponents: &[],
+    },
 ];
 
 // ---------------------------------------------------------------------------
-// Keyword documentation
+// Keywords documentation
 // ---------------------------------------------------------------------------
 
 const KEYWORD_DOCS: &[(&str, &str)] = &[
     (
         "Page",
-        "**Page** — Declares a page with a URL path and optional title.\n\n```\nPage Home (path: \"/\", title: \"Home\") { ... }\n```",
+        "**Page** \u{2014} Declares a route page with a URL path and metadata.\n\n```wf\nPage Home (path: \"/\", title: \"Home\") {\n  Container {\n    Heading(\"Welcome\", h1)\n  }\n}\n```",
     ),
     (
         "Component",
-        "**Component** — Declares a reusable component with typed props.\n\n```\nComponent Card (title: String, count: Number?) { ... }\n```",
+        "**Component** \u{2014} Declares a reusable UI component with typed props.\n\n```wf\nComponent UserCard (name: String, role: String = \"Member\") {\n  Card {\n    Heading(name, h3)\n    Badge(role, primary)\n  }\n}\n```",
     ),
     (
         "Store",
-        "**Store** — Declares a shared state store with state, derived, and actions.\n\n```\nStore Counter {\n  state count = 0\n  action increment() { count = count + 1 }\n}\n```",
+        "**Store** \u{2014} Declares a shared reactive state store with signals and actions.\n\n```wf\nStore CartStore {\n  state items = []\n  derived count = items.length\n  action add(item: Map) { items.push(item) }\n}\n```",
+    ),
+    (
+        "Theme",
+        "**Theme** \u{2014} Declares a design system theme with design tokens.\n\n```wf\nTheme Brand {\n  token color-primary: \"#0F766E\"\n  token radius-md: \"0.5rem\"\n}\n```",
+    ),
+    (
+        "token",
+        "**token** \u{2014} Declares a design token within a `Theme` block.\n\n```wf\ntoken color-primary: \"#3B82F6\"\n```",
     ),
     (
         "App",
-        "**App** — The root application declaration defining the top-level layout.\n\n```\nApp { Navbar { ... } Router Footer { ... } }\n```",
+        "**App** \u{2014} The root application shell defining global frame and routing.\n\n```wf\nApp {\n  Navbar { ... }\n  Router\n  Footer { ... }\n}\n```",
     ),
     (
         "state",
-        "**state** — Declares a reactive state variable. Changes trigger re-renders.\n\n```\nstate count = 0\nstate name = \"World\"\n```",
+        "**state** \u{2014} Declares a reactive state signal. Mutations automatically trigger fine-grained DOM updates.\n\n```wf\nstate count = 0\nstate query = \"\"\n```",
     ),
     (
         "derived",
-        "**derived** — Declares a computed value that updates when dependencies change.\n\n```\nderived doubled = count * 2\n```",
-    ),
-    (
-        "effect",
-        "**effect** — Side-effect block that re-runs when its dependencies change.\n\n```\neffect { log(count) }\n```",
+        "**derived** \u{2014} Declares a computed reactive signal derived from other state.\n\n```wf\nderived doubled = count * 2\n```",
     ),
     (
         "action",
-        "**action** — Named function that can mutate state.\n\n```\naction increment() { count = count + 1 }\n```",
+        "**action** \u{2014} Declares a state mutation function with optional typed parameters.\n\n```wf\naction increment(step: Number = 1) {\n  count = count + step\n}\n```",
     ),
     (
-        "if",
-        "**if** — Conditional rendering. Optionally chain `else` / `else if`.\n\n```\nif isLoggedIn { Text(\"Welcome!\") }\nelse { Button(\"Log in\") }\n```",
-    ),
-    (
-        "for",
-        "**for** — Iterate over a list and render UI for each item.\n\n```\nfor item in items { Text(item.name) }\n```",
-    ),
-    (
-        "show",
-        "**show** — Conditionally show/hide an element (stays in DOM, toggles visibility).\n\n```\nshow isVisible { Modal(title: \"Info\") { ... } }\n```",
+        "effect",
+        "**effect** \u{2014} Declares a side-effect block that runs on dependency change.\n\n```wf\neffect {\n  log(\"Count changed: \" + count)\n}\n```",
     ),
     (
         "use",
-        "**use** — Import a Store into the current scope.\n\n```\nuse CounterStore\n```",
+        "**use** \u{2014} Imports a shared `Store` into the current page or component scope.\n\n```wf\nuse CartStore\n```",
     ),
     (
         "fetch",
-        "**fetch** — Async data fetching with loading/error/success blocks.\n\n```\nfetch data from \"/api/items\" {\n  loading { Spinner }\n  error(e) { Alert(e, danger) }\n  success { List { ... } }\n}\n```",
+        "**fetch** \u{2014} Reactive data fetching block with loading, error, and success states.\n\n```wf\nfetch user from \"https://api.example.com/me\" {\n  loading { Spinner }\n  error (err) { Alert(err, danger) }\n  success { Text(user.name) }\n}\n```",
+    ),
+    (
+        "if",
+        "**if** \u{2014} Conditional rendering block. Supports `else if` and `else` branches.\n\n```wf\nif isLoggedIn {\n  Text(\"Welcome back!\")\n} else {\n  Button(\"Log In\", primary)\n}\n```",
+    ),
+    (
+        "for",
+        "**for** \u{2014} List iteration rendering element children for each item.\n\n```wf\nfor item in items {\n  Card { Text(item.title) }\n}\n```",
+    ),
+    (
+        "show",
+        "**show** \u{2014} Toggles element visibility via CSS display while keeping node mounted in the DOM.\n\n```wf\nshow isVisible {\n  Alert(\"Notice\")\n}\n```",
     ),
     (
         "navigate",
-        "**navigate** — Programmatic client-side navigation.\n\n```\nnavigate \"/dashboard\"\n```",
+        "**navigate** \u{2014} Client-side programmatic router navigation.\n\n```wf\nnavigate \"/dashboard\"\n```",
     ),
     (
         "log",
-        "**log** — Log an expression to the browser console.\n\n```\nlog(count)\n```",
+        "**log** \u{2014} Outputs an expression to the browser developer console.\n\n```wf\nlog(user.profile)\n```",
     ),
     (
-        "animate",
-        "**animate** — Apply enter/exit animations.\n\n```\nanimate target \"fadeIn\"\n```",
+        "return",
+        "**return** \u{2014} Early return from an action body.\n\n```wf\nif count <= 0 { return }\n```",
     ),
     (
         "style",
-        "**style** — Inline style block for custom CSS properties.\n\n```\nstyle { background: \"#f0f0f0\"; padding: \"1rem\" }\n```",
+        "**style** \u{2014} Component-level style overrides and media queries.\n\n```wf\nstyle {\n  color: \"var(--color-primary)\"\n  padding: \"1rem\"\n}\n```",
     ),
     (
         "transition",
-        "**transition** — CSS transition block for animated property changes.\n\n```\ntransition { opacity 300ms ease-in-out }\n```",
+        "**transition** \u{2014} Declares animated CSS transitions on element property changes.\n\n```wf\ntransition {\n  transform 200ms ease\n}\n```",
     ),
 ];
 
 // ---------------------------------------------------------------------------
-// Modifier documentation
+// Modifier descriptions from the compiler's canonical vocabulary
 // ---------------------------------------------------------------------------
 
-const MODIFIER_DOCS: &[(&str, &str)] = &[
-    (
-        "primary",
-        "**primary** — Primary accent style (buttons, badges, etc.)",
-    ),
-    (
-        "secondary",
-        "**secondary** — Secondary / muted style variant",
-    ),
-    (
-        "outline",
-        "**outline** — Bordered outline variant with transparent background",
-    ),
-    (
-        "ghost",
-        "**ghost** — Ghost variant with no background or border",
-    ),
-    ("danger", "**danger** — Destructive / error style (red)"),
-    ("warning", "**warning** — Warning style (amber/yellow)"),
-    ("success", "**success** — Success style (green)"),
-    ("info", "**info** — Informational style (blue)"),
-    ("small", "**small** — Reduced size variant"),
-    ("large", "**large** — Increased size variant"),
-    (
-        "disabled",
-        "**disabled** — Visually and functionally disabled",
-    ),
-    (
-        "full-width",
-        "**full-width** — Stretches to fill the parent width",
-    ),
-    ("rounded", "**rounded** — Applies rounded corners"),
-    ("centered", "**centered** — Centers the content"),
-    ("bold", "**bold** — Bold text weight"),
-    ("italic", "**italic** — Italic text style"),
-    ("underline", "**underline** — Underlined text"),
-    ("strikethrough", "**strikethrough** — Strikethrough text"),
-    ("h1", "**h1** — Heading level 1 (largest)"),
-    ("h2", "**h2** — Heading level 2"),
-    ("h3", "**h3** — Heading level 3"),
-    ("h4", "**h4** — Heading level 4"),
-    ("h5", "**h5** — Heading level 5"),
-    ("h6", "**h6** — Heading level 6 (smallest)"),
-    ("ordered", "**ordered** — Ordered (numbered) list"),
-    ("unordered", "**unordered** — Unordered (bulleted) list"),
-    ("text", "**text** — Plain text input type"),
-    ("email", "**email** — Email input type"),
-    ("password", "**password** — Password input type (masked)"),
-    ("number", "**number** — Numeric input type"),
-    ("horizontal", "**horizontal** — Horizontal orientation"),
-    ("vertical", "**vertical** — Vertical orientation"),
-];
+fn describe_modifier(mod_name: &str) -> Option<String> {
+    if !MODIFIER_KEYWORDS.contains(&mod_name) {
+        return None;
+    }
+
+    let (category, desc) = match mod_name {
+        // Colors
+        "primary" => ("Color Variant", "Applies primary theme accent styling."),
+        "secondary" => ("Color Variant", "Applies secondary neutral styling."),
+        "success" => ("Color Variant", "Applies success styling (typically emerald / green)."),
+        "danger" => ("Color Variant", "Applies destructive / error styling (typically crimson / red)."),
+        "warning" => ("Color Variant", "Applies warning styling (typically amber / orange)."),
+        "info" => ("Color Variant", "Applies informational styling (typically cyan / blue)."),
+
+        // Sizes
+        "small" => ("Size", "Compact sizing with reduced padding and typography."),
+        "medium" => ("Size", "Default standard component sizing."),
+        "large" => ("Size", "Expanded sizing with increased padding and typography."),
+
+        // Widths
+        "full" => ("Width", "Stretches element to 100% of parent width."),
+        "fit" => ("Width", "Sizes element to fit its content width (`width: fit-content`)."),
+
+        // Shapes & Elevations
+        "rounded" => ("Shape", "Applies default border-radius curvature."),
+        "pill" => ("Shape", "Applies 9999px fully rounded pill border-radius."),
+        "square" => ("Shape", "Removes border-radius for sharp square edges (`radius: 0`)."),
+        "outlined" => ("Elevation", "Bordered outline variant with transparent surface background."),
+        "elevated" => ("Elevation", "Applies subtle box-shadow elevation above page surface."),
+        "flat" => ("Elevation", "Flat surface with zero drop shadow."),
+
+        // Typography
+        "bold" => ("Typography", "Sets font-weight to bold (700)."),
+        "italic" => ("Typography", "Applies italic font style."),
+        "underline" => ("Typography", "Applies text underline decoration."),
+        "uppercase" => ("Typography", "Transforms text to uppercase capitalization."),
+        "lowercase" => ("Typography", "Transforms text to lowercase capitalization."),
+        "heading" => ("Typography", "Applies heading font styling and scale."),
+        "subtitle" => ("Typography", "Applies muted subtitle text scale."),
+        "muted" => ("Typography", "Applies secondary muted text color (`--color-text-muted`)."),
+        "left" => ("Alignment", "Aligns text to the left."),
+        "center" => ("Alignment", "Centers text content horizontally."),
+        "right" => ("Alignment", "Aligns text to the right."),
+        "h1" => ("Heading Level", "Renders as HTML `<h1>` heading."),
+        "h2" => ("Heading Level", "Renders as HTML `<h2>` heading."),
+        "h3" => ("Heading Level", "Renders as HTML `<h3>` heading."),
+        "h4" => ("Heading Level", "Renders as HTML `<h4>` heading."),
+        "h5" => ("Heading Level", "Renders as HTML `<h5>` heading."),
+        "h6" => ("Heading Level", "Renders as HTML `<h6>` heading."),
+
+        // State & Behavior
+        "disabled" => ("State", "Renders element in disabled non-interactive state with reduced opacity."),
+        "loading" => ("State", "Shows loading spinner overlay and disables user interaction."),
+        "error" => ("State", "Highlights input in error state with danger border color."),
+        "dismissible" => ("Behavior", "Adds close icon button to dismiss alert / banner."),
+        "block" => ("Display", "Renders as block-level element filling available width."),
+        "bordered" => ("Border", "Adds standard container perimeter border."),
+
+        // Media
+        "controls" => ("Media", "Displays playback transport controls on audio/video elements."),
+        "autoplay" => ("Media", "Automatically begins playback when media is loaded."),
+
+        // Input types
+        "text" => ("Input Type", "Standard single-line text input (`type=\"text\"`)."),
+        "email" => ("Input Type", "Email address input with keyboard optimization (`type=\"email\"`)."),
+        "password" => ("Input Type", "Masked password security input (`type=\"password\"`)."),
+        "number" => ("Input Type", "Numeric input with stepper (`type=\"number\"`)."),
+        "search" => ("Input Type", "Search field input (`type=\"search\"`)."),
+        "tel" => ("Input Type", "Telephone number input (`type=\"tel\"`)."),
+        "url" => ("Input Type", "URL address input (`type=\"url\"`)."),
+        "date" => ("Input Type", "Date picker input (`type=\"date\"`)."),
+        "time" => ("Input Type", "Time picker input (`type=\"time\"`)."),
+        "datetime" => ("Input Type", "Date and time picker input (`type=\"datetime-local\"`)."),
+        "color" => ("Input Type", "Color picker swatch input (`type=\"color\"`)."),
+        "submit" => ("Button Type", "Form submit button (`type=\"submit\"`)."),
+        "reset" => ("Button Type", "Form reset button (`type=\"reset\"`)."),
+
+        // Animation modifiers
+        "fast" => ("Animation Speed", "150ms accelerated transition duration."),
+        "slow" => ("Animation Speed", "500ms relaxed transition duration."),
+        "fadeIn" => ("Animation", "Fades opacity from 0% to 100%."),
+        "fadeOut" => ("Animation", "Fades opacity from 100% to 0%."),
+        "slideUp" => ("Animation", "Translates vertically upwards while fading in."),
+        "slideDown" => ("Animation", "Translates vertically downwards while fading in."),
+        "slideLeft" => ("Animation", "Translates horizontally leftwards while fading in."),
+        "slideRight" => ("Animation", "Translates horizontally rightwards while fading in."),
+        "scaleIn" => ("Animation", "Scales up from 95% to 100%."),
+        "scaleOut" => ("Animation", "Scales down from 100% to 95%."),
+        "bounce" => ("Animation", "Playful bounce entrance keyframe effect."),
+        "shake" => ("Animation", "Horizontal shake keyframe animation for attention/error feedback."),
+        "pulse" => ("Animation", "Subtle breathing opacity pulse effect."),
+        "spin" => ("Animation", "Continuous 360 degree rotational spin animation."),
+
+        _ => ("Modifier", "Valid WebFluent component modifier."),
+    };
+
+    Some(format!(
+        "**Modifier** `{mod_name}` ({category})\n\n{desc}\n\n*Emits class*: `.wf-*--{mod_name}`"
+    ))
+}
 
 // ---------------------------------------------------------------------------
-// Event documentation
+// AST-based dynamic hover resolution
 // ---------------------------------------------------------------------------
 
-const EVENT_DOCS: &[(&str, &str)] = &[
-    ("click", "**on:click** — Fires when the element is clicked."),
-    ("dblclick", "**on:dblclick** — Fires on double click."),
-    (
-        "input",
-        "**on:input** — Fires on every input value change (real-time).",
-    ),
-    (
-        "change",
-        "**on:change** — Fires when the value is committed (on blur or enter).",
-    ),
-    ("submit", "**on:submit** — Fires when a form is submitted."),
-    (
-        "focus",
-        "**on:focus** — Fires when the element gains focus.",
-    ),
-    ("blur", "**on:blur** — Fires when the element loses focus."),
-    (
-        "keydown",
-        "**on:keydown** — Fires when a key is pressed down.",
-    ),
-    ("keyup", "**on:keyup** — Fires when a key is released."),
-    (
-        "mouseenter",
-        "**on:mouseenter** — Fires when the mouse enters the element.",
-    ),
-    (
-        "mouseleave",
-        "**on:mouseleave** — Fires when the mouse leaves the element.",
-    ),
-    (
-        "scroll",
-        "**on:scroll** — Fires when the element is scrolled.",
-    ),
-];
+fn hover_ast_symbol(program: &Program, word: &str) -> Option<String> {
+    for decl in &program.declarations {
+        match decl {
+            Declaration::Component(c) if c.name == word => {
+                let props_sig = c
+                    .props
+                    .iter()
+                    .map(|p| {
+                        let ty = format!("{:?}", p.prop_type);
+                        let opt = if p.optional { "?" } else { "" };
+                        let def = if let Some(e) = &p.default {
+                            format!(" = {:?}", e)
+                        } else {
+                            String::new()
+                        };
+                        format!("{}: {}{}{}", p.name, ty, opt, def)
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", ");
+
+                return Some(format!(
+                    "**Component** `{}`\n\n```wf\nComponent {}({})\n```\n\nUser-defined reusable component.",
+                    c.name, c.name, props_sig
+                ));
+            }
+            Declaration::Page(p) if p.name == word => {
+                let title_info = p
+                    .title
+                    .as_deref()
+                    .map(|t| format!(" (title: \"{t}\")"))
+                    .unwrap_or_default();
+                return Some(format!(
+                    "**Page** `{}`\n\nRoute: `{}`{}\n\nDeclared page route.",
+                    p.name, p.path, title_info
+                ));
+            }
+            Declaration::Store(s) if s.name == word => {
+                let mut members = Vec::new();
+                for stmt in &s.body {
+                    match &stmt.kind {
+                        StatementKind::State(st) => members.push(format!("state {}", st.name)),
+                        StatementKind::Derived(d) => members.push(format!("derived {}", d.name)),
+                        StatementKind::Action(a) => members.push(format!("action {}()", a.name)),
+                        _ => {}
+                    }
+                }
+                let members_doc = if members.is_empty() {
+                    String::new()
+                } else {
+                    format!("\n\n*Members*:\n- {}", members.join("\n- "))
+                };
+                return Some(format!(
+                    "**Store** `{}`\n\nShared reactive state store.{}",
+                    s.name, members_doc
+                ));
+            }
+            Declaration::Theme(t) if t.name == word => {
+                return Some(format!(
+                    "**Theme** `{}`\n\nDesign system palette defining {} custom design tokens.",
+                    t.name,
+                    t.tokens.len()
+                ));
+            }
+            Declaration::Theme(t) => {
+                for token in &t.tokens {
+                    if token.name == word {
+                        return Some(format!(
+                            "**Design Token** `{}`\n\nDeclared in Theme `{}`.\n\n*Emits CSS Variable*: `var(--{})`",
+                            token.name, t.name, token.name
+                        ));
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        // Search body statements for state, derived, actions, props
+        match decl {
+            Declaration::Component(c) => {
+                for p in &c.props {
+                    if p.name == word {
+                        return Some(format!(
+                            "**prop** `{}: {:?}`\n\nParameter of Component `{}`.",
+                            p.name, p.prop_type, c.name
+                        ));
+                    }
+                }
+                if let Some(doc) = find_stmt_symbol(&c.body, word) {
+                    return Some(doc);
+                }
+            }
+            Declaration::Page(p) => {
+                if let Some(doc) = find_stmt_symbol(&p.body, word) {
+                    return Some(doc);
+                }
+            }
+            Declaration::Store(s) => {
+                if let Some(doc) = find_stmt_symbol(&s.body, word) {
+                    return Some(format!("{doc}\n\nBelongs to Store `{}`.", s.name));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+fn find_stmt_symbol(stmts: &[Statement], word: &str) -> Option<String> {
+    for stmt in stmts {
+        match &stmt.kind {
+            StatementKind::State(s) if s.name == word => {
+                return Some(format!(
+                    "**state** `{}`\n\nReactive state signal. Reading it registers dependency; assigning updates DOM.",
+                    s.name
+                ));
+            }
+            StatementKind::Derived(d) if d.name == word => {
+                return Some(format!(
+                    "**derived** `{}`\n\nComputed reactive signal. Recomputes when referenced state variables change.",
+                    d.name
+                ));
+            }
+            StatementKind::Action(a) if a.name == word => {
+                let params = a
+                    .params
+                    .iter()
+                    .map(|p| format!("{}: {:?}", p.name, p.param_type))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                return Some(format!(
+                    "**action** `{}({})`\n\nNamed action function for state mutations.",
+                    a.name, params
+                ));
+            }
+            StatementKind::For(f) if f.item == word => {
+                return Some(format!("**loop variable** `{}`\n\nIterator item in `for` loop.", f.item));
+            }
+            StatementKind::Fetch(f) if f.variable == word => {
+                return Some(format!("**fetch binding** `{}`\n\nResponse data binding from `fetch`.", f.variable));
+            }
+            _ => {}
+        }
+    }
+    None
+}
 
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
-pub fn provide_hover(source: &str, position: Position) -> Option<Hover> {
+pub fn provide_hover(source: &str, position: Position, program: Option<&Program>) -> Option<Hover> {
     let word = word_at_position(source, position)?;
 
-    // Try components first
-    if let Some(doc) = lookup(&word, COMPONENT_DOCS) {
-        return Some(make_hover(doc));
+    // 1. Dynamic AST lookup if available
+    if let Some(prog) = program {
+        if let Some(ast_doc) = hover_ast_symbol(prog, &word) {
+            return Some(make_hover(ast_doc));
+        }
     }
 
-    // Try keywords
-    if let Some(doc) = lookup(&word, KEYWORD_DOCS) {
-        return Some(make_hover(doc));
+    // 2. Built-in components
+    if let Some(doc) = BUILTIN_DOCS.iter().find(|d| d.name == word) {
+        let (html_tag, base_class) = builtin_to_html(doc.name);
+        let mut details = format!("**Component** `<{}>` (`.{}`)\n\n{}\n\n", html_tag, base_class, doc.summary);
+
+        if let Some(role) = implicit_role(doc.name, &[]) {
+            details.push_str(&format!("*ARIA role*: `{role}`  \n"));
+        }
+        if let Some(landmark) = landmark_label(doc.name) {
+            details.push_str(&format!("*Landmark*: `{landmark}`  \n"));
+        }
+        if !doc.subcomponents.is_empty() {
+            details.push_str(&format!("*Subcomponents*: `{}`  \n", doc.subcomponents.join("`, `")));
+        }
+
+        details.push_str(&format!("\n```wf\n{}\n```", doc.example));
+        return Some(make_hover(details));
     }
 
-    // Try modifiers
-    if let Some(doc) = lookup(&word, MODIFIER_DOCS) {
-        return Some(make_hover(doc));
+    // 3. Subcomponent references like "Navbar.Brand", "Sidebar.Item", etc.
+    if word.contains('.') {
+        let parts: Vec<&str> = word.split('.').collect();
+        if parts.len() == 2 {
+            let parent = parts[0];
+            if let Some(doc) = BUILTIN_DOCS.iter().find(|d| d.name == parent) {
+                if doc.subcomponents.contains(&word.as_str()) {
+                    return Some(make_hover(format!(
+                        "**Subcomponent** `{}`\n\nSubcomponent section of `{}`.",
+                        word, parent
+                    )));
+                }
+            }
+        }
     }
 
-    // Try events (strip "on:" prefix if present)
+    // 4. Keywords
+    if let Some((_, doc)) = KEYWORD_DOCS.iter().find(|(k, _)| *k == word) {
+        return Some(make_hover(doc.to_string()));
+    }
+
+    // 5. Valid modifiers
+    if let Some(mod_doc) = describe_modifier(&word) {
+        return Some(make_hover(mod_doc));
+    }
+
+    // 6. Events (strip "on:" prefix if present)
     let event_name = word.strip_prefix("on:").unwrap_or(&word);
-    if let Some(doc) = lookup(event_name, EVENT_DOCS) {
-        return Some(make_hover(doc));
+    if let Some(event_doc) = describe_event(event_name) {
+        return Some(make_hover(event_doc));
     }
 
     None
 }
 
-fn lookup(key: &str, table: &[(&str, &str)]) -> Option<String> {
-    table
-        .iter()
-        .find(|(k, _)| *k == key)
-        .map(|(_, v)| v.to_string())
+fn describe_event(event: &str) -> Option<String> {
+    let desc = match event {
+        "click" => "Fires when element is clicked.",
+        "dblclick" => "Fires on double-click.",
+        "input" => "Fires on every keystroke/value change in real-time.",
+        "change" => "Fires when input value is committed (on enter or blur).",
+        "submit" => "Fires on form submission.",
+        "focus" => "Fires when element gains focus.",
+        "blur" => "Fires when element loses focus.",
+        "keydown" => "Fires when a keyboard key is pressed down.",
+        "keyup" => "Fires when a keyboard key is released.",
+        "mouseenter" => "Fires when cursor enters element bounds.",
+        "mouseleave" => "Fires when cursor leaves element bounds.",
+        "scroll" => "Fires when element or container is scrolled.",
+        _ => return None,
+    };
+    Some(format!("**Event** `on:{event}`\n\n{desc}"))
 }
 
 fn make_hover(content: String) -> Hover {
@@ -450,10 +885,9 @@ fn make_hover(content: String) -> Hover {
     }
 }
 
-/// Extract the word under the cursor position.
+/// Extract the word or dotted identifier under cursor position.
 fn word_at_position(source: &str, position: Position) -> Option<String> {
-    let lines: Vec<&str> = source.lines().collect();
-    let line = lines.get(position.line as usize)?;
+    let line = source.lines().nth(position.line as usize)?;
     let col = position.character as usize;
 
     if col > line.len() {
@@ -462,25 +896,20 @@ fn word_at_position(source: &str, position: Position) -> Option<String> {
 
     let bytes = line.as_bytes();
 
-    // Find word start
     let mut start = col;
     while start > 0 {
         let ch = bytes[start - 1] as char;
-        if ch.is_alphanumeric() || ch == '_' || ch == ':' {
-            start -= 1;
-        } else if ch == '.' {
-            // Include dot for sub-component references like "Card.Header"
+        if ch.is_alphanumeric() || ch == '_' || ch == '-' || ch == '.' || ch == ':' {
             start -= 1;
         } else {
             break;
         }
     }
 
-    // Find word end
     let mut end = col;
     while end < bytes.len() {
         let ch = bytes[end] as char;
-        if ch.is_alphanumeric() || ch == '_' {
+        if ch.is_alphanumeric() || ch == '_' || ch == '-' {
             end += 1;
         } else {
             break;
@@ -491,5 +920,8 @@ fn word_at_position(source: &str, position: Position) -> Option<String> {
         return None;
     }
 
-    Some(line[start..end].to_string())
+    let raw = &line[start..end];
+    // Trim leading/trailing punctuation if not part of identifier
+    let trimmed = raw.trim_matches(|c: char| c == '(' || c == ')' || c == '{' || c == '}');
+    if trimmed.is_empty() { None } else { Some(trimmed.to_string()) }
 }

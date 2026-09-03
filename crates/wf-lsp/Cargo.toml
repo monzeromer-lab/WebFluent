@@ -6,6 +6,10 @@ description = "Language Server Protocol implementation for WebFluent"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
 license = "GPL-3.0"
 
+[lib]
+name = "wf_lsp"
+path = "src/lib.rs"
+
 [[bin]]
 name = "wf-lsp"
 path = "src/main.rs"

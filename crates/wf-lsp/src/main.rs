@@ -1,10 +1,5 @@
-mod backend;
-mod completion;
-mod diagnostics;
-mod hover;
-
-use backend::Backend;
 use tower_lsp::{LspService, Server};
+use wf_lsp::backend::Backend;
 
 #[tokio::main]
 async fn main() {
