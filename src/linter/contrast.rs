@@ -11,7 +11,7 @@
 //! boundaries of user interface components.
 
 use crate::error::A11yWarning;
-use crate::parser::ast::{Declaration, Expr, Program};
+use crate::parser::ast::{ComponentRef, Declaration, Expr, Program, Statement, StatementKind};
 
 /// WCAG AA for body text.
 const AA_TEXT: f64 = 4.5;
@@ -64,14 +64,71 @@ const PAIRS: &[(&str, &str, f64, &str)] = &[
 // token wholesale would report every well-made design. Distinguishing the two
 // needs to know which component the border is on, which a token cannot say.
 
-/// Foreground tokens the stylesheet always pairs with white text.
-const ON_WHITE: &[(&str, &str)] = &[
-    ("color-primary", "a primary button's white label"),
-    ("color-secondary", "a secondary button's white label"),
-    ("color-success", "a success badge's white label"),
-    ("color-danger", "a danger button's white label"),
-    ("color-info", "an info badge's white label"),
+/// Foreground tokens the stylesheet pairs with white text, and the modifier
+/// whose variant does so. A site that never writes `Button("x", primary)`
+/// has no white label on `--color-primary`, so the pairing is not checked:
+/// in structural mode that token paints only the focus ring, and a warning
+/// about a button that does not exist is noise the author cannot act on.
+const ON_WHITE: &[(&str, &str, &str)] = &[
+    ("color-primary", "primary", "a primary button's white label"),
+    (
+        "color-secondary",
+        "secondary",
+        "a secondary button's white label",
+    ),
+    ("color-success", "success", "a success badge's white label"),
+    ("color-danger", "danger", "a danger button's white label"),
+    ("color-info", "info", "an info badge's white label"),
 ];
+
+/// Every modifier word written on a builtin element anywhere in the program.
+fn used_modifiers(program: &Program) -> std::collections::HashSet<String> {
+    fn walk(stmts: &[Statement], out: &mut std::collections::HashSet<String>) {
+        for stmt in stmts {
+            match &stmt.kind {
+                StatementKind::UIElement(el) => {
+                    if matches!(el.component, ComponentRef::BuiltIn(_)) {
+                        out.extend(el.modifiers.iter().cloned());
+                    }
+                    walk(&el.children, out);
+                }
+                StatementKind::If(i) => {
+                    walk(&i.then_body, out);
+                    for (_, body) in &i.else_if_branches {
+                        walk(body, out);
+                    }
+                    if let Some(body) = &i.else_body {
+                        walk(body, out);
+                    }
+                }
+                StatementKind::For(f) => walk(&f.body, out),
+                StatementKind::Show(s) => walk(&s.body, out),
+                StatementKind::Fetch(f) => {
+                    if let Some(body) = &f.loading_block {
+                        walk(body, out);
+                    }
+                    if let Some((_, body)) = &f.error_block {
+                        walk(body, out);
+                    }
+                    if let Some(body) = &f.success_block {
+                        walk(body, out);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    let mut out = std::collections::HashSet::new();
+    for decl in &program.declarations {
+        match decl {
+            Declaration::Page(p) => walk(&p.body, &mut out),
+            Declaration::Component(c) => walk(&c.body, &mut out),
+            Declaration::App(a) => walk(&a.body, &mut out),
+            _ => {}
+        }
+    }
+    out
+}
 
 /// Check the declared theme's tokens, layered over the baseline.
 pub fn lint_contrast(
@@ -118,8 +175,9 @@ pub fn lint_contrast(
         }
     }
 
-    for (token, description) in ON_WHITE {
-        if !touched.contains(token) {
+    let modifiers = used_modifiers(program);
+    for (token, modifier, description) in ON_WHITE {
+        if !touched.contains(token) || !modifiers.contains(*modifier) {
             continue;
         }
         let Some(value) = resolved.get(*token).and_then(|v| parse_colour(v)) else {
@@ -285,11 +343,29 @@ mod tests {
     fn a_pale_primary_under_white_text_is_reported() {
         // The stylesheet puts white text on `--color-primary`, so a pale primary
         // is unreadable however good it looks against the page.
-        let warnings = check("Theme T {\n  token color-primary: \"#FFE066\"\n}");
+        let program = parse(
+            "Theme T {\n  token color-primary: \"#FFE066\"\n}\nPage P (path: \"/\") { Button(\"Go\", primary) }",
+        );
+        let resolved =
+            crate::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
+        let warnings = lint_contrast(&program, &resolved);
         assert!(
             warnings
                 .iter()
                 .any(|w| w.to_string().contains("white label")),
+            "{warnings:?}"
+        );
+    }
+
+    #[test]
+    fn a_pale_primary_is_not_reported_when_nothing_is_painted_primary() {
+        // No `primary` modifier anywhere: the token paints no white label, so
+        // there is nothing for the author to fix.
+        let warnings = check("Theme T {\n  token color-primary: \"#FFE066\"\n}");
+        assert!(
+            warnings
+                .iter()
+                .all(|w| !w.to_string().contains("white label")),
             "{warnings:?}"
         );
     }
