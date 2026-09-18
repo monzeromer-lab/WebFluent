@@ -110,12 +110,10 @@ const WF = (() => {
       }
     }
     appendChildren(el, children);
-    if (selectValue !== undefined) {
-      if (typeof selectValue === "function") {
-        effect(() => { el.value = selectValue(); });
-      } else {
-        el.value = selectValue;
-      }
+    if (typeof selectValue === "function") {
+      effect(() => { const v = selectValue(); if (v != null) el.value = v; });
+    } else if (selectValue != null) {
+      el.value = selectValue;
     }
     return el;
   }
