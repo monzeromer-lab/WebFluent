@@ -1170,7 +1170,16 @@ impl Parser {
             let Some(tok) = self.tokens.get(i) else {
                 return false;
             };
-            if !matches!(tok.token_type, TokenType::Identifier(_)) {
+            // `error`, `loading` and `success` lex as keywords but are
+            // ordinary names in argument position (`error: msg`), as
+            // `expect_identifier` already allows.
+            if !matches!(
+                tok.token_type,
+                TokenType::Identifier(_)
+                    | TokenType::Error
+                    | TokenType::Loading
+                    | TokenType::Success
+            ) {
                 return false;
             }
             match self.tokens.get(i + 1).map(|t| &t.token_type) {
@@ -2715,6 +2724,22 @@ mod named_arg_tests {
             .map(|b| b.state.as_str())
             .collect();
         assert_eq!(states, ["hover", "focus-within"]);
+    }
+
+    #[test]
+    fn a_keyword_that_is_also_a_name_can_be_an_argument_name() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Field(label: "x", error: "That is not a hostname.") }"#,
+        );
+        let names: Vec<&str> = ui
+            .args
+            .iter()
+            .filter_map(|a| match a {
+                Arg::Named(k, _) => Some(k.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(names, ["label", "error"]);
     }
 
     #[test]
