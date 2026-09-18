@@ -1148,20 +1148,20 @@ impl JsCodegen {
                 }
 
                 // If element has a block with just statements (Button shorthand click)
-                if ui.events.is_empty() && !ui.children.is_empty() {
-                    // Check if children are all action-like statements (assignments, method calls)
-                    let all_actions = ui.children.iter().all(|s| {
-                        matches!(
-                            &s.kind,
-                            StatementKind::Assignment(_)
-                                | StatementKind::MethodCall(_)
-                                | StatementKind::Navigate(_)
-                                | StatementKind::ExprStatement(_)
-                        )
-                    });
-
-                    if all_actions && matches!(name.as_str(), "Button" | "IconButton") {
-                        let body = self.emit_statements_inline(&ui.children);
+                // A Button's block may mix what it shows with what it does:
+                // the action-like statements are its click handler, the rest
+                // its content. They used to become a handler only when the
+                // block held nothing else; a badge beside an assignment made
+                // the assignment run at render time.
+                if ui.events.is_empty() && matches!(name.as_str(), "Button" | "IconButton") {
+                    let actions: Vec<Statement> = ui
+                        .children
+                        .iter()
+                        .filter(|s| is_action_statement(s))
+                        .cloned()
+                        .collect();
+                    if !actions.is_empty() {
+                        let body = self.emit_statements_inline(&actions);
                         attrs.push(format!("\"on:click\": (e) => {{ {} }}", body));
                     }
                 }
@@ -1390,20 +1390,9 @@ impl JsCodegen {
                 }
 
                 // Emit children
-                let is_action_shorthand = ui.events.is_empty()
-                    && !ui.children.is_empty()
-                    && ui.children.iter().all(|s| {
-                        matches!(
-                            &s.kind,
-                            StatementKind::Assignment(_)
-                                | StatementKind::MethodCall(_)
-                                | StatementKind::Navigate(_)
-                                | StatementKind::ExprStatement(_)
-                        )
-                    })
-                    && matches!(name.as_str(), "Button" | "IconButton");
+                let is_button = matches!(name.as_str(), "Button" | "IconButton");
 
-                if !is_action_shorthand {
+                {
                     let was_in_thead = self.in_thead;
                     if name == "Thead" {
                         self.in_thead = true;
@@ -1411,6 +1400,11 @@ impl JsCodegen {
                         self.in_thead = false;
                     }
                     for child in &ui.children {
+                        // A button's action statements are its click handler
+                        // (see above), not content.
+                        if is_button && ui.events.is_empty() && is_action_statement(child) {
+                            continue;
+                        }
                         self.emit_statement_dom(child, &var);
                     }
                     self.in_thead = was_in_thead;
@@ -3749,6 +3743,18 @@ impl JsCodegen {
     }
 }
 
+/// Whether a statement does something rather than shows something: the kind
+/// a Button's block turns into its click handler.
+fn is_action_statement(stmt: &Statement) -> bool {
+    matches!(
+        &stmt.kind,
+        StatementKind::Assignment(_)
+            | StatementKind::MethodCall(_)
+            | StatementKind::Navigate(_)
+            | StatementKind::ExprStatement(_)
+    )
+}
+
 fn is_reactive_expr(expr_str: &str) -> bool {
     // Check for signal access pattern: _identifier()
     let bytes = expr_str.as_bytes();
@@ -3890,6 +3896,29 @@ mod tests {
             "{out}"
         );
         assert!(!out.contains("_part()"), "{out}");
+    }
+
+    #[test]
+    fn a_buttons_block_may_mix_content_and_actions() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state open = false
+                Button("", aria-expanded: open) {
+                    Text("Details")
+                    Icon("chevron-down")
+                    open = !open
+                }
+            }
+            "#,
+        );
+        assert!(
+            out.contains("\"on:click\": (e) => { _open.set(!_open()); }"),
+            "{out}"
+        );
+        // The assignment is not executed at render time.
+        assert!(!out.contains("\n  _open.set(!_open());"), "{out}");
+        assert!(out.contains("\"Details\""), "{out}");
     }
 
     #[test]

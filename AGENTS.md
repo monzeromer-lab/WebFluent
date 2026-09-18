@@ -1265,7 +1265,7 @@ Page Invoice (path: "/", title: "Invoice") {
 4. **Named args use colon**: `Input(text, bind: myVar, placeholder: "...")`
 5. **Braces for children/body**: `Card { Card.Body { Text("content") } }`
 6. **Sub-components use dot**: `Card.Header`, `Card.Body`, `Card.Footer`, `Navbar.Brand`, `Navbar.Links`
-7. **Event handlers**: `on:click { ... }` inside a component's block
+7. **Event handlers**: `on:click { ... }` inside a component's block. A `Button`'s block may mix what it shows with what it does — its action statements (assignments, calls, `navigate`) are its click handler, the elements are its content
 8. **String interpolation is reactive**: `Text("Count: {count}")` updates when `count` changes
 9. **Imports via `use`**: `use StoreName` to access shared stores
 10. **No semicolons needed**: statements are newline-separated
