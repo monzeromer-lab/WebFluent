@@ -757,7 +757,10 @@ Input(text, placeholder: "shop.example.com") {
 States: `hover`, `focus` (compiled to `:focus-visible` — the keyboard focus
 ring, not a ring on every click), `active`, `disabled`, `placeholder`,
 `focus-within`. These are stylesheet rules, so their values must be known at
-build time: literals and token keywords, not state.
+build time: literals and token keywords, not state. They override the
+element's base declarations while the state or media condition holds (they
+are emitted `!important`, since the base is inline); when a state rule and a
+media rule set the same property, the media rule wins.
 
 A rule that has to vary per element reads a custom property the element sets
 — a custom property can follow state, the rule cannot:

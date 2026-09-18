@@ -110,7 +110,12 @@ fn declaration(prop: &StyleProperty) -> Option<String> {
         Expr::NumberLiteral(n) => Some(format!("{}", n)),
         _ => None,
     })?;
-    Some(format!("{}: {};", name, value))
+    // The element's base declarations are inline, and an inline declaration
+    // beats any class rule. A pseudo-state or media rule exists to override
+    // the base while its condition holds, so it has to be important; the
+    // rules for one element are ordered pseudo-states first, media queries
+    // last, so a viewport rule wins a conflict with a state rule.
+    Some(format!("{}: {} !important;", name, value))
 }
 
 /// The rules of a block in one canonical string, which names the class: two
@@ -223,7 +228,7 @@ mod tests {
         let class = scoped_class(&a).unwrap();
         assert!(class.starts_with("wf-s"), "{class}");
         assert!(
-            css.contains(&format!(".{class}:hover {{ color: blue; }}")),
+            css.contains(&format!(".{class}:hover {{ color: blue !important; }}")),
             "{css}"
         );
     }
@@ -243,14 +248,23 @@ mod tests {
         }"##;
         let css = scoped_rules(&program(src));
         assert!(
-            css.contains(":focus-visible { border-color: var(--color-primary); }"),
+            css.contains(":focus-visible { border-color: var(--color-primary) !important; }"),
             "{css}"
         );
-        assert!(css.contains("::placeholder { color: #999; }"), "{css}");
-        assert!(css.contains(":focus-within { outline: none; }"), "{css}");
-        assert!(css.contains(":disabled { opacity: 0.5; }"), "{css}");
         assert!(
-            css.contains(":active { transform: translateY(1px); }"),
+            css.contains("::placeholder { color: #999 !important; }"),
+            "{css}"
+        );
+        assert!(
+            css.contains(":focus-within { outline: none !important; }"),
+            "{css}"
+        );
+        assert!(
+            css.contains(":disabled { opacity: 0.5 !important; }"),
+            "{css}"
+        );
+        assert!(
+            css.contains(":active { transform: translateY(1px) !important; }"),
             "{css}"
         );
     }
@@ -262,7 +276,10 @@ mod tests {
         }"#;
         let css = scoped_rules(&program(src));
         assert!(css.contains("@media (max-width: 768px) { .wf-s"), "{css}");
-        assert!(css.contains("{ padding: var(--spacing-sm); } }"), "{css}");
+        assert!(
+            css.contains("{ padding: var(--spacing-sm) !important; } }"),
+            "{css}"
+        );
     }
 
     #[test]
@@ -272,7 +289,7 @@ mod tests {
             Card { style { hover { color: c  background: "#fff" } } }
         }"##;
         let css = scoped_rules(&program(src));
-        assert!(css.contains("background: #fff"), "{css}");
+        assert!(css.contains("background: #fff !important"), "{css}");
         assert!(!css.contains("color:"), "{css}");
     }
 
@@ -285,6 +302,6 @@ mod tests {
                 for item in items { if item.on { Chip(label: "x") } }
             }"#;
         let css = scoped_rules(&program(src));
-        assert!(css.contains(":hover { color: red; }"), "{css}");
+        assert!(css.contains(":hover { color: red !important; }"), "{css}");
     }
 }

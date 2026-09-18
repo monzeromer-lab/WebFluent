@@ -354,7 +354,9 @@ fn pseudo_state_blocks_compile_into_the_stylesheet() {
     let js = built.read("app.js");
     let rule = css
         .lines()
-        .find(|l| l.contains(":hover { background: #1C1917; color: #FAF9F6; }"))
+        .find(|l| {
+            l.contains(":hover { background: #1C1917 !important; color: #FAF9F6 !important; }")
+        })
         .unwrap_or_else(|| panic!("no compiled hover rule in styles.css:\n{css}"));
     let class = rule
         .trim_start_matches('.')
@@ -364,7 +366,7 @@ fn pseudo_state_blocks_compile_into_the_stylesheet() {
     assert!(class.starts_with("wf-s"), "{rule}");
     assert!(
         css.contains(&format!(
-            ".{class}:focus-visible {{ outline-offset: 4px; }}"
+            ".{class}:focus-visible {{ outline-offset: 4px !important; }}"
         )),
         "focus compiles to :focus-visible:\n{css}"
     );
