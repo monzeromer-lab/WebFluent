@@ -135,9 +135,19 @@ pub fn render_page_html_studio(
     // derived from what the page and the config already say.
     let description_meta = crate::codegen::seo::head_tags(page, config, program);
 
-    // Calculate relative path prefix based on page route depth
+    // Calculate relative path prefix based on page route depth. The catch-all
+    // is served for any path a static host has no file for, at any depth, so
+    // its assets are addressed from the site root: a relative `./app.js` from
+    // `/app/builds/8f2c41` used to fetch a second 404 page as the script.
     let route = page.path.trim_start_matches('/');
-    let base = if route.is_empty() || route == "/" || route == "*" {
+    let base = if route == "*" {
+        let root = config.build.base_path.trim_end_matches('/');
+        if root.is_empty() {
+            String::new()
+        } else {
+            root.to_string()
+        }
+    } else if route.is_empty() || route == "/" {
         ".".to_string()
     } else {
         let depth = route.split('/').filter(|s| !s.is_empty()).count();

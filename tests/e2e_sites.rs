@@ -337,9 +337,10 @@ fn the_catch_all_page_is_written_as_404_html() {
     let root = repo_root().join("target/e2e/_ssg_404/build");
     let html = std::fs::read_to_string(root.join("404.html")).expect("404.html at the root");
     assert!(html.contains("Lost"));
+    // Served at any depth, so its assets are addressed from the site root.
     assert!(
-        html.contains("href=\"./styles.css\""),
-        "root-relative assets: {html}"
+        html.contains("href=\"/styles.css\"") && html.contains("src=\"/app.js\""),
+        "root-absolute assets: {html}"
     );
     assert!(!root.join("*").exists(), "no directory named *");
 }
