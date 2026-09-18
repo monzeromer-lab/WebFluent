@@ -1048,7 +1048,7 @@ impl Parser {
             let item_mark = self.mark();
             // Named argument: identifier followed by a colon.
             if self.is_named_arg() {
-                let name = self.expect_identifier()?;
+                let name = self.parse_named_arg_name()?;
                 self.expect(&TokenType::Colon)?;
                 let value = self.parse_expression()?;
                 args.push(Arg::Named(name, value));
@@ -1153,13 +1153,40 @@ impl Parser {
         }
     }
 
+    /// Whether the tokens here spell a named argument: `name:` or, since an
+    /// HTML attribute may be hyphenated, `aria-pressed:` / `data-tone:`. The
+    /// lexer splits a hyphenated name into identifiers around `Minus`, so the
+    /// look-ahead walks that shape until it finds the colon. An expression
+    /// `a - b` is never followed by a colon in argument position, so the two
+    /// cannot be confused.
     fn is_named_arg(&self) -> bool {
-        if let TokenType::Identifier(_) = self.current_type() {
-            if self.pos + 1 < self.tokens.len() {
-                return matches!(self.tokens[self.pos + 1].token_type, TokenType::Colon);
+        let mut i = self.pos;
+        loop {
+            let Some(tok) = self.tokens.get(i) else {
+                return false;
+            };
+            if !matches!(tok.token_type, TokenType::Identifier(_)) {
+                return false;
+            }
+            match self.tokens.get(i + 1).map(|t| &t.token_type) {
+                Some(TokenType::Colon) => return true,
+                Some(TokenType::Minus) => i += 2,
+                _ => return false,
             }
         }
-        false
+    }
+
+    /// A named argument's name: an identifier, or identifiers joined by
+    /// hyphens (`aria-label`). Keyword segments are not accepted here — a
+    /// keyword after a hyphen is an expression, not a name.
+    fn parse_named_arg_name(&mut self) -> Result<String> {
+        let mut name = self.expect_identifier()?;
+        while self.check(&TokenType::Minus) {
+            self.advance();
+            let part = self.expect_identifier()?;
+            name = format!("{}-{}", name, part);
+        }
+        Ok(name)
     }
 
     fn is_modifier(&self) -> bool {
@@ -2497,5 +2524,55 @@ mod span_tests {
         } else {
             panic!("expected UIElement statement");
         }
+    }
+}
+
+#[cfg(test)]
+mod named_arg_tests {
+    //! A named argument may be hyphenated — `aria-pressed:`, `data-tone:` —
+    //! because an HTML attribute may be. The lexer splits the name around
+    //! `Minus`, so the look-ahead has to reassemble it without mistaking a
+    //! subtraction for a name.
+    use super::*;
+    use crate::lexer::Lexer;
+
+    fn first_element(src: &str) -> UIElement {
+        let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
+        let program = Parser::new(tokens, "<test>").parse().expect("should parse");
+        let body = match program.declarations.into_iter().next() {
+            Some(Declaration::Page(p)) => p.body,
+            other => panic!("expected a page, got {other:?}"),
+        };
+        match body.into_iter().next().map(|s| s.kind) {
+            Some(StatementKind::UIElement(ui)) => ui,
+            other => panic!("expected an element, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_hyphenated_name_is_one_named_argument() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Button("Errors", aria-pressed: on, data-tone: "danger") }"#,
+        );
+        let names: Vec<&str> = ui
+            .args
+            .iter()
+            .filter_map(|a| match a {
+                Arg::Named(k, _) => Some(k.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(names, ["aria-pressed", "data-tone"]);
+        assert!(matches!(&ui.args[1], Arg::Named(_, Expr::Identifier(id)) if id == "on"));
+    }
+
+    #[test]
+    fn a_subtraction_is_still_an_expression() {
+        let ui = first_element(r#"Page P (path: "/") { Text(a - b) }"#);
+        assert_eq!(ui.args.len(), 1);
+        assert!(matches!(
+            &ui.args[0],
+            Arg::Positional(Expr::BinaryOp(_, BinOp::Sub, _))
+        ));
     }
 }

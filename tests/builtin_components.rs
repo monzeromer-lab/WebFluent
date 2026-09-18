@@ -1044,6 +1044,17 @@ fn named_args_become_html_attributes() {
         // The glyph name is an attribute the runtime draws from, never text.
         ("Icon(\"home\")", "data-icon", "home"),
         ("Icon(icon: \"bell\")", "data-icon", "bell"),
+        // A hyphenated name is an attribute in its own right.
+        (
+            "Badge(\"Ready\", data-tone: \"success\")",
+            "data-tone",
+            "success",
+        ),
+        (
+            "Button(\"Errors\", aria-pressed: \"true\")",
+            "aria-pressed",
+            "true",
+        ),
     ];
 
     let mut failures = Vec::new();

@@ -84,8 +84,21 @@ const WF = (() => {
           // Render icon as inline SVG or text emoji/symbol
           const iconName = typeof v === "function" ? v() : v;
           _renderIcon(el, iconName);
+        } else if (k.startsWith("aria-")) {
+          // An ARIA state is a string: aria-pressed="false" means "not pressed",
+          // while a missing attribute means "not a toggle". So false is kept.
+          const set = (val) => {
+            if (val == null) el.removeAttribute(k);
+            else el.setAttribute(k, String(val));
+          };
+          if (typeof v === "function") effect(() => set(v()));
+          else set(v);
         } else if (typeof v === "function") {
-          effect(() => { el.setAttribute(k, v()); });
+          effect(() => {
+            const val = v();
+            if (val == null || val === false) el.removeAttribute(k);
+            else el.setAttribute(k, val);
+          });
         } else if (v != null && v !== false) {
           el.setAttribute(k, v);
         }

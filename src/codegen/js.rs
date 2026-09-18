@@ -969,8 +969,22 @@ impl JsCodegen {
                                     attrs.push(format!("\"data-icon\": {}", v));
                                 }
                                 _ => {
+                                    // Any other named argument is an HTML
+                                    // attribute. A hyphenated name (`aria-*`,
+                                    // `data-*`) is quoted; a value that reads
+                                    // state is a thunk, which the runtime
+                                    // keeps in step with it.
                                     let v = self.emit_expr(val);
-                                    attrs.push(format!("{}: {}", key, v));
+                                    let k = if key.contains('-') {
+                                        format!("\"{}\"", key)
+                                    } else {
+                                        key.clone()
+                                    };
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("{}: () => {}", k, v));
+                                    } else {
+                                        attrs.push(format!("{}: {}", k, v));
+                                    }
                                 }
                             }
                         }
@@ -3411,7 +3425,12 @@ impl JsCodegen {
         for arg in args {
             match arg {
                 Arg::Named(name, expr) => {
-                    parts.push(format!("{}: {}", name, self.emit_expr(expr)));
+                    let key = if name.contains('-') {
+                        format!("\"{}\"", name)
+                    } else {
+                        name.clone()
+                    };
+                    parts.push(format!("{}: {}", key, self.emit_expr(expr)));
                 }
                 Arg::Positional(expr) => {
                     parts.push(self.emit_expr(expr));
@@ -3623,6 +3642,23 @@ mod tests {
             out.contains("Component_Panel({ title: \"Empty\" });"),
             "{out}"
         );
+    }
+
+    #[test]
+    fn hyphenated_named_arguments_become_attributes_reactive_when_they_read_state() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state on = true
+                Button("Errors", aria-pressed: on, data-tone: "danger")
+                Text(a - b)
+            }
+            "#,
+        );
+        assert!(out.contains("\"aria-pressed\": () => _on()"), "{out}");
+        assert!(out.contains("\"data-tone\": \"danger\""), "{out}");
+        // `a - b` is still an expression, not a named argument.
+        assert!(out.contains("(_a() - _b())"), "{out}");
     }
 
     #[test]

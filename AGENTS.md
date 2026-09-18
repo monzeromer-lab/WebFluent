@@ -107,6 +107,22 @@ Panel(title: "Keys") {
 
 Call user components with **named arguments**.
 
+### Attributes
+
+Any named argument a built-in does not recognise becomes an HTML attribute on
+its root element, and a hyphenated name is allowed, so ARIA state and data
+attributes are written where the design wants them:
+
+```wf
+Button("Errors", aria-pressed: showErrors, data-tone: "danger") { showErrors = !showErrors }
+Trow(aria-selected: isSelected) { ... }
+Badge("Ready", data-tone: "success")
+```
+
+A value that reads state follows it. `aria-*` keeps a `false` value as the
+string `"false"` (a real ARIA state); any other attribute given `false` is
+omitted.
+
 ### App (Router + Layout)
 
 The Router can be placed at any nesting depth inside the App. The codegen recursively finds it.

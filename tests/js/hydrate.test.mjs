@@ -82,3 +82,14 @@ test("activeLink marks the link to the current route, and follows navigation", (
   assert.equal(guide.getAttribute("aria-current"), "page", "exact match");
   assert.equal(docs.getAttribute("aria-current"), "page", "prefix match on the section root");
 });
+
+test("an aria-* attribute keeps a false value, and follows a reactive one", () => {
+  const { WF } = loadRuntime();
+  const pressed = WF.signal(false);
+  const chip = WF.h("button", { "aria-pressed": () => pressed(), "data-tone": "info", hidden: false });
+  assert.equal(chip.getAttribute("aria-pressed"), "false", "false is a real ARIA state");
+  assert.equal(chip.getAttribute("data-tone"), "info");
+  assert.equal(chip.getAttribute("hidden"), null, "a false plain attribute is absent");
+  pressed.set(true);
+  assert.equal(chip.getAttribute("aria-pressed"), "true");
+});

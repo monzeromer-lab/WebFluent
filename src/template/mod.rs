@@ -748,6 +748,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     let s = value_to_string(&ctx.eval_expr(val));
                     attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
                 }
+                k if k.contains('-') => {
+                    let s = value_to_string(&ctx.eval_expr(val));
+                    attrs.push(format!("{}=\"{}\"", k, html_escape(&s)));
+                }
                 _ => {}
             },
             Arg::Positional(expr) => {

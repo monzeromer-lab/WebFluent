@@ -661,6 +661,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     }
                     "visible" | "bind" | "checked" | "span" => {} // Runtime-only attrs
                     "gap" | "align" | "justify" => {}             // Utility classes, added below
+                    // A hyphenated name is an HTML attribute (`aria-*`, `data-*`);
+                    // it is painted when its value is known at build time.
+                    k if k.contains('-') => {
+                        if let Some(v) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("{}=\"{}\"", k, html_escape(&v)));
+                        }
+                    }
                     _ => {}
                 }
             }
