@@ -419,7 +419,7 @@ Link(to: "/about") { Text("About") } // Declarative
 | Component | Usage |
 |-----------|-------|
 | `Card` | `Card(elevated) { Card.Header { ... } Card.Body { ... } Card.Footer { ... } }` |
-| `Table` | `Table(caption: "Deployments") { Thead { Trow { Tcell("Col") } } Tbody { Trow { Tcell("Val") } } }` — cells inside `Thead` are `<th scope="col">`; `caption` is the table's accessible name, rendered visually hidden |
+| `Table` | `Table(caption: "Deployments") { Thead { Trow { Tcell("Col") } } Tbody { Trow { Tcell("Val") } } }` — cells inside `Thead` are `<th scope="col">`, as is `Tcell("Build", header)` anywhere (a header cell a component renders); `caption` is the table's accessible name, rendered visually hidden |
 | `List` | `List { Text("Item 1") Text("Item 2") }` — `List(ordered)` for numbered |
 | `Badge` | `Badge("Label", primary)` — variants: primary, success, danger, warning, info |
 | `Tag` | `Tag("JavaScript")` |

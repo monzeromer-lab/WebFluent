@@ -824,12 +824,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         }
     }
 
-    let actual_tag = if name == "Tcell" && ctx.in_thead {
-        attrs.push("scope=\"col\"".to_string());
-        "th"
-    } else {
-        element_tag(name, &ui.modifiers)
-    };
+    let actual_tag =
+        if name == "Tcell" && (ctx.in_thead || element_tag(name, &ui.modifiers) == "th") {
+            attrs.push("scope=\"col\"".to_string());
+            "th"
+        } else {
+            element_tag(name, &ui.modifiers)
+        };
     let indent = ctx.indent_str();
     let attrs_str = if attrs.is_empty() {
         String::new()

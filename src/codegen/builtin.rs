@@ -189,8 +189,8 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         | "multiple" => String::new(),
 
         // ─── Tags, not classes ───────────────────────────
-        // `List(ordered)` is an `<ol>`; see [`element_tag`].
-        "ordered" => String::new(),
+        // `List(ordered)` is an `<ol>`, `Tcell(header)` a `<th>`; see [`element_tag`].
+        "ordered" | "header" => String::new(),
 
         // ─── Animation ───────────────────────────────────
         // Pure CSS keyframes, so they apply in static output too. The template
@@ -280,6 +280,9 @@ pub fn element_tag(name: &str, modifiers: &[String]) -> &'static str {
     match name {
         "Heading" => heading_tag(modifiers),
         "List" if modifiers.iter().any(|m| m == "ordered") => "ol",
+        // A header cell by declaration, for a cell a component renders where
+        // the emitter cannot see the enclosing Thead.
+        "Tcell" if modifiers.iter().any(|m| m == "header") => "th",
         _ => builtin_to_html(name).0,
     }
 }

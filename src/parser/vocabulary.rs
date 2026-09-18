@@ -52,6 +52,7 @@ pub const MODIFIER_KEYWORDS: &[&str] = &[
     // Structure
     "ordered",
     "multiple",
+    "header",
     // Text
     "bold",
     "italic",

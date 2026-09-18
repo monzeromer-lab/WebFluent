@@ -727,12 +727,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
 
     // Heading tag override based on modifier
-    let actual_tag = if name == "Tcell" && ctx.in_thead {
-        attrs.push("scope=\"col\"".to_string());
-        "th"
-    } else {
-        element_tag(name, &ui.modifiers)
-    };
+    let actual_tag =
+        if name == "Tcell" && (ctx.in_thead || element_tag(name, &ui.modifiers) == "th") {
+            attrs.push("scope=\"col\"".to_string());
+            "th"
+        } else {
+            element_tag(name, &ui.modifiers)
+        };
 
     // Emit the collected inline styles (style block + any grid columns) as one attr.
     if !style_decls.is_empty() {

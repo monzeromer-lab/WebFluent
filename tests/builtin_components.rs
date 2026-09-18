@@ -1258,6 +1258,15 @@ fn head_cells_are_column_headers_and_a_caption_names_the_table() {
 fn structural_modifiers_select_the_tag_or_attribute() {
     let mut failures = Vec::new();
     for backend in Backend::ALL {
+        let src = page("Tcell(\"Build\", header)");
+        match root(backend, &src) {
+            Some(e) if e.tag == "th" && e.attr("scope") == Some("col") => {}
+            other => failures.push(format!(
+                "Tcell(header) in {}: expected <th scope=col>, got {:?}",
+                backend.name(),
+                other.map(|e| e.raw)
+            )),
+        }
         let src = page("List(ordered) { Text(\"a\") }");
         match root(backend, &src) {
             Some(e) if e.tag == "ol" => {}
