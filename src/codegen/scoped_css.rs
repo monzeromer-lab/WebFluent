@@ -96,6 +96,12 @@ fn selector(state: &str) -> &'static str {
         "disabled" => ":disabled",
         "placeholder" => "::placeholder",
         "focus-within" => ":focus-within",
+        "current" => "[aria-current=\"page\"]",
+        "pressed" => "[aria-pressed=\"true\"]",
+        "selected" => "[aria-selected=\"true\"]",
+        "checked" => "[aria-checked=\"true\"]",
+        "expanded" => "[aria-expanded=\"true\"]",
+        "invalid" => "[aria-invalid=\"true\"]",
         _ => "",
     }
 }
@@ -265,6 +271,27 @@ mod tests {
         );
         assert!(
             css.contains(":active { transform: translateY(1px) !important; }"),
+            "{css}"
+        );
+    }
+
+    #[test]
+    fn aria_states_are_attribute_selectors() {
+        let src = r##"Page P (path: "/") {
+            Link("Home", to: "/") { style { current { background: "#222" } } }
+            Button("x", aria-pressed: "true") { style { pressed { color: "red" }  invalid { color: "blue" } } }
+        }"##;
+        let css = scoped_rules(&program(src));
+        assert!(
+            css.contains("[aria-current=\"page\"] { background: #222 !important; }"),
+            "{css}"
+        );
+        assert!(
+            css.contains("[aria-pressed=\"true\"] { color: red !important; }"),
+            "{css}"
+        );
+        assert!(
+            css.contains("[aria-invalid=\"true\"] { color: blue !important; }"),
             "{css}"
         );
     }

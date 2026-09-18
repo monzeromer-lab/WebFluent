@@ -767,7 +767,10 @@ Input(text, placeholder: "shop.example.com") {
 
 States: `hover`, `focus` (compiled to `:focus-visible` — the keyboard focus
 ring, not a ring on every click), `active`, `disabled`, `placeholder`,
-`focus-within`. These are stylesheet rules, so their values must be known at
+`focus-within`, and the ARIA states a control keeps in its attributes —
+`current` (`aria-current="page"`, which the router sets on a `Link`),
+`pressed`, `selected`, `checked`, `expanded`, `invalid` (each `aria-…="true"`)
+— so the rule keys off the attribute assistive technology reads. These are stylesheet rules, so their values must be known at
 build time: literals and token keywords, not state. They override the
 element's base declarations while the state or media condition holds (they
 are emitted `!important`, since the base is inline); when a state rule and a

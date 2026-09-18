@@ -1286,6 +1286,15 @@ impl Parser {
         "disabled",
         "placeholder",
         "focus-within",
+        // ARIA states, which is where a well-built control keeps its state:
+        // the rule keys off the attribute the assistive technology reads,
+        // so the two cannot disagree.
+        "current",
+        "pressed",
+        "selected",
+        "checked",
+        "expanded",
+        "invalid",
     ];
 
     /// If the tokens here open a pseudo-state block — a state name followed by
