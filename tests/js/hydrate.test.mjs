@@ -108,3 +108,15 @@ test("the router sets the document title to the page it shows", () => {
   WF.navigate("/docs");
   assert.equal(document.title, "Routing rules");
 });
+
+test("a store's derived value may call one of its actions", () => {
+  const { WF } = loadRuntime();
+  const S = WF.createStore({
+    state: { total: 50 },
+    derived: { half: (store) => store.pctOf(25) },
+    actions: { pctOf: (store, part) => Math.round((part / store.total) * 100) },
+  });
+  assert.equal(S.half, 50);
+  S.total = 100;
+  assert.equal(S.half, 25);
+});

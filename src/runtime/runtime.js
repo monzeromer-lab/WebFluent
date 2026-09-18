@@ -544,18 +544,20 @@ const WF = (() => {
       }
     }
 
+    // Bind actions before the derived values: a computed runs as soon as it
+    // is created, and a derived value that calls one of the store's own
+    // actions used to find it missing.
+    if (definition.actions) {
+      for (const [key, fn] of Object.entries(definition.actions)) {
+        store[key] = (...args) => fn(store, ...args);
+      }
+    }
+
     // Create computed for derived
     if (definition.derived) {
       for (const [key, fn] of Object.entries(definition.derived)) {
         const c = computed(() => fn(store));
         Object.defineProperty(store, key, { get: () => c() });
-      }
-    }
-
-    // Bind actions
-    if (definition.actions) {
-      for (const [key, fn] of Object.entries(definition.actions)) {
-        store[key] = (...args) => fn(store, ...args);
       }
     }
 
