@@ -1456,16 +1456,46 @@ impl JsCodegen {
                     _ => "div",
                 };
 
+                // Hyphenated and unknown named arguments are attributes here
+                // too (`Card.Header(id: …)`, `List.Item(aria-current: …)`).
+                let mut attrs = vec![format!("className: \"{}\"", class)];
+                for arg in &ui.args {
+                    if let Arg::Named(k, v) = arg {
+                        let value = self.emit_expr(v);
+                        let key = if k.contains('-') {
+                            format!("\"{}\"", k)
+                        } else {
+                            k.clone()
+                        };
+                        if self.is_reactive(&value) {
+                            attrs.push(format!("{}: () => {}", key, value));
+                        } else {
+                            attrs.push(format!("{}: {}", key, value));
+                        }
+                    }
+                }
+                if let Some(entry) = self.wf_node_entry(ui) {
+                    attrs.push(entry);
+                }
                 self.emit_line(&format!(
-                    "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
+                    "const {} = WF.h(\"{}\", {{ {} }});",
                     var,
                     tag,
-                    class,
-                    self.wf_node_inline(ui)
+                    attrs.join(", ")
                 ));
                 for child in &ui.children {
                     self.emit_statement_dom(child, &var);
                 }
+                for handler in &ui.events {
+                    let body = self.emit_event_body(&handler.body);
+                    self.emit_line(&format!(
+                        "{}.addEventListener(\"{}\", (event) => {{ {} }});",
+                        var, handler.event, body
+                    ));
+                }
+                // A sub-component used to drop its style block and its
+                // handlers; every other element honours both.
+                self.emit_style_and_transition(&var, ui);
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
 
@@ -3860,6 +3890,25 @@ mod tests {
             "{out}"
         );
         assert!(!out.contains("_part()"), "{out}");
+    }
+
+    #[test]
+    fn a_sub_component_keeps_its_style_block_attributes_and_handlers() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state n = 0
+                List { List.Item(id: "first", aria-current: "true") { style { padding: "0" hover { color: "red" } } on:click { n = n + 1 } Text("a") } }
+            }
+            "#,
+        );
+        assert!(out.contains("WF.h(\"li\", { className: \"wf-list__item\", id: \"first\", \"aria-current\": \"true\" })"), "{out}");
+        assert!(out.contains(".style.padding = \"0\";"), "{out}");
+        assert!(out.contains(".classList.add(\"wf-s"), "{out}");
+        assert!(
+            out.contains(".addEventListener(\"click\", (event) => { _n.set((_n() + 1)); });"),
+            "{out}"
+        );
     }
 
     #[test]
