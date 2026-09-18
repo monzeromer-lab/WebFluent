@@ -40,6 +40,18 @@ pub const MODIFIER_KEYWORDS: &[&str] = &[
     // Width
     "full",
     "fit",
+    "fluid",
+    // Shape of a single element (Skeleton, Image)
+    "circle",
+    // Spacer sizes; `md` is the default
+    "xs",
+    "sm",
+    "md",
+    "lg",
+    "xl",
+    // Structure
+    "ordered",
+    "multiple",
     // Text
     "bold",
     "italic",

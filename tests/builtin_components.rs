@@ -714,6 +714,25 @@ const DOCUMENTED_VARIANTS: &[(&str, &str, &str)] = &[
     ("Icon(\"x\", {m})", "success", "wf-icon--success"),
     ("Spinner({m})", "large", "wf-spinner--large"),
     (
+        "Container({m}) { Text(\"x\") }",
+        "fluid",
+        "wf-container--fluid",
+    ),
+    (
+        "Skeleton({m}, size: \"48px\")",
+        "circle",
+        "wf-skeleton--circle",
+    ),
+    (
+        "Image(src: \"/a.png\", alt: \"a\", {m})",
+        "circle",
+        "wf-image--circle",
+    ),
+    ("Spacer({m})", "xs", "wf-spacer--xs"),
+    ("Spacer({m})", "sm", "wf-spacer--sm"),
+    ("Spacer({m})", "lg", "wf-spacer--lg"),
+    ("Spacer({m})", "xl", "wf-spacer--xl"),
+    (
         "Image(src: \"/a.png\", alt: \"a\", {m})",
         "rounded",
         "wf-image--rounded",
@@ -773,13 +792,10 @@ fn stylesheet_variants_are_reachable_from_the_modifier_vocabulary() {
     // Variants the engine sets from a named argument or internally, not from a
     // bare modifier word.
     let non_modifier_variants = [
-        "label",  // Divider(label: …)
-        "fluid",  // Container(fluid) — accepted by codegen, absent from vocab
-        "block",  // Code(block)
-        "exit",   // Toast animation state
-        "circle", // Image/Skeleton shape
+        "label", // Divider(label: …)
+        "block", // Code(block)
+        "exit",  // Toast animation state
         "between", "end", // Row(justify: …)
-        "xs", "sm", "lg", "xl", // Spacer sizes, set via `size:`
     ];
 
     let mut unreachable: Vec<String> = Vec::new();
@@ -1053,6 +1069,45 @@ fn named_args_become_html_attributes() {
         "attribute drift:\n{}",
         failures.join("\n")
     );
+}
+
+/// `List(ordered)` and `FileUpload(multiple)` are documented modifiers that
+/// select a tag or an attribute rather than a class. They used to be absent
+/// from the vocabulary, so the parser read them as positional identifiers and
+/// nothing downstream ever saw them.
+#[test]
+fn structural_modifiers_select_the_tag_or_attribute() {
+    let mut failures = Vec::new();
+    for backend in Backend::ALL {
+        let src = page("List(ordered) { Text(\"a\") }");
+        match root(backend, &src) {
+            Some(e) if e.tag == "ol" => {}
+            other => failures.push(format!(
+                "List(ordered) in {}: expected <ol>, got {:?}",
+                backend.name(),
+                other.map(|e| e.tag)
+            )),
+        }
+        let src = page("List { Text(\"a\") }");
+        match root(backend, &src) {
+            Some(e) if e.tag == "ul" => {}
+            other => failures.push(format!(
+                "List in {}: expected <ul>, got {:?}",
+                backend.name(),
+                other.map(|e| e.tag)
+            )),
+        }
+        let src = page("Select(multiple, bind: picks) { Option(\"a\", \"A\") }");
+        match root(backend, &src) {
+            Some(e) if e.raw.contains("multiple") => {}
+            other => failures.push(format!(
+                "Select(multiple) in {}: no multiple attribute in {:?}",
+                backend.name(),
+                other.map(|e| e.raw)
+            )),
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
 /// An input-type modifier must set `type=`. `datetime` is spelled

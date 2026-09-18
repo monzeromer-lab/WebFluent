@@ -477,6 +477,18 @@ mod dead_variant_tests {
         );
     }
 
+    /// The size words are Spacer's, and `fluid` is Container's; on any other
+    /// component they name a class with nothing behind it.
+    #[test]
+    fn size_and_shape_words_are_checked_per_component() {
+        assert!(warnings(r#"Page P (path: "/") { Spacer(xl) }"#).is_empty());
+        assert!(warnings(r#"Page P (path: "/") { Container(fluid) { Text("x") } }"#).is_empty());
+        assert!(warnings(r#"Page P (path: "/") { Skeleton(circle, size: "40px") }"#).is_empty());
+        let w = warnings(r#"Page P (path: "/") { Button("Go", xl) }"#);
+        assert_eq!(w.len(), 1, "{w:?}");
+        assert!(w[0].message.contains("wf-btn--xl"), "{}", w[0].message);
+    }
+
     /// Typography and animation classes apply wherever they land, so they are
     /// never a per-component gap.
     #[test]

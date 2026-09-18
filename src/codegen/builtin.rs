@@ -139,6 +139,11 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "rounded" => format!("{}--rounded", base_class),
         "pill" => format!("{}--pill", base_class),
         "square" => format!("{}--square", base_class),
+        "circle" => format!("{}--circle", base_class),
+
+        // ─── Spacer sizes ────────────────────────────────
+        "xs" | "sm" | "lg" | "xl" => format!("{}--{}", base_class, modifier),
+        "md" => String::new(), // the default height
 
         // ─── Elevation ───────────────────────────────────
         "flat" => format!("{}--flat", base_class),
@@ -178,9 +183,12 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
 
         // ─── Attributes, not classes ─────────────────────
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"
-        | "datetime" | "color" | "submit" | "reset" | "required" | "controls" | "autoplay" => {
-            String::new()
-        }
+        | "datetime" | "color" | "submit" | "reset" | "required" | "controls" | "autoplay"
+        | "multiple" => String::new(),
+
+        // ─── Tags, not classes ───────────────────────────
+        // `List(ordered)` is an `<ol>`; see [`element_tag`].
+        "ordered" => String::new(),
 
         // ─── Animation ───────────────────────────────────
         // Pure CSS keyframes, so they apply in static output too. The template

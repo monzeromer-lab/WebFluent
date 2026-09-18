@@ -143,7 +143,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ─── List ──────────────────────────────────────────── */
 .wf-list { list-style: none; }
-.wf-list-item { padding: var(--spacing-sm) var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-sm); }
+ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
+.wf-list__item { padding: var(--spacing-sm) var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-sm); }
 
 /* ─── Badge ─────────────────────────────────────────── */
 .wf-badge { display: inline-flex; align-items: center; padding: 0.125rem var(--spacing-sm); }

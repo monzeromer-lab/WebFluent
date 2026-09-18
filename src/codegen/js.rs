@@ -981,6 +981,8 @@ impl JsCodegen {
                         attrs.push(format!("type: \"{}\"", t));
                     } else if m == "required" {
                         attrs.push("required: true".to_string());
+                    } else if m == "multiple" {
+                        attrs.push("multiple: true".to_string());
                     }
                 }
 

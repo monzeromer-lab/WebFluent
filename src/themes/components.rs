@@ -146,8 +146,9 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 
 /* ─── List ──────────────────────────────────────────── */
 .wf-list { list-style: none; }
-.wf-list-item { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: var(--spacing-sm); }
-.wf-list-item:last-child { border-bottom: none; }
+ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
+.wf-list__item { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: var(--spacing-sm); }
+.wf-list__item:last-child { border-bottom: none; }
 
 /* ─── Badge ─────────────────────────────────────────── */
 .wf-badge { display: inline-flex; align-items: center; padding: 0.125rem var(--spacing-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }

@@ -647,6 +647,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     for m in &ui.modifiers {
         if let Some(t) = input_type(m) {
             attrs.push(format!("type=\"{}\"", t));
+        } else if m == "multiple" {
+            attrs.push("multiple".to_string());
         }
     }
 
