@@ -31,6 +31,9 @@ pub struct JsCodegen {
     /// through to the signal path and become `_x()` — a `ReferenceError` in any
     /// page or component. (`emit_expr` takes `&self`, hence the cell.)
     lambda_params: std::cell::RefCell<Vec<String>>,
+    /// Locals declared so far in the store action being emitted, so a second
+    /// assignment does not redeclare.
+    store_locals: std::cell::RefCell<Vec<String>>,
     /// i18n: default locale and translations (locale -> key -> value)
     i18n_default_locale: Option<String>,
     i18n_translations: HashMap<String, HashMap<String, String>>,
@@ -67,6 +70,7 @@ impl JsCodegen {
             current_props: Vec::new(),
             loop_bindings: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
+            store_locals: std::cell::RefCell::new(Vec::new()),
             i18n_default_locale: None,
             i18n_translations: HashMap::new(),
             ssg_mode: false,
@@ -361,9 +365,11 @@ impl JsCodegen {
                     }
                 ));
                 self.indent += 1;
+                self.store_locals.borrow_mut().clear();
                 for stmt in &a.body {
                     self.emit_store_statement(stmt, &store_state_names, &params);
                 }
+                self.store_locals.borrow_mut().clear();
                 self.indent -= 1;
                 self.emit_line("},");
             }
@@ -513,8 +519,16 @@ impl JsCodegen {
                 if let Expr::Identifier(name) = &a.target {
                     if store_states.contains(name) {
                         self.emit_line(&format!("store.{} = {};", name, value));
-                    } else {
+                    } else if action_params.contains(name)
+                        || self.store_locals.borrow().contains(name)
+                    {
                         self.emit_line(&format!("{} = {};", name, value));
+                    } else {
+                        // A name that is neither state nor a parameter is a
+                        // local of this action. It used to be assigned bare,
+                        // which the bundle's strict mode refuses.
+                        self.store_locals.borrow_mut().push(name.clone());
+                        self.emit_line(&format!("let {} = {};", name, value));
                     }
                 } else {
                     let target = self.emit_store_expr(&a.target, store_states);
@@ -3842,6 +3856,30 @@ mod tests {
             "{out}"
         );
         assert!(!out.contains("_part()"), "{out}");
+    }
+
+    #[test]
+    fn a_store_action_declares_its_locals() {
+        let out = compile(
+            r#"
+            Store S {
+                state secret = ""
+                action headers() {
+                    h = {}
+                    h["Authorization"] = "Bearer " + secret
+                    h = h
+                    return h
+                }
+            }
+            Page P (path: "/") { use S  Text("x") }
+            "#,
+        );
+        assert!(out.contains("let h = {  };"), "{out}");
+        assert!(
+            out.contains("h[\"Authorization\"] = (\"Bearer \" + store.secret);"),
+            "{out}"
+        );
+        assert_eq!(out.matches("let h").count(), 1, "{out}");
     }
 
     #[test]
