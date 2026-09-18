@@ -108,6 +108,15 @@ const WF = (() => {
     return el;
   }
 
+  // Listen on the root element of what a component returned: its fragment's
+  // first element. A component that renders several roots gets the handler on
+  // the first, which is where a caller expects it.
+  function onRoot(frag, event, handler) {
+    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
+    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    if (root) root.addEventListener(event, handler);
+  }
+
   function appendChildren(el, children) {
     for (const child of children.flat(Infinity)) {
       if (child == null || child === false) continue;
@@ -961,7 +970,7 @@ const WF = (() => {
 
   return {
     signal, effect, computed,
-    h, text, reactiveText, appendChildren,
+    h, text, reactiveText, appendChildren, onRoot,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
     createRouter, navigate, getParams, activeLink,

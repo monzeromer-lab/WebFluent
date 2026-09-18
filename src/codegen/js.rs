@@ -1389,7 +1389,21 @@ impl JsCodegen {
 
             ComponentRef::UserDefined(name) => {
                 let args_obj = self.emit_component_args(&ui.args);
-                if ui.children.is_empty() {
+                // A block of nothing but actions is a click handler, as it is
+                // on a Button — `Save(label: "x") { save() }` — rather than a
+                // slot filled with statements that render nothing.
+                let is_action_shorthand = ui.events.is_empty()
+                    && !ui.children.is_empty()
+                    && ui.children.iter().all(|s| {
+                        matches!(
+                            &s.kind,
+                            StatementKind::Assignment(_)
+                                | StatementKind::MethodCall(_)
+                                | StatementKind::Navigate(_)
+                                | StatementKind::ExprStatement(_)
+                        )
+                    });
+                if ui.children.is_empty() || is_action_shorthand {
                     self.emit_line(&format!(
                         "const {} = Component_{}({});",
                         var, name, args_obj
@@ -1410,6 +1424,23 @@ impl JsCodegen {
                     self.emit_line("return _cf;");
                     self.indent -= 1;
                     self.emit_line("});");
+                }
+                // Handlers written on the call attach to the component's root
+                // element, so a styled button component is clickable where it
+                // is used. They used to be dropped.
+                if is_action_shorthand {
+                    let body = self.emit_statements_inline(&ui.children);
+                    self.emit_line(&format!(
+                        "WF.onRoot({}, \"click\", (event) => {{ {} }});",
+                        var, body
+                    ));
+                }
+                for handler in &ui.events {
+                    let body = self.emit_event_body(&handler.body);
+                    self.emit_line(&format!(
+                        "WF.onRoot({}, \"{}\", (event) => {{ {} }});",
+                        var, handler.event, body
+                    ));
                 }
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
@@ -3650,6 +3681,34 @@ mod tests {
         assert!(out.contains("_n()"), "{out}");
         assert!(
             out.contains("Component_Panel({ title: \"Empty\" });"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn handlers_on_a_component_call_attach_to_its_root() {
+        let out = compile(
+            r#"
+            Component Save (label: String) { Button(label) }
+            Page P (path: "/") {
+                state n = 0
+                Save(label: "Go") { n = n + 1 }
+                Save(label: "Hover") { on:mouseenter { n = 9 } }
+            }
+            "#,
+        );
+        assert!(out.contains("WF.onRoot(_e"), "{out}");
+        assert!(
+            out.contains(", \"click\", (event) => { _n.set((_n() + 1)); });"),
+            "{out}"
+        );
+        assert!(
+            out.contains(", \"mouseenter\", (event) => { _n.set(9); });"),
+            "{out}"
+        );
+        // The action block is not mistaken for slot children.
+        assert!(
+            !out.contains("Component_Save({ label: \"Go\" }, () =>"),
             "{out}"
         );
     }

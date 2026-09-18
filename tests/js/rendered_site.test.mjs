@@ -156,6 +156,12 @@ test("clicking a button updates the state it assigns and everything derived from
   assert.match(app.textContent, /doubled:0/);
 });
 
+test("a handler written on a component call fires on the component's root", () => {
+  const ctx = mountSite("dashboard", { path: "/" });
+  click(button(ctx.app, "Nudge"), ctx);
+  assert.match(ctx.app.textContent, /count:5/, "the call-site handler did not run");
+});
+
 test("a progress bar bound to state follows it", () => {
   const ctx = mountSite("dashboard", { path: "/" });
   const bar = byClass(ctx.app, "wf-progress")[0];

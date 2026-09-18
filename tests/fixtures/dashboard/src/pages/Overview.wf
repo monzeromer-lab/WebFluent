@@ -26,6 +26,7 @@ Page Overview (path: "/", description: "What is on fire, and what is not.", titl
         }
 
         Row(gap: sm) {
+            Nudge(label: "Nudge") { counter = counter + 5 }
             Button("Increment", primary) { counter = counter + 1 }
             Button("Reset") { counter = 0 }
         }

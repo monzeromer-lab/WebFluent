@@ -1,0 +1,3 @@
+Component Nudge (label: String) {
+    Button(label, small)
+}
