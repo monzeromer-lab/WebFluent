@@ -1055,6 +1055,23 @@ fn named_args_become_html_attributes() {
             "aria-pressed",
             "true",
         ),
+        // An icon button's label is its accessible name, and the arguments
+        // beside icon and label are attributes as on any button.
+        (
+            "IconButton(icon: \"menu\", label: \"Actions\")",
+            "aria-label",
+            "Actions",
+        ),
+        (
+            "IconButton(icon: \"menu\", label: \"Actions\", aria-haspopup: \"menu\")",
+            "aria-haspopup",
+            "menu",
+        ),
+        (
+            "IconButton(icon: \"menu\", label: \"Actions\", type: \"button\")",
+            "type",
+            "button",
+        ),
     ];
 
     let mut failures = Vec::new();
@@ -1084,6 +1101,34 @@ fn named_args_become_html_attributes() {
         "attribute drift:\n{}",
         failures.join("\n")
     );
+}
+
+/// The static backends used to paint an icon button's label as a word beside
+/// the glyph until the runtime replaced it.
+#[test]
+fn icon_button_label_is_never_visible_text() {
+    let src = page("IconButton(icon: \"menu\", label: \"Actions\")");
+    let mut failures = Vec::new();
+    for backend in Backend::ALL {
+        let Some(e) = root(backend, &src) else {
+            failures.push(format!("rendered nothing in {}", backend.name()));
+            continue;
+        };
+        let inner = e.raw.trim();
+        let text: String = inner
+            .split('>')
+            .skip(1)
+            .map(|chunk| chunk.split('<').next().unwrap_or(""))
+            .collect();
+        if text.contains("Actions") {
+            failures.push(format!(
+                "{}: label painted as text [{}]",
+                backend.name(),
+                inner
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
 /// `Row(gap: lg, align: center, justify: between)` is the documented layout

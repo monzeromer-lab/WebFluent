@@ -572,9 +572,10 @@ Icon-only button with aria-label:
 ```wf
 IconButton(icon: "close", label: "Close")
 IconButton(icon: "edit", label: "Edit", primary) { editItem() }
+IconButton(icon: "menu", label: "Actions", aria-haspopup: "menu", aria-expanded: open) { toggleMenu() }
 ```
 
-Modifiers: `small`, `large`, `primary`, `danger`
+Modifiers: `small`, `large`, `primary`, `danger`. The `label` is the accessible name (`aria-label` and `title`), never visible text; every other named argument (`type`, `disabled`, `aria-*`, `data-*`) is an attribute as on `Button`.
 
 #### Slider
 

@@ -645,6 +645,15 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         }
                     }
                     "caption" if name == "Table" => {} // Rendered as the first child below
+                    "label" if name == "IconButton" => {
+                        // An icon button's label is its accessible name, not
+                        // visible text: it used to be painted as a word next
+                        // to the glyph until the runtime replaced it.
+                        if let Some(s) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
+                            attrs.push(format!("title=\"{}\"", html_escape(&s)));
+                        }
+                    }
                     "label" => {
                         // For checkbox/radio/switch/slider, the label is visible text
                         if let Some(s) = static_attr(val, &ctx.scope) {

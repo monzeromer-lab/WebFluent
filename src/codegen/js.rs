@@ -2591,6 +2591,28 @@ impl JsCodegen {
         }
         btn_attrs.push_str(&format!(", title: {}", label.as_deref().unwrap_or(&icon)));
 
+        // Every other named argument is an attribute, as on a Button: `type`,
+        // `disabled`, `aria-haspopup`, `data-variant`. A value that reads
+        // state is a thunk the runtime keeps in step with it.
+        for arg in &ui.args {
+            if let Arg::Named(k, v) = arg {
+                if matches!(k.as_str(), "icon" | "label") {
+                    continue;
+                }
+                let value = self.emit_expr(v);
+                let key = if k.contains('-') {
+                    format!("\"{}\"", k)
+                } else {
+                    k.clone()
+                };
+                if self.is_reactive(&value) {
+                    btn_attrs.push_str(&format!(", {}: () => {}", key, value));
+                } else {
+                    btn_attrs.push_str(&format!(", {}: {}", key, value));
+                }
+            }
+        }
+
         // Click handler from children (same as Button shorthand)
         if ui.events.is_empty() && !ui.children.is_empty() {
             let all_actions = ui.children.iter().all(|s| {
