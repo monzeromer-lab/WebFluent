@@ -156,6 +156,15 @@ test("clicking a button updates the state it assigns and everything derived from
   assert.match(app.textContent, /doubled:0/);
 });
 
+test("a progress bar bound to state follows it", () => {
+  const ctx = mountSite("dashboard", { path: "/" });
+  const bar = byClass(ctx.app, "wf-progress")[0];
+  assert.ok(bar, "no progress bar painted");
+  assert.equal(String(bar.value), "0");
+  click(button(ctx.app, "Increment"), ctx);
+  assert.equal(String(bar.value), "1");
+});
+
 test("a conditional block swaps its branches when the condition changes", () => {
   const ctx = mountSite("dashboard", { path: "/" });
   const { app } = ctx;

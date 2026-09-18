@@ -943,8 +943,16 @@ impl JsCodegen {
                                     // Emitted as the table's first child below.
                                 }
                                 "value" => {
+                                    // A value that reads state follows it; the
+                                    // runtime runs a function-valued `value` in
+                                    // an effect. A Progress bar bound to state
+                                    // used to be painted once and never move.
                                     let v = self.emit_expr(val);
-                                    attrs.push(format!("value: {}", v));
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("value: () => {}", v));
+                                    } else {
+                                        attrs.push(format!("value: {}", v));
+                                    }
                                 }
                                 "icon" => {
                                     let v = self.emit_expr(val);
@@ -3522,6 +3530,25 @@ mod tests {
     /// The identifier path treated anything that was not a prop or a store as
     /// state, so a loop over `tasks` bound `task` and then read `_task()` —
     /// `ReferenceError` on the first non-empty list. `wf init -t spa` shipped it.
+    #[test]
+    fn a_value_that_reads_state_is_reactive() {
+        let out = compile(
+            r#"
+            Store S { state pct = 5 }
+            Page P (path: "/") {
+                use S
+                state done = 40
+                Progress(value: done, max: 100)
+                Progress(value: S.pct, max: 100)
+                Progress(value: 75, max: 100)
+            }
+            "#,
+        );
+        assert!(out.contains("value: () => _done()"), "{out}");
+        assert!(out.contains("value: () => S.pct"), "{out}");
+        assert!(out.contains("value: 75"), "{out}");
+    }
+
     #[test]
     fn a_lambda_parameter_is_a_plain_binding_not_a_signal() {
         let out = compile(

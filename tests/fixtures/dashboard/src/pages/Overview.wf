@@ -20,6 +20,8 @@ Page Overview (path: "/", description: "What is on fire, and what is not.", titl
             }
         }
 
+        Progress(value: counter, max: 10)
+
         Row(gap: sm) {
             Button("Increment", primary) { counter = counter + 1 }
             Button("Reset") { counter = 0 }
