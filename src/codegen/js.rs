@@ -2624,6 +2624,26 @@ impl JsCodegen {
                 state, state
             ));
         }
+        // ARIA and data attributes reach the range input itself, which is the
+        // control assistive technology reads. An author who announces the
+        // value with aria-valuetext is showing it in their own words too, so
+        // the raw number is not repeated beside the track.
+        let mut announces_value = false;
+        for arg in &ui.args {
+            if let Arg::Named(k, v) = arg {
+                if k.contains('-') {
+                    let value = self.emit_expr(v);
+                    if k == "aria-valuetext" {
+                        announces_value = true;
+                    }
+                    if self.is_reactive(&value) {
+                        input_attrs.push_str(&format!(", \"{}\": () => {}", k, value));
+                    } else {
+                        input_attrs.push_str(&format!(", \"{}\": {}", k, value));
+                    }
+                }
+            }
+        }
         for handler in &ui.events {
             let body = self.emit_event_body(&handler.body);
             input_attrs.push_str(&format!(
@@ -2638,7 +2658,9 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", var, input_var));
 
         // Show current value if bound
-        if let Some(state) = &bind_var {
+        if bind_var.is_some() && announces_value {
+            // The author shows it.
+        } else if let Some(state) = &bind_var {
             let val_var = self.fresh_var();
             self.emit_line(&format!(
                 "const {} = WF.h(\"span\", {{ className: \"wf-slider__value\" }}, () => String(_{}()));",
@@ -3703,6 +3725,23 @@ mod tests {
             out.contains("Component_Panel({ title: \"Empty\" });"),
             "{out}"
         );
+    }
+
+    #[test]
+    fn a_slider_carries_aria_attributes_and_defers_to_aria_valuetext() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state req = 4
+                derived shown = "5M"
+                Slider(bind: req, min: 0, max: 8, step: 1, aria-labelledby: "d-req", aria-valuetext: shown)
+                Slider(bind: req, min: 0, max: 8, step: 1, aria-label: "Seats")
+            }
+            "#,
+        );
+        assert!(out.contains("\"aria-labelledby\": \"d-req\""), "{out}");
+        assert!(out.contains("\"aria-valuetext\": () => _shown()"), "{out}");
+        assert_eq!(out.matches("wf-slider__value").count(), 1, "{out}");
     }
 
     #[test]

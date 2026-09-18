@@ -424,7 +424,7 @@ Link(to: "/about") { Text("About") } // Declarative
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
-| `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value |
+| `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value. `aria-*` arguments reach the input; with `aria-valuetext:` the raw number is not shown beside the track (you are showing it) |
 | `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input |
 | `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on:change { handleFile(event) } }` — modifiers: multiple |
 | `Form` | `Form { ... on:submit { save() } }` |
