@@ -44,9 +44,14 @@ const WF = (() => {
   // ─── DOM Helpers ─────────────────────────────────────
   function h(tag, attrs, ...children) {
     const el = document.createElement(tag);
+    // A select's value only takes once its options exist, so it is applied
+    // after the children; set before them it was silently ignored.
+    let selectValue;
     if (attrs) {
       for (const [k, v] of Object.entries(attrs)) {
-        if (k.startsWith("on:")) {
+        if (k === "value" && tag === "select") {
+          selectValue = v;
+        } else if (k.startsWith("on:")) {
           el.addEventListener(k.slice(3), v);
         } else if (k === "className" || k === "class") {
           if (typeof v === "function") {
@@ -105,6 +110,13 @@ const WF = (() => {
       }
     }
     appendChildren(el, children);
+    if (selectValue !== undefined) {
+      if (typeof selectValue === "function") {
+        effect(() => { el.value = selectValue(); });
+      } else {
+        el.value = selectValue;
+      }
+    }
     return el;
   }
 

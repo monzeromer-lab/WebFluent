@@ -120,3 +120,34 @@ test("a store's derived value may call one of its actions", () => {
   S.total = 100;
   assert.equal(S.half, 25);
 });
+
+test("a select's value is applied once its options exist, and follows a signal", () => {
+  const { WF, document } = loadRuntime();
+  // A real <select> ignores a value it has no option for; the fake DOM does
+  // not, so give this one a browser's setter.
+  const create = document.createElement.bind(document);
+  document.createElement = (tag) => {
+    const el = create(tag);
+    if (tag === "select") {
+      let current = "";
+      Object.defineProperty(el, "value", {
+        get: () => current,
+        set: (v) => {
+          const options = el.childNodes.map((o) => o.value);
+          if (options.includes(v)) current = v;
+        },
+      });
+    }
+    return el;
+  };
+  const field = WF.signal("status");
+  const select = WF.h(
+    "select",
+    { value: () => field() },
+    WF.h("option", { value: "region" }, "region"),
+    WF.h("option", { value: "status" }, "status"),
+  );
+  assert.equal(select.value, "status", "set after the options were appended");
+  field.set("region");
+  assert.equal(select.value, "region");
+});
