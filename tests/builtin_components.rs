@@ -1149,6 +1149,22 @@ fn layout_arguments_become_utility_classes() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// A custom property in a style block reaches the element in every backend:
+/// set by name in the SPA, written as-is in a static `style=""`.
+#[test]
+fn a_custom_property_reaches_the_element_in_every_backend() {
+    let src = page("Card { style { --edge: \"1px\"  padding: \"4px\" } }");
+    let js = render(Backend::Spa, &src);
+    assert!(
+        js.contains(".style.setProperty(\"--edge\", \"1px\");"),
+        "{js}"
+    );
+    for backend in [Backend::Ssg, Backend::Template] {
+        let out = render(backend, &src);
+        assert!(out.contains("--edge: 1px"), "{}: {out}", backend.name());
+    }
+}
+
 /// A pseudo-state block gives its element one content-named class in every
 /// backend, so the compiled rule reaches the element however it was painted.
 #[test]

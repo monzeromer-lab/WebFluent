@@ -1467,16 +1467,19 @@ impl JsCodegen {
         if let Some(style) = &ui.style_block {
             for prop in &style.properties {
                 let (css_prop, val) = self.emit_style_decl(prop);
+                // A custom property has no camel-cased field; it is set by name.
+                let assign = if prop.name.starts_with("--") {
+                    format!("{}.style.setProperty(\"{}\", {});", var, prop.name, val)
+                } else {
+                    format!("{}.style.{} = {};", var, css_prop, val)
+                };
                 // A value that reads state follows it. It used to be assigned
                 // once, so `width: "{pct}%"` painted the first value and never
                 // moved; a literal is still a plain assignment.
                 if self.is_reactive(&val) {
-                    self.emit_line(&format!(
-                        "WF.effect(() => {{ {}.style.{} = {}; }});",
-                        var, css_prop, val
-                    ));
+                    self.emit_line(&format!("WF.effect(() => {{ {} }});", assign));
                 } else {
-                    self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
+                    self.emit_line(&assign);
                 }
             }
             // Pseudo-states and media queries are stylesheet rules, compiled
@@ -3681,6 +3684,26 @@ mod tests {
         assert!(out.contains("_n()"), "{out}");
         assert!(
             out.contains("Component_Panel({ title: \"Empty\" });"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_custom_property_is_set_by_name_and_follows_state() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state tone = "red"
+                Card { style { --hover-bg: tone  --edge: "1px"  hover { background: "var(--hover-bg)" } } }
+            }
+            "#,
+        );
+        assert!(
+            out.contains(".style.setProperty(\"--hover-bg\", _tone()); });"),
+            "{out}"
+        );
+        assert!(
+            out.contains(".style.setProperty(\"--edge\", \"1px\");"),
             "{out}"
         );
     }

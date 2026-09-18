@@ -31,6 +31,10 @@ pub struct Parser {
     tokens: Vec<Token>,
     pos: usize,
     file: String,
+    /// Inside a `style { }` value. There, `--name:` on the next line is the
+    /// next declaration (a custom property), not a subtraction of a negation
+    /// — the lexer keeps no newlines, so the value parser has to know.
+    in_style_value: bool,
 }
 
 impl Parser {
@@ -42,6 +46,7 @@ impl Parser {
             tokens,
             pos: 0,
             file: file.to_string(),
+            in_style_value: false,
         }
     }
 
@@ -1382,10 +1387,26 @@ impl Parser {
         // Support hyphenated property names: border-radius, font-size, etc.
         // Also accept keywords (transition, etc.) as CSS property names
         let prop_mark = self.mark();
-        let name = self.parse_hyphenated_name()?;
+        // A custom property, `--hover-bg: …`: two leading minus tokens. It is
+        // what lets a static pseudo-state rule take a per-element value.
+        let mut prefix = String::new();
+        while self.check(&TokenType::Minus) && prefix.len() < 2 {
+            self.advance();
+            prefix.push('-');
+        }
+        if prefix.len() == 1 {
+            return Err(self.error(
+                "A custom property starts with `--`; a CSS property name starts with a letter"
+                    .to_string(),
+            ));
+        }
+        let name = format!("{}{}", prefix, self.parse_hyphenated_name()?);
         self.expect(&TokenType::Colon)?;
         let value_mark = self.mark();
-        let value = self.parse_expression()?;
+        self.in_style_value = true;
+        let value = self.parse_expression();
+        self.in_style_value = false;
+        let value = value?;
         let value_span = self.span_since(value_mark);
         Ok(StyleProperty {
             name,
@@ -1837,7 +1858,11 @@ impl Parser {
             if self.match_token(&TokenType::Plus) {
                 let right = self.parse_multiplication()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Add, Box::new(right));
-            } else if self.match_token(&TokenType::Minus) {
+            } else if self.check(&TokenType::Minus) {
+                if self.in_style_value && self.custom_property_ahead() {
+                    break;
+                }
+                self.advance();
                 let right = self.parse_multiplication()?;
                 left = Expr::BinaryOp(Box::new(left), BinOp::Sub, Box::new(right));
             } else {
@@ -1845,6 +1870,20 @@ impl Parser {
             }
         }
         Ok(left)
+    }
+
+    /// Whether `-- name … :` starts here: the next declaration of a style
+    /// block, which a value must not swallow as arithmetic.
+    fn custom_property_ahead(&self) -> bool {
+        let t = |i: usize| self.tokens.get(self.pos + i).map(|t| &t.token_type);
+        matches!(
+            (t(0), t(1), t(2)),
+            (
+                Some(TokenType::Minus),
+                Some(TokenType::Minus),
+                Some(TokenType::Identifier(_))
+            )
+        )
     }
 
     fn parse_multiplication(&mut self) -> Result<Expr> {

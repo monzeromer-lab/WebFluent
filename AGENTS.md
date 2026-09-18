@@ -757,6 +757,18 @@ ring, not a ring on every click), `active`, `disabled`, `placeholder`,
 `focus-within`. These are stylesheet rules, so their values must be known at
 build time: literals and token keywords, not state.
 
+A rule that has to vary per element reads a custom property the element sets
+— a custom property can follow state, the rule cannot:
+
+```wf
+Button(label) {
+    style {
+        --hover-bg: hoverColor          // state, prop or derived
+        hover { background: "var(--hover-bg)" }
+    }
+}
+```
+
 ### Themes
 
 A theme is written in WebFluent, in your own `src/`:
