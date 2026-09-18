@@ -299,9 +299,12 @@ fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {
     let root = repo_root().join("target/e2e").join(name);
     let _ = std::fs::remove_dir_all(&root);
     std::fs::create_dir_all(root.join("src/pages")).expect("create scratch project");
+    // Static output when the scratch name says so, so a test can look at the
+    // files a route becomes.
+    let ssg = name.contains("ssg");
     std::fs::write(
         root.join("webfluent.app.json"),
-        r#"{ "name": "scratch", "build": { "output": "./build" } }"#,
+        format!(r#"{{ "name": "scratch", "build": {{ "output": "./build", "ssg": {ssg} }} }}"#),
     )
     .expect("write config");
     std::fs::write(root.join("src/App.wf"), app).expect("write App.wf");
@@ -317,6 +320,28 @@ fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {
         String::from_utf8_lossy(&out.stderr)
     );
     (out.status.success(), text)
+}
+
+/// The catch-all page is what a static host serves for a path it has no file
+/// for, and every such host looks for `404.html` at the root. It used to be
+/// written to a directory literally named `*`.
+#[test]
+fn the_catch_all_page_is_written_as_404_html() {
+    let (ok, out) = build_scratch(
+        "_ssg_404",
+        "App { Router { Route(path: \"/\", page: Home) Route(path: \"*\", page: Lost) } }\n",
+        "Page Home (path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\", h1) }\n\
+         Page Lost (path: \"*\", title: \"Not found\", description: \"d\", noindex) { Heading(\"Lost\", h1) }\n",
+    );
+    assert!(ok, "{out}");
+    let root = repo_root().join("target/e2e/_ssg_404/build");
+    let html = std::fs::read_to_string(root.join("404.html")).expect("404.html at the root");
+    assert!(html.contains("Lost"));
+    assert!(
+        html.contains("href=\"./styles.css\""),
+        "root-relative assets: {html}"
+    );
+    assert!(!root.join("*").exists(), "no directory named *");
 }
 
 /// A `hover { }` block is a stylesheet rule, not a run-time `<style>`: the

@@ -247,6 +247,12 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
                 let route = page.path.trim_start_matches('/');
                 if route.is_empty() || route == "/" {
                     fs::write(output_dir.join("index.html"), &page_html)?;
+                } else if route == "*" {
+                    // The catch-all is what a static host serves for a path it
+                    // has no file for — GitHub Pages, Netlify and Cloudflare
+                    // Pages all look for 404.html at the root. It used to be
+                    // written to a directory literally named `*`.
+                    fs::write(output_dir.join("404.html"), &page_html)?;
                 } else {
                     let dir = output_dir.join(route);
                     fs::create_dir_all(&dir)?;

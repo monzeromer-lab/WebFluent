@@ -87,7 +87,8 @@ pub fn render_page_html_studio(
 
     // Calculate relative base path from page route depth
     let route = page.path.trim_start_matches('/');
-    let base_path = if route.is_empty() || route == "/" {
+    // The catch-all page is written to the root as 404.html.
+    let base_path = if route.is_empty() || route == "/" || route == "*" {
         ".".to_string()
     } else {
         let depth = route.split('/').filter(|s| !s.is_empty()).count();
@@ -136,7 +137,7 @@ pub fn render_page_html_studio(
 
     // Calculate relative path prefix based on page route depth
     let route = page.path.trim_start_matches('/');
-    let base = if route.is_empty() || route == "/" {
+    let base = if route.is_empty() || route == "/" || route == "*" {
         ".".to_string()
     } else {
         let depth = route.split('/').filter(|s| !s.is_empty()).count();
