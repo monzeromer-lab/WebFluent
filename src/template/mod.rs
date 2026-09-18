@@ -1,5 +1,6 @@
 use crate::codegen::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
+    layout_arg_classes,
 };
 use crate::codegen::css::generate_css;
 use crate::codegen::pdf::PdfCodegen;
@@ -645,7 +646,9 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
     let (_, base_class) = builtin_to_html(name);
-    let class_str = class_list(base_class, &ui.modifiers).join(" ");
+    let mut classes = class_list(base_class, &ui.modifiers);
+    classes.extend(layout_arg_classes(&ui.args));
+    let class_str = classes.join(" ");
 
     // Special handling. These build their tag inline, so they carry the author's
     // `style { }` block themselves — returning early used to drop it.

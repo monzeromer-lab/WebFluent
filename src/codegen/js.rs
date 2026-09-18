@@ -1,6 +1,6 @@
 use crate::codegen::builtin::{
     builtin_to_html, element_tag, implicit_role, input_type, is_void, landmark_label,
-    modifier_to_class,
+    layout_arg_classes, modifier_to_class,
 };
 use crate::codegen::node_id::NodeMap;
 use crate::parser::ast::*;
@@ -692,15 +692,7 @@ impl JsCodegen {
                     for m in &ui.modifiers {
                         classes.push(format!("{}--{}", class, m));
                     }
-                    for arg in &ui.args {
-                        if let Arg::Named(k, v) = arg {
-                            if k == "gap" {
-                                if let Expr::Identifier(g) = v {
-                                    classes.push(format!("wf-gap--{}", g));
-                                }
-                            }
-                        }
-                    }
+                    classes.extend(layout_arg_classes(&ui.args));
                     self.emit_line(&format!(
                         "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
                         var,
@@ -915,29 +907,8 @@ impl JsCodegen {
                                     }
                                 }
                                 "gap" | "align" | "justify" => {
-                                    // Extract raw identifier name (not as signal)
-                                    let v_str = match val {
-                                        Expr::Identifier(id) => id.clone(),
-                                        Expr::StringLiteral(s) => s.clone(),
-                                        _ => self.emit_expr(val).trim_matches('"').to_string(),
-                                    };
-                                    match key.as_str() {
-                                        "gap" => classes.push(format!("{}--gap-{}", class, v_str)),
-                                        "align" => {
-                                            if v_str == "center" {
-                                                classes.push(format!("{}--center", class));
-                                            }
-                                        }
-                                        "justify" => {
-                                            if v_str == "between" {
-                                                classes.push(format!("{}--between", class));
-                                            }
-                                            if v_str == "end" {
-                                                classes.push(format!("{}--end", class));
-                                            }
-                                        }
-                                        _ => {}
-                                    }
+                                    // Handled once for the whole element below,
+                                    // via `layout_arg_classes`.
                                 }
                                 "columns" => {
                                     if let Expr::NumberLiteral(n) = val {
@@ -974,6 +945,8 @@ impl JsCodegen {
                         }
                     }
                 }
+
+                classes.extend(layout_arg_classes(&ui.args));
 
                 // Handle input type modifiers
                 for m in &ui.modifiers {
@@ -3489,6 +3462,22 @@ mod tests {
     /// The identifier path treated anything that was not a prop or a store as
     /// state, so a loop over `tasks` bound `task` and then read `_task()` —
     /// `ReferenceError` on the first non-empty list. `wf init -t spa` shipped it.
+    #[test]
+    fn the_app_wrapper_around_the_router_gets_layout_classes() {
+        let out = compile(
+            r#"
+            Page Home (path: "/") { Text("hi") }
+            App {
+                Row(gap: lg, align: center) {
+                    Router { Route(path: "/", page: Home) }
+                }
+            }
+            "#,
+        );
+        assert!(out.contains("wf-row wf-gap--lg wf-align--center"), "{out}");
+        assert!(!out.contains("--gap-lg"), "{out}");
+    }
+
     #[test]
     fn a_loop_variable_is_a_plain_binding_not_a_signal() {
         let js = compile(

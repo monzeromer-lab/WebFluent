@@ -334,10 +334,10 @@ Link(to: "/about") { Text("About") } // Declarative
 | Component | Usage |
 |-----------|-------|
 | `Container` | `Container { ... }` — centered max-width wrapper |
-| `Row` | `Row(gap: md, align: center, justify: between) { ... }` — horizontal flex |
+| `Row` | `Row(gap: md, align: center, justify: between) { ... }` — horizontal flex. `gap`: xs sm md lg xl · `align`: start center end stretch baseline · `justify`: start center end between around evenly |
 | `Column` | `Column(span: 6) { ... }` — 12-column grid child |
-| `Grid` | `Grid(columns: 3, gap: md) { ... }` — CSS grid |
-| `Stack` | `Stack(gap: md) { ... }` — vertical flex |
+| `Grid` | `Grid(columns: 3, gap: md) { ... }` — CSS grid; takes the same `gap`/`align`/`justify` as `Row` |
+| `Stack` | `Stack(gap: md) { ... }` — vertical flex; takes the same `gap`/`align`/`justify` as `Row` |
 | `Spacer` | `Spacer()` or `Spacer(sm)` `Spacer(xl)` — vertical space |
 | `Divider` | `Divider()` — horizontal line |
 

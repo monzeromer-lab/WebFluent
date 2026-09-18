@@ -1,5 +1,6 @@
 use crate::codegen::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
+    layout_arg_classes,
 };
 use crate::codegen::node_id::NodeMap;
 use crate::codegen::static_eval::{Scope, Static, eval};
@@ -501,7 +502,9 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let (_, base_class) = builtin_to_html(name);
-    let class_str = class_list(base_class, &ui.modifiers).join(" ");
+    let mut classes = class_list(base_class, &ui.modifiers);
+    classes.extend(layout_arg_classes(&ui.args));
+    let class_str = classes.join(" ");
 
     // Special handling for certain components. These build their tag inline
     // (not via the attrs list below), so stamp the node id inline here too, and
@@ -615,8 +618,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                                 .push(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
                         }
                     }
-                    "visible" | "bind" | "checked" | "icon" | "span" | "gap" | "align"
-                    | "justify" => {} // Skip runtime-only attrs
+                    "visible" | "bind" | "checked" | "icon" | "span" => {} // Runtime-only attrs
+                    "gap" | "align" | "justify" => {} // Utility classes, added below
                     _ => {}
                 }
             }

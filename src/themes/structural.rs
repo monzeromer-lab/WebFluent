@@ -61,6 +61,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-row--center { align-items: center; }
 .wf-row--between { justify-content: space-between; }
 .wf-row--end { justify-content: flex-end; }
+.wf-gap--xs { gap: var(--spacing-xs); }
+.wf-gap--sm { gap: var(--spacing-sm); }
+.wf-gap--md { gap: var(--spacing-md); }
+.wf-gap--lg { gap: var(--spacing-lg); }
+.wf-gap--xl { gap: var(--spacing-xl); }
+.wf-align--start { align-items: flex-start; }
+.wf-align--center { align-items: center; }
+.wf-align--end { align-items: flex-end; }
+.wf-align--stretch { align-items: stretch; }
+.wf-align--baseline { align-items: baseline; }
+.wf-justify--start { justify-content: flex-start; }
+.wf-justify--center { justify-content: center; }
+.wf-justify--end { justify-content: flex-end; }
+.wf-justify--between { justify-content: space-between; }
+.wf-justify--around { justify-content: space-around; }
+.wf-justify--evenly { justify-content: space-evenly; }
 .wf-col { flex: 1 1 0%; min-width: 0; }
 .wf-col--1 { flex: 0 0 calc(100%/12*1); max-width: calc(100%/12*1); }
 .wf-col--2 { flex: 0 0 calc(100%/12*2); max-width: calc(100%/12*2); }

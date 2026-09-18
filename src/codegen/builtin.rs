@@ -10,6 +10,8 @@
 //! Adding a component or a modifier now means editing one table, the way
 //! [`crate::parser::MODIFIER_KEYWORDS`] did for the modifier vocabulary.
 
+use crate::parser::ast::{Arg, Expr};
+
 /// The HTML tag and base class a built-in component renders as.
 ///
 /// Components with no class of their own (`Thead`, `Option`, the table parts)
@@ -200,6 +202,38 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
 
         _ => String::new(),
     }
+}
+
+/// The utility classes a layout element's `gap:`, `align:` and `justify:`
+/// arguments select.
+///
+/// `Row(gap: md)` used to emit `wf-row--gap-md`, a class no stylesheet defined,
+/// and `align`/`justify` only knew three values between them. One utility
+/// family per axis, shared by `Row`, `Stack` and `Grid`, keeps the argument and
+/// the rule in step across every backend.
+pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
+    let mut classes = Vec::new();
+    for arg in args {
+        let Arg::Named(key, val) = arg else { continue };
+        let value = match val {
+            Expr::Identifier(id) => id.as_str(),
+            Expr::StringLiteral(s) => s.as_str(),
+            _ => continue,
+        };
+        let ok = match key.as_str() {
+            "gap" => matches!(value, "xs" | "sm" | "md" | "lg" | "xl"),
+            "align" => matches!(value, "start" | "center" | "end" | "stretch" | "baseline"),
+            "justify" => matches!(
+                value,
+                "start" | "center" | "end" | "between" | "around" | "evenly"
+            ),
+            _ => false,
+        };
+        if ok {
+            classes.push(format!("wf-{}--{}", key, value));
+        }
+    }
+    classes
 }
 
 /// The full class list for an element: its base class plus every modifier class.

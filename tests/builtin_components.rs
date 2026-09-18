@@ -795,7 +795,8 @@ fn stylesheet_variants_are_reachable_from_the_modifier_vocabulary() {
         "label", // Divider(label: …)
         "block", // Code(block)
         "exit",  // Toast animation state
-        "between", "end", // Row(justify: …)
+        // Row/Stack/Grid `align:` and `justify:` values (see `layout_arg_classes`)
+        "start", "end", "stretch", "baseline", "between", "around", "evenly",
     ];
 
     let mut unreachable: Vec<String> = Vec::new();
@@ -1069,6 +1070,69 @@ fn named_args_become_html_attributes() {
         "attribute drift:\n{}",
         failures.join("\n")
     );
+}
+
+/// `Row(gap: lg, align: center, justify: between)` is the documented layout
+/// vocabulary. The SPA path used to emit `wf-row--gap-lg`, a class with no rule,
+/// and the static backends dropped all three arguments.
+#[test]
+fn layout_arguments_become_utility_classes() {
+    let css = built_in_css();
+    let cases: &[(&str, &[&str])] = &[
+        (
+            "Row(gap: lg, align: center, justify: between) { Text(\"x\") }",
+            &[
+                "wf-row",
+                "wf-gap--lg",
+                "wf-align--center",
+                "wf-justify--between",
+            ],
+        ),
+        (
+            "Stack(gap: xs, align: stretch) { Text(\"x\") }",
+            &["wf-stack", "wf-gap--xs", "wf-align--stretch"],
+        ),
+        (
+            "Grid(columns: 3, gap: sm, justify: evenly) { Text(\"x\") }",
+            &["wf-grid", "wf-gap--sm", "wf-justify--evenly"],
+        ),
+    ];
+    let mut failures = Vec::new();
+    for (body, want) in cases {
+        let src = page(body);
+        for class in want.iter() {
+            if !css_defines_class(&css, class) {
+                failures.push(format!("stylesheet has no rule for .{class}"));
+            }
+        }
+        for backend in Backend::ALL {
+            let Some(e) = root(backend, &src) else {
+                failures.push(format!("`{body}` rendered nothing in {}", backend.name()));
+                continue;
+            };
+            for class in want.iter() {
+                if !e.has_class(class) {
+                    failures.push(format!(
+                        "`{}` in {}: missing .{} in {:?}",
+                        body,
+                        backend.name(),
+                        class,
+                        e.classes
+                    ));
+                }
+            }
+            if e.classes.iter().any(|c| c.contains("--gap-")) {
+                failures.push(format!(
+                    "`{}` in {}: legacy gap class emitted",
+                    body,
+                    backend.name()
+                ));
+            }
+        }
+    }
+    failures.sort();
+    failures.dedup();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
 /// `List(ordered)` and `FileUpload(multiple)` are documented modifiers that
