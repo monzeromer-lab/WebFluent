@@ -453,7 +453,7 @@ impl JsCodegen {
             }
             Expr::Lambda(param, body) => {
                 let body_str = self.emit_store_expr(body, store_states);
-                format!("({} => {})", param, body_str)
+                format!("(({}) => {})", param, body_str)
             }
             Expr::FunctionCall(name, args) => {
                 let args_str: Vec<String> = args
@@ -3589,10 +3589,15 @@ impl JsCodegen {
                 format!("({{ {} }})", entries_str.join(", "))
             }
             Expr::Lambda(param, body) => {
-                self.lambda_params.borrow_mut().push(param.clone());
+                // `param` is one name or several joined by ", ".
+                let names: Vec<String> = param.split(", ").map(|n| n.to_string()).collect();
+                let count = names.len();
+                self.lambda_params.borrow_mut().extend(names);
                 let body_str = self.emit_expr(body);
-                self.lambda_params.borrow_mut().pop();
-                format!("({} => {})", param, body_str)
+                for _ in 0..count {
+                    self.lambda_params.borrow_mut().pop();
+                }
+                format!("(({}) => {})", param, body_str)
             }
         }
     }
@@ -3983,7 +3988,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("items.map((i => ({ n: i, twice: (i * 2) })))"),
+            out.contains("items.map(((i) => ({ n: i, twice: (i * 2) })))"),
             "{out}"
         );
         assert!(
@@ -4248,7 +4253,10 @@ mod tests {
             }
             "#,
         );
-        assert!(out.contains("(x => (x.done && (x.n < _limit())))"), "{out}");
+        assert!(
+            out.contains("((x) => (x.done && (x.n < _limit())))"),
+            "{out}"
+        );
         assert!(!out.contains("_x()"), "{out}");
     }
 

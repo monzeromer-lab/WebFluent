@@ -315,6 +315,17 @@ setTimeout(callback, 1000)
 // alert, confirm, prompt, RegExp, Map, Set, etc.
 ```
 
+### Lambdas
+
+`x => expr` and `(a, b) => expr` — one expression as the body, returning a
+map with `(x) => { key: value }`. Used with `filter`, `map`, `sort` and the
+other array methods, mostly inside stores:
+
+```wf
+derived open = incidents.filter(i => !i.resolved)
+derived byAge = rows.slice().sort((a, b) => a.age - b.age)
+```
+
 ### Control Flow
 
 ```wf

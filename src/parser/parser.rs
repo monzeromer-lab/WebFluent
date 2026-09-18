@@ -1902,6 +1902,27 @@ impl Parser {
         Ok(left)
     }
 
+    /// If `( name, name, … ) =>` starts here, the parameter names. The
+    /// tokens are not consumed.
+    fn lambda_params_ahead(&self) -> Option<Vec<String>> {
+        let t = |i: usize| self.tokens.get(self.pos + i).map(|t| &t.token_type);
+        let mut params = Vec::new();
+        let mut i = 1;
+        loop {
+            match t(i) {
+                Some(TokenType::Identifier(name)) => params.push(name.clone()),
+                _ => return None,
+            }
+            match t(i + 1) {
+                Some(TokenType::Comma) => i += 2,
+                Some(TokenType::CloseParen) => {
+                    return matches!(t(i + 2), Some(TokenType::Arrow)).then_some(params);
+                }
+                _ => return None,
+            }
+        }
+    }
+
     /// Whether `-- name … :` starts here: the next declaration of a style
     /// block, which a value must not swallow as arithmetic.
     fn custom_property_ahead(&self) -> bool {
@@ -2049,6 +2070,16 @@ impl Parser {
                 Ok(Expr::Identifier("success".to_string()))
             }
             TokenType::OpenParen => {
+                // `(a, b) => expr`: a lambda of several parameters, which a
+                // sort comparator needs. Only `x => expr` used to parse.
+                if let Some(params) = self.lambda_params_ahead() {
+                    for _ in 0..(params.len() * 2 + 1) {
+                        self.advance();
+                    }
+                    self.expect(&TokenType::Arrow)?;
+                    let body = self.parse_expression()?;
+                    return Ok(Expr::Lambda(params.join(", "), Box::new(body)));
+                }
                 self.advance();
                 let expr = self.parse_expression()?;
                 self.expect(&TokenType::CloseParen)?;
@@ -2869,6 +2900,23 @@ mod named_arg_tests {
             other => panic!("{other:?}"),
         };
         assert_eq!(input.modifiers, ["text"]);
+    }
+
+    #[test]
+    fn a_lambda_may_take_several_parameters() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Text(items.sort((a, b) => a.n - b.n), id: (x)) }"#,
+        );
+        let Arg::Positional(Expr::MethodCall(_, m, args)) = &ui.args[0] else {
+            panic!("{ui:?}")
+        };
+        assert_eq!(m, "sort");
+        assert!(
+            matches!(&args[0], Expr::Lambda(p, _) if p == "a, b"),
+            "{args:?}"
+        );
+        // A parenthesised expression is still an expression.
+        assert!(matches!(&ui.args[1], Arg::Named(_, Expr::Identifier(n)) if n == "x"));
     }
 
     #[test]
