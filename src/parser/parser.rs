@@ -1221,12 +1221,13 @@ impl Parser {
     }
 
     fn is_modifier(&self) -> bool {
-        // Keywords that can also be used as modifiers
-        if matches!(
-            self.current_type(),
-            TokenType::Success | TokenType::Error | TokenType::Loading
-        ) {
-            return true;
+        // Keywords that can also be used as modifiers — unless the enclosing
+        // declaration bound the name (a prop called `error`).
+        match self.current_type() {
+            TokenType::Success => return !self.declared_names.iter().any(|n| n == "success"),
+            TokenType::Error => return !self.declared_names.iter().any(|n| n == "error"),
+            TokenType::Loading => return !self.declared_names.iter().any(|n| n == "loading"),
+            _ => {}
         }
         // The vocabulary lives in `parser::vocabulary` as data (one source of
         // truth for the parser, the lint and the LSP), not as a match arm here.
@@ -2780,6 +2781,24 @@ mod named_arg_tests {
         // Bare `error` in argument position stays the modifier it always was;
         // in an expression it is the name.
         let ui = first_element(r#"Page P (path: "/") { Text(msg, title: error != "") }"#);
+        // Declared, `error` is the name even bare.
+        let tokens = Lexer::new(
+            r#"Page P (path: "/") { state error = ""  Text(error) }"#,
+            "<test>",
+        )
+        .tokenize()
+        .expect("lex");
+        let program = Parser::new(tokens, "<test>").parse().expect("parse");
+        let Declaration::Page(page) = &program.declarations[0] else {
+            panic!()
+        };
+        let StatementKind::UIElement(ui2) = &page.body[1].kind else {
+            panic!()
+        };
+        assert!(
+            matches!(&ui2.args[0], Arg::Positional(Expr::Identifier(n)) if n == "error"),
+            "{ui2:?}"
+        );
         assert!(matches!(
             &ui.args[1],
             Arg::Named(k, Expr::BinaryOp(l, BinOp::Neq, _))

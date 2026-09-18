@@ -571,14 +571,24 @@ impl JsCodegen {
 
     fn emit_component(&mut self, comp: &ComponentDecl) {
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
-        let destructure = if params.is_empty() {
-            String::new()
-        } else {
-            format!("{{ {} }}", params.join(", "))
-        };
-
         // Set current props so emit_expr treats them as plain variables, not signals
         self.current_props = params.clone();
+        // A declared default is a destructuring default, so a caller that
+        // leaves the prop out gets it. The static backends always applied
+        // defaults; the SPA used to leave the prop undefined.
+        let bindings: Vec<String> = comp
+            .props
+            .iter()
+            .map(|p| match &p.default {
+                Some(default) => format!("{} = {}", p.name, self.emit_expr(default)),
+                None => p.name.clone(),
+            })
+            .collect();
+        let destructure = if bindings.is_empty() {
+            String::new()
+        } else {
+            format!("{{ {} }}", bindings.join(", "))
+        };
 
         // The second parameter is the caller's block, as a thunk that builds
         // it, so `children` can be placed anywhere in the body — including
@@ -3684,6 +3694,22 @@ mod tests {
         assert!(out.contains("_n()"), "{out}");
         assert!(
             out.contains("Component_Panel({ title: \"Empty\" });"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_declared_prop_default_reaches_the_spa() {
+        let out = compile(
+            r#"
+            Component Badge (label: String, tone: String = "neutral", dot: Bool = true) { Text(label) }
+            Page P (path: "/") { Badge(label: "x") }
+            "#,
+        );
+        assert!(
+            out.contains(
+                "function Component_Badge({ label, tone = \"neutral\", dot = true }, _children)"
+            ),
             "{out}"
         );
     }
