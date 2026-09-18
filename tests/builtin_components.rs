@@ -1149,6 +1149,28 @@ fn layout_arguments_become_utility_classes() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// A pseudo-state block gives its element one content-named class in every
+/// backend, so the compiled rule reaches the element however it was painted.
+#[test]
+fn a_pseudo_state_block_puts_the_same_scoped_class_on_the_element_everywhere() {
+    let src = page("Button(\"Go\") { style { color: \"red\" hover { color: \"blue\" } } }");
+    let mut classes = Vec::new();
+    for backend in [Backend::Ssg, Backend::Template] {
+        let e =
+            root(backend, &src).unwrap_or_else(|| panic!("{} rendered nothing", backend.name()));
+        let scoped: Vec<&String> = e.classes.iter().filter(|c| c.starts_with("wf-s")).collect();
+        assert_eq!(scoped.len(), 1, "{}: {:?}", backend.name(), e.classes);
+        classes.push(scoped[0].clone());
+    }
+    assert_eq!(classes[0], classes[1]);
+    // The SPA adds the class after creating the element.
+    let js = render(Backend::Spa, &src);
+    assert!(
+        js.contains(&format!("classList.add(\"{}\")", classes[0])),
+        "{js}"
+    );
+}
+
 /// A user component's `children` slot renders the caller's whole block in its
 /// place, in every backend. The SPA dropped the block, and the static backends
 /// looked for a keyword the parser never produces.

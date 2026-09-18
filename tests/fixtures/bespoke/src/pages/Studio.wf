@@ -34,6 +34,11 @@ Page Studio (path: "/", description: "One thing, made slowly, eleven times a yea
                     letter-spacing: "0.15em"
                     text-transform: "uppercase"
                     font-size: "0.75rem"
+                    hover {
+                        background: "#1C1917"
+                        color: "#FAF9F6"
+                    }
+                    focus { outline-offset: "4px" }
                 }
                 open = true
             }

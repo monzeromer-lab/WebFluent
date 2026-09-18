@@ -19,6 +19,7 @@ pub mod html;
 pub mod js;
 pub mod node_id;
 pub mod pdf;
+pub mod scoped_css;
 pub mod seo;
 pub mod slides;
 pub mod ssg;

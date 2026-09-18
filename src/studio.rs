@@ -106,7 +106,8 @@ pub fn compile_studio(
         Ok(tokens) => (tokens, None),
         Err(e) => (crate::themes::tokens::default_tokens(), Some(e.to_string())),
     };
-    let css = generate_css_with(&tokens, config.theme.builtin);
+    let mut css = generate_css_with(&tokens, config.theme.builtin);
+    css.push_str(&crate::codegen::scoped_css::scoped_rules(program));
 
     let themes: Vec<ThemeInfo> = program
         .declarations

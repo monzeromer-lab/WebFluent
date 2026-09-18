@@ -322,6 +322,10 @@ pub enum Arg {
 pub struct StyleBlock {
     pub properties: Vec<StyleProperty>,
     pub media_queries: Vec<MediaQuery>,
+    /// `hover { … }`, `focus { … }` and the other pseudo-state blocks, in
+    /// source order. Compiled to stylesheet rules, since an inline style
+    /// cannot express a state.
+    pub pseudo_blocks: Vec<PseudoBlock>,
     /// Interior of the `style { … }` block (between the braces, exclusive) —
     /// where a new property is inserted. Additive; codegen ignores it.
     pub body_span: Span,
@@ -340,6 +344,15 @@ pub struct StyleProperty {
 #[derive(Debug, Clone)]
 pub struct MediaQuery {
     pub condition: String,
+    pub properties: Vec<StyleProperty>,
+}
+
+/// A pseudo-state block inside `style { }`: the state's name as written
+/// (`hover`, `focus`, `active`, `disabled`, `placeholder`, `focus-within`)
+/// and the declarations that apply while the element is in it.
+#[derive(Debug, Clone)]
+pub struct PseudoBlock {
+    pub state: String,
     pub properties: Vec<StyleProperty>,
 }
 

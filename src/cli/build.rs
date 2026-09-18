@@ -185,7 +185,10 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // build used to call the always-full entry point, so a project that asked
     // for `structural` still received the baseline it was trying to avoid.
     let tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
-    let css = generate_css_with(&tokens, config.theme.builtin);
+    let mut css = generate_css_with(&tokens, config.theme.builtin);
+    // What an inline style cannot say — pseudo-states, media queries — is
+    // compiled into the sheet under content-named classes.
+    css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
     let mut js_codegen = JsCodegen::new();
     if let Some(i18n_config) = &config.i18n {
         js_codegen.set_i18n(i18n_config.default_locale.clone(), translations.clone());

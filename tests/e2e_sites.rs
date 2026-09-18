@@ -319,6 +319,40 @@ fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {
     (out.status.success(), text)
 }
 
+/// A `hover { }` block is a stylesheet rule, not a run-time `<style>`: the
+/// built sheet carries it under a content-named class, the element carries
+/// the class, and the bundle appends nothing to the document head.
+#[test]
+fn pseudo_state_blocks_compile_into_the_stylesheet() {
+    let built = build_site("bespoke");
+    let css = built.read("styles.css");
+    let js = built.read("app.js");
+    let rule = css
+        .lines()
+        .find(|l| l.contains(":hover { background: #1C1917; color: #FAF9F6; }"))
+        .unwrap_or_else(|| panic!("no compiled hover rule in styles.css:\n{css}"));
+    let class = rule
+        .trim_start_matches('.')
+        .split(':')
+        .next()
+        .expect("class before the pseudo-class");
+    assert!(class.starts_with("wf-s"), "{rule}");
+    assert!(
+        css.contains(&format!(
+            ".{class}:focus-visible {{ outline-offset: 4px; }}"
+        )),
+        "focus compiles to :focus-visible:\n{css}"
+    );
+    assert!(
+        js.contains(&format!("classList.add(\"{class}\")")),
+        "the element carries the class:\n{js}"
+    );
+    assert!(
+        !js.contains("createElement('style')"),
+        "no run-time <style> injection remains"
+    );
+}
+
 /// A theme that names a web font gets it fetched: every page, at any depth,
 /// links the declared font stylesheet ahead of the engine's own, with a
 /// preconnect to the origins it pulls from.

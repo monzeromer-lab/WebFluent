@@ -1427,25 +1427,14 @@ impl JsCodegen {
                     self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
                 }
             }
-            // Emit @media queries as a scoped <style> element
-            if !style.media_queries.is_empty() {
-                let scope_var = self.fresh_var();
-                let scope_class = scope_var.replace("_e", "wf-s");
-                self.emit_line(&format!("{}.classList.add(\"{}\");", var, scope_class));
-                let mut css = String::new();
-                for mq in &style.media_queries {
-                    css.push_str(&format!("{} {{ .{} {{ ", mq.condition, scope_class));
-                    for prop in &mq.properties {
-                        let val = self.emit_expr(&prop.value);
-                        let val_str = val.trim_matches('"');
-                        css.push_str(&format!("{}: {}; ", prop.name, val_str));
-                    }
-                    css.push_str("} } ");
-                }
-                self.emit_line(&format!(
-                    "{{ const _s = document.createElement('style'); _s.textContent = \"{}\"; document.head.appendChild(_s); }}",
-                    css.replace('"', "\\\"")
-                ));
+            // Pseudo-states and media queries are stylesheet rules, compiled
+            // into styles.css under a class named by their content; the
+            // element only carries the class. (They used to be a <style>
+            // element appended per element at run time — one per instance,
+            // blocked by the CSP the engine can ship, and absent from the
+            // static paint.)
+            if let Some(class) = crate::codegen::scoped_css::scoped_class(style) {
+                self.emit_line(&format!("{}.classList.add(\"{}\");", var, class));
             }
         }
 

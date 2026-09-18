@@ -117,6 +117,16 @@ impl Template {
         self
     }
 
+    /// The stylesheet a rendered document links: the engine's sheet over the
+    /// template's tokens, plus the rules its pseudo-state and media blocks
+    /// compile to.
+    fn stylesheet(&self) -> Result<String> {
+        let program = self.parse()?;
+        let mut css = generate_css(&self.tokens()?);
+        css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
+        Ok(css)
+    }
+
     /// The design tokens this template renders with.
     fn tokens(&self) -> Result<HashMap<String, String>> {
         let program = self.parse()?;
@@ -148,7 +158,7 @@ impl Template {
     /// interpolation and in `for`/`if` blocks.
     pub fn render_html(&self, data: &Value) -> Result<String> {
         let fragment = self.render_html_fragment(data)?;
-        let css = generate_css(&self.tokens()?);
+        let css = self.stylesheet()?;
 
         Ok(format!(
             r#"<!DOCTYPE html>
@@ -189,10 +199,7 @@ impl Template {
     /// assert!(body.contains("Hi"));
     /// ```
     pub fn render_html_parts(&self, data: &Value) -> Result<(String, String)> {
-        Ok((
-            generate_css(&self.tokens()?),
-            self.render_html_fragment(data)?,
-        ))
+        Ok((self.stylesheet()?, self.render_html_fragment(data)?))
     }
 
     /// Render to an HTML fragment (no `<html>`/`<head>`/`<body>` wrapper).
@@ -665,6 +672,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
+    classes.extend(
+        ui.style_block
+            .as_ref()
+            .and_then(crate::codegen::scoped_css::scoped_class),
+    );
     let class_str = classes.join(" ");
 
     // Special handling. These build their tag inline, so they carry the author's

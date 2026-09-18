@@ -531,6 +531,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
+    classes.extend(scoped_class_of(ui));
     let mut current_link = false;
     let class_str = classes.join(" ");
 
@@ -942,6 +943,11 @@ fn render_linked_item(
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
+    let class = match scoped_class_of(ui) {
+        Some(scoped) => format!("{} {}", class, scoped),
+        None => class.to_string(),
+    };
+    let class = class.as_str();
     let decls = style_block_decls(ui);
     let style_attr = if decls.is_empty() {
         String::new()
@@ -982,8 +988,13 @@ fn style_block_decls(ui: &UIElement) -> Vec<String> {
         .collect()
 }
 
-/// An attribute value the compiler can write out, consulting the build-time
-/// scope so a loop binding reaches `src=`, `href=` and the rest.
+/// The class an element's pseudo-state and media rules live under, if any.
+fn scoped_class_of(ui: &UIElement) -> Option<String> {
+    ui.style_block
+        .as_ref()
+        .and_then(crate::codegen::scoped_css::scoped_class)
+}
+
 /// A `Table(caption: …)` argument, resolved to text by `resolve`.
 fn table_caption(ui: &UIElement, resolve: impl Fn(&Expr) -> Option<String>) -> Option<String> {
     ui.args.iter().find_map(|a| match a {
@@ -992,6 +1003,8 @@ fn table_caption(ui: &UIElement, resolve: impl Fn(&Expr) -> Option<String>) -> O
     })
 }
 
+/// An attribute value the compiler can write out, consulting the build-time
+/// scope so a loop binding reaches `src=`, `href=` and the rest.
 fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {
     expr_to_static_string(expr).or_else(|| match eval(expr, scope)? {
         Static::List(_) | Static::Map(_) => None,

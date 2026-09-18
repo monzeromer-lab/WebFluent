@@ -1217,10 +1217,15 @@ impl Parser {
         self.expect(&TokenType::OpenBrace)?;
         let mut properties = Vec::new();
         let mut media_queries = Vec::new();
+        let mut pseudo_blocks = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
             // Check for @media query
             if self.check_at_rule() {
                 media_queries.push(self.parse_media_query()?);
+                continue;
+            }
+            if let Some(state) = self.pseudo_block_start() {
+                pseudo_blocks.push(self.parse_pseudo_block(state)?);
                 continue;
             }
             let prop = self.parse_style_property()?;
@@ -1231,8 +1236,63 @@ impl Parser {
         Ok(StyleBlock {
             properties,
             media_queries,
+            pseudo_blocks,
             body_span: Span::new(body_start, body_end, body_line, body_col),
         })
+    }
+
+    /// The pseudo-states a `style { }` block may nest. `focus` means
+    /// `:focus-visible`: a ring on every click is the outline people learn to
+    /// suppress, and the one on keyboard focus is the one that matters.
+    pub const PSEUDO_STATES: &'static [&'static str] = &[
+        "hover",
+        "focus",
+        "active",
+        "disabled",
+        "placeholder",
+        "focus-within",
+    ];
+
+    /// If the tokens here open a pseudo-state block — a state name followed by
+    /// `{` — its name. `hover: "x"` (a colon) is a property, not a block.
+    fn pseudo_block_start(&self) -> Option<String> {
+        let TokenType::Identifier(first) = self.current_type() else {
+            return None;
+        };
+        // `focus-within` lexes as `focus`, `-`, `within`.
+        let (name, brace_at) = match (
+            self.tokens.get(self.pos + 1).map(|t| &t.token_type),
+            self.tokens.get(self.pos + 2).map(|t| &t.token_type),
+        ) {
+            (Some(TokenType::OpenBrace), _) => (first.clone(), self.pos + 1),
+            (Some(TokenType::Minus), Some(TokenType::Identifier(second))) => {
+                (format!("{}-{}", first, second), self.pos + 3)
+            }
+            _ => return None,
+        };
+        if !matches!(
+            self.tokens.get(brace_at).map(|t| &t.token_type),
+            Some(TokenType::OpenBrace)
+        ) {
+            return None;
+        }
+        Self::PSEUDO_STATES.contains(&name.as_str()).then_some(name)
+    }
+
+    fn parse_pseudo_block(&mut self, state: String) -> Result<PseudoBlock> {
+        // Consume the name tokens (`hover` or `focus - within`).
+        self.advance();
+        if self.check(&TokenType::Minus) {
+            self.advance();
+            self.advance();
+        }
+        self.expect(&TokenType::OpenBrace)?;
+        let mut properties = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.is_at_end() {
+            properties.push(self.parse_style_property()?);
+        }
+        self.expect(&TokenType::CloseBrace)?;
+        Ok(PseudoBlock { state, properties })
     }
 
     /// A hyphenated name: `border-radius`, `color-text-muted`.
@@ -2600,6 +2660,22 @@ mod named_arg_tests {
             .collect();
         assert_eq!(names, ["aria-pressed", "data-tone"]);
         assert!(matches!(&ui.args[1], Arg::Named(_, Expr::Identifier(id)) if id == "on"));
+    }
+
+    #[test]
+    fn a_pseudo_state_block_is_not_a_property_and_vice_versa() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Card { style { hover: "x"  hover { color: "red" }  focus-within { outline: "none" } } } }"#,
+        );
+        let block = ui.style_block.expect("style block");
+        assert_eq!(block.properties.len(), 1);
+        assert_eq!(block.properties[0].name, "hover");
+        let states: Vec<&str> = block
+            .pseudo_blocks
+            .iter()
+            .map(|b| b.state.as_str())
+            .collect();
+        assert_eq!(states, ["hover", "focus-within"]);
     }
 
     #[test]

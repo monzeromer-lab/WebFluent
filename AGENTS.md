@@ -715,7 +715,36 @@ Heading("Title", h1) {
 }
 ```
 
-`@media` queries are emitted as scoped CSS `<style>` elements. Each element gets a unique class to ensure the query only applies to that element.
+A `@media` block is compiled into `styles.css` under a class named by its
+content, and the element carries the class — so a hundred identical cards
+share one rule, and the static paint has it before JavaScript runs. Values
+inside it take design-token keywords like any other style value.
+
+### Pseudo-states
+
+What an inline style cannot say — how an element looks while hovered,
+focused, pressed or disabled — is a nested block in the same `style { }`:
+
+```wf
+Button("Publish changes") {
+    style {
+        background: "var(--brand)"
+        color: "var(--on-brand)"
+        hover { background: "var(--brand-hover)" }
+        active { transform: "translateY(1px)" }
+        focus { outline: "2px solid var(--focus-ring)"  outline-offset: "2px" }
+        disabled { opacity: 0.45 }
+    }
+}
+Input(text, placeholder: "shop.example.com") {
+    style { placeholder { color: "var(--text-tertiary)" } }
+}
+```
+
+States: `hover`, `focus` (compiled to `:focus-visible` — the keyboard focus
+ring, not a ring on every click), `active`, `disabled`, `placeholder`,
+`focus-within`. These are stylesheet rules, so their values must be known at
+build time: literals and token keywords, not state.
 
 ### Themes
 
@@ -1214,7 +1243,7 @@ Page Invoice (path: "/", title: "Invoice") {
 10. **No semicolons needed**: statements are newline-separated
 11. **`return` in actions**: `return expr` returns a value from store actions
 11. **Style blocks support all CSS properties**: including `transition`, `animation`, `filter` — no conflicts with language keywords
-12. **`@media` inside style blocks**: responsive styles are scoped to the element — `@media (max-width: 768px) { display: "none" }`
+12. **`@media` and pseudo-states inside style blocks**: `@media (max-width: 768px) { display: "none" }` and `hover { … }` compile to stylesheet rules scoped to the element
 13. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth
 14. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
 15. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS)
