@@ -38,13 +38,22 @@ use std::collections::HashSet;
 /// merged source and passes that name; it maps the reported (merged) line back to
 /// the real file itself.
 pub fn validate_semantics(program: &Program, file: &str) -> Vec<Diagnostic> {
+    validate_semantics_in(program, &|_| file.to_string())
+}
+
+/// [`validate_semantics`] for a program merged from several files: `file_of`
+/// names the file the declaration at that index came from.
+pub fn validate_semantics_in(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<Diagnostic> {
     let pages = name_set(program, DeclKind::Page);
     let components = name_set(program, DeclKind::Component);
     let mut diags = Vec::new();
 
-    check_duplicate_names(program, file, &mut diags);
+    check_duplicate_names(program, file_of, &mut diags);
 
-    for decl in &program.declarations {
+    for (index, decl) in program.declarations.iter().enumerate() {
         let body = match decl {
             Declaration::Page(p) => &p.body,
             Declaration::Component(c) => &c.body,
@@ -52,10 +61,10 @@ pub fn validate_semantics(program: &Program, file: &str) -> Vec<Diagnostic> {
             // Neither holds UI.
             Declaration::Store(_) | Declaration::Theme(_) => continue,
         };
-        walk_stmts(body, &pages, &components, file, &mut diags);
+        walk_stmts(body, &pages, &components, &file_of(index), &mut diags);
     }
 
-    check_routes(program, &pages, file, &mut diags);
+    check_routes(program, &pages, file_of, &mut diags);
 
     diags
 }
@@ -80,35 +89,47 @@ fn name_set(program: &Program, kind: DeclKind) -> HashSet<&str> {
 }
 
 /// Flag the second and later declaration of any same-kind name.
-fn check_duplicate_names(program: &Program, file: &str, diags: &mut Vec<Diagnostic>) {
-    let pages = program.declarations.iter().filter_map(|d| match d {
-        Declaration::Page(p) => Some((p.name.as_str(), p.header_span)),
-        _ => None,
-    });
-    check_dupes(pages, "page", file, diags);
+fn check_duplicate_names(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let pages = program
+        .declarations
+        .iter()
+        .enumerate()
+        .filter_map(|(i, d)| match d {
+            Declaration::Page(p) => Some((p.name.as_str(), p.header_span, i)),
+            _ => None,
+        });
+    check_dupes(pages, "page", file_of, diags);
 
-    let components = program.declarations.iter().filter_map(|d| match d {
-        Declaration::Component(c) => Some((c.name.as_str(), c.header_span)),
-        _ => None,
-    });
-    check_dupes(components, "component", file, diags);
+    let components = program
+        .declarations
+        .iter()
+        .enumerate()
+        .filter_map(|(i, d)| match d {
+            Declaration::Component(c) => Some((c.name.as_str(), c.header_span, i)),
+            _ => None,
+        });
+    check_dupes(components, "component", file_of, diags);
 }
 
 fn check_dupes<'a>(
-    items: impl Iterator<Item = (&'a str, Span)>,
+    items: impl Iterator<Item = (&'a str, Span, usize)>,
     kind: &str,
-    file: &str,
+    file_of: &dyn Fn(usize) -> String,
     diags: &mut Vec<Diagnostic>,
 ) {
     let mut seen: HashSet<&str> = HashSet::new();
-    for (name, span) in items {
+    for (name, span, index) in items {
         if !seen.insert(name) {
             diags.push(
                 diag(
                     format!(
                         "duplicate {kind} `{name}`: a {kind} with this name is already declared"
                     ),
-                    file,
+                    &file_of(index),
                     span,
                 )
                 .with_hint(format!("rename or remove one of the `{name}` {kind}s")),
@@ -190,13 +211,26 @@ fn check_element(
 /// the JS codegen's `find_router_routes`, which ignores a second `Router` and any
 /// `Route` nested in control flow; validating routes codegen silently drops would
 /// reject programs that compile and preview fine.
-fn check_routes(program: &Program, pages: &HashSet<&str>, file: &str, diags: &mut Vec<Diagnostic>) {
-    let Some(app_body) = program.declarations.iter().find_map(|d| match d {
-        Declaration::App(a) => Some(&a.body),
-        _ => None,
-    }) else {
+fn check_routes(
+    program: &Program,
+    pages: &HashSet<&str>,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let Some((index, app_body)) =
+        program
+            .declarations
+            .iter()
+            .enumerate()
+            .find_map(|(i, d)| match d {
+                Declaration::App(a) => Some((i, &a.body)),
+                _ => None,
+            })
+    else {
         return;
     };
+    let file = file_of(index);
+    let file = file.as_str();
     for route in wired_routes(app_body) {
         if let Some((page, span)) = route_page(route) {
             if !pages.contains(page) {

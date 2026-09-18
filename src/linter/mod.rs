@@ -21,11 +21,11 @@ pub mod vocabulary;
 pub use accessibility::lint_accessibility;
 pub use contrast::lint_contrast;
 pub use pdf_validation::validate_for_pdf;
+pub use semantic::validate_semantics_in;
 pub use slides_validation::validate_for_slides;
-// These are public API — a consumer reaches them as `webfluent::…`, and the LSP,
-// the studio and the docs all do. Nothing inside this crate calls them, which is
-// why `cargo clippy --fix` removed them; `#[allow]` records that the emptiness is
-// expected rather than leaving the next person to delete them again.
+pub use vocabulary::lint_vocabulary_in;
+// The single-file forms are public API — the LSP, the studio and the docs
+// reach them as `webfluent::…` — while the build uses the per-file forms.
 #[allow(unused_imports)]
 pub use semantic::validate_semantics;
 #[allow(unused_imports)]

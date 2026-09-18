@@ -30,6 +30,9 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
 
     // Lex and parse all files into a single program
     let mut all_declarations = Vec::new();
+    // The file each declaration came from, so a diagnostic over the merged
+    // program can still name a file the reader can open.
+    let mut declaration_files: Vec<String> = Vec::new();
 
     for file_path in &wf_files {
         let source = fs::read_to_string(file_path)?;
@@ -42,12 +45,33 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         let mut parser = Parser::new(tokens, &file_name);
         let program = parser.parse()?;
 
+        declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
         all_declarations.extend(program.declarations);
     }
 
     let program = Program {
         declarations: all_declarations,
     };
+    let file_of = |index: usize| {
+        declaration_files
+            .get(index)
+            .cloned()
+            .unwrap_or_else(|| "src/".to_string())
+    };
+
+    // A reference to nothing — an undeclared component, a route to a page that
+    // does not exist, two pages with one name — is a broken site, not a style
+    // question, so it stops the build the way a parse error does.
+    let semantic = crate::linter::validate_semantics_in(&program, &file_of);
+    if !semantic.is_empty() {
+        for diagnostic in &semantic {
+            eprintln!("{}", diagnostic);
+        }
+        return Err(WebFluentError::CodegenError(format!(
+            "{} semantic error(s)",
+            semantic.len()
+        )));
+    }
 
     // Run accessibility linter
     let mut a11y_warnings = crate::linter::lint_accessibility(&program);
@@ -59,6 +83,14 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     for warning in &a11y_warnings {
         eprintln!("{}", warning);
     }
+    // A bare word that resolves to nothing, or a real modifier with no rule
+    // behind it, does nothing on screen. The LSP has reported these for a
+    // while; a build from the command line said nothing.
+    let vocab_warnings = crate::linter::lint_vocabulary_in(&program, &file_of);
+    for warning in &vocab_warnings {
+        eprintln!("{}", warning);
+    }
+    let warning_count = a11y_warnings.len() + vocab_warnings.len();
 
     // PDF output mode
     if config.build.output_type == OutputType::Pdf {
@@ -91,13 +123,10 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         let page_count = pdf_codegen.page_count();
         println!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
         println!("  Output: {}/{}", config.build.output, filename);
-        if a11y_warnings.is_empty() {
+        if warning_count == 0 {
             println!("Build complete.");
         } else {
-            println!(
-                "Build complete with {} accessibility warning(s).",
-                a11y_warnings.len()
-            );
+            println!("Build complete with {} warning(s).", warning_count);
         }
         return Ok(());
     }
@@ -136,13 +165,10 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             slide_count
         );
         println!("  Output: {}/{}", config.build.output, filename);
-        if a11y_warnings.is_empty() {
+        if warning_count == 0 {
             println!("Build complete.");
         } else {
-            println!(
-                "Build complete with {} accessibility warning(s).",
-                a11y_warnings.len()
-            );
+            println!("Build complete with {} warning(s).", warning_count);
         }
         return Ok(());
     }
@@ -292,13 +318,10 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         );
     }
     println!("  Output: {}/", config.build.output);
-    if a11y_warnings.is_empty() {
+    if warning_count == 0 {
         println!("Build complete.");
     } else {
-        println!(
-            "Build complete with {} accessibility warning(s).",
-            a11y_warnings.len()
-        );
+        println!("Build complete with {} warning(s).", warning_count);
     }
 
     Ok(())

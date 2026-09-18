@@ -991,7 +991,10 @@ Code("function() \{ return 42; \}", block)
 
 ## Compiler diagnostics
 
-All are warnings; none fails a build.
+All are warnings; none fails a build. `wf build` prints every one of them,
+with the file and line it came from. A reference to nothing — an undeclared
+component, a `Route` to a page that is not declared, two pages or two
+components with one name — is an error and stops the build.
 
 | Rule | What it means |
 |---|---|

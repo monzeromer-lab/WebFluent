@@ -44,10 +44,22 @@ fn stylesheet() -> &'static str {
 /// and the program's own names. Returns one warning per dead word (empty =
 /// clean), in declaration order.
 pub fn lint_vocabulary(program: &Program, file: &str) -> Vec<VocabWarning> {
+    lint_vocabulary_in(program, &|_| file.to_string())
+}
+
+/// [`lint_vocabulary`] for a program merged from several files: `file_of`
+/// names the file the declaration at that index came from, so a warning
+/// points at the source a reader can open.
+pub fn lint_vocabulary_in(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<VocabWarning> {
     let globals = global_names(program);
     let mut warnings = Vec::new();
 
-    for decl in &program.declarations {
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let file = file_of(index);
+        let file = file.as_str();
         let (body, props): (&[Statement], Vec<String>) = match decl {
             Declaration::Page(p) => (&p.body, Vec::new()),
             Declaration::Component(c) => {

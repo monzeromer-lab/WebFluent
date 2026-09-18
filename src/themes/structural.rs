@@ -176,6 +176,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Avatar ────────────────────────────────────────── */
 .wf-avatar { width: 40px; height: 40px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; }
 .wf-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.wf-avatar--primary { background: var(--color-primary); color: #fff; }
 .wf-avatar--small { width: 32px; height: 32px; }
 .wf-avatar--large { width: 56px; height: 56px; }
 

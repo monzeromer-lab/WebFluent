@@ -293,6 +293,70 @@ fn every_init_template_builds_clean() {
     );
 }
 
+/// Write a one-page project under `target/e2e/<name>` and build it, returning
+/// the exit status and everything the build printed.
+fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {
+    let root = repo_root().join("target/e2e").join(name);
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(root.join("src/pages")).expect("create scratch project");
+    std::fs::write(
+        root.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "build": { "output": "./build" } }"#,
+    )
+    .expect("write config");
+    std::fs::write(root.join("src/App.wf"), app).expect("write App.wf");
+    std::fs::write(root.join("src/pages/Home.wf"), page).expect("write page");
+    let out = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .arg("build")
+        .current_dir(&root)
+        .output()
+        .expect("running `wf build`");
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    (out.status.success(), text)
+}
+
+/// A bare word that is neither a modifier nor anything in scope does nothing,
+/// silently. The LSP has reported it for a while; the command-line build said
+/// nothing, so a project could be "clean" and still full of dead words.
+#[test]
+fn the_build_reports_dead_modifier_words_and_names_the_file() {
+    let (ok, out) = build_scratch(
+        "_lint_vocab",
+        "App { Router { Route(path: \"/\", page: Home) } }\n",
+        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\", h1)\n  Button(\"Go\", huge)\n}\n",
+    );
+    assert!(ok, "a dead word is a warning, not an error:\n{out}");
+    assert!(out.contains("Warning [V01]"), "no V01 reported:\n{out}");
+    assert!(
+        out.contains("src/pages/Home.wf:"),
+        "the warning must name the file it came from:\n{out}"
+    );
+}
+
+/// A route to a page that does not exist is a broken site, not a style
+/// question; it fails the build the way a parse error does.
+#[test]
+fn the_build_fails_on_a_route_to_an_undeclared_page() {
+    let (ok, out) = build_scratch(
+        "_lint_semantic",
+        "App { Router { Route(path: \"/\", page: Home) Route(path: \"/x\", page: Missing) } }\n",
+        "Page Home (path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\", h1) }\n",
+    );
+    assert!(!ok, "an unknown route target must fail the build:\n{out}");
+    assert!(
+        out.contains("Missing"),
+        "the diagnostic names the page:\n{out}"
+    );
+    assert!(
+        out.contains("src/App.wf"),
+        "the diagnostic names the file:\n{out}"
+    );
+}
+
 // ─── What the HTML actually says ────────────────────────────────────────
 
 /// The built pages must carry the content their source declared, and the shell

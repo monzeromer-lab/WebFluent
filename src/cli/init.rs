@@ -309,7 +309,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 
                     show saved {
                         Spacer(sm)
-                        Alert("Settings saved successfully!", success, dismissible)
+                        Alert("Settings saved successfully!", success)
                     }
 
                     on:submit {
@@ -334,7 +334,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             TabPage("Danger Zone") {
                 Card(outlined) {
                     Card.Body {
-                        Heading("Danger Zone", h2, danger)
+                        Heading("Danger Zone", h2)
                         Text("These actions cannot be undone.", muted)
                         Spacer()
                         Button("Delete Account", danger) {
@@ -442,7 +442,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
                 Checkbox(checked: done, label: title)
             }
             Row(gap: sm) {
-                Badge(priority, primary, small)
+                Badge(priority, primary)
                 IconButton(icon: "trash", danger, small, label: "Delete task")
             }
         }
@@ -1097,7 +1097,7 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
                 Text("Content continues after PageBreak. Headers and footers repeat on every page.")
             }}
 
-            Progress(value: 75, max: 100, primary)
+            Progress(value: 75, max: 100)
 
             Spacer()
 
