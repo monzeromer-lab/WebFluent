@@ -1382,6 +1382,19 @@ impl JsCodegen {
                     }
                 }
 
+                // A select's value only takes once its options exist, so a
+                // slot inside a `Select` is passed to `h()` with the element
+                // rather than appended afterwards.
+                let slot_in_select = name == "Select"
+                    && ui.children.iter().any(|c| {
+                        matches!(&c.kind, StatementKind::UIElement(u)
+                            if matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Children"))
+                    });
+                if slot_in_select {
+                    children_arr
+                        .push("(typeof _children === 'function' ? _children() : null)".to_string());
+                }
+
                 if children_arr.is_empty() && ui.children.is_empty() {
                     self.emit_line(&format!(
                         "const {} = WF.h(\"{}\", {});",
@@ -1421,6 +1434,12 @@ impl JsCodegen {
                         // A button's action statements are its click handler
                         // (see above), not content.
                         if is_button && ui.events.is_empty() && is_action_statement(child) {
+                            continue;
+                        }
+                        if slot_in_select
+                            && matches!(&child.kind, StatementKind::UIElement(u)
+                                if matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Children"))
+                        {
                             continue;
                         }
                         self.emit_statement_dom(child, &var);
@@ -4101,6 +4120,21 @@ mod tests {
         assert!(out.contains("placeholder: () => S.hint"), "{out}");
         assert!(out.contains("disabled: () => S.busy"), "{out}");
         assert!(out.contains("placeholder: \"fixed\""), "{out}");
+    }
+
+    #[test]
+    fn a_slot_inside_a_select_is_passed_with_the_element() {
+        let out = compile(
+            r#"
+            Component Picker (value: String) { Select(value: value) { children } }
+            Page P (path: "/") { Picker(value: "b") { Option("a", "A")  Option("b", "B") } }
+            "#,
+        );
+        assert!(
+            out.contains("WF.h(\"select\", { className: \"wf-select\", value: () => _p.value }, (typeof _children === 'function' ? _children() : null))"),
+            "{out}"
+        );
+        assert!(!out.contains("appendChild(_children())"), "{out}");
     }
 
     #[test]
