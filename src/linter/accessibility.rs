@@ -284,7 +284,7 @@ fn lint_ui_element(
 
             // A03: Input missing label
             "Input" => {
-                if !has_named_arg(&ui.args, "label") && !has_named_arg(&ui.args, "placeholder") {
+                if !has_accessible_name(&ui.args) && !has_named_arg(&ui.args, "placeholder") {
                     warnings.push(A11yWarning::new(
                         "A03",
                         "Input missing \"label\" or \"placeholder\" attribute",
@@ -298,7 +298,7 @@ fn lint_ui_element(
 
             // A04: Form control missing label
             "Checkbox" | "Radio" | "Switch" | "Slider" => {
-                if !has_named_arg(&ui.args, "label") {
+                if !has_accessible_name(&ui.args) {
                     warnings.push(A11yWarning::new(
                         "A04",
                         format!("{} missing \"label\" attribute", name),
@@ -312,7 +312,7 @@ fn lint_ui_element(
 
             // A05: Button has no text content
             "Button" => {
-                if !has_positional_arg(&ui.args) && !has_named_arg(&ui.args, "label") {
+                if !has_positional_arg(&ui.args) && !has_accessible_name(&ui.args) {
                     warnings.push(A11yWarning::new(
                         "A05",
                         "Button has no text content",
@@ -468,6 +468,16 @@ fn lint_ui_element(
 
 // ─── Helper functions ────────────────────────────────
 
+/// Whether the arguments give the control an accessible name: a `label`, or
+/// the ARIA attributes that name an element from elsewhere (`aria-label`,
+/// `aria-labelledby`), which is how a field labelled by a separate element
+/// says so.
+fn has_accessible_name(args: &[Arg]) -> bool {
+    has_named_arg(args, "label")
+        || has_named_arg(args, "aria-label")
+        || has_named_arg(args, "aria-labelledby")
+}
+
 fn has_named_arg(args: &[Arg], name: &str) -> bool {
     args.iter()
         .any(|a| matches!(a, Arg::Named(n, _) if n == name))
@@ -500,4 +510,41 @@ fn get_heading_level(modifiers: &[String]) -> u8 {
         }
     }
     0 // No heading level specified
+}
+
+#[cfg(test)]
+mod naming_tests {
+    //! A control named by ARIA is named. A field whose visible label is a
+    //! separate element says so with `aria-labelledby`, and used to draw A03
+    //! anyway, which taught authors to add a bogus `label` attribute.
+    use super::*;
+    use crate::lexer::Lexer;
+    use crate::parser::Parser;
+
+    fn rules(src: &str) -> Vec<String> {
+        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
+        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        lint_accessibility(&program)
+            .into_iter()
+            .map(|w| w.rule_id)
+            .collect()
+    }
+
+    #[test]
+    fn aria_labelledby_names_an_input_and_a_switch() {
+        let src = r#"Page P (path: "/", title: "t", description: "d") {
+            Heading("h", h1)
+            Input(text, id: "n", aria-labelledby: "n-label")
+            Switch(bind: on, aria-label: "Reuse the build cache")
+        }"#;
+        let r = rules(src);
+        assert!(!r.contains(&"A03".to_string()), "{r:?}");
+        assert!(!r.contains(&"A04".to_string()), "{r:?}");
+    }
+
+    #[test]
+    fn an_unnamed_input_still_warns() {
+        let src = r#"Page P (path: "/", title: "t", description: "d") { Heading("h", h1) Input(text, id: "n") }"#;
+        assert!(rules(src).contains(&"A03".to_string()));
+    }
 }

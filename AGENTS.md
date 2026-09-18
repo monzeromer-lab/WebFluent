@@ -1088,7 +1088,7 @@ components with one name — is an error and stops the build.
 
 | Rule | What it means |
 |---|---|
-| `A01`–`A12` | WCAG element checks — alt text, form labels, heading outline, table headers |
+| `A01`–`A12` | WCAG element checks — alt text, form labels, heading outline, table headers. A control is named by `label:`, or by `aria-label:` / `aria-labelledby:` when its visible label is a separate element |
 | `A13` | A theme's colour pairing falls below the WCAG AA contrast ratio |
 | `S01` | A page has no title |
 | `S02` | A page has no description, so its search snippet is written for it |
