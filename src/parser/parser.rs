@@ -891,7 +891,9 @@ impl Parser {
         let mut expr = self.parse_fetch_url_primary()?;
         loop {
             if self.match_token(&TokenType::Dot) {
-                let prop = self.expect_identifier()?;
+                // After a dot any word is a property name — `Array.from`,
+                // `req.state`, `item.action` — even one the language reserves.
+                let prop = self.expect_property_name()?;
                 if self.check(&TokenType::OpenParen) {
                     self.advance();
                     let mut args = Vec::new();
@@ -1950,7 +1952,9 @@ impl Parser {
 
         loop {
             if self.match_token(&TokenType::Dot) {
-                let prop = self.expect_identifier()?;
+                // After a dot any word is a property name — `Array.from`,
+                // `req.state`, `item.action` — even one the language reserves.
+                let prop = self.expect_property_name()?;
                 if self.check(&TokenType::OpenParen) {
                     self.advance();
                     let mut args = Vec::new();
@@ -2215,6 +2219,24 @@ impl Parser {
         }
     }
 
+    /// A property name after a dot: an identifier, or any keyword — the
+    /// language's reserved words are ordinary property names in JavaScript.
+    fn expect_property_name(&mut self) -> Result<String> {
+        if let TokenType::Identifier(name) = self.current_type().clone() {
+            self.advance();
+            return Ok(name);
+        }
+        if let Some(word) = keyword_word(self.current_type()) {
+            let word = word.to_string();
+            self.advance();
+            return Ok(word);
+        }
+        Err(self.error(format!(
+            "Expected a property name, got {}",
+            self.current_type()
+        )))
+    }
+
     /// Accept any token that can be a map key: identifiers, string literals, or any keyword.
     fn expect_map_key(&mut self) -> Result<String> {
         // String literal keys
@@ -2229,119 +2251,17 @@ impl Parser {
             return Ok(name);
         }
         // Accept any keyword token as a map key
-        let key = match self.current_type() {
-            TokenType::State => "state",
-            TokenType::Derived => "derived",
-            TokenType::Effect => "effect",
-            TokenType::Action => "action",
-            TokenType::Use => "use",
-            TokenType::Fetch => "fetch",
-            TokenType::From => "from",
-            TokenType::Navigate => "navigate",
-            TokenType::Log => "log",
-            TokenType::Return => "return",
-            TokenType::If => "if",
-            TokenType::Else => "else",
-            TokenType::For => "for",
-            TokenType::In => "in",
-            TokenType::Show => "show",
-            TokenType::Loading => "loading",
-            TokenType::Error => "error",
-            TokenType::Success => "success",
-            TokenType::Style => "style",
-            TokenType::Theme => "Theme",
-            TokenType::Token => "token",
-            TokenType::Animate => "animate",
-            TokenType::Transition => "transition",
-            TokenType::Children => "children",
-            TokenType::Page => "Page",
-            TokenType::Component => "Component",
-            TokenType::Store => "Store",
-            TokenType::App => "App",
-            TokenType::Router => "Router",
-            TokenType::Route => "Route",
-            TokenType::Null => "null",
-            TokenType::TypeString => "String",
-            TokenType::TypeNumber => "Number",
-            TokenType::TypeBool => "Bool",
-            TokenType::TypeList => "List",
-            TokenType::TypeMap => "Map",
-            // Built-in UI components
-            TokenType::Container => "Container",
-            TokenType::Row => "Row",
-            TokenType::Column => "Column",
-            TokenType::Grid => "Grid",
-            TokenType::Stack => "Stack",
-            TokenType::Spacer => "Spacer",
-            TokenType::Divider => "Divider",
-            TokenType::Navbar => "Navbar",
-            TokenType::Sidebar => "Sidebar",
-            TokenType::Breadcrumb => "Breadcrumb",
-            TokenType::Link => "Link",
-            TokenType::Menu => "Menu",
-            TokenType::Tabs => "Tabs",
-            TokenType::TabPage => "TabPage",
-            TokenType::Card => "Card",
-            TokenType::Table => "Table",
-            TokenType::Thead => "Thead",
-            TokenType::Tbody => "Tbody",
-            TokenType::Trow => "Trow",
-            TokenType::Tcell => "Tcell",
-            TokenType::Badge => "Badge",
-            TokenType::Avatar => "Avatar",
-            TokenType::Tooltip => "Tooltip",
-            TokenType::Tag => "Tag",
-            TokenType::Input => "Input",
-            TokenType::Select => "Select",
-            TokenType::Option => "Option",
-            TokenType::Checkbox => "Checkbox",
-            TokenType::Radio => "Radio",
-            TokenType::Switch => "Switch",
-            TokenType::Slider => "Slider",
-            TokenType::DatePicker => "DatePicker",
-            TokenType::FileUpload => "FileUpload",
-            TokenType::Form => "Form",
-            TokenType::Alert => "Alert",
-            TokenType::Toast => "Toast",
-            TokenType::Modal => "Modal",
-            TokenType::Dialog => "Dialog",
-            TokenType::Spinner => "Spinner",
-            TokenType::Progress => "Progress",
-            TokenType::Skeleton => "Skeleton",
-            TokenType::Button => "Button",
-            TokenType::IconButton => "IconButton",
-            TokenType::ButtonGroup => "ButtonGroup",
-            TokenType::Dropdown => "Dropdown",
-            TokenType::Image => "Image",
-            TokenType::Video => "Video",
-            TokenType::Icon => "Icon",
-            TokenType::Carousel => "Carousel",
-            TokenType::Text => "Text",
-            TokenType::Heading => "Heading",
-            TokenType::Code => "Code",
-            TokenType::Blockquote => "Blockquote",
-            TokenType::Document => "Document",
-            TokenType::Section => "Section",
-            TokenType::Paragraph => "Paragraph",
-            TokenType::PageBreak => "PageBreak",
-            TokenType::Header => "Header",
-            TokenType::Footer => "Footer",
-            TokenType::Presentation => "Presentation",
-            TokenType::Slide => "Slide",
-            TokenType::TitleSlide => "TitleSlide",
-            TokenType::SectionSlide => "SectionSlide",
-            TokenType::TwoColumn => "TwoColumn",
-            TokenType::ImageSlide => "ImageSlide",
-            _ => {
-                return Err(self.error(format!(
-                    "Expected map key (identifier, string, or keyword), got {}",
-                    self.current_type()
-                )));
+        match keyword_word(self.current_type()) {
+            Some(key) => {
+                let result = key.to_string();
+                self.advance();
+                Ok(result)
             }
-        };
-        let result = key.to_string();
-        self.advance();
-        Ok(result)
+            None => Err(self.error(format!(
+                "Expected map key (identifier, string, or keyword), got {}",
+                self.current_type()
+            ))),
+        }
     }
 
     fn expect_string(&mut self) -> Result<String> {
@@ -2387,6 +2307,117 @@ fn has_interpolation(s: &str) -> bool {
         i += 1;
     }
     false
+}
+
+/// The word a keyword token was lexed from, so it can serve as a name where
+/// JavaScript would accept one: a map key, a property after a dot.
+fn keyword_word(token: &TokenType) -> Option<&'static str> {
+    let word = match token {
+        TokenType::State => "state",
+        TokenType::Derived => "derived",
+        TokenType::Effect => "effect",
+        TokenType::Action => "action",
+        TokenType::Use => "use",
+        TokenType::Fetch => "fetch",
+        TokenType::From => "from",
+        TokenType::Navigate => "navigate",
+        TokenType::Log => "log",
+        TokenType::Return => "return",
+        TokenType::If => "if",
+        TokenType::Else => "else",
+        TokenType::For => "for",
+        TokenType::In => "in",
+        TokenType::Show => "show",
+        TokenType::Loading => "loading",
+        TokenType::Error => "error",
+        TokenType::Success => "success",
+        TokenType::Style => "style",
+        TokenType::Theme => "Theme",
+        TokenType::Token => "token",
+        TokenType::Animate => "animate",
+        TokenType::Transition => "transition",
+        TokenType::Children => "children",
+        TokenType::Page => "Page",
+        TokenType::Component => "Component",
+        TokenType::Store => "Store",
+        TokenType::App => "App",
+        TokenType::Router => "Router",
+        TokenType::Route => "Route",
+        TokenType::Null => "null",
+        TokenType::TypeString => "String",
+        TokenType::TypeNumber => "Number",
+        TokenType::TypeBool => "Bool",
+        TokenType::TypeList => "List",
+        TokenType::TypeMap => "Map",
+        // Built-in UI components
+        TokenType::Container => "Container",
+        TokenType::Row => "Row",
+        TokenType::Column => "Column",
+        TokenType::Grid => "Grid",
+        TokenType::Stack => "Stack",
+        TokenType::Spacer => "Spacer",
+        TokenType::Divider => "Divider",
+        TokenType::Navbar => "Navbar",
+        TokenType::Sidebar => "Sidebar",
+        TokenType::Breadcrumb => "Breadcrumb",
+        TokenType::Link => "Link",
+        TokenType::Menu => "Menu",
+        TokenType::Tabs => "Tabs",
+        TokenType::TabPage => "TabPage",
+        TokenType::Card => "Card",
+        TokenType::Table => "Table",
+        TokenType::Thead => "Thead",
+        TokenType::Tbody => "Tbody",
+        TokenType::Trow => "Trow",
+        TokenType::Tcell => "Tcell",
+        TokenType::Badge => "Badge",
+        TokenType::Avatar => "Avatar",
+        TokenType::Tooltip => "Tooltip",
+        TokenType::Tag => "Tag",
+        TokenType::Input => "Input",
+        TokenType::Select => "Select",
+        TokenType::Option => "Option",
+        TokenType::Checkbox => "Checkbox",
+        TokenType::Radio => "Radio",
+        TokenType::Switch => "Switch",
+        TokenType::Slider => "Slider",
+        TokenType::DatePicker => "DatePicker",
+        TokenType::FileUpload => "FileUpload",
+        TokenType::Form => "Form",
+        TokenType::Alert => "Alert",
+        TokenType::Toast => "Toast",
+        TokenType::Modal => "Modal",
+        TokenType::Dialog => "Dialog",
+        TokenType::Spinner => "Spinner",
+        TokenType::Progress => "Progress",
+        TokenType::Skeleton => "Skeleton",
+        TokenType::Button => "Button",
+        TokenType::IconButton => "IconButton",
+        TokenType::ButtonGroup => "ButtonGroup",
+        TokenType::Dropdown => "Dropdown",
+        TokenType::Image => "Image",
+        TokenType::Video => "Video",
+        TokenType::Icon => "Icon",
+        TokenType::Carousel => "Carousel",
+        TokenType::Text => "Text",
+        TokenType::Heading => "Heading",
+        TokenType::Code => "Code",
+        TokenType::Blockquote => "Blockquote",
+        TokenType::Document => "Document",
+        TokenType::Section => "Section",
+        TokenType::Paragraph => "Paragraph",
+        TokenType::PageBreak => "PageBreak",
+        TokenType::Header => "Header",
+        TokenType::Footer => "Footer",
+        TokenType::Presentation => "Presentation",
+        TokenType::Slide => "Slide",
+        TokenType::TitleSlide => "TitleSlide",
+        TokenType::SectionSlide => "SectionSlide",
+        TokenType::TwoColumn => "TwoColumn",
+        TokenType::ImageSlide => "ImageSlide",
+        _ => return None,
+    };
+    Some(word)
 }
 
 #[cfg(test)]
@@ -2838,6 +2869,17 @@ mod named_arg_tests {
             other => panic!("{other:?}"),
         };
         assert_eq!(input.modifiers, ["text"]);
+    }
+
+    #[test]
+    fn a_keyword_is_a_property_name_after_a_dot() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Text(Array.from(items).length, id: req.state) }"#,
+        );
+        assert!(
+            matches!(&ui.args[0], Arg::Positional(Expr::PropertyAccess(_, p)) if p == "length")
+        );
+        assert!(matches!(&ui.args[1], Arg::Named(_, Expr::PropertyAccess(_, p)) if p == "state"));
     }
 
     #[test]
