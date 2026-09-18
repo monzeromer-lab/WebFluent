@@ -5,12 +5,22 @@ use crate::parser::ast::*;
 /// Returns a list of warnings (non-fatal).
 pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
     let mut warnings = Vec::new();
+    // A page's outline includes the headings of the components it calls, so
+    // the outline check reads through a call to the component's body.
+    let components: std::collections::HashMap<&str, &ComponentDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c) => Some((c.name.as_str(), c)),
+            _ => None,
+        })
+        .collect();
 
     for decl in &program.declarations {
         match decl {
             Declaration::Page(page) => {
                 let file = format!("src/pages/{}.wf", page.name);
-                lint_page(page, &file, &mut warnings);
+                lint_page(page, &file, &mut warnings, &components);
             }
             Declaration::Component(comp) => {
                 let file = format!("src/components/{}.wf", comp.name);
@@ -123,6 +133,10 @@ struct HeadingTracker {
     /// `wf init -t slides` and `wf init -t pdf` produced a scaffold that warned
     /// on its own first build.
     checks_outline: bool,
+    /// The program's components by name (see [`Self::component`]).
+    components: std::collections::HashMap<String, ComponentDecl>,
+    /// Components being expanded, so a component that calls itself stops.
+    expanding: Vec<String>,
 }
 
 impl HeadingTracker {
@@ -131,6 +145,8 @@ impl HeadingTracker {
             levels_seen: Vec::new(),
             h1_count: 0,
             checks_outline: true,
+            components: std::collections::HashMap::new(),
+            expanding: Vec::new(),
         }
     }
 
@@ -141,6 +157,13 @@ impl HeadingTracker {
             checks_outline: false,
             ..Self::new()
         }
+    }
+
+    /// The program's components, so a call to one contributes the headings
+    /// of its body to the outline being checked. Empty when linting a
+    /// component or the app on its own.
+    fn component(&self, name: &str) -> Option<ComponentDecl> {
+        self.components.get(name).cloned()
     }
 
     fn record(&mut self, level: u8) {
@@ -167,12 +190,21 @@ fn is_document_or_deck(body: &[Statement]) -> bool {
     })
 }
 
-fn lint_page(page: &PageDecl, file: &str, warnings: &mut Vec<A11yWarning>) {
+fn lint_page(
+    page: &PageDecl,
+    file: &str,
+    warnings: &mut Vec<A11yWarning>,
+    components: &std::collections::HashMap<&str, &ComponentDecl>,
+) {
     let mut tracker = if is_document_or_deck(&page.body) {
         HeadingTracker::without_outline_checks()
     } else {
         HeadingTracker::new()
     };
+    tracker.components = components
+        .iter()
+        .map(|(k, v)| (k.to_string(), (*v).clone()))
+        .collect();
     lint_statements(&page.body, file, warnings, &mut tracker);
 
     if !tracker.checks_outline {
@@ -462,6 +494,23 @@ fn lint_ui_element(
         }
     }
 
+    // A call to a component contributes that component's headings to this
+    // page's outline. Its element checks were already reported once, on the
+    // component itself, so they are not repeated here.
+    if let ComponentRef::UserDefined(name) = &ui.component {
+        if !heading_tracker.expanding.contains(name) {
+            if let Some(comp) = heading_tracker.component(name) {
+                heading_tracker.expanding.push(name.clone());
+                let mut quiet = Vec::new();
+                lint_statements(&comp.body, file, &mut quiet, heading_tracker);
+                // Only the outline findings from inside the expansion matter
+                // here — and they are about this page's outline.
+                warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
+                heading_tracker.expanding.pop();
+            }
+        }
+    }
+
     // Recurse into children
     lint_statements(&ui.children, file, warnings, heading_tracker);
 }
@@ -540,6 +589,34 @@ mod naming_tests {
         let r = rules(src);
         assert!(!r.contains(&"A03".to_string()), "{r:?}");
         assert!(!r.contains(&"A04".to_string()), "{r:?}");
+    }
+
+    #[test]
+    fn a_pages_outline_reads_through_the_components_it_calls() {
+        let src = r#"
+            Component Opener (title: String) { Heading(title, h2) }
+            Page P (path: "/", title: "t", description: "d") {
+                Heading("Page", h1)
+                Opener(title: "Section")
+                Heading("Card", h3)
+            }"#;
+        let r = rules(src);
+        assert!(
+            !r.contains(&"A11".to_string()),
+            "the h2 inside Opener bridges h1 and h3: {r:?}"
+        );
+    }
+
+    #[test]
+    fn a_skipped_level_inside_a_called_component_is_the_pages_problem() {
+        let src = r#"
+            Component Tile (title: String) { Heading(title, h4) }
+            Page P (path: "/", title: "t", description: "d") {
+                Heading("Page", h1)
+                Tile(title: "x")
+            }"#;
+        let r = rules(src);
+        assert!(r.contains(&"A11".to_string()), "{r:?}");
     }
 
     #[test]
