@@ -441,6 +441,9 @@ const WF = (() => {
       container.innerHTML = "";
 
       if (match) {
+        // The tab, the history entry and a screen reader all read the title;
+        // a single-page app used to keep the entry page's title on every route.
+        if (match.route.title) document.title = match.route.title;
         // Untrack: don't subscribe the router effect to signals read during page render
         const prev = currentEffect;
         currentEffect = null;

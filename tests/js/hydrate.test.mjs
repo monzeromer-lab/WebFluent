@@ -93,3 +93,18 @@ test("an aria-* attribute keeps a false value, and follows a reactive one", () =
   pressed.set(true);
   assert.equal(chip.getAttribute("aria-pressed"), "true");
 });
+
+test("the router sets the document title to the page it shows", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("div");
+  WF.createRouter(
+    [
+      { path: "/", title: "Home", render: () => WF.h("p", {}, ["home"]) },
+      { path: "/docs", title: "Routing rules", render: () => WF.h("p", {}, ["docs"]) },
+    ],
+    container,
+  );
+  assert.equal(document.title, "Home");
+  WF.navigate("/docs");
+  assert.equal(document.title, "Routing rules");
+});

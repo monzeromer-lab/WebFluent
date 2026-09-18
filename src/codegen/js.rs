@@ -38,6 +38,9 @@ pub struct JsCodegen {
     ssg_mode: bool,
     /// Base path for deployment (e.g., "/WebFluent")
     base_path: String,
+    /// Each page's title, so the router can set `document.title` when it
+    /// shows the page; a SPA otherwise keeps the entry page's title forever.
+    page_titles: HashMap<String, String>,
     /// Whether the element being emitted sits inside a `Thead`, where a
     /// `Tcell` is a column header (`<th scope="col">`), not a data cell.
     in_thead: bool,
@@ -68,6 +71,7 @@ impl JsCodegen {
             i18n_translations: HashMap::new(),
             ssg_mode: false,
             base_path: String::new(),
+            page_titles: HashMap::new(),
             in_thead: false,
             studio: false,
             node_ids: NodeMap::default(),
@@ -138,6 +142,22 @@ impl JsCodegen {
             .unwrap_or_default()
     }
 
+    /// One entry of the router's table: the path, the page's title (so the
+    /// router can set `document.title`), and how to render it.
+    fn route_entry(&self, path: &str, page: &str) -> String {
+        let title = match self.page_titles.get(page) {
+            Some(t) => format!(
+                "title: \"{}\", ",
+                t.replace('\\', "\\\\").replace('"', "\\\"")
+            ),
+            None => String::new(),
+        };
+        format!(
+            "{{ path: \"{}\", {}render: (params) => Page_{}(params) }},",
+            path, title, page
+        )
+    }
+
     pub fn generate(&mut self, program: &Program) -> String {
         // Emit runtime
         self.emit_line(runtime::RUNTIME_JS);
@@ -148,6 +168,11 @@ impl JsCodegen {
             match decl {
                 Declaration::Component(c) => self.components.push(c.name.clone()),
                 Declaration::Store(s) => self.stores.push(s.name.clone()),
+                Declaration::Page(p) => {
+                    if let Some(title) = &p.title {
+                        self.page_titles.insert(p.name.clone(), title.clone());
+                    }
+                }
                 _ => {}
             }
         }
@@ -224,10 +249,8 @@ impl JsCodegen {
                 self.emit_line("const routes = [");
                 self.indent += 1;
                 for p in &pages {
-                    self.emit_line(&format!(
-                        "{{ path: \"{}\", render: (params) => Page_{}(params) }},",
-                        p.path, p.name
-                    ));
+                    let entry = self.route_entry(&p.path, &p.name);
+                    self.emit_line(&entry);
                 }
                 self.indent -= 1;
                 self.emit_line("];");
@@ -666,10 +689,8 @@ impl JsCodegen {
                     }
                 }
                 let clean_path = path.trim_matches('"');
-                self.emit_line(&format!(
-                    "{{ path: \"{}\", render: (params) => Page_{}(params) }},",
-                    clean_path, page_name
-                ));
+                let entry = self.route_entry(clean_path, &page_name);
+                self.emit_line(&entry);
             }
             self.indent -= 1;
             self.emit_line("];");
@@ -3629,6 +3650,27 @@ mod tests {
         assert!(out.contains("_n()"), "{out}");
         assert!(
             out.contains("Component_Panel({ title: \"Empty\" });"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn every_route_carries_its_pages_title() {
+        let out = compile(
+            r#"
+            Page Home (path: "/", title: "Home") { Text("h") }
+            Page Docs (path: "/docs", title: "Routing \"rules\"") { Text("d") }
+            App { Router { Route(path: "/", page: Home) Route(path: "/docs", page: Docs) } }
+            "#,
+        );
+        assert!(
+            out.contains(
+                "{ path: \"/\", title: \"Home\", render: (params) => Page_Home(params) },"
+            ),
+            "{out}"
+        );
+        assert!(
+            out.contains("title: \"Routing \\\"rules\\\"\", render: (params) => Page_Docs(params)"),
             "{out}"
         );
     }

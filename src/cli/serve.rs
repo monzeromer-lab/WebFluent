@@ -25,17 +25,27 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
         let url = request.url().to_string();
         let url_path = if url == "/" { "/index.html" } else { &url };
 
-        // Try to serve the file
-        let file_path = output_dir.join(url_path.trim_start_matches('/'));
+        // Try to serve the file. A static build writes each route as
+        // `<route>/index.html`, which is what a host serves for `/<route>`;
+        // the server used to fall through to the root index for those, so a
+        // pre-rendered page was never the one seen in development.
+        let mut file_path = output_dir.join(url_path.trim_start_matches('/'));
+        if file_path.is_dir() {
+            file_path = file_path.join("index.html");
+        }
 
         let (content, content_type) = if file_path.exists() && file_path.is_file() {
             let content = fs::read(&file_path).unwrap_or_default();
             let ct = guess_content_type(&file_path);
             (content, ct)
         } else {
-            // SPA fallback — serve index.html for all routes
+            // A static build's catch-all page, else the SPA entry for all routes.
+            let not_found = output_dir.join("404.html");
             let index_path = output_dir.join("index.html");
-            if index_path.exists() {
+            if not_found.exists() {
+                let content = fs::read(&not_found).unwrap_or_default();
+                (content, "text/html")
+            } else if index_path.exists() {
                 let content = fs::read(&index_path).unwrap_or_default();
                 (content, "text/html")
             } else {
