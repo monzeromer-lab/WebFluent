@@ -1185,38 +1185,44 @@ impl Parser {
     /// cannot be confused.
     fn is_named_arg(&self) -> bool {
         let mut i = self.pos;
+        let mut first = true;
         loop {
             let Some(tok) = self.tokens.get(i) else {
                 return false;
             };
             // `error`, `loading` and `success` lex as keywords but are
             // ordinary names in argument position (`error: msg`), as
-            // `expect_identifier` already allows.
-            if !matches!(
+            // `expect_identifier` already allows. After a hyphen any
+            // keyword is a segment: `data-state:` is an attribute name.
+            let ok = matches!(
                 tok.token_type,
                 TokenType::Identifier(_)
                     | TokenType::Error
                     | TokenType::Loading
                     | TokenType::Success
-            ) {
+            ) || (!first && keyword_word(&tok.token_type).is_some());
+            if !ok {
                 return false;
             }
             match self.tokens.get(i + 1).map(|t| &t.token_type) {
                 Some(TokenType::Colon) => return true,
-                Some(TokenType::Minus) => i += 2,
+                Some(TokenType::Minus) => {
+                    i += 2;
+                    first = false;
+                }
                 _ => return false,
             }
         }
     }
 
     /// A named argument's name: an identifier, or identifiers joined by
-    /// hyphens (`aria-label`). Keyword segments are not accepted here — a
-    /// keyword after a hyphen is an expression, not a name.
+    /// hyphens (`aria-label`). After a hyphen a keyword is a segment too
+    /// (`data-state`), since `is_named_arg` has already seen the colon.
     fn parse_named_arg_name(&mut self) -> Result<String> {
         let mut name = self.expect_identifier()?;
         while self.check(&TokenType::Minus) {
             self.advance();
-            let part = self.expect_identifier()?;
+            let part = self.expect_property_name()?;
             name = format!("{}-{}", name, part);
         }
         Ok(name)
@@ -2843,6 +2849,22 @@ mod named_arg_tests {
             .collect();
         assert_eq!(names, ["aria-pressed", "data-tone"]);
         assert!(matches!(&ui.args[1], Arg::Named(_, Expr::Identifier(id)) if id == "on"));
+    }
+
+    #[test]
+    fn a_keyword_after_a_hyphen_is_part_of_the_name() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Row(data-state: "active", data-from: "x") { Text(a - b) } }"#,
+        );
+        let names: Vec<&str> = ui
+            .args
+            .iter()
+            .filter_map(|a| match a {
+                Arg::Named(k, _) => Some(k.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(names, ["data-state", "data-from"]);
     }
 
     #[test]
