@@ -737,6 +737,19 @@ declare several and pick one with `"theme": { "name": "Brand" }`.
 Four starting points ship in `examples/themes/` — copy one into `src/` and edit
 it. They are ordinary source files, not engine settings.
 
+The baseline names system fonts on purpose. A theme that names a web font
+lists where to fetch it, and every page links it ahead of `styles.css` with a
+`preconnect` to its origin:
+
+```json
+{ "meta": { "fonts": ["https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap"] } }
+```
+
+`meta.stylesheets` links extra stylesheets the same way — a file in `public/`
+by site-relative path, or a URL. It is for the few things no element-level
+`style { }` can say (`html { background }`, `::selection`), not for component
+styling, which belongs in `.wf` source.
+
 For values a machine supplies (a deploy pipeline injecting a brand colour),
 `theme.tokens` in `webfluent.app.json` still applies, on top of the theme:
 
@@ -779,7 +792,10 @@ emitted: Google ignores both.
 ## Security headers
 
 `"build": { "csp": true }` emits a strict `Content-Security-Policy` meta tag and a
-`_headers` file for hosts that read one. The generated output already satisfies
+`_headers` file for hosts that read one. The policy is widened by exactly the
+origins `meta.fonts` and `meta.stylesheets` declare (`style-src`, and
+`font-src` for the files a font stylesheet references), so a declared font is
+never blocked by the policy that ships beside it. The generated output already satisfies
 `script-src 'self'` with no `unsafe-inline` — the compiler writes external files
 and binds events with `addEventListener` rather than inline `on*` attributes. It
 is off by default because a site that later embeds a third-party script would
@@ -1074,7 +1090,9 @@ The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
         "title": "",
         "description": "",
         "favicon": "",
-        "lang": "en"
+        "lang": "en",
+        "fonts": [],
+        "stylesheets": []
     },
     "i18n": {
         "defaultLocale": "en",

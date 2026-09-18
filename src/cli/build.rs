@@ -266,7 +266,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // host can pick it up. Netlify, Cloudflare Pages and Vercel all read this
     // format; hosts that do not simply ignore the file.
     if config.build.csp {
-        fs::write(output_dir.join("_headers"), headers_file())?;
+        fs::write(output_dir.join("_headers"), headers_file(&config))?;
     }
 
     // A crawler looks for both of these at the site root. The engine already
@@ -416,13 +416,13 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {
 /// `frame-ancestors` and `X-Content-Type-Options` cannot be set from a meta tag,
 /// so a site that only carries the CSP in its HTML is still framable and still
 /// subject to MIME sniffing.
-fn headers_file() -> String {
+fn headers_file(config: &ProjectConfig) -> String {
     format!(
         "/*\n\
          \x20 Content-Security-Policy: {}\n\
          \x20 X-Content-Type-Options: nosniff\n\
          \x20 Referrer-Policy: strict-origin-when-cross-origin\n\
          \x20 X-Frame-Options: DENY\n",
-        crate::config::project::CSP_POLICY
+        crate::config::project::csp_policy(&config.meta)
     )
 }

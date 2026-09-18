@@ -14,7 +14,10 @@
     "description": "The team handbook.",
     "lang": "en",
     "site_url": "https://handbook.example",
-    "site_name": "The Handbook"
+    "site_name": "The Handbook",
+    "fonts": [
+      "https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap"
+    ]
   },
   "i18n": {
     "default_locale": "en",

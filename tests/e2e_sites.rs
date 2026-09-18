@@ -319,6 +319,30 @@ fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {
     (out.status.success(), text)
 }
 
+/// A theme that names a web font gets it fetched: every page, at any depth,
+/// links the declared font stylesheet ahead of the engine's own, with a
+/// preconnect to the origins it pulls from.
+#[test]
+fn declared_fonts_are_linked_on_every_page() {
+    let built = build_site("docs");
+    let mut failures = Vec::new();
+    for (path, html) in built.html_files() {
+        let head = html.split_once("</head>").map(|(h, _)| h).unwrap_or(&html);
+        let font = head.find("href=\"https://fonts.googleapis.com/css2?family=Manrope");
+        let sheet = head.find("styles.css");
+        match (font, sheet) {
+            (Some(f), Some(s)) if f < s => {}
+            _ => failures.push(format!("{path}: font link missing or after styles.css")),
+        }
+        if !head
+            .contains("<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>")
+        {
+            failures.push(format!("{path}: no preconnect to the font file origin"));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
 /// A bare word that is neither a modifier nor anything in scope does nothing,
 /// silently. The LSP has reported it for a while; the command-line build said
 /// nothing, so a project could be "clean" and still full of dead words.

@@ -150,7 +150,7 @@ pub fn render_page_html_studio(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}{}    <link rel="stylesheet" href="{}/styles.css">
+{}{}{}    <link rel="stylesheet" href="{}/styles.css">
     <script src="{}/app.js" defer></script>
 </head>
 <body>
@@ -162,6 +162,7 @@ pub fn render_page_html_studio(
         title,
         description_meta,
         crate::codegen::html::csp_meta(config),
+        crate::codegen::html::head_links(config, &base),
         base,
         base,
         crate::codegen::html::SKIP_LINK,

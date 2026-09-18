@@ -273,6 +273,81 @@ pub struct MetaConfig {
     /// which are the ones a crawler can read.
     #[serde(default = "default_true")]
     pub sitemap: bool,
+
+    /// Web-font stylesheets to load, by URL — a Google Fonts `css2?family=…`
+    /// link, or a stylesheet on the site's own origin. Each is linked in the
+    /// head with a `preconnect` to its origin, ahead of `styles.css`, so the
+    /// fonts a theme names are actually fetched. The baseline theme names
+    /// system fonts on purpose; a theme that names a web font lists it here.
+    #[serde(default)]
+    pub fonts: Vec<String>,
+
+    /// Extra stylesheets to link before `styles.css`, by URL or site-relative
+    /// path (a file in `public/`). For the few things no element-level
+    /// `style { }` can say — `html { background }`, `::selection` — not for
+    /// component styling, which belongs in `.wf` source.
+    #[serde(default)]
+    pub stylesheets: Vec<String>,
+}
+
+/// The origin (`scheme://host`) of an absolute URL, or `None` for a
+/// site-relative path.
+pub fn url_origin(url: &str) -> Option<String> {
+    let (scheme, rest) = url.split_once("://")?;
+    let host = rest.split('/').next()?;
+    if host.is_empty() {
+        return None;
+    }
+    Some(format!("{}://{}", scheme, host))
+}
+
+/// The origins a font or stylesheet URL needs the policy to allow: its own,
+/// plus the font origin Google Fonts serves files from, which its stylesheet
+/// references.
+fn asset_origins(url: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    if let Some(origin) = url_origin(url) {
+        if origin == "https://fonts.googleapis.com" {
+            out.push("https://fonts.gstatic.com".to_string());
+        }
+        out.push(origin);
+    }
+    out
+}
+
+/// The `Content-Security-Policy` for a project: [`CSP_POLICY`], widened by
+/// exactly the origins its declared fonts and stylesheets are served from.
+///
+/// A policy that ignored `meta.fonts` would block the very stylesheet the
+/// config asked for, and the failure would show up as a silent fallback font.
+pub fn csp_policy(meta: &MetaConfig) -> String {
+    let mut style: Vec<String> = Vec::new();
+    let mut font: Vec<String> = Vec::new();
+    for url in meta.fonts.iter().chain(meta.stylesheets.iter()) {
+        for origin in asset_origins(url) {
+            let is_font_files = origin == "https://fonts.gstatic.com";
+            if !is_font_files && !style.contains(&origin) {
+                style.push(origin.clone());
+            }
+            if !font.contains(&origin) {
+                font.push(origin);
+            }
+        }
+    }
+    let mut policy = CSP_POLICY.to_string();
+    if !style.is_empty() {
+        policy = policy.replace(
+            "style-src 'self';",
+            &format!("style-src 'self' {};", style.join(" ")),
+        );
+    }
+    if !font.is_empty() {
+        policy = policy.replace(
+            "font-src 'self';",
+            &format!("font-src 'self' {};", font.join(" ")),
+        );
+    }
+    policy
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -357,6 +432,8 @@ impl Default for MetaConfig {
             site_name: String::new(),
             image: String::new(),
             sitemap: true,
+            fonts: Vec::new(),
+            stylesheets: Vec::new(),
         }
     }
 }
@@ -390,5 +467,51 @@ impl ProjectConfig {
                 ..Default::default()
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod head_asset_tests {
+    use super::*;
+
+    fn meta(fonts: &[&str], sheets: &[&str]) -> MetaConfig {
+        MetaConfig {
+            fonts: fonts.iter().map(|s| s.to_string()).collect(),
+            stylesheets: sheets.iter().map(|s| s.to_string()).collect(),
+            ..MetaConfig::default()
+        }
+    }
+
+    #[test]
+    fn no_assets_leaves_the_baseline_policy_alone() {
+        assert_eq!(csp_policy(&meta(&[], &[])), CSP_POLICY);
+        assert_eq!(csp_policy(&meta(&[], &["/base.css"])), CSP_POLICY);
+    }
+
+    #[test]
+    fn a_google_font_widens_style_and_font_sources() {
+        let policy = csp_policy(&meta(
+            &["https://fonts.googleapis.com/css2?family=Manrope&display=swap"],
+            &[],
+        ));
+        assert!(
+            policy.contains("style-src 'self' https://fonts.googleapis.com;"),
+            "{policy}"
+        );
+        assert!(
+            policy.contains(
+                "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com;"
+            ),
+            "{policy}"
+        );
+    }
+
+    #[test]
+    fn url_origin_reads_scheme_and_host_only() {
+        assert_eq!(
+            url_origin("https://cdn.example.com/a/b.css").as_deref(),
+            Some("https://cdn.example.com")
+        );
+        assert_eq!(url_origin("/base.css"), None);
     }
 }
