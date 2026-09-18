@@ -2678,9 +2678,18 @@ impl JsCodegen {
             min_val, max_val, step
         );
         if let Some(state) = &bind_var {
+            // An author's own on:input runs after the binding has written the
+            // state, in one handler: two "on:input" keys in one attribute
+            // object used to leave only the second.
+            let own_input = ui
+                .events
+                .iter()
+                .find(|h| h.event == "input")
+                .map(|h| self.emit_event_body(&h.body))
+                .unwrap_or_default();
             input_attrs.push_str(&format!(
-                ", value: () => _{}(), \"on:input\": (e) => _{}.set(Number(e.target.value))",
-                state, state
+                ", value: () => _{}(), \"on:input\": (event) => {{ _{}.set(Number(event.target.value)); {} }}",
+                state, state, own_input
             ));
         }
         // ARIA and data attributes reach the range input itself, which is the
@@ -2704,6 +2713,9 @@ impl JsCodegen {
             }
         }
         for handler in &ui.events {
+            if handler.event == "input" && bind_var.is_some() {
+                continue; // merged into the binding above
+            }
             let body = self.emit_event_body(&handler.body);
             input_attrs.push_str(&format!(
                 ", \"on:{}\": (event) => {{ {} }}",
@@ -2920,22 +2932,11 @@ impl JsCodegen {
         self.indent -= 1;
         self.emit_line("},");
 
-        // Else branch
-        if let Some(else_body) = &if_stmt.else_body {
-            self.emit_line("() => {");
-            self.indent += 1;
-            let else_var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                else_var
-            ));
-            for stmt in else_body {
-                self.emit_statement_dom(stmt, &else_var);
-            }
-            self.emit_line(&format!("return {};", else_var));
-            self.indent -= 1;
-            self.emit_line("},");
-        } else if !if_stmt.else_if_branches.is_empty() {
+        // Else branch. An `else if` chain nests: the else of this condition
+        // is another condRender over the next one, and the final `else` body
+        // rides along to the innermost. (Checking `else_body` first used to
+        // skip every `else if` whenever a final `else` was present.)
+        if !if_stmt.else_if_branches.is_empty() {
             self.emit_line("() => {");
             self.indent += 1;
             let elif_var = self.fresh_var();
@@ -2952,6 +2953,20 @@ impl JsCodegen {
             };
             self.emit_if_dom(&elif, &elif_var);
             self.emit_line(&format!("return {};", elif_var));
+            self.indent -= 1;
+            self.emit_line("},");
+        } else if let Some(else_body) = &if_stmt.else_body {
+            self.emit_line("() => {");
+            self.indent += 1;
+            let else_var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                else_var
+            ));
+            for stmt in else_body {
+                self.emit_statement_dom(stmt, &else_var);
+            }
+            self.emit_line(&format!("return {};", else_var));
             self.indent -= 1;
             self.emit_line("},");
         } else {
@@ -3827,6 +3842,40 @@ mod tests {
             "{out}"
         );
         assert!(!out.contains("_part()"), "{out}");
+    }
+
+    #[test]
+    fn an_else_if_chain_with_a_final_else_keeps_every_branch() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state v = "no"
+                if v == "yes" { Text("Y") } else if v == "no" { Text("N") } else { Text("other") }
+            }
+            "#,
+        );
+        assert!(out.contains("(_v() === \"yes\")"), "{out}");
+        assert!(out.contains("(_v() === \"no\")"), "{out}");
+        assert!(out.contains("\"other\""), "{out}");
+    }
+
+    #[test]
+    fn a_sliders_own_input_handler_runs_after_the_binding() {
+        let out = compile(
+            r#"
+            Store S { state n = 0  action set(v: Number) { n = v } }
+            Page P (path: "/") {
+                use S
+                state req = 4
+                Slider(bind: req, min: 0, max: 8, step: 1, aria-label: "Requests") { on:input { S.set(req) } }
+            }
+            "#,
+        );
+        assert_eq!(out.matches("\"on:input\"").count(), 1, "{out}");
+        assert!(
+            out.contains("_req.set(Number(event.target.value)); S.set(_req());"),
+            "{out}"
+        );
     }
 
     #[test]
