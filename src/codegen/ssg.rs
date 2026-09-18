@@ -618,12 +618,27 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                                 .push(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
                         }
                     }
-                    "visible" | "bind" | "checked" | "icon" | "span" => {} // Runtime-only attrs
-                    "gap" | "align" | "justify" => {} // Utility classes, added below
+                    "icon" => {
+                        if let Some(v) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("data-icon=\"{}\"", html_escape(&v)));
+                        }
+                    }
+                    "visible" | "bind" | "checked" | "span" => {} // Runtime-only attrs
+                    "gap" | "align" | "justify" => {}             // Utility classes, added below
                     _ => {}
                 }
             }
             Arg::Positional(expr) => {
+                // `Icon("home")` names the glyph; the runtime draws it from
+                // `data-icon`, so it must not become visible text.
+                if name == "Icon" {
+                    if !attrs.iter().any(|a| a.starts_with("data-icon=")) {
+                        if let Some(v) = static_attr(expr, &ctx.scope) {
+                            attrs.push(format!("data-icon=\"{}\"", html_escape(&v)));
+                        }
+                    }
+                    continue;
+                }
                 if text_content.is_none() {
                     text_content = resolve_text_scoped(expr, &ctx.default_messages, &ctx.scope);
                 }

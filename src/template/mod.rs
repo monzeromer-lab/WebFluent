@@ -727,9 +727,21 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 "required" | "disabled" | "controls" => {
                     attrs.push(key.to_string());
                 }
+                "icon" => {
+                    let s = value_to_string(&ctx.eval_expr(val));
+                    attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
+                }
                 _ => {}
             },
             Arg::Positional(expr) => {
+                // `Icon("home")` names the glyph, drawn at runtime from `data-icon`.
+                if name == "Icon" {
+                    if !attrs.iter().any(|a| a.starts_with("data-icon=")) {
+                        let s = value_to_string(&ctx.eval_expr(expr));
+                        attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
+                    }
+                    continue;
+                }
                 if text_content.is_none() {
                     let resolved = ctx.eval_expr(expr);
                     let s = value_to_string(&resolved);

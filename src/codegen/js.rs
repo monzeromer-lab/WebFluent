@@ -938,6 +938,16 @@ impl JsCodegen {
                             }
                         }
                         Arg::Positional(expr) => {
+                            // An Icon's positional argument names the glyph, not
+                            // text to show: `Icon("home")` used to render the
+                            // word "home" because only `icon:` set `data-icon`.
+                            if name == "Icon" {
+                                if !attrs.iter().any(|a| a.starts_with("\"data-icon\":")) {
+                                    let v = self.emit_expr(expr);
+                                    attrs.push(format!("\"data-icon\": {}", v));
+                                }
+                                continue;
+                            }
                             // First positional arg is usually the content/label
                             if inner_text.is_none() {
                                 inner_text = Some(self.emit_expr(expr));

@@ -1041,6 +1041,9 @@ fn named_args_become_html_attributes() {
         ("Input(placeholder: \"name\")", "placeholder", "name"),
         ("Link(\"x\", to: \"/about\")", "href", "/about"),
         ("Video(src: \"/a.mp4\")", "src", "/a.mp4"),
+        // The glyph name is an attribute the runtime draws from, never text.
+        ("Icon(\"home\")", "data-icon", "home"),
+        ("Icon(icon: \"bell\")", "data-icon", "bell"),
     ];
 
     let mut failures = Vec::new();

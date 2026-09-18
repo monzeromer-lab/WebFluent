@@ -98,6 +98,15 @@ test("input type modifiers reach the live input element", () => {
   }
 });
 
+test("an icon named positionally is drawn, not printed as its name", () => {
+  const { app } = mountSite("gallery");
+  const icons = byClass(app, "wf-icon");
+  assert.ok(icons.length > 0, "gallery paints no Icon");
+  for (const icon of icons) {
+    assert.notEqual(icon.textContent.trim(), "star", "Icon(\"star\") rendered the word star");
+  }
+});
+
 test("no element ships an empty class attribute", () => {
   for (const site of ["gallery", "marketing", "dashboard"]) {
     const { app } = mountSite(site);
