@@ -270,16 +270,18 @@ impl JsCodegen {
         self.emit_line(&format!("const {} = WF.createStore({{", store.name));
         self.indent += 1;
 
-        // Collect store state names for context
+        // Every name the store exposes on itself: state, derived and actions.
+        // A derived value used to know only the state names, so a derived
+        // built on another derived, or on an action, read an undefined
+        // variable at run time.
         let store_state_names: Vec<String> = store
             .body
             .iter()
-            .filter_map(|s| {
-                if let StatementKind::State(st) = &s.kind {
-                    Some(st.name.clone())
-                } else {
-                    None
-                }
+            .filter_map(|s| match &s.kind {
+                StatementKind::State(st) => Some(st.name.clone()),
+                StatementKind::Derived(d) => Some(d.name.clone()),
+                StatementKind::Action(a) => Some(a.name.clone()),
+                _ => None,
             })
             .collect();
 
@@ -422,6 +424,14 @@ impl JsCodegen {
                 }
             }
             Expr::MethodCall(obj, method, args) => {
+                if method == "__if" && args.len() == 2 {
+                    // An if-expression inside a store used to fall through to
+                    // the page emitter, whose operands read `_x()` signals.
+                    let cond = self.emit_store_expr(obj, store_states);
+                    let then_val = self.emit_store_expr(&args[0], store_states);
+                    let else_val = self.emit_store_expr(&args[1], store_states);
+                    return format!("({} ? {} : {})", cond, then_val, else_val);
+                }
                 let obj_str = self.emit_store_expr(obj, store_states);
                 let args_str: Vec<String> = args
                     .iter()
@@ -438,6 +448,35 @@ impl JsCodegen {
             Expr::Lambda(param, body) => {
                 let body_str = self.emit_store_expr(body, store_states);
                 format!("({} => {})", param, body_str)
+            }
+            Expr::FunctionCall(name, args) => {
+                let args_str: Vec<String> = args
+                    .iter()
+                    .map(|a| self.emit_store_expr(a, store_states))
+                    .collect();
+                // A call to one of the store's own actions goes through the
+                // store; anything else is a global (`Math.round` is a method
+                // call, but `parseInt` is a plain function).
+                if store_states.contains(name) {
+                    format!("store.{}({})", name, args_str.join(", "))
+                } else {
+                    format!("{}({})", name, args_str.join(", "))
+                }
+            }
+            Expr::InterpolatedString(parts) => {
+                let mut out = String::from("`");
+                for part in parts {
+                    match part {
+                        StringPart::Literal(t) => out.push_str(&t.replace('`', "\\`")),
+                        StringPart::Expression(e) => {
+                            out.push_str("${");
+                            out.push_str(&self.emit_store_expr(e, store_states));
+                            out.push('}');
+                        }
+                    }
+                }
+                out.push('`');
+                out
             }
             Expr::ListLiteral(items) => {
                 let items_str: Vec<String> = items
@@ -511,6 +550,26 @@ impl JsCodegen {
                     self.indent -= 1;
                 }
                 self.emit_line("}");
+            }
+            StatementKind::Return(expr) => {
+                // Used to fall through to the page emitter, so a returned
+                // expression read `_x()` signals that do not exist in a store.
+                match expr {
+                    Some(e) => {
+                        let value = self.emit_store_expr(e, store_states);
+                        self.emit_line(&format!("return {};", value));
+                    }
+                    None => self.emit_line("return;"),
+                }
+            }
+            StatementKind::MethodCall(mc) => {
+                let obj = self.emit_store_expr(&mc.object, store_states);
+                let args: Vec<String> = mc
+                    .args
+                    .iter()
+                    .map(|a| self.emit_store_expr(a, store_states))
+                    .collect();
+                self.emit_line(&format!("{}.{}({});", obj, mc.method, args.join(", ")));
             }
             _ => self.emit_statement(stmt),
         }
@@ -3725,6 +3784,49 @@ mod tests {
             out.contains("Component_Panel({ title: \"Empty\" });"),
             "{out}"
         );
+    }
+
+    #[test]
+    fn a_store_derived_may_build_on_derived_values_actions_and_if_expressions() {
+        let out = compile(
+            r#"
+            Store Pricing {
+                state seats = 6
+                state annual = true
+                derived rate = if annual { 14 } else { 18 }
+                derived cost = Math.round(seats * rate)
+                derived label = "{cost} units"
+                derived share = pctOf(cost)
+                action pctOf(part: Number) {
+                    if cost == 0 { return 0 }
+                    return Math.round(part / cost * 100)
+                }
+                action bump() { seats = seats + 1  log(share) }
+            }
+            Page P (path: "/") { use Pricing  Text("{Pricing.label}") }
+            "#,
+        );
+        assert!(
+            out.contains("rate: (store) => (store.annual ? 14 : 18)"),
+            "{out}"
+        );
+        assert!(
+            out.contains("cost: (store) => Math.round((store.seats * store.rate))"),
+            "{out}"
+        );
+        assert!(
+            out.contains("label: (store) => `${store.cost} units`"),
+            "{out}"
+        );
+        assert!(
+            out.contains("share: (store) => store.pctOf(store.cost)"),
+            "{out}"
+        );
+        assert!(
+            out.contains("return Math.round(((part / store.cost) * 100));"),
+            "{out}"
+        );
+        assert!(!out.contains("_part()"), "{out}");
     }
 
     #[test]
