@@ -1,5 +1,5 @@
 use crate::codegen::builtin::{
-    builtin_to_html, heading_tag, implicit_role, input_type, is_void, landmark_label,
+    builtin_to_html, element_tag, implicit_role, input_type, is_void, landmark_label,
     modifier_to_class,
 };
 use crate::codegen::node_id::NodeMap;
@@ -840,14 +840,10 @@ impl JsCodegen {
                     _ => {}
                 }
 
-                let (base_tag, class) = builtin_to_html(name);
+                let (_, class) = builtin_to_html(name);
                 // A heading's level is part of the document outline, so it has to
                 // reach the tag; a class cannot express it.
-                let tag = if name == "Heading" {
-                    heading_tag(&ui.modifiers)
-                } else {
-                    base_tag
-                };
+                let tag = element_tag(name, &ui.modifiers);
 
                 // Collect attributes
                 let mut attrs = Vec::new();
@@ -3404,6 +3400,22 @@ fn has_subcomponent(ui: &UIElement, parent: &str, sub: &str) -> bool {
 }
 
 // ─── Utility functions ──────────────────────────────────
+
+impl JsCodegen {
+    /// Whether a compiled expression reads reactive state.
+    ///
+    /// [`is_reactive_expr`] recognises page signals (`_x()`) and i18n; a store
+    /// field compiles to `Store.field`, a getter over a signal, which that
+    /// textual check cannot see. Anything deciding between a one-shot value
+    /// and an effect asks here.
+    fn is_reactive(&self, expr_str: &str) -> bool {
+        is_reactive_expr(expr_str)
+            || self
+                .stores
+                .iter()
+                .any(|s| expr_str.contains(&format!("{s}.")))
+    }
+}
 
 fn is_reactive_expr(expr_str: &str) -> bool {
     // Check for signal access pattern: _identifier()

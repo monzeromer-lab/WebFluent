@@ -228,6 +228,20 @@ pub fn heading_tag(modifiers: &[String]) -> &'static str {
     "h2"
 }
 
+/// The HTML tag an element renders as, once its modifiers have had their say.
+///
+/// Two built-ins let a modifier choose the tag rather than a class: a
+/// `Heading`'s level (`h1`…`h6`) is part of the document outline, and a
+/// `List(ordered)` is an `<ol>`. Every HTML backend used to repeat the heading
+/// case inline and none handled the list, so the three could drift apart.
+pub fn element_tag(name: &str, modifiers: &[String]) -> &'static str {
+    match name {
+        "Heading" => heading_tag(modifiers),
+        "List" if modifiers.iter().any(|m| m == "ordered") => "ol",
+        _ => builtin_to_html(name).0,
+    }
+}
+
 /// The `type=` value an input modifier selects, if it selects one.
 ///
 /// `datetime` is spelled `datetime-local` in HTML. Both static renderers used to
@@ -310,6 +324,15 @@ mod tests {
         assert_eq!(heading_tag(&["h1".to_string()]), "h1");
         assert_eq!(heading_tag(&["h6".to_string()]), "h6");
         assert_eq!(heading_tag(&[]), "h2", "an unqualified Heading is an h2");
+    }
+
+    #[test]
+    fn element_tag_folds_the_modifier_chosen_tags() {
+        let m = |s: &str| vec![s.to_string()];
+        assert_eq!(element_tag("Heading", &m("h3")), "h3");
+        assert_eq!(element_tag("List", &m("ordered")), "ol");
+        assert_eq!(element_tag("List", &[]), "ul");
+        assert_eq!(element_tag("Card", &m("elevated")), "div");
         assert_eq!(
             modifier_to_class("wf-heading", "h1"),
             "",

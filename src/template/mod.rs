@@ -1,5 +1,5 @@
 use crate::codegen::builtin::{
-    builtin_to_html, class_list, heading_tag, implicit_role, input_type, landmark_label,
+    builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
 };
 use crate::codegen::css::generate_css;
 use crate::codegen::pdf::PdfCodegen;
@@ -644,7 +644,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
 }
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
-    let (tag, base_class) = builtin_to_html(name);
+    let (_, base_class) = builtin_to_html(name);
     let class_str = class_list(base_class, &ui.modifiers).join(" ");
 
     // Special handling. These build their tag inline, so they carry the author's
@@ -774,11 +774,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         }
     }
 
-    let actual_tag = if name == "Heading" {
-        heading_tag(&ui.modifiers)
-    } else {
-        tag
-    };
+    let actual_tag = element_tag(name, &ui.modifiers);
     let indent = ctx.indent_str();
     let attrs_str = if attrs.is_empty() {
         String::new()

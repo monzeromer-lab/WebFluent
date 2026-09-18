@@ -1,5 +1,5 @@
 use crate::codegen::builtin::{
-    builtin_to_html, class_list, heading_tag, implicit_role, input_type, landmark_label,
+    builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
 };
 use crate::codegen::node_id::NodeMap;
 use crate::codegen::static_eval::{Scope, Static, eval};
@@ -500,7 +500,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
 }
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
-    let (tag, base_class) = builtin_to_html(name);
+    let (_, base_class) = builtin_to_html(name);
     let class_str = class_list(base_class, &ui.modifiers).join(" ");
 
     // Special handling for certain components. These build their tag inline
@@ -651,11 +651,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
 
     // Heading tag override based on modifier
-    let actual_tag = if name == "Heading" {
-        heading_tag(&ui.modifiers)
-    } else {
-        tag
-    };
+    let actual_tag = element_tag(name, &ui.modifiers);
 
     // Emit the collected inline styles (style block + any grid columns) as one attr.
     if !style_decls.is_empty() {
