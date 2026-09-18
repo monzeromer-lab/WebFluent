@@ -863,6 +863,8 @@ impl JsCodegen {
 
                 // Collect attributes
                 let mut attrs = Vec::new();
+                let mut link_to: Option<String> = None;
+                let mut link_prefix = false;
                 let mut inner_text: Option<String> = None;
 
                 // Build class string from base class + modifiers
@@ -914,6 +916,7 @@ impl JsCodegen {
                                 }
                                 "to" => {
                                     let v = self.emit_expr(val);
+                                    link_to = Some(v.clone());
                                     if self.ssg_mode {
                                         // SSG: plain links with base path prepended
                                         attrs.push(format!("href: WF._basePath + {}", v));
@@ -924,6 +927,11 @@ impl JsCodegen {
                                             v
                                         ));
                                     }
+                                }
+                                "active" => {
+                                    // `active: "prefix"` also matches routes under `to`.
+                                    link_prefix =
+                                        matches!(val, Expr::StringLiteral(s) if s == "prefix");
                                 }
                                 "span" => {
                                     if let Expr::NumberLiteral(n) = val {
@@ -1310,6 +1318,15 @@ impl JsCodegen {
                     ));
                     self.emit_line(&format!("{}.appendChild({});", var, toggle_var));
                     self.emit_line(&format!("WF.offCanvas({}, {}, null);", var, toggle_var));
+                }
+
+                if let Some(href) = &link_to {
+                    if name == "Link" {
+                        self.emit_line(&format!(
+                            "WF.activeLink({}, {}, {});",
+                            var, href, link_prefix
+                        ));
+                    }
                 }
 
                 self.emit_style_and_transition(&var, ui);
@@ -1952,10 +1969,28 @@ impl JsCodegen {
                                 } else {
                                     "WF._basePath + ".to_string()
                                 };
+                                // In the SPA the item navigates in place, as a
+                                // Link does; it used to be a plain href, so
+                                // every rail click reloaded the whole app.
+                                let click = if self.ssg_mode {
+                                    String::new()
+                                } else {
+                                    format!(
+                                        ", \"on:click\": (e) => {{ e.preventDefault(); WF.navigate({}); }}",
+                                        href
+                                    )
+                                };
                                 self.emit_line(&format!(
-                                        "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {}{} }});",
-                                        item_var, bp, href, self.wf_node_inline(ui_child)
+                                        "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {}{}{} }});",
+                                        item_var, bp, href, click, self.wf_node_inline(ui_child)
                                     ));
+                                let prefix = ui_child.args.iter().any(|a| {
+                                    matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
+                                });
+                                self.emit_line(&format!(
+                                    "WF.activeLink({}, {}, {});",
+                                    item_var, href, prefix
+                                ));
                             } else {
                                 self.emit_line(&format!(
                                         "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__item\"{} }});",

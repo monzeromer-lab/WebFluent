@@ -58,3 +58,27 @@ test("mount replaces whatever was there", () => {
   WF.mount(() => WF.h("p", {}, ["fresh"]), container);
   assert.equal(container.textContent, "fresh");
 });
+
+test("activeLink marks the link to the current route, and follows navigation", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("div");
+  const home = WF.h("a", { href: "/" }, ["Home"]);
+  const docs = WF.h("a", { href: "/docs" }, ["Docs"]);
+  const guide = WF.h("a", { href: "/docs/guide" }, ["Guide"]);
+  // Links are built before the router exists, as an app shell's navbar is.
+  WF.activeLink(home, "/", false);
+  WF.activeLink(docs, "/docs", true);
+  WF.activeLink(guide, "/docs/guide", false);
+
+  assert.equal(home.getAttribute("aria-current"), "page");
+  assert.ok(home.classList.contains("active"));
+  assert.equal(docs.getAttribute("aria-current"), null);
+
+  WF.createRouter([{ path: "*", render: () => WF.h("p", {}, ["page"]) }], container);
+  WF.navigate("/docs/guide");
+
+  assert.equal(home.getAttribute("aria-current"), null, "home is no longer current");
+  assert.ok(!home.classList.contains("active"));
+  assert.equal(guide.getAttribute("aria-current"), "page", "exact match");
+  assert.equal(docs.getAttribute("aria-current"), "page", "prefix match on the section root");
+});

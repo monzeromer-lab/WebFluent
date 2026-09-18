@@ -107,6 +107,7 @@ pub fn render_page_html_studio(
         scope: Scope::from_program(program, &page.body),
         depth: 0,
         in_thead: false,
+        current_path: page.path.clone(),
     };
 
     // Render app shell (navbar, etc.) if available
@@ -190,6 +191,24 @@ struct SsgContext {
     scope: Scope,
     /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
     in_thead: bool,
+    /// The route of the page being painted, so a link to it can be marked
+    /// current in the static HTML as the runtime marks it after hydration.
+    current_path: String,
+}
+
+/// Whether a link to `href` points at `current` — exactly, or, with `prefix`,
+/// at a route beneath it. Mirrors `WF.activeLink` in the runtime.
+fn link_is_current(href: &str, current: &str, prefix: bool) -> bool {
+    let norm = |p: &str| {
+        let t = p.trim_end_matches('/');
+        if t.is_empty() {
+            "/".to_string()
+        } else {
+            t.to_string()
+        }
+    };
+    let (href, current) = (norm(href), norm(current));
+    href == current || (prefix && href != "/" && current.starts_with(&format!("{}/", href)))
 }
 
 /// How deep component expansion may nest before it gives up and emits the old
@@ -486,12 +505,16 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
                 Arg::Named(k, v) if k == "to" => expr_to_static_string(v),
                 _ => None,
             }) {
+                let prefix = ui.args.iter().any(|a| {
+                    matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
+                });
+                let current = link_is_current(&href, &ctx.current_path, prefix);
                 let href = if ctx.link_base.is_empty() {
                     href
                 } else {
                     format!("{}{}", ctx.link_base, href)
                 };
-                return render_linked_item(&class, &href, ui, ctx);
+                return render_linked_item(&class, &href, current, ui, ctx);
             }
             let tag = match sub.as_str() {
                 "Item" => "li",
@@ -507,6 +530,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
+    let mut current_link = false;
     let class_str = classes.join(" ");
 
     // Special handling for certain components. These build their tag inline
@@ -599,8 +623,16 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                                 format!("{}{}", ctx.link_base, s)
                             };
                             attrs.push(format!("href=\"{}\"", html_escape(&href)));
+                            let prefix = ui.args.iter().any(|a| {
+                                matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
+                            });
+                            if name == "Link" && link_is_current(&s, &ctx.current_path, prefix) {
+                                attrs.push("aria-current=\"page\"".to_string());
+                                current_link = true;
+                            }
                         }
                     }
+                    "active" => {} // Consumed with `to` above
                     "required" => attrs.push("required".to_string()),
                     "disabled" => attrs.push("disabled".to_string()),
                     "controls" => attrs.push("controls".to_string()),
@@ -646,6 +678,16 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 if text_content.is_none() {
                     text_content = resolve_text_scoped(expr, &ctx.default_messages, &ctx.scope);
                 }
+            }
+        }
+    }
+
+    // A link to the page being painted is the current one: the runtime adds
+    // the same class after hydration, so the static paint must agree with it.
+    if current_link {
+        for a in attrs.iter_mut() {
+            if a.starts_with("class=\"") {
+                a.insert_str(a.len() - 1, " active");
             }
         }
     }
@@ -860,14 +902,26 @@ fn render_for_static(for_stmt: &ForStmt, ctx: &mut SsgContext) -> Option<String>
 }
 
 /// A navigation item that carries a destination: an `<a>`, as the SPA builds it.
-fn render_linked_item(class: &str, href: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+fn render_linked_item(
+    class: &str,
+    href: &str,
+    current: bool,
+    ui: &UIElement,
+    ctx: &mut SsgContext,
+) -> String {
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
+    let (class, aria) = if current {
+        (format!("{} active", class), " aria-current=\"page\"")
+    } else {
+        (class.to_string(), "")
+    };
     let mut out = format!(
-        "{}<a class=\"{}\" href=\"{}\"{}>\n",
+        "{}<a class=\"{}\" href=\"{}\"{}{}>\n",
         indent,
         class,
         html_escape(href),
+        aria,
         wf
     );
     ctx.indent += 1;
@@ -1076,6 +1130,26 @@ mod component_expansion_tests {
         assert!(
             html.contains("<h1"),
             "an h1 inside a component must reach the HTML (SEO)"
+        );
+    }
+
+    #[test]
+    fn a_link_to_the_page_being_painted_is_marked_current() {
+        let html = render(
+            "Page Guide (path: \"/docs/guide\") { Link(\"Home\", to: \"/\") Link(\"Docs\", to: \"/docs\", active: \"prefix\") Link(\"Here\", to: \"/docs/guide\") }\n",
+        );
+        assert!(
+            html.contains("href=\"/docs/guide\" aria-current=\"page\""),
+            "exact link current: {html}"
+        );
+        assert!(
+            html.contains("class=\"wf-link active\" href=\"/docs\" aria-current=\"page\"")
+                || html.contains("href=\"/docs\" aria-current=\"page\""),
+            "prefix link current: {html}"
+        );
+        assert!(
+            !html.contains("href=\"/\" aria-current"),
+            "home is not current: {html}"
         );
     }
 

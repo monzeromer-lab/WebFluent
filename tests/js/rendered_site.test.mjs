@@ -256,6 +256,17 @@ test("the router paints the page that matches the current path", () => {
   }
 });
 
+test("the navbar link to the current route is marked current, and only that one", () => {
+  const { app } = mountSite("marketing", { path: "/pricing" });
+  const links = byTag(app, "a").filter((a) => a.classList.contains("wf-link"));
+  const current = links.filter((a) => a.getAttribute("aria-current") === "page");
+  assert.equal(current.length, 1, `expected one current link, got ${current.length}`);
+  assert.equal(current[0].getAttribute("href"), "/pricing");
+  assert.ok(current[0].classList.contains("active"));
+  const home = links.find((a) => a.getAttribute("href") === "/");
+  assert.equal(home.getAttribute("aria-current"), null);
+});
+
 test("the app shell paints around the router on every route", () => {
   for (const path of ["/", "/pricing", "/nowhere"]) {
     const { app } = mountSite("marketing", { path });

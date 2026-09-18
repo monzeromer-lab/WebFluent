@@ -369,7 +369,7 @@ Link(to: "/about") { Text("About") } // Declarative
 |-----------|-------|
 | `Navbar` | `Navbar { Navbar.Brand { ... } Navbar.Links { ... } Navbar.Actions { ... } }` |
 | `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider() }` |
-| `Link` | `Link(to: "/path") { Text("Label") }` |
+| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: "prefix"` also matches routes beneath it |
 | `Tabs` | `Tabs { TabPage("Tab 1") { ... } TabPage("Tab 2") { ... } }` |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item { ... } }` |
@@ -463,6 +463,9 @@ Sidebar {
 ```
 
 Sub-components: `Sidebar.Header`, `Sidebar.Item`, `Sidebar.Divider`
+
+A `Sidebar.Item` whose `to` matches the current route is marked `.active` +
+`aria-current="page"`, like a `Link`; `active: "prefix"` matches sub-routes.
 
 #### Breadcrumb
 

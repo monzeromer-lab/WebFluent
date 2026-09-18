@@ -353,6 +353,35 @@ const WF = (() => {
     return fullPath;
   }
 
+  // The current route, base path stripped, shared by the router and by every
+  // link that wants to know whether it points at the page being shown. Created
+  // on first use so a link built before the router (the app shell's navbar)
+  // subscribes to the same signal the router later drives.
+  let _pathSignal = null;
+  function pathSignal() {
+    if (!_pathSignal) _pathSignal = signal(_stripBase(window.location.pathname));
+    return _pathSignal;
+  }
+
+  // Mark `el` as the current page's link while the route matches `href`:
+  // `.active` for the stylesheet and `aria-current="page"` for assistive
+  // technology, so the two cannot disagree. With `prefix`, a link to a section
+  // root also matches the routes beneath it.
+  function activeLink(el, href, prefix) {
+    const target = String(href).replace(/\/$/, "") || "/";
+    effect(() => {
+      const path = pathSignal()().replace(/\/$/, "") || "/";
+      const on = path === target || (prefix && target !== "/" && path.startsWith(target + "/"));
+      if (on) {
+        el.classList.add("active");
+        el.setAttribute("aria-current", "page");
+      } else {
+        el.classList.remove("active");
+        el.removeAttribute("aria-current");
+      }
+    });
+  }
+
   function createRouter(routes, container) {
     // Check for SPA redirect from 404.html (?p=/path)
     const urlParams = new URLSearchParams(window.location.search);
@@ -362,7 +391,8 @@ const WF = (() => {
     }
 
     const initialPath = _stripBase(window.location.pathname);
-    const currentPath = signal(initialPath);
+    const currentPath = pathSignal();
+    currentPath.set(initialPath);
 
     function matchRoute(path) {
       for (const route of routes) {
@@ -431,7 +461,12 @@ const WF = (() => {
 
   let _ssgMode = false;
   function setSsgMode(enabled) { _ssgMode = enabled; }
-  function setBasePath(path) { _basePath = path.replace(/\/$/, ""); }
+  function setBasePath(path) {
+    _basePath = path.replace(/\/$/, "");
+    // A link created before the base path was known compared against the
+    // unstripped location; re-derive it now that stripping is possible.
+    if (_pathSignal) _pathSignal.set(_stripBase(window.location.pathname));
+  }
 
   function navigate(path) {
     if (_ssgMode) {
@@ -913,7 +948,7 @@ const WF = (() => {
     h, text, reactiveText, appendChildren,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
-    createRouter, navigate, getParams,
+    createRouter, navigate, getParams, activeLink,
     createStore,
     createI18n,
     wfFetch, showToast,
