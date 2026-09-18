@@ -1138,14 +1138,11 @@ impl JsCodegen {
                     }
                 }
 
-                // Handle events
-                for handler in &ui.events {
-                    let body = self.emit_event_body(&handler.body);
-                    attrs.push(format!(
-                        "\"on:{}\": (event) => {{ {} }}",
-                        handler.event, body
-                    ));
-                }
+                // The author's handlers are attached after the element is
+                // built (see below), not written into the attribute object:
+                // a `bind:` already puts an "on:input" there, and two keys of
+                // one name in one object literal keep only the last — so an
+                // Input with both used to lose its binding.
 
                 // If element has a block with just statements (Button shorthand click)
                 // A Button's block may mix what it shows with what it does:
@@ -1166,16 +1163,10 @@ impl JsCodegen {
                     }
                 }
 
-                // Handle form submit
+                // A form never navigates away: the author's submit handler
+                // is attached after creation, on top of this.
                 if name == "Form" {
-                    if let Some(handler) = ui.events.iter().find(|h| h.event == "submit") {
-                        // Already handled above
-                        let _ = handler;
-                    }
-                    // Prevent default on forms
-                    if !attrs.iter().any(|a| a.contains("on:submit")) {
-                        attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
-                    }
+                    attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
                 }
 
                 // An image with no intrinsic size gets no space reserved, so the
@@ -1423,6 +1414,14 @@ impl JsCodegen {
                     ));
                     self.emit_line(&format!("{}.appendChild({});", var, toggle_var));
                     self.emit_line(&format!("WF.offCanvas({}, {}, null);", var, toggle_var));
+                }
+
+                for handler in &ui.events {
+                    let body = self.emit_event_body(&handler.body);
+                    self.emit_line(&format!(
+                        "{}.addEventListener(\"{}\", (event) => {{ {} }});",
+                        var, handler.event, body
+                    ));
                 }
 
                 if let Some(href) = &link_to {
@@ -3896,6 +3895,37 @@ mod tests {
             "{out}"
         );
         assert!(!out.contains("_part()"), "{out}");
+    }
+
+    #[test]
+    fn an_input_keeps_its_binding_beside_the_authors_input_handler() {
+        let out = compile(
+            r#"
+            Store S { state q = ""  action set(v: String) { q = v } }
+            Page P (path: "/") {
+                use S
+                state email = ""
+                Input(email, bind: email, placeholder: "e") { on:input { S.set(email) } }
+                Form { Text("f")  on:submit { S.set("sent") } }
+            }
+            "#,
+        );
+        assert!(
+            out.contains("\"on:input\": (e) => _email.set(e.target.value)"),
+            "{out}"
+        );
+        assert!(
+            out.contains(".addEventListener(\"input\", (event) => { S.set(_email()); });"),
+            "{out}"
+        );
+        assert!(
+            out.contains("\"on:submit\": (e) => e.preventDefault()"),
+            "{out}"
+        );
+        assert!(
+            out.contains(".addEventListener(\"submit\", (event) => { S.set(\"sent\"); });"),
+            "{out}"
+        );
     }
 
     #[test]
