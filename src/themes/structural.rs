@@ -57,6 +57,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ─── Layout ────────────────────────────────────────── */
 .wf-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-md); }
 .wf-container--fluid { max-width: 100%; }
+.wf-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .wf-row { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
 .wf-row--center { align-items: center; }
 .wf-row--between { justify-content: space-between; }

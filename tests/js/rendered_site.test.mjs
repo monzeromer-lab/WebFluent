@@ -193,6 +193,14 @@ test("a store's state reaches the page that used it", () => {
   assert.ok(numbers.includes("1"), `derived closed count missing from ${JSON.stringify(numbers)}`);
 });
 
+test("a table's head row is made of column headers", () => {
+  const { app } = mountSite("dashboard", { path: "/incidents" });
+  const ths = byTag(app, "th");
+  assert.ok(ths.length >= 1, "no <th> painted for the incidents table");
+  for (const th of ths) assert.equal(th.getAttribute("scope"), "col");
+  assert.ok(byTag(app, "td").length >= 1, "no data cells painted");
+});
+
 test("a list renders one row per item in the store", () => {
   const { app } = mountSite("dashboard", { path: "/incidents" });
   const rows = byTag(app, "tr");

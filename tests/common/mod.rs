@@ -173,6 +173,15 @@ pub fn elems(backend: Backend, src: &str) -> Vec<Elem> {
 }
 
 /// The first element a backend emits — the root of the component under test.
+/// The raw output of one backend for a source, for substring checks.
+pub fn render(backend: Backend, src: &str) -> String {
+    match backend {
+        Backend::Spa => spa_js(src),
+        Backend::Ssg => ssg_html(src),
+        Backend::Template => template_html(src),
+    }
+}
+
 pub fn root(backend: Backend, src: &str) -> Option<Elem> {
     elems(backend, src).into_iter().next()
 }

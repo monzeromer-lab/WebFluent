@@ -106,6 +106,7 @@ pub fn render_page_html_studio(
         components: components.clone(),
         scope: Scope::from_program(program, &page.body),
         depth: 0,
+        in_thead: false,
     };
 
     // Render app shell (navbar, etc.) if available
@@ -187,6 +188,8 @@ struct SsgContext {
     /// conditionals over seeded values paint statically instead of waiting for
     /// JavaScript. Anything it could not resolve is simply absent.
     scope: Scope,
+    /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
+    in_thead: bool,
 }
 
 /// How deep component expansion may nest before it gives up and emits the old
@@ -606,6 +609,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                             attrs.push(format!("title=\"{}\"", html_escape(&s)));
                         }
                     }
+                    "caption" if name == "Table" => {} // Rendered as the first child below
                     "label" => {
                         // For checkbox/radio/switch/slider, the label is visible text
                         if let Some(s) = static_attr(val, &ctx.scope) {
@@ -671,7 +675,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
 
     // Heading tag override based on modifier
-    let actual_tag = element_tag(name, &ui.modifiers);
+    let actual_tag = if name == "Tcell" && ctx.in_thead {
+        attrs.push("scope=\"col\"".to_string());
+        "th"
+    } else {
+        element_tag(name, &ui.modifiers)
+    };
 
     // Emit the collected inline styles (style block + any grid columns) as one attr.
     if !style_decls.is_empty() {
@@ -697,11 +706,23 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let has_children = !ui.children.is_empty();
     let has_text = text_content.is_some();
 
-    if !has_children && !has_text {
+    let has_caption =
+        name == "Table" && table_caption(ui, |e| static_attr(e, &ctx.scope)).is_some();
+    if !has_children && !has_text && !has_caption {
         return format!("{}<{}{}></{}>\n", indent, actual_tag, attrs_str, actual_tag);
     }
 
     let mut result = format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
+
+    if name == "Table" {
+        if let Some(cap) = table_caption(ui, |e| static_attr(e, &ctx.scope)) {
+            result.push_str(&format!(
+                "{}    <caption class=\"wf-visually-hidden\">{}</caption>\n",
+                indent,
+                html_escape(&cap)
+            ));
+        }
+    }
 
     if let Some(text) = &text_content {
         // Inline text
@@ -719,7 +740,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
 
     ctx.indent += 1;
+    let was_in_thead = ctx.in_thead;
+    if name == "Thead" {
+        ctx.in_thead = true;
+    } else if name == "Tbody" {
+        ctx.in_thead = false;
+    }
     result.push_str(&render_statements(&ui.children, ctx));
+    ctx.in_thead = was_in_thead;
     ctx.indent -= 1;
 
     result.push_str(&format!("{}</{}>\n", indent, actual_tag));
@@ -894,6 +922,14 @@ fn style_block_decls(ui: &UIElement) -> Vec<String> {
 
 /// An attribute value the compiler can write out, consulting the build-time
 /// scope so a loop binding reaches `src=`, `href=` and the rest.
+/// A `Table(caption: …)` argument, resolved to text by `resolve`.
+fn table_caption(ui: &UIElement, resolve: impl Fn(&Expr) -> Option<String>) -> Option<String> {
+    ui.args.iter().find_map(|a| match a {
+        Arg::Named(k, v) if k == "caption" => resolve(v),
+        _ => None,
+    })
+}
+
 fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {
     expr_to_static_string(expr).or_else(|| match eval(expr, scope)? {
         Static::List(_) | Static::Map(_) => None,

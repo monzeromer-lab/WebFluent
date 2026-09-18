@@ -31,6 +31,9 @@ pub struct JsCodegen {
     ssg_mode: bool,
     /// Base path for deployment (e.g., "/WebFluent")
     base_path: String,
+    /// Whether the element being emitted sits inside a `Thead`, where a
+    /// `Tcell` is a column header (`<th scope="col">`), not a data cell.
+    in_thead: bool,
     /// Studio mode: stamp `data-wf-node` ids on rendered elements. Off for
     /// export/release builds, which must contain no debug attributes.
     studio: bool,
@@ -57,6 +60,7 @@ impl JsCodegen {
             i18n_translations: HashMap::new(),
             ssg_mode: false,
             base_path: String::new(),
+            in_thead: false,
             studio: false,
             node_ids: NodeMap::default(),
         }
@@ -835,7 +839,11 @@ impl JsCodegen {
                 let (_, class) = builtin_to_html(name);
                 // A heading's level is part of the document outline, so it has to
                 // reach the tag; a class cannot express it.
-                let tag = element_tag(name, &ui.modifiers);
+                let tag = if name == "Tcell" && self.in_thead {
+                    "th"
+                } else {
+                    element_tag(name, &ui.modifiers)
+                };
 
                 // Collect attributes
                 let mut attrs = Vec::new();
@@ -922,6 +930,9 @@ impl JsCodegen {
                                     // For Modal/Dialog title
                                     let v = self.emit_expr(val);
                                     attrs.push(format!("\"data-title\": {}", v));
+                                }
+                                "caption" if name == "Table" => {
+                                    // Emitted as the table's first child below.
                                 }
                                 "value" => {
                                     let v = self.emit_expr(val);
@@ -1072,6 +1083,10 @@ impl JsCodegen {
                     }
                 }
 
+                if tag == "th" {
+                    attrs.push("scope: \"col\"".to_string());
+                }
+
                 // Studio: stamp the node id on the element's root. Injecting here
                 // covers the standard path and every special emitter that reuses
                 // `attrs`/`attrs_str` (Modal, Switch, Checkbox, Dropdown, Spacer).
@@ -1180,6 +1195,23 @@ impl JsCodegen {
                 // Standard element creation
                 let mut children_arr = Vec::new();
 
+                // A table's caption is its accessible name. It is rendered
+                // visually hidden: the heading above the table already says
+                // what it is to a sighted reader.
+                if name == "Table" {
+                    if let Some(Arg::Named(_, cap)) = ui
+                        .args
+                        .iter()
+                        .find(|a| matches!(a, Arg::Named(k, _) if k == "caption"))
+                    {
+                        let v = self.emit_expr(cap);
+                        children_arr.push(format!(
+                            "WF.h(\"caption\", {{ className: \"wf-visually-hidden\" }}, {})",
+                            v
+                        ));
+                    }
+                }
+
                 // Inner text content
                 if let Some(text) = &inner_text {
                     if is_reactive_expr(text) {
@@ -1229,9 +1261,16 @@ impl JsCodegen {
                     && matches!(name.as_str(), "Button" | "IconButton");
 
                 if !is_action_shorthand {
+                    let was_in_thead = self.in_thead;
+                    if name == "Thead" {
+                        self.in_thead = true;
+                    } else if name == "Tbody" {
+                        self.in_thead = false;
+                    }
                     for child in &ui.children {
                         self.emit_statement_dom(child, &var);
                     }
+                    self.in_thead = was_in_thead;
                 }
 
                 // A `Navbar.Links` group collapses behind a toggle on a narrow

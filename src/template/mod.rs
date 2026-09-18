@@ -292,6 +292,8 @@ struct RenderContext<'a> {
     locals: HashMap<String, Value>,
     components: HashMap<String, Vec<Statement>>,
     indent: usize,
+    /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
+    in_thead: bool,
 }
 
 impl<'a> RenderContext<'a> {
@@ -301,6 +303,7 @@ impl<'a> RenderContext<'a> {
             locals: HashMap::new(),
             components: HashMap::new(),
             indent: 1,
+            in_thead: false,
         }
     }
 
@@ -791,7 +794,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         }
     }
 
-    let actual_tag = element_tag(name, &ui.modifiers);
+    let actual_tag = if name == "Tcell" && ctx.in_thead {
+        attrs.push("scope=\"col\"".to_string());
+        "th"
+    } else {
+        element_tag(name, &ui.modifiers)
+    };
     let indent = ctx.indent_str();
     let attrs_str = if attrs.is_empty() {
         String::new()
@@ -804,10 +812,18 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         return format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
     }
 
+    let caption = if name == "Table" {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "caption" => Some(value_to_string(&ctx.eval_expr(v))),
+            _ => None,
+        })
+    } else {
+        None
+    };
     let has_children = !ui.children.is_empty();
     let has_text = text_content.is_some();
 
-    if !has_children && !has_text {
+    if !has_children && !has_text && caption.is_none() {
         return format!("{}<{}{}></{}>\n", indent, actual_tag, attrs_str, actual_tag);
     }
 
@@ -826,12 +842,27 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
 
     let mut result = format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
 
+    if let Some(cap) = &caption {
+        result.push_str(&format!(
+            "{}    <caption class=\"wf-visually-hidden\">{}</caption>\n",
+            indent,
+            html_escape(cap)
+        ));
+    }
+
     if let Some(text) = &text_content {
         result.push_str(&format!("{}    {}\n", indent, html_escape(text)));
     }
 
     ctx.indent += 1;
+    let was_in_thead = ctx.in_thead;
+    if name == "Thead" {
+        ctx.in_thead = true;
+    } else if name == "Tbody" {
+        ctx.in_thead = false;
+    }
     result.push_str(&render_statements(&ui.children, ctx));
+    ctx.in_thead = was_in_thead;
     ctx.indent -= 1;
     result.push_str(&format!("{}</{}>\n", indent, actual_tag));
     result
@@ -981,6 +1012,7 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                             locals: ctx.locals.clone(),
                             components: ctx.components.clone(),
                             indent: ctx.indent,
+                            in_thead: ctx.in_thead,
                         };
                         child_ctx.locals.insert(for_stmt.item.clone(), item.clone());
                         if let Some(idx_var) = &for_stmt.index {

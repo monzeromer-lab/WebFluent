@@ -1138,6 +1138,39 @@ fn layout_arguments_become_utility_classes() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// A cell in the head row is a column header: `<th scope="col">`, which is what
+/// lets a screen reader announce the column a data cell belongs to. Every
+/// backend used to emit `<td>` regardless. The caption is the table's
+/// accessible name.
+#[test]
+fn head_cells_are_column_headers_and_a_caption_names_the_table() {
+    let css = built_in_css();
+    assert!(css_defines_class(&css, "wf-visually-hidden"));
+    let src = page(
+        "Table(caption: \"Deployments\") { Thead { Trow { Tcell(\"Build\") } } Tbody { Trow { Tcell(\"8f2c\") } } }",
+    );
+    let mut failures = Vec::new();
+    for backend in Backend::ALL {
+        let els = elems(backend, &src);
+        let th: Vec<_> = els.iter().filter(|e| e.tag == "th").collect();
+        let td: Vec<_> = els.iter().filter(|e| e.tag == "td").collect();
+        if th.len() != 1 || th[0].attr("scope") != Some("col") {
+            failures.push(format!("{}: head cell {:?}", backend.name(), th));
+        }
+        if td.len() != 1 {
+            failures.push(format!("{}: body cells {:?}", backend.name(), td));
+        }
+        match els.iter().find(|e| e.tag == "caption") {
+            Some(c) if c.has_class("wf-visually-hidden") => {}
+            other => failures.push(format!("{}: caption {:?}", backend.name(), other)),
+        }
+        if !render(backend, &src).contains("Deployments") {
+            failures.push(format!("{}: caption text missing", backend.name()));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
 /// `List(ordered)` and `FileUpload(multiple)` are documented modifiers that
 /// select a tag or an attribute rather than a class. They used to be absent
 /// from the vocabulary, so the parser read them as positional identifiers and
