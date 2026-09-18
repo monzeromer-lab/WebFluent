@@ -108,6 +108,24 @@ const WF = (() => {
     return el;
   }
 
+  // A component's props: what the caller gave, with declared defaults for
+  // whatever it left out. Reads go through getters, so a prop the caller
+  // passed as a getter over state stays live inside the component.
+  function props(given, defaults) {
+    const out = {};
+    const keys = new Set([...Object.keys(given || {}), ...Object.keys(defaults || {})]);
+    for (const key of keys) {
+      Object.defineProperty(out, key, {
+        enumerable: true,
+        get() {
+          const v = given ? given[key] : undefined;
+          return v === undefined ? defaults[key] : v;
+        },
+      });
+    }
+    return out;
+  }
+
   // Listen on the root element of what a component returned: its fragment's
   // first element. A component that renders several roots gets the handler on
   // the first, which is where a caller expects it.
@@ -970,7 +988,7 @@ const WF = (() => {
 
   return {
     signal, effect, computed,
-    h, text, reactiveText, appendChildren, onRoot,
+    h, text, reactiveText, appendChildren, onRoot, props,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
     createRouter, navigate, getParams, activeLink,

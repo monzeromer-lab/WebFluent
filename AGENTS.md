@@ -105,7 +105,9 @@ Panel(title: "Keys") {
 }
 ```
 
-Call user components with **named arguments**. A handler written on the call
+Call user components with **named arguments**. A prop that reads state stays
+live inside the component: `Chip(pressed: showErrors)` repaints when
+`showErrors` changes. A handler written on the call
 — the click shorthand or an explicit `on:…` block — attaches to the
 component's root element, so a styled button component is clickable wherever
 it is used:

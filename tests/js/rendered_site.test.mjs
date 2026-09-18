@@ -158,8 +158,15 @@ test("clicking a button updates the state it assigns and everything derived from
 
 test("a handler written on a component call fires on the component's root", () => {
   const ctx = mountSite("dashboard", { path: "/" });
-  click(button(ctx.app, "Nudge"), ctx);
+  click(button(ctx.app, "Nudge (0)"), ctx);
   assert.match(ctx.app.textContent, /count:5/, "the call-site handler did not run");
+});
+
+test("a prop that reads the caller's state follows it inside the component", () => {
+  const ctx = mountSite("dashboard", { path: "/" });
+  assert.ok(button(ctx.app, "Nudge (0)"), "prop painted from state");
+  click(button(ctx.app, "Increment"), ctx);
+  assert.ok(button(ctx.app, "Nudge (1)"), `prop did not follow state: ${ctx.app.textContent}`);
 });
 
 test("a progress bar bound to state follows it", () => {

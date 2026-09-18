@@ -573,36 +573,33 @@ impl JsCodegen {
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
         // Set current props so emit_expr treats them as plain variables, not signals
         self.current_props = params.clone();
-        // A declared default is a destructuring default, so a caller that
-        // leaves the prop out gets it. The static backends always applied
-        // defaults; the SPA used to leave the prop undefined.
-        let bindings: Vec<String> = comp
+        // Props are read through `_p.name`, never copied out: a caller passes
+        // a value that reads state as a getter, so every read inside the
+        // component — a derived, a style value, a condition — tracks the
+        // caller's signal. Props used to be destructured once at the call,
+        // which froze a Chip's `pressed` at whatever it was on first paint.
+        // Declared defaults fill what the caller left out.
+        let defaults: Vec<String> = comp
             .props
             .iter()
-            .map(|p| match &p.default {
-                Some(default) => format!("{} = {}", p.name, self.emit_expr(default)),
-                None => p.name.clone(),
+            .filter_map(|p| {
+                p.default
+                    .as_ref()
+                    .map(|d| format!("{}: {}", p.name, self.emit_expr(d)))
             })
             .collect();
-        let destructure = if bindings.is_empty() {
-            String::new()
-        } else {
-            format!("{{ {} }}", bindings.join(", "))
-        };
-
         // The second parameter is the caller's block, as a thunk that builds
         // it, so `children` can be placed anywhere in the body — including
         // inside a conditional or a loop, whose closures see the parameter.
-        let params_list = if destructure.is_empty() {
-            "_props, _children".to_string()
-        } else {
-            format!("{}, _children", destructure)
-        };
         self.emit_line(&format!(
-            "function Component_{}({}) {{",
-            comp.name, params_list
+            "function Component_{}(_p, _children) {{",
+            comp.name
         ));
         self.indent += 1;
+        self.emit_line(&format!(
+            "_p = WF.props(_p, {{ {} }});",
+            defaults.join(", ")
+        ));
 
         // Emit state declarations first
         for stmt in &comp.body {
@@ -1285,7 +1282,7 @@ impl JsCodegen {
 
                 // Inner text content
                 if let Some(text) = &inner_text {
-                    if is_reactive_expr(text) {
+                    if self.is_reactive(text) {
                         children_arr.push(format!("() => {}", text));
                     } else {
                         children_arr.push(text.clone());
@@ -1888,7 +1885,7 @@ impl JsCodegen {
         });
         if bind_var.is_none() {
             if let Some(cv) = checked_val {
-                if is_reactive_expr(&cv) {
+                if self.is_reactive(&cv) {
                     input_attrs.push_str(&format!(", checked: () => {}", cv));
                 } else {
                     input_attrs.push_str(&format!(", checked: {}", cv));
@@ -3317,8 +3314,10 @@ impl JsCodegen {
                     return name.to_string();
                 }
                 // Store references, component props, and built-in names stay as-is
+                if self.current_props.contains(name) {
+                    return format!("_p.{}", name);
+                }
                 if self.stores.contains(name)
-                    || self.current_props.contains(name)
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
                     || name == "params"
@@ -3484,7 +3483,14 @@ impl JsCodegen {
                     } else {
                         name.clone()
                     };
-                    parts.push(format!("{}: {}", key, self.emit_expr(expr)));
+                    let value = self.emit_expr(expr);
+                    // A value that reads state is handed over as a getter, so
+                    // the component tracks it instead of copying it once.
+                    if self.is_reactive(&value) {
+                        parts.push(format!("get {}() {{ return {}; }}", key, value));
+                    } else {
+                        parts.push(format!("{}: {}", key, value));
+                    }
                 }
                 Arg::Positional(expr) => {
                     parts.push(self.emit_expr(expr));
@@ -3591,6 +3597,7 @@ impl JsCodegen {
     /// and an effect asks here.
     fn is_reactive(&self, expr_str: &str) -> bool {
         is_reactive_expr(expr_str)
+            || expr_str.contains("_p.")
             || self
                 .stores
                 .iter()
@@ -3683,7 +3690,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("function Component_Panel({ title }, _children)"),
+            out.contains("function Component_Panel(_p, _children)"),
             "{out}"
         );
         assert!(
@@ -3699,6 +3706,31 @@ mod tests {
     }
 
     #[test]
+    fn a_prop_that_reads_state_is_passed_as_a_getter_and_read_live() {
+        let out = compile(
+            r#"
+            Component Chip (label: String, pressed: Bool = false) {
+                derived bg = if pressed { "a" } else { "b" }
+                Button(label, aria-pressed: pressed) { style { background: bg } }
+            }
+            Page P (path: "/") {
+                state on = true
+                Chip(label: "Errors", pressed: on) { on = !on }
+            }
+            "#,
+        );
+        assert!(
+            out.contains("Component_Chip({ label: \"Errors\", get pressed() { return _on(); } })"),
+            "{out}"
+        );
+        assert!(
+            out.contains("WF.computed(() => (_p.pressed ? \"a\" : \"b\"))"),
+            "{out}"
+        );
+        assert!(out.contains("\"aria-pressed\": () => _p.pressed"), "{out}");
+    }
+
+    #[test]
     fn a_declared_prop_default_reaches_the_spa() {
         let out = compile(
             r#"
@@ -3707,9 +3739,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains(
-                "function Component_Badge({ label, tone = \"neutral\", dot = true }, _children)"
-            ),
+            out.contains("_p = WF.props(_p, { tone: \"neutral\", dot: true });"),
             "{out}"
         );
     }
