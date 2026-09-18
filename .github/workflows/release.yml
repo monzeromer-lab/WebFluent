@@ -55,10 +55,10 @@ jobs:
 
       - name: Init WiX (generate wxs if missing)
         run: |
-          if (!(Test-Path "wix\main.wxs")) { cargo wix init }
+          if (!(Test-Path "wix\main.wxs")) { cargo wix init --package webfluent }
 
       - name: Build MSI
-        run: cargo wix --no-build --nocapture
+        run: cargo wix --package webfluent --no-build --nocapture
 
       - name: Create zip
         run: |
