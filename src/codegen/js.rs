@@ -496,7 +496,9 @@ impl JsCodegen {
                     .iter()
                     .map(|(k, v)| format!("{}: {}", k, self.emit_store_expr(v, store_states)))
                     .collect();
-                format!("{{ {} }}", entries_str.join(", "))
+                // Parenthesised, so a map literal is an object wherever it
+                // lands — as an arrow function's body a bare `{` is a block.
+                format!("({{ {} }})", entries_str.join(", "))
             }
             // For other expr types, fall back to the regular emitter
             _ => self.emit_expr(expr),
@@ -3559,7 +3561,9 @@ impl JsCodegen {
                     .iter()
                     .map(|(k, v)| format!("{}: {}", k, self.emit_expr(v)))
                     .collect();
-                format!("{{ {} }}", entries_str.join(", "))
+                // Parenthesised, so a map literal is an object wherever it
+                // lands — as an arrow function's body a bare `{` is a block.
+                format!("({{ {} }})", entries_str.join(", "))
             }
             Expr::Lambda(param, body) => {
                 self.lambda_params.borrow_mut().push(param.clone());
@@ -3859,6 +3863,28 @@ mod tests {
     }
 
     #[test]
+    fn a_map_literal_returned_from_a_lambda_is_an_object_not_a_block() {
+        let out = compile(
+            r#"
+            Store S {
+                state items = [1, 2]
+                derived pairs = items.map(i => { n: i, twice: i * 2 })
+                derived counts = { all: items.length }
+            }
+            Page P (path: "/") { use S  Text("x") }
+            "#,
+        );
+        assert!(
+            out.contains("items.map((i => ({ n: i, twice: (i * 2) })))"),
+            "{out}"
+        );
+        assert!(
+            out.contains("counts: (store) => ({ all: store.items.length })"),
+            "{out}"
+        );
+    }
+
+    #[test]
     fn a_store_action_declares_its_locals() {
         let out = compile(
             r#"
@@ -3874,7 +3900,7 @@ mod tests {
             Page P (path: "/") { use S  Text("x") }
             "#,
         );
-        assert!(out.contains("let h = {  };"), "{out}");
+        assert!(out.contains("let h = ({  });"), "{out}");
         assert!(
             out.contains("h[\"Authorization\"] = (\"Bearer \" + store.secret);"),
             "{out}"
