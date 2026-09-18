@@ -2010,6 +2010,21 @@ impl Parser {
 
                 Ok(Expr::Identifier(name))
             }
+            // `error`, `loading` and `success` are keywords for the fetch
+            // blocks and plain names everywhere else — a prop or state called
+            // `error` has to be readable.
+            TokenType::Error => {
+                self.advance();
+                Ok(Expr::Identifier("error".to_string()))
+            }
+            TokenType::Loading => {
+                self.advance();
+                Ok(Expr::Identifier("loading".to_string()))
+            }
+            TokenType::Success => {
+                self.advance();
+                Ok(Expr::Identifier("success".to_string()))
+            }
             TokenType::OpenParen => {
                 self.advance();
                 let expr = self.parse_expression()?;
@@ -2740,6 +2755,18 @@ mod named_arg_tests {
             })
             .collect();
         assert_eq!(names, ["label", "error"]);
+    }
+
+    #[test]
+    fn error_is_readable_as_a_name_in_an_expression() {
+        // Bare `error` in argument position stays the modifier it always was;
+        // in an expression it is the name.
+        let ui = first_element(r#"Page P (path: "/") { Text(msg, title: error != "") }"#);
+        assert!(matches!(
+            &ui.args[1],
+            Arg::Named(k, Expr::BinaryOp(l, BinOp::Neq, _))
+                if k == "title" && matches!(l.as_ref(), Expr::Identifier(n) if n == "error")
+        ));
     }
 
     #[test]
