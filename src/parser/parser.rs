@@ -2069,6 +2069,36 @@ impl Parser {
                 self.advance();
                 Ok(Expr::Identifier("success".to_string()))
             }
+            // The type names are also JavaScript's globals — `Number(x)`,
+            // `String(x)`, `Number.isFinite(n)` — and read as such in an
+            // expression. (`Number.isFinite` then parses as a property; a
+            // call `String(x)` goes through the identifier arm's call path.)
+            TokenType::TypeNumber
+            | TokenType::TypeString
+            | TokenType::TypeBool
+            | TokenType::TypeMap => {
+                let name = match self.current_type() {
+                    TokenType::TypeNumber => "Number",
+                    TokenType::TypeString => "String",
+                    TokenType::TypeBool => "Boolean",
+                    _ => "Map",
+                }
+                .to_string();
+                self.advance();
+                if self.check(&TokenType::OpenParen) {
+                    self.advance();
+                    let mut args = Vec::new();
+                    while !self.check(&TokenType::CloseParen) {
+                        args.push(self.parse_expression()?);
+                        if !self.check(&TokenType::CloseParen) {
+                            self.expect(&TokenType::Comma)?;
+                        }
+                    }
+                    self.expect(&TokenType::CloseParen)?;
+                    return Ok(Expr::FunctionCall(name, args));
+                }
+                Ok(Expr::Identifier(name))
+            }
             TokenType::OpenParen => {
                 // `(a, b) => expr`: a lambda of several parameters, which a
                 // sort comparator needs. Only `x => expr` used to parse.
@@ -2900,6 +2930,17 @@ mod named_arg_tests {
             other => panic!("{other:?}"),
         };
         assert_eq!(input.modifiers, ["text"]);
+    }
+
+    #[test]
+    fn the_type_names_are_javascripts_globals_in_an_expression() {
+        let ui = first_element(
+            r#"Page P (path: "/") { Text(Number.isFinite(x) && String(y).length > 0) }"#,
+        );
+        assert!(
+            matches!(&ui.args[0], Arg::Positional(Expr::BinaryOp(..))),
+            "{ui:?}"
+        );
     }
 
     #[test]
