@@ -694,6 +694,16 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     }
                     continue;
                 }
+                // `Option("value", "Label")`: value attribute, then the label.
+                if name == "Option" && text_content.is_some() {
+                    if !attrs.iter().any(|a| a.starts_with("value=")) {
+                        if let Some(v) = text_content.take() {
+                            attrs.push(format!("value=\"{}\"", html_escape(&v)));
+                        }
+                        text_content = resolve_text_scoped(expr, &ctx.default_messages, &ctx.scope);
+                    }
+                    continue;
+                }
                 if text_content.is_none() {
                     text_content = resolve_text_scoped(expr, &ctx.default_messages, &ctx.scope);
                 }

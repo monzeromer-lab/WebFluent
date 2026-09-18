@@ -1072,6 +1072,8 @@ fn named_args_become_html_attributes() {
             "type",
             "button",
         ),
+        // The documented `Option("value", "Label")`: the value is the attribute.
+        ("Option(\"fra1\", \"Frankfurt\")", "value", "fra1"),
     ];
 
     let mut failures = Vec::new();
@@ -1125,6 +1127,25 @@ fn icon_button_label_is_never_visible_text() {
                 "{}: label painted as text [{}]",
                 backend.name(),
                 inner
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// `Option("fra1", "Frankfurt")` shows the label and submits the value; the
+/// label used to be dropped, so a select showed its raw values.
+#[test]
+fn option_shows_its_label() {
+    let src = page("Option(\"fra1\", \"Frankfurt\")");
+    let mut failures = Vec::new();
+    for backend in Backend::ALL {
+        let out = raw_output(backend, &src);
+        if !out.contains("Frankfurt") {
+            failures.push(format!(
+                "{}: label missing [{}]",
+                backend.name(),
+                out.trim()
             ));
         }
     }

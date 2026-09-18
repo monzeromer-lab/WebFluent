@@ -1102,6 +1102,18 @@ impl JsCodegen {
                                 }
                                 continue;
                             }
+                            // `Option("value", "Label")`: the first positional
+                            // is the value sent with the form, the second the
+                            // text shown. A lone positional is both. The label
+                            // used to be dropped, so a select showed its values.
+                            if name == "Option" && inner_text.is_some() {
+                                if !attrs.iter().any(|a| a.starts_with("value:")) {
+                                    let v = inner_text.take().unwrap_or_default();
+                                    attrs.push(format!("value: {}", v));
+                                    inner_text = Some(self.emit_expr(expr));
+                                }
+                                continue;
+                            }
                             // First positional arg is usually the content/label
                             if inner_text.is_none() {
                                 inner_text = Some(self.emit_expr(expr));

@@ -431,7 +431,7 @@ Link(to: "/about") { Text("About") } // Declarative
 | Component | Usage |
 |-----------|-------|
 | `Input` | `Input(text, bind: var, placeholder: "...", label: "Name")` |
-| `Select` | `Select(bind: var, label: "Choose") { Option("val1", "Label 1") }` |
+| `Select` | `Select(bind: var, label: "Choose") { Option("val1", "Label 1") }` — an `Option`'s first positional is the value, the second the visible label (one positional is both) |
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |

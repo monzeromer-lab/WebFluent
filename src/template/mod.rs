@@ -781,6 +781,19 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     }
                     continue;
                 }
+                // `Option("value", "Label")`: value attribute, then the label.
+                if name == "Option" && text_content.is_some() {
+                    if !attrs.iter().any(|a| a.starts_with("value=")) {
+                        if let Some(v) = text_content.take() {
+                            attrs.push(format!("value=\"{}\"", html_escape(&v)));
+                        }
+                        let s = value_to_string(&ctx.eval_expr(expr));
+                        if !s.is_empty() && s != "null" {
+                            text_content = Some(s);
+                        }
+                    }
+                    continue;
+                }
                 if text_content.is_none() {
                     let resolved = ctx.eval_expr(expr);
                     let s = value_to_string(&resolved);
