@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/monzeromer-lab/WebFluent)
+
 # WebFluent
 
 A web-first programming language that compiles to HTML, CSS, JavaScript, and PDF. Build single-page applications, static sites, and documents with built-in components, a design system, reactivity, routing, i18n, and animations — no frameworks, no dependencies, just clean output.
