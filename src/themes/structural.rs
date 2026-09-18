@@ -254,7 +254,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 
 /* ─── Slider ────────────────────────────────────────── */
 .wf-slider { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
-.wf-slider input[type="range"] { flex: 1; min-width: 120px; }
+.wf-slider input[type="range"] { flex: 1; min-width: 120px; accent-color: var(--color-primary); }
 .wf-slider__value { min-width: 2em; text-align: end; }
 .wf-form-label { display: block; margin-bottom: var(--spacing-xs); }
 .wf-form-group { display: flex; flex-direction: column; gap: var(--spacing-xs); }
