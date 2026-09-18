@@ -24,6 +24,13 @@ pub struct JsCodegen {
     /// `_item()` against a binding named `item` — a `ReferenceError` the moment
     /// a non-empty list rendered.
     loop_bindings: Vec<String>,
+    /// Parameters of the lambdas being emitted, innermost last.
+    ///
+    /// `items.filter(x => x.done)` binds `x` as a plain JavaScript parameter,
+    /// so a reference to it inside the body must stay plain. It used to fall
+    /// through to the signal path and become `_x()` — a `ReferenceError` in any
+    /// page or component. (`emit_expr` takes `&self`, hence the cell.)
+    lambda_params: std::cell::RefCell<Vec<String>>,
     /// i18n: default locale and translations (locale -> key -> value)
     i18n_default_locale: Option<String>,
     i18n_translations: HashMap<String, HashMap<String, String>>,
@@ -56,6 +63,7 @@ impl JsCodegen {
             stores: Vec::new(),
             current_props: Vec::new(),
             loop_bindings: Vec::new(),
+            lambda_params: std::cell::RefCell::new(Vec::new()),
             i18n_default_locale: None,
             i18n_translations: HashMap::new(),
             ssg_mode: false,
@@ -3171,6 +3179,7 @@ impl JsCodegen {
                 if self.stores.contains(name)
                     || self.current_props.contains(name)
                     || self.loop_bindings.contains(name)
+                    || self.lambda_params.borrow().contains(name)
                     || name == "params"
                     || name == "value"
                     || name == "key"
@@ -3303,7 +3312,9 @@ impl JsCodegen {
                 format!("{{ {} }}", entries_str.join(", "))
             }
             Expr::Lambda(param, body) => {
+                self.lambda_params.borrow_mut().push(param.clone());
                 let body_str = self.emit_expr(body);
+                self.lambda_params.borrow_mut().pop();
                 format!("({} => {})", param, body_str)
             }
         }
@@ -3511,6 +3522,21 @@ mod tests {
     /// The identifier path treated anything that was not a prop or a store as
     /// state, so a loop over `tasks` bound `task` and then read `_task()` —
     /// `ReferenceError` on the first non-empty list. `wf init -t spa` shipped it.
+    #[test]
+    fn a_lambda_parameter_is_a_plain_binding_not_a_signal() {
+        let out = compile(
+            r#"
+            Page P (path: "/") {
+                state items = []
+                state limit = 3
+                Text("{items.filter(x => x.done && x.n < limit).length}")
+            }
+            "#,
+        );
+        assert!(out.contains("(x => (x.done && (x.n < _limit())))"), "{out}");
+        assert!(!out.contains("_x()"), "{out}");
+    }
+
     #[test]
     fn the_app_wrapper_around_the_router_gets_layout_classes() {
         let out = compile(
