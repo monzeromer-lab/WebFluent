@@ -1256,7 +1256,7 @@ Page Invoice (path: "/", title: "Invoice") {
 
 1. **Every page needs a path**: `Page Name (path: "/route") { ... }`
 2. **State is reactive**: any UI referencing a state variable auto-updates
-3. **Modifiers are positional**: `Button("Label", primary, large)` — order doesn't matter
+3. **Modifiers are positional**: `Button("Label", primary, large)` — order doesn't matter. A prop, state or derived name declared in the enclosing page or component shadows a modifier word, so a component with a `text` prop writes `Text(text)` and means the prop
 4. **Named args use colon**: `Input(text, bind: myVar, placeholder: "...")`
 5. **Braces for children/body**: `Card { Card.Body { Text("content") } }`
 6. **Sub-components use dot**: `Card.Header`, `Card.Body`, `Card.Footer`, `Navbar.Brand`, `Navbar.Links`

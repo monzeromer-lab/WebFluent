@@ -35,6 +35,11 @@ pub struct Parser {
     /// next declaration (a custom property), not a subtraction of a negation
     /// — the lexer keeps no newlines, so the value parser has to know.
     in_style_value: bool,
+    /// Names the enclosing declaration has bound — its props, state and
+    /// derived values — which shadow the modifier vocabulary. A component
+    /// with a `text` prop writes `Text(text)` and means the prop; before,
+    /// the word was silently eaten as the input-type modifier.
+    declared_names: Vec<String>,
 }
 
 impl Parser {
@@ -47,6 +52,7 @@ impl Parser {
             pos: 0,
             file: file.to_string(),
             in_style_value: false,
+            declared_names: Vec::new(),
         }
     }
 
@@ -252,7 +258,10 @@ impl Parser {
 
         self.expect(&TokenType::CloseParen)?;
         let header_span = self.span_since(decl_mark);
-        let (body, body_span) = self.parse_block_spanned()?;
+        self.declared_names.clear();
+        let body = self.parse_block_spanned();
+        self.declared_names.clear();
+        let (body, body_span) = body?;
 
         Ok(PageDecl {
             name,
@@ -289,7 +298,10 @@ impl Parser {
 
         self.expect(&TokenType::CloseParen)?;
         let header_span = self.span_since(decl_mark);
-        let (body, body_span) = self.parse_block_spanned()?;
+        self.declared_names = props.iter().map(|p| p.name.clone()).collect();
+        let body = self.parse_block_spanned();
+        self.declared_names.clear();
+        let (body, body_span) = body?;
 
         Ok(ComponentDecl {
             name,
@@ -355,7 +367,10 @@ impl Parser {
         self.expect(&TokenType::Store)?;
         let name = self.expect_identifier()?;
         let header_span = self.span_since(decl_mark);
-        let (body, body_span) = self.parse_block_spanned()?;
+        self.declared_names.clear();
+        let body = self.parse_block_spanned();
+        self.declared_names.clear();
+        let (body, body_span) = body?;
         Ok(StoreDecl {
             name,
             body,
@@ -464,6 +479,7 @@ impl Parser {
         let name = self.expect_identifier()?;
         self.expect(&TokenType::Equals)?;
         let value = self.parse_expression()?;
+        self.declared_names.push(name.clone());
         Ok(StatementKind::State(StateDecl { name, value }))
     }
 
@@ -472,6 +488,7 @@ impl Parser {
         let name = self.expect_identifier()?;
         self.expect(&TokenType::Equals)?;
         let value = self.parse_expression()?;
+        self.declared_names.push(name.clone());
         Ok(StatementKind::Derived(DerivedDecl { name, value }))
     }
 
@@ -1215,6 +1232,7 @@ impl Parser {
         // truth for the parser, the lint and the LSP), not as a match arm here.
         if let TokenType::Identifier(name) = self.current_type() {
             crate::parser::vocabulary::is_modifier_keyword(name)
+                && !self.declared_names.contains(name)
         } else {
             false
         }
@@ -2767,6 +2785,40 @@ mod named_arg_tests {
             Arg::Named(k, Expr::BinaryOp(l, BinOp::Neq, _))
                 if k == "title" && matches!(l.as_ref(), Expr::Identifier(n) if n == "error")
         ));
+    }
+
+    #[test]
+    fn a_declared_name_shadows_the_modifier_vocabulary() {
+        let tokens = Lexer::new(
+            r#"Component Kbd (text: String) { Text(text, small) }
+               Page P (path: "/") { state number = 3  Text(number)  Input(text) }"#,
+            "<test>",
+        )
+        .tokenize()
+        .expect("lex");
+        let program = Parser::new(tokens, "<test>").parse().expect("parse");
+        let (comp, page) = match (&program.declarations[0], &program.declarations[1]) {
+            (Declaration::Component(c), Declaration::Page(p)) => (c, p),
+            other => panic!("{other:?}"),
+        };
+        let kbd = match &comp.body[0].kind {
+            StatementKind::UIElement(ui) => ui,
+            other => panic!("{other:?}"),
+        };
+        // `text` is the prop; `small` is still a modifier.
+        assert!(matches!(&kbd.args[0], Arg::Positional(Expr::Identifier(n)) if n == "text"));
+        assert_eq!(kbd.modifiers, ["small"]);
+        let text = match &page.body[1].kind {
+            StatementKind::UIElement(ui) => ui,
+            other => panic!("{other:?}"),
+        };
+        assert!(matches!(&text.args[0], Arg::Positional(Expr::Identifier(n)) if n == "number"));
+        // With no `text` declared on the page, `Input(text)` keeps its input type.
+        let input = match &page.body[2].kind {
+            StatementKind::UIElement(ui) => ui,
+            other => panic!("{other:?}"),
+        };
+        assert_eq!(input.modifiers, ["text"]);
     }
 
     #[test]
