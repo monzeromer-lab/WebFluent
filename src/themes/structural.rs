@@ -379,7 +379,10 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
   .wf-col--4, .wf-col--3 { flex: 0 0 50%; max-width: 50%; }
 }
 @media (max-width: 768px) {
-  .wf-row { flex-direction: column; }
+  /* A Row does not stack itself here, unlike in the full sheet: in structural
+     mode the author owns layout, and a row that should stack on a phone says
+     so with its own @media. Stacking every row turned a badge, a chip and a
+     segmented control into columns. Grid columns still collapse. */
   .wf-col, .wf-col--1, .wf-col--2, .wf-col--3, .wf-col--4, .wf-col--5, .wf-col--6,
   .wf-col--7, .wf-col--8, .wf-col--9, .wf-col--10, .wf-col--11, .wf-col--12 {
     flex: 0 0 100%; max-width: 100%;
