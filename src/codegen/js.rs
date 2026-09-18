@@ -366,8 +366,16 @@ impl JsCodegen {
                 ));
                 self.indent += 1;
                 self.store_locals.borrow_mut().clear();
+                // A parameter shadows a store member of the same name: an
+                // action `move(step)` beside an action `step` used to read
+                // `store.step` — the function — where its argument was meant.
+                let visible: Vec<String> = store_state_names
+                    .iter()
+                    .filter(|n| !params.contains(n))
+                    .cloned()
+                    .collect();
                 for stmt in &a.body {
-                    self.emit_store_statement(stmt, &store_state_names, &params);
+                    self.emit_store_statement(stmt, &visible, &params);
                 }
                 self.store_locals.borrow_mut().clear();
                 self.indent -= 1;
@@ -1008,8 +1016,15 @@ impl JsCodegen {
                                 | "step" | "accept" | "label" | "required" | "disabled"
                                 | "controls" | "autoplay" | "role" | "width" | "height"
                                 | "loading" | "decoding" | "fetchpriority" => {
+                                    // A value that reads state follows it: a
+                                    // `placeholder` or `disabled` bound to a
+                                    // store used to be painted once.
                                     let v = self.emit_expr(val);
-                                    attrs.push(format!("{}: {}", key, v));
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("{}: () => {}", key, v));
+                                    } else {
+                                        attrs.push(format!("{}: {}", key, v));
+                                    }
                                 }
                                 "to" => {
                                     let v = self.emit_expr(val);
@@ -4053,6 +4068,39 @@ mod tests {
             "{out}"
         );
         assert_eq!(out.matches("let h").count(), 1, "{out}");
+    }
+
+    #[test]
+    fn an_action_parameter_shadows_a_store_member_of_the_same_name() {
+        let out = compile(
+            r#"
+            Store S {
+                state at = 0
+                action step(n: Number) { return n + 1 }
+                action move(step: Number) { at = at + step }
+            }
+            Page P (path: "/") { use S  Text("x") }
+            "#,
+        );
+        assert!(out.contains("store.at = (store.at + step);"), "{out}");
+        assert!(!out.contains("store.step"), "{out}");
+    }
+
+    #[test]
+    fn a_known_attribute_that_reads_state_follows_it() {
+        let out = compile(
+            r#"
+            Store S { state busy = false  derived hint = if busy { "wait" } else { "type" } }
+            Page P (path: "/") {
+                use S
+                Input(placeholder: S.hint, disabled: S.busy)
+                Input(placeholder: "fixed")
+            }
+            "#,
+        );
+        assert!(out.contains("placeholder: () => S.hint"), "{out}");
+        assert!(out.contains("disabled: () => S.busy"), "{out}");
+        assert!(out.contains("placeholder: \"fixed\""), "{out}");
     }
 
     #[test]
