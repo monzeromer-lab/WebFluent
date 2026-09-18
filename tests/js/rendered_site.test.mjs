@@ -165,6 +165,15 @@ test("a progress bar bound to state follows it", () => {
   assert.equal(String(bar.value), "1");
 });
 
+test("a style value bound to state follows it", () => {
+  const ctx = mountSite("dashboard", { path: "/" });
+  const bar = byClass(ctx.app, "wf-container").find((el) => el.style.height === "4px");
+  assert.ok(bar, "no bar with a bound width painted");
+  assert.equal(bar.style.width, "0%");
+  click(button(ctx.app, "Increment"), ctx);
+  assert.equal(bar.style.width, "10%");
+});
+
 test("a conditional block swaps its branches when the condition changes", () => {
   const ctx = mountSite("dashboard", { path: "/" });
   const { app } = ctx;

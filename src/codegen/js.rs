@@ -720,13 +720,7 @@ impl JsCodegen {
                         classes.join(" "),
                         self.wf_node_inline(ui)
                     ));
-                    // Apply style block if present
-                    if let Some(style) = &ui.style_block {
-                        for prop in &style.properties {
-                            let (css_prop, val) = self.emit_style_decl(prop);
-                            self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
-                        }
-                    }
+                    self.emit_style_and_transition(&var, ui);
                     self.emit_line(&format!("{}.appendChild({});", parent, var));
                     // Recurse into children
                     self.emit_app_tree(&ui.children, &var, has_router);
@@ -1407,7 +1401,17 @@ impl JsCodegen {
         if let Some(style) = &ui.style_block {
             for prop in &style.properties {
                 let (css_prop, val) = self.emit_style_decl(prop);
-                self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
+                // A value that reads state follows it. It used to be assigned
+                // once, so `width: "{pct}%"` painted the first value and never
+                // moved; a literal is still a plain assignment.
+                if self.is_reactive(&val) {
+                    self.emit_line(&format!(
+                        "WF.effect(() => {{ {}.style.{} = {}; }});",
+                        var, css_prop, val
+                    ));
+                } else {
+                    self.emit_line(&format!("{}.style.{} = {};", var, css_prop, val));
+                }
             }
             // Emit @media queries as a scoped <style> element
             if !style.media_queries.is_empty() {
@@ -3619,6 +3623,32 @@ mod tests {
             out.contains("Component_Panel({ title: \"Empty\" });"),
             "{out}"
         );
+    }
+
+    #[test]
+    fn a_style_value_that_reads_state_follows_it() {
+        let out = compile(
+            r##"
+            Store S { state tone = "#fff" }
+            Page P (path: "/") {
+                use S
+                state pct = 40
+                Card {
+                    style {
+                        width: "{pct}%"
+                        background: S.tone
+                        padding: "1rem"
+                    }
+                }
+            }
+            "##,
+        );
+        // Element numbering is process-wide, so match on the tail of each line.
+        assert!(out.contains(".style.width = `${_pct()}%`; });"), "{out}");
+        assert!(out.contains("WF.effect(() => { _e"), "{out}");
+        assert!(out.contains(".style.background = S.tone; });"), "{out}");
+        assert!(out.contains(".style.padding = \"1rem\";"), "{out}");
+        assert!(!out.contains("=> { _e0.style.padding"), "{out}");
     }
 
     #[test]

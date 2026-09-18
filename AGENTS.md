@@ -647,6 +647,9 @@ Card {
 
 Style properties use CSS names (hyphenated). Values are strings or numbers. All CSS property names work, including `transition`, `animation`, `filter`, etc.
 
+A value that reads state follows it: `style { width: "{pct}%" }` or
+`style { background: tone }` repaints whenever `pct` or `tone` changes.
+
 ### Style support in PDF and Slides
 
 The PDF and Slides backends honor the same set of style properties on `Slide` (slides only) and on layout containers (`Container`, `Column`, `Stack`, `Grid`, `Card`, `Section`). Anything else emits a `warning[pdf]:` or `warning[slides]: unsupported style property '<name>' on <Component>` (deduped per build).
