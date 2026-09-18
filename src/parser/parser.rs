@@ -1243,6 +1243,28 @@ impl Parser {
         let mut name = self.expect_css_property_name()?;
         while self.check(&TokenType::Minus) {
             self.advance(); // consume -
+            // A segment may start with digits — `viz-1`, `radius-2xl` — which
+            // the lexer reads as a number followed, when letters are glued to
+            // it, by an identifier. Nothing else can follow a hyphen here, so
+            // reassembling them is unambiguous; a fraction is still an error.
+            if let TokenType::NumberLiteral(n) = self.current_type().clone() {
+                if n.fract() != 0.0 || n < 0.0 {
+                    return Err(self.error(format!(
+                        "A name segment may start with digits, not with `{n}`"
+                    )));
+                }
+                let number_end = self.tokens[self.pos].end;
+                self.advance();
+                let mut part = format!("{}", n as u64);
+                if let TokenType::Identifier(id) = self.current_type().clone() {
+                    if self.tokens[self.pos].offset == number_end {
+                        part.push_str(&id);
+                        self.advance();
+                    }
+                }
+                name = format!("{}-{}", name, part);
+                continue;
+            }
             let part = self.expect_css_property_name()?;
             name = format!("{}-{}", name, part);
         }
@@ -2236,6 +2258,20 @@ mod theme_tests {
     fn parse(src: &str) -> Result<Program> {
         let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
         Parser::new(tokens, "<test>").parse()
+    }
+
+    #[test]
+    fn a_token_segment_may_start_with_digits() {
+        let theme = theme_of(
+            "Theme T {\n  token viz-1: \"#ff6a2b\"\n  token radius-2xl: \"36px\"\n  token grid-12-col: \"1fr\"\n  token plain: \"x\"\n}",
+        );
+        let names: Vec<&str> = theme.tokens.iter().map(|t| t.name.as_str()).collect();
+        assert_eq!(names, ["viz-1", "radius-2xl", "grid-12-col", "plain"]);
+    }
+
+    #[test]
+    fn a_fraction_is_not_a_name_segment() {
+        assert!(parse("Theme T { token radius-2.5x: \"1px\" }").is_err());
     }
 
     fn theme_of(src: &str) -> ThemeDecl {

@@ -731,7 +731,10 @@ Theme Brand {
 ```
 
 Every token you do not name keeps its baseline value, so a theme is only as
-large as the difference you want. Declare one and it is used automatically;
+large as the difference you want. A theme may also declare tokens of its own
+(`token surface-raised: "#131519"`, `token viz-1: "#ff6a2b"`); every token
+becomes a custom property on `:root`, usable from any style block as
+`"var(--surface-raised)"`. Declare one and it is used automatically;
 declare several and pick one with `"theme": { "name": "Brand" }`.
 
 Four starting points ship in `examples/themes/` — copy one into `src/` and edit
