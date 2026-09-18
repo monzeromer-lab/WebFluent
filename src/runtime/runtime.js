@@ -47,6 +47,7 @@ const WF = (() => {
     // A select's value only takes once its options exist, so it is applied
     // after the children; set before them it was silently ignored.
     let selectValue;
+    let iconName;
     if (attrs) {
       for (const [k, v] of Object.entries(attrs)) {
         if (k === "value" && tag === "select") {
@@ -86,9 +87,9 @@ const WF = (() => {
             el[k] = String(v);
           }
         } else if (k === "data-icon") {
-          // Render icon as inline SVG or text emoji/symbol
-          const iconName = typeof v === "function" ? v() : v;
-          _renderIcon(el, iconName);
+          // The glyph is drawn after the children: an icon button carries
+          // data-icon and a .wf-icon child, and used to draw the glyph twice.
+          iconName = typeof v === "function" ? v() : v;
         } else if (k.startsWith("aria-")) {
           // An ARIA state is a string: aria-pressed="false" means "not pressed",
           // while a missing attribute means "not a toggle". So false is kept.
@@ -110,6 +111,10 @@ const WF = (() => {
       }
     }
     appendChildren(el, children);
+    if (iconName !== undefined) {
+      const drawn = [...el.children].some((c) => String(c.className || "").split(" ").includes("wf-icon"));
+      if (!drawn) _renderIcon(el, iconName);
+    }
     if (typeof selectValue === "function") {
       effect(() => { const v = selectValue(); if (v != null) el.value = v; });
     } else if (selectValue != null) {

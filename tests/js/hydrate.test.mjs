@@ -151,3 +151,26 @@ test("a select's value is applied once its options exist, and follows a signal",
   field.set("region");
   assert.equal(select.value, "region");
 });
+
+test("an icon button draws its glyph once", () => {
+  const { WF, document } = loadRuntime();
+  // The fake DOM ignores markup assigned to innerHTML; count the assignments.
+  let draws = 0;
+  const create = document.createElement.bind(document);
+  document.createElement = (tag) => {
+    const el = create(tag);
+    Object.defineProperty(el, "innerHTML", {
+      get: () => "",
+      set: (v) => { if (String(v).includes("<svg")) draws += 1; },
+    });
+    return el;
+  };
+  WF.h(
+    "button",
+    { className: "wf-icon-btn", "data-icon": "close", "aria-label": "Close" },
+    WF.h("span", { className: "wf-icon", "data-icon": "close" }),
+  );
+  assert.equal(draws, 1, "one glyph for the button and its icon span");
+  WF.h("span", { className: "wf-icon", "data-icon": "close" });
+  assert.equal(draws, 2, "a lone icon still draws");
+});
