@@ -557,9 +557,17 @@ impl JsCodegen {
         // Set current props so emit_expr treats them as plain variables, not signals
         self.current_props = params.clone();
 
+        // The second parameter is the caller's block, as a thunk that builds
+        // it, so `children` can be placed anywhere in the body — including
+        // inside a conditional or a loop, whose closures see the parameter.
+        let params_list = if destructure.is_empty() {
+            "_props, _children".to_string()
+        } else {
+            format!("{}, _children", destructure)
+        };
         self.emit_line(&format!(
             "function Component_{}({}) {{",
-            comp.name, destructure
+            comp.name, params_list
         ));
         self.indent += 1;
 
@@ -1335,10 +1343,28 @@ impl JsCodegen {
 
             ComponentRef::UserDefined(name) => {
                 let args_obj = self.emit_component_args(&ui.args);
-                self.emit_line(&format!(
-                    "const {} = Component_{}({});",
-                    var, name, args_obj
-                ));
+                if ui.children.is_empty() {
+                    self.emit_line(&format!(
+                        "const {} = Component_{}({});",
+                        var, name, args_obj
+                    ));
+                } else {
+                    // The block is compiled here, in the caller's scope, so it
+                    // reads the caller's state and loop bindings; the component
+                    // only decides where it lands.
+                    self.emit_line(&format!(
+                        "const {} = Component_{}({}, () => {{",
+                        var, name, args_obj
+                    ));
+                    self.indent += 1;
+                    self.emit_line("const _cf = document.createDocumentFragment();");
+                    for child in &ui.children {
+                        self.emit_statement_dom(child, "_cf");
+                    }
+                    self.emit_line("return _cf;");
+                    self.indent -= 1;
+                    self.emit_line("});");
+                }
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
         }
@@ -3530,6 +3556,36 @@ mod tests {
     /// The identifier path treated anything that was not a prop or a store as
     /// state, so a loop over `tasks` bound `task` and then read `_task()` —
     /// `ReferenceError` on the first non-empty list. `wf init -t spa` shipped it.
+    #[test]
+    fn a_component_receives_its_callers_block_as_children() {
+        let out = compile(
+            r#"
+            Component Panel (title: String) {
+                Card { Heading(title, h3) children }
+            }
+            Page P (path: "/") {
+                state n = 1
+                Panel(title: "Keys") { Text("count {n}") }
+                Panel(title: "Empty")
+            }
+            "#,
+        );
+        assert!(
+            out.contains("function Component_Panel({ title }, _children)"),
+            "{out}"
+        );
+        assert!(
+            out.contains("Component_Panel({ title: \"Keys\" }, () => {"),
+            "{out}"
+        );
+        // The block is compiled in the caller's scope.
+        assert!(out.contains("_n()"), "{out}");
+        assert!(
+            out.contains("Component_Panel({ title: \"Empty\" });"),
+            "{out}"
+        );
+    }
+
     #[test]
     fn a_value_that_reads_state_is_reactive() {
         let out = compile(

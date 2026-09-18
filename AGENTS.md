@@ -85,6 +85,28 @@ UserCard(name: "Monzer", role: "Developer")
 - Optional props: `avatar?: String`
 - Default values: `active: Bool = true`
 
+#### Slots
+
+A component takes a block from its caller and places it with the `children`
+keyword. The block is compiled in the caller's scope, so it reads the caller's
+state and loop bindings; the component only decides where it lands.
+
+```wf
+Component Panel (title: String) {
+    Card {
+        Heading(title, h3)
+        children
+    }
+}
+
+Panel(title: "Keys") {
+    Text("Rotate every 90 days.")
+    Button("Generate", primary) { generate() }
+}
+```
+
+Call user components with **named arguments**.
+
 ### App (Router + Layout)
 
 The Router can be placed at any nesting depth inside the App. The codegen recursively finds it.

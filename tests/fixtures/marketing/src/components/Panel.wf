@@ -1,0 +1,6 @@
+Component Panel (title: String) {
+    Card(outlined) {
+        Heading(title, h3)
+        children
+    }
+}

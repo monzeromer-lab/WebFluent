@@ -350,7 +350,7 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
     let body: Vec<Statement> = decl
         .body
         .iter()
-        .map(|st| substitute_statement(st, &bindings, &slot))
+        .flat_map(|st| substitute_statement(st, &bindings, &slot))
         .collect();
 
     ctx.depth += 1;
@@ -390,24 +390,24 @@ fn bind_props(decl: &ComponentDecl, call: &UIElement) -> HashMap<String, Expr> {
 }
 
 /// Replace bound prop identifiers inside one statement, and fill `children`.
+///
+/// The `children` slot expands to every statement of the caller's block — as
+/// written, not substituted, since they belong to the caller's scope. The
+/// parser names the slot element `Children`; this used to look for the
+/// lowercase keyword and so never matched.
 fn substitute_statement(
     stmt: &Statement,
     bindings: &HashMap<String, Expr>,
     slot: &[Statement],
-) -> Statement {
+) -> Vec<Statement> {
     let mut out = stmt.clone();
     if let StatementKind::UIElement(ui) = &stmt.kind {
-        // The `children` keyword renders the caller's own block in its place.
-        if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "children") {
-            // A slot expands to its first statement; multiple children are wrapped
-            // by the caller's own element, so this is the shape the JS produces too.
-            if let Some(first) = slot.first() {
-                return first.clone();
-            }
+        if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Children") {
+            return slot.to_vec();
         }
         out.kind = StatementKind::UIElement(substitute_ui(ui, bindings, slot));
     }
-    out
+    vec![out]
 }
 
 /// Deep-substitute bound props through one element: its arguments, its style
@@ -434,7 +434,7 @@ fn substitute_ui(
     out.children = ui
         .children
         .iter()
-        .map(|st| substitute_statement(st, bindings, slot))
+        .flat_map(|st| substitute_statement(st, bindings, slot))
         .collect();
     out
 }
@@ -1077,6 +1077,19 @@ mod component_expansion_tests {
             html.contains("<h1"),
             "an h1 inside a component must reach the HTML (SEO)"
         );
+    }
+
+    #[test]
+    fn the_children_slot_renders_every_statement_of_the_callers_block() {
+        let html = render(
+            "Component Panel (title: String) {\n  Card { Heading(title, h3) children Text(\"after\") }\n}\n\
+             Page Home (path: \"/\") { Panel(title: \"Keys\") { Text(\"first slot\") Text(\"second slot\") } }\n",
+        );
+        let first = html.find("first slot").expect(&html);
+        let second = html.find("second slot").expect(&html);
+        let after = html.find("after").expect(&html);
+        assert!(first < second && second < after, "slot order: {html}");
+        assert!(html.contains("Keys"));
     }
 
     #[test]

@@ -321,6 +321,13 @@ test("a nested user component renders with its props bound", () => {
 
 // ─── Accessibility, as rendered ─────────────────────────────────────────
 
+test("a component's children slot paints the caller's block, bound to the caller's state", () => {
+  const { app } = mountSite("marketing", { path: "/pricing" });
+  assert.match(app.textContent, /What every plan includes/);
+  assert.match(app.textContent, /Unlimited clients/, "first slot child missing");
+  assert.match(app.textContent, /billing: true/, "slot child did not read the page's state");
+});
+
 test("a modal is a real dialog with an accessible name", () => {
   const { app } = mountSite("bespoke");
   const dialog = byClass(app, "wf-modal")[0];

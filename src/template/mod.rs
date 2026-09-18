@@ -294,6 +294,9 @@ struct RenderContext<'a> {
     indent: usize,
     /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
     in_thead: bool,
+    /// The caller's block for each user component being expanded, innermost
+    /// last; `children` renders the top one.
+    slots: Vec<Vec<Statement>>,
 }
 
 impl<'a> RenderContext<'a> {
@@ -304,6 +307,7 @@ impl<'a> RenderContext<'a> {
             components: HashMap::new(),
             indent: 1,
             in_thead: false,
+            slots: Vec::new(),
         }
     }
 
@@ -628,7 +632,9 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
                 // Also handle positional args mapped to prop names
                 // (simplified: just render the body)
 
+                ctx.slots.push(ui.children.clone());
                 let html = render_statements(&body, ctx);
+                ctx.slots.pop();
 
                 // Restore locals
                 for (key, old) in old_locals {
@@ -648,6 +654,14 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
 }
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
+    // The `children` slot: the block the caller of the enclosing component
+    // wrote, rendered in its place. Outside a component there is none.
+    if name == "Children" {
+        return match ctx.slots.last().cloned() {
+            Some(slot) => render_statements(&slot, ctx),
+            None => String::new(),
+        };
+    }
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
@@ -1013,6 +1027,7 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                             components: ctx.components.clone(),
                             indent: ctx.indent,
                             in_thead: ctx.in_thead,
+                            slots: ctx.slots.clone(),
                         };
                         child_ctx.locals.insert(for_stmt.item.clone(), item.clone());
                         if let Some(idx_var) = &for_stmt.index {

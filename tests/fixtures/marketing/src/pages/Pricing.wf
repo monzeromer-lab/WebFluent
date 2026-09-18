@@ -15,6 +15,11 @@ Page Pricing (path: "/pricing", description: "Two plans, both cheaper than chasi
             Switch(bind: annual, label: "Bill annually")
         }
 
+        Panel(title: "What every plan includes") {
+            Text("Unlimited clients")
+            Text("Payment reminders, billing: {annual}")
+        }
+
         Row(gap: md) {
             Column(span: 6) {
                 Card {

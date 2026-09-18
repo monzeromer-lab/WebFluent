@@ -1138,6 +1138,36 @@ fn layout_arguments_become_utility_classes() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// A user component's `children` slot renders the caller's whole block in its
+/// place, in every backend. The SPA dropped the block, and the static backends
+/// looked for a keyword the parser never produces.
+#[test]
+fn the_children_slot_renders_the_callers_block_in_every_backend() {
+    let src = "Component Panel (title: String) {\n  Card { Heading(title, h3) children Text(\"after\") }\n}\n\
+        Page P (path: \"/\", title: \"T\") { Panel(title: \"Keys\") { Text(\"first slot\") Text(\"second slot\") } }\n";
+    let mut failures = Vec::new();
+    for backend in Backend::ALL {
+        let out = render(backend, src);
+        let (Some(first), Some(second), Some(after)) = (
+            out.find("first slot"),
+            out.find("second slot"),
+            out.find("after"),
+        ) else {
+            failures.push(format!("{}: slot content missing in {out}", backend.name()));
+            continue;
+        };
+        // The SPA emits the component function before the page that calls it,
+        // so document order only holds for the static backends.
+        if backend != Backend::Spa && !(first < second && second < after) {
+            failures.push(format!("{}: slot rendered out of order", backend.name()));
+        }
+        if backend == Backend::Spa && !(first < second) {
+            failures.push(format!("{}: slot rendered out of order", backend.name()));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
 /// A cell in the head row is a column header: `<th scope="col">`, which is what
 /// lets a screen reader announce the column a data cell belongs to. Every
 /// backend used to emit `<td>` regardless. The caption is the table's
