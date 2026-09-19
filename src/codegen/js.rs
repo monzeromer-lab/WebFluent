@@ -57,6 +57,9 @@ pub struct JsCodegen {
     split_pages: bool,
     /// The page chunks, `(name, source)`, when `split_pages` is on.
     chunks: Vec<(String, String)>,
+    /// The pages with a stylesheet of their own (`pages/<Name>.css`), which
+    /// the router loads before drawing them.
+    page_sheets: std::collections::BTreeSet<String>,
 }
 
 impl Default for JsCodegen {
@@ -86,6 +89,7 @@ impl JsCodegen {
             node_ids: NodeMap::default(),
             split_pages: false,
             chunks: Vec::new(),
+            page_sheets: std::collections::BTreeSet::new(),
         }
     }
 
@@ -174,7 +178,15 @@ impl JsCodegen {
             None => String::new(),
         };
         if self.split_pages {
-            format!("{{ path: \"{}\", {}page: \"{}\" }},", path, title, page)
+            let css = if self.page_sheets.contains(page) {
+                format!("css: \"{}\", ", page)
+            } else {
+                String::new()
+            };
+            format!(
+                "{{ path: \"{}\", {}{}page: \"{}\" }},",
+                path, title, css, page
+            )
         } else {
             format!(
                 "{{ path: \"{}\", {}render: (params) => Page_{}(params) }},",
@@ -187,6 +199,13 @@ impl JsCodegen {
         // Emit runtime
         self.emit_line(runtime::RUNTIME_JS);
         self.emit_line("");
+
+        if self.split_pages {
+            self.page_sheets = crate::codegen::scoped_css::split_rules(program)
+                .pages
+                .into_keys()
+                .collect();
+        }
 
         // First pass: collect component and store names
         for decl in &program.declarations {

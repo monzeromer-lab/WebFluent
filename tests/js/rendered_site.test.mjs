@@ -11,7 +11,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mountSite, sitePage, byClass, byTag, button, click, type } from "./harness.mjs";
+import { mountSite, sitePage, siteStyles, byClass, byTag, button, click, type } from "./harness.mjs";
 
 // ─── The page paints at all ─────────────────────────────────────────────
 
@@ -323,7 +323,7 @@ test("hand-authored style blocks are applied to the painted elements", () => {
   const styled = app.all().filter((el) => [...el.classList].some((c) => c.startsWith("wf-s")));
   assert.ok(styled.length >= 5, `only ${styled.length} elements received author styling`);
 
-  const sheet = sitePage("bespoke", "styles.css");
+  const sheet = siteStyles("bespoke");
   for (const decl of ["68rem", "0.3em", "4rem"]) {
     assert.ok(sheet.includes(decl), `the author's ${decl} never reached the stylesheet`);
   }

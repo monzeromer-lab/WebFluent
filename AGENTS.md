@@ -889,18 +889,24 @@ build/
 ├── index.html            # the shell (SPA) or the pre-rendered page (SSG)
 ├── app.js                # runtime, stores, components — shared by every page
 ├── pages/<Name>.js       # one chunk per Page, loaded when its route shows
+├── pages/<Name>.css      # the style rules only that page reaches
 ├── styles.css            # tokens, only the component rules the project uses,
-│                         # and the rules its style { } blocks compile to
+│                         # the project's own .css files, and the compiled
+│                         # style { } rules more than one page shares
 └── …                     # public/ copied to the root, sitemap.xml, robots.txt
 ```
 
 `build.minify` (on by default) strips comments and whitespace from the
-bundle and the sheet. `build.split` (on by default) writes each page as its
+bundle and the sheets. `build.split` (on by default) writes each page as its
 own chunk: a static build's page links `app.js` and its chunk side by side,
 and a single-page build fetches a chunk the first time its route is shown.
-A literal in a `style { }` block is compiled into `styles.css` under a class
-named by the block's content, so a hundred identical cards share one rule;
-only a value that reads state is set on the element.
+A literal in a `style { }` block is compiled into a stylesheet rule under a
+class named by the block's content, so a hundred identical cards share one
+rule; only a value that reads state is set on the element. With `split`, a
+rule only one page can reach — in its body, or through components no other
+page uses — is written to `pages/<Name>.css`, which the page links after
+`styles.css` and the router loads before drawing the page; rules the `App`
+body or two pages reach stay in `styles.css`.
 
 Images are given `decoding="async"`; the first on a page is eager with
 `fetchpriority="high"` and every later one `loading="lazy"`, unless the

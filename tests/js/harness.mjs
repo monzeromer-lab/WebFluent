@@ -24,6 +24,20 @@ export function siteBundle(name) {
   return src;
 }
 
+/// Every rule a site ships: the shared sheet and each page's own, joined as a
+/// browser that has visited every page would hold them.
+export function siteStyles(name) {
+  const build = new URL(`../../target/e2e/${name}/build/`, import.meta.url);
+  let css = readFileSync(new URL("styles.css", build), "utf8");
+  const pages = new URL("pages/", build);
+  if (existsSync(pages)) {
+    for (const file of readdirSync(pages).sort()) {
+      if (file.endsWith(".css")) css += "\n" + readFileSync(new URL(file, pages), "utf8");
+    }
+  }
+  return css;
+}
+
 export function sitePage(name, rel = "index.html") {
   const url = new URL(`../../target/e2e/${name}/build/${rel}`, import.meta.url);
   return readFileSync(url, "utf8");

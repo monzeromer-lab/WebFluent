@@ -547,8 +547,11 @@ const WF = (() => {
 
       // A route names its page's render function directly, or names a page
       // that lives in its own chunk and is fetched the first time it shows.
-      if (match.route.render) draw(match.route.render);
-      else loadPage(match.route.page, draw);
+      // A page with a sheet of its own is drawn once the sheet has arrived,
+      // so it never paints unstyled.
+      const styled = (fn) => (match.route.css ? loadSheet(match.route.css, fn) : fn());
+      if (match.route.render) styled(() => draw(match.route.render));
+      else loadPage(match.route.page, (renderFn) => styled(() => draw(renderFn)));
     }
 
     window.addEventListener("popstate", () => {
@@ -623,6 +626,33 @@ const WF = (() => {
     script.setAttribute("data-wf-page", name);
     script.onerror = () => console.error("WebFluent: could not load the page chunk for " + name);
     (document.head || document.body).appendChild(script);
+  }
+
+  // A page's own stylesheet, `pages/<Name>.css`, linked the first time its
+  // route shows; `cb` runs once the rules apply. A sheet the page's HTML
+  // already linked applied before this script ran.
+  const sheets = {};
+  function loadSheet(name, cb) {
+    if (sheets[name]) return cb();
+    const linked = document.querySelector('link[data-wf-page-css="' + name + '"]');
+    if (linked) {
+      sheets[name] = true;
+      return cb();
+    }
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = _basePath + "/pages/" + name + ".css";
+    link.setAttribute("data-wf-page-css", name);
+    const done = () => {
+      sheets[name] = true;
+      cb();
+    };
+    link.onload = done;
+    link.onerror = () => {
+      console.error("WebFluent: could not load the stylesheet for " + name);
+      done();
+    };
+    (document.head || document.body).appendChild(link);
   }
 
   // The classes an expression names, kept in step with it: what it named
@@ -1433,7 +1463,7 @@ const WF = (() => {
     h, text, reactiveText, appendChildren, onRoot, props,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
-    createRouter, navigate, getParams, activeLink, definePage, loadPage, classes,
+    createRouter, navigate, getParams, activeLink, definePage, loadPage, loadSheet, classes,
     createStore,
     createI18n,
     wfFetch, showToast,

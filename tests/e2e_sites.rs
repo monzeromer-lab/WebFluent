@@ -129,17 +129,27 @@ impl Built {
     /// The JavaScript the build produced: app.js and every page chunk under
     /// pages/, in the order a browser runs them.
     fn scripts(&self) -> String {
-        let mut js = self.read("app.js");
+        self.joined("app.js", "js")
+    }
+    /// The CSS the build produced: styles.css and every page's own sheet
+    /// under pages/, as a browser that visited every page would hold them.
+    fn styles(&self) -> String {
+        self.joined("styles.css", "css")
+    }
+    fn joined(&self, main: &str, ext: &str) -> String {
+        let mut out = self.read(main);
         let pages = self.out("pages");
         if let Ok(entries) = std::fs::read_dir(&pages) {
             let mut files: Vec<PathBuf> = entries.flatten().map(|e| e.path()).collect();
             files.sort();
             for file in files {
-                js.push('\n');
-                js.push_str(&std::fs::read_to_string(&file).expect("page chunk"));
+                if file.extension().is_some_and(|e| e == ext) {
+                    out.push('\n');
+                    out.push_str(&std::fs::read_to_string(&file).expect("page file"));
+                }
             }
         }
-        js
+        out
     }
     /// Every HTML file the build produced.
     fn html_files(&self) -> Vec<(String, String)> {
@@ -366,7 +376,7 @@ fn the_catch_all_page_is_written_as_404_html() {
 #[test]
 fn pseudo_state_blocks_compile_into_the_stylesheet() {
     let built = build_site("bespoke");
-    let css = built.read("styles.css");
+    let css = built.styles();
     let js = built.scripts();
     // The sheet is minified; the rule is matched with its whitespace removed.
     let squashed: String = css.chars().filter(|c| !c.is_whitespace()).collect();
@@ -403,7 +413,7 @@ fn pseudo_state_blocks_compile_into_the_stylesheet() {
 #[test]
 fn project_stylesheets_are_bundled_and_class_names_reach_the_element() {
     let built = build_site("bespoke");
-    let css = built.read("styles.css");
+    let css = built.styles();
     let squashed: String = css.chars().filter(|c| !c.is_whitespace()).collect();
     assert!(
         squashed.contains(".service{counter-increment:service}"),
@@ -459,6 +469,50 @@ fn project_stylesheets_are_bundled_and_class_names_reach_the_element() {
     assert!(
         chunk.contains("WF.classes(") && chunk.contains("()=>_tone()"),
         "the runtime follows the state:\n{chunk}"
+    );
+}
+
+/// With `build.split`, a style block only one page reaches is written to
+/// that page's own sheet: the page links it after `styles.css`, the route
+/// table names it so the router loads it before drawing, and the shared
+/// sheet no longer carries it.
+#[test]
+fn rules_only_one_page_reaches_ship_in_that_pages_sheet() {
+    let (ok, out) = build_scratch(
+        "_split_css_ssg",
+        "Component Shell () { Container { style { padding: \"7rem\" } children } }\nApp { Shell { Router { Route(path: \"/\", page: Home) Route(path: \"/about\", page: About) } } }\n",
+        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\", h1)\n  Text(\"a\") { style { padding: \"1rem\" } }\n  Text(\"s\") { style { padding: \"3rem\" } }\n}\nPage About (path: \"/about\", title: \"About\", description: \"d\") {\n  Heading(\"About\", h1)\n  Text(\"b\") { style { padding: \"2rem\" } }\n  Text(\"s\") { style { padding: \"3rem\" } }\n}\n",
+    );
+    assert!(ok, "{out}");
+    let root = repo_root().join("target/e2e/_split_css_ssg/build");
+    let shared = std::fs::read_to_string(root.join("styles.css")).unwrap();
+    let home = std::fs::read_to_string(root.join("pages/Home.css")).unwrap();
+    let about = std::fs::read_to_string(root.join("pages/About.css")).unwrap();
+    assert!(home.contains("padding:1rem"), "{home}");
+    assert!(about.contains("padding:2rem"), "{about}");
+    assert!(
+        shared.contains("padding:3rem"),
+        "a block both pages use is shared:\n{shared}"
+    );
+    assert!(
+        shared.contains("padding:7rem"),
+        "the app shell's block is shared:\n{shared}"
+    );
+    assert!(!shared.contains("padding:1rem") && !shared.contains("padding:2rem"));
+
+    let html = std::fs::read_to_string(root.join("about/index.html")).unwrap();
+    let sheet = html
+        .find("../pages/About.css")
+        .expect("the page links its sheet");
+    assert!(
+        html[..sheet].contains("../styles.css"),
+        "after the shared one"
+    );
+    assert!(html.contains("data-wf-page-css=\"About\""));
+    let app = std::fs::read_to_string(root.join("app.js")).unwrap();
+    assert!(
+        app.contains("css:\"About\"") && app.contains("css:\"Home\""),
+        "the route table names the sheets:\n{app}"
     );
 }
 
@@ -866,7 +920,7 @@ fn hand_authored_design_reaches_the_output() {
         let built = build_site(site);
         let js = built.scripts();
         let html: String = built.html_files().into_iter().map(|(_, s)| s).collect();
-        let css = built.read("styles.css");
+        let css = built.styles();
         // A literal declaration lives in the (minified) stylesheet; compared
         // with whitespace removed on both sides.
         let squash = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
@@ -891,7 +945,7 @@ fn hand_authored_design_reaches_the_output() {
 #[test]
 fn a_declared_theme_reaches_the_stylesheet() {
     let built = build_site("marketing");
-    let css = built.read("styles.css");
+    let css = built.styles();
     for (token, value) in [
         ("--color-primary", "#0F766E"),
         ("--color-secondary", "#134E4A"),

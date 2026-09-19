@@ -373,6 +373,7 @@ build/                             build/
 ├── index.html                     └── report.pdf
 ├── app.js          runtime, stores, components
 ├── pages/*.js      one chunk per page, loaded on demand
+├── pages/*.css     the style rules only that page reaches
 ├── styles.css      the rules the project uses, and its own .css files
 └── …               public/ copied to the root
 ```

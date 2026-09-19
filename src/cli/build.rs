@@ -191,8 +191,16 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
     css.push_str(&project_css);
     // What an inline style cannot say — pseudo-states, media queries — is
-    // compiled into the sheet under content-named classes.
-    css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
+    // compiled into the sheet under content-named classes. With `build.split`
+    // the rules only one page reaches go to that page's own sheet.
+    let page_sheets = if config.build.split {
+        let split = crate::codegen::scoped_css::split_rules(&program);
+        css.push_str(&split.shared);
+        split.pages
+    } else {
+        css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
+        Default::default()
+    };
     let mut js_codegen = JsCodegen::new();
     if let Some(i18n_config) = &config.i18n {
         js_codegen.set_i18n(i18n_config.default_locale.clone(), translations.clone());
@@ -282,21 +290,27 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             src
         }
     };
-    let css = if config.build.minify {
-        crate::codegen::minify::minify_css(&css)
-    } else {
-        css
+    let minify_css = |src: String| {
+        if config.build.minify {
+            crate::codegen::minify::minify_css(&src)
+        } else {
+            src
+        }
     };
-    fs::write(output_dir.join("styles.css"), css)?;
+    fs::write(output_dir.join("styles.css"), minify_css(css))?;
     fs::write(output_dir.join("app.js"), minify_js(js))?;
 
-    // Each page in its own chunk, fetched when its route shows.
+    // Each page in its own chunk, fetched when its route shows, and its own
+    // sheet beside it when it has rules no other page reaches.
     let chunks = js_codegen.take_chunks();
-    if !chunks.is_empty() {
+    if !chunks.is_empty() || !page_sheets.is_empty() {
         let pages_dir = output_dir.join("pages");
         fs::create_dir_all(&pages_dir)?;
         for (name, source) in chunks {
             fs::write(pages_dir.join(format!("{name}.js")), minify_js(source))?;
+        }
+        for (name, source) in page_sheets {
+            fs::write(pages_dir.join(format!("{name}.css")), minify_css(source))?;
         }
     }
 

@@ -166,6 +166,20 @@ pub fn render_page_html_studio(
     } else {
         String::new()
     };
+    // The rules only this page reaches, in a sheet of its own after the
+    // shared one; the router loads it before drawing the page.
+    let page_sheet = if config.build.split
+        && crate::codegen::scoped_css::split_rules(program)
+            .pages
+            .contains_key(&page.name)
+    {
+        format!(
+            "    <link rel=\"stylesheet\" href=\"{}/pages/{}.css\" data-wf-page-css=\"{}\">\n",
+            base, page.name, page.name
+        )
+    } else {
+        String::new()
+    };
 
     format!(
         r#"<!DOCTYPE html>
@@ -175,7 +189,7 @@ pub fn render_page_html_studio(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
 {}{}{}    <link rel="stylesheet" href="{}/styles.css">
-    <script src="{}/app.js" defer></script>
+{}    <script src="{}/app.js" defer></script>
 {}</head>
 <body>
 {}    <div id="app">
@@ -188,6 +202,7 @@ pub fn render_page_html_studio(
         crate::codegen::html::csp_meta(config),
         crate::codegen::html::head_links(config, &base),
         base,
+        page_sheet,
         base,
         page_chunk,
         crate::codegen::html::SKIP_LINK,

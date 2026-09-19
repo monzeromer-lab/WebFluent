@@ -207,6 +207,36 @@ test("a route change moves focus to the new page's heading, resets the scroll an
   assert.equal(document.activeElement, container, "with no heading, focus lands on the landmark");
 });
 
+test("a page with a sheet of its own is drawn once the sheet has loaded, and only fetched once", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  WF.createRouter(
+    [
+      { path: "/", title: "Home", render: () => WF.h("h1", {}, ["Home"]) },
+      { path: "/pricing", title: "Pricing", css: "Pricing", render: () => WF.h("h1", {}, ["Pricing"]) },
+    ],
+    container,
+  );
+  // The sheet takes time to arrive: hold the load until the test releases it.
+  const append = document.head.appendChild.bind(document.head);
+  document.head.appendChild = (n) => { n.parentNode = document.head; document.head.childNodes.push(n); return n; };
+  WF.navigate("/pricing");
+  document.head.appendChild = append;
+  const link = document.head.querySelector('link[data-wf-page-css="Pricing"]');
+  assert.ok(link, "the page's sheet is linked");
+  assert.equal(link.href, "/pages/Pricing.css");
+  assert.equal(container.querySelector("h1").textContent, "Home", "the old page stays until the sheet applies");
+
+  link.onload();
+  assert.equal(container.querySelector("h1").textContent, "Pricing", "then the new page is drawn");
+
+  WF.navigate("/");
+  WF.navigate("/pricing");
+  assert.equal(document.head.querySelectorAll("link[data-wf-page-css]").length, 1, "a loaded sheet is not fetched again");
+  assert.equal(container.querySelector("h1").textContent, "Pricing");
+});
+
 test("a carousel is a labelled region whose slides are groups, with named controls and pausable rotation", () => {
   const { WF, document, window } = loadRuntime();
   const intervals = [];

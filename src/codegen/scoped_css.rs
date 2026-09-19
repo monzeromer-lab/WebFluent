@@ -22,11 +22,11 @@
 //! the class as an inline style always has. Every backend — the bundle, the
 //! static paint, the template renderer — uses the same split, so hydration
 //! finds the DOM it expects.
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
 use crate::parser::ast::{
-    Declaration, Expr, Program, Statement, StatementKind, StyleBlock, StyleProperty,
+    ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StyleBlock, StyleProperty,
 };
 
 /// The class an element carries for its compiled style rules, or `None` when
@@ -47,7 +47,8 @@ pub fn scoped_rules(program: &Program) -> String {
             Declaration::App(a) => &a.body,
             Declaration::Store(_) | Declaration::Theme(_) => continue,
         };
-        collect(body, &mut rules);
+        let mut uses = Uses::default();
+        collect(body, &mut rules, &mut uses);
     }
     let mut out = String::new();
     for css in rules.values() {
@@ -56,7 +57,100 @@ pub fn scoped_rules(program: &Program) -> String {
     out
 }
 
-fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>) {
+/// The scoped rules of a program, split between the sheet every page loads
+/// and a sheet per page.
+///
+/// A site's style blocks mostly belong to one page each — a landing page's
+/// hero, a settings page's form — and in one shared sheet every page paid
+/// for all of them. A rule goes to a page's own sheet when that page is the
+/// only one that can reach it: directly in its body, or through the
+/// components it uses, transitively. A rule the `App` body reaches, or a
+/// component used from two pages, is shared. A component no page reaches is
+/// shared too, so a rule is never lost.
+#[derive(Debug, Default, Clone)]
+pub struct SplitRules {
+    /// Rules every page loads, in `styles.css`.
+    pub shared: String,
+    /// Rules only one page reaches, by page name; pages with none are absent.
+    pub pages: BTreeMap<String, String>,
+}
+
+/// What a body reaches directly: its style blocks' classes, and the user
+/// components it renders.
+#[derive(Default)]
+struct Uses {
+    classes: BTreeSet<String>,
+    components: BTreeSet<String>,
+}
+
+pub fn split_rules(program: &Program) -> SplitRules {
+    let mut rules: BTreeMap<String, String> = BTreeMap::new();
+    let mut app = Uses::default();
+    let mut pages: Vec<(String, Uses)> = Vec::new();
+    let mut components: BTreeMap<String, Uses> = BTreeMap::new();
+    for decl in &program.declarations {
+        match decl {
+            Declaration::Page(p) => {
+                let mut uses = Uses::default();
+                collect(&p.body, &mut rules, &mut uses);
+                pages.push((p.name.clone(), uses));
+            }
+            Declaration::Component(c) => {
+                let mut uses = Uses::default();
+                collect(&c.body, &mut rules, &mut uses);
+                components.insert(c.name.clone(), uses);
+            }
+            Declaration::App(a) => collect(&a.body, &mut rules, &mut app),
+            Declaration::Store(_) | Declaration::Theme(_) => {}
+        }
+    }
+
+    // The classes a body reaches through its components, transitively.
+    let reach = |uses: &Uses| -> BTreeSet<String> {
+        let mut classes = uses.classes.clone();
+        let mut seen: BTreeSet<String> = BTreeSet::new();
+        let mut queue: Vec<String> = uses.components.iter().cloned().collect();
+        while let Some(name) = queue.pop() {
+            if !seen.insert(name.clone()) {
+                continue;
+            }
+            if let Some(c) = components.get(&name) {
+                classes.extend(c.classes.iter().cloned());
+                queue.extend(c.components.iter().cloned());
+            }
+        }
+        classes
+    };
+
+    // Which page, if exactly one, reaches each class.
+    let mut owner: BTreeMap<String, Option<String>> = BTreeMap::new();
+    for class in reach(&app) {
+        owner.insert(class, None);
+    }
+    for (name, uses) in &pages {
+        for class in reach(uses) {
+            owner
+                .entry(class)
+                .and_modify(|o| {
+                    if o.as_deref() != Some(name) {
+                        *o = None;
+                    }
+                })
+                .or_insert_with(|| Some(name.clone()));
+        }
+    }
+
+    let mut split = SplitRules::default();
+    for (class, css) in &rules {
+        match owner.get(class) {
+            Some(Some(page)) => split.pages.entry(page.clone()).or_default().push_str(css),
+            _ => split.shared.push_str(css),
+        }
+    }
+    split
+}
+
+fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut Uses) {
     for stmt in stmts {
         match &stmt.kind {
             StatementKind::UIElement(el) => {
@@ -65,30 +159,34 @@ fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>) {
                         rules
                             .entry(class.clone())
                             .or_insert_with(|| rules_for(&class, block));
+                        uses.classes.insert(class);
                     }
                 }
-                collect(&el.children, rules);
+                if let ComponentRef::UserDefined(name) = &el.component {
+                    uses.components.insert(name.clone());
+                }
+                collect(&el.children, rules, uses);
             }
             StatementKind::If(i) => {
-                collect(&i.then_body, rules);
+                collect(&i.then_body, rules, uses);
                 for (_, body) in &i.else_if_branches {
-                    collect(body, rules);
+                    collect(body, rules, uses);
                 }
                 if let Some(body) = &i.else_body {
-                    collect(body, rules);
+                    collect(body, rules, uses);
                 }
             }
-            StatementKind::For(f) => collect(&f.body, rules),
-            StatementKind::Show(s) => collect(&s.body, rules),
+            StatementKind::For(f) => collect(&f.body, rules, uses),
+            StatementKind::Show(s) => collect(&s.body, rules, uses),
             StatementKind::Fetch(f) => {
                 if let Some(body) = &f.loading_block {
-                    collect(body, rules);
+                    collect(body, rules, uses);
                 }
                 if let Some((_, body)) = &f.error_block {
-                    collect(body, rules);
+                    collect(body, rules, uses);
                 }
                 if let Some(body) = &f.success_block {
-                    collect(body, rules);
+                    collect(body, rules, uses);
                 }
             }
             _ => {}
@@ -402,5 +500,61 @@ mod tests {
             }"#;
         let css = scoped_rules(&program(src));
         assert!(css.contains(":hover { color: red !important; }"), "{css}");
+    }
+
+    #[test]
+    fn rules_are_split_by_the_pages_that_reach_them() {
+        let src = r#"
+            Component Hero () { Container { style { padding: "9rem" } Text("h") } }
+            Component Shell () { Container { style { padding: "7rem" } children } }
+            Component Orphan () { Text("o") { style { padding: "5rem" } } }
+            Page Home (path: "/") { Hero() Text("a") { style { padding: "1rem" } } }
+            Page About (path: "/about") { Text("b") { style { padding: "2rem" } } Text("c") { style { padding: "3rem" } } }
+            Page Team (path: "/team") { Text("d") { style { padding: "3rem" } } }
+            App { Shell { Router { Route(path: "/", page: Home) } } }
+        "#;
+        let split = split_rules(&program(src));
+        let home = &split.pages["Home"];
+        assert!(
+            home.contains("padding: 1rem"),
+            "the page's own block: {home}"
+        );
+        assert!(
+            home.contains("padding: 9rem"),
+            "a component only it uses: {home}"
+        );
+        let about = &split.pages["About"];
+        assert!(about.contains("padding: 2rem"));
+        assert!(
+            !about.contains("padding: 3rem"),
+            "a block two pages share is shared"
+        );
+        assert!(split.shared.contains("padding: 3rem"));
+        assert!(
+            split.shared.contains("padding: 7rem"),
+            "the app's shell is shared"
+        );
+        assert!(
+            split.shared.contains("padding: 5rem"),
+            "a component nothing reaches is kept"
+        );
+        assert!(!split.shared.contains("padding: 1rem"));
+        assert!(!split.shared.contains("padding: 9rem"));
+        assert!(
+            !split.pages.contains_key("Team"),
+            "a page whose every rule is shared has no sheet of its own"
+        );
+        let all = format!("{}{}{}", split.shared, home, about);
+        assert_eq!(
+            all.matches("padding: 3rem").count(),
+            1,
+            "every rule is written exactly once"
+        );
+        let whole = scoped_rules(&program(src));
+        assert_eq!(
+            all.len(),
+            whole.len(),
+            "the split holds exactly the unsplit rules"
+        );
     }
 }

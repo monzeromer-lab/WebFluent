@@ -40,21 +40,37 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     // reader wants; the one for "/" is the usual first visit and is linked
     // beside app.js so that visit needs no second round trip. Any other
     // route's chunk is fetched by the router when it shows.
-    let entry_chunk = if config.build.split {
-        program
-            .declarations
-            .iter()
-            .find_map(|d| match d {
-                Declaration::Page(p) if p.path == "/" => Some(format!(
-                    "    <script src=\"pages/{}.js\" data-wf-page=\"{}\" defer></script>\n",
-                    p.name, p.name
-                )),
-                _ => None,
-            })
-            .unwrap_or_default()
+    let entry = if config.build.split {
+        program.declarations.iter().find_map(|d| match d {
+            Declaration::Page(p) if p.path == "/" => Some(p.name.as_str()),
+            _ => None,
+        })
     } else {
-        String::new()
+        None
     };
+    let entry_chunk = entry
+        .map(|name| {
+            format!(
+                "    <script src=\"pages/{}.js\" data-wf-page=\"{}\" defer></script>\n",
+                name, name
+            )
+        })
+        .unwrap_or_default();
+    // And that page's own sheet, when it has one, so the first paint has
+    // every rule it needs.
+    let entry_sheet = entry
+        .filter(|name| {
+            crate::codegen::scoped_css::split_rules(program)
+                .pages
+                .contains_key(*name)
+        })
+        .map(|name| {
+            format!(
+                "    <link rel=\"stylesheet\" href=\"pages/{}.css\" data-wf-page-css=\"{}\">\n",
+                name, name
+            )
+        })
+        .unwrap_or_default();
 
     let favicon_link = if config.meta.favicon.is_empty() {
         String::new()
@@ -70,7 +86,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
 {}{}{}{}    <link rel="stylesheet" href="styles.css">
-    <script src="app.js" defer></script>
+{}    <script src="app.js" defer></script>
 {}</head>
 <body>
 {}    <div id="app"><main id="wf-main"></main></div>
@@ -86,6 +102,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         },
         csp_meta(config),
         head_links,
+        entry_sheet,
         entry_chunk,
         SKIP_LINK,
     )

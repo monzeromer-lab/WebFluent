@@ -45,7 +45,14 @@ class Element extends Node_ {
     });
     this._listeners = new Map();
   }
-  appendChild(n) { n.parentNode = this; this.childNodes.push(n); return n; }
+  appendChild(n) {
+    n.parentNode = this;
+    this.childNodes.push(n);
+    // A stylesheet linked here arrives at once, as a cached one would; a
+    // test that wants to see the wait between link and load overrides this.
+    if (n.tagName === "LINK" && typeof n.onload === "function") n.onload();
+    return n;
+  }
   removeChild(n) { this.childNodes = this.childNodes.filter((c) => c !== n); return n; }
   insertBefore(n, ref) {
     const i = this.childNodes.indexOf(ref);
