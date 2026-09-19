@@ -267,6 +267,17 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         fs::write(output_dir.join("index.html"), html)?;
     }
 
+    // `build.minify` — on by default, and read for the first time here: the
+    // bundle and the sheet lose their comments and whitespace, and nothing
+    // else, so a stack trace still reads as the compiler wrote it.
+    let (css, js) = if config.build.minify {
+        (
+            crate::codegen::minify::minify_css(&css),
+            crate::codegen::minify::minify_js(&js),
+        )
+    } else {
+        (css, js)
+    };
     fs::write(output_dir.join("styles.css"), css)?;
     fs::write(output_dir.join("app.js"), js)?;
 

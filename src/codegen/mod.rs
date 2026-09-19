@@ -17,6 +17,7 @@ pub mod builtin;
 pub mod css;
 pub mod html;
 pub mod js;
+pub mod minify;
 pub mod node_id;
 pub mod pdf;
 pub mod scoped_css;
