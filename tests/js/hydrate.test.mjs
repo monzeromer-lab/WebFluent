@@ -10,8 +10,11 @@ import { makeDom } from "./dom.mjs";
 function loadRuntime() {
   const { window, document, Node } = makeDom();
   const src = readFileSync(new URL("../../src/runtime/runtime.js", import.meta.url), "utf8");
-  const fn = new Function("window", "document", "Node", `${src}\nreturn WF;`);
-  return { WF: fn(window, document, Node), document };
+  // Timers run inline: the runtime defers by a tick, and a test wants the
+  // settled state.
+  const setTimeout = (fn) => { fn(); return 0; };
+  const fn = new Function("window", "document", "Node", "setTimeout", `${src}\nreturn WF;`);
+  return { WF: fn(window, document, Node, setTimeout), document, window };
 }
 
 test("hydrate leaves a live page: the click handler on the server paint works", () => {
@@ -173,4 +176,33 @@ test("an icon button draws its glyph once", () => {
   assert.equal(draws, 1, "one glyph for the button and its icon span");
   WF.h("span", { className: "wf-icon", "data-icon": "close" });
   assert.equal(draws, 2, "a lone icon still draws");
+});
+
+test("a route change moves focus to the new page's heading, resets the scroll and announces the title", () => {
+  const { WF, document, window } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  WF.createRouter(
+    [
+      { path: "/", title: "Home", render: () => WF.h("div", {}, [WF.h("h1", {}, ["Home"])]) },
+      { path: "/docs", title: "Docs", render: () => WF.h("div", {}, [WF.h("h1", {}, ["Docs"])]) },
+      { path: "/bare", title: "Bare", render: () => WF.h("p", {}, ["no heading"]) },
+    ],
+    container,
+  );
+  // The first render is the page load: the browser places focus, not us.
+  assert.equal(document.activeElement, null);
+  assert.equal(window.scrolls.length, 0);
+
+  WF.navigate("/docs");
+  const heading = container.querySelector("h1");
+  assert.equal(document.activeElement, heading, "focus lands on the new page's h1");
+  assert.equal(heading.getAttribute("tabindex"), "-1", "which is made focusable");
+  assert.deepEqual(window.scrolls.at(-1), [0, 0], "and the viewport returns to the top");
+  const announcer = document.body.querySelector('[role="status"]');
+  assert.ok(announcer, "a live region exists");
+  assert.equal(announcer.textContent, "Docs", "and reads the new title");
+
+  WF.navigate("/bare");
+  assert.equal(document.activeElement, container, "with no heading, focus lands on the landmark");
 });

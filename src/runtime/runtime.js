@@ -477,6 +477,11 @@ const WF = (() => {
       return params;
     }
 
+    // Whether the route change came from the back/forward buttons, whose
+    // scroll position the browser restores itself.
+    let fromHistory = false;
+    let rendered = false;
+
     function render() {
       const path = currentPath(); // Only subscribe to path changes
       const match = matchRoute(path);
@@ -496,9 +501,22 @@ const WF = (() => {
           currentEffect = prev;
         }
       }
+
+      // A full page load lands the reader at the top with focus on the
+      // document; a route change used to leave focus on a link that no
+      // longer existed, the scroll wherever it was, and say nothing. It now
+      // does what the page load does: focus moves to the new page's heading
+      // (or the main landmark when it has none), the viewport returns to the
+      // top, and the title is announced.
+      if (rendered) {
+        settleOnNewPage(container, !fromHistory);
+      }
+      rendered = true;
+      fromHistory = false;
     }
 
     window.addEventListener("popstate", () => {
+      fromHistory = true;
       currentPath.set(_stripBase(window.location.pathname));
     });
 
@@ -753,6 +771,43 @@ const WF = (() => {
       activeSignal.set(next);
       if (tabs[next] && tabs[next].focus) tabs[next].focus();
     });
+  }
+
+  /// Move the reader to a page the router just rendered into `container`.
+  function settleOnNewPage(container, resetScroll) {
+    const heading = container.querySelector && container.querySelector("h1");
+    const target = heading || container;
+    if (target && target.setAttribute && !target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+    if (target && target.focus) {
+      try { target.focus({ preventScroll: true }); } catch (_) { target.focus(); }
+    }
+    if (resetScroll && typeof window.scrollTo === "function") {
+      window.scrollTo(0, 0);
+    }
+    announce(document.title || "");
+  }
+
+  // ─── Announcements ───────────────────────────────────
+  //
+  // One polite live region for what changed without a focus change to say
+  // so: the page a route change landed on. Created up front, since a live
+  // region only announces changes made after it is in the document.
+  let announcer = null;
+
+  function announce(text) {
+    if (!announcer) {
+      announcer = document.createElement("div");
+      announcer.className = "wf-visually-hidden";
+      announcer.setAttribute("role", "status");
+      announcer.setAttribute("aria-live", "polite");
+      announcer.setAttribute("aria-atomic", "true");
+      document.body.appendChild(announcer);
+    }
+    // Cleared first, so the same title twice is still read twice.
+    announcer.textContent = "";
+    setTimeout(() => { announcer.textContent = text; }, 50);
   }
 
   /// The `<main>` landmark inside `container`, created if it is not there.
@@ -1013,7 +1068,7 @@ const WF = (() => {
     createI18n,
     wfFetch, showToast,
     mount, hydrate, setSsgMode, setBasePath,
-    bindDialog, bindPopup, tablist, mainOf, offCanvas,
+    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce,
     __debug, __reg,
     get _basePath() { return _basePath; },
     i18n: null,

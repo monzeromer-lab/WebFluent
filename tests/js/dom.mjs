@@ -94,7 +94,7 @@ class Element extends Node_ {
     this.returnValue = returnValue;
     this.dispatchEvent({ type: "close", target: this });
   }
-  focus() { this.ownerDocument_ = true; }
+  focus() { this.ownerDocument_ = true; focused = this; }
   get textContent() { return this.childNodes.map((n) => n.textContent).join(""); }
   set textContent(v) { this.childNodes = []; this.appendChild(new TextNode(v)); }
   get innerHTML() { return this.textContent; }
@@ -137,8 +137,13 @@ class DocumentFragment extends Element {
   constructor() { super("#document-fragment"); }
 }
 
+let focused = null;
+
 export function makeDom() {
+  focused = null;
+  const scrolls = [];
   const document = {
+    get activeElement() { return focused; },
     createElement: (t) => new Element(t),
     createTextNode: (t) => new TextNode(t),
     createComment: () => new TextNode(""),
@@ -161,6 +166,8 @@ export function makeDom() {
     setTimeout: (fn) => fn(),
     getComputedStyle: () => ({}),
     matchMedia: () => ({ matches: false, addEventListener() {} }),
+    scrollTo: (x, y) => scrolls.push([x, y]),
+    scrolls,
   };
   return { window, document, Element, TextNode, DocumentFragment, Node: Node_ };
 }
