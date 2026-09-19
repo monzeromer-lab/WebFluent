@@ -10,11 +10,13 @@
 use serde::{Deserialize, Serialize};
 
 pub mod components;
+pub mod prune;
 pub mod resolve;
 pub mod structural;
 pub mod tokens;
 
 pub use components::component_css;
+pub use prune::{Usage, prune_css};
 pub use resolve::resolve_tokens;
 pub use structural::structural_css;
 

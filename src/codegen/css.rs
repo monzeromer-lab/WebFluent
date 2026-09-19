@@ -39,6 +39,20 @@ pub fn generate_css_with(tokens: &HashMap<String, String>, builtin: BuiltinCss) 
     format!("{}\n{}", root_block, component_styles)
 }
 
+/// [`generate_css_with`], cut down to the components `program` uses.
+///
+/// The whole sheet described every component the engine has, whichever the
+/// site drew; a site of twelve components shipped the rules for fifty. See
+/// [`themes::prune`] for what is kept regardless.
+pub fn generate_css_for(
+    tokens: &HashMap<String, String>,
+    builtin: BuiltinCss,
+    program: &crate::parser::Program,
+) -> String {
+    let usage = themes::Usage::of(program);
+    themes::prune_css(&generate_css_with(tokens, builtin), &usage)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

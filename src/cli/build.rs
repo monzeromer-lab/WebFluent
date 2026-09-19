@@ -1,4 +1,4 @@
-use crate::codegen::{JsCodegen, PdfCodegen, SlidesCodegen, generate_css_with, generate_html};
+use crate::codegen::{JsCodegen, PdfCodegen, SlidesCodegen, generate_css_for, generate_html};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::error::{Result, WebFluentError};
@@ -185,7 +185,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // build used to call the always-full entry point, so a project that asked
     // for `structural` still received the baseline it was trying to avoid.
     let tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
-    let mut css = generate_css_with(&tokens, config.theme.builtin);
+    let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
     // What an inline style cannot say — pseudo-states, media queries — is
     // compiled into the sheet under content-named classes.
     css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
