@@ -375,6 +375,7 @@ build/                             build/
 ├── pages/*.js      one chunk per page, loaded on demand
 ├── pages/*.css     the style rules only that page reaches
 ├── styles.css      the rules the project uses, and its own .css files
+├── *.gz            every text output, precompressed
 └── …               public/ copied to the root
 ```
 

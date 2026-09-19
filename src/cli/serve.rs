@@ -1,7 +1,7 @@
 use crate::config::ProjectConfig;
 use crate::error::Result;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub fn run_serve(project_dir: &Path) -> Result<()> {
     let config = ProjectConfig::load(project_dir)?;
@@ -23,7 +23,13 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
 
     for request in server.incoming_requests() {
         let url = request.url().to_string();
+        // The query string names nothing on disk.
+        let url = url.split('?').next().unwrap_or("").to_string();
         let url_path = if url == "/" { "/index.html" } else { &url };
+        let accepts_gzip = request
+            .headers()
+            .iter()
+            .any(|h| h.field.equiv("Accept-Encoding") && h.value.as_str().contains("gzip"));
 
         // Try to serve the file. A static build writes each route as
         // `<route>/index.html`, which is what a host serves for `/<route>`;
@@ -53,11 +59,30 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
             }
         };
 
+        // What a host does: send the `.gz` the build wrote when the browser
+        // takes it, or compress a text response on the way out, so the bytes
+        // measured here are the bytes a deployed site sends.
+        let (content, encoding) = if accepts_gzip && is_text(content_type) {
+            let prebuilt = PathBuf::from(format!("{}.gz", file_path.display()));
+            match fs::read(&prebuilt) {
+                Ok(gz) if file_path.is_file() => (gz, Some("gzip")),
+                _ if content.len() >= 1024 => (crate::codegen::gzip::gzip(&content), Some("gzip")),
+                _ => (content, None),
+            }
+        } else {
+            (content, None)
+        };
+
         // The same headers the built output asks a host for, so a policy problem
         // surfaces in development rather than on the deployed site.
         let mut response = tiny_http::Response::from_data(content)
             .with_header(tiny_http::Header::from_bytes("Content-Type", content_type).unwrap());
+        if let Some(encoding) = encoding {
+            response
+                .add_header(tiny_http::Header::from_bytes("Content-Encoding", encoding).unwrap());
+        }
         for (name, value) in [
+            ("Vary", "Accept-Encoding"),
             ("X-Content-Type-Options", "nosniff"),
             ("Referrer-Policy", "strict-origin-when-cross-origin"),
             ("X-Frame-Options", "DENY"),
@@ -73,12 +98,28 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Whether a response of this type is worth compressing.
+fn is_text(content_type: &str) -> bool {
+    content_type.starts_with("text/")
+        || matches!(
+            content_type.split(';').next().unwrap_or(""),
+            "application/javascript" | "application/json" | "image/svg+xml" | "application/xml"
+        )
+}
+
 fn guess_content_type(path: &Path) -> &'static str {
     match path.extension().and_then(|e| e.to_str()) {
         Some("html") => "text/html; charset=utf-8",
         Some("css") => "text/css; charset=utf-8",
-        Some("js") => "application/javascript; charset=utf-8",
+        Some("js") | Some("mjs") => "application/javascript; charset=utf-8",
         Some("json") => "application/json",
+        Some("xml") => "application/xml",
+        Some("txt") => "text/plain; charset=utf-8",
+        Some("gz") => "application/gzip",
+        Some("webp") => "image/webp",
+        Some("avif") => "image/avif",
+        Some("mp4") => "video/mp4",
+        Some("webm") => "video/webm",
         Some("png") => "image/png",
         Some("jpg") | Some("jpeg") => "image/jpeg",
         Some("gif") => "image/gif",

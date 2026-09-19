@@ -92,6 +92,12 @@ pub struct BuildConfig {
     /// its route is shown, rather than every page shipping in `app.js`.
     #[serde(default = "default_true")]
     pub split: bool,
+    /// Whether every text output — HTML, JavaScript, CSS, SVG, JSON, XML —
+    /// is also written gzipped beside itself, as `<file>.gz`, for hosts that
+    /// serve a precompressed file when they have one (nginx `gzip_static`,
+    /// Apache `MultiViews`, most CDNs). `wf serve` sends it too.
+    #[serde(default = "default_true")]
+    pub compress: bool,
     /// Output type: "spa" (default), "static", "pdf", or "slides"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
@@ -410,6 +416,7 @@ impl Default for BuildConfig {
             base_path: String::new(),
             csp: false,
             split: true,
+            compress: true,
             output_type: OutputType::Spa,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),

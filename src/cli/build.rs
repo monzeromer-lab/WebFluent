@@ -342,6 +342,12 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         copy_dir_recursive(&public_dir, &output_dir)?;
     }
 
+    // A `.gz` beside every text file, for a host that serves one when it has
+    // it: compressed once here, harder than a server can afford per request.
+    if config.build.compress {
+        precompress(&output_dir)?;
+    }
+
     let page_count = program
         .declarations
         .iter()
@@ -442,6 +448,45 @@ fn load_translations(
     }
 
     Ok(translations)
+}
+
+/// Write `<file>.gz` beside every text file under `dir` that is worth it —
+/// a file a few hundred bytes long fits in one packet either way, and one
+/// gzip does not shrink is left alone. A stale `.gz` from an earlier build
+/// whose source no longer exists is removed, so a host never serves it.
+fn precompress(dir: &Path) -> Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.is_dir() {
+            precompress(&path)?;
+            continue;
+        }
+        let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
+            continue;
+        };
+        if ext == "gz" {
+            if !path.with_extension("").exists() {
+                fs::remove_file(&path)?;
+            }
+            continue;
+        }
+        if !crate::codegen::gzip::is_text_extension(ext) {
+            continue;
+        }
+        let data = fs::read(&path)?;
+        let gz_path = PathBuf::from(format!("{}.gz", path.display()));
+        if data.len() < 1024 {
+            let _ = fs::remove_file(&gz_path);
+            continue;
+        }
+        let gz = crate::codegen::gzip::gzip(&data);
+        if gz.len() < data.len() {
+            fs::write(&gz_path, gz)?;
+        } else {
+            let _ = fs::remove_file(&gz_path);
+        }
+    }
+    Ok(())
 }
 
 fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {

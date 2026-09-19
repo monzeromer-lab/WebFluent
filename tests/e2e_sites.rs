@@ -516,6 +516,62 @@ fn rules_only_one_page_reaches_ship_in_that_pages_sheet() {
     );
 }
 
+/// Every text output has a `.gz` beside it that decodes to the file, so a
+/// host that serves precompressed files has them; a binary asset and a file
+/// too small to be worth it have none.
+#[test]
+fn text_outputs_are_precompressed() {
+    let built = build_site("marketing");
+    for file in ["app.js", "styles.css", "index.html"] {
+        let plain = std::fs::read(built.out(file)).unwrap();
+        let gz = std::fs::read(built.out(&format!("{file}.gz")))
+            .unwrap_or_else(|_| panic!("no {file}.gz"));
+        assert_eq!(&gz[..3], &[0x1f, 0x8b, 8], "{file}.gz is a gzip stream");
+        assert!(
+            gz.len() * 2 < plain.len(),
+            "{file}: {} -> {}",
+            plain.len(),
+            gz.len()
+        );
+        let size = u32::from_le_bytes(gz[gz.len() - 4..].try_into().unwrap());
+        assert_eq!(
+            size as usize,
+            plain.len(),
+            "{file}.gz's trailer names the size"
+        );
+    }
+    // The system gzip, when there is one, reads it back byte for byte.
+    if let Ok(out) = Command::new("gzip")
+        .arg("-dc")
+        .arg(built.out("app.js.gz"))
+        .output()
+        && out.status.success()
+    {
+        assert_eq!(out.stdout, std::fs::read(built.out("app.js")).unwrap());
+    }
+    let mut gz_files = Vec::new();
+    collect_files(&built.out(""), &mut gz_files);
+    assert!(
+        !gz_files
+            .iter()
+            .any(|p| p.ends_with(".png.gz") || p.ends_with(".woff2.gz")),
+        "binary assets are not compressed: {gz_files:?}"
+    );
+}
+
+fn collect_files(dir: &Path, out: &mut Vec<String>) {
+    if let Ok(entries) = std::fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                collect_files(&path, out);
+            } else {
+                out.push(path.to_string_lossy().to_string());
+            }
+        }
+    }
+}
+
 /// A modifier class the author's own stylesheet defines is a real one: V02
 /// reports only a class *no* sheet has a rule for.
 #[test]

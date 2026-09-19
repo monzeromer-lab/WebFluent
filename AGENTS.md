@@ -893,8 +893,18 @@ build/
 ├── styles.css            # tokens, only the component rules the project uses,
 │                         # the project's own .css files, and the compiled
 │                         # style { } rules more than one page shares
+├── *.gz                  # every text file above, gzipped, beside itself
 └── …                     # public/ copied to the root, sitemap.xml, robots.txt
 ```
+
+`build.compress` (on by default) writes `<file>.gz` beside every text
+output over a kilobyte — HTML, JavaScript, CSS, SVG, JSON, XML — for a host
+that serves a precompressed file when it has one (nginx `gzip_static on`,
+Apache `MultiViews`, most CDNs and static hosts). The compressor is the
+engine's own, within a percent of zlib's default level, so the build has no
+dependency for it; `wf serve` sends the same files, and compresses on the
+way out what has none, so what Lighthouse measures against the dev server is
+what a deployed site sends. Hosts that ignore `.gz` files lose nothing.
 
 `build.minify` (on by default) strips comments and whitespace from the
 bundle and the sheets. `build.split` (on by default) writes each page as its
@@ -1197,7 +1207,7 @@ components with one name — is an error and stops the build.
 | `S03` | A description longer than ~160 characters, which a search result truncates |
 | `S04` | Two pages claim the same route |
 | `V01` | A bare word that resolves to nothing — a misspelled modifier or an undefined name |
-| `V02` | A real modifier whose class no stylesheet defines, e.g. `Alert(elevated)` |
+| `V02` | A real modifier whose class no stylesheet — the engine's or one of the project's `.css` files — defines, e.g. `Alert(elevated)` |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.
@@ -1221,6 +1231,7 @@ The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
         "base_path": "",
         "csp": false,
         "split": true,
+        "compress": true,
         "output_type": "spa",
         "pdf": {
             "page_size": "A4",

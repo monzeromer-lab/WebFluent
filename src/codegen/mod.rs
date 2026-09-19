@@ -15,6 +15,7 @@
 
 pub mod builtin;
 pub mod css;
+pub mod gzip;
 pub mod html;
 pub mod js;
 pub mod minify;
