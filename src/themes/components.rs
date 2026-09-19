@@ -130,7 +130,7 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 /* ─── Menu ──────────────────────────────────────────── */
 .wf-menu { position: relative; display: inline-block; }
 .wf-menu__trigger { cursor: pointer; min-height: 24px; display: inline-flex; align-items: center; }
-.wf-menu__items { position: absolute; top: 100%; left: 0; min-width: 180px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 50; display: none; padding: var(--spacing-xs) 0; }
+.wf-menu__items { list-style: none; margin: 0; position: absolute; top: 100%; left: 0; min-width: 180px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 50; display: none; padding: var(--spacing-xs) 0; }
 .wf-menu.open .wf-menu__items { display: block; }
 .wf-menu__item { padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; transition: background var(--transition-fast); }
 .wf-menu__item:hover { background: var(--color-border); }
@@ -187,7 +187,8 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Tooltip ───────────────────────────────────────── */
 .wf-tooltip { position: relative; display: inline-block; }
 .wf-tooltip__text { visibility: hidden; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); padding: var(--spacing-xs) var(--spacing-sm); background: var(--color-text); color: var(--color-background); border-radius: var(--radius-sm); font-size: var(--font-size-xs); white-space: nowrap; z-index: 99; opacity: 0; transition: opacity var(--transition-fast); }
-.wf-tooltip:hover .wf-tooltip__text { visibility: visible; opacity: 1; }
+.wf-tooltip:hover .wf-tooltip__text, .wf-tooltip:focus-within .wf-tooltip__text { visibility: visible; opacity: 1; }
+.wf-tooltip[data-dismissed] .wf-tooltip__text { visibility: hidden; opacity: 0; }
 
 /* ─── Tag ───────────────────────────────────────────── */
 .wf-tag { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0.125rem var(--spacing-sm); font-size: var(--font-size-sm); border-radius: var(--radius-md); background: var(--color-surface); border: 1px solid var(--color-border); }
@@ -230,7 +231,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 
 /* ─── Dropdown ──────────────────────────────────────── */
 .wf-dropdown { position: relative; display: inline-block; }
-.wf-dropdown__items { position: absolute; top: 100%; left: 0; min-width: 180px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 50; display: none; margin-top: var(--spacing-xs); }
+.wf-dropdown__items { list-style: none; margin: 0; position: absolute; top: 100%; left: 0; min-width: 180px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 50; display: none; margin-top: var(--spacing-xs); }
 .wf-dropdown.open .wf-dropdown__items { display: block; }
 .wf-dropdown__item { padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; transition: background var(--transition-fast); }
 .wf-dropdown__item:hover { background: var(--color-border); }

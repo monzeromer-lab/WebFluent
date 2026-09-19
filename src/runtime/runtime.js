@@ -751,6 +751,62 @@ const WF = (() => {
     });
   }
 
+  /// Wire a menu button and its `role="menu"` list to the ARIA menu pattern.
+  ///
+  /// The items are menuitems that the arrow keys move between (Home and End
+  /// jump to the ends), Enter and Space activate, Escape closes with focus
+  /// back on the button, and Tab leaves and closes. Opening from the
+  /// keyboard puts focus on the first item; a pointer keeps focus on the
+  /// button. `bindPopup` supplies the outside click and Escape.
+  function menu(root, trigger, list, openSignal) {
+    bindPopup(root, trigger, openSignal);
+    const items = () =>
+      Array.from(list.children).filter((el) => {
+        const cls = el.className || "";
+        if (cls.includes("divider") || cls.includes("separator")) {
+          el.setAttribute("role", "separator");
+          return false;
+        }
+        if (!el.hasAttribute("role")) el.setAttribute("role", "menuitem");
+        if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+        return true;
+      });
+    const focusItem = (i) => {
+      const all = items();
+      if (!all.length) return;
+      const target = all[((i % all.length) + all.length) % all.length];
+      if (target.focus) target.focus();
+    };
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter" || e.key === " ") {
+        if (e.preventDefault) e.preventDefault();
+        openSignal.set(true);
+        setTimeout(() => focusItem(e.key === "ArrowUp" ? -1 : 0), 0);
+      }
+    });
+    list.addEventListener("keydown", (e) => {
+      const all = items();
+      const current = all.indexOf(document.activeElement);
+      let consumed = true;
+      if (e.key === "ArrowDown") focusItem(current + 1);
+      else if (e.key === "ArrowUp") focusItem(current - 1);
+      else if (e.key === "Home") focusItem(0);
+      else if (e.key === "End") focusItem(-1);
+      else if ((e.key === "Enter" || e.key === " ") && current >= 0) all[current].click();
+      else if (e.key === "Tab") openSignal.set(false), (consumed = false);
+      else consumed = false;
+      if (consumed && e.preventDefault) e.preventDefault();
+    });
+    // Choosing an item closes the menu; the reader lands back on the button.
+    list.addEventListener("click", (e) => {
+      if (items().some((item) => item.contains(e.target))) {
+        openSignal.set(false);
+        if (trigger.focus) trigger.focus();
+      }
+    });
+    items();
+  }
+
   /// Arrow-key navigation for a `role="tablist"`.
   ///
   /// The WAI-ARIA pattern puts only the selected tab in the tab order and moves
@@ -808,6 +864,37 @@ const WF = (() => {
     // Cleared first, so the same title twice is still read twice.
     announcer.textContent = "";
     setTimeout(() => { announcer.textContent = text; }, 50);
+  }
+
+  /// Wire a tooltip: the tip describes the trigger, and can be reached and
+  /// dismissed without a pointer.
+  ///
+  /// `role="tooltip"` alone announces nothing — the element the reader is on
+  /// has to refer to it — so `aria-describedby` goes on the first focusable
+  /// thing inside the wrapper, and on the wrapper itself (made focusable)
+  /// when there is none. The stylesheet shows the tip on focus as well as on
+  /// hover; Escape hides it until the pointer or focus leaves and returns
+  /// (WCAG 1.4.13: content on hover or focus must be dismissible).
+  function tooltip(root, tip) {
+    if (!root || !tip) return;
+    const focusable = root.querySelector(
+      "button, a[href], input, select, textarea, summary, [tabindex]",
+    );
+    const trigger = focusable || root;
+    if (!focusable && !root.hasAttribute("tabindex")) root.setAttribute("tabindex", "0");
+    const existing = trigger.getAttribute("aria-describedby");
+    trigger.setAttribute("aria-describedby", existing ? `${existing} ${tip.id}` : tip.id);
+    root.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        root.setAttribute("data-dismissed", "");
+        e.stopPropagation();
+      }
+    });
+    const restore = () => root.removeAttribute("data-dismissed");
+    root.addEventListener("mouseleave", restore);
+    root.addEventListener("focusout", (e) => {
+      if (!root.contains(e.relatedTarget)) restore();
+    });
   }
 
   /// An engine string a project may translate: the key is looked up in the
@@ -1219,7 +1306,7 @@ const WF = (() => {
     createI18n,
     wfFetch, showToast,
     mount, hydrate, setSsgMode, setBasePath,
-    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce, carousel,
+    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce, carousel, tooltip, menu,
     __debug, __reg,
     get _basePath() { return _basePath; },
     i18n: null,

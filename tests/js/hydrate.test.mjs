@@ -279,3 +279,59 @@ test("a carousel does not rotate for a reader who asked for reduced motion", () 
     globalThis.setInterval = realSetInterval;
   }
 });
+
+test("a tooltip describes its trigger, is reachable by keyboard and dismissed by Escape", () => {
+  const { WF, document } = loadRuntime();
+  const button = WF.h("button", {}, ["Save"]);
+  const tip = WF.h("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-1" }, ["Saves the draft"]);
+  const root = WF.h("div", { className: "wf-tooltip" }, [button, tip]);
+  WF.tooltip(root, tip);
+  assert.equal(button.getAttribute("aria-describedby"), "wf-tip-1", "the focusable child is described by the tip");
+  assert.equal(root.getAttribute("tabindex"), null, "the wrapper stays out of the tab order");
+  root.dispatchEvent({ type: "keydown", key: "Escape", stopPropagation() {} });
+  assert.equal(root.getAttribute("data-dismissed"), "", "Escape hides the tip");
+  root.dispatchEvent({ type: "mouseleave" });
+  assert.equal(root.getAttribute("data-dismissed"), null, "and leaving resets it");
+
+  // With nothing focusable inside, the wrapper itself becomes the trigger.
+  const tip2 = WF.h("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-2" }, ["Hint"]);
+  const plain = WF.h("div", { className: "wf-tooltip" }, [WF.h("span", {}, ["term"]), tip2]);
+  WF.tooltip(plain, tip2);
+  assert.equal(plain.getAttribute("tabindex"), "0");
+  assert.equal(plain.getAttribute("aria-describedby"), "wf-tip-2");
+});
+
+test("a menu's items are menuitems the arrow keys move between, and choosing one closes it", () => {
+  const { WF, document } = loadRuntime();
+  const open = WF.signal(false);
+  const trigger = WF.h("button", { "aria-expanded": () => (open() ? "true" : "false") }, ["Actions"]);
+  const edit = WF.h("li", { className: "wf-menu__item" }, ["Edit"]);
+  const remove = WF.h("li", { className: "wf-menu__item" }, ["Delete"]);
+  const list = WF.h("ul", { role: "menu" }, [edit, WF.h("li", { className: "wf-menu__divider" }), remove]);
+  const root = WF.h("div", { className: "wf-menu" }, [trigger, list]);
+  document.body.appendChild(root);
+  WF.menu(root, trigger, list, open);
+
+  assert.equal(edit.getAttribute("role"), "menuitem");
+  assert.equal(edit.getAttribute("tabindex"), "-1", "items are reached with the arrows, not Tab");
+  assert.equal(list.children[1].getAttribute("role"), "separator");
+
+  trigger.dispatchEvent({ type: "keydown", key: "ArrowDown", preventDefault() {} });
+  assert.equal(open(), true, "ArrowDown on the button opens the menu");
+  assert.equal(document.activeElement, edit, "and focuses the first item");
+
+  list.dispatchEvent({ type: "keydown", key: "ArrowDown", preventDefault() {} });
+  assert.equal(document.activeElement, remove);
+  list.dispatchEvent({ type: "keydown", key: "ArrowDown", preventDefault() {} });
+  assert.equal(document.activeElement, edit, "the arrows wrap");
+  list.dispatchEvent({ type: "keydown", key: "End", preventDefault() {} });
+  assert.equal(document.activeElement, remove);
+
+  let chosen = 0;
+  remove.addEventListener("click", () => chosen++);
+  list.dispatchEvent({ type: "keydown", key: "Enter", preventDefault() {} });
+  assert.equal(chosen, 1, "Enter activates the focused item");
+  list.dispatchEvent({ type: "click", target: remove });
+  assert.equal(open(), false, "choosing an item closes the menu");
+  assert.equal(document.activeElement, trigger, "and focus returns to the button");
+});

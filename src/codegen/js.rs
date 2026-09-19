@@ -2104,10 +2104,12 @@ impl JsCodegen {
         ));
         self.emit_line(&format!("{}.appendChild({});", var, trigger_var));
 
+        // The items are `li`s (the generic `Name.Item`), so their container is
+        // a list; `role="menu"` gives it the menu semantics.
         let items_var = self.fresh_var();
         let items_class = format!("{}__items", class);
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
+            "const {} = WF.h(\"ul\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
             items_var, items_class, items_id
         ));
 
@@ -2117,11 +2119,11 @@ impl JsCodegen {
 
         self.emit_line(&format!("{}.appendChild({});", var, items_var));
 
-        // Close on click outside, and on Escape with focus returned to the
-        // trigger — a keyboard user who opens a menu must be able to leave it.
+        // Close on click outside and on Escape with focus returned to the
+        // trigger; arrow keys move between the items, which are menuitems.
         self.emit_line(&format!(
-            "WF.bindPopup({}, {}, {});",
-            var, trigger_var, open_var
+            "WF.menu({}, {}, {}, {});",
+            var, trigger_var, items_var, open_var
         ));
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -2337,14 +2339,11 @@ impl JsCodegen {
             })
             .unwrap_or_else(|| "\"\"".to_string());
 
-        // The tip is only reachable if the thing it describes points at it;
-        // `role="tooltip"` alone announces nothing, because nothing refers to it.
         let tip_id = format!("wf-tip-{}", var.trim_start_matches("_e"));
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\", \"aria-describedby\": \"{}\"{} }});",
+            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr("Tooltip", ui),
-            tip_id,
             self.wf_node_inline(ui)
         ));
 
@@ -2353,13 +2352,15 @@ impl JsCodegen {
             self.emit_statement_dom(child, var);
         }
 
-        // Add tooltip text span
         let tip_var = self.fresh_var();
         self.emit_line(&format!(
             "const {} = WF.h(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: \"{}\" }}, {});",
             tip_var, tip_id, text
         ));
         self.emit_line(&format!("{}.appendChild({});", var, tip_var));
+        // The runtime points the trigger at the tip and makes it reachable
+        // and dismissible from the keyboard.
+        self.emit_line(&format!("WF.tooltip({}, {});", var, tip_var));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
@@ -4070,7 +4071,7 @@ mod tests {
             out.contains("h[\"Authorization\"] = (\"Bearer \" + store.secret);"),
             "{out}"
         );
-        assert_eq!(out.matches("let h").count(), 1, "{out}");
+        assert_eq!(out.matches("let h = ").count(), 1, "{out}");
     }
 
     #[test]

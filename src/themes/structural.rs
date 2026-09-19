@@ -135,7 +135,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ─── Menu ──────────────────────────────────────────── */
 .wf-menu { position: relative; display: inline-block; }
 .wf-menu__trigger { cursor: pointer; }
-.wf-menu__items { position: absolute; top: 100%; left: 0; min-width: 180px; z-index: 50; display: none; padding: var(--spacing-xs) 0; background: var(--color-surface); }
+.wf-menu__items { list-style: none; margin: 0; position: absolute; top: 100%; left: 0; min-width: 180px; z-index: 50; display: none; padding: var(--spacing-xs) 0; background: var(--color-surface); }
 .wf-menu.open .wf-menu__items { display: block; }
 .wf-menu__item { padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; }
 .wf-menu__item--danger { color: var(--color-danger); }
@@ -183,7 +183,8 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Tooltip ───────────────────────────────────────── */
 .wf-tooltip { position: relative; display: inline-block; }
 .wf-tooltip__text { visibility: hidden; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); padding: var(--spacing-xs) var(--spacing-sm); white-space: nowrap; z-index: 99; opacity: 0; background: var(--color-text); color: var(--color-background); }
-.wf-tooltip:hover .wf-tooltip__text { visibility: visible; opacity: 1; }
+.wf-tooltip:hover .wf-tooltip__text, .wf-tooltip:focus-within .wf-tooltip__text { visibility: visible; opacity: 1; }
+.wf-tooltip[data-dismissed] .wf-tooltip__text { visibility: hidden; opacity: 0; }
 
 /* ─── Tag ───────────────────────────────────────────── */
 .wf-tag { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0.125rem var(--spacing-sm); }
@@ -220,7 +221,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 
 /* ─── Dropdown ──────────────────────────────────────── */
 .wf-dropdown { position: relative; display: inline-block; }
-.wf-dropdown__items { position: absolute; top: 100%; left: 0; min-width: 180px; z-index: 50; display: none; margin-top: var(--spacing-xs); background: var(--color-surface); }
+.wf-dropdown__items { list-style: none; margin: 0; position: absolute; top: 100%; left: 0; min-width: 180px; z-index: 50; display: none; margin-top: var(--spacing-xs); background: var(--color-surface); }
 .wf-dropdown.open .wf-dropdown__items { display: block; }
 .wf-dropdown__item { padding: var(--spacing-sm) var(--spacing-md); cursor: pointer; }
 .wf-dropdown__item--danger { color: var(--color-danger); }

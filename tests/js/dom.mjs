@@ -17,6 +17,10 @@ class ClassList {
 class Node_ {
   constructor() { this.childNodes = []; this.parentNode = null; }
   get children() { return this.childNodes.filter((n) => n.nodeType === 1); }
+  contains(node) {
+    if (node === this) return true;
+    return this.childNodes.some((c) => c === node || (c.contains && c.contains(node)));
+  }
 }
 
 class TextNode extends Node_ {
@@ -101,15 +105,21 @@ class Element extends Node_ {
   set innerHTML(v) { if (v === "") this.childNodes = []; }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) {
-    const attr = /^\[([\w-]+)="(.*)"\]$/.exec(sel);
-    const cls = /^\.([\w-]+)$/.exec(sel);
-    const id = /^#([\w-]+)$/.exec(sel);
-    const matches = (c) => {
-      if (attr) return c.getAttribute(attr[1]) === attr[2];
-      if (cls) return c.classList.contains(cls[1]);
-      if (id) return c.getAttribute("id") === id[1];
-      return c.tagName.toLowerCase() === sel.toLowerCase();
-    };
+    // A list of simple selectors: `tag`, `.class`, `#id`, `[attr]`,
+    // `[attr="v"]`, and a tag with one attribute test (`a[href]`).
+    const simple = sel.split(",").map((part) => {
+      const m = /^([\w-]*)(?:\.([\w-]+))?(?:#([\w-]+))?(?:\[([\w-]+)(?:="(.*)")?\])?$/.exec(part.trim());
+      return m ? { tag: m[1], cls: m[2], id: m[3], attr: m[4], value: m[5] } : { tag: part.trim() };
+    });
+    const matches = (c) =>
+      simple.some((q) => {
+        if (q.tag && c.tagName.toLowerCase() !== q.tag.toLowerCase()) return false;
+        if (q.cls && !c.classList.contains(q.cls)) return false;
+        if (q.id && c.getAttribute("id") !== q.id) return false;
+        if (q.attr && q.value === undefined && !c.hasAttribute(q.attr)) return false;
+        if (q.attr && q.value !== undefined && c.getAttribute(q.attr) !== q.value) return false;
+        return true;
+      });
     const out = [];
     const walk = (el) => {
       for (const c of el.children) {
