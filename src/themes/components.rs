@@ -355,7 +355,10 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-carousel { position: relative; overflow: hidden; border-radius: var(--radius-md); }
 .wf-carousel__track { display: flex; transition: transform var(--transition-normal); }
 .wf-carousel__slide { flex: 0 0 100%; min-width: 100%; }
-.wf-carousel__nav { position: absolute; bottom: var(--spacing-sm); left: 50%; transform: translateX(-50%); display: flex; gap: var(--spacing-xs); }
+.wf-carousel__nav { position: absolute; bottom: var(--spacing-sm); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: var(--spacing-xs); }
+.wf-carousel__dots { display: flex; gap: var(--spacing-xs); }
+.wf-carousel__control { min-width: 24px; height: 24px; padding: 0 6px; border: none; border-radius: var(--radius-sm); background: rgba(0,0,0,0.45); color: #fff; font: inherit; font-size: 14px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.wf-carousel__control:hover { background: rgba(0,0,0,0.65); }
 .wf-carousel__dot { width: 24px; height: 24px; padding: 8px; border-radius: 50%; background: transparent; border: none; cursor: pointer; display: inline-flex; box-sizing: border-box; }
 .wf-carousel__dot::after { content: ""; width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.5); }
 .wf-carousel__dot.active::after { background: #fff; }

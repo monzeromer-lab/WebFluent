@@ -335,7 +335,9 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-carousel { position: relative; overflow: hidden; }
 .wf-carousel__track { display: flex; }
 .wf-carousel__slide { flex: 0 0 100%; min-width: 100%; }
-.wf-carousel__nav { position: absolute; bottom: var(--spacing-sm); left: 50%; transform: translateX(-50%); display: flex; gap: var(--spacing-xs); }
+.wf-carousel__nav { position: absolute; bottom: var(--spacing-sm); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: var(--spacing-xs); }
+.wf-carousel__dots { display: flex; gap: var(--spacing-xs); }
+.wf-carousel__control { min-width: 24px; height: 24px; padding: 0 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font: inherit; }
 .wf-carousel__dot { width: 24px; height: 24px; padding: 8px; border: none; cursor: pointer; display: inline-flex; box-sizing: border-box; }
 .wf-carousel__dot.active { background: #fff; }
 

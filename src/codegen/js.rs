@@ -2511,23 +2511,33 @@ impl JsCodegen {
             track_var
         ));
 
-        // Collect slides
-        let mut slide_count = 0;
+        // The slides are the structure; everything else — the controls, the
+        // rotation, the ARIA — is the runtime's `carousel`, so one place
+        // holds the behaviour.
         for child in &ui.children {
             if let StatementKind::UIElement(ui_child) = &child.kind {
                 if matches!(&ui_child.component, ComponentRef::SubComponent(p, s) if p == "Carousel" && s == "Slide")
                 {
                     let slide_var = self.fresh_var();
+                    // A slide's own `label:` names it to a screen reader in
+                    // place of "n of N".
+                    let label = ui_child.args.iter().find_map(|a| match a {
+                        Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+                        _ => None,
+                    });
+                    let label_attr = label
+                        .map(|l| format!(", \"aria-label\": {l}"))
+                        .unwrap_or_default();
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\"{} }});",
+                        "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\"{}{} }});",
                         slide_var,
+                        label_attr,
                         self.wf_node_inline(ui_child)
                     ));
                     for c in &ui_child.children {
                         self.emit_statement_dom(c, &slide_var);
                     }
                     self.emit_line(&format!("{}.appendChild({});", track_var, slide_var));
-                    slide_count += 1;
                 } else {
                     self.emit_statement_dom(child, &track_var);
                 }
@@ -2538,55 +2548,28 @@ impl JsCodegen {
 
         self.emit_line(&format!("{}.appendChild({});", var, track_var));
 
-        // Navigation dots
-        if slide_count > 1 {
-            let idx_var = self.fresh_var();
-            self.emit_line(&format!("const {} = WF.signal(0);", idx_var));
-
-            let nav_var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"wf-carousel__nav\" }});",
-                nav_var
-            ));
-
-            for i in 0..slide_count {
-                let dot_var = self.fresh_var();
-                self.emit_line(&format!(
-                    "const {} = WF.h(\"button\", {{ className: () => {}() === {} ? \"wf-carousel__dot active\" : \"wf-carousel__dot\", \"on:click\": () => {{ {}.set({}); {}.style.transform = `translateX(-${{{}*100}}%)`; }} }});",
-                    dot_var, idx_var, i, idx_var, i, track_var, i
-                ));
-                self.emit_line(&format!("{}.appendChild({});", nav_var, dot_var));
-            }
-            self.emit_line(&format!("{}.appendChild({});", var, nav_var));
-
-            // Autoplay
-            let autoplay = ui.args.iter().any(|a| {
-                matches!(a, Arg::Named(k, v) if k == "autoplay" && matches!(v, Expr::BoolLiteral(true)))
-            });
-            let interval = ui
-                .args
-                .iter()
-                .find_map(|a| {
-                    if let Arg::Named(k, v) = a {
-                        if k == "interval" {
-                            if let Expr::NumberLiteral(n) = v {
-                                return Some(*n as u32);
-                            }
-                        }
-                        None
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or(5000);
-
-            if autoplay {
-                self.emit_line(&format!(
-                    "setInterval(() => {{ const n = ({}() + 1) % {}; {}.set(n); {}.style.transform = `translateX(-${{n*100}}%)`; }}, {});",
-                    idx_var, slide_count, idx_var, track_var, interval
-                ));
-            }
-        }
+        let autoplay = ui.args.iter().any(|a| {
+            matches!(a, Arg::Named(k, v) if k == "autoplay" && matches!(v, Expr::BoolLiteral(true)))
+        });
+        let interval = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, Expr::NumberLiteral(n)) if k == "interval" => Some(*n as u32),
+                _ => None,
+            })
+            .unwrap_or(5000);
+        let label = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+                _ => None,
+            })
+            .unwrap_or_else(|| "null".to_string());
+        self.emit_line(&format!(
+            "WF.carousel({var}, {{ autoplay: {autoplay}, interval: {interval}, label: {label} }});"
+        ));
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }

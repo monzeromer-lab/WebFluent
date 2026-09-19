@@ -810,6 +810,157 @@ const WF = (() => {
     setTimeout(() => { announcer.textContent = text; }, 50);
   }
 
+  /// An engine string a project may translate: the key is looked up in the
+  /// project's messages when it has i18n, else the English is used.
+  function _label(key, fallback) {
+    if (i18nInstance) {
+      const text = i18nInstance.t(key);
+      if (text !== key) return text;
+    }
+    return fallback;
+  }
+
+  /// Wire a carousel: the slides in `root`'s track, the controls, the rotation.
+  ///
+  /// The WAI-ARIA carousel pattern: the root is a region a reader can name,
+  /// each slide a group announced as "n of N", the slides off screen hidden
+  /// from assistive technology and from the tab order. Rotation that a
+  /// reader cannot stop fails WCAG 2.2.2, so autoplay has a pause button,
+  /// pauses while the pointer or focus is on it, does not start at all for
+  /// a reader who asked for reduced motion, and stops while the tab is
+  /// hidden. While it is not rotating, the track is a polite live region,
+  /// so a change made by the controls is read.
+  function carousel(root, options) {
+    const opts = options || {};
+    const track = root.querySelector(".wf-carousel__track");
+    if (!track) return null;
+    const slides = Array.from(track.children).filter(
+      (el) => el.classList && el.classList.contains("wf-carousel__slide"),
+    );
+    const count = slides.length;
+
+    root.setAttribute("role", "region");
+    root.setAttribute("aria-roledescription", _label("wf.carousel", "carousel"));
+    if (!root.hasAttribute("aria-label") && !root.hasAttribute("aria-labelledby")) {
+      root.setAttribute("aria-label", opts.label || _label("wf.carousel", "carousel"));
+    }
+    slides.forEach((slide, i) => {
+      slide.setAttribute("role", "group");
+      slide.setAttribute("aria-roledescription", _label("wf.carousel.slide", "slide"));
+      if (!slide.hasAttribute("aria-label")) {
+        slide.setAttribute("aria-label", `${i + 1} ${_label("wf.carousel.of", "of")} ${count}`);
+      }
+    });
+
+    const index = signal(0);
+    const show = (i) => index.set(((i % count) + count) % count);
+
+    effect(() => {
+      const current = index();
+      track.style.transform = `translateX(-${current * 100}%)`;
+      slides.forEach((slide, i) => {
+        const shown = i === current;
+        slide.setAttribute("aria-hidden", shown ? "false" : "true");
+        if (shown) slide.removeAttribute("inert");
+        else slide.setAttribute("inert", "");
+      });
+    });
+
+    if (count < 2) return { show, index };
+
+    const reduced =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const autoplay = !!opts.autoplay && !reduced;
+    let timer = null;
+    let paused = false; // by the reader, with the button
+    let pointerOver = false;
+    let focused = false;
+
+    const nav = h("div", { className: "wf-carousel__nav" });
+    let playButton = null;
+
+    const running = () =>
+      autoplay && !paused && !pointerOver && !focused && !(document.hidden === true);
+
+    function sync() {
+      if (running()) {
+        if (timer === null) {
+          timer = setInterval(() => show(index() + 1), opts.interval || 5000);
+        }
+        track.setAttribute("aria-live", "off");
+      } else {
+        if (timer !== null) {
+          clearInterval(timer);
+          timer = null;
+        }
+        track.setAttribute("aria-live", "polite");
+      }
+      if (playButton) {
+        playButton.setAttribute("aria-pressed", paused ? "true" : "false");
+        playButton.setAttribute(
+          "aria-label",
+          paused
+            ? _label("wf.carousel.play", "Start automatic slide rotation")
+            : _label("wf.carousel.pause", "Stop automatic slide rotation"),
+        );
+        playButton.textContent = paused ? "\u25B6" : "\u275A\u275A";
+      }
+    }
+
+    if (autoplay) {
+      playButton = h("button", {
+        className: "wf-carousel__control wf-carousel__play",
+        type: "button",
+        "on:click": () => {
+          paused = !paused;
+          sync();
+        },
+      });
+      nav.appendChild(playButton);
+      root.addEventListener("mouseenter", () => { pointerOver = true; sync(); });
+      root.addEventListener("mouseleave", () => { pointerOver = false; sync(); });
+      root.addEventListener("focusin", () => { focused = true; sync(); });
+      root.addEventListener("focusout", (e) => {
+        if (!root.contains(e.relatedTarget)) { focused = false; sync(); }
+      });
+      document.addEventListener("visibilitychange", sync);
+    }
+
+    nav.appendChild(
+      h("button", {
+        className: "wf-carousel__control wf-carousel__prev",
+        type: "button",
+        "aria-label": _label("wf.carousel.previous", "Previous slide"),
+        "on:click": () => show(index() - 1),
+      }, ["\u2039"]),
+    );
+    const dots = h("div", { className: "wf-carousel__dots" });
+    slides.forEach((_, i) => {
+      dots.appendChild(
+        h("button", {
+          className: () => (index() === i ? "wf-carousel__dot active" : "wf-carousel__dot"),
+          type: "button",
+          "aria-label": `${_label("wf.carousel.goto", "Go to slide")} ${i + 1}`,
+          "aria-current": () => (index() === i ? "true" : null),
+          "on:click": () => show(i),
+        }),
+      );
+    });
+    nav.appendChild(dots);
+    nav.appendChild(
+      h("button", {
+        className: "wf-carousel__control wf-carousel__next",
+        type: "button",
+        "aria-label": _label("wf.carousel.next", "Next slide"),
+        "on:click": () => show(index() + 1),
+      }, ["\u203A"]),
+    );
+    root.appendChild(nav);
+    sync();
+    return { show, index };
+  }
+
   /// The `<main>` landmark inside `container`, created if it is not there.
   ///
   /// A page needs exactly one main landmark and the skip link needs something to
@@ -1068,7 +1219,7 @@ const WF = (() => {
     createI18n,
     wfFetch, showToast,
     mount, hydrate, setSsgMode, setBasePath,
-    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce,
+    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce, carousel,
     __debug, __reg,
     get _basePath() { return _basePath; },
     i18n: null,

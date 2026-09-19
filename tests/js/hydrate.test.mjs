@@ -206,3 +206,76 @@ test("a route change moves focus to the new page's heading, resets the scroll an
   WF.navigate("/bare");
   assert.equal(document.activeElement, container, "with no heading, focus lands on the landmark");
 });
+
+test("a carousel is a labelled region whose slides are groups, with named controls and pausable rotation", () => {
+  const { WF, document, window } = loadRuntime();
+  const intervals = [];
+  const timers = { setInterval, clearInterval };
+  globalThis.setInterval = (fn, ms) => { intervals.push({ fn, ms }); return intervals.length; };
+  globalThis.clearInterval = (id) => { intervals[id - 1].cleared = true; };
+  try {
+  const track = WF.h("div", { className: "wf-carousel__track" }, [
+    WF.h("div", { className: "wf-carousel__slide" }, ["one"]),
+    WF.h("div", { className: "wf-carousel__slide" }, ["two"]),
+    WF.h("div", { className: "wf-carousel__slide", "aria-label": "Team photo" }, ["three"]),
+  ]);
+  const root = WF.h("div", { className: "wf-carousel" }, [track]);
+  document.body.appendChild(root);
+  const api = WF.carousel(root, { autoplay: true, interval: 4000, label: "Product tour" });
+
+  assert.equal(root.getAttribute("role"), "region");
+  assert.equal(root.getAttribute("aria-roledescription"), "carousel");
+  assert.equal(root.getAttribute("aria-label"), "Product tour");
+  const slides = track.querySelectorAll(".wf-carousel__slide");
+  assert.equal(slides[0].getAttribute("aria-roledescription"), "slide");
+  assert.equal(slides[1].getAttribute("aria-label"), "2 of 3");
+  assert.equal(slides[2].getAttribute("aria-label"), "Team photo", "a slide's own label is kept");
+  assert.equal(slides[0].getAttribute("aria-hidden"), "false");
+  assert.equal(slides[1].getAttribute("aria-hidden"), "true");
+  assert.equal(slides[1].getAttribute("inert"), "", "an off-screen slide is out of the tab order");
+
+  const buttons = root.querySelectorAll("button");
+  const labels = buttons.map((b) => b.getAttribute("aria-label"));
+  assert.ok(labels.includes("Previous slide") && labels.includes("Next slide"), labels);
+  assert.ok(labels.includes("Go to slide 2"), labels);
+  const pause = buttons.find((b) => b.getAttribute("aria-label") === "Stop automatic slide rotation");
+  assert.ok(pause, "autoplay has a pause control");
+  assert.equal(intervals.length, 1, "rotation is running");
+  assert.equal(track.getAttribute("aria-live"), "off", "and the track is silent while it rotates");
+
+  pause.dispatchEvent({ type: "click" });
+  assert.ok(intervals[0].cleared, "pausing stops the rotation");
+  assert.equal(track.getAttribute("aria-live"), "polite", "and the track announces manual changes");
+  assert.equal(pause.getAttribute("aria-pressed"), "true");
+
+  buttons.find((b) => b.getAttribute("aria-label") === "Next slide").dispatchEvent({ type: "click" });
+  assert.equal(api.index(), 1);
+  assert.equal(slides[1].getAttribute("aria-hidden"), "false");
+  const dot2 = buttons.find((b) => b.getAttribute("aria-label") === "Go to slide 2");
+  assert.equal(dot2.getAttribute("aria-current"), "true");
+  } finally {
+    Object.assign(globalThis, timers);
+  }
+});
+
+test("a carousel does not rotate for a reader who asked for reduced motion", () => {
+  const { WF, document, window } = loadRuntime();
+  window.matchMedia = () => ({ matches: true, addEventListener() {} });
+  const intervals = [];
+  const realSetInterval = setInterval;
+  globalThis.setInterval = (fn, ms) => { intervals.push(fn); return 1; };
+  try {
+  const root = WF.h("div", { className: "wf-carousel" }, [
+    WF.h("div", { className: "wf-carousel__track" }, [
+      WF.h("div", { className: "wf-carousel__slide" }, ["a"]),
+      WF.h("div", { className: "wf-carousel__slide" }, ["b"]),
+    ]),
+  ]);
+  document.body.appendChild(root);
+  WF.carousel(root, { autoplay: true, interval: 1000 });
+  assert.equal(intervals.length, 0, "no timer is started");
+  assert.equal(root.querySelectorAll("button").filter((b) => (b.getAttribute("aria-label") || "").includes("rotation")).length, 0, "and there is no pause button to press");
+  } finally {
+    globalThis.setInterval = realSetInterval;
+  }
+});
