@@ -1072,7 +1072,7 @@ fn unresolvable_lists_still_defer_to_the_client() {
          \x20 state rows = []\n\
          \x20 Container {\n\
          \x20   Heading(\"D\", h1)\n\
-         \x20   for row in rows.filter(r => r.live) { Text(row.name) }\n\
+         \x20   for row in loadRows(rows) { Text(row.name) }\n\
          \x20 }\n\
          }\n",
     )
