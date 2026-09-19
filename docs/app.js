@@ -44,9 +44,15 @@ const WF = (() => {
   // ─── DOM Helpers ─────────────────────────────────────
   function h(tag, attrs, ...children) {
     const el = document.createElement(tag);
+    // A select's value only takes once its options exist, so it is applied
+    // after the children; set before them it was silently ignored.
+    let selectValue;
+    let iconName;
     if (attrs) {
       for (const [k, v] of Object.entries(attrs)) {
-        if (k.startsWith("on:")) {
+        if (k === "value" && tag === "select") {
+          selectValue = v;
+        } else if (k.startsWith("on:")) {
           el.addEventListener(k.slice(3), v);
         } else if (k === "className" || k === "class") {
           if (typeof v === "function") {
@@ -81,18 +87,67 @@ const WF = (() => {
             el[k] = String(v);
           }
         } else if (k === "data-icon") {
-          // Render icon as inline SVG or text emoji/symbol
-          const iconName = typeof v === "function" ? v() : v;
-          _renderIcon(el, iconName);
+          // The glyph is drawn after the children: an icon button carries
+          // data-icon and a .wf-icon child, and used to draw the glyph twice.
+          iconName = typeof v === "function" ? v() : v;
+        } else if (k.startsWith("aria-")) {
+          // An ARIA state is a string: aria-pressed="false" means "not pressed",
+          // while a missing attribute means "not a toggle". So false is kept.
+          const set = (val) => {
+            if (val == null) el.removeAttribute(k);
+            else el.setAttribute(k, String(val));
+          };
+          if (typeof v === "function") effect(() => set(v()));
+          else set(v);
         } else if (typeof v === "function") {
-          effect(() => { el.setAttribute(k, v()); });
+          effect(() => {
+            const val = v();
+            if (val == null || val === false) el.removeAttribute(k);
+            else el.setAttribute(k, val);
+          });
         } else if (v != null && v !== false) {
           el.setAttribute(k, v);
         }
       }
     }
     appendChildren(el, children);
+    if (iconName !== undefined) {
+      const drawn = [...el.children].some((c) => String(c.className || "").split(" ").includes("wf-icon"));
+      if (!drawn) _renderIcon(el, iconName);
+    }
+    if (typeof selectValue === "function") {
+      effect(() => { const v = selectValue(); if (v != null) el.value = v; });
+    } else if (selectValue != null) {
+      el.value = selectValue;
+    }
     return el;
+  }
+
+  // A component's props: what the caller gave, with declared defaults for
+  // whatever it left out. Reads go through getters, so a prop the caller
+  // passed as a getter over state stays live inside the component.
+  function props(given, defaults) {
+    const out = {};
+    const keys = new Set([...Object.keys(given || {}), ...Object.keys(defaults || {})]);
+    for (const key of keys) {
+      Object.defineProperty(out, key, {
+        enumerable: true,
+        get() {
+          const v = given ? given[key] : undefined;
+          return v === undefined ? defaults[key] : v;
+        },
+      });
+    }
+    return out;
+  }
+
+  // Listen on the root element of what a component returned: its fragment's
+  // first element. A component that renders several roots gets the handler on
+  // the first, which is where a caller expects it.
+  function onRoot(frag, event, handler) {
+    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
+    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    if (root) root.addEventListener(event, handler);
   }
 
   function appendChildren(el, children) {
@@ -353,6 +408,35 @@ const WF = (() => {
     return fullPath;
   }
 
+  // The current route, base path stripped, shared by the router and by every
+  // link that wants to know whether it points at the page being shown. Created
+  // on first use so a link built before the router (the app shell's navbar)
+  // subscribes to the same signal the router later drives.
+  let _pathSignal = null;
+  function pathSignal() {
+    if (!_pathSignal) _pathSignal = signal(_stripBase(window.location.pathname));
+    return _pathSignal;
+  }
+
+  // Mark `el` as the current page's link while the route matches `href`:
+  // `.active` for the stylesheet and `aria-current="page"` for assistive
+  // technology, so the two cannot disagree. With `prefix`, a link to a section
+  // root also matches the routes beneath it.
+  function activeLink(el, href, prefix) {
+    const target = String(href).replace(/\/$/, "") || "/";
+    effect(() => {
+      const path = pathSignal()().replace(/\/$/, "") || "/";
+      const on = path === target || (prefix && target !== "/" && path.startsWith(target + "/"));
+      if (on) {
+        el.classList.add("active");
+        el.setAttribute("aria-current", "page");
+      } else {
+        el.classList.remove("active");
+        el.removeAttribute("aria-current");
+      }
+    });
+  }
+
   function createRouter(routes, container) {
     // Check for SPA redirect from 404.html (?p=/path)
     const urlParams = new URLSearchParams(window.location.search);
@@ -362,7 +446,8 @@ const WF = (() => {
     }
 
     const initialPath = _stripBase(window.location.pathname);
-    const currentPath = signal(initialPath);
+    const currentPath = pathSignal();
+    currentPath.set(initialPath);
 
     function matchRoute(path) {
       for (const route of routes) {
@@ -398,6 +483,9 @@ const WF = (() => {
       container.innerHTML = "";
 
       if (match) {
+        // The tab, the history entry and a screen reader all read the title;
+        // a single-page app used to keep the entry page's title on every route.
+        if (match.route.title) document.title = match.route.title;
         // Untrack: don't subscribe the router effect to signals read during page render
         const prev = currentEffect;
         currentEffect = null;
@@ -431,7 +519,12 @@ const WF = (() => {
 
   let _ssgMode = false;
   function setSsgMode(enabled) { _ssgMode = enabled; }
-  function setBasePath(path) { _basePath = path.replace(/\/$/, ""); }
+  function setBasePath(path) {
+    _basePath = path.replace(/\/$/, "");
+    // A link created before the base path was known compared against the
+    // unstripped location; re-derive it now that stripping is possible.
+    if (_pathSignal) _pathSignal.set(_stripBase(window.location.pathname));
+  }
 
   function navigate(path) {
     if (_ssgMode) {
@@ -466,18 +559,20 @@ const WF = (() => {
       }
     }
 
+    // Bind actions before the derived values: a computed runs as soon as it
+    // is created, and a derived value that calls one of the store's own
+    // actions used to find it missing.
+    if (definition.actions) {
+      for (const [key, fn] of Object.entries(definition.actions)) {
+        store[key] = (...args) => fn(store, ...args);
+      }
+    }
+
     // Create computed for derived
     if (definition.derived) {
       for (const [key, fn] of Object.entries(definition.derived)) {
         const c = computed(() => fn(store));
         Object.defineProperty(store, key, { get: () => c() });
-      }
-    }
-
-    // Bind actions
-    if (definition.actions) {
-      for (const [key, fn] of Object.entries(definition.actions)) {
-        store[key] = (...args) => fn(store, ...args);
       }
     }
 
@@ -910,10 +1005,10 @@ const WF = (() => {
 
   return {
     signal, effect, computed,
-    h, text, reactiveText, appendChildren,
+    h, text, reactiveText, appendChildren, onRoot, props,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
-    createRouter, navigate, getParams,
+    createRouter, navigate, getParams, activeLink,
     createStore,
     createI18n,
     wfFetch, showToast,
@@ -1056,28 +1151,31 @@ WF.i18n = WF.createI18n(
   }
 );
 
-function Component_FeatureCard({ title, description }) {
+function Component_FeatureCard(_p, _children) {
+  _p = WF.props(_p, {  });
   const _frag = document.createDocumentFragment();
   const _e0 = WF.h("div", { className: "wf-card wf-card--elevated wf-animate-scaleIn" });
   const _e1 = WF.h("div", { className: "wf-card__body" });
-  const _e2 = WF.h("h2", { className: "wf-heading" }, title);
+  const _e2 = WF.h("h2", { className: "wf-heading" }, () => _p.title);
   _e1.appendChild(_e2);
-  const _e3 = WF.h("div", { className: "wf-spacer" });
+  const _e3 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1.appendChild(_e3);
-  const _e4 = WF.h("p", { className: "wf-text wf-text--muted" }, description);
+  const _e4 = WF.h("p", { className: "wf-text wf-text--muted" }, () => _p.description);
   _e1.appendChild(_e4);
   _e0.appendChild(_e1);
   _frag.appendChild(_e0);
   return _frag;
 }
 
-function Component_NavBar() {
+function Component_NavBar(_p, _children) {
+  _p = WF.props(_p, {  });
   const _frag = document.createDocumentFragment();
   const _e5 = WF.h("nav", { className: "wf-navbar", "aria-label": "Main" });
   const _e6 = WF.h("div", { className: "wf-navbar__brand" });
   const _e7 = WF.h("a", { className: "wf-link", href: WF._basePath + "/" });
   const _e8 = WF.h("p", { className: "wf-text wf-text--heading" }, "WebFluent");
   _e7.appendChild(_e8);
+  WF.activeLink(_e7, "/", false);
   _e6.appendChild(_e7);
   _e5.appendChild(_e6);
   const _e9 = WF.h("div", { className: "wf-navbar__links" });
@@ -1095,24 +1193,27 @@ function Component_NavBar() {
   return _frag;
 }
 
-function Component_SiteFooter() {
+function Component_SiteFooter(_p, _children) {
+  _p = WF.props(_p, {  });
   const _frag = document.createDocumentFragment();
   const _e14 = WF.h("hr", { className: "wf-divider" });
   _frag.appendChild(_e14);
   const _e15 = WF.h("div", { className: "wf-container" });
   const _e16 = WF.h("div", { className: "wf-spacer" });
   _e15.appendChild(_e16);
-  const _e17 = WF.h("div", { className: "wf-row wf-row--center wf-row--between" });
+  const _e17 = WF.h("div", { className: "wf-row wf-align--center wf-justify--between" });
   const _e18 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, () => WF.i18n.t("footer.built"));
   _e17.appendChild(_e18);
-  const _e19 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e19 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e20 = WF.h("a", { className: "wf-link", href: WF._basePath + "/" });
   const _e21 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, () => WF.i18n.t("nav.home"));
   _e20.appendChild(_e21);
+  WF.activeLink(_e20, "/", false);
   _e19.appendChild(_e20);
   const _e22 = WF.h("a", { className: "wf-link", href: WF._basePath + "/getting-started" });
   const _e23 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, () => WF.i18n.t("footer.docs"));
   _e22.appendChild(_e23);
+  WF.activeLink(_e22, "/getting-started", false);
   _e19.appendChild(_e22);
   _e17.appendChild(_e19);
   _e15.appendChild(_e17);
@@ -1122,39 +1223,45 @@ function Component_SiteFooter() {
   return _frag;
 }
 
-function Component_CodeBlock({ code }) {
+function Component_CodeBlock(_p, _children) {
+  _p = WF.props(_p, {  });
   const _frag = document.createDocumentFragment();
   const _e25 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e26 = WF.h("div", { className: "wf-card__body" });
-  const _e27 = WF.h("code", { className: "wf-code wf-code--block" }, code);
+  const _e27 = WF.h("code", { className: "wf-code wf-code--block" }, () => _p.code);
   _e26.appendChild(_e27);
   _e25.appendChild(_e26);
   _frag.appendChild(_e25);
   return _frag;
 }
 
-function Component_DocSidebar() {
+function Component_DocSidebar(_p, _children) {
+  _p = WF.props(_p, {  });
   const _frag = document.createDocumentFragment();
   const _e28 = WF.h("aside", { className: "wf-sidebar", id: "wf-sidebar-28" });
   const _e29 = WF.h("div", { className: "wf-sidebar__header" });
   const _e30 = WF.h("a", { className: "wf-link", href: WF._basePath + "/" });
   const _e31 = WF.h("p", { className: "wf-text wf-text--heading" }, "WebFluent");
   _e30.appendChild(_e31);
+  WF.activeLink(_e30, "/", false);
   _e29.appendChild(_e30);
   _e28.appendChild(_e29);
   const _e32 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase" }, () => WF.i18n.t("nav.section.intro"));
   _e28.appendChild(_e32);
   const _e33 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/" });
+  WF.activeLink(_e33, "/", false);
   _e33.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "home" }));
   const _e34 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.home"));
   _e33.appendChild(_e34);
   _e28.appendChild(_e33);
   const _e35 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/getting-started" });
+  WF.activeLink(_e35, "/getting-started", false);
   _e35.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "arrow-right" }));
   const _e36 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.start"));
   _e35.appendChild(_e36);
   _e28.appendChild(_e35);
   const _e37 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/guide" });
+  WF.activeLink(_e37, "/guide", false);
   _e37.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "info" }));
   const _e38 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.guide"));
   _e37.appendChild(_e38);
@@ -1163,41 +1270,49 @@ function Component_DocSidebar() {
   const _e39 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase" }, () => WF.i18n.t("nav.section.features"));
   _e28.appendChild(_e39);
   const _e40 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/components" });
+  WF.activeLink(_e40, "/components", false);
   _e40.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "filter" }));
   const _e41 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.components"));
   _e40.appendChild(_e41);
   _e28.appendChild(_e40);
   const _e42 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/styling" });
+  WF.activeLink(_e42, "/styling", false);
   _e42.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "eye" }));
   const _e43 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.styling"));
   _e42.appendChild(_e43);
   _e28.appendChild(_e42);
   const _e44 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/animation" });
+  WF.activeLink(_e44, "/animation", false);
   _e44.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "star" }));
   const _e45 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.animation"));
   _e44.appendChild(_e45);
   _e28.appendChild(_e44);
   const _e46 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/i18n" });
+  WF.activeLink(_e46, "/i18n", false);
   _e46.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "link" }));
   const _e47 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.i18n"));
   _e46.appendChild(_e47);
   _e28.appendChild(_e46);
   const _e48 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/seo" });
+  WF.activeLink(_e48, "/seo", false);
   _e48.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "search" }));
   const _e49 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.seo"));
   _e48.appendChild(_e49);
   _e28.appendChild(_e48);
   const _e50 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/ssg" });
+  WF.activeLink(_e50, "/ssg", false);
   _e50.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "download" }));
   const _e51 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.ssg"));
   _e50.appendChild(_e51);
   _e28.appendChild(_e50);
   const _e52 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/pdf" });
+  WF.activeLink(_e52, "/pdf", false);
   _e52.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "copy" }));
   const _e53 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.pdf"));
   _e52.appendChild(_e53);
   _e28.appendChild(_e52);
   const _e54 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/template-engine" });
+  WF.activeLink(_e54, "/template-engine", false);
   _e54.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "settings" }));
   const _e55 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.template"));
   _e54.appendChild(_e55);
@@ -1206,11 +1321,13 @@ function Component_DocSidebar() {
   const _e56 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase" }, () => WF.i18n.t("nav.section.tools"));
   _e28.appendChild(_e56);
   const _e57 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/accessibility" });
+  WF.activeLink(_e57, "/accessibility", false);
   _e57.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "check" }));
   const _e58 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.a11y"));
   _e57.appendChild(_e58);
   _e28.appendChild(_e57);
   const _e59 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/cli" });
+  WF.activeLink(_e59, "/cli", false);
   _e59.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "chevron-right" }));
   const _e60 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("nav.cli"));
   _e59.appendChild(_e60);
@@ -1239,7 +1356,7 @@ function Page_Pdf(params) {
   _e63.appendChild(_e68);
   const _e69 = WF.h("p", { className: "wf-text" }, "Set the output type to pdf in your project config.");
   _e63.appendChild(_e69);
-  const _e70 = WF.h("div", { className: "wf-spacer" });
+  const _e70 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e70);
   const _e71 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e72 = WF.h("div", { className: "wf-card__body" });
@@ -1261,7 +1378,7 @@ function Page_Pdf(params) {
   _e79.appendChild(_e80);
   _e78.appendChild(_e79);
   _e63.appendChild(_e78);
-  const _e81 = WF.h("div", { className: "wf-spacer" });
+  const _e81 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e81);
   const _e82 = WF.h("p", { className: "wf-text wf-text--muted" }, "This creates a sample PDF project and builds it to build/my-report.pdf.");
   _e63.appendChild(_e82);
@@ -1275,7 +1392,7 @@ function Page_Pdf(params) {
   _e63.appendChild(_e86);
   const _e87 = WF.h("p", { className: "wf-text" }, "PDF documents use the same .wf syntax. Wrap content in a Document element with optional Header and Footer.");
   _e63.appendChild(_e87);
-  const _e88 = WF.h("div", { className: "wf-spacer" });
+  const _e88 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e88);
   const _e89 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e90 = WF.h("div", { className: "wf-card__body" });
@@ -1293,13 +1410,13 @@ function Page_Pdf(params) {
   _e63.appendChild(_e95);
   const _e96 = WF.h("p", { className: "wf-text" }, "These components render in PDF output:");
   _e63.appendChild(_e96);
-  const _e97 = WF.h("div", { className: "wf-spacer" });
+  const _e97 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e97);
   const _e98 = WF.h("table", { className: "wf-table" });
   const _e99 = WF.h("thead", {});
-  const _e100 = WF.h("td", {}, "Component");
+  const _e100 = WF.h("th", { scope: "col" }, "Component");
   _e99.appendChild(_e100);
-  const _e101 = WF.h("td", {}, "PDF Behavior");
+  const _e101 = WF.h("th", { scope: "col" }, "PDF Behavior");
   _e99.appendChild(_e101);
   _e98.appendChild(_e99);
   const _e102 = WF.h("tr", {});
@@ -1421,7 +1538,7 @@ function Page_Pdf(params) {
   _e63.appendChild(_e159);
   const _e160 = WF.h("p", { className: "wf-text" }, "Interactive and web-only components cause compile-time errors in PDF mode:");
   _e63.appendChild(_e160);
-  const _e161 = WF.h("div", { className: "wf-spacer" });
+  const _e161 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e161);
   const _e162 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e163 = WF.h("div", { className: "wf-card__body" });
@@ -1429,7 +1546,7 @@ function Page_Pdf(params) {
   _e163.appendChild(_e164);
   _e162.appendChild(_e163);
   _e63.appendChild(_e162);
-  const _e165 = WF.h("div", { className: "wf-spacer" });
+  const _e165 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e165);
   const _e166 = WF.h("p", { className: "wf-text wf-text--muted" }, "Rejected: Button, Input, Select, Checkbox, Switch, Slider, Form, Modal, Dialog, Toast, Router, Navbar, Sidebar, Tabs, Video, Carousel, and all event handlers.");
   _e63.appendChild(_e166);
@@ -1443,11 +1560,11 @@ function Page_Pdf(params) {
   _e63.appendChild(_e170);
   const _e171 = WF.h("table", { className: "wf-table" });
   const _e172 = WF.h("thead", {});
-  const _e173 = WF.h("td", {}, "Value");
+  const _e173 = WF.h("th", { scope: "col" }, "Value");
   _e172.appendChild(_e173);
-  const _e174 = WF.h("td", {}, "Dimensions (points)");
+  const _e174 = WF.h("th", { scope: "col" }, "Dimensions (points)");
   _e172.appendChild(_e174);
-  const _e175 = WF.h("td", {}, "Dimensions (mm)");
+  const _e175 = WF.h("th", { scope: "col" }, "Dimensions (mm)");
   _e172.appendChild(_e175);
   _e171.appendChild(_e172);
   const _e176 = WF.h("tr", {});
@@ -1501,13 +1618,13 @@ function Page_Pdf(params) {
   _e63.appendChild(_e199);
   const _e200 = WF.h("p", { className: "wf-text" }, "PDF output uses the 14 standard PDF base fonts. No embedding needed.");
   _e63.appendChild(_e200);
-  const _e201 = WF.h("div", { className: "wf-spacer" });
+  const _e201 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e201);
   const _e202 = WF.h("table", { className: "wf-table" });
   const _e203 = WF.h("thead", {});
-  const _e204 = WF.h("td", {}, "Font Family");
+  const _e204 = WF.h("th", { scope: "col" }, "Font Family");
   _e203.appendChild(_e204);
-  const _e205 = WF.h("td", {}, "Variants");
+  const _e205 = WF.h("th", { scope: "col" }, "Variants");
   _e203.appendChild(_e205);
   _e202.appendChild(_e203);
   const _e206 = WF.h("tr", {});
@@ -1529,11 +1646,11 @@ function Page_Pdf(params) {
   _e212.appendChild(_e214);
   _e202.appendChild(_e212);
   _e63.appendChild(_e202);
-  const _e215 = WF.h("div", { className: "wf-spacer" });
+  const _e215 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e215);
   const _e216 = WF.h("p", { className: "wf-text wf-text--muted" }, "Set the default font in config or override per-element with style blocks:");
   _e63.appendChild(_e216);
-  const _e217 = WF.h("div", { className: "wf-spacer" });
+  const _e217 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e217);
   const _e218 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e219 = WF.h("div", { className: "wf-card__body" });
@@ -1551,15 +1668,15 @@ function Page_Pdf(params) {
   _e63.appendChild(_e224);
   const _e225 = WF.h("p", { className: "wf-text" }, "Style blocks support these properties in PDF output:");
   _e63.appendChild(_e225);
-  const _e226 = WF.h("div", { className: "wf-spacer" });
+  const _e226 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e226);
   const _e227 = WF.h("table", { className: "wf-table" });
   const _e228 = WF.h("thead", {});
-  const _e229 = WF.h("td", {}, "Property");
+  const _e229 = WF.h("th", { scope: "col" }, "Property");
   _e228.appendChild(_e229);
-  const _e230 = WF.h("td", {}, "Values");
+  const _e230 = WF.h("th", { scope: "col" }, "Values");
   _e228.appendChild(_e230);
-  const _e231 = WF.h("td", {}, "Example");
+  const _e231 = WF.h("th", { scope: "col" }, "Example");
   _e228.appendChild(_e231);
   _e227.appendChild(_e228);
   const _e232 = WF.h("tr", {});
@@ -1595,7 +1712,7 @@ function Page_Pdf(params) {
   _e244.appendChild(_e247);
   _e227.appendChild(_e244);
   _e63.appendChild(_e227);
-  const _e248 = WF.h("div", { className: "wf-spacer" });
+  const _e248 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e63.appendChild(_e248);
   const _e249 = WF.h("p", { className: "wf-text wf-text--muted" }, "Modifiers also work: bold, muted, primary, danger, success, warning, info, small, large, center, right.");
   _e63.appendChild(_e249);
@@ -1609,7 +1726,7 @@ function Page_Pdf(params) {
   _e63.appendChild(_e253);
   const _e254 = WF.h("p", { className: "wf-text wf-text--muted" }, "Content automatically flows to a new page when it reaches the bottom margin. Headers and footers are rendered on every page, including auto-generated ones.");
   _e63.appendChild(_e254);
-  const _e255 = WF.h("div", { className: "wf-spacer" });
+  const _e255 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e63.appendChild(_e255);
   _root.appendChild(_e63);
   return _root;
@@ -1630,7 +1747,7 @@ function Page_Seo(params) {
   _e256.appendChild(_e261);
   const _e262 = WF.h("p", { className: "wf-text" }, "Add your site's own address. The compiler knows every route, so it can write the rest itself.");
   _e256.appendChild(_e262);
-  const _e263 = WF.h("div", { className: "wf-spacer" });
+  const _e263 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e263);
   const _e264 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e265 = WF.h("div", { className: "wf-card__body" });
@@ -1638,7 +1755,7 @@ function Page_Seo(params) {
   _e265.appendChild(_e266);
   _e264.appendChild(_e265);
   _e256.appendChild(_e264);
-  const _e267 = WF.h("div", { className: "wf-spacer" });
+  const _e267 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e267);
   const _e268 = WF.h("div", { className: "wf-alert wf-alert--info", role: "status" }, "Without site_url, the tags that need an absolute address are left out rather than guessed at. A canonical pointing at the wrong host is worse than no canonical at all.");
   _e256.appendChild(_e268);
@@ -1652,7 +1769,7 @@ function Page_Seo(params) {
   _e256.appendChild(_e272);
   const _e273 = WF.h("p", { className: "wf-text" }, "Four optional attributes on any page. Everything else is derived.");
   _e256.appendChild(_e273);
-  const _e274 = WF.h("div", { className: "wf-spacer" });
+  const _e274 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e274);
   const _e275 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e276 = WF.h("div", { className: "wf-card__body" });
@@ -1660,14 +1777,14 @@ function Page_Seo(params) {
   _e276.appendChild(_e277);
   _e275.appendChild(_e276);
   _e256.appendChild(_e275);
-  const _e278 = WF.h("div", { className: "wf-spacer" });
+  const _e278 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e278);
   const _e279 = WF.h("table", { className: "wf-table" });
   const _e280 = WF.h("thead", {});
   const _e281 = WF.h("tr", {});
-  const _e282 = WF.h("td", {}, "Attribute");
+  const _e282 = WF.h("th", { scope: "col" }, "Attribute");
   _e281.appendChild(_e282);
-  const _e283 = WF.h("td", {}, "What it does");
+  const _e283 = WF.h("th", { scope: "col" }, "What it does");
   _e281.appendChild(_e283);
   _e280.appendChild(_e281);
   _e279.appendChild(_e280);
@@ -1704,7 +1821,7 @@ function Page_Seo(params) {
   _e284.appendChild(_e297);
   _e279.appendChild(_e284);
   _e256.appendChild(_e279);
-  const _e300 = WF.h("div", { className: "wf-spacer" });
+  const _e300 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e300);
   const _e301 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e302 = WF.h("div", { className: "wf-card__body" });
@@ -1722,9 +1839,9 @@ function Page_Seo(params) {
   _e256.appendChild(_e307);
   const _e308 = WF.h("p", { className: "wf-text" }, "Written into every page's head, with no further configuration.");
   _e256.appendChild(_e308);
-  const _e309 = WF.h("div", { className: "wf-spacer" });
+  const _e309 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e309);
-  const _e310 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e310 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e311 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e312 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e313 = WF.h("div", { className: "wf-card__body" });
@@ -1732,7 +1849,7 @@ function Page_Seo(params) {
   _e313.appendChild(_e314);
   const _e315 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Absolute, and pointing at itself. This is what stops two addresses for one page competing with each other in the rankings.");
   _e313.appendChild(_e315);
-  const _e316 = WF.h("div", { className: "wf-spacer" });
+  const _e316 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e313.appendChild(_e316);
   const _e317 = WF.h("code", { className: "wf-code wf-code--block" }, "<link rel=\"canonical\"\n      href=\"https://example.com/blog/slow-roasting\">");
   _e313.appendChild(_e317);
@@ -1746,7 +1863,7 @@ function Page_Seo(params) {
   _e320.appendChild(_e321);
   const _e322 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Open Graph and Twitter tags, so a link pasted into a chat unfurls with the right title, text and picture.");
   _e320.appendChild(_e322);
-  const _e323 = WF.h("div", { className: "wf-spacer" });
+  const _e323 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e320.appendChild(_e323);
   const _e324 = WF.h("code", { className: "wf-code wf-code--block" }, "<meta property=\"og:title\" ...>\n<meta property=\"og:description\" ...>\n<meta property=\"og:image\" ...>\n<meta name=\"twitter:card\"\n      content=\"summary_large_image\">");
   _e320.appendChild(_e324);
@@ -1754,9 +1871,9 @@ function Page_Seo(params) {
   _e318.appendChild(_e319);
   _e310.appendChild(_e318);
   _e256.appendChild(_e310);
-  const _e325 = WF.h("div", { className: "wf-spacer" });
+  const _e325 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e325);
-  const _e326 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e326 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e327 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e328 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e329 = WF.h("div", { className: "wf-card__body" });
@@ -1764,7 +1881,7 @@ function Page_Seo(params) {
   _e329.appendChild(_e330);
   const _e331 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "JSON-LD describing the site, the organisation, the page, and a breadcrumb trail built from the route itself.");
   _e329.appendChild(_e331);
-  const _e332 = WF.h("div", { className: "wf-spacer" });
+  const _e332 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e329.appendChild(_e332);
   const _e333 = WF.h("code", { className: "wf-code wf-code--block" }, "{\"@type\":\"Article\", ... }\n{\"@type\":\"BreadcrumbList\", ... }");
   _e329.appendChild(_e333);
@@ -1778,7 +1895,7 @@ function Page_Seo(params) {
   _e336.appendChild(_e337);
   const _e338 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "When i18n declares more than one locale, every page lists each variant and itself, plus an x-default fallback.");
   _e336.appendChild(_e338);
-  const _e339 = WF.h("div", { className: "wf-spacer" });
+  const _e339 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e336.appendChild(_e339);
   const _e340 = WF.h("code", { className: "wf-code wf-code--block" }, "<link rel=\"alternate\" hreflang=\"en\" ...>\n<link rel=\"alternate\" hreflang=\"ar\" ...>\n<link rel=\"alternate\"\n      hreflang=\"x-default\" ...>");
   _e336.appendChild(_e340);
@@ -1796,7 +1913,7 @@ function Page_Seo(params) {
   _e256.appendChild(_e344);
   const _e345 = WF.h("p", { className: "wf-text" }, "Written to your build directory alongside the pages. The compiler already knows every route, so there is nothing to keep in step by hand.");
   _e256.appendChild(_e345);
-  const _e346 = WF.h("div", { className: "wf-spacer" });
+  const _e346 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e346);
   const _e347 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e348 = WF.h("div", { className: "wf-card__body" });
@@ -1804,15 +1921,15 @@ function Page_Seo(params) {
   _e348.appendChild(_e349);
   _e347.appendChild(_e348);
   _e256.appendChild(_e347);
-  const _e350 = WF.h("div", { className: "wf-spacer" });
+  const _e350 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e350);
   const _e351 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Dynamic routes, catch-alls and noindex pages are left out. Neither priority nor changefreq is emitted, because Google ignores both — writing them implies a control you do not have.");
   _e256.appendChild(_e351);
-  const _e352 = WF.h("div", { className: "wf-spacer" });
+  const _e352 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e352);
   const _e353 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Turn the pair off with:");
   _e256.appendChild(_e353);
-  const _e354 = WF.h("div", { className: "wf-spacer" });
+  const _e354 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e354);
   const _e355 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e356 = WF.h("div", { className: "wf-card__body" });
@@ -1830,14 +1947,14 @@ function Page_Seo(params) {
   _e256.appendChild(_e361);
   const _e362 = WF.h("p", { className: "wf-text" }, "Four warnings, none of which fails a build.");
   _e256.appendChild(_e362);
-  const _e363 = WF.h("div", { className: "wf-spacer" });
+  const _e363 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e363);
   const _e364 = WF.h("table", { className: "wf-table" });
   const _e365 = WF.h("thead", {});
   const _e366 = WF.h("tr", {});
-  const _e367 = WF.h("td", {}, "Rule");
+  const _e367 = WF.h("th", { scope: "col" }, "Rule");
   _e366.appendChild(_e367);
-  const _e368 = WF.h("td", {}, "Meaning");
+  const _e368 = WF.h("th", { scope: "col" }, "Meaning");
   _e366.appendChild(_e368);
   _e365.appendChild(_e366);
   _e364.appendChild(_e365);
@@ -1878,12 +1995,14 @@ function Page_Seo(params) {
   _e256.appendChild(_e385);
   const _e386 = WF.h("p", { className: "wf-text" }, "A crawler that runs no JavaScript sees only what is in the HTML. With SSG on, that is the whole page — including lists built from seeded data, which the compiler resolves at build time rather than leaving to the browser.");
   _e256.appendChild(_e386);
-  const _e387 = WF.h("div", { className: "wf-spacer" });
+  const _e387 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e256.appendChild(_e387);
-  const _e388 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e388 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e389 = WF.h("a", { className: "wf-link", href: WF._basePath + "/ssg" }, "Read about SSG");
+  WF.activeLink(_e389, "/ssg", false);
   _e388.appendChild(_e389);
   const _e390 = WF.h("a", { className: "wf-link", href: WF._basePath + "/i18n" }, "Read about i18n");
+  WF.activeLink(_e390, "/i18n", false);
   _e388.appendChild(_e390);
   _e256.appendChild(_e388);
   const _e391 = WF.h("div", { className: "wf-spacer" });
@@ -1907,7 +2026,7 @@ function Page_Ssg(params) {
   _e392.appendChild(_e397);
   const _e398 = WF.h("p", { className: "wf-text" }, "One config flag is all you need.");
   _e392.appendChild(_e398);
-  const _e399 = WF.h("div", { className: "wf-spacer" });
+  const _e399 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e392.appendChild(_e399);
   const _e400 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e401 = WF.h("div", { className: "wf-card__body" });
@@ -1923,7 +2042,7 @@ function Page_Ssg(params) {
   _e392.appendChild(_e405);
   const _e406 = WF.h("h2", { className: "wf-heading" }, "How It Works");
   _e392.appendChild(_e406);
-  const _e407 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e407 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e408 = WF.h("div", { className: "wf-col wf-col--4" });
   const _e409 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e410 = WF.h("div", { className: "wf-card__body" });
@@ -1963,7 +2082,7 @@ function Page_Ssg(params) {
   _e392.appendChild(_e425);
   const _e426 = WF.h("h2", { className: "wf-heading" }, "Build Output");
   _e392.appendChild(_e426);
-  const _e427 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e427 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e428 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e429 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e430 = WF.h("div", { className: "wf-card__body" });
@@ -1995,9 +2114,9 @@ function Page_Ssg(params) {
   _e392.appendChild(_e441);
   const _e442 = WF.h("table", { className: "wf-table" });
   const _e443 = WF.h("thead", {});
-  const _e444 = WF.h("td", {}, "Element");
+  const _e444 = WF.h("th", { scope: "col" }, "Element");
   _e443.appendChild(_e444);
-  const _e445 = WF.h("td", {}, "SSG Behavior");
+  const _e445 = WF.h("th", { scope: "col" }, "SSG Behavior");
   _e443.appendChild(_e445);
   _e442.appendChild(_e443);
   const _e446 = WF.h("tr", {});
@@ -2071,7 +2190,7 @@ function Page_Ssg(params) {
   _e392.appendChild(_e479);
   const _e480 = WF.h("p", { className: "wf-text wf-text--muted" }, "Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.");
   _e392.appendChild(_e480);
-  const _e481 = WF.h("div", { className: "wf-spacer" });
+  const _e481 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e392.appendChild(_e481);
   const _e482 = WF.h("div", { className: "wf-spacer" });
   _e392.appendChild(_e482);
@@ -2083,7 +2202,7 @@ function Page_Ssg(params) {
   _e392.appendChild(_e485);
   const _e486 = WF.h("p", { className: "wf-text" }, "A for loop over data the compiler can work out — a store's seeded state, a literal list — is rendered into the HTML at build time. Only what genuinely depends on the running page is left to JavaScript.");
   _e392.appendChild(_e486);
-  const _e487 = WF.h("div", { className: "wf-spacer" });
+  const _e487 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e392.appendChild(_e487);
   const _e488 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e489 = WF.h("div", { className: "wf-card__body" });
@@ -2091,7 +2210,7 @@ function Page_Ssg(params) {
   _e489.appendChild(_e490);
   _e488.appendChild(_e489);
   _e392.appendChild(_e488);
-  const _e491 = WF.h("div", { className: "wf-spacer" });
+  const _e491 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e392.appendChild(_e491);
   const _e492 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Both cards, both titles and both tags are in the served HTML — visible to a crawler, and painted before the bundle has finished downloading. A list fetched from an API cannot be known at build time, so it stays a placeholder for the client to fill.");
   _e392.appendChild(_e492);
@@ -2105,10 +2224,11 @@ function Page_Ssg(params) {
   _e392.appendChild(_e496);
   const _e497 = WF.h("p", { className: "wf-text" }, "Set meta.site_url and the build also writes sitemap.xml and robots.txt, covering every static route.");
   _e392.appendChild(_e497);
-  const _e498 = WF.h("div", { className: "wf-spacer" });
+  const _e498 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e392.appendChild(_e498);
-  const _e499 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e499 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e500 = WF.h("a", { className: "wf-link", href: WF._basePath + "/seo" }, "Read about search and sharing");
+  WF.activeLink(_e500, "/seo", false);
   _e499.appendChild(_e500);
   _e392.appendChild(_e499);
   _root.appendChild(_e392);
@@ -2130,7 +2250,7 @@ function Page_Styling(params) {
   _e501.appendChild(_e506);
   const _e507 = WF.h("p", { className: "wf-text" }, "Apply common styles with modifier keywords.");
   _e501.appendChild(_e507);
-  const _e508 = WF.h("div", { className: "wf-spacer" });
+  const _e508 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e508);
   const _e509 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e510 = WF.h("div", { className: "wf-card__header" });
@@ -2138,7 +2258,7 @@ function Page_Styling(params) {
   _e510.appendChild(_e511);
   _e509.appendChild(_e510);
   const _e512 = WF.h("div", { className: "wf-card__body" });
-  const _e513 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
+  const _e513 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
   const _e514 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--small" }, "Small");
   _e513.appendChild(_e514);
   const _e515 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Medium");
@@ -2148,7 +2268,7 @@ function Page_Styling(params) {
   _e512.appendChild(_e513);
   _e509.appendChild(_e512);
   _e501.appendChild(_e509);
-  const _e517 = WF.h("div", { className: "wf-spacer" });
+  const _e517 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e517);
   const _e518 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e519 = WF.h("div", { className: "wf-card__header" });
@@ -2156,7 +2276,7 @@ function Page_Styling(params) {
   _e519.appendChild(_e520);
   _e518.appendChild(_e519);
   const _e521 = WF.h("div", { className: "wf-card__body" });
-  const _e522 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e522 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e523 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Primary");
   _e522.appendChild(_e523);
   const _e524 = WF.h("button", { className: "wf-btn wf-btn--secondary" }, "Secondary");
@@ -2170,9 +2290,9 @@ function Page_Styling(params) {
   const _e528 = WF.h("button", { className: "wf-btn wf-btn--info" }, "Info");
   _e522.appendChild(_e528);
   _e521.appendChild(_e522);
-  const _e529 = WF.h("div", { className: "wf-spacer" });
+  const _e529 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e521.appendChild(_e529);
-  const _e530 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e530 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e531 = WF.h("span", { className: "wf-badge wf-badge--primary" }, "Primary");
   _e530.appendChild(_e531);
   const _e532 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Success");
@@ -2184,7 +2304,7 @@ function Page_Styling(params) {
   _e521.appendChild(_e530);
   _e518.appendChild(_e521);
   _e501.appendChild(_e518);
-  const _e535 = WF.h("div", { className: "wf-spacer" });
+  const _e535 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e535);
   const _e536 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e537 = WF.h("div", { className: "wf-card__header" });
@@ -2192,7 +2312,7 @@ function Page_Styling(params) {
   _e537.appendChild(_e538);
   _e536.appendChild(_e537);
   const _e539 = WF.h("div", { className: "wf-card__body" });
-  const _e540 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e540 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e541 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Default");
   _e540.appendChild(_e541);
   const _e542 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--rounded" }, "Rounded");
@@ -2202,7 +2322,7 @@ function Page_Styling(params) {
   _e539.appendChild(_e540);
   const _e544 = WF.h("div", { className: "wf-spacer" });
   _e539.appendChild(_e544);
-  const _e545 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e545 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e546 = WF.h("div", { className: "wf-card" });
   const _e547 = WF.h("div", { className: "wf-card__body" });
   const _e548 = WF.h("p", { className: "wf-text" }, "Default");
@@ -2224,7 +2344,7 @@ function Page_Styling(params) {
   _e539.appendChild(_e545);
   _e536.appendChild(_e539);
   _e501.appendChild(_e536);
-  const _e555 = WF.h("div", { className: "wf-spacer" });
+  const _e555 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e555);
   const _e556 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e557 = WF.h("div", { className: "wf-card__header" });
@@ -2258,9 +2378,9 @@ function Page_Styling(params) {
   _e501.appendChild(_e570);
   const _e571 = WF.h("p", { className: "wf-text" }, "All styling is built on tokens — CSS custom properties. Override any token in your config.");
   _e501.appendChild(_e571);
-  const _e572 = WF.h("div", { className: "wf-spacer" });
+  const _e572 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e572);
-  const _e573 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e573 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e574 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e575 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e576 = WF.h("div", { className: "wf-card__header" });
@@ -2270,9 +2390,9 @@ function Page_Styling(params) {
   const _e578 = WF.h("div", { className: "wf-card__body" });
   const _e579 = WF.h("table", { className: "wf-table" });
   const _e580 = WF.h("thead", {});
-  const _e581 = WF.h("td", {}, "Token");
+  const _e581 = WF.h("th", { scope: "col" }, "Token");
   _e580.appendChild(_e581);
-  const _e582 = WF.h("td", {}, "Value");
+  const _e582 = WF.h("th", { scope: "col" }, "Value");
   _e580.appendChild(_e582);
   _e579.appendChild(_e580);
   const _e583 = WF.h("tr", {});
@@ -2324,9 +2444,9 @@ function Page_Styling(params) {
   const _e605 = WF.h("div", { className: "wf-card__body" });
   const _e606 = WF.h("table", { className: "wf-table" });
   const _e607 = WF.h("thead", {});
-  const _e608 = WF.h("td", {}, "Token");
+  const _e608 = WF.h("th", { scope: "col" }, "Token");
   _e607.appendChild(_e608);
-  const _e609 = WF.h("td", {}, "Value");
+  const _e609 = WF.h("th", { scope: "col" }, "Value");
   _e607.appendChild(_e609);
   _e606.appendChild(_e607);
   const _e610 = WF.h("tr", {});
@@ -2380,7 +2500,7 @@ function Page_Styling(params) {
   _e501.appendChild(_e631);
   const _e632 = WF.h("p", { className: "wf-text" }, "A theme is written in WebFluent, in your own source, next to the code it dresses. Declare one and every built-in component follows it.");
   _e501.appendChild(_e632);
-  const _e633 = WF.h("div", { className: "wf-spacer" });
+  const _e633 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e633);
   const _e634 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e635 = WF.h("div", { className: "wf-card__body" });
@@ -2388,7 +2508,7 @@ function Page_Styling(params) {
   _e635.appendChild(_e636);
   _e634.appendChild(_e635);
   _e501.appendChild(_e634);
-  const _e637 = WF.h("div", { className: "wf-spacer" });
+  const _e637 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e637);
   const _e638 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Every token you do not name keeps its baseline value, so a theme is only as large as the difference you want. Declare one theme and it is used automatically; declare several and name the one you want with \"theme\": { \"name\": \"Ledger\" } in webfluent.app.json.");
   _e501.appendChild(_e638);
@@ -2398,24 +2518,24 @@ function Page_Styling(params) {
   _e501.appendChild(_e640);
   const _e641 = WF.h("p", { className: "wf-text" }, "Four starting points ship in examples/themes/. Copy one into your src/ and edit it — they are ordinary source files, not engine settings.");
   _e501.appendChild(_e641);
-  const _e642 = WF.h("div", { className: "wf-spacer" });
+  const _e642 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e642);
-  const _e643 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
+  const _e643 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
   const _e644 = WF.h("div", { className: "wf-card" });
   const _e645 = WF.h("div", { className: "wf-card__body" });
-  const _e646 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
+  const _e646 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
   const _e647 = WF.h("span", { className: "wf-badge wf-badge--primary" }, "baseline");
   _e646.appendChild(_e647);
   const _e648 = WF.h("p", { className: "wf-text wf-text--bold" }, "Baseline");
   _e646.appendChild(_e648);
   _e645.appendChild(_e646);
-  const _e649 = WF.h("div", { className: "wf-spacer" });
+  const _e649 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e645.appendChild(_e649);
   const _e650 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "What you get with no theme declared: clean, modern, blue primary.");
   _e645.appendChild(_e650);
-  const _e651 = WF.h("div", { className: "wf-spacer" });
+  const _e651 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e645.appendChild(_e651);
-  const _e652 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e652 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e653 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--small" }, "Primary");
   _e652.appendChild(_e653);
   const _e654 = WF.h("button", { className: "wf-btn wf-btn--success wf-btn--small" }, "Success");
@@ -2423,11 +2543,11 @@ function Page_Styling(params) {
   const _e655 = WF.h("span", { className: "wf-badge wf-badge--info" }, "Tag");
   _e652.appendChild(_e655);
   _e645.appendChild(_e652);
-  const _e656 = WF.h("div", { className: "wf-spacer" });
+  const _e656 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e645.appendChild(_e656);
   const _e657 = WF.h("progress", { className: "wf-progress wf-progress--primary", value: 65, max: 100 });
   _e645.appendChild(_e657);
-  const _e658 = WF.h("div", { className: "wf-spacer" });
+  const _e658 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e645.appendChild(_e658);
   const _e659 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "No declaration needed.");
   _e645.appendChild(_e659);
@@ -2438,19 +2558,19 @@ function Page_Styling(params) {
   _e643.appendChild(_e644);
   const _e660 = WF.h("div", { className: "wf-card" });
   const _e661 = WF.h("div", { className: "wf-card__body" });
-  const _e662 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
+  const _e662 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
   const _e663 = WF.h("span", { className: "wf-badge wf-badge--secondary" }, "dark");
   _e662.appendChild(_e663);
   const _e664 = WF.h("p", { className: "wf-text wf-text--bold" }, "Dark");
   _e662.appendChild(_e664);
   _e661.appendChild(_e662);
-  const _e665 = WF.h("div", { className: "wf-spacer" });
+  const _e665 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e661.appendChild(_e665);
   const _e666 = WF.h("p", { className: "wf-text wf-text--small" }, "Dark backgrounds with light text and vibrant accents.");
   _e661.appendChild(_e666);
-  const _e667 = WF.h("div", { className: "wf-spacer" });
+  const _e667 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e661.appendChild(_e667);
-  const _e668 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e668 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e669 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--small" }, "Primary");
   _e668.appendChild(_e669);
   const _e670 = WF.h("button", { className: "wf-btn wf-btn--danger wf-btn--small" }, "Danger");
@@ -2458,11 +2578,11 @@ function Page_Styling(params) {
   const _e671 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Live");
   _e668.appendChild(_e671);
   _e661.appendChild(_e668);
-  const _e672 = WF.h("div", { className: "wf-spacer" });
+  const _e672 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e661.appendChild(_e672);
   const _e673 = WF.h("progress", { className: "wf-progress wf-progress--info", value: 80, max: 100 });
   _e661.appendChild(_e673);
-  const _e674 = WF.h("div", { className: "wf-spacer" });
+  const _e674 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e661.appendChild(_e674);
   const _e675 = WF.h("code", { className: "wf-code wf-code--block" }, "examples/themes/dark.wf");
   _e661.appendChild(_e675);
@@ -2474,29 +2594,29 @@ function Page_Styling(params) {
   _e643.appendChild(_e660);
   const _e676 = WF.h("div", { className: "wf-card" });
   const _e677 = WF.h("div", { className: "wf-card__body" });
-  const _e678 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
+  const _e678 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
   const _e679 = WF.h("span", { className: "wf-badge" }, "minimal");
   _e678.appendChild(_e679);
   const _e680 = WF.h("p", { className: "wf-text wf-text--bold" }, "Minimal");
   _e678.appendChild(_e680);
   _e677.appendChild(_e678);
-  const _e681 = WF.h("div", { className: "wf-spacer" });
+  const _e681 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e677.appendChild(_e681);
   const _e682 = WF.h("p", { className: "wf-text wf-text--small" }, "Black and white. No shadows, no border-radius. Pure content.");
   _e677.appendChild(_e682);
-  const _e683 = WF.h("div", { className: "wf-spacer" });
+  const _e683 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e677.appendChild(_e683);
-  const _e684 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e684 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e685 = WF.h("button", { className: "wf-btn wf-btn--small" }, "Action");
   _e684.appendChild(_e685);
   const _e686 = WF.h("span", { className: "wf-badge" }, "Note");
   _e684.appendChild(_e686);
   _e677.appendChild(_e684);
-  const _e687 = WF.h("div", { className: "wf-spacer" });
+  const _e687 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e677.appendChild(_e687);
   const _e688 = WF.h("progress", { className: "wf-progress", value: 50, max: 100 });
   _e677.appendChild(_e688);
-  const _e689 = WF.h("div", { className: "wf-spacer" });
+  const _e689 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e677.appendChild(_e689);
   const _e690 = WF.h("code", { className: "wf-code wf-code--block" }, "examples/themes/minimal.wf");
   _e677.appendChild(_e690);
@@ -2507,29 +2627,29 @@ function Page_Styling(params) {
   _e643.appendChild(_e676);
   const _e691 = WF.h("div", { className: "wf-card" });
   const _e692 = WF.h("div", { className: "wf-card__body" });
-  const _e693 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
+  const _e693 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
   const _e694 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "brutalist");
   _e693.appendChild(_e694);
   const _e695 = WF.h("p", { className: "wf-text wf-text--bold" }, "Brutalist");
   _e693.appendChild(_e695);
   _e692.appendChild(_e693);
-  const _e696 = WF.h("div", { className: "wf-spacer" });
+  const _e696 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e692.appendChild(_e696);
   const _e697 = WF.h("p", { className: "wf-text wf-text--small" }, "Monospace font, bold red primary, hard offset shadows.");
   _e692.appendChild(_e697);
-  const _e698 = WF.h("div", { className: "wf-spacer" });
+  const _e698 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e692.appendChild(_e698);
-  const _e699 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e699 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e700 = WF.h("button", { className: "wf-btn wf-btn--danger wf-btn--small" }, "Action");
   _e699.appendChild(_e700);
   const _e701 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "Alert");
   _e699.appendChild(_e701);
   _e692.appendChild(_e699);
-  const _e702 = WF.h("div", { className: "wf-spacer" });
+  const _e702 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e692.appendChild(_e702);
   const _e703 = WF.h("progress", { className: "wf-progress wf-progress--danger", value: 90, max: 100 });
   _e692.appendChild(_e703);
-  const _e704 = WF.h("div", { className: "wf-spacer" });
+  const _e704 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e692.appendChild(_e704);
   const _e705 = WF.h("code", { className: "wf-code wf-code--block" }, "examples/themes/brutalist.wf");
   _e692.appendChild(_e705);
@@ -2551,7 +2671,7 @@ function Page_Styling(params) {
   _e501.appendChild(_e709);
   const _e710 = WF.h("p", { className: "wf-text" }, "A theme covers the design. For values a machine supplies — a deploy pipeline injecting a brand colour — config tokens still apply, on top of whatever the theme set.");
   _e501.appendChild(_e710);
-  const _e711 = WF.h("div", { className: "wf-spacer" });
+  const _e711 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e711);
   const _e712 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e713 = WF.h("div", { className: "wf-card__body" });
@@ -2569,7 +2689,7 @@ function Page_Styling(params) {
   _e501.appendChild(_e718);
   const _e719 = WF.h("p", { className: "wf-text" }, "Override styles on any component with inline style blocks.");
   _e501.appendChild(_e719);
-  const _e720 = WF.h("div", { className: "wf-spacer" });
+  const _e720 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e720);
   const _e721 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e722 = WF.h("div", { className: "wf-card__body" });
@@ -2577,13 +2697,13 @@ function Page_Styling(params) {
   _e722.appendChild(_e723);
   _e721.appendChild(_e722);
   _e501.appendChild(_e721);
-  const _e724 = WF.h("div", { className: "wf-spacer" });
+  const _e724 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e501.appendChild(_e724);
   const _e725 = WF.h("h2", { className: "wf-heading" }, "A scale that shrinks itself");
   _e501.appendChild(_e725);
   const _e726 = WF.h("p", { className: "wf-text" }, "The type and spacing steps carry their own range, so a heading is smaller on a phone than on a desktop without any media query of yours. A hand-set font-size opts out of that — if you want a size to respond, use a token.");
   _e501.appendChild(_e726);
-  const _e727 = WF.h("div", { className: "wf-spacer" });
+  const _e727 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e727);
   const _e728 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e729 = WF.h("div", { className: "wf-card__body" });
@@ -2601,7 +2721,7 @@ function Page_Styling(params) {
   _e501.appendChild(_e734);
   const _e735 = WF.h("p", { className: "wf-text" }, "Structural mode ships the layout and the mechanics — the grid, the off-canvas panel, the dialog, focus indication, reduced motion — and none of the engine's opinions about how any of it should look.");
   _e501.appendChild(_e735);
-  const _e736 = WF.h("div", { className: "wf-spacer" });
+  const _e736 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e736);
   const _e737 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e738 = WF.h("div", { className: "wf-card__body" });
@@ -2609,7 +2729,7 @@ function Page_Styling(params) {
   _e738.appendChild(_e739);
   _e737.appendChild(_e738);
   _e501.appendChild(_e737);
-  const _e740 = WF.h("div", { className: "wf-spacer" });
+  const _e740 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e501.appendChild(_e740);
   const _e741 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Your Theme still applies. In this mode it is not an override of a baseline — it is the entire palette the site has.");
   _e501.appendChild(_e741);
@@ -2632,7 +2752,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e747);
   const _e748 = WF.h("p", { className: "wf-text" }, "Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.");
   _e742.appendChild(_e748);
-  const _e749 = WF.h("div", { className: "wf-spacer" });
+  const _e749 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e749);
   const _e750 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e751 = WF.h("div", { className: "wf-card__body" });
@@ -2640,17 +2760,17 @@ function Page_Guide(params) {
   _e751.appendChild(_e752);
   _e750.appendChild(_e751);
   _e742.appendChild(_e750);
-  const _e753 = WF.h("div", { className: "wf-spacer" });
+  const _e753 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e753);
   const _e754 = WF.h("p", { className: "wf-text wf-text--bold" }, "Page attributes:");
   _e742.appendChild(_e754);
   const _e755 = WF.h("table", { className: "wf-table" });
   const _e756 = WF.h("thead", {});
-  const _e757 = WF.h("td", {}, "Attribute");
+  const _e757 = WF.h("th", { scope: "col" }, "Attribute");
   _e756.appendChild(_e757);
-  const _e758 = WF.h("td", {}, "Type");
+  const _e758 = WF.h("th", { scope: "col" }, "Type");
   _e756.appendChild(_e758);
-  const _e759 = WF.h("td", {}, "Description");
+  const _e759 = WF.h("th", { scope: "col" }, "Description");
   _e756.appendChild(_e759);
   _e755.appendChild(_e756);
   const _e760 = WF.h("tr", {});
@@ -2728,7 +2848,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e795);
   const _e796 = WF.h("p", { className: "wf-text" }, "Reusable UI blocks that accept props and can have internal state.");
   _e742.appendChild(_e796);
-  const _e797 = WF.h("div", { className: "wf-spacer" });
+  const _e797 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e797);
   const _e798 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e799 = WF.h("div", { className: "wf-card__body" });
@@ -2736,7 +2856,7 @@ function Page_Guide(params) {
   _e799.appendChild(_e800);
   _e798.appendChild(_e799);
   _e742.appendChild(_e798);
-  const _e801 = WF.h("div", { className: "wf-spacer" });
+  const _e801 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e801);
   const _e802 = WF.h("p", { className: "wf-text wf-text--muted" }, "Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.");
   _e742.appendChild(_e802);
@@ -2750,7 +2870,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e806);
   const _e807 = WF.h("p", { className: "wf-text" }, "State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.");
   _e742.appendChild(_e807);
-  const _e808 = WF.h("div", { className: "wf-spacer" });
+  const _e808 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e808);
   const _e809 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e810 = WF.h("div", { className: "wf-card__body" });
@@ -2758,7 +2878,7 @@ function Page_Guide(params) {
   _e810.appendChild(_e811);
   _e809.appendChild(_e810);
   _e742.appendChild(_e809);
-  const _e812 = WF.h("div", { className: "wf-spacer" });
+  const _e812 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e812);
   const _e813 = WF.h("p", { className: "wf-text wf-text--bold" }, "Derived state:");
   _e742.appendChild(_e813);
@@ -2778,7 +2898,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e820);
   const _e821 = WF.h("p", { className: "wf-text" }, "Event handlers are declared with on:event or via shorthand blocks on buttons.");
   _e742.appendChild(_e821);
-  const _e822 = WF.h("div", { className: "wf-spacer" });
+  const _e822 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e822);
   const _e823 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e824 = WF.h("div", { className: "wf-card__body" });
@@ -2786,7 +2906,7 @@ function Page_Guide(params) {
   _e824.appendChild(_e825);
   _e823.appendChild(_e824);
   _e742.appendChild(_e823);
-  const _e826 = WF.h("div", { className: "wf-spacer" });
+  const _e826 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e826);
   const _e827 = WF.h("p", { className: "wf-text wf-text--muted" }, "Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount");
   _e742.appendChild(_e827);
@@ -2806,7 +2926,7 @@ function Page_Guide(params) {
   _e834.appendChild(_e835);
   _e833.appendChild(_e834);
   _e742.appendChild(_e833);
-  const _e836 = WF.h("div", { className: "wf-spacer" });
+  const _e836 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e836);
   const _e837 = WF.h("p", { className: "wf-text wf-text--bold" }, "Loops:");
   _e742.appendChild(_e837);
@@ -2816,7 +2936,7 @@ function Page_Guide(params) {
   _e839.appendChild(_e840);
   _e838.appendChild(_e839);
   _e742.appendChild(_e838);
-  const _e841 = WF.h("div", { className: "wf-spacer" });
+  const _e841 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e841);
   const _e842 = WF.h("p", { className: "wf-text wf-text--bold" }, "Show/Hide (keeps element in DOM, toggles visibility):");
   _e742.appendChild(_e842);
@@ -2836,7 +2956,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e849);
   const _e850 = WF.h("p", { className: "wf-text" }, "Stores hold shared state accessible from any page or component.");
   _e742.appendChild(_e850);
-  const _e851 = WF.h("div", { className: "wf-spacer" });
+  const _e851 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e851);
   const _e852 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e853 = WF.h("div", { className: "wf-card__body" });
@@ -2854,7 +2974,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e858);
   const _e859 = WF.h("p", { className: "wf-text" }, "SPA routing is declared in the App file.");
   _e742.appendChild(_e859);
-  const _e860 = WF.h("div", { className: "wf-spacer" });
+  const _e860 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e860);
   const _e861 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e862 = WF.h("div", { className: "wf-card__body" });
@@ -2872,7 +2992,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e867);
   const _e868 = WF.h("p", { className: "wf-text" }, "Built-in async data loading with automatic loading, error, and success states.");
   _e742.appendChild(_e868);
-  const _e869 = WF.h("div", { className: "wf-spacer" });
+  const _e869 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e869);
   const _e870 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e871 = WF.h("div", { className: "wf-card__body" });
@@ -2890,7 +3010,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e876);
   const _e877 = WF.h("p", { className: "wf-text" }, "Store actions can return values using the return keyword.");
   _e742.appendChild(_e877);
-  const _e878 = WF.h("div", { className: "wf-spacer" });
+  const _e878 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e878);
   const _e879 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e880 = WF.h("div", { className: "wf-card__body" });
@@ -2908,7 +3028,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e885);
   const _e886 = WF.h("p", { className: "wf-text" }, "Standard browser APIs are available directly without any special syntax. They compile to their JavaScript equivalents.");
   _e742.appendChild(_e886);
-  const _e887 = WF.h("div", { className: "wf-spacer" });
+  const _e887 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e887);
   const _e888 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e889 = WF.h("div", { className: "wf-card__body" });
@@ -2916,7 +3036,7 @@ function Page_Guide(params) {
   _e889.appendChild(_e890);
   _e888.appendChild(_e889);
   _e742.appendChild(_e888);
-  const _e891 = WF.h("div", { className: "wf-spacer" });
+  const _e891 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e891);
   const _e892 = WF.h("p", { className: "wf-text wf-text--muted" }, "Available globals: window, document, console, localStorage, sessionStorage, JSON, Math, Date, setTimeout, setInterval, parseInt, parseFloat, Array, Object, Promise, Error, fetch, alert, confirm, prompt, and more.");
   _e742.appendChild(_e892);
@@ -2930,7 +3050,7 @@ function Page_Guide(params) {
   _e742.appendChild(_e896);
   const _e897 = WF.h("p", { className: "wf-text" }, "Map literals support quoted string keys for HTTP headers and special field names. Reserved words also work as map keys.");
   _e742.appendChild(_e897);
-  const _e898 = WF.h("div", { className: "wf-spacer" });
+  const _e898 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e898);
   const _e899 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e900 = WF.h("div", { className: "wf-card__body" });
@@ -2948,13 +3068,13 @@ function Page_Guide(params) {
   _e742.appendChild(_e905);
   const _e906 = WF.h("p", { className: "wf-text" }, "WebFluent supports all common comparison and logical operators.");
   _e742.appendChild(_e906);
-  const _e907 = WF.h("div", { className: "wf-spacer" });
+  const _e907 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e742.appendChild(_e907);
   const _e908 = WF.h("table", { className: "wf-table" });
   const _e909 = WF.h("thead", {});
-  const _e910 = WF.h("td", {}, "Operator");
+  const _e910 = WF.h("th", { scope: "col" }, "Operator");
   _e909.appendChild(_e910);
-  const _e911 = WF.h("td", {}, "Description");
+  const _e911 = WF.h("th", { scope: "col" }, "Description");
   _e909.appendChild(_e911);
   _e908.appendChild(_e909);
   const _e912 = WF.h("tr", {});
@@ -3002,13 +3122,13 @@ function Page_Guide(params) {
   _e742.appendChild(_e908);
   const _e933 = WF.h("div", { className: "wf-spacer" });
   _e742.appendChild(_e933);
-  const _e934 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e934 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e935 = WF.h("button", { className: "wf-btn wf-btn--primary", "on:click": (e) => { WF.navigate("/components"); } }, "Components Reference");
   _e934.appendChild(_e935);
   const _e936 = WF.h("button", { className: "wf-btn", "on:click": (e) => { WF.navigate("/styling"); } }, "Styling Guide");
   _e934.appendChild(_e936);
   _e742.appendChild(_e934);
-  const _e937 = WF.h("div", { className: "wf-spacer" });
+  const _e937 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e742.appendChild(_e937);
   _root.appendChild(_e742);
   return _root;
@@ -3017,9 +3137,9 @@ function Page_Guide(params) {
 function Page_NotFound(params) {
   const _root = document.createDocumentFragment();
   const _e938 = WF.h("div", { className: "wf-container wf-animate-fadeIn" });
-  const _e939 = WF.h("div", { className: "wf-spacer" });
+  const _e939 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e938.appendChild(_e939);
-  const _e940 = WF.h("div", { className: "wf-stack wf-stack--gap-md" });
+  const _e940 = WF.h("div", { className: "wf-stack wf-gap--md" });
   const _e941 = WF.h("h1", { className: "wf-heading wf-text--center wf-heading--primary" }, "404");
   _e940.appendChild(_e941);
   const _e942 = WF.h("h2", { className: "wf-heading wf-text--center" }, "Page Not Found");
@@ -3028,12 +3148,12 @@ function Page_NotFound(params) {
   _e940.appendChild(_e943);
   const _e944 = WF.h("div", { className: "wf-spacer" });
   _e940.appendChild(_e944);
-  const _e945 = WF.h("div", { className: "wf-row" });
+  const _e945 = WF.h("div", { className: "wf-row wf-justify--center" });
   const _e946 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--large", "on:click": (e) => { WF.navigate("/"); } }, "Go Home");
   _e945.appendChild(_e946);
   _e940.appendChild(_e945);
   _e938.appendChild(_e940);
-  const _e947 = WF.h("div", { className: "wf-spacer" });
+  const _e947 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e938.appendChild(_e947);
   _root.appendChild(_e938);
   return _root;
@@ -3064,11 +3184,11 @@ function Page_Components(params) {
   _e948.appendChild(_e953);
   const _e954 = WF.h("p", { className: "wf-text" }, "Buttons support size, color, and shape modifiers.");
   _e948.appendChild(_e954);
-  const _e955 = WF.h("div", { className: "wf-spacer" });
+  const _e955 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e955);
   const _e956 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e957 = WF.h("div", { className: "wf-card__body" });
-  const _e958 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e958 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e959 = WF.h("button", { className: "wf-btn" }, "Default");
   _e958.appendChild(_e959);
   const _e960 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Primary");
@@ -3082,9 +3202,9 @@ function Page_Components(params) {
   const _e964 = WF.h("button", { className: "wf-btn wf-btn--info" }, "Info");
   _e958.appendChild(_e964);
   _e957.appendChild(_e958);
-  const _e965 = WF.h("div", { className: "wf-spacer" });
+  const _e965 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e957.appendChild(_e965);
-  const _e966 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e966 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e967 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--small" }, "Small");
   _e966.appendChild(_e967);
   const _e968 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Medium");
@@ -3098,7 +3218,7 @@ function Page_Components(params) {
   _e957.appendChild(_e966);
   _e956.appendChild(_e957);
   _e948.appendChild(_e956);
-  const _e972 = WF.h("div", { className: "wf-spacer" });
+  const _e972 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e972);
   const _e973 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e974 = WF.h("div", { className: "wf-card__body" });
@@ -3116,9 +3236,9 @@ function Page_Components(params) {
   _e948.appendChild(_e979);
   const _e980 = WF.h("p", { className: "wf-text" }, "Cards are surfaces for grouping content. They support Header, Body, and Footer sub-components.");
   _e948.appendChild(_e980);
-  const _e981 = WF.h("div", { className: "wf-spacer" });
+  const _e981 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e981);
-  const _e982 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e982 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e983 = WF.h("div", { className: "wf-col wf-col--4" });
   const _e984 = WF.h("div", { className: "wf-card" });
   const _e985 = WF.h("div", { className: "wf-card__header" });
@@ -3171,11 +3291,11 @@ function Page_Components(params) {
   _e948.appendChild(_e1006);
   const _e1007 = WF.h("p", { className: "wf-text" }, "All form inputs support two-way binding with the bind: attribute.");
   _e948.appendChild(_e1007);
-  const _e1008 = WF.h("div", { className: "wf-spacer" });
+  const _e1008 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1008);
   const _e1009 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1010 = WF.h("div", { className: "wf-card__body" });
-  const _e1011 = WF.h("div", { className: "wf-stack wf-stack--gap-md" });
+  const _e1011 = WF.h("div", { className: "wf-stack wf-gap--md" });
   const _e1012 = WF.h("input", { className: "wf-input", value: () => _inputVal(), "on:input": (e) => _inputVal.set(e.target.value), label: "Text Input", placeholder: "Type here...", type: "text" });
   _e1011.appendChild(_e1012);
   WF.condRender(_e1011,
@@ -3192,11 +3312,11 @@ function Page_Components(params) {
   const _e1015 = WF.h("hr", { className: "wf-divider" });
   _e1011.appendChild(_e1015);
   const _e1016 = WF.h("select", { className: "wf-select", value: () => _selectVal(), "on:input": (e) => _selectVal.set(e.target.value), label: "Select" });
-  const _e1017 = WF.h("option", {}, "opt1");
+  const _e1017 = WF.h("option", { value: "opt1" }, "Option One");
   _e1016.appendChild(_e1017);
-  const _e1018 = WF.h("option", {}, "opt2");
+  const _e1018 = WF.h("option", { value: "opt2" }, "Option Two");
   _e1016.appendChild(_e1018);
-  const _e1019 = WF.h("option", {}, "opt3");
+  const _e1019 = WF.h("option", { value: "opt3" }, "Option Three");
   _e1016.appendChild(_e1019);
   _e1011.appendChild(_e1016);
   const _e1020 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, () => `Selected: ${_selectVal()}`);
@@ -3212,7 +3332,7 @@ function Page_Components(params) {
   _e1011.appendChild(_e1024);
   const _e1025 = WF.h("hr", { className: "wf-divider" });
   _e1011.appendChild(_e1025);
-  const _e1026 = WF.h("div", { className: "wf-row wf-row--gap-lg" });
+  const _e1026 = WF.h("div", { className: "wf-row wf-gap--lg" });
   const _e1027 = WF.h("label", { className: "wf-radio" });
   const _e1028 = WF.h("input", { type: "radio", checked: () => _radioVal() === "a", "on:change": () => _radioVal.set("a") });
   _e1027.appendChild(_e1028);
@@ -3247,7 +3367,7 @@ function Page_Components(params) {
   const _e1040 = WF.h("div", { className: "wf-slider" });
   const _e1041 = WF.h("label", { className: "wf-form-label" }, "Volume");
   _e1040.appendChild(_e1041);
-  const _e1042 = WF.h("input", { type: "range", min: 0, max: 100, step: 1, value: () => _sliderVal(), "on:input": (e) => _sliderVal.set(Number(e.target.value)) });
+  const _e1042 = WF.h("input", { type: "range", min: 0, max: 100, step: 1, value: () => _sliderVal(), "on:input": (event) => { _sliderVal.set(Number(event.target.value));  } });
   _e1040.appendChild(_e1042);
   const _e1043 = WF.h("span", { className: "wf-slider__value" }, () => String(_sliderVal()));
   _e1040.appendChild(_e1043);
@@ -3277,7 +3397,7 @@ function Page_Components(params) {
   const _e1057 = WF.h("div", { className: "wf-file-upload" });
   const _e1058 = WF.h("label", { className: "wf-form-label" }, "Documents");
   _e1057.appendChild(_e1058);
-  const _e1059 = WF.h("input", { type: "file", className: "wf-input", accept: ".pdf,.doc" });
+  const _e1059 = WF.h("input", { type: "file", className: "wf-input", accept: ".pdf,.doc", multiple: true });
   _e1057.appendChild(_e1059);
   const _e1056 = _e1057;
   _e1011.appendChild(_e1056);
@@ -3294,11 +3414,11 @@ function Page_Components(params) {
   _e948.appendChild(_e1063);
   const _e1064 = WF.h("p", { className: "wf-text" }, "Alerts, modals, progress bars, and loading indicators.");
   _e948.appendChild(_e1064);
-  const _e1065 = WF.h("div", { className: "wf-spacer" });
+  const _e1065 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1065);
   const _e1066 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1067 = WF.h("div", { className: "wf-card__body" });
-  const _e1068 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
+  const _e1068 = WF.h("div", { className: "wf-stack wf-gap--sm" });
   const _e1069 = WF.h("div", { className: "wf-alert wf-alert--success", role: "status" }, "This is a success alert.");
   _e1068.appendChild(_e1069);
   const _e1070 = WF.h("div", { className: "wf-alert wf-alert--warning", role: "alert" }, "This is a warning alert.");
@@ -3310,12 +3430,12 @@ function Page_Components(params) {
   _e1067.appendChild(_e1068);
   const _e1073 = WF.h("div", { className: "wf-spacer" });
   _e1067.appendChild(_e1073);
-  const _e1074 = WF.h("div", { className: "wf-row wf-row--gap-md wf-row--center" });
+  const _e1074 = WF.h("div", { className: "wf-row wf-gap--md wf-align--center" });
   const _e1075 = WF.h("div", { className: "wf-spinner", role: "status" });
   _e1074.appendChild(_e1075);
   const _e1076 = WF.h("div", { className: "wf-spinner wf-spinner--large wf-spinner--primary", role: "status" });
   _e1074.appendChild(_e1076);
-  const _e1077 = WF.h("progress", { className: "wf-progress", value: _sliderVal(), max: 100 });
+  const _e1077 = WF.h("progress", { className: "wf-progress", value: () => _sliderVal(), max: 100 });
   _e1074.appendChild(_e1077);
   _e1067.appendChild(_e1074);
   const _e1078 = WF.h("div", { className: "wf-spacer" });
@@ -3331,7 +3451,7 @@ function Page_Components(params) {
   const _e1083 = WF.h("div", { className: "wf-modal__body" });
   const _e1084 = WF.h("p", { className: "wf-text" }, "This is a real modal dialog. It was triggered by clicking the button.");
   _e1083.appendChild(_e1084);
-  const _e1085 = WF.h("div", { className: "wf-spacer" });
+  const _e1085 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1083.appendChild(_e1085);
   const _e1086 = WF.h("p", { className: "wf-text wf-text--muted" }, "The modal is controlled by a state variable.");
   _e1083.appendChild(_e1086);
@@ -3355,17 +3475,17 @@ function Page_Components(params) {
   _e948.appendChild(_e1093);
   const _e1094 = WF.h("p", { className: "wf-text" }, "Tables, badges, avatars, tags, and tooltips.");
   _e948.appendChild(_e1094);
-  const _e1095 = WF.h("div", { className: "wf-spacer" });
+  const _e1095 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1095);
   const _e1096 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1097 = WF.h("div", { className: "wf-card__body" });
   const _e1098 = WF.h("table", { className: "wf-table" });
   const _e1099 = WF.h("thead", {});
-  const _e1100 = WF.h("td", {}, "Name");
+  const _e1100 = WF.h("th", { scope: "col" }, "Name");
   _e1099.appendChild(_e1100);
-  const _e1101 = WF.h("td", {}, "Role");
+  const _e1101 = WF.h("th", { scope: "col" }, "Role");
   _e1099.appendChild(_e1101);
-  const _e1102 = WF.h("td", {}, "Status");
+  const _e1102 = WF.h("th", { scope: "col" }, "Status");
   _e1099.appendChild(_e1102);
   _e1098.appendChild(_e1099);
   const _e1103 = WF.h("tr", {});
@@ -3395,7 +3515,7 @@ function Page_Components(params) {
   _e1097.appendChild(_e1098);
   const _e1115 = WF.h("div", { className: "wf-spacer" });
   _e1097.appendChild(_e1115);
-  const _e1116 = WF.h("div", { className: "wf-row wf-row--gap-md wf-row--center" });
+  const _e1116 = WF.h("div", { className: "wf-row wf-gap--md wf-align--center" });
   const _e1117 = WF.h("div", { className: "wf-avatar wf-avatar--primary" }, "MO");
   _e1116.appendChild(_e1117);
   const _e1118 = WF.h("div", { className: "wf-avatar" }, "SA");
@@ -3425,15 +3545,15 @@ function Page_Components(params) {
   _e948.appendChild(_e1128);
   const _e1129 = WF.h("p", { className: "wf-text" }, "Container, Row, Column, Grid, Stack, Spacer, Divider.");
   _e948.appendChild(_e1129);
-  const _e1130 = WF.h("div", { className: "wf-spacer" });
+  const _e1130 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1130);
   const _e1131 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1132 = WF.h("div", { className: "wf-card__body" });
   const _e1133 = WF.h("p", { className: "wf-text wf-text--bold" }, "Grid with 3 columns:");
   _e1132.appendChild(_e1133);
-  const _e1134 = WF.h("div", { className: "wf-spacer" });
+  const _e1134 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1132.appendChild(_e1134);
-  const _e1135 = WF.h("div", { className: "wf-grid wf-grid--gap-sm", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
+  const _e1135 = WF.h("div", { className: "wf-grid wf-gap--sm", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
   const _e1136 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1137 = WF.h("div", { className: "wf-card__body" });
   const _e1138 = WF.h("p", { className: "wf-text wf-text--center" }, "Column 1");
@@ -3457,9 +3577,9 @@ function Page_Components(params) {
   _e1132.appendChild(_e1145);
   const _e1146 = WF.h("p", { className: "wf-text wf-text--bold" }, "Row with Columns (6/6 split):");
   _e1132.appendChild(_e1146);
-  const _e1147 = WF.h("div", { className: "wf-spacer" });
+  const _e1147 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1132.appendChild(_e1147);
-  const _e1148 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1148 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1149 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e1150 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1151 = WF.h("div", { className: "wf-card__body" });
@@ -3481,9 +3601,9 @@ function Page_Components(params) {
   _e1132.appendChild(_e1157);
   const _e1158 = WF.h("p", { className: "wf-text wf-text--bold" }, "Stack (vertical):");
   _e1132.appendChild(_e1158);
-  const _e1159 = WF.h("div", { className: "wf-spacer" });
+  const _e1159 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1132.appendChild(_e1159);
-  const _e1160 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
+  const _e1160 = WF.h("div", { className: "wf-stack wf-gap--sm" });
   const _e1161 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1162 = WF.h("div", { className: "wf-card__body" });
   const _e1163 = WF.h("p", { className: "wf-text" }, "Item 1");
@@ -3515,162 +3635,162 @@ function Page_Components(params) {
   _e948.appendChild(_e1173);
   const _e1174 = WF.h("p", { className: "wf-text" }, "30 built-in SVG icons. Use Icon for display, IconButton for clickable actions.");
   _e948.appendChild(_e1174);
-  const _e1175 = WF.h("div", { className: "wf-spacer" });
+  const _e1175 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1175);
   const _e1176 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1177 = WF.h("div", { className: "wf-card__body" });
   const _e1178 = WF.h("p", { className: "wf-text wf-text--bold" }, "Available Icons:");
   _e1177.appendChild(_e1178);
-  const _e1179 = WF.h("div", { className: "wf-spacer" });
+  const _e1179 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1177.appendChild(_e1179);
-  const _e1180 = WF.h("div", { className: "wf-row wf-row--gap-md" });
-  const _e1181 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e1182 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1183 = WF.h("i", { className: "wf-icon" }, "home");
+  const _e1180 = WF.h("div", { className: "wf-row wf-gap--md" });
+  const _e1181 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e1182 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1183 = WF.h("i", { className: "wf-icon", "data-icon": "home" });
   _e1182.appendChild(_e1183);
   const _e1184 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "home");
   _e1182.appendChild(_e1184);
   _e1181.appendChild(_e1182);
-  const _e1185 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1186 = WF.h("i", { className: "wf-icon" }, "search");
+  const _e1185 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1186 = WF.h("i", { className: "wf-icon", "data-icon": "search" });
   _e1185.appendChild(_e1186);
   const _e1187 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "search");
   _e1185.appendChild(_e1187);
   _e1181.appendChild(_e1185);
-  const _e1188 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1189 = WF.h("i", { className: "wf-icon" }, "user");
+  const _e1188 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1189 = WF.h("i", { className: "wf-icon", "data-icon": "user" });
   _e1188.appendChild(_e1189);
   const _e1190 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "user");
   _e1188.appendChild(_e1190);
   _e1181.appendChild(_e1188);
-  const _e1191 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1192 = WF.h("i", { className: "wf-icon" }, "settings");
+  const _e1191 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1192 = WF.h("i", { className: "wf-icon", "data-icon": "settings" });
   _e1191.appendChild(_e1192);
   const _e1193 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "settings");
   _e1191.appendChild(_e1193);
   _e1181.appendChild(_e1191);
-  const _e1194 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1195 = WF.h("i", { className: "wf-icon" }, "mail");
+  const _e1194 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1195 = WF.h("i", { className: "wf-icon", "data-icon": "mail" });
   _e1194.appendChild(_e1195);
   const _e1196 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "mail");
   _e1194.appendChild(_e1196);
   _e1181.appendChild(_e1194);
-  const _e1197 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1198 = WF.h("i", { className: "wf-icon" }, "bell");
+  const _e1197 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1198 = WF.h("i", { className: "wf-icon", "data-icon": "bell" });
   _e1197.appendChild(_e1198);
   const _e1199 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "bell");
   _e1197.appendChild(_e1199);
   _e1181.appendChild(_e1197);
   _e1180.appendChild(_e1181);
-  const _e1200 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e1201 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1202 = WF.h("i", { className: "wf-icon" }, "edit");
+  const _e1200 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e1201 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1202 = WF.h("i", { className: "wf-icon", "data-icon": "edit" });
   _e1201.appendChild(_e1202);
   const _e1203 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "edit");
   _e1201.appendChild(_e1203);
   _e1200.appendChild(_e1201);
-  const _e1204 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1205 = WF.h("i", { className: "wf-icon" }, "trash");
+  const _e1204 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1205 = WF.h("i", { className: "wf-icon", "data-icon": "trash" });
   _e1204.appendChild(_e1205);
   const _e1206 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "trash");
   _e1204.appendChild(_e1206);
   _e1200.appendChild(_e1204);
-  const _e1207 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1208 = WF.h("i", { className: "wf-icon" }, "plus");
+  const _e1207 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1208 = WF.h("i", { className: "wf-icon", "data-icon": "plus" });
   _e1207.appendChild(_e1208);
   const _e1209 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "plus");
   _e1207.appendChild(_e1209);
   _e1200.appendChild(_e1207);
-  const _e1210 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1211 = WF.h("i", { className: "wf-icon" }, "check");
+  const _e1210 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1211 = WF.h("i", { className: "wf-icon", "data-icon": "check" });
   _e1210.appendChild(_e1211);
   const _e1212 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "check");
   _e1210.appendChild(_e1212);
   _e1200.appendChild(_e1210);
-  const _e1213 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1214 = WF.h("i", { className: "wf-icon" }, "close");
+  const _e1213 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1214 = WF.h("i", { className: "wf-icon", "data-icon": "close" });
   _e1213.appendChild(_e1214);
   const _e1215 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "close");
   _e1213.appendChild(_e1215);
   _e1200.appendChild(_e1213);
-  const _e1216 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1217 = WF.h("i", { className: "wf-icon" }, "copy");
+  const _e1216 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1217 = WF.h("i", { className: "wf-icon", "data-icon": "copy" });
   _e1216.appendChild(_e1217);
   const _e1218 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "copy");
   _e1216.appendChild(_e1218);
   _e1200.appendChild(_e1216);
   _e1180.appendChild(_e1200);
-  const _e1219 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e1220 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1221 = WF.h("i", { className: "wf-icon" }, "star");
+  const _e1219 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e1220 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1221 = WF.h("i", { className: "wf-icon", "data-icon": "star" });
   _e1220.appendChild(_e1221);
   const _e1222 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "star");
   _e1220.appendChild(_e1222);
   _e1219.appendChild(_e1220);
-  const _e1223 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1224 = WF.h("i", { className: "wf-icon" }, "heart");
+  const _e1223 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1224 = WF.h("i", { className: "wf-icon", "data-icon": "heart" });
   _e1223.appendChild(_e1224);
   const _e1225 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "heart");
   _e1223.appendChild(_e1225);
   _e1219.appendChild(_e1223);
-  const _e1226 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1227 = WF.h("i", { className: "wf-icon" }, "eye");
+  const _e1226 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1227 = WF.h("i", { className: "wf-icon", "data-icon": "eye" });
   _e1226.appendChild(_e1227);
   const _e1228 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "eye");
   _e1226.appendChild(_e1228);
   _e1219.appendChild(_e1226);
-  const _e1229 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1230 = WF.h("i", { className: "wf-icon" }, "download");
+  const _e1229 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1230 = WF.h("i", { className: "wf-icon", "data-icon": "download" });
   _e1229.appendChild(_e1230);
   const _e1231 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "download");
   _e1229.appendChild(_e1231);
   _e1219.appendChild(_e1229);
-  const _e1232 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1233 = WF.h("i", { className: "wf-icon" }, "upload");
+  const _e1232 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1233 = WF.h("i", { className: "wf-icon", "data-icon": "upload" });
   _e1232.appendChild(_e1233);
   const _e1234 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "upload");
   _e1232.appendChild(_e1234);
   _e1219.appendChild(_e1232);
-  const _e1235 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1236 = WF.h("i", { className: "wf-icon" }, "link");
+  const _e1235 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1236 = WF.h("i", { className: "wf-icon", "data-icon": "link" });
   _e1235.appendChild(_e1236);
   const _e1237 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "link");
   _e1235.appendChild(_e1237);
   _e1219.appendChild(_e1235);
   _e1180.appendChild(_e1219);
-  const _e1238 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e1239 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1240 = WF.h("i", { className: "wf-icon" }, "calendar");
+  const _e1238 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e1239 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1240 = WF.h("i", { className: "wf-icon", "data-icon": "calendar" });
   _e1239.appendChild(_e1240);
   const _e1241 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "calendar");
   _e1239.appendChild(_e1241);
   _e1238.appendChild(_e1239);
-  const _e1242 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1243 = WF.h("i", { className: "wf-icon" }, "filter");
+  const _e1242 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1243 = WF.h("i", { className: "wf-icon", "data-icon": "filter" });
   _e1242.appendChild(_e1243);
   const _e1244 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "filter");
   _e1242.appendChild(_e1244);
   _e1238.appendChild(_e1242);
-  const _e1245 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1246 = WF.h("i", { className: "wf-icon" }, "info");
+  const _e1245 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1246 = WF.h("i", { className: "wf-icon", "data-icon": "info" });
   _e1245.appendChild(_e1246);
   const _e1247 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "info");
   _e1245.appendChild(_e1247);
   _e1238.appendChild(_e1245);
-  const _e1248 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1249 = WF.h("i", { className: "wf-icon" }, "warning");
+  const _e1248 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1249 = WF.h("i", { className: "wf-icon", "data-icon": "warning" });
   _e1248.appendChild(_e1249);
   const _e1250 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "warning");
   _e1248.appendChild(_e1250);
   _e1238.appendChild(_e1248);
-  const _e1251 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1252 = WF.h("i", { className: "wf-icon" }, "logout");
+  const _e1251 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1252 = WF.h("i", { className: "wf-icon", "data-icon": "logout" });
   _e1251.appendChild(_e1252);
   const _e1253 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "logout");
   _e1251.appendChild(_e1253);
   _e1238.appendChild(_e1251);
-  const _e1254 = WF.h("div", { className: "wf-row wf-row--gap-sm wf-row--center" });
-  const _e1255 = WF.h("i", { className: "wf-icon" }, "menu");
+  const _e1254 = WF.h("div", { className: "wf-row wf-gap--sm wf-align--center" });
+  const _e1255 = WF.h("i", { className: "wf-icon", "data-icon": "menu" });
   _e1254.appendChild(_e1255);
   const _e1256 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "menu");
   _e1254.appendChild(_e1256);
@@ -3681,9 +3801,9 @@ function Page_Components(params) {
   _e1177.appendChild(_e1257);
   const _e1258 = WF.h("p", { className: "wf-text wf-text--bold" }, "Icon Buttons:");
   _e1177.appendChild(_e1258);
-  const _e1259 = WF.h("div", { className: "wf-spacer" });
+  const _e1259 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1177.appendChild(_e1259);
-  const _e1260 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1260 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1261 = WF.h("button", { className: "wf-icon-btn", "data-icon": "edit", "aria-label": "Edit", title: "Edit" }, WF.h("span", { className: "wf-icon", "data-icon": "edit" }));
   _e1260.appendChild(_e1261);
   const _e1262 = WF.h("button", { className: "wf-icon-btn wf-icon-btn--danger", "data-icon": "trash", "aria-label": "Delete", title: "Delete" }, WF.h("span", { className: "wf-icon", "data-icon": "trash" }));
@@ -3697,7 +3817,7 @@ function Page_Components(params) {
   _e1177.appendChild(_e1260);
   _e1176.appendChild(_e1177);
   _e948.appendChild(_e1176);
-  const _e1266 = WF.h("div", { className: "wf-spacer" });
+  const _e1266 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1266);
   const _e1267 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1268 = WF.h("div", { className: "wf-card__body" });
@@ -3715,11 +3835,11 @@ function Page_Components(params) {
   _e948.appendChild(_e1273);
   const _e1274 = WF.h("p", { className: "wf-text" }, "Wrap any element in a Tooltip to show text on hover.");
   _e948.appendChild(_e1274);
-  const _e1275 = WF.h("div", { className: "wf-spacer" });
+  const _e1275 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1275);
   const _e1276 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1277 = WF.h("div", { className: "wf-card__body" });
-  const _e1278 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1278 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e1279 = WF.h("div", { className: "wf-tooltip", "aria-describedby": "wf-tip-1279" });
   const _e1280 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Hover me");
   _e1279.appendChild(_e1280);
@@ -3741,7 +3861,7 @@ function Page_Components(params) {
   _e1277.appendChild(_e1278);
   _e1276.appendChild(_e1277);
   _e948.appendChild(_e1276);
-  const _e1288 = WF.h("div", { className: "wf-spacer" });
+  const _e1288 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1288);
   const _e1289 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1290 = WF.h("div", { className: "wf-card__body" });
@@ -3759,22 +3879,24 @@ function Page_Components(params) {
   _e948.appendChild(_e1295);
   const _e1296 = WF.h("p", { className: "wf-text" }, "Sidebar navigation with header, items, and dividers. Items support icons and links.");
   _e948.appendChild(_e1296);
-  const _e1297 = WF.h("div", { className: "wf-spacer" });
+  const _e1297 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1297);
   const _e1298 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1299 = WF.h("div", { className: "wf-card__body" });
-  const _e1300 = WF.h("div", { className: "wf-row wf-row--gap-lg" });
+  const _e1300 = WF.h("div", { className: "wf-row wf-gap--lg" });
   const _e1301 = WF.h("aside", { className: "wf-sidebar", id: "wf-sidebar-1301" });
   const _e1302 = WF.h("div", { className: "wf-sidebar__header" });
   const _e1303 = WF.h("p", { className: "wf-text wf-text--heading" }, "My App");
   _e1302.appendChild(_e1303);
   _e1301.appendChild(_e1302);
   const _e1304 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/" });
+  WF.activeLink(_e1304, "/", false);
   _e1304.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "home" }));
   const _e1305 = WF.h("p", { className: "wf-text" }, "Dashboard");
   _e1304.appendChild(_e1305);
   _e1301.appendChild(_e1304);
   const _e1306 = WF.h("a", { className: "wf-sidebar__item", href: WF._basePath +  "/components" });
+  WF.activeLink(_e1306, "/components", false);
   _e1306.appendChild(WF.h("span", { className: "wf-icon", "data-icon": "settings" }));
   const _e1307 = WF.h("p", { className: "wf-text" }, "Settings");
   _e1306.appendChild(_e1307);
@@ -3809,7 +3931,7 @@ function Page_Components(params) {
   _e1299.appendChild(_e1300);
   _e1298.appendChild(_e1299);
   _e948.appendChild(_e1298);
-  const _e1319 = WF.h("div", { className: "wf-spacer" });
+  const _e1319 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1319);
   const _e1320 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1321 = WF.h("div", { className: "wf-card__body" });
@@ -3827,7 +3949,7 @@ function Page_Components(params) {
   _e948.appendChild(_e1326);
   const _e1327 = WF.h("p", { className: "wf-text" }, "Show navigation hierarchy with automatic separators.");
   _e948.appendChild(_e1327);
-  const _e1328 = WF.h("div", { className: "wf-spacer" });
+  const _e1328 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1328);
   const _e1329 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1330 = WF.h("div", { className: "wf-card__body" });
@@ -3847,7 +3969,7 @@ function Page_Components(params) {
   _e1330.appendChild(_e1331);
   _e1329.appendChild(_e1330);
   _e948.appendChild(_e1329);
-  const _e1338 = WF.h("div", { className: "wf-spacer" });
+  const _e1338 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1338);
   const _e1339 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1340 = WF.h("div", { className: "wf-card__body" });
@@ -3865,11 +3987,11 @@ function Page_Components(params) {
   _e948.appendChild(_e1345);
   const _e1346 = WF.h("p", { className: "wf-text" }, "Placeholder shapes that shimmer while content loads.");
   _e948.appendChild(_e1346);
-  const _e1347 = WF.h("div", { className: "wf-spacer" });
+  const _e1347 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1347);
   const _e1348 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1349 = WF.h("div", { className: "wf-card__body" });
-  const _e1350 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
+  const _e1350 = WF.h("div", { className: "wf-stack wf-gap--sm" });
   const _e1351 = WF.h("div", { className: "wf-skeleton" });
   _e1351.style.height = "16px";
   _e1351.style.width = "80%";
@@ -3882,12 +4004,14 @@ function Page_Components(params) {
   _e1353.style.height = "16px";
   _e1353.style.width = "40%";
   _e1350.appendChild(_e1353);
-  const _e1354 = WF.h("div", { className: "wf-spacer" });
+  const _e1354 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1350.appendChild(_e1354);
-  const _e1355 = WF.h("div", { className: "wf-row wf-row--gap-md wf-row--center" });
-  const _e1356 = WF.h("div", { className: "wf-skeleton" });
+  const _e1355 = WF.h("div", { className: "wf-row wf-gap--md wf-align--center" });
+  const _e1356 = WF.h("div", { className: "wf-skeleton wf-skeleton--circle" });
+  _e1356.style.height = "48px";
+  _e1356.style.width = "48px";
   _e1355.appendChild(_e1356);
-  const _e1357 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
+  const _e1357 = WF.h("div", { className: "wf-stack wf-gap--sm" });
   const _e1358 = WF.h("div", { className: "wf-skeleton" });
   _e1358.style.height = "14px";
   _e1358.style.width = "120px";
@@ -3901,7 +4025,7 @@ function Page_Components(params) {
   _e1349.appendChild(_e1350);
   _e1348.appendChild(_e1349);
   _e948.appendChild(_e1348);
-  const _e1360 = WF.h("div", { className: "wf-spacer" });
+  const _e1360 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1360);
   const _e1361 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1362 = WF.h("div", { className: "wf-card__body" });
@@ -3919,11 +4043,11 @@ function Page_Components(params) {
   _e948.appendChild(_e1367);
   const _e1368 = WF.h("p", { className: "wf-text" }, "Click-to-toggle dropdown menus with auto-close on outside click.");
   _e948.appendChild(_e1368);
-  const _e1369 = WF.h("div", { className: "wf-spacer" });
+  const _e1369 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1369);
   const _e1370 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1371 = WF.h("div", { className: "wf-card__body" });
-  const _e1372 = WF.h("div", { className: "wf-row wf-row--gap-lg" });
+  const _e1372 = WF.h("div", { className: "wf-row wf-gap--lg" });
   const _e1374 = WF.signal(false);
   const _e1373 = WF.h("div", { className: () => _e1374() ? "wf-dropdown open" : "wf-dropdown" });
   const _e1375 = WF.h("button", { className: "wf-btn", type: "button",              "aria-haspopup": "true", "aria-controls": "wf-menu-1373",              "aria-expanded": () => _e1374() ? "true" : "false",              "on:click": () => _e1374.set(!_e1374()) }, "Actions");
@@ -3971,7 +4095,7 @@ function Page_Components(params) {
   _e1371.appendChild(_e1372);
   _e1370.appendChild(_e1371);
   _e948.appendChild(_e1370);
-  const _e1395 = WF.h("div", { className: "wf-spacer" });
+  const _e1395 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1395);
   const _e1396 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1397 = WF.h("div", { className: "wf-card__body" });
@@ -3989,7 +4113,7 @@ function Page_Components(params) {
   _e948.appendChild(_e1402);
   const _e1403 = WF.h("p", { className: "wf-text" }, "Tabs let you switch between content panels.");
   _e948.appendChild(_e1403);
-  const _e1404 = WF.h("div", { className: "wf-spacer" });
+  const _e1404 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1404);
   const _e1405 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1406 = WF.h("div", { className: "wf-card__body" });
@@ -4004,9 +4128,9 @@ function Page_Components(params) {
   _e1408.appendChild(_e1412);
   _e1407.appendChild(_e1408);
   const _e1413 = WF.h("div", { className: "wf-tab-page", role: "tabpanel",                  id: "wf-tabpanel-1407-0", "aria-labelledby": "wf-tab-1407-0", tabindex: 0 });
-  const _e1414 = WF.h("div", { className: "wf-spacer" });
+  const _e1414 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1413.appendChild(_e1414);
-  const _e1415 = WF.h("div", { className: "wf-row wf-row--gap-md wf-row--center" });
+  const _e1415 = WF.h("div", { className: "wf-row wf-gap--md wf-align--center" });
   const _e1416 = WF.h("div", { className: "wf-avatar wf-avatar--primary wf-avatar--large" }, "MO");
   _e1415.appendChild(_e1416);
   const _e1417 = WF.h("div", { className: "wf-stack" });
@@ -4019,7 +4143,7 @@ function Page_Components(params) {
   WF.effect(() => { _e1413.style.display = _e1409() === 0 ? 'block' : 'none'; });
   _e1407.appendChild(_e1413);
   const _e1420 = WF.h("div", { className: "wf-tab-page", role: "tabpanel",                  id: "wf-tabpanel-1407-1", "aria-labelledby": "wf-tab-1407-1", tabindex: 0 });
-  const _e1421 = WF.h("div", { className: "wf-spacer" });
+  const _e1421 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1420.appendChild(_e1421);
   const _e1422 = WF.h("label", { className: "wf-switch" });
   const _e1423 = WF.h("input", { type: "checkbox", role: "switch",                  checked: () => _switchVal(), "aria-checked": () => _switchVal() ? "true" : "false",                  "on:change": () => _switchVal.set(!_switchVal()) });
@@ -4028,12 +4152,12 @@ function Page_Components(params) {
   _e1422.appendChild(_e1424);
   _e1422.appendChild(WF.text("Enable notifications"));
   _e1420.appendChild(_e1422);
-  const _e1425 = WF.h("div", { className: "wf-spacer" });
+  const _e1425 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1420.appendChild(_e1425);
   const _e1426 = WF.h("div", { className: "wf-slider" });
   const _e1427 = WF.h("label", { className: "wf-form-label" }, "Volume");
   _e1426.appendChild(_e1427);
-  const _e1428 = WF.h("input", { type: "range", min: 0, max: 100, step: 1, value: () => _sliderVal(), "on:input": (e) => _sliderVal.set(Number(e.target.value)) });
+  const _e1428 = WF.h("input", { type: "range", min: 0, max: 100, step: 1, value: () => _sliderVal(), "on:input": (event) => { _sliderVal.set(Number(event.target.value));  } });
   _e1426.appendChild(_e1428);
   const _e1429 = WF.h("span", { className: "wf-slider__value" }, () => String(_sliderVal()));
   _e1426.appendChild(_e1429);
@@ -4041,7 +4165,7 @@ function Page_Components(params) {
   WF.effect(() => { _e1420.style.display = _e1409() === 1 ? 'block' : 'none'; });
   _e1407.appendChild(_e1420);
   const _e1430 = WF.h("div", { className: "wf-tab-page", role: "tabpanel",                  id: "wf-tabpanel-1407-2", "aria-labelledby": "wf-tab-1407-2", tabindex: 0 });
-  const _e1431 = WF.h("div", { className: "wf-spacer" });
+  const _e1431 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1430.appendChild(_e1431);
   const _e1432 = WF.h("p", { className: "wf-text" }, "WebFluent is a web-first programming language.");
   _e1430.appendChild(_e1432);
@@ -4061,7 +4185,7 @@ function Page_Components(params) {
   _e948.appendChild(_e1436);
   const _e1437 = WF.h("h2", { className: "wf-heading" }, "Typography");
   _e948.appendChild(_e1437);
-  const _e1438 = WF.h("div", { className: "wf-spacer" });
+  const _e1438 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1438);
   const _e1439 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1440 = WF.h("div", { className: "wf-card__body" });
@@ -4071,7 +4195,7 @@ function Page_Components(params) {
   _e1440.appendChild(_e1442);
   const _e1443 = WF.h("h3", { className: "wf-heading" }, "Heading h3");
   _e1440.appendChild(_e1443);
-  const _e1444 = WF.h("div", { className: "wf-spacer" });
+  const _e1444 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1440.appendChild(_e1444);
   const _e1445 = WF.h("p", { className: "wf-text" }, "Normal text paragraph.");
   _e1440.appendChild(_e1445);
@@ -4089,25 +4213,25 @@ function Page_Components(params) {
   _e1440.appendChild(_e1451);
   const _e1452 = WF.h("p", { className: "wf-text wf-text--center" }, "Centered text.");
   _e1440.appendChild(_e1452);
-  const _e1453 = WF.h("div", { className: "wf-spacer" });
+  const _e1453 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1440.appendChild(_e1453);
   const _e1454 = WF.h("blockquote", { className: "wf-blockquote" }, "The best way to predict the future is to create it.");
   _e1440.appendChild(_e1454);
-  const _e1455 = WF.h("div", { className: "wf-spacer" });
+  const _e1455 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1440.appendChild(_e1455);
   const _e1456 = WF.h("code", { className: "wf-code" }, "const greeting = \"Hello, WebFluent!\";");
   _e1440.appendChild(_e1456);
   _e1439.appendChild(_e1440);
   _e948.appendChild(_e1439);
-  const _e1457 = WF.h("div", { className: "wf-spacer" });
+  const _e1457 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e948.appendChild(_e1457);
-  const _e1458 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1458 = WF.h("div", { className: "wf-row wf-gap--md wf-justify--center" });
   const _e1459 = WF.h("button", { className: "wf-btn wf-btn--primary", "on:click": (e) => { WF.navigate("/styling"); } }, "Styling Guide");
   _e1458.appendChild(_e1459);
   const _e1460 = WF.h("button", { className: "wf-btn", "on:click": (e) => { WF.navigate("/animation"); } }, "Animation System");
   _e1458.appendChild(_e1460);
   _e948.appendChild(_e1458);
-  const _e1461 = WF.h("div", { className: "wf-spacer" });
+  const _e1461 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e948.appendChild(_e1461);
   const _e1462 = WF.h("div", { className: "wf-spacer" });
   _e948.appendChild(_e1462);
@@ -4119,9 +4243,9 @@ function Page_Components(params) {
   _e948.appendChild(_e1465);
   const _e1466 = WF.h("p", { className: "wf-text" }, "Several components build more than their markup. You write the component; the browser and the runtime supply the behaviour that makes it usable with a keyboard and a screen reader.");
   _e948.appendChild(_e1466);
-  const _e1467 = WF.h("div", { className: "wf-spacer" });
+  const _e1467 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1467);
-  const _e1468 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1468 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e1469 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e1470 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e1471 = WF.h("div", { className: "wf-card__body" });
@@ -4129,11 +4253,11 @@ function Page_Components(params) {
   _e1471.appendChild(_e1472);
   const _e1473 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "These are real dialog elements, opened with showModal(). The browser traps focus inside, makes the rest of the page inert, closes on Escape and announces the dialog — none of which a styled div can do.");
   _e1471.appendChild(_e1473);
-  const _e1474 = WF.h("div", { className: "wf-spacer" });
+  const _e1474 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1471.appendChild(_e1474);
   const _e1475 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Bind visible to a state and the two stay in step, including when the browser closes the dialog itself.");
   _e1471.appendChild(_e1475);
-  const _e1476 = WF.h("div", { className: "wf-spacer" });
+  const _e1476 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1471.appendChild(_e1476);
   const _e1477 = WF.h("code", { className: "wf-code wf-code--block" }, "Modal(title: \"Confirm\", visible: open) {\n    Text(\"Are you sure?\")\n    Modal.Footer {\n        Button(\"Cancel\") { open = false }\n    }\n}");
   _e1471.appendChild(_e1477);
@@ -4147,7 +4271,7 @@ function Page_Components(params) {
   _e1480.appendChild(_e1481);
   const _e1482 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "Wired as a tablist: each tab is linked to its panel and back, only the selected tab is in the tab order, and the arrow keys, Home and End move between them.");
   _e1480.appendChild(_e1482);
-  const _e1483 = WF.h("div", { className: "wf-spacer" });
+  const _e1483 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1480.appendChild(_e1483);
   const _e1484 = WF.h("code", { className: "wf-code wf-code--block" }, "Tabs {\n    TabPage(\"Overview\") { Text(\"...\") }\n    TabPage(\"Details\") { Text(\"...\") }\n}");
   _e1480.appendChild(_e1484);
@@ -4155,9 +4279,9 @@ function Page_Components(params) {
   _e1478.appendChild(_e1479);
   _e1468.appendChild(_e1478);
   _e948.appendChild(_e1468);
-  const _e1485 = WF.h("div", { className: "wf-spacer" });
+  const _e1485 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1485);
-  const _e1486 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1486 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e1487 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e1488 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e1489 = WF.h("div", { className: "wf-card__body" });
@@ -4189,11 +4313,11 @@ function Page_Components(params) {
   _e948.appendChild(_e1500);
   const _e1501 = WF.h("p", { className: "wf-text" }, "Images default to lazy loading and asynchronous decoding, so one below the fold never delays the first paint.");
   _e948.appendChild(_e1501);
-  const _e1502 = WF.h("div", { className: "wf-spacer" });
+  const _e1502 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1502);
   const _e1503 = WF.h("p", { className: "wf-text wf-text--muted" }, "Give every image a width and a height. Without them the browser reserves no space and the page jumps when the image lands — the single most common cause of a layout that shifts under the reader.");
   _e948.appendChild(_e1503);
-  const _e1504 = WF.h("div", { className: "wf-spacer" });
+  const _e1504 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e948.appendChild(_e1504);
   const _e1505 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1506 = WF.h("div", { className: "wf-card__body" });
@@ -4220,7 +4344,7 @@ function Page_Cli(params) {
   _e1508.appendChild(_e1513);
   const _e1514 = WF.h("p", { className: "wf-text" }, "Create a new WebFluent project.");
   _e1508.appendChild(_e1514);
-  const _e1515 = WF.h("div", { className: "wf-spacer" });
+  const _e1515 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1515);
   const _e1516 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1517 = WF.h("div", { className: "wf-card__body" });
@@ -4228,13 +4352,13 @@ function Page_Cli(params) {
   _e1517.appendChild(_e1518);
   _e1516.appendChild(_e1517);
   _e1508.appendChild(_e1516);
-  const _e1519 = WF.h("div", { className: "wf-spacer" });
+  const _e1519 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1519);
   const _e1520 = WF.h("table", { className: "wf-table" });
   const _e1521 = WF.h("thead", {});
-  const _e1522 = WF.h("td", {}, "Argument");
+  const _e1522 = WF.h("th", { scope: "col" }, "Argument");
   _e1521.appendChild(_e1522);
-  const _e1523 = WF.h("td", {}, "Description");
+  const _e1523 = WF.h("th", { scope: "col" }, "Description");
   _e1521.appendChild(_e1523);
   _e1520.appendChild(_e1521);
   const _e1524 = WF.h("tr", {});
@@ -4250,7 +4374,7 @@ function Page_Cli(params) {
   _e1527.appendChild(_e1529);
   _e1520.appendChild(_e1527);
   _e1508.appendChild(_e1520);
-  const _e1530 = WF.h("div", { className: "wf-spacer" });
+  const _e1530 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1530);
   const _e1531 = WF.h("p", { className: "wf-text wf-text--muted" }, "SPA: interactive app with routing and state. Static: SSG site with i18n. PDF: document generation with tables, headings, and auto page breaks.");
   _e1508.appendChild(_e1531);
@@ -4264,7 +4388,7 @@ function Page_Cli(params) {
   _e1508.appendChild(_e1535);
   const _e1536 = WF.h("p", { className: "wf-text" }, "Compile .wf files to HTML, CSS, and JavaScript.");
   _e1508.appendChild(_e1536);
-  const _e1537 = WF.h("div", { className: "wf-spacer" });
+  const _e1537 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1537);
   const _e1538 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1539 = WF.h("div", { className: "wf-card__body" });
@@ -4272,13 +4396,13 @@ function Page_Cli(params) {
   _e1539.appendChild(_e1540);
   _e1538.appendChild(_e1539);
   _e1508.appendChild(_e1538);
-  const _e1541 = WF.h("div", { className: "wf-spacer" });
+  const _e1541 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1541);
   const _e1542 = WF.h("table", { className: "wf-table" });
   const _e1543 = WF.h("thead", {});
-  const _e1544 = WF.h("td", {}, "Option");
+  const _e1544 = WF.h("th", { scope: "col" }, "Option");
   _e1543.appendChild(_e1544);
-  const _e1545 = WF.h("td", {}, "Description");
+  const _e1545 = WF.h("th", { scope: "col" }, "Description");
   _e1543.appendChild(_e1545);
   _e1542.appendChild(_e1543);
   const _e1546 = WF.h("tr", {});
@@ -4288,15 +4412,15 @@ function Page_Cli(params) {
   _e1546.appendChild(_e1548);
   _e1542.appendChild(_e1546);
   _e1508.appendChild(_e1542);
-  const _e1549 = WF.h("div", { className: "wf-spacer" });
+  const _e1549 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1549);
   const _e1550 = WF.h("p", { className: "wf-text wf-text--muted" }, "The build pipeline: Lex all .wf files, parse to AST, run accessibility linter, generate HTML + CSS + JS, write to output directory.");
   _e1508.appendChild(_e1550);
-  const _e1551 = WF.h("div", { className: "wf-spacer" });
+  const _e1551 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1551);
   const _e1552 = WF.h("p", { className: "wf-text" }, "Output depends on config:");
   _e1508.appendChild(_e1552);
-  const _e1553 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
+  const _e1553 = WF.h("div", { className: "wf-stack wf-gap--sm" });
   const _e1554 = WF.h("p", { className: "wf-text" }, "SPA mode (default): single index.html + app.js + styles.css");
   _e1553.appendChild(_e1554);
   const _e1555 = WF.h("p", { className: "wf-text" }, "SSG mode (ssg: true): one HTML per page + app.js + styles.css");
@@ -4314,7 +4438,7 @@ function Page_Cli(params) {
   _e1508.appendChild(_e1560);
   const _e1561 = WF.h("p", { className: "wf-text" }, "Start a development server that serves the built output.");
   _e1508.appendChild(_e1561);
-  const _e1562 = WF.h("div", { className: "wf-spacer" });
+  const _e1562 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1562);
   const _e1563 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1564 = WF.h("div", { className: "wf-card__body" });
@@ -4322,7 +4446,7 @@ function Page_Cli(params) {
   _e1564.appendChild(_e1565);
   _e1563.appendChild(_e1564);
   _e1508.appendChild(_e1563);
-  const _e1566 = WF.h("div", { className: "wf-spacer" });
+  const _e1566 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1566);
   const _e1567 = WF.h("p", { className: "wf-text wf-text--muted" }, "Serves files from the build directory. SPA fallback: all routes serve index.html so client-side routing works. Port is configured in webfluent.app.json (default: 3000).");
   _e1508.appendChild(_e1567);
@@ -4336,7 +4460,7 @@ function Page_Cli(params) {
   _e1508.appendChild(_e1571);
   const _e1572 = WF.h("p", { className: "wf-text" }, "Scaffold a new page, component, or store.");
   _e1508.appendChild(_e1572);
-  const _e1573 = WF.h("div", { className: "wf-spacer" });
+  const _e1573 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1573);
   const _e1574 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1575 = WF.h("div", { className: "wf-card__body" });
@@ -4344,15 +4468,15 @@ function Page_Cli(params) {
   _e1575.appendChild(_e1576);
   _e1574.appendChild(_e1575);
   _e1508.appendChild(_e1574);
-  const _e1577 = WF.h("div", { className: "wf-spacer" });
+  const _e1577 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1577);
   const _e1578 = WF.h("table", { className: "wf-table" });
   const _e1579 = WF.h("thead", {});
-  const _e1580 = WF.h("td", {}, "Kind");
+  const _e1580 = WF.h("th", { scope: "col" }, "Kind");
   _e1579.appendChild(_e1580);
-  const _e1581 = WF.h("td", {}, "Creates");
+  const _e1581 = WF.h("th", { scope: "col" }, "Creates");
   _e1579.appendChild(_e1581);
-  const _e1582 = WF.h("td", {}, "Example");
+  const _e1582 = WF.h("th", { scope: "col" }, "Example");
   _e1579.appendChild(_e1582);
   _e1578.appendChild(_e1579);
   const _e1583 = WF.h("tr", {});
@@ -4390,7 +4514,7 @@ function Page_Cli(params) {
   _e1508.appendChild(_e1598);
   const _e1599 = WF.h("p", { className: "wf-text" }, "All config is in webfluent.app.json at the project root.");
   _e1508.appendChild(_e1599);
-  const _e1600 = WF.h("div", { className: "wf-spacer" });
+  const _e1600 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1508.appendChild(_e1600);
   const _e1601 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1602 = WF.h("div", { className: "wf-card__body" });
@@ -4398,7 +4522,7 @@ function Page_Cli(params) {
   _e1602.appendChild(_e1603);
   _e1601.appendChild(_e1602);
   _e1508.appendChild(_e1601);
-  const _e1604 = WF.h("div", { className: "wf-spacer" });
+  const _e1604 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e1508.appendChild(_e1604);
   _root.appendChild(_e1508);
   return _root;
@@ -4419,7 +4543,7 @@ function Page_I18n(params) {
   _e1605.appendChild(_e1610);
   const _e1611 = WF.h("p", { className: "wf-text" }, "Create a JSON file per locale in your translations directory.");
   _e1605.appendChild(_e1611);
-  const _e1612 = WF.h("div", { className: "wf-spacer" });
+  const _e1612 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1605.appendChild(_e1612);
   const _e1613 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1614 = WF.h("div", { className: "wf-card__body" });
@@ -4427,7 +4551,7 @@ function Page_I18n(params) {
   _e1614.appendChild(_e1615);
   _e1613.appendChild(_e1614);
   _e1605.appendChild(_e1613);
-  const _e1616 = WF.h("div", { className: "wf-spacer" });
+  const _e1616 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1605.appendChild(_e1616);
   const _e1617 = WF.h("p", { className: "wf-text wf-text--bold" }, "Add i18n config to webfluent.app.json:");
   _e1605.appendChild(_e1617);
@@ -4447,7 +4571,7 @@ function Page_I18n(params) {
   _e1605.appendChild(_e1624);
   const _e1625 = WF.h("p", { className: "wf-text" }, "Use t() to look up translated text. It is reactive — all t() calls update when the locale changes.");
   _e1605.appendChild(_e1625);
-  const _e1626 = WF.h("div", { className: "wf-spacer" });
+  const _e1626 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1605.appendChild(_e1626);
   const _e1627 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1628 = WF.h("div", { className: "wf-card__body" });
@@ -4465,7 +4589,7 @@ function Page_I18n(params) {
   _e1605.appendChild(_e1633);
   const _e1634 = WF.h("p", { className: "wf-text" }, "Switch the locale at runtime with setLocale(). All translated text updates instantly.");
   _e1605.appendChild(_e1634);
-  const _e1635 = WF.h("div", { className: "wf-spacer" });
+  const _e1635 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1605.appendChild(_e1635);
   const _e1636 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1637 = WF.h("div", { className: "wf-card__body" });
@@ -4483,13 +4607,13 @@ function Page_I18n(params) {
   _e1605.appendChild(_e1642);
   const _e1643 = WF.h("p", { className: "wf-text" }, "WebFluent automatically detects RTL locales and updates the document direction.");
   _e1605.appendChild(_e1643);
-  const _e1644 = WF.h("div", { className: "wf-spacer" });
+  const _e1644 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1605.appendChild(_e1644);
   const _e1645 = WF.h("table", { className: "wf-table" });
   const _e1646 = WF.h("thead", {});
-  const _e1647 = WF.h("td", {}, "Locale");
+  const _e1647 = WF.h("th", { scope: "col" }, "Locale");
   _e1646.appendChild(_e1647);
-  const _e1648 = WF.h("td", {}, "Direction");
+  const _e1648 = WF.h("th", { scope: "col" }, "Direction");
   _e1646.appendChild(_e1648);
   _e1645.appendChild(_e1646);
   const _e1649 = WF.h("tr", {});
@@ -4523,7 +4647,7 @@ function Page_I18n(params) {
   _e1661.appendChild(_e1663);
   _e1645.appendChild(_e1661);
   _e1605.appendChild(_e1645);
-  const _e1664 = WF.h("div", { className: "wf-spacer" });
+  const _e1664 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1605.appendChild(_e1664);
   const _e1665 = WF.h("p", { className: "wf-text wf-text--muted" }, "When setLocale(\"ar\") is called, the HTML element gets dir=\"rtl\" and lang=\"ar\" automatically.");
   _e1605.appendChild(_e1665);
@@ -4537,7 +4661,7 @@ function Page_I18n(params) {
   _e1605.appendChild(_e1669);
   const _e1670 = WF.h("p", { className: "wf-text" }, "If a key is missing in the current locale:");
   _e1605.appendChild(_e1670);
-  const _e1671 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
+  const _e1671 = WF.h("div", { className: "wf-stack wf-gap--sm" });
   const _e1672 = WF.h("p", { className: "wf-text" }, "1. Falls back to the defaultLocale translation");
   _e1671.appendChild(_e1672);
   const _e1673 = WF.h("p", { className: "wf-text" }, "2. If still missing, returns the key itself (e.g., \"nav.home\")");
@@ -4553,7 +4677,7 @@ function Page_I18n(params) {
   _e1605.appendChild(_e1677);
   const _e1678 = WF.h("p", { className: "wf-text wf-text--muted" }, "When both SSG and i18n are enabled, pages are pre-rendered with the default locale text. After JavaScript loads, locale switching works normally.");
   _e1605.appendChild(_e1678);
-  const _e1679 = WF.h("div", { className: "wf-spacer" });
+  const _e1679 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e1605.appendChild(_e1679);
   _root.appendChild(_e1605);
   return _root;
@@ -4578,7 +4702,7 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1687);
   const _e1688 = WF.h("p", { className: "wf-text" }, "Render any .wf template with JSON data directly from the command line.");
   _e1680.appendChild(_e1688);
-  const _e1689 = WF.h("div", { className: "wf-spacer" });
+  const _e1689 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1689);
   const _e1690 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1691 = WF.h("div", { className: "wf-card__body" });
@@ -4590,9 +4714,9 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1693);
   const _e1694 = WF.h("table", { className: "wf-table" });
   const _e1695 = WF.h("thead", {});
-  const _e1696 = WF.h("td", {}, "Option");
+  const _e1696 = WF.h("th", { scope: "col" }, "Option");
   _e1695.appendChild(_e1696);
-  const _e1697 = WF.h("td", {}, "Description");
+  const _e1697 = WF.h("th", { scope: "col" }, "Description");
   _e1695.appendChild(_e1697);
   _e1694.appendChild(_e1695);
   const _e1698 = WF.h("tr", {});
@@ -4636,9 +4760,9 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1716);
   const _e1717 = WF.h("p", { className: "wf-text" }, "Templates use standard .wf syntax. Data is passed as a JSON object — top-level keys become template variables.");
   _e1680.appendChild(_e1717);
-  const _e1718 = WF.h("div", { className: "wf-spacer" });
+  const _e1718 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1718);
-  const _e1719 = WF.h("div", { className: "wf-grid wf-grid--gap-lg", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
+  const _e1719 = WF.h("div", { className: "wf-grid wf-gap--lg", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
   const _e1720 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1721 = WF.h("div", { className: "wf-card__header" });
   const _e1722 = WF.h("span", { className: "wf-badge wf-badge--primary" }, "Template");
@@ -4674,7 +4798,7 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1735);
   const _e1736 = WF.h("p", { className: "wf-text" }, "Add WebFluent as a library dependency to use templates in your Rust application.");
   _e1680.appendChild(_e1736);
-  const _e1737 = WF.h("div", { className: "wf-spacer" });
+  const _e1737 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1737);
   const _e1738 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1739 = WF.h("div", { className: "wf-card__header" });
@@ -4686,7 +4810,7 @@ function Page_TemplateEngine(params) {
   _e1741.appendChild(_e1742);
   _e1738.appendChild(_e1741);
   _e1680.appendChild(_e1738);
-  const _e1743 = WF.h("div", { className: "wf-spacer" });
+  const _e1743 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1743);
   const _e1744 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1745 = WF.h("div", { className: "wf-card__header" });
@@ -4708,7 +4832,7 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1752);
   const _e1753 = WF.h("p", { className: "wf-text" }, "Use WebFluent templates in Express, Next.js, or any Node.js application.");
   _e1680.appendChild(_e1753);
-  const _e1754 = WF.h("div", { className: "wf-spacer" });
+  const _e1754 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1754);
   const _e1755 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1756 = WF.h("div", { className: "wf-card__header" });
@@ -4720,7 +4844,7 @@ function Page_TemplateEngine(params) {
   _e1758.appendChild(_e1759);
   _e1755.appendChild(_e1758);
   _e1680.appendChild(_e1755);
-  const _e1760 = WF.h("div", { className: "wf-spacer" });
+  const _e1760 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1760);
   const _e1761 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1762 = WF.h("div", { className: "wf-card__header" });
@@ -4732,7 +4856,7 @@ function Page_TemplateEngine(params) {
   _e1764.appendChild(_e1765);
   _e1761.appendChild(_e1764);
   _e1680.appendChild(_e1761);
-  const _e1766 = WF.h("div", { className: "wf-spacer" });
+  const _e1766 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1766);
   const _e1767 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1768 = WF.h("div", { className: "wf-card__header" });
@@ -4754,71 +4878,71 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1775);
   const _e1776 = WF.h("p", { className: "wf-text" }, "Templates support the static, data-driven subset of WebFluent.");
   _e1680.appendChild(_e1776);
-  const _e1777 = WF.h("div", { className: "wf-spacer" });
+  const _e1777 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1777);
-  const _e1778 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
+  const _e1778 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
   const _e1779 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e1780 = WF.h("div", { className: "wf-card__header" });
   const _e1781 = WF.h("h3", { className: "wf-heading" }, "Supported");
   _e1780.appendChild(_e1781);
   _e1779.appendChild(_e1780);
   const _e1782 = WF.h("div", { className: "wf-card__body" });
-  const _e1783 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e1784 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1783 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e1784 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1785 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1784.appendChild(_e1785);
   const _e1786 = WF.h("p", { className: "wf-text" }, "All layout components");
   _e1784.appendChild(_e1786);
   _e1783.appendChild(_e1784);
-  const _e1787 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1787 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1788 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1787.appendChild(_e1788);
   const _e1789 = WF.h("p", { className: "wf-text" }, "Typography (Text, Heading, Code)");
   _e1787.appendChild(_e1789);
   _e1783.appendChild(_e1787);
-  const _e1790 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1790 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1791 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1790.appendChild(_e1791);
   const _e1792 = WF.h("p", { className: "wf-text" }, "Data display (Card, Table, List, Badge)");
   _e1790.appendChild(_e1792);
   _e1783.appendChild(_e1790);
-  const _e1793 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1793 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1794 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1793.appendChild(_e1794);
   const _e1795 = WF.h("p", { className: "wf-text" }, "for loops over data arrays");
   _e1793.appendChild(_e1795);
   _e1783.appendChild(_e1793);
-  const _e1796 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1796 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1797 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1796.appendChild(_e1797);
   const _e1798 = WF.h("p", { className: "wf-text" }, "if/else conditionals");
   _e1796.appendChild(_e1798);
   _e1783.appendChild(_e1796);
-  const _e1799 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1799 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1800 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1799.appendChild(_e1800);
   const _e1801 = WF.h("p", { className: "wf-text" }, "String interpolation {var}");
   _e1799.appendChild(_e1801);
   _e1783.appendChild(_e1799);
-  const _e1802 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1802 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1803 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1802.appendChild(_e1803);
   const _e1804 = WF.h("p", { className: "wf-text" }, "Nested access (user.name)");
   _e1802.appendChild(_e1804);
   _e1783.appendChild(_e1802);
-  const _e1805 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1805 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1806 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1805.appendChild(_e1806);
   const _e1807 = WF.h("p", { className: "wf-text" }, "Design tokens and themes");
   _e1805.appendChild(_e1807);
   _e1783.appendChild(_e1805);
-  const _e1808 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1808 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1809 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1808.appendChild(_e1809);
   const _e1810 = WF.h("p", { className: "wf-text" }, "Style blocks");
   _e1808.appendChild(_e1810);
   _e1783.appendChild(_e1808);
-  const _e1811 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1811 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1812 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Yes");
   _e1811.appendChild(_e1812);
   const _e1813 = WF.h("p", { className: "wf-text" }, "PDF components");
@@ -4833,44 +4957,44 @@ function Page_TemplateEngine(params) {
   _e1815.appendChild(_e1816);
   _e1814.appendChild(_e1815);
   const _e1817 = WF.h("div", { className: "wf-card__body" });
-  const _e1818 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e1819 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1818 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e1819 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1820 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1819.appendChild(_e1820);
   const _e1821 = WF.h("p", { className: "wf-text" }, "state / derived / effect");
   _e1819.appendChild(_e1821);
   _e1818.appendChild(_e1819);
-  const _e1822 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1822 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1823 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1822.appendChild(_e1823);
   const _e1824 = WF.h("p", { className: "wf-text" }, "Events (on:click, on:submit)");
   _e1822.appendChild(_e1824);
   _e1818.appendChild(_e1822);
-  const _e1825 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1825 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1826 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1825.appendChild(_e1826);
   const _e1827 = WF.h("p", { className: "wf-text" }, "Navigation / Router");
   _e1825.appendChild(_e1827);
   _e1818.appendChild(_e1825);
-  const _e1828 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1828 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1829 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1828.appendChild(_e1829);
   const _e1830 = WF.h("p", { className: "wf-text" }, "Stores (shared state)");
   _e1828.appendChild(_e1830);
   _e1818.appendChild(_e1828);
-  const _e1831 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1831 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1832 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1831.appendChild(_e1832);
   const _e1833 = WF.h("p", { className: "wf-text" }, "fetch (data loading)");
   _e1831.appendChild(_e1833);
   _e1818.appendChild(_e1831);
-  const _e1834 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1834 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1835 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1834.appendChild(_e1835);
   const _e1836 = WF.h("p", { className: "wf-text" }, "Animations");
   _e1834.appendChild(_e1836);
   _e1818.appendChild(_e1834);
-  const _e1837 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e1837 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e1838 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "No");
   _e1837.appendChild(_e1838);
   const _e1839 = WF.h("p", { className: "wf-text" }, "Toast (imperative)");
@@ -4888,9 +5012,9 @@ function Page_TemplateEngine(params) {
   _e1680.appendChild(_e1842);
   const _e1843 = WF.h("h2", { className: "wf-heading" }, "Use Cases");
   _e1680.appendChild(_e1843);
-  const _e1844 = WF.h("div", { className: "wf-spacer" });
+  const _e1844 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1680.appendChild(_e1844);
-  const _e1845 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
+  const _e1845 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
   const _e1846 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e1847 = WF.h("div", { className: "wf-card__body" });
   const _e1848 = WF.h("h3", { className: "wf-heading" }, "Server-Rendered Pages");
@@ -4916,7 +5040,7 @@ function Page_TemplateEngine(params) {
   _e1854.appendChild(_e1855);
   _e1845.appendChild(_e1854);
   _e1680.appendChild(_e1845);
-  const _e1858 = WF.h("div", { className: "wf-spacer" });
+  const _e1858 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e1680.appendChild(_e1858);
   _root.appendChild(_e1680);
   return _root;
@@ -4937,7 +5061,7 @@ function Page_Accessibility(params) {
   _e1859.appendChild(_e1864);
   const _e1865 = WF.h("p", { className: "wf-text" }, "The linter runs automatically after parsing, before code generation. It walks the AST and checks each component against 12 rules.");
   _e1859.appendChild(_e1865);
-  const _e1866 = WF.h("div", { className: "wf-spacer" });
+  const _e1866 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1859.appendChild(_e1866);
   const _e1867 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1868 = WF.h("div", { className: "wf-card__body" });
@@ -4955,11 +5079,11 @@ function Page_Accessibility(params) {
   _e1859.appendChild(_e1873);
   const _e1874 = WF.h("table", { className: "wf-table" });
   const _e1875 = WF.h("thead", {});
-  const _e1876 = WF.h("td", {}, "Rule");
+  const _e1876 = WF.h("th", { scope: "col" }, "Rule");
   _e1875.appendChild(_e1876);
-  const _e1877 = WF.h("td", {}, "Component");
+  const _e1877 = WF.h("th", { scope: "col" }, "Component");
   _e1875.appendChild(_e1877);
-  const _e1878 = WF.h("td", {}, "Check");
+  const _e1878 = WF.h("th", { scope: "col" }, "Check");
   _e1875.appendChild(_e1878);
   _e1874.appendChild(_e1875);
   const _e1879 = WF.h("tr", {});
@@ -5123,7 +5247,7 @@ function Page_Accessibility(params) {
   _e1859.appendChild(_e1957);
   const _e1958 = WF.h("h2", { className: "wf-heading" }, "Examples");
   _e1859.appendChild(_e1958);
-  const _e1959 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1959 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e1960 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e1961 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e1962 = WF.h("div", { className: "wf-card__body" });
@@ -5145,7 +5269,7 @@ function Page_Accessibility(params) {
   _e1965.appendChild(_e1966);
   _e1959.appendChild(_e1965);
   _e1859.appendChild(_e1959);
-  const _e1970 = WF.h("div", { className: "wf-spacer" });
+  const _e1970 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e1859.appendChild(_e1970);
   const _e1971 = WF.h("div", { className: "wf-spacer" });
   _e1859.appendChild(_e1971);
@@ -5157,9 +5281,9 @@ function Page_Accessibility(params) {
   _e1859.appendChild(_e1974);
   const _e1975 = WF.h("p", { className: "wf-text" }, "The checks above tell you what to fix. Most of the work is already done in the output.");
   _e1859.appendChild(_e1975);
-  const _e1976 = WF.h("div", { className: "wf-spacer" });
+  const _e1976 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1859.appendChild(_e1976);
-  const _e1977 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1977 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e1978 = WF.h("div", { className: "wf-col wf-col--4" });
   const _e1979 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e1980 = WF.h("div", { className: "wf-card__body" });
@@ -5191,9 +5315,9 @@ function Page_Accessibility(params) {
   _e1988.appendChild(_e1989);
   _e1977.appendChild(_e1988);
   _e1859.appendChild(_e1977);
-  const _e1993 = WF.h("div", { className: "wf-spacer" });
+  const _e1993 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e1859.appendChild(_e1993);
-  const _e1994 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e1994 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e1995 = WF.h("div", { className: "wf-col wf-col--6" });
   const _e1996 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e1997 = WF.h("div", { className: "wf-card__body" });
@@ -5225,11 +5349,11 @@ function Page_Home(params) {
   const _showDemo = WF.signal(false);
   const _root = document.createDocumentFragment();
   const _e2005 = WF.h("div", { className: "wf-container" });
-  const _e2006 = WF.h("div", { className: "wf-spacer" });
+  const _e2006 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2005.appendChild(_e2006);
   const _e2007 = WF.h("h1", { className: "wf-heading wf-text--center wf-animate-slideUp" }, () => WF.i18n.t("hero.title"));
   _e2005.appendChild(_e2007);
-  const _e2008 = WF.h("div", { className: "wf-spacer" });
+  const _e2008 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2005.appendChild(_e2008);
   const _e2009 = WF.h("p", { className: "wf-text wf-text--muted wf-text--center wf-animate-fadeIn" }, () => WF.i18n.t("hero.sub1"));
   _e2005.appendChild(_e2009);
@@ -5237,13 +5361,13 @@ function Page_Home(params) {
   _e2005.appendChild(_e2010);
   const _e2011 = WF.h("div", { className: "wf-spacer" });
   _e2005.appendChild(_e2011);
-  const _e2012 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e2012 = WF.h("div", { className: "wf-row wf-gap--md wf-justify--center" });
   const _e2013 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--large", "on:click": (e) => { WF.navigate("/getting-started"); } }, () => WF.i18n.t("hero.cta"));
   _e2012.appendChild(_e2013);
   const _e2014 = WF.h("button", { className: "wf-btn wf-btn--large", "on:click": (e) => { WF.navigate("/guide"); } }, () => WF.i18n.t("hero.guide"));
   _e2012.appendChild(_e2014);
   _e2005.appendChild(_e2012);
-  const _e2015 = WF.h("div", { className: "wf-spacer" });
+  const _e2015 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2005.appendChild(_e2015);
   const _e2016 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2017 = WF.h("div", { className: "wf-card__body" });
@@ -5251,7 +5375,7 @@ function Page_Home(params) {
   _e2017.appendChild(_e2018);
   _e2016.appendChild(_e2017);
   _e2005.appendChild(_e2016);
-  const _e2019 = WF.h("div", { className: "wf-spacer" });
+  const _e2019 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2005.appendChild(_e2019);
   const _e2020 = WF.h("hr", { className: "wf-divider" });
   _e2005.appendChild(_e2020);
@@ -5263,14 +5387,14 @@ function Page_Home(params) {
   _e2005.appendChild(_e2023);
   const _e2024 = WF.h("div", { className: "wf-spacer" });
   _e2005.appendChild(_e2024);
-  const _e2025 = WF.h("div", { className: "wf-grid wf-grid--gap-lg", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
+  const _e2025 = WF.h("div", { className: "wf-grid wf-gap--lg", style: { gridTemplateColumns: 'repeat(2, 1fr)' } });
   const _e2026 = WF.h("div", { className: "wf-card wf-card--elevated wf-animate-fadeIn" });
   const _e2027 = WF.h("div", { className: "wf-card__header" });
   const _e2028 = WF.h("h2", { className: "wf-heading" }, () => WF.i18n.t("demo.counter"));
   _e2027.appendChild(_e2028);
   _e2026.appendChild(_e2027);
   const _e2029 = WF.h("div", { className: "wf-card__body" });
-  const _e2030 = WF.h("div", { className: "wf-row wf-row--center wf-row--gap-md" });
+  const _e2030 = WF.h("div", { className: "wf-row wf-align--center wf-gap--md" });
   const _e2031 = WF.h("button", { className: "wf-btn wf-btn--large", "on:click": (e) => { _counter.set((_counter() - 1)); } }, "-");
   _e2030.appendChild(_e2031);
   const _e2032 = WF.h("h2", { className: "wf-heading wf-heading--primary" }, () => `${_counter()}`);
@@ -5278,7 +5402,7 @@ function Page_Home(params) {
   const _e2033 = WF.h("button", { className: "wf-btn wf-btn--primary wf-btn--large", "on:click": (e) => { _counter.set((_counter() + 1)); } }, "+");
   _e2030.appendChild(_e2033);
   _e2029.appendChild(_e2030);
-  const _e2034 = WF.h("div", { className: "wf-spacer" });
+  const _e2034 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2029.appendChild(_e2034);
   const _e2035 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, () => WF.i18n.t("demo.counter.hint"));
   _e2029.appendChild(_e2035);
@@ -5290,9 +5414,9 @@ function Page_Home(params) {
   _e2037.appendChild(_e2038);
   _e2036.appendChild(_e2037);
   const _e2039 = WF.h("div", { className: "wf-card__body" });
-  const _e2040 = WF.h("input", { className: "wf-input", value: () => _taskInput(), "on:input": (e) => _taskInput.set(e.target.value), placeholder: WF.i18n.t("demo.binding.placeholder"), label: "Input", type: "text" });
+  const _e2040 = WF.h("input", { className: "wf-input", value: () => _taskInput(), "on:input": (e) => _taskInput.set(e.target.value), placeholder: () => WF.i18n.t("demo.binding.placeholder"), label: "Input", type: "text" });
   _e2039.appendChild(_e2040);
-  const _e2041 = WF.h("div", { className: "wf-spacer" });
+  const _e2041 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2039.appendChild(_e2041);
   WF.condRender(_e2039,
     () => (_taskInput() !== ""),
@@ -5322,7 +5446,7 @@ function Page_Home(params) {
   _e2049.appendChild(_e2051);
   _e2049.appendChild(WF.text(WF.i18n.t("demo.conditional.toggle")));
   _e2048.appendChild(_e2049);
-  const _e2052 = WF.h("div", { className: "wf-spacer" });
+  const _e2052 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2048.appendChild(_e2052);
   WF.condRender(_e2048,
     () => _showDemo(),
@@ -5332,7 +5456,7 @@ function Page_Home(params) {
       const _e2055 = WF.h("div", { className: "wf-card__body" });
       const _e2056 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Visible!");
       _e2055.appendChild(_e2056);
-      const _e2057 = WF.h("div", { className: "wf-spacer" });
+      const _e2057 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
       _e2055.appendChild(_e2057);
       const _e2058 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("demo.conditional.text"));
       _e2055.appendChild(_e2058);
@@ -5351,8 +5475,8 @@ function Page_Home(params) {
   _e2060.appendChild(_e2061);
   _e2059.appendChild(_e2060);
   const _e2062 = WF.h("div", { className: "wf-card__body" });
-  const _e2063 = WF.h("div", { className: "wf-stack wf-stack--gap-sm" });
-  const _e2064 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e2063 = WF.h("div", { className: "wf-stack wf-gap--sm" });
+  const _e2064 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e2065 = WF.h("button", { className: "wf-btn wf-btn--primary" }, "Primary");
   _e2064.appendChild(_e2065);
   const _e2066 = WF.h("button", { className: "wf-btn wf-btn--danger" }, "Danger");
@@ -5360,7 +5484,7 @@ function Page_Home(params) {
   const _e2067 = WF.h("button", { className: "wf-btn wf-btn--success" }, "Success");
   _e2064.appendChild(_e2067);
   _e2063.appendChild(_e2064);
-  const _e2068 = WF.h("div", { className: "wf-row wf-row--gap-sm" });
+  const _e2068 = WF.h("div", { className: "wf-row wf-gap--sm" });
   const _e2069 = WF.h("span", { className: "wf-badge wf-badge--primary" }, "New");
   _e2068.appendChild(_e2069);
   const _e2070 = WF.h("span", { className: "wf-badge wf-badge--danger" }, "Sale");
@@ -5378,7 +5502,7 @@ function Page_Home(params) {
   _e2059.appendChild(_e2062);
   _e2025.appendChild(_e2059);
   _e2005.appendChild(_e2025);
-  const _e2075 = WF.h("div", { className: "wf-spacer" });
+  const _e2075 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2005.appendChild(_e2075);
   const _e2076 = WF.h("hr", { className: "wf-divider" });
   _e2005.appendChild(_e2076);
@@ -5390,31 +5514,31 @@ function Page_Home(params) {
   _e2005.appendChild(_e2079);
   const _e2080 = WF.h("div", { className: "wf-spacer" });
   _e2005.appendChild(_e2080);
-  const _e2081 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
-  const _e2082 = Component_FeatureCard({ title: WF.i18n.t("why.syntax"), description: WF.i18n.t("why.syntax.desc") });
+  const _e2081 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
+  const _e2082 = Component_FeatureCard({ get title() { return WF.i18n.t("why.syntax"); }, get description() { return WF.i18n.t("why.syntax.desc"); } });
   _e2081.appendChild(_e2082);
-  const _e2083 = Component_FeatureCard({ title: WF.i18n.t("why.components"), description: WF.i18n.t("why.components.desc") });
+  const _e2083 = Component_FeatureCard({ get title() { return WF.i18n.t("why.components"); }, get description() { return WF.i18n.t("why.components.desc"); } });
   _e2081.appendChild(_e2083);
-  const _e2084 = Component_FeatureCard({ title: WF.i18n.t("why.reactivity"), description: WF.i18n.t("why.reactivity.desc") });
+  const _e2084 = Component_FeatureCard({ get title() { return WF.i18n.t("why.reactivity"); }, get description() { return WF.i18n.t("why.reactivity.desc"); } });
   _e2081.appendChild(_e2084);
-  const _e2085 = Component_FeatureCard({ title: WF.i18n.t("why.design"), description: WF.i18n.t("why.design.desc") });
+  const _e2085 = Component_FeatureCard({ get title() { return WF.i18n.t("why.design"); }, get description() { return WF.i18n.t("why.design.desc"); } });
   _e2081.appendChild(_e2085);
-  const _e2086 = Component_FeatureCard({ title: WF.i18n.t("why.animation"), description: WF.i18n.t("why.animation.desc") });
+  const _e2086 = Component_FeatureCard({ get title() { return WF.i18n.t("why.animation"); }, get description() { return WF.i18n.t("why.animation.desc"); } });
   _e2081.appendChild(_e2086);
-  const _e2087 = Component_FeatureCard({ title: WF.i18n.t("why.i18n"), description: WF.i18n.t("why.i18n.desc") });
+  const _e2087 = Component_FeatureCard({ get title() { return WF.i18n.t("why.i18n"); }, get description() { return WF.i18n.t("why.i18n.desc"); } });
   _e2081.appendChild(_e2087);
-  const _e2088 = Component_FeatureCard({ title: WF.i18n.t("why.ssg"), description: WF.i18n.t("why.ssg.desc") });
+  const _e2088 = Component_FeatureCard({ get title() { return WF.i18n.t("why.ssg"); }, get description() { return WF.i18n.t("why.ssg.desc"); } });
   _e2081.appendChild(_e2088);
-  const _e2089 = Component_FeatureCard({ title: WF.i18n.t("why.a11y"), description: WF.i18n.t("why.a11y.desc") });
+  const _e2089 = Component_FeatureCard({ get title() { return WF.i18n.t("why.a11y"); }, get description() { return WF.i18n.t("why.a11y.desc"); } });
   _e2081.appendChild(_e2089);
-  const _e2090 = Component_FeatureCard({ title: WF.i18n.t("why.zero"), description: WF.i18n.t("why.zero.desc") });
+  const _e2090 = Component_FeatureCard({ get title() { return WF.i18n.t("why.zero"); }, get description() { return WF.i18n.t("why.zero.desc"); } });
   _e2081.appendChild(_e2090);
   _e2005.appendChild(_e2081);
-  const _e2091 = WF.h("div", { className: "wf-spacer" });
+  const _e2091 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2005.appendChild(_e2091);
   const _e2092 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e2093 = WF.h("div", { className: "wf-card__body" });
-  const _e2094 = WF.h("div", { className: "wf-row wf-row--center wf-row--between" });
+  const _e2094 = WF.h("div", { className: "wf-row wf-align--center wf-justify--between" });
   const _e2095 = WF.h("div", { className: "wf-stack" });
   const _e2096 = WF.h("h2", { className: "wf-heading" }, () => WF.i18n.t("cta.title"));
   _e2095.appendChild(_e2096);
@@ -5426,7 +5550,7 @@ function Page_Home(params) {
   _e2093.appendChild(_e2094);
   _e2092.appendChild(_e2093);
   _e2005.appendChild(_e2092);
-  const _e2099 = WF.h("div", { className: "wf-spacer" });
+  const _e2099 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2005.appendChild(_e2099);
   _root.appendChild(_e2005);
   return _root;
@@ -5447,7 +5571,7 @@ function Page_GettingStarted(params) {
   _e2100.appendChild(_e2105);
   const _e2106 = WF.h("p", { className: "wf-text" }, "Build from source (requires Rust):");
   _e2100.appendChild(_e2106);
-  const _e2107 = WF.h("div", { className: "wf-spacer" });
+  const _e2107 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2100.appendChild(_e2107);
   const _e2108 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2109 = WF.h("div", { className: "wf-card__body" });
@@ -5455,7 +5579,7 @@ function Page_GettingStarted(params) {
   _e2109.appendChild(_e2110);
   _e2108.appendChild(_e2109);
   _e2100.appendChild(_e2108);
-  const _e2111 = WF.h("div", { className: "wf-spacer" });
+  const _e2111 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2100.appendChild(_e2111);
   const _e2112 = WF.h("p", { className: "wf-text wf-text--muted" }, "The binary is at target/release/wf. Add it to your PATH.");
   _e2100.appendChild(_e2112);
@@ -5467,14 +5591,14 @@ function Page_GettingStarted(params) {
   _e2100.appendChild(_e2115);
   const _e2116 = WF.h("h2", { className: "wf-heading" }, "Create a Project");
   _e2100.appendChild(_e2116);
-  const _e2117 = WF.h("div", { className: "wf-spacer" });
+  const _e2117 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2100.appendChild(_e2117);
-  const _e2118 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
+  const _e2118 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
   const _e2119 = WF.h("div", { className: "wf-card wf-card--elevated" });
   const _e2120 = WF.h("div", { className: "wf-card__body" });
   const _e2121 = WF.h("span", { className: "wf-badge wf-badge--primary" }, "SPA");
   _e2120.appendChild(_e2121);
-  const _e2122 = WF.h("div", { className: "wf-spacer" });
+  const _e2122 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2120.appendChild(_e2122);
   const _e2123 = WF.h("h2", { className: "wf-heading" }, "Interactive App");
   _e2120.appendChild(_e2123);
@@ -5490,7 +5614,7 @@ function Page_GettingStarted(params) {
   const _e2128 = WF.h("div", { className: "wf-card__body" });
   const _e2129 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Static");
   _e2128.appendChild(_e2129);
-  const _e2130 = WF.h("div", { className: "wf-spacer" });
+  const _e2130 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2128.appendChild(_e2130);
   const _e2131 = WF.h("h2", { className: "wf-heading" }, "Static Site");
   _e2128.appendChild(_e2131);
@@ -5506,7 +5630,7 @@ function Page_GettingStarted(params) {
   const _e2136 = WF.h("div", { className: "wf-card__body" });
   const _e2137 = WF.h("span", { className: "wf-badge wf-badge--info" }, "PDF");
   _e2136.appendChild(_e2137);
-  const _e2138 = WF.h("div", { className: "wf-spacer" });
+  const _e2138 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2136.appendChild(_e2138);
   const _e2139 = WF.h("h2", { className: "wf-heading" }, "PDF Document");
   _e2136.appendChild(_e2139);
@@ -5533,7 +5657,7 @@ function Page_GettingStarted(params) {
   _e2148.appendChild(_e2149);
   _e2147.appendChild(_e2148);
   _e2100.appendChild(_e2147);
-  const _e2150 = WF.h("div", { className: "wf-spacer" });
+  const _e2150 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2100.appendChild(_e2150);
   const _e2151 = WF.h("p", { className: "wf-text wf-text--muted" }, "Open http://localhost:3000 in your browser.");
   _e2100.appendChild(_e2151);
@@ -5553,13 +5677,13 @@ function Page_GettingStarted(params) {
   _e2100.appendChild(_e2156);
   const _e2159 = WF.h("div", { className: "wf-spacer" });
   _e2100.appendChild(_e2159);
-  const _e2160 = WF.h("div", { className: "wf-row wf-row--gap-md" });
+  const _e2160 = WF.h("div", { className: "wf-row wf-gap--md" });
   const _e2161 = WF.h("button", { className: "wf-btn wf-btn--primary", "on:click": (e) => { WF.navigate("/guide"); } }, "Read the Guide");
   _e2160.appendChild(_e2161);
   const _e2162 = WF.h("button", { className: "wf-btn", "on:click": (e) => { WF.navigate("/components"); } }, "Browse Components");
   _e2160.appendChild(_e2162);
   _e2100.appendChild(_e2160);
-  const _e2163 = WF.h("div", { className: "wf-spacer" });
+  const _e2163 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2100.appendChild(_e2163);
   _root.appendChild(_e2100);
   return _root;
@@ -5581,83 +5705,92 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2169);
   const _e2170 = WF.h("p", { className: "wf-text" }, "Add an animation modifier to any component. It plays when the element appears. Hover each card to replay.");
   _e2164.appendChild(_e2170);
-  const _e2171 = WF.h("div", { className: "wf-spacer" });
+  const _e2171 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2171);
-  const _e2172 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
-  const _e2173 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "fadeIn"); } });
+  const _e2172 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
+  const _e2173 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn" });
   const _e2174 = WF.h("div", { className: "wf-card__body" });
   const _e2175 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "fadeIn");
   _e2174.appendChild(_e2175);
   const _e2176 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Fades from transparent");
   _e2174.appendChild(_e2176);
   _e2173.appendChild(_e2174);
+  _e2173.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "fadeIn"); });
   _e2172.appendChild(_e2173);
-  const _e2177 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideUp", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "slideUp"); } });
+  const _e2177 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideUp" });
   const _e2178 = WF.h("div", { className: "wf-card__body" });
   const _e2179 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "slideUp");
   _e2178.appendChild(_e2179);
   const _e2180 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Slides from below");
   _e2178.appendChild(_e2180);
   _e2177.appendChild(_e2178);
+  _e2177.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "slideUp"); });
   _e2172.appendChild(_e2177);
-  const _e2181 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-scaleIn", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "scaleIn"); } });
+  const _e2181 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-scaleIn" });
   const _e2182 = WF.h("div", { className: "wf-card__body" });
   const _e2183 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "scaleIn");
   _e2182.appendChild(_e2183);
   const _e2184 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Scales from 90%");
   _e2182.appendChild(_e2184);
   _e2181.appendChild(_e2182);
+  _e2181.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "scaleIn"); });
   _e2172.appendChild(_e2181);
-  const _e2185 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideDown", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "slideDown"); } });
+  const _e2185 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideDown" });
   const _e2186 = WF.h("div", { className: "wf-card__body" });
   const _e2187 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "slideDown");
   _e2186.appendChild(_e2187);
   const _e2188 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Slides from above");
   _e2186.appendChild(_e2188);
   _e2185.appendChild(_e2186);
+  _e2185.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "slideDown"); });
   _e2172.appendChild(_e2185);
-  const _e2189 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideLeft", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "slideLeft"); } });
+  const _e2189 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideLeft" });
   const _e2190 = WF.h("div", { className: "wf-card__body" });
   const _e2191 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "slideLeft");
   _e2190.appendChild(_e2191);
   const _e2192 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Slides from right");
   _e2190.appendChild(_e2192);
   _e2189.appendChild(_e2190);
+  _e2189.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "slideLeft"); });
   _e2172.appendChild(_e2189);
-  const _e2193 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-bounce", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "bounce"); } });
+  const _e2193 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-bounce" });
   const _e2194 = WF.h("div", { className: "wf-card__body" });
   const _e2195 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "bounce");
   _e2194.appendChild(_e2195);
   const _e2196 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Bouncy entrance");
   _e2194.appendChild(_e2196);
   _e2193.appendChild(_e2194);
+  _e2193.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "bounce"); });
   _e2172.appendChild(_e2193);
-  const _e2197 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-shake", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "shake"); } });
+  const _e2197 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-shake" });
   const _e2198 = WF.h("div", { className: "wf-card__body" });
   const _e2199 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "shake");
   _e2198.appendChild(_e2199);
   const _e2200 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Horizontal shake");
   _e2198.appendChild(_e2200);
   _e2197.appendChild(_e2198);
+  _e2197.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "shake"); });
   _e2172.appendChild(_e2197);
-  const _e2201 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-pulse", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "pulse"); } });
+  const _e2201 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-pulse" });
   const _e2202 = WF.h("div", { className: "wf-card__body" });
   const _e2203 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "pulse");
   _e2202.appendChild(_e2203);
   const _e2204 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Gentle scale pulse");
   _e2202.appendChild(_e2204);
   _e2201.appendChild(_e2202);
+  _e2201.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "pulse"); });
   _e2172.appendChild(_e2201);
-  const _e2205 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideRight", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "slideRight"); } });
+  const _e2205 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-slideRight" });
   const _e2206 = WF.h("div", { className: "wf-card__body" });
   const _e2207 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "slideRight");
   _e2206.appendChild(_e2207);
   const _e2208 = WF.h("p", { className: "wf-text wf-text--center wf-text--muted wf-text--small" }, "Slides from left");
   _e2206.appendChild(_e2208);
   _e2205.appendChild(_e2206);
+  _e2205.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "slideRight"); });
   _e2172.appendChild(_e2205);
   _e2164.appendChild(_e2172);
-  const _e2209 = WF.h("div", { className: "wf-spacer" });
+  const _e2209 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2209);
   const _e2210 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2211 = WF.h("div", { className: "wf-card__body" });
@@ -5675,7 +5808,7 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2216);
   const _e2217 = WF.h("p", { className: "wf-text" }, "Toggle the switch to see enter/exit animations on the card below.");
   _e2164.appendChild(_e2217);
-  const _e2218 = WF.h("div", { className: "wf-spacer" });
+  const _e2218 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2218);
   const _e2219 = WF.h("label", { className: "wf-switch" });
   const _e2220 = WF.h("input", { type: "checkbox", role: "switch",                  checked: () => _showCard(), "aria-checked": () => _showCard() ? "true" : "false",                  "on:change": () => _showCard.set(!_showCard()) });
@@ -5684,7 +5817,7 @@ function Page_Animation(params) {
   _e2219.appendChild(_e2221);
   _e2219.appendChild(WF.text("Show animated card"));
   _e2164.appendChild(_e2219);
-  const _e2222 = WF.h("div", { className: "wf-spacer" });
+  const _e2222 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2222);
   WF.condRender(_e2164,
     () => _showCard(),
@@ -5694,7 +5827,7 @@ function Page_Animation(params) {
       const _e2225 = WF.h("div", { className: "wf-card__body" });
       const _e2226 = WF.h("span", { className: "wf-badge wf-badge--success" }, "Animated!");
       _e2225.appendChild(_e2226);
-      const _e2227 = WF.h("div", { className: "wf-spacer" });
+      const _e2227 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
       _e2225.appendChild(_e2227);
       const _e2228 = WF.h("p", { className: "wf-text" }, "This card scales in and fades out.");
       _e2225.appendChild(_e2228);
@@ -5707,7 +5840,7 @@ function Page_Animation(params) {
     null,
     { enter: "scaleIn", exit: "fadeOut" }
   );
-  const _e2230 = WF.h("div", { className: "wf-spacer" });
+  const _e2230 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2230);
   const _e2231 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2232 = WF.h("div", { className: "wf-card__body" });
@@ -5723,10 +5856,10 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2236);
   const _e2237 = WF.h("h2", { className: "wf-heading" }, "Speed Variants");
   _e2164.appendChild(_e2237);
-  const _e2238 = WF.h("div", { className: "wf-spacer" });
+  const _e2238 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2238);
-  const _e2239 = WF.h("div", { className: "wf-grid wf-grid--gap-md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
-  const _e2240 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "fadeIn", "150ms"); } });
+  const _e2239 = WF.h("div", { className: "wf-grid wf-gap--md", style: { gridTemplateColumns: 'repeat(3, 1fr)' } });
+  const _e2240 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn" });
   const _e2241 = WF.h("div", { className: "wf-card__body" });
   const _e2242 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "fast");
   _e2241.appendChild(_e2242);
@@ -5735,8 +5868,9 @@ function Page_Animation(params) {
   const _e2244 = WF.h("code", { className: "wf-code wf-code--block" }, "Card(elevated, fadeIn, fast)");
   _e2241.appendChild(_e2244);
   _e2240.appendChild(_e2241);
+  _e2240.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "fadeIn", "150ms"); });
   _e2239.appendChild(_e2240);
-  const _e2245 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "fadeIn"); } });
+  const _e2245 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn" });
   const _e2246 = WF.h("div", { className: "wf-card__body" });
   const _e2247 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "default");
   _e2246.appendChild(_e2247);
@@ -5745,8 +5879,9 @@ function Page_Animation(params) {
   const _e2249 = WF.h("code", { className: "wf-code wf-code--block" }, "Card(elevated, fadeIn)");
   _e2246.appendChild(_e2249);
   _e2245.appendChild(_e2246);
+  _e2245.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "fadeIn"); });
   _e2239.appendChild(_e2245);
-  const _e2250 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn", "on:mouseenter": (event) => { WF.replayAnimation(event.currentTarget, "fadeIn", "500ms"); } });
+  const _e2250 = WF.h("div", { className: "wf-card wf-card--outlined wf-animate-fadeIn" });
   const _e2251 = WF.h("div", { className: "wf-card__body" });
   const _e2252 = WF.h("p", { className: "wf-text wf-text--center wf-text--bold" }, "slow");
   _e2251.appendChild(_e2252);
@@ -5755,6 +5890,7 @@ function Page_Animation(params) {
   const _e2254 = WF.h("code", { className: "wf-code wf-code--block" }, "Card(elevated, fadeIn, slow)");
   _e2251.appendChild(_e2254);
   _e2250.appendChild(_e2251);
+  _e2250.addEventListener("mouseenter", (event) => { WF.replayAnimation(event.currentTarget, "fadeIn", "500ms"); });
   _e2239.appendChild(_e2250);
   _e2164.appendChild(_e2239);
   const _e2255 = WF.h("div", { className: "wf-spacer" });
@@ -5765,15 +5901,15 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2257);
   const _e2258 = WF.h("h2", { className: "wf-heading" }, "All 12 Animations");
   _e2164.appendChild(_e2258);
-  const _e2259 = WF.h("div", { className: "wf-spacer" });
+  const _e2259 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2259);
   const _e2260 = WF.h("table", { className: "wf-table" });
   const _e2261 = WF.h("thead", {});
-  const _e2262 = WF.h("td", {}, "Name");
+  const _e2262 = WF.h("th", { scope: "col" }, "Name");
   _e2261.appendChild(_e2262);
-  const _e2263 = WF.h("td", {}, "Effect");
+  const _e2263 = WF.h("th", { scope: "col" }, "Effect");
   _e2261.appendChild(_e2263);
-  const _e2264 = WF.h("td", {}, "Usage");
+  const _e2264 = WF.h("th", { scope: "col" }, "Usage");
   _e2261.appendChild(_e2264);
   _e2260.appendChild(_e2261);
   const _e2265 = WF.h("tr", {});
@@ -5851,7 +5987,7 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2300);
   const _e2301 = WF.h("p", { className: "wf-text" }, "Attach enter and exit animations to if blocks.");
   _e2164.appendChild(_e2301);
-  const _e2302 = WF.h("div", { className: "wf-spacer" });
+  const _e2302 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2302);
   const _e2303 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2304 = WF.h("div", { className: "wf-card__body" });
@@ -5869,7 +6005,7 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2309);
   const _e2310 = WF.h("p", { className: "wf-text" }, "Animate list items with staggered delays.");
   _e2164.appendChild(_e2310);
-  const _e2311 = WF.h("div", { className: "wf-spacer" });
+  const _e2311 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2311);
   const _e2312 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2313 = WF.h("div", { className: "wf-card__body" });
@@ -5887,7 +6023,7 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2318);
   const _e2319 = WF.h("p", { className: "wf-text" }, "Smooth CSS transitions on property changes.");
   _e2164.appendChild(_e2319);
-  const _e2320 = WF.h("div", { className: "wf-spacer" });
+  const _e2320 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2320);
   const _e2321 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2322 = WF.h("div", { className: "wf-card__body" });
@@ -5895,7 +6031,7 @@ function Page_Animation(params) {
   _e2322.appendChild(_e2323);
   _e2321.appendChild(_e2322);
   _e2164.appendChild(_e2321);
-  const _e2324 = WF.h("div", { className: "wf-spacer" });
+  const _e2324 = WF.h("div", { className: "wf-spacer wf-spacer--xl" });
   _e2164.appendChild(_e2324);
   const _e2325 = WF.h("div", { className: "wf-spacer" });
   _e2164.appendChild(_e2325);
@@ -5907,7 +6043,7 @@ function Page_Animation(params) {
   _e2164.appendChild(_e2328);
   const _e2329 = WF.h("p", { className: "wf-text" }, "Some people have asked their system for less movement, usually because motion makes them ill. Every animation and transition the engine ships is already wrapped in that preference — the end state is kept, the movement is dropped. You do not have to do anything.");
   _e2164.appendChild(_e2329);
-  const _e2330 = WF.h("div", { className: "wf-spacer" });
+  const _e2330 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2330);
   const _e2331 = WF.h("div", { className: "wf-card wf-card--outlined" });
   const _e2332 = WF.h("div", { className: "wf-card__body" });
@@ -5915,7 +6051,7 @@ function Page_Animation(params) {
   _e2332.appendChild(_e2333);
   _e2331.appendChild(_e2332);
   _e2164.appendChild(_e2331);
-  const _e2334 = WF.h("div", { className: "wf-spacer" });
+  const _e2334 = WF.h("div", { className: "wf-spacer wf-spacer--sm" });
   _e2164.appendChild(_e2334);
   const _e2335 = WF.h("p", { className: "wf-text wf-text--muted wf-text--small" }, "If you write your own keyframes in a style block, they are not covered by this — add the same guard yourself.");
   _e2164.appendChild(_e2335);
@@ -5939,20 +6075,20 @@ function Page_Animation(params) {
   const _e2339 = Component_SiteFooter({});
   _app.appendChild(_e2339);
   const _routes = [
-    { path: "/", render: (params) => Page_Home(params) },
-    { path: "/getting-started", render: (params) => Page_GettingStarted(params) },
-    { path: "/guide", render: (params) => Page_Guide(params) },
-    { path: "/components", render: (params) => Page_Components(params) },
-    { path: "/styling", render: (params) => Page_Styling(params) },
-    { path: "/animation", render: (params) => Page_Animation(params) },
-    { path: "/i18n", render: (params) => Page_I18n(params) },
-    { path: "/seo", render: (params) => Page_Seo(params) },
-    { path: "/ssg", render: (params) => Page_Ssg(params) },
-    { path: "/pdf", render: (params) => Page_Pdf(params) },
-    { path: "/template-engine", render: (params) => Page_TemplateEngine(params) },
-    { path: "/accessibility", render: (params) => Page_Accessibility(params) },
-    { path: "/cli", render: (params) => Page_Cli(params) },
-    { path: "/404", render: (params) => Page_NotFound(params) },
+    { path: "/", title: "WebFluent — The Web-First Language", render: (params) => Page_Home(params) },
+    { path: "/getting-started", title: "Getting Started", render: (params) => Page_GettingStarted(params) },
+    { path: "/guide", title: "Language Guide", render: (params) => Page_Guide(params) },
+    { path: "/components", title: "Components Reference", render: (params) => Page_Components(params) },
+    { path: "/styling", title: "Design System & Styling", render: (params) => Page_Styling(params) },
+    { path: "/animation", title: "Animation System", render: (params) => Page_Animation(params) },
+    { path: "/i18n", title: "Internationalization", render: (params) => Page_I18n(params) },
+    { path: "/seo", title: "Search & Sharing", render: (params) => Page_Seo(params) },
+    { path: "/ssg", title: "Static Site Generation", render: (params) => Page_Ssg(params) },
+    { path: "/pdf", title: "PDF Generation", render: (params) => Page_Pdf(params) },
+    { path: "/template-engine", title: "Template Engine", render: (params) => Page_TemplateEngine(params) },
+    { path: "/accessibility", title: "Accessibility Linting", render: (params) => Page_Accessibility(params) },
+    { path: "/cli", title: "CLI Reference", render: (params) => Page_Cli(params) },
+    { path: "/404", title: "Page Not Found", render: (params) => Page_NotFound(params) },
   ];
   WF.createRouter(_routes, _routerEl);
 })();

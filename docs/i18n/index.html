@@ -71,7 +71,7 @@
                 <a class="wf-sidebar__item" href="/WebFluent/animation">
                     <p class="wf-text">Animation</p>
                 </a>
-                <a class="wf-sidebar__item" href="/WebFluent/i18n">
+                <a class="wf-sidebar__item active" href="/WebFluent/i18n" aria-current="page">
                     <p class="wf-text">i18n</p>
                 </a>
                 <a class="wf-sidebar__item" href="/WebFluent/seo">
@@ -104,7 +104,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Setup</h2>
                     <p class="wf-text">Create a JSON file per locale in your translations directory.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">// src/translations/en.json
@@ -122,7 +122,7 @@
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--bold">Add i18n config to webfluent.app.json:</p>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
@@ -140,7 +140,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">The t() Function</h2>
                     <p class="wf-text">Use t() to look up translated text. It is reactive — all t() calls update when the locale changes.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">// Simple key lookup
@@ -159,7 +159,7 @@ Heading(t(&quot;page.title&quot;), h1)</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Locale Switching</h2>
                     <p class="wf-text">Switch the locale at runtime with setLocale(). All translated text updates instantly.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Button(&quot;English&quot;) { setLocale(&quot;en&quot;) }
@@ -176,11 +176,11 @@ Text(&quot;Direction: {dir}&quot;)</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">RTL Support</h2>
                     <p class="wf-text">WebFluent automatically detects RTL locales and updates the document direction.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Locale</td>
-                            <td>Direction</td>
+                            <th scope="col">Locale</th>
+                            <th scope="col">Direction</th>
                         </thead>
                         <tr>
                             <td>ar (Arabic)</td>
@@ -203,14 +203,14 @@ Text(&quot;Direction: {dir}&quot;)</code>
                             <td>LTR</td>
                         </tr>
                     </table>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">When setLocale(&quot;ar&quot;) is called, the HTML element gets dir=&quot;rtl&quot; and lang=&quot;ar&quot; automatically.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Fallback Behavior</h2>
                     <p class="wf-text">If a key is missing in the current locale:</p>
-                    <div class="wf-stack">
+                    <div class="wf-stack wf-gap--sm">
                         <p class="wf-text">1. Falls back to the defaultLocale translation</p>
                         <p class="wf-text">2. If still missing, returns the key itself (e.g., &quot;nav.home&quot;)</p>
                     </div>
@@ -219,16 +219,16 @@ Text(&quot;Direction: {dir}&quot;)</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">SSG + i18n</h2>
                     <p class="wf-text wf-text--muted">When both SSG and i18n are enabled, pages are pre-rendered with the default locale text. After JavaScript loads, locale switching works normally.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                 </div>
             </main>
         </div>
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>

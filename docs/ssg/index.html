@@ -77,7 +77,7 @@
                 <a class="wf-sidebar__item" href="/WebFluent/seo">
                     <p class="wf-text">Search &amp; Sharing</p>
                 </a>
-                <a class="wf-sidebar__item" href="/WebFluent/ssg">
+                <a class="wf-sidebar__item active" href="/WebFluent/ssg" aria-current="page">
                     <p class="wf-text">SSG</p>
                 </a>
                 <a class="wf-sidebar__item" href="/WebFluent/pdf">
@@ -104,7 +104,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Enable SSG</h2>
                     <p class="wf-text">One config flag is all you need.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">{
@@ -118,7 +118,7 @@
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">How It Works</h2>
-                    <div class="wf-row">
+                    <div class="wf-row wf-gap--md">
                         <div class="wf-col">
                             <div class="wf-card wf-card--elevated">
                                 <div class="wf-card__body">
@@ -148,7 +148,7 @@
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Build Output</h2>
-                    <div class="wf-row">
+                    <div class="wf-row wf-gap--md">
                         <div class="wf-col">
                             <div class="wf-card wf-card--outlined">
                                 <div class="wf-card__body">
@@ -182,8 +182,8 @@
                     <h2 class="wf-heading">What Gets Pre-Rendered</h2>
                     <table class="wf-table">
                         <thead>
-                            <td>Element</td>
-                            <td>SSG Behavior</td>
+                            <th scope="col">Element</th>
+                            <th scope="col">SSG Behavior</th>
                         </thead>
                         <tr>
                             <td>Static text, headings, components</td>
@@ -231,13 +231,13 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Dynamic Routes</h2>
                     <p class="wf-text wf-text--muted">Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Lists are painted, not deferred</h2>
                     <p class="wf-text">A for loop over data the compiler can work out — a store&#x27;s seeded state, a literal list — is rendered into the HTML at build time. Only what genuinely depends on the running page is left to JavaScript.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Store PostStore {
@@ -254,15 +254,15 @@ List {
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted wf-text--small">Both cards, both titles and both tags are in the served HTML — visible to a crawler, and painted before the bundle has finished downloading. A list fetched from an API cannot be known at build time, so it stays a placeholder for the client to fill.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Sitemap and robots</h2>
                     <p class="wf-text">Set meta.site_url and the build also writes sitemap.xml and robots.txt, covering every static route.</p>
-                    <div class="wf-spacer"></div>
-                    <div class="wf-row">
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-row wf-gap--sm">
                         <a class="wf-link" href="/WebFluent/seo">Read about search and sharing</a>
                     </div>
                 </div>
@@ -271,9 +271,9 @@ List {
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>

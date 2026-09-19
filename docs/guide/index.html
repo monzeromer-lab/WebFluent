@@ -56,7 +56,7 @@
                 <a class="wf-sidebar__item" href="/WebFluent/getting-started">
                     <p class="wf-text">Get Started</p>
                 </a>
-                <a class="wf-sidebar__item" href="/WebFluent/guide">
+                <a class="wf-sidebar__item active" href="/WebFluent/guide" aria-current="page">
                     <p class="wf-text">Guide</p>
                 </a>
                 <div class="wf-sidebar__divider">
@@ -104,7 +104,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Pages</h2>
                     <p class="wf-text">Pages are top-level route targets. Each page defines a URL path and contains the UI tree for that route.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Page Home (path: &quot;/&quot;, title: &quot;Home&quot;) {
@@ -115,13 +115,13 @@
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--bold">Page attributes:</p>
                     <table class="wf-table">
                         <thead>
-                            <td>Attribute</td>
-                            <td>Type</td>
-                            <td>Description</td>
+                            <th scope="col">Attribute</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Description</th>
                         </thead>
                         <tr>
                             <td>path</td>
@@ -169,7 +169,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Components</h2>
                     <p class="wf-text">Reusable UI blocks that accept props and can have internal state.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Component UserCard (name: String, role: String, active: Bool = true) {
@@ -191,14 +191,14 @@
 UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Props support types: String, Number, Bool, List, Map. Optional props use ?, defaults use =.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">State and Reactivity</h2>
                     <p class="wf-text">State is declared with the state keyword. It is reactive — any UI that reads it updates automatically when it changes.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Page Counter (path: &quot;/counter&quot;) {
@@ -212,7 +212,7 @@ UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--bold">Derived state:</p>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
@@ -226,7 +226,7 @@ derived isEmpty = items.length == 0</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Events</h2>
                     <p class="wf-text">Event handlers are declared with on:event or via shorthand blocks on buttons.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Button(&quot;Submit&quot;) {
@@ -250,7 +250,7 @@ Input(text, placeholder: &quot;Search...&quot;) {
 Button(&quot;Save&quot;) { save() }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
@@ -268,7 +268,7 @@ Button(&quot;Save&quot;) { save() }</code>
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--bold">Loops:</p>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
@@ -282,7 +282,7 @@ for item, index in items {
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--bold">Show/Hide (keeps element in DOM, toggles visibility):</p>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
@@ -296,7 +296,7 @@ for item, index in items {
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Stores</h2>
                     <p class="wf-text">Stores hold shared state accessible from any page or component.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Store CartStore {
@@ -328,7 +328,7 @@ Page Cart (path: &quot;/cart&quot;) {
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Routing</h2>
                     <p class="wf-text">SPA routing is declared in the App file.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">App {
@@ -362,7 +362,7 @@ Page UserProfile (path: &quot;/user/:id&quot;) {
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Data Fetching</h2>
                     <p class="wf-text">Built-in async data loading with automatic loading, error, and success states.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">fetch users from &quot;/api/users&quot; {
@@ -392,7 +392,7 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Return Values</h2>
                     <p class="wf-text">Store actions can return values using the return keyword.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Store AuthStore {
@@ -411,7 +411,7 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Browser Globals</h2>
                     <p class="wf-text">Standard browser APIs are available directly without any special syntax. They compile to their JavaScript equivalents.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">// Storage
@@ -432,14 +432,14 @@ console.log(&quot;debug info&quot;)
 setTimeout(callback, 1000)</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Available globals: window, document, console, localStorage, sessionStorage, JSON, Math, Date, setTimeout, setInterval, parseInt, parseFloat, Array, Object, Promise, Error, fetch, alert, confirm, prompt, and more.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Map Literals</h2>
                     <p class="wf-text">Map literals support quoted string keys for HTTP headers and special field names. Reserved words also work as map keys.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">// Quoted keys for headers
@@ -454,11 +454,11 @@ body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quo
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Operators</h2>
                     <p class="wf-text">WebFluent supports all common comparison and logical operators.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Operator</td>
-                            <td>Description</td>
+                            <th scope="col">Operator</th>
+                            <th scope="col">Description</th>
                         </thead>
                         <tr>
                             <td>==</td>
@@ -490,7 +490,7 @@ body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quo
                         </tr>
                     </table>
                     <div class="wf-spacer"></div>
-                    <div class="wf-row">
+                    <div class="wf-row wf-gap--md">
                         <button class="wf-btn wf-btn--primary">
                             Components Reference
                         </button>
@@ -498,16 +498,16 @@ body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quo
                             Styling Guide
                         </button>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                 </div>
             </main>
         </div>
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>

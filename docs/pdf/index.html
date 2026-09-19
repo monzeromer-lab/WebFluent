@@ -80,7 +80,7 @@
                 <a class="wf-sidebar__item" href="/WebFluent/ssg">
                     <p class="wf-text">SSG</p>
                 </a>
-                <a class="wf-sidebar__item" href="/WebFluent/pdf">
+                <a class="wf-sidebar__item active" href="/WebFluent/pdf" aria-current="page">
                     <p class="wf-text">PDF</p>
                 </a>
                 <a class="wf-sidebar__item" href="/WebFluent/template-engine">
@@ -104,7 +104,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Enable PDF Output</h2>
                     <p class="wf-text">Set the output type to pdf in your project config.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">{
@@ -132,14 +132,14 @@ cd my-report
 wf build</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">This creates a sample PDF project and builds it to build/my-report.pdf.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Document Structure</h2>
                     <p class="wf-text">PDF documents use the same .wf syntax. Wrap content in a Document element with optional Header and Footer.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Page Report (path: &quot;/&quot;, title: &quot;Q1 Report&quot;) {
@@ -188,11 +188,11 @@ wf build</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Supported Components</h2>
                     <p class="wf-text">These components render in PDF output:</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Component</td>
-                            <td>PDF Behavior</td>
+                            <th scope="col">Component</th>
+                            <th scope="col">PDF Behavior</th>
                         </thead>
                         <tr>
                             <td>Document</td>
@@ -272,7 +272,7 @@ wf build</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Rejected Components</h2>
                     <p class="wf-text">Interactive and web-only components cause compile-time errors in PDF mode:</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">error[pdf]: &#x27;Button&#x27; cannot be used in PDF output (Page Report)
@@ -282,7 +282,7 @@ error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
   — interactive elements are not supported in PDF</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Rejected: Button, Input, Select, Checkbox, Switch, Slider, Form, Modal, Dialog, Toast, Router, Navbar, Sidebar, Tabs, Video, Carousel, and all event handlers.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
@@ -290,9 +290,9 @@ error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
                     <h2 class="wf-heading">Page Sizes</h2>
                     <table class="wf-table">
                         <thead>
-                            <td>Value</td>
-                            <td>Dimensions (points)</td>
-                            <td>Dimensions (mm)</td>
+                            <th scope="col">Value</th>
+                            <th scope="col">Dimensions (points)</th>
+                            <th scope="col">Dimensions (mm)</th>
                         </thead>
                         <tr>
                             <td>A4</td>
@@ -325,11 +325,11 @@ error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Fonts</h2>
                     <p class="wf-text">PDF output uses the 14 standard PDF base fonts. No embedding needed.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Font Family</td>
-                            <td>Variants</td>
+                            <th scope="col">Font Family</th>
+                            <th scope="col">Variants</th>
                         </thead>
                         <tr>
                             <td>Helvetica</td>
@@ -344,9 +344,9 @@ error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
                             <td>Regular, Bold, Oblique, BoldOblique</td>
                         </tr>
                     </table>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Set the default font in config or override per-element with style blocks:</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Heading(&quot;Title&quot;, h1) {
@@ -362,12 +362,12 @@ error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Styling in PDF</h2>
                     <p class="wf-text">Style blocks support these properties in PDF output:</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Property</td>
-                            <td>Values</td>
-                            <td>Example</td>
+                            <th scope="col">Property</th>
+                            <th scope="col">Values</th>
+                            <th scope="col">Example</th>
                         </thead>
                         <tr>
                             <td>font-size</td>
@@ -390,23 +390,23 @@ error[pdf]: &#x27;Input&#x27; cannot be used in PDF output (Page Report)
                             <td>text-align: &quot;center&quot;</td>
                         </tr>
                     </table>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Modifiers also work: bold, muted, primary, danger, success, warning, info, small, large, center, right.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Auto Page Breaks</h2>
                     <p class="wf-text wf-text--muted">Content automatically flows to a new page when it reaches the bottom margin. Headers and footers are rendered on every page, including auto-generated ones.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                 </div>
             </main>
         </div>
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>

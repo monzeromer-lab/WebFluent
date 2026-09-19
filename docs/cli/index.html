@@ -92,7 +92,7 @@
                 <a class="wf-sidebar__item" href="/WebFluent/accessibility">
                     <p class="wf-text">Accessibility</p>
                 </a>
-                <a class="wf-sidebar__item" href="/WebFluent/cli">
+                <a class="wf-sidebar__item active" href="/WebFluent/cli" aria-current="page">
                     <p class="wf-text">CLI</p>
                 </a>
             </aside>
@@ -104,17 +104,17 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">wf init</h2>
                     <p class="wf-text">Create a new WebFluent project.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">wf init &lt;name&gt; [--template spa|static|pdf]</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Argument</td>
-                            <td>Description</td>
+                            <th scope="col">Argument</th>
+                            <th scope="col">Description</th>
                         </thead>
                         <tr>
                             <td>name</td>
@@ -125,35 +125,35 @@
                             <td>Template: spa (default), static, or pdf</td>
                         </tr>
                     </table>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">SPA: interactive app with routing and state. Static: SSG site with i18n. PDF: document generation with tables, headings, and auto page breaks.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">wf build</h2>
                     <p class="wf-text">Compile .wf files to HTML, CSS, and JavaScript.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">wf build [--dir DIR]</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Option</td>
-                            <td>Description</td>
+                            <th scope="col">Option</th>
+                            <th scope="col">Description</th>
                         </thead>
                         <tr>
                             <td>--dir, -d</td>
                             <td>Project directory (default: current directory)</td>
                         </tr>
                     </table>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">The build pipeline: Lex all .wf files, parse to AST, run accessibility linter, generate HTML + CSS + JS, write to output directory.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text">Output depends on config:</p>
-                    <div class="wf-stack">
+                    <div class="wf-stack wf-gap--sm">
                         <p class="wf-text">SPA mode (default): single index.html + app.js + styles.css</p>
                         <p class="wf-text">SSG mode (ssg: true): one HTML per page + app.js + styles.css</p>
                         <p class="wf-text">PDF mode (output_type: pdf): a single .pdf file</p>
@@ -163,31 +163,31 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">wf serve</h2>
                     <p class="wf-text">Start a development server that serves the built output.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">wf serve [--dir DIR]</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted">Serves files from the build directory. SPA fallback: all routes serve index.html so client-side routing works. Port is configured in webfluent.app.json (default: 3000).</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">wf generate</h2>
                     <p class="wf-text">Scaffold a new page, component, or store.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">wf generate &lt;kind&gt; &lt;name&gt; [--dir DIR]</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Kind</td>
-                            <td>Creates</td>
-                            <td>Example</td>
+                            <th scope="col">Kind</th>
+                            <th scope="col">Creates</th>
+                            <th scope="col">Example</th>
                         </thead>
                         <tr>
                             <td>page</td>
@@ -210,7 +210,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Configuration</h2>
                     <p class="wf-text">All config is in webfluent.app.json at the project root.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">{
@@ -247,16 +247,16 @@
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                 </div>
             </main>
         </div>
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>

@@ -68,7 +68,7 @@
                 <a class="wf-sidebar__item" href="/WebFluent/styling">
                     <p class="wf-text">Styling</p>
                 </a>
-                <a class="wf-sidebar__item" href="/WebFluent/animation">
+                <a class="wf-sidebar__item active" href="/WebFluent/animation" aria-current="page">
                     <p class="wf-text">Animation</p>
                 </a>
                 <a class="wf-sidebar__item" href="/WebFluent/i18n">
@@ -104,8 +104,8 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Mount Animations</h2>
                     <p class="wf-text">Add an animation modifier to any component. It plays when the element appears. Hover each card to replay.</p>
-                    <div class="wf-spacer"></div>
-                    <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-grid wf-gap--md" style="grid-template-columns: repeat(3, 1fr)">
                         <div class="wf-card wf-card--outlined wf-animate-fadeIn">
                             <div class="wf-card__body">
                                 <p class="wf-text wf-text--center wf-text--bold">fadeIn</p>
@@ -161,7 +161,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Card(elevated, fadeIn) { ... }
@@ -174,10 +174,10 @@ Button(&quot;Click&quot;, primary, bounce)</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Live: Conditional Animation</h2>
                     <p class="wf-text">Toggle the switch to see enter/exit animations on the card below.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <label class="wf-switch">Show animated card</label>
-                    <div class="wf-spacer"></div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">if showCard, animate(scaleIn, fadeOut) {
@@ -191,8 +191,8 @@ Button(&quot;Click&quot;, primary, bounce)</code>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Speed Variants</h2>
-                    <div class="wf-spacer"></div>
-                    <div class="wf-grid" style="grid-template-columns: repeat(3, 1fr)">
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-grid wf-gap--md" style="grid-template-columns: repeat(3, 1fr)">
                         <div class="wf-card wf-card--outlined wf-animate-fadeIn">
                             <div class="wf-card__body">
                                 <p class="wf-text wf-text--center wf-text--bold">fast</p>
@@ -219,12 +219,12 @@ Button(&quot;Click&quot;, primary, bounce)</code>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">All 12 Animations</h2>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <table class="wf-table">
                         <thead>
-                            <td>Name</td>
-                            <td>Effect</td>
-                            <td>Usage</td>
+                            <th scope="col">Name</th>
+                            <th scope="col">Effect</th>
+                            <th scope="col">Usage</th>
                         </thead>
                         <tr>
                             <td>fadeIn / fadeOut</td>
@@ -272,7 +272,7 @@ Button(&quot;Click&quot;, primary, bounce)</code>
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Conditional Animations</h2>
                     <p class="wf-text">Attach enter and exit animations to if blocks.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">if visible, animate(slideUp, fadeOut) {
@@ -289,7 +289,7 @@ if expanded, animate(scaleIn, scaleOut) {
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">List Stagger</h2>
                     <p class="wf-text">Animate list items with staggered delays.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">for item in items, animate(slideUp, fadeOut, stagger: &quot;50ms&quot;) {
@@ -302,7 +302,7 @@ if expanded, animate(scaleIn, scaleOut) {
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Transition Blocks</h2>
                     <p class="wf-text">Smooth CSS transitions on property changes.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Button(&quot;Hover me&quot;) {
@@ -313,13 +313,13 @@ if expanded, animate(scaleIn, scaleOut) {
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Reduced motion</h2>
                     <p class="wf-text">Some people have asked their system for less movement, usually because motion makes them ill. Every animation and transition the engine ships is already wrapped in that preference — the end state is kept, the movement is dropped. You do not have to do anything.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">@media (prefers-reduced-motion: reduce) {
@@ -331,7 +331,7 @@ if expanded, animate(scaleIn, scaleOut) {
 }</code>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <p class="wf-text wf-text--muted wf-text--small">If you write your own keyframes in a style block, they are not covered by this — add the same guard yourself.</p>
                 </div>
             </main>
@@ -339,9 +339,9 @@ if expanded, animate(scaleIn, scaleOut) {
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>

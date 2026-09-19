@@ -89,7 +89,7 @@
                 <div class="wf-sidebar__divider">
                 </div>
                 <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
-                <a class="wf-sidebar__item" href="/WebFluent/accessibility">
+                <a class="wf-sidebar__item active" href="/WebFluent/accessibility" aria-current="page">
                     <p class="wf-text">Accessibility</p>
                 </a>
                 <a class="wf-sidebar__item" href="/WebFluent/cli">
@@ -104,7 +104,7 @@
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">How It Works</h2>
                     <p class="wf-text">The linter runs automatically after parsing, before code generation. It walks the AST and checks each component against 12 rules.</p>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">$ wf build
@@ -123,9 +123,9 @@ Building my-app...
                     <h2 class="wf-heading">Lint Rules</h2>
                     <table class="wf-table">
                         <thead>
-                            <td>Rule</td>
-                            <td>Component</td>
-                            <td>Check</td>
+                            <th scope="col">Rule</th>
+                            <th scope="col">Component</th>
+                            <th scope="col">Check</th>
                         </thead>
                         <tr>
                             <td>A01</td>
@@ -227,7 +227,7 @@ Building my-app...
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">Examples</h2>
-                    <div class="wf-row">
+                    <div class="wf-row wf-gap--md">
                         <div class="wf-col">
                             <div class="wf-card wf-card--outlined">
                                 <div class="wf-card__body">
@@ -253,14 +253,14 @@ Button(&quot;Save&quot;)</code>
                             </div>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
                     <h2 class="wf-heading">What the engine does without being asked</h2>
                     <p class="wf-text">The checks above tell you what to fix. Most of the work is already done in the output.</p>
-                    <div class="wf-spacer"></div>
-                    <div class="wf-row">
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-row wf-gap--md">
                         <div class="wf-col">
                             <div class="wf-card wf-card--elevated">
                                 <div class="wf-card__body">
@@ -286,8 +286,8 @@ Button(&quot;Save&quot;)</code>
                             </div>
                         </div>
                     </div>
-                    <div class="wf-spacer"></div>
-                    <div class="wf-row">
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-row wf-gap--md">
                         <div class="wf-col">
                             <div class="wf-card wf-card--elevated">
                                 <div class="wf-card__body">
@@ -311,9 +311,9 @@ Button(&quot;Save&quot;)</code>
         <hr class="wf-divider">
         <div class="wf-container">
             <div class="wf-spacer"></div>
-            <div class="wf-row">
+            <div class="wf-row wf-align--center wf-justify--between">
                 <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
-                <div class="wf-row">
+                <div class="wf-row wf-gap--md">
                     <a class="wf-link" href="/WebFluent/">
                         <p class="wf-text wf-text--muted wf-text--small">Home</p>
                     </a>
