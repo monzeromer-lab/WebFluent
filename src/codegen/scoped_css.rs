@@ -1,18 +1,27 @@
-//! Stylesheet rules for what an inline style cannot say.
+//! Stylesheet rules compiled from `style { }` blocks.
 //!
-//! A `style { }` block compiles to inline declarations on its element. Two
-//! things in it cannot be inline: a pseudo-state (`hover { … }`) and a media
-//! query. Both used to become a `<style>` element the runtime appended to the
-//! document head as each element was created — one per element, so a list of
-//! a hundred buttons appended a hundred identical rules; blocked outright by
-//! the `style-src 'self'` policy the engine can ship; and invisible to the
-//! static paint, which links `styles.css` and nothing else.
+//! A `style { }` block used to compile to inline declarations on its element,
+//! one assignment per property per element instance: a list of a hundred
+//! cards repeated the same ten declarations a hundred times in the bundle, a
+//! hundred more times in the static paint, and a hundred more times in the
+//! browser's style resolution. Only a value that reads state has to be inline
+//! — a literal and a design token are the same on every instance.
 //!
-//! They are now compiled. Every such block gets a class named by the hash of
-//! its rules, so identical blocks share one class and one rule, and the rules
-//! are appended to `styles.css` at build time. An element only has to carry
-//! the class; every backend can do that.
-
+//! Every block now gets a class named by the hash of its rules, so identical
+//! blocks share one class and one rule, and the rules are appended to
+//! `styles.css` at build time. The class carries:
+//!
+//! - the block's static base declarations, under a selector of tripled
+//!   specificity (`.c.c.c`) so that, like the inline declaration it replaces,
+//!   it beats every rule the component library puts on an element;
+//! - its pseudo-state rules (`hover { … }`) and media queries, which no inline
+//!   style can express; these are `!important`, so they override the base
+//!   while their condition holds, as they did when the base was inline.
+//!
+//! A declaration whose value reads state stays inline and reactive, and beats
+//! the class as an inline style always has. Every backend — the bundle, the
+//! static paint, the template renderer — uses the same split, so hydration
+//! finds the DOM it expects.
 use std::collections::BTreeMap;
 
 use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
@@ -20,8 +29,8 @@ use crate::parser::ast::{
     Declaration, Expr, Program, Statement, StatementKind, StyleBlock, StyleProperty,
 };
 
-/// The class an element carries for its pseudo-state and media rules, or
-/// `None` when its style block has neither.
+/// The class an element carries for its compiled style rules, or `None` when
+/// nothing in its style block can be a stylesheet rule.
 pub fn scoped_class(block: &StyleBlock) -> Option<String> {
     let text = canonical_text(block)?;
     Some(format!("wf-s{:08x}", fnv1a(&text)))
@@ -106,21 +115,42 @@ fn selector(state: &str) -> &'static str {
     }
 }
 
-/// A declaration as CSS text, or `None` when its value can only be known at
-/// run time — a stylesheet rule is static by nature, so such a value is left
-/// to the inline path (where it is reactive) and dropped here.
-fn declaration(prop: &StyleProperty) -> Option<String> {
+/// A declaration's CSS property and value when both are known at build time
+/// — a literal, or a design-token keyword — and `None` when the value reads
+/// state, which only an inline declaration can follow.
+///
+/// This is the one place that decides what is hoisted; every backend asks it.
+pub fn static_declaration(prop: &StyleProperty) -> Option<(String, String)> {
     let name = canonical_style_prop(&prop.name);
     let value = resolve_style_token(&name, &prop.value).or_else(|| match &prop.value {
         Expr::StringLiteral(s) => Some(s.clone()),
         Expr::NumberLiteral(n) => Some(format!("{}", n)),
         _ => None,
     })?;
-    // The element's base declarations are inline, and an inline declaration
-    // beats any class rule. A pseudo-state or media rule exists to override
-    // the base while its condition holds, so it has to be important; the
-    // rules for one element are ordered pseudo-states first, media queries
-    // last, so a viewport rule wins a conflict with a state rule.
+    Some((name, value))
+}
+
+/// The base declarations a stylesheet rule can hold, as CSS text.
+fn base_declarations(block: &StyleBlock) -> Vec<String> {
+    block
+        .properties
+        .iter()
+        .filter_map(static_declaration)
+        .map(|(name, value)| format!("{name}: {value};"))
+        .collect()
+}
+
+/// A pseudo-state or media declaration as CSS text, or `None` when its value
+/// can only be known at run time — a stylesheet rule is static by nature, so
+/// such a value is left to the inline path (where it is reactive) and dropped
+/// here.
+fn declaration(prop: &StyleProperty) -> Option<String> {
+    let (name, value) = static_declaration(prop)?;
+    // The base rule is written at tripled specificity to stand in for the
+    // inline declaration it replaced. A pseudo-state or media rule exists to
+    // override the base while its condition holds, so it has to be important;
+    // the rules for one element are ordered pseudo-states first, media
+    // queries last, so a viewport rule wins a conflict with a state rule.
     Some(format!("{}: {} !important;", name, value))
 }
 
@@ -128,6 +158,10 @@ fn declaration(prop: &StyleProperty) -> Option<String> {
 /// blocks that say the same thing hash the same.
 fn canonical_text(block: &StyleBlock) -> Option<String> {
     let mut text = String::new();
+    let base = base_declarations(block);
+    if !base.is_empty() {
+        text.push_str(&format!("{{{}}}", base.join(" ")));
+    }
     for pseudo in &block.pseudo_blocks {
         let decls: Vec<String> = pseudo.properties.iter().filter_map(declaration).collect();
         if decls.is_empty() {
@@ -151,6 +185,14 @@ fn canonical_text(block: &StyleBlock) -> Option<String> {
 
 fn rules_for(class: &str, block: &StyleBlock) -> String {
     let mut css = String::new();
+    let base = base_declarations(block);
+    if !base.is_empty() {
+        css.push_str(&format!(
+            ".{c}.{c}.{c} {{ {} }}\n",
+            base.join(" "),
+            c = class
+        ));
+    }
     for pseudo in &block.pseudo_blocks {
         let decls: Vec<String> = pseudo.properties.iter().filter_map(declaration).collect();
         if decls.is_empty() {
@@ -215,9 +257,39 @@ mod tests {
     }
 
     #[test]
-    fn a_block_with_only_inline_declarations_needs_no_class() {
-        let b = first_block(r#"Page P (path: "/") { Card { style { padding: "1rem" } } }"#);
+    fn a_block_with_only_reactive_declarations_needs_no_class() {
+        let b = first_block(r#"Page P (path: "/") { Card { style { width: w } } }"#);
         assert_eq!(scoped_class(&b), None);
+    }
+
+    #[test]
+    fn literal_declarations_are_hoisted_into_a_tripled_class_rule() {
+        let src = r#"Page P (path: "/") {
+            Card { style { padding: "1rem"  radius: md  --gap: 4 } }
+            Card { style { padding: "1rem"  radius: md  --gap: 4 } }
+        }"#;
+        let p = program(src);
+        let css = scoped_rules(&p);
+        let class = scoped_class(&first_block(src)).unwrap();
+        assert_eq!(
+            css.trim(),
+            format!(
+                ".{c}.{c}.{c} {{ padding: 1rem; border-radius: var(--radius-md); --gap: 4; }}",
+                c = class
+            )
+        );
+    }
+
+    #[test]
+    fn a_reactive_declaration_stays_out_of_the_rule() {
+        let src = r#"Page P (path: "/") {
+            state pct = 50
+            Card { style { padding: "1rem"  width: "{pct}%" } }
+        }"#;
+        let p = program(src);
+        let css = scoped_rules(&p);
+        assert!(css.contains("padding: 1rem;"), "{css}");
+        assert!(!css.contains("width"), "{css}");
     }
 
     #[test]

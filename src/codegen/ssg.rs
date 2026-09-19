@@ -996,24 +996,26 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> S
     result
 }
 
-/// Static CSS declarations from an element's `style { }` block, for inlining as a
-/// `style="…"` attribute so per-element inspector/AI style edits appear in the
-/// static SSG paint. The JS bundle applies the same styles at hydration, but in SSG
-/// mode the pre-painted DOM is kept, so the static HTML must carry them too.
+/// Declarations from an element's `style { }` block that the static paint
+/// has to carry inline.
+///
+/// A literal or a token is compiled into `styles.css` under the element's
+/// scoped class (see `scoped_css`), the same class the bundle adds at
+/// hydration, so the static paint carries the class and no inline text. What
+/// remains is a value the static pass can name but the stylesheet cannot —
+/// today, nothing: a value that reads state is left to the bundle.
 fn style_block_decls(ui: &UIElement) -> Vec<String> {
-    use super::style_tokens::{canonical_style_prop, resolve_style_token};
+    use super::scoped_css::static_declaration;
+    use super::style_tokens::canonical_style_prop;
     let Some(sb) = &ui.style_block else {
         return Vec::new();
     };
     sb.properties
         .iter()
+        .filter(|p| static_declaration(p).is_none())
         .filter_map(|p| {
-            // Apply the property aliases (radius→border-radius, shadow→box-shadow), then
-            // resolve a bare design-token keyword (`font-size: xl`) to its `var(--…)`;
-            // otherwise fall back to a static literal (quoted CSS / number).
             let prop = canonical_style_prop(&p.name);
-            let value =
-                resolve_style_token(&prop, &p.value).or_else(|| expr_to_static_string(&p.value))?;
+            let value = expr_to_static_string(&p.value)?;
             Some(format!("{prop}: {value}"))
         })
         .collect()

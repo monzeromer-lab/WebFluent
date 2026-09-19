@@ -805,10 +805,14 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         }
     }
 
-    // Handle inline style blocks
+    // Inline style blocks: a literal or a token is in the stylesheet under
+    // the element's scoped class; a value that reads the data is inline.
     if let Some(style_block) = &ui.style_block {
         let mut style_parts = Vec::new();
         for prop in &style_block.properties {
+            if crate::codegen::scoped_css::static_declaration(prop).is_some() {
+                continue;
+            }
             let val = ctx.eval_expr(&prop.value);
             style_parts.push(format!("{}: {}", prop.name, value_to_string(&val)));
         }
@@ -927,6 +931,7 @@ fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext) -> String {
     let decls: Vec<String> = block
         .properties
         .iter()
+        .filter(|p| crate::codegen::scoped_css::static_declaration(p).is_none())
         .map(|p| format!("{}: {}", p.name, value_to_string(&ctx.eval_expr(&p.value))))
         .collect();
     if decls.is_empty() {

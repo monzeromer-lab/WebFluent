@@ -1616,7 +1616,16 @@ impl JsCodegen {
     /// `Slider` as surely as it reaches a `Card`.
     fn emit_style_and_transition(&mut self, var: &str, ui: &UIElement) {
         if let Some(style) = &ui.style_block {
+            // A literal or a token is the same on every instance, so it lives
+            // in styles.css under a class named by the block's content (see
+            // `scoped_css`), along with the block's pseudo-state and media
+            // rules; the element only carries the class. Only a value that
+            // reads state is assigned here, inside an effect, so
+            // `width: "{pct}%"` follows `pct` rather than painting once.
             for prop in &style.properties {
+                if crate::codegen::scoped_css::static_declaration(prop).is_some() {
+                    continue;
+                }
                 let (css_prop, val) = self.emit_style_decl(prop);
                 // A custom property has no camel-cased field; it is set by name.
                 let assign = if prop.name.starts_with("--") {
@@ -1624,21 +1633,12 @@ impl JsCodegen {
                 } else {
                     format!("{}.style.{} = {};", var, css_prop, val)
                 };
-                // A value that reads state follows it. It used to be assigned
-                // once, so `width: "{pct}%"` painted the first value and never
-                // moved; a literal is still a plain assignment.
                 if self.is_reactive(&val) {
                     self.emit_line(&format!("WF.effect(() => {{ {} }});", assign));
                 } else {
                     self.emit_line(&assign);
                 }
             }
-            // Pseudo-states and media queries are stylesheet rules, compiled
-            // into styles.css under a class named by their content; the
-            // element only carries the class. (They used to be a <style>
-            // element appended per element at run time — one per instance,
-            // blocked by the CSP the engine can ship, and absent from the
-            // static paint.)
             if let Some(class) = crate::codegen::scoped_css::scoped_class(style) {
                 self.emit_line(&format!("{}.classList.add(\"{}\");", var, class));
             }
@@ -4035,7 +4035,8 @@ mod tests {
             "#,
         );
         assert!(out.contains("WF.h(\"li\", { className: \"wf-list__item\", id: \"first\", \"aria-current\": \"true\" })"), "{out}");
-        assert!(out.contains(".style.padding = \"0\";"), "{out}");
+        // `padding: "0"` is a literal: hoisted into the scoped class, not inline.
+        assert!(!out.contains(".style.padding"), "{out}");
         assert!(out.contains(".classList.add(\"wf-s"), "{out}");
         assert!(
             out.contains(".addEventListener(\"click\", (event) => { _n.set((_n() + 1)); });"),
@@ -4241,10 +4242,9 @@ mod tests {
             out.contains(".style.setProperty(\"--hover-bg\", _tone()); });"),
             "{out}"
         );
-        assert!(
-            out.contains(".style.setProperty(\"--edge\", \"1px\");"),
-            "{out}"
-        );
+        // The literal custom property is hoisted with the rest of the block.
+        assert!(!out.contains("--edge"), "{out}");
+        assert!(out.contains(".classList.add(\"wf-s"), "{out}");
     }
 
     #[test]
@@ -4335,8 +4335,9 @@ mod tests {
         assert!(out.contains(".style.width = `${_pct()}%`; });"), "{out}");
         assert!(out.contains("WF.effect(() => { _e"), "{out}");
         assert!(out.contains(".style.background = S.tone; });"), "{out}");
-        assert!(out.contains(".style.padding = \"1rem\";"), "{out}");
-        assert!(!out.contains("=> { _e0.style.padding"), "{out}");
+        // The literal is in the stylesheet, under the element's class.
+        assert!(!out.contains(".style.padding"), "{out}");
+        assert!(out.contains(".classList.add(\"wf-s"), "{out}");
     }
 
     #[test]
