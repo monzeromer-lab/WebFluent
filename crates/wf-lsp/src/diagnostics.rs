@@ -9,7 +9,7 @@
 use tower_lsp::lsp_types::*;
 use webfluent::error::{Diagnostic as WfDiagnostic, WebFluentError};
 use webfluent::linter::{
-    lint_accessibility_in, lint_contrast_in, lint_vocabulary_in, validate_semantics_in,
+    lint_accessibility_in, lint_contrast_in, lint_vocabulary_with, validate_semantics_in,
 };
 use webfluent::themes::resolve_tokens;
 
@@ -52,7 +52,7 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
         }
     }
 
-    for warning in lint_vocabulary_in(&project.program, &file_of) {
+    for warning in lint_vocabulary_with(&project.program, &project.stylesheets, &file_of) {
         if let Some(ix) = route(&warning.file) {
             let file = &project.files[ix];
             out[ix].push(diagnostic(

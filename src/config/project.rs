@@ -287,9 +287,9 @@ pub struct MetaConfig {
     pub fonts: Vec<String>,
 
     /// Extra stylesheets to link before `styles.css`, by URL or site-relative
-    /// path (a file in `public/`). For the few things no element-level
-    /// `style { }` can say — `html { background }`, `::selection` — not for
-    /// component styling, which belongs in `.wf` source.
+    /// path (a file in `public/`) — a sheet the build does not own. A sheet
+    /// the project writes itself belongs under `src/` as a `.css` file,
+    /// where it is bundled into `styles.css`.
     #[serde(default)]
     pub stylesheets: Vec<String>,
 }

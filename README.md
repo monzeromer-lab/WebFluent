@@ -319,6 +319,9 @@ Button("Custom") {
         radius: lg
     }
 }
+
+// Your own stylesheets: any .css under src/ is bundled into styles.css
+Card(class: "feature feature--first")
 ```
 
 ## Project Configuration
@@ -370,7 +373,7 @@ build/                             build/
 ├── index.html                     └── report.pdf
 ├── app.js          runtime, stores, components
 ├── pages/*.js      one chunk per page, loaded on demand
-├── styles.css      only the rules the project uses
+├── styles.css      the rules the project uses, and its own .css files
 └── …               public/ copied to the root
 ```
 

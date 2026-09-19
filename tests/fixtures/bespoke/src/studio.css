@@ -1,0 +1,13 @@
+/* Rules a style block cannot say: a selector over several elements, and a
+   keyframe. Bundled into styles.css after the engine's own rules. */
+.service {
+  counter-increment: service;
+}
+.service--first::before {
+  content: counter(service, upper-roman);
+  color: var(--text-secondary);
+}
+@keyframes service-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

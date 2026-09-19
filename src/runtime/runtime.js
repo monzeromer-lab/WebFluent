@@ -625,6 +625,19 @@ const WF = (() => {
     (document.head || document.body).appendChild(script);
   }
 
+  // The classes an expression names, kept in step with it: what it named
+  // last time and no longer does is taken off, what it names now is added,
+  // and the element's other classes are left alone.
+  function classes(el, get) {
+    let prev = [];
+    effect(() => {
+      const next = String(get() || "").split(/\s+/).filter(Boolean);
+      for (const c of prev) if (!next.includes(c)) el.classList.remove(c);
+      for (const c of next) el.classList.add(c);
+      prev = next;
+    });
+  }
+
   function getParams() {
     return routerInstance ? routerInstance._currentParams || {} : {};
   }
@@ -1420,7 +1433,7 @@ const WF = (() => {
     h, text, reactiveText, appendChildren, onRoot, props,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
-    createRouter, navigate, getParams, activeLink, definePage, loadPage,
+    createRouter, navigate, getParams, activeLink, definePage, loadPage, classes,
     createStore,
     createI18n,
     wfFetch, showToast,

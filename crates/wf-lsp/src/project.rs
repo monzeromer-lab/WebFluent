@@ -61,6 +61,10 @@ pub struct Project {
     /// The index into `files` of the file each declaration in `program` came
     /// from, parallel to `program.declarations`.
     pub decl_file: Vec<usize>,
+    /// The project's own stylesheets — every `.css` under `src/`, as the
+    /// build bundles them — so a class one of them defines is not reported
+    /// as one no stylesheet has.
+    pub stylesheets: String,
 }
 
 /// Parsed disk files, keyed by path, reused while the file is unchanged.
@@ -112,18 +116,27 @@ impl Project {
             .unwrap_or_else(|_| PathBuf::from(uri.path()));
 
         let root = find_root(&path);
-        let (theme, paths) = match &root {
+        let (theme, paths, stylesheets) = match &root {
             Some(root) if path.starts_with(root.join("src")) => {
                 let theme = ProjectConfig::load(root)
                     .map(|config| config.theme)
                     .unwrap_or_default();
-                let mut paths = source_files(&root.join("src"));
+                let src = root.join("src");
+                let mut paths = source_files(&src);
                 if !paths.iter().any(|p| p == &path) {
                     paths.push(path.clone());
                 }
-                (theme, paths)
+                let stylesheets = webfluent::codegen::project_css::find_stylesheets(&src)
+                    .iter()
+                    .filter_map(|css| cache.read(css))
+                    .fold(String::new(), |mut all, css| {
+                        all.push_str(&css);
+                        all.push('\n');
+                        all
+                    });
+                (theme, paths, stylesheets)
             }
-            _ => (ThemeConfig::default(), vec![path.clone()]),
+            _ => (ThemeConfig::default(), vec![path.clone()], String::new()),
         };
 
         let mut files = Vec::new();
@@ -179,6 +192,7 @@ impl Project {
             files,
             program: Program { declarations },
             decl_file,
+            stylesheets,
         }
     }
 
@@ -208,6 +222,7 @@ impl Project {
             files: vec![file],
             program: Program { declarations },
             decl_file,
+            stylesheets: String::new(),
         }
     }
 

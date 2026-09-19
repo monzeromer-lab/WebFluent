@@ -12,6 +12,7 @@ project/
 │   ├── pages/                # One .wf per page
 │   ├── components/           # Reusable components
 │   ├── stores/               # Shared state stores
+│   ├── *.css                 # The project's own stylesheets, anywhere under src/
 │   └── translations/         # i18n JSON files (en.json, ar.json)
 ├── public/                   # Static assets → copied to build root
 └── build/                    # Compiled output
@@ -135,6 +136,12 @@ Badge("Ready", data-tone: "success")
 A value that reads state follows it. `aria-*` keeps a `false` value as the
 string `"false"` (a real ARIA state); any other attribute given `false` is
 omitted.
+
+`class:` is the exception: it does not replace the element's classes, it
+adds to them. `Card(class: "feature wide")` renders `class="wf-card feature
+wide"`, and a value that reads state is followed — the classes it named last
+time come off, the ones it names now go on. It is how an element picks up a
+rule from the project's own stylesheets (see [Stylesheets](#stylesheets)).
 
 ### App (Router + Layout)
 
@@ -788,6 +795,49 @@ Button(label) {
     }
 }
 ```
+
+### Stylesheets
+
+What no `style { }` block can say — a selector over several elements, a
+`@keyframes`, a `@font-face`, a class a dozen elements share by name, a rule
+on `html` or `::selection` — goes in a `.css` file, and any `.css` file under
+`src/` is part of the build:
+
+```
+src/
+├── styles.css            # global rules
+└── components/
+    ├── Card.wf
+    └── card.css          # beside the component it styles
+```
+
+```css
+/* src/components/card.css */
+.feature {
+  container-type: inline-size;
+}
+.feature--first::before {
+  content: counter(feature, upper-roman);
+  color: var(--text-secondary);
+}
+```
+
+```wf
+Card(class: "feature feature--first") { ... }
+Card(class: tone) { ... }        // a state: the classes follow it
+```
+
+The files are read in path order and bundled into `styles.css` after the
+engine's rules (so on equal specificity yours win) and before the rules that
+`style { }` blocks compile to (which carry tripled specificity, as the
+inline styles they replace beat any sheet). They are minified with the rest.
+`var(--token)` reaches every design token the theme declares. A modifier
+class one of these files defines — `.wf-alert--elevated` — makes
+`Alert(elevated)` a real variant rather than a `V02` warning. There is no
+scoping: a class is global, and named on purpose.
+
+`meta.stylesheets` in the config still links a sheet that is *not* built —
+a file in `public/` or a URL — ahead of `styles.css`.
 
 ### Themes
 

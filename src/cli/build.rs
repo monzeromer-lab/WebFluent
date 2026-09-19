@@ -86,7 +86,10 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // A bare word that resolves to nothing, or a real modifier with no rule
     // behind it, does nothing on screen. The LSP has reported these for a
     // while; a build from the command line said nothing.
-    let vocab_warnings = crate::linter::lint_vocabulary_in(&program, &file_of);
+    // The author's own stylesheets — every `.css` under `src/` — ship in
+    // `styles.css`, and a modifier class one of them defines is a real one.
+    let project_css = crate::codegen::project_css::bundle(project_dir, &src_dir)?;
+    let vocab_warnings = crate::linter::lint_vocabulary_with(&program, &project_css, &file_of);
     for warning in &vocab_warnings {
         eprintln!("{}", warning);
     }
@@ -186,6 +189,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // for `structural` still received the baseline it was trying to avoid.
     let tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
     let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
+    css.push_str(&project_css);
     // What an inline style cannot say — pseudo-states, media queries — is
     // compiled into the sheet under content-named classes.
     css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));

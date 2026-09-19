@@ -236,6 +236,29 @@ pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
     classes
 }
 
+/// The `class:` argument of an element: its value, when it is one the build
+/// can read, or `None` when there is no such argument.
+///
+/// A class named here is one the author's own stylesheet defines (a `.css`
+/// file under `src/`, bundled into `styles.css`); the engine's classes stay
+/// beside it. A literal is `Some(Some(text))`; a value that reads state is
+/// `Some(None)`, which the runtime follows after hydration.
+pub fn class_arg(args: &[Arg]) -> Option<Option<&str>> {
+    args.iter().find_map(|a| match a {
+        Arg::Named(k, Expr::StringLiteral(s)) if k == "class" => Some(Some(s.as_str())),
+        Arg::Named(k, _) if k == "class" => Some(None),
+        _ => None,
+    })
+}
+
+/// The classes a literal `class:` argument names, split on whitespace.
+pub fn author_classes(args: &[Arg]) -> Vec<String> {
+    match class_arg(args) {
+        Some(Some(text)) => text.split_whitespace().map(str::to_string).collect(),
+        _ => Vec::new(),
+    }
+}
+
 /// The full class list for an element: its base class plus every modifier class.
 pub fn class_list(base_class: &str, modifiers: &[String]) -> Vec<String> {
     let mut classes = Vec::new();

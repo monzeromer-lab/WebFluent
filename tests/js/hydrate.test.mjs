@@ -358,3 +358,16 @@ test("a field labels its control, describes it, and announces its error", () => 
   assert.equal(message.getAttribute("hidden"), null);
   assert.equal(input.getAttribute("aria-invalid"), "true");
 });
+
+test("classes an expression names follow it, and leave the element's other classes alone", () => {
+  const { WF } = loadRuntime();
+  const tone = WF.signal("calm wide");
+  const el = WF.h("div", { className: "wf-card wf-s0123abcd" });
+  WF.classes(el, () => tone());
+  assert.equal(el.className, "wf-card wf-s0123abcd calm wide");
+
+  tone.set("alert");
+  assert.equal(el.className, "wf-card wf-s0123abcd alert", "what it no longer names comes off");
+  tone.set("");
+  assert.equal(el.className, "wf-card wf-s0123abcd");
+});

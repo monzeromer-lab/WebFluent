@@ -81,7 +81,7 @@ Page Studio (path: "/", description: "One thing, made slowly, eleven times a yea
                 margin-bottom: "6rem"
             }
 
-            Card {
+            Card(class: "service service--first") {
                 style {
                     background: "#FAF9F6"
                     border: "none"

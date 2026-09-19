@@ -397,6 +397,117 @@ fn pseudo_state_blocks_compile_into_the_stylesheet() {
     );
 }
 
+/// A `.css` file under `src/` is the author's own stylesheet: it ships in
+/// `styles.css` after the engine's rules, minified with them, and an element
+/// names its classes with `class:` — in the static paint and in the bundle.
+#[test]
+fn project_stylesheets_are_bundled_and_class_names_reach_the_element() {
+    let built = build_site("bespoke");
+    let css = built.read("styles.css");
+    let squashed: String = css.chars().filter(|c| !c.is_whitespace()).collect();
+    assert!(
+        squashed.contains(".service{counter-increment:service}"),
+        "the author's rule is in styles.css, minified:\n{css}"
+    );
+    assert!(
+        squashed.contains("@keyframesservice-in{"),
+        "a keyframe from the author's sheet survives:\n{css}"
+    );
+    let engine = squashed.find(".wf-card{").expect("the engine's card rule");
+    let author = squashed.find(".service{").unwrap();
+    let scoped = squashed
+        .match_indices(".wf-s")
+        .map(|(i, _)| i)
+        .find(|&i| {
+            squashed[i + 5..]
+                .chars()
+                .take(8)
+                .all(|c| c.is_ascii_hexdigit())
+        })
+        .expect("a compiled style block");
+    assert!(
+        engine < author && author < scoped,
+        "engine rules, then the author's, then the compiled blocks"
+    );
+    let js = built.scripts();
+    assert!(
+        js.contains("classList.add(\"service\",\"service--first\")"),
+        "the bundle adds the classes:\n{js}"
+    );
+
+    // The static paint carries the same classes beside the engine's, and a
+    // class that reads state is followed by the runtime.
+    let (ok, _) = build_scratch(
+        "_class_ssg",
+        "App { Router { Route(path: \"/\", page: Home) } }\n",
+        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  state tone = \"calm\"\n  Heading(\"Hi\", h1)\n  Card(class: \"feature wide\") { Text(\"x\") }\n  Card(class: tone) { Text(\"y\") }\n}\n",
+    );
+    assert!(ok);
+    let html = std::fs::read_to_string(repo_root().join("target/e2e/_class_ssg/build/index.html"))
+        .unwrap();
+    assert!(
+        html.contains("class=\"wf-card feature wide\""),
+        "the static paint carries the author's classes:\n{html}"
+    );
+    assert!(
+        html.contains("class=\"wf-card calm\""),
+        "a state's initial value is painted:\n{html}"
+    );
+    let chunk =
+        std::fs::read_to_string(repo_root().join("target/e2e/_class_ssg/build/pages/Home.js"))
+            .unwrap();
+    assert!(
+        chunk.contains("WF.classes(") && chunk.contains("()=>_tone()"),
+        "the runtime follows the state:\n{chunk}"
+    );
+}
+
+/// A modifier class the author's own stylesheet defines is a real one: V02
+/// reports only a class *no* sheet has a rule for.
+#[test]
+fn a_modifier_class_the_project_stylesheet_defines_is_not_dead() {
+    let root = repo_root().join("target/e2e/_lint_project_css");
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(root.join("src/pages")).unwrap();
+    std::fs::write(
+        root.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "build": { "output": "./build" } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        root.join("src/App.wf"),
+        "App { Router { Route(path: \"/\", page: Home) } }\n",
+    )
+    .unwrap();
+    std::fs::write(
+        root.join("src/pages/Home.wf"),
+        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\", h1)\n  Alert(\"Note\", elevated)\n}\n",
+    )
+    .unwrap();
+    std::fs::write(
+        root.join("src/alerts.css"),
+        ".wf-alert--elevated { box-shadow: 0 4px 12px rgba(0,0,0,.2); }\n",
+    )
+    .unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .arg("build")
+        .current_dir(&root)
+        .output()
+        .unwrap();
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(out.status.success(), "{text}");
+    assert!(
+        !text.contains("[V02]"),
+        "the project's own sheet defines the class:\n{text}"
+    );
+    let css = std::fs::read_to_string(root.join("build/styles.css")).unwrap();
+    assert!(css.contains(".wf-alert--elevated{box-shadow:"), "{css}");
+}
+
 /// A theme that names a web font gets it fetched: every page, at any depth,
 /// links the declared font stylesheet ahead of the engine's own, with a
 /// preconnect to the origins it pulls from.

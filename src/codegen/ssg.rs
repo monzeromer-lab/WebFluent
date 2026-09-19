@@ -565,7 +565,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
-    classes.extend(scoped_class_of(ui));
+    classes.extend(extra_classes(ui, ctx));
     let mut current_link = false;
     let class_str = classes.join(" ");
 
@@ -1137,10 +1137,10 @@ fn render_linked_item(
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
-    let class = match scoped_class_of(ui) {
-        Some(scoped) => format!("{} {}", class, scoped),
-        None => class.to_string(),
-    };
+    let class = std::iter::once(class.to_string())
+        .chain(extra_classes(ui, ctx))
+        .collect::<Vec<_>>()
+        .join(" ");
     let class = class.as_str();
     let decls = style_block_decls(ui);
     let style_attr = if decls.is_empty() {
@@ -1184,11 +1184,25 @@ fn style_block_decls(ui: &UIElement) -> Vec<String> {
         .collect()
 }
 
-/// The class an element's pseudo-state and media rules live under, if any.
-fn scoped_class_of(ui: &UIElement) -> Option<String> {
-    ui.style_block
+/// The classes an element carries beyond its base and modifier classes: the
+/// one its style block's rules live under, and the ones its `class:`
+/// argument names when the value is known at build time.
+fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
+    let mut classes: Vec<String> = ui
+        .style_block
         .as_ref()
         .and_then(crate::codegen::scoped_css::scoped_class)
+        .into_iter()
+        .collect();
+    if let Some(Arg::Named(_, value)) = ui
+        .args
+        .iter()
+        .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
+        && let Some(text) = static_attr(value, &ctx.scope)
+    {
+        classes.extend(text.split_whitespace().map(str::to_string));
+    }
+    classes
 }
 
 /// A `Table(caption: …)` argument, resolved to text by `resolve`.

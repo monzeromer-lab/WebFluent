@@ -675,11 +675,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
-    classes.extend(
-        ui.style_block
-            .as_ref()
-            .and_then(crate::codegen::scoped_css::scoped_class),
-    );
+    classes.extend(extra_classes(ui, ctx));
     let class_str = classes.join(" ");
 
     // Special handling. These build their tag inline, so they carry the author's
@@ -1058,8 +1054,33 @@ fn render_labelled_input(
     out
 }
 
+/// The classes an element carries beyond its base and modifier classes: the
+/// one its style block's rules live under, and the ones its `class:`
+/// argument names.
+fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
+    let mut classes: Vec<String> = ui
+        .style_block
+        .as_ref()
+        .and_then(crate::codegen::scoped_css::scoped_class)
+        .into_iter()
+        .collect();
+    if let Some(Arg::Named(_, value)) = ui
+        .args
+        .iter()
+        .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
+    {
+        let text = value_to_string(&ctx.eval_expr(value));
+        classes.extend(text.split_whitespace().map(str::to_string));
+    }
+    classes
+}
+
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
     let indent = ctx.indent_str();
+    let class = std::iter::once(class.to_string())
+        .chain(extra_classes(ui, ctx))
+        .collect::<Vec<_>>()
+        .join(" ");
     let mut result = format!("{}<{} class=\"{}\">\n", indent, tag, class);
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));

@@ -54,6 +54,16 @@ pub fn lint_vocabulary_in(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<VocabWarning> {
+    lint_vocabulary_with(program, "", file_of)
+}
+
+/// [`lint_vocabulary_in`] for a project with stylesheets of its own: a
+/// modifier class that `project_css` defines is one the site has a rule for.
+pub fn lint_vocabulary_with(
+    program: &Program,
+    project_css: &str,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<VocabWarning> {
     let globals = global_names(program);
     let mut warnings = Vec::new();
 
@@ -75,10 +85,27 @@ pub fn lint_vocabulary_in(
         let mut scope = globals.clone();
         scope.extend(props);
         hoist_names(body, &mut scope);
-        walk(body, file, &scope, &mut warnings);
+        let sheets = Sheets {
+            engine: stylesheet(),
+            project: project_css,
+        };
+        walk(body, file, &scope, &sheets, &mut warnings);
     }
 
     warnings
+}
+
+/// The stylesheets a modifier class may be defined in: the engine's, and the
+/// project's own.
+struct Sheets<'a> {
+    engine: &'a str,
+    project: &'a str,
+}
+
+impl Sheets<'_> {
+    fn defines(&self, class: &str) -> bool {
+        defines_class(self.engine, class) || defines_class(self.project, class)
+    }
 }
 
 /// Names visible everywhere: declared pages/components/stores, and every store
@@ -161,34 +188,40 @@ fn hoist_names(stmts: &[Statement], names: &mut HashSet<String>) {
 }
 
 /// Walk the statement tree checking each UI element's positional args.
-fn walk(stmts: &[Statement], file: &str, scope: &HashSet<String>, out: &mut Vec<VocabWarning>) {
+fn walk(
+    stmts: &[Statement],
+    file: &str,
+    scope: &HashSet<String>,
+    sheets: &Sheets,
+    out: &mut Vec<VocabWarning>,
+) {
     for stmt in stmts {
         match &stmt.kind {
             StatementKind::UIElement(el) => {
                 check_element(el, file, scope, out);
-                check_dead_variants(el, file, stylesheet(), out);
-                walk(&el.children, file, scope, out);
+                check_dead_variants(el, file, sheets, out);
+                walk(&el.children, file, scope, sheets, out);
             }
             StatementKind::If(i) => {
-                walk(&i.then_body, file, scope, out);
+                walk(&i.then_body, file, scope, sheets, out);
                 for (_, body) in &i.else_if_branches {
-                    walk(body, file, scope, out);
+                    walk(body, file, scope, sheets, out);
                 }
                 if let Some(body) = &i.else_body {
-                    walk(body, file, scope, out);
+                    walk(body, file, scope, sheets, out);
                 }
             }
-            StatementKind::For(f) => walk(&f.body, file, scope, out),
-            StatementKind::Show(s) => walk(&s.body, file, scope, out),
+            StatementKind::For(f) => walk(&f.body, file, scope, sheets, out),
+            StatementKind::Show(s) => walk(&s.body, file, scope, sheets, out),
             StatementKind::Fetch(f) => {
                 if let Some(body) = &f.loading_block {
-                    walk(body, file, scope, out);
+                    walk(body, file, scope, sheets, out);
                 }
                 if let Some((_, body)) = &f.error_block {
-                    walk(body, file, scope, out);
+                    walk(body, file, scope, sheets, out);
                 }
                 if let Some(body) = &f.success_block {
-                    walk(body, file, scope, out);
+                    walk(body, file, scope, sheets, out);
                 }
             }
             // Actions/effects hold logic, not UI; everything else holds no
@@ -210,7 +243,7 @@ fn walk(stmts: &[Statement], file: &str, scope: &HashSet<String>, out: &mut Vec<
 /// Suppressing the class in the codegen was the alternative, and it is the wrong
 /// one: `{base}--{modifier}` is a documented styling hook, so an author may have
 /// written the rule themselves. Saying so is right; deciding for them is not.
-fn check_dead_variants(el: &UIElement, file: &str, stylesheet: &str, out: &mut Vec<VocabWarning>) {
+fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Vec<VocabWarning>) {
     let ComponentRef::BuiltIn(name) = &el.component else {
         return;
     };
@@ -227,7 +260,7 @@ fn check_dead_variants(el: &UIElement, file: &str, stylesheet: &str, out: &mut V
         if class.is_empty() || !class.starts_with(base) || class.starts_with("wf-animate") {
             continue;
         }
-        if defines_class(stylesheet, &class) {
+        if sheets.defines(&class) {
             continue;
         }
         let (line, column) = el
@@ -244,7 +277,7 @@ fn check_dead_variants(el: &UIElement, file: &str, stylesheet: &str, out: &mut V
             line,
             column,
             hint: Some(format!(
-                "Either drop it, or add a `.{class}` rule — the engine emits the class either way"
+                "Either drop it, or add a `.{class}` rule to a .css file under src/ — the engine emits the class either way"
             )),
         });
     }

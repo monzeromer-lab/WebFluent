@@ -20,6 +20,7 @@ pub mod js;
 pub mod minify;
 pub mod node_id;
 pub mod pdf;
+pub mod project_css;
 pub mod scoped_css;
 pub mod seo;
 pub mod slides;

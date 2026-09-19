@@ -1103,6 +1103,13 @@ impl JsCodegen {
                                     // Handled once for the whole element below,
                                     // via `layout_arg_classes`.
                                 }
+                                "class" => {
+                                    // The author's own classes join the
+                                    // element's in `emit_style_and_transition`,
+                                    // beside the style block's; as an
+                                    // attribute they would replace the
+                                    // engine's.
+                                }
                                 "columns" => {
                                     if let Expr::NumberLiteral(n) = val {
                                         attrs.push(format!(
@@ -1715,6 +1722,35 @@ impl JsCodegen {
             if let Some(class) = crate::codegen::scoped_css::scoped_class(style) {
                 self.emit_line(&format!("{}.classList.add(\"{}\");", var, class));
             }
+        }
+
+        // `class:` names rules in the author's own stylesheet. A literal is
+        // added once, beside the engine's classes; a value that reads state
+        // is followed, and the classes it named last time are taken off.
+        match crate::codegen::builtin::class_arg(&ui.args) {
+            Some(Some(_)) => {
+                let classes = crate::codegen::builtin::author_classes(&ui.args);
+                if !classes.is_empty() {
+                    let list = classes
+                        .iter()
+                        .map(|c| format!("\"{}\"", c.replace('\\', "\\\\").replace('"', "\\\"")))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    self.emit_line(&format!("{}.classList.add({});", var, list));
+                }
+            }
+            Some(None) => {
+                let expr = ui
+                    .args
+                    .iter()
+                    .find_map(|a| match a {
+                        Arg::Named(k, v) if k == "class" => Some(self.emit_expr(v)),
+                        _ => None,
+                    })
+                    .unwrap_or_default();
+                self.emit_line(&format!("WF.classes({}, () => {});", var, expr));
+            }
+            None => {}
         }
 
         if let Some(transition) = &ui.transition_block {

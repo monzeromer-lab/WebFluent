@@ -175,7 +175,7 @@ fn builtin_doc(doc: &ComponentDoc) -> String {
         for a in doc.args {
             out.push_str(&format!("- `{}:` — {}\n", a.name, a.doc));
         }
-        out.push_str("\nAny other `name: value` becomes an attribute on the element.\n");
+        out.push_str("\n`class:` adds classes from the project's own `.css` files; any other `name: value` becomes an attribute on the element.\n");
     }
     if !doc.modifiers.is_empty() {
         out.push_str(&format!(
@@ -395,6 +395,11 @@ fn argument_doc(project: &Project, component: &ComponentRef, name: &str) -> Stri
     if name == "bind" {
         return format!(
             "**bind:** — argument of `{component_name}`\n\nState variable the control reads and writes."
+        );
+    }
+    if name == "class" {
+        return format!(
+            "**class:** — classes added to `{component_name}`\n\nNames rules from the project's own stylesheets (any `.css` under `src/`, bundled into `styles.css`). Added beside the engine's classes, never in their place; a value that reads state is followed."
         );
     }
     format!(
