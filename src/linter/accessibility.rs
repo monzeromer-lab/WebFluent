@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::error::A11yWarning;
 use crate::parser::ast::*;
 
@@ -39,12 +41,15 @@ pub fn lint_accessibility_in(
             Declaration::Page(page) => {
                 lint_page(page, &file_of(index), &mut warnings, &components);
             }
+            // A component's or the app's body calls components too, and the
+            // rules that read through a call — the roles a structure holds,
+            // the text a control shows — need them here as on a page.
             Declaration::Component(comp) => {
                 lint_statements(
                     &comp.body,
                     &file_of(index),
                     &mut warnings,
-                    &mut HeadingTracker::new(),
+                    &mut HeadingTracker::with_components(&components),
                 );
             }
             Declaration::App(app) => {
@@ -52,7 +57,7 @@ pub fn lint_accessibility_in(
                     &app.body,
                     &file_of(index),
                     &mut warnings,
-                    &mut HeadingTracker::new(),
+                    &mut HeadingTracker::with_components(&components),
                 );
             }
             // Neither holds UI.
@@ -177,6 +182,16 @@ impl HeadingTracker {
         }
     }
 
+    /// A tracker that knows the program's components.
+    fn with_components(components: &std::collections::HashMap<&str, &ComponentDecl>) -> Self {
+        let mut tracker = Self::new();
+        tracker.components = components
+            .iter()
+            .map(|(k, v)| (k.to_string(), (*v).clone()))
+            .collect();
+        tracker
+    }
+
     /// A tracker for output that is not one HTML page — a deck or a paginated
     /// document. Every other accessibility rule still runs.
     fn without_outline_checks() -> Self {
@@ -228,10 +243,7 @@ fn lint_page(
     } else {
         HeadingTracker::new()
     };
-    tracker.components = components
-        .iter()
-        .map(|(k, v)| (k.to_string(), (*v).clone()))
-        .collect();
+    tracker.components = HeadingTracker::with_components(components).components;
     lint_statements(&page.body, file, warnings, &mut tracker);
 
     if !tracker.checks_outline {
@@ -525,7 +537,7 @@ fn lint_ui_element(
     }
 
     lint_aria_structure(ui, file, line, col, warnings, heading_tracker);
-    lint_label_in_name(ui, file, line, col, warnings);
+    lint_label_in_name(ui, file, line, col, warnings, heading_tracker);
 
     // A call to a component contributes that component's headings to this
     // page's outline. Its element checks were already reported once, on the
@@ -588,8 +600,11 @@ fn lint_aria_structure(
             continue;
         };
         // A call to a component is judged by the component's root element,
-        // which is what it renders in this position.
+        // which is what it renders in this position. A root whose role is a
+        // prop — `Button(role: role)` with `role: String = "menuitem"` — has
+        // the role the call passed, or the prop's default.
         let expanded;
+        let mut prop_role: Option<Option<String>> = None;
         let inner = match &inner.component {
             ComponentRef::UserDefined(component) => {
                 let Some(decl) = tracker.component(component) else {
@@ -598,6 +613,25 @@ fn lint_aria_structure(
                 let Some(root) = root_element(&decl.body) else {
                     continue;
                 };
+                if let Some(Arg::Named(_, Expr::Identifier(prop))) = root
+                    .args
+                    .iter()
+                    .find(|a| matches!(a, Arg::Named(k, _) if k == "role"))
+                {
+                    let passed = inner.args.iter().find_map(|a| match a {
+                        Arg::Named(k, v) if k == prop => Some(v),
+                        _ => None,
+                    });
+                    let default = decl
+                        .props
+                        .iter()
+                        .find(|p| &p.name == prop)
+                        .and_then(|p| p.default.as_ref());
+                    prop_role = Some(match passed.or(default) {
+                        Some(Expr::StringLiteral(s)) => Some(s.clone()),
+                        _ => None,
+                    });
+                }
                 expanded = root.clone();
                 &expanded
             }
@@ -606,9 +640,14 @@ fn lint_aria_structure(
         let ComponentRef::BuiltIn(name) = &inner.component else {
             continue;
         };
-        let child_role = named_arg_literal(&inner.args, "role").or_else(|| {
-            crate::codegen::builtin::implicit_role(name, &inner.modifiers).map(str::to_string)
-        });
+        let child_role = match prop_role {
+            // A role the build cannot read is not one it can judge.
+            Some(None) => continue,
+            Some(Some(role)) => Some(role),
+            None => named_arg_literal(&inner.args, "role").or_else(|| {
+                crate::codegen::builtin::implicit_role(name, &inner.modifiers).map(str::to_string)
+            }),
+        };
         let Some(child_role) = child_role else {
             // A plain container with no role of its own breaks the required
             // ownership just the same, but it may be an author's wrapper
@@ -651,13 +690,19 @@ fn lint_aria_structure(
 /// Someone using voice control says what they see — "click Save" — and the
 /// software matches that against the accessible name. When the label says
 /// something else, the button they can see cannot be spoken to (WCAG 2.5.3,
-/// Label in Name). Only literal text is compared.
+/// Label in Name). The visible text is what the control's literals paint:
+/// its positional label, the `Text` and other literals in its block, and
+/// what a user component in the block renders from its own literals and
+/// the literal props it was given — a `Kbd(text: "⌘K")` inside a search
+/// button is text the reader sees. Each piece the build can read must be in
+/// the label; a value that reads state cannot be checked and is not.
 fn lint_label_in_name(
     ui: &UIElement,
     file: &str,
     line: usize,
     col: usize,
     warnings: &mut Vec<A11yWarning>,
+    tracker: &HeadingTracker,
 ) {
     let ComponentRef::BuiltIn(name) = &ui.component else {
         return;
@@ -668,33 +713,93 @@ fn lint_label_in_name(
     let Some(label) = named_arg_literal(&ui.args, "aria-label") else {
         return;
     };
-    let visible = match name.as_str() {
-        "Link" => ui.children.iter().find_map(|c| match &c.kind {
-            StatementKind::UIElement(inner) if matches!(&inner.component, ComponentRef::BuiltIn(n) if n == "Text") => {
-                positional_literal(&inner.args)
-            }
-            _ => None,
-        }),
-        _ => positional_literal(&ui.args),
-    };
-    let Some(visible) = visible else {
-        return;
-    };
-    let visible = visible.trim().to_lowercase();
-    if visible.is_empty() || label.to_lowercase().contains(&visible) {
-        return;
+    let mut visible = Vec::new();
+    if name != "Link" {
+        visible.extend(positional_literal(&ui.args));
     }
+    visible_text(&ui.children, &HashMap::new(), tracker, 0, &mut visible);
+    let label_lower = label.to_lowercase();
+    let Some(missing) = visible
+        .iter()
+        .map(|t| t.trim().to_lowercase())
+        .find(|t| !t.is_empty() && !label_lower.contains(t.as_str()))
+    else {
+        return;
+    };
     warnings.push(A11yWarning::new(
         "A15",
-        format!(
-            "{name} shows \"{}\" but its aria-label says \"{label}\"",
-            visible
-        ),
+        format!("{name} shows \"{missing}\" but its aria-label says \"{label}\""),
         file,
         line,
         col,
         "Start the aria-label with the visible text, so what a user says matches what they see",
     ));
+}
+
+/// The literal text `body` paints, in order, into `out`. `props` are the
+/// literal props of the component being expanded, so `Text(label)` inside it
+/// reads as the text the call passed.
+fn visible_text(
+    body: &[Statement],
+    props: &HashMap<String, String>,
+    tracker: &HeadingTracker,
+    depth: usize,
+    out: &mut Vec<String>,
+) {
+    if depth > 8 {
+        return;
+    }
+    let literal = |expr: &Expr| -> Option<String> {
+        match expr {
+            Expr::StringLiteral(s) => Some(s.clone()),
+            Expr::Identifier(name) => props.get(name).cloned(),
+            _ => None,
+        }
+    };
+    for stmt in body {
+        let StatementKind::UIElement(el) = &stmt.kind else {
+            continue;
+        };
+        match &el.component {
+            // An icon's positional argument names a glyph, not text.
+            ComponentRef::BuiltIn(n) if n == "Icon" || n == "Image" => {}
+            ComponentRef::BuiltIn(_) | ComponentRef::SubComponent(_, _) => {
+                if let Some(text) = el.args.iter().find_map(|a| match a {
+                    Arg::Positional(e) => literal(e),
+                    _ => None,
+                }) {
+                    out.push(text);
+                }
+                visible_text(&el.children, props, tracker, depth + 1, out);
+            }
+            ComponentRef::UserDefined(name) => {
+                let Some(component) = tracker.component(name) else {
+                    continue;
+                };
+                // The call's literal props, by the component's prop names.
+                let mut inner: HashMap<String, String> = HashMap::new();
+                let mut positional = el.args.iter().filter_map(|a| match a {
+                    Arg::Positional(e) => Some(e),
+                    _ => None,
+                });
+                for prop in &component.props {
+                    let value = el
+                        .args
+                        .iter()
+                        .find_map(|a| match a {
+                            Arg::Named(k, e) if k == &prop.name => Some(e),
+                            _ => None,
+                        })
+                        .or_else(|| positional.next());
+                    if let Some(text) = value.and_then(literal) {
+                        inner.insert(prop.name.clone(), text);
+                    }
+                }
+                visible_text(&component.body, &inner, tracker, depth + 1, out);
+                visible_text(&el.children, props, tracker, depth + 1, out);
+            }
+        }
+    }
 }
 
 /// The first element a body renders — a component's root, when the body
@@ -876,6 +981,22 @@ mod structure_tests {
     }
 
     #[test]
+    fn a_component_root_whose_role_is_a_prop_has_the_role_the_call_gives_it() {
+        let src = "Component Entry (label: String, role: String = \"menuitem\") {\n    Button(label, role: role)\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Stack(role: \"menu\") {\n        Entry(label: \"Open\")\n        Entry(label: \"Pick\", role: \"menuitemradio\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Wrong\", role: \"tab\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Unknown\", role: someRole)\n    }\n}\n";
+        let found: Vec<_> = warnings(src)
+            .into_iter()
+            .filter(|w| w.rule_id == "A14")
+            .collect();
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].line, 10, "only the tab in a menu is wrong");
+        assert!(
+            found[0].message.contains("with role \"tab\""),
+            "{}",
+            found[0].message
+        );
+    }
+
+    #[test]
     fn an_aria_label_that_hides_the_visible_text_is_reported() {
         let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Button(\"Save\", aria-label: \"Submit the form\")\n    Button(\"Delete\", aria-label: \"Delete the draft\")\n    Link(to: \"/\", aria-label: \"Go home\") { Text(\"Home\") }\n}\n";
         let found: Vec<_> = warnings(src)
@@ -889,6 +1010,20 @@ mod structure_tests {
             "{}",
             found[0].message
         );
+    }
+
+    #[test]
+    fn text_a_child_or_a_component_paints_counts_as_visible() {
+        // The keyboard hint a Kbd component renders from its prop is text the
+        // reader sees, and an icon's name is not.
+        let src = "Component Kbd (text: String) {\n    Text(text)\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Button(\"\", aria-label: \"Search, command palette\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Search, command palette, ⌘K\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Notifications\") {\n        Icon(\"bell\")\n        Kbd(text: count)\n    }\n}\n";
+        let found: Vec<_> = warnings(src)
+            .into_iter()
+            .filter(|w| w.rule_id == "A15")
+            .collect();
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].line, 6);
+        assert!(found[0].message.contains("\"⌘k\""), "{}", found[0].message);
     }
 
     #[test]
