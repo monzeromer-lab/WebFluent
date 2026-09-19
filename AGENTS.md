@@ -1130,6 +1130,8 @@ components with one name — is an error and stops the build.
 |---|---|
 | `A01`–`A12` | WCAG element checks — alt text, form labels, heading outline, table headers. A control is named by `label:`, or by `aria-label:` / `aria-labelledby:` when its visible label is a separate element |
 | `A13` | A theme's colour pairing falls below the WCAG AA contrast ratio |
+| `A14` | A `role:` that requires particular children (`tablist` → `tab`, `list` → `listitem`, `menu` → `menuitem`, …) holds a control that is not one |
+| `A15` | A control's `aria-label` does not contain its visible text, so what a voice-control user says does not match what they see |
 | `S01` | A page has no title |
 | `S02` | A page has no description, so its search snippet is written for it |
 | `S03` | A description longer than ~160 characters, which a search result truncates |

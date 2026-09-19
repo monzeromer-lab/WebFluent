@@ -309,7 +309,10 @@ fn lint_ui_element(
     warnings: &mut Vec<A11yWarning>,
     heading_tracker: &mut HeadingTracker,
 ) {
-    let (line, col) = (0, 0); // We don't have line info on AST nodes directly — use 0:0
+    // The element's own position: the parser records a span for every
+    // element, so a warning lands on the line that needs the fix rather
+    // than on line 1.
+    let (line, col) = (ui.span.line.max(1) as usize, ui.span.col.max(1) as usize);
 
     if let ComponentRef::BuiltIn(name) = &ui.component {
         match name.as_str() {
@@ -521,6 +524,9 @@ fn lint_ui_element(
         }
     }
 
+    lint_aria_structure(ui, file, line, col, warnings, heading_tracker);
+    lint_label_in_name(ui, file, line, col, warnings);
+
     // A call to a component contributes that component's headings to this
     // page's outline. Its element checks were already reported once, on the
     // component itself, so they are not repeated here.
@@ -540,6 +546,180 @@ fn lint_ui_element(
 
     // Recurse into children
     lint_statements(&ui.children, file, warnings, heading_tracker);
+}
+
+/// A14: a `role:` that requires particular children, given children that
+/// are not them.
+///
+/// `role="tablist"` promises assistive technology a set of tabs; a button
+/// inside it is not one, and a screen reader will announce a tab list with
+/// no tabs. Only built-in children are judged — a user component may carry
+/// the role on its own root — and only when their role is known.
+fn lint_aria_structure(
+    ui: &UIElement,
+    file: &str,
+    line: usize,
+    col: usize,
+    warnings: &mut Vec<A11yWarning>,
+    tracker: &HeadingTracker,
+) {
+    let Some(role) = named_arg_literal(&ui.args, "role") else {
+        return;
+    };
+    let required: &[&str] = match role.as_str() {
+        "tablist" => &["tab"],
+        "list" => &["listitem"],
+        "listbox" => &["option", "group"],
+        "menu" | "menubar" => &[
+            "menuitem",
+            "menuitemcheckbox",
+            "menuitemradio",
+            "group",
+            "separator",
+        ],
+        "radiogroup" => &["radio"],
+        "tree" => &["treeitem", "group"],
+        "grid" | "table" | "treegrid" => &["row", "rowgroup"],
+        "row" => &["cell", "gridcell", "columnheader", "rowheader"],
+        _ => return,
+    };
+    for child in &ui.children {
+        let StatementKind::UIElement(inner) = &child.kind else {
+            continue;
+        };
+        // A call to a component is judged by the component's root element,
+        // which is what it renders in this position.
+        let expanded;
+        let inner = match &inner.component {
+            ComponentRef::UserDefined(component) => {
+                let Some(decl) = tracker.component(component) else {
+                    continue;
+                };
+                let Some(root) = root_element(&decl.body) else {
+                    continue;
+                };
+                expanded = root.clone();
+                &expanded
+            }
+            _ => inner,
+        };
+        let ComponentRef::BuiltIn(name) = &inner.component else {
+            continue;
+        };
+        let child_role = named_arg_literal(&inner.args, "role").or_else(|| {
+            crate::codegen::builtin::implicit_role(name, &inner.modifiers).map(str::to_string)
+        });
+        let Some(child_role) = child_role else {
+            // A plain container with no role of its own breaks the required
+            // ownership just the same, but it may be an author's wrapper
+            // around the right children; only a control is certain.
+            if matches!(
+                name.as_str(),
+                "Button" | "IconButton" | "Link" | "Input" | "Text"
+            ) {
+                warnings.push(A11yWarning::new(
+                    "A14",
+                    format!("role \"{role}\" requires children with role \"{}\", but holds a {name}", required[0]),
+                    file,
+                    line,
+                    col,
+                    format!("Give each child role: \"{}\", or use the built-in that owns this structure", required[0]),
+                ));
+                return;
+            }
+            continue;
+        };
+        if !required.contains(&child_role.as_str()) {
+            warnings.push(A11yWarning::new(
+                "A14",
+                format!(
+                    "role \"{role}\" requires children with role \"{}\", but holds a {name} with role \"{child_role}\"",
+                    required[0]
+                ),
+                file,
+                line,
+                col,
+                format!("Give each child role: \"{}\", or use the built-in that owns this structure", required[0]),
+            ));
+            return;
+        }
+    }
+}
+
+/// A15: a control whose `aria-label` does not contain its visible text.
+///
+/// Someone using voice control says what they see — "click Save" — and the
+/// software matches that against the accessible name. When the label says
+/// something else, the button they can see cannot be spoken to (WCAG 2.5.3,
+/// Label in Name). Only literal text is compared.
+fn lint_label_in_name(
+    ui: &UIElement,
+    file: &str,
+    line: usize,
+    col: usize,
+    warnings: &mut Vec<A11yWarning>,
+) {
+    let ComponentRef::BuiltIn(name) = &ui.component else {
+        return;
+    };
+    if !matches!(name.as_str(), "Button" | "Link" | "Tag" | "Badge") {
+        return;
+    }
+    let Some(label) = named_arg_literal(&ui.args, "aria-label") else {
+        return;
+    };
+    let visible = match name.as_str() {
+        "Link" => ui.children.iter().find_map(|c| match &c.kind {
+            StatementKind::UIElement(inner) if matches!(&inner.component, ComponentRef::BuiltIn(n) if n == "Text") => {
+                positional_literal(&inner.args)
+            }
+            _ => None,
+        }),
+        _ => positional_literal(&ui.args),
+    };
+    let Some(visible) = visible else {
+        return;
+    };
+    let visible = visible.trim().to_lowercase();
+    if visible.is_empty() || label.to_lowercase().contains(&visible) {
+        return;
+    }
+    warnings.push(A11yWarning::new(
+        "A15",
+        format!(
+            "{name} shows \"{}\" but its aria-label says \"{label}\"",
+            visible
+        ),
+        file,
+        line,
+        col,
+        "Start the aria-label with the visible text, so what a user says matches what they see",
+    ));
+}
+
+/// The first element a body renders — a component's root, when the body
+/// begins with an element.
+fn root_element(body: &[Statement]) -> Option<&UIElement> {
+    body.iter().find_map(|s| match &s.kind {
+        StatementKind::UIElement(el) => Some(el),
+        _ => None,
+    })
+}
+
+/// The literal string value of a named argument, if it is one.
+fn named_arg_literal(args: &[Arg], name: &str) -> Option<String> {
+    args.iter().find_map(|a| match a {
+        Arg::Named(n, Expr::StringLiteral(s)) if n == name => Some(s.clone()),
+        _ => None,
+    })
+}
+
+/// The first positional argument, when it is a string literal.
+fn positional_literal(args: &[Arg]) -> Option<String> {
+    args.iter().find_map(|a| match a {
+        Arg::Positional(Expr::StringLiteral(s)) => Some(s.clone()),
+        _ => None,
+    })
 }
 
 // ─── Helper functions ────────────────────────────────
@@ -650,5 +830,74 @@ mod naming_tests {
     fn an_unnamed_input_still_warns() {
         let src = r#"Page P (path: "/", title: "t", description: "d") { Heading("h", h1) Input(text, id: "n") }"#;
         assert!(rules(src).contains(&"A03".to_string()));
+    }
+}
+
+#[cfg(test)]
+mod structure_tests {
+    //! A14 and A15, and the positions every element rule now carries.
+    use super::*;
+    use crate::lexer::Lexer;
+    use crate::parser::Parser;
+
+    fn warnings(src: &str) -> Vec<A11yWarning> {
+        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
+        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        lint_accessibility(&program)
+    }
+
+    #[test]
+    fn a_tablist_of_plain_buttons_is_reported_once_on_its_line() {
+        let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Row(role: \"tablist\") {\n        Button(\"One\")\n        Button(\"Two\")\n    }\n}\n";
+        let found: Vec<_> = warnings(src)
+            .into_iter()
+            .filter(|w| w.rule_id == "A14")
+            .collect();
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].line, 3, "points at the Row");
+        assert!(
+            found[0]
+                .message
+                .contains("requires children with role \"tab\""),
+            "{}",
+            found[0].message
+        );
+    }
+
+    #[test]
+    fn a_tablist_of_tabs_is_fine_and_a_component_is_judged_by_its_root() {
+        let src = "Component Tab (label: String) {\n    Button(label, role: \"tab\")\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Row(role: \"tablist\") {\n        Button(\"One\", role: \"tab\")\n        Tab(label: \"Two\")\n    }\n}\n";
+        assert!(warnings(src).iter().all(|w| w.rule_id != "A14"));
+        let bare = "Component Chip (label: String) {\n    Button(label)\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Row(role: \"tablist\") {\n        Chip(label: \"Two\")\n    }\n}\n";
+        assert!(
+            warnings(bare).iter().any(|w| w.rule_id == "A14"),
+            "a component whose root is a plain button is a plain button"
+        );
+    }
+
+    #[test]
+    fn an_aria_label_that_hides_the_visible_text_is_reported() {
+        let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Button(\"Save\", aria-label: \"Submit the form\")\n    Button(\"Delete\", aria-label: \"Delete the draft\")\n    Link(to: \"/\", aria-label: \"Go home\") { Text(\"Home\") }\n}\n";
+        let found: Vec<_> = warnings(src)
+            .into_iter()
+            .filter(|w| w.rule_id == "A15")
+            .collect();
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].line, 3);
+        assert!(
+            found[0].message.contains("\"save\""),
+            "{}",
+            found[0].message
+        );
+    }
+
+    #[test]
+    fn element_rules_carry_the_element_position() {
+        let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Container {\n        Image(src: \"/a.png\")\n    }\n}\n";
+        let a01 = warnings(src)
+            .into_iter()
+            .find(|w| w.rule_id == "A01")
+            .expect("A01");
+        assert_eq!((a01.line, a01.column), (4, 9));
     }
 }
