@@ -196,6 +196,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     if config.build.ssg {
         js_codegen.set_ssg(true);
     }
+    js_codegen.set_split_pages(config.build.split);
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
@@ -270,16 +271,30 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // `build.minify` — on by default, and read for the first time here: the
     // bundle and the sheet lose their comments and whitespace, and nothing
     // else, so a stack trace still reads as the compiler wrote it.
-    let (css, js) = if config.build.minify {
-        (
-            crate::codegen::minify::minify_css(&css),
-            crate::codegen::minify::minify_js(&js),
-        )
+    let minify_js = |src: String| {
+        if config.build.minify {
+            crate::codegen::minify::minify_js(&src)
+        } else {
+            src
+        }
+    };
+    let css = if config.build.minify {
+        crate::codegen::minify::minify_css(&css)
     } else {
-        (css, js)
+        css
     };
     fs::write(output_dir.join("styles.css"), css)?;
-    fs::write(output_dir.join("app.js"), js)?;
+    fs::write(output_dir.join("app.js"), minify_js(js))?;
+
+    // Each page in its own chunk, fetched when its route shows.
+    let chunks = js_codegen.take_chunks();
+    if !chunks.is_empty() {
+        let pages_dir = output_dir.join("pages");
+        fs::create_dir_all(&pages_dir)?;
+        for (name, source) in chunks {
+            fs::write(pages_dir.join(format!("{name}.js")), minify_js(source))?;
+        }
+    }
 
     // A meta tag cannot express `frame-ancestors`, and nothing in a static
     // bundle can set a response header, so the policy is also written where a

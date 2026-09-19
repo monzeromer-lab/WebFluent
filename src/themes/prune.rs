@@ -150,11 +150,7 @@ fn element(el: &UIElement, usage: &mut Usage) {
 fn keep(title: &str, usage: &Usage) -> bool {
     // The name up to a colon or parenthesis: "Switch (mechanism paint)" and
     // "Typography: requested modifiers only" are their first word.
-    let name = title
-        .split(['(', ':'])
-        .next()
-        .unwrap_or(title)
-        .trim();
+    let name = title.split(['(', ':']).next().unwrap_or(title).trim();
     let any = |names: &[&str]| names.iter().any(|n| usage.uses(n));
     match name {
         "Navbar" => any(&["Navbar"]),

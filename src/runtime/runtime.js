@@ -485,9 +485,15 @@ const WF = (() => {
     function render() {
       const path = currentPath(); // Only subscribe to path changes
       const match = matchRoute(path);
-      container.innerHTML = "";
+      if (!match) {
+        container.innerHTML = "";
+        return;
+      }
 
-      if (match) {
+      const draw = (renderFn) => {
+        // The page arrived after the reader had already moved on.
+        if (currentPath() !== path) return;
+        container.innerHTML = "";
         // The tab, the history entry and a screen reader all read the title;
         // a single-page app used to keep the entry page's title on every route.
         if (match.route.title) document.title = match.route.title;
@@ -495,24 +501,29 @@ const WF = (() => {
         const prev = currentEffect;
         currentEffect = null;
         try {
-          const el = match.route.render(match.params);
+          const el = renderFn(match.params);
           if (el instanceof Node) container.appendChild(el);
         } finally {
           currentEffect = prev;
         }
-      }
 
-      // A full page load lands the reader at the top with focus on the
-      // document; a route change used to leave focus on a link that no
-      // longer existed, the scroll wherever it was, and say nothing. It now
-      // does what the page load does: focus moves to the new page's heading
-      // (or the main landmark when it has none), the viewport returns to the
-      // top, and the title is announced.
-      if (rendered) {
-        settleOnNewPage(container, !fromHistory);
-      }
-      rendered = true;
-      fromHistory = false;
+        // A full page load lands the reader at the top with focus on the
+        // document; a route change used to leave focus on a link that no
+        // longer existed, the scroll wherever it was, and say nothing. It now
+        // does what the page load does: focus moves to the new page's heading
+        // (or the main landmark when it has none), the viewport returns to the
+        // top, and the title is announced.
+        if (rendered) {
+          settleOnNewPage(container, !fromHistory);
+        }
+        rendered = true;
+        fromHistory = false;
+      };
+
+      // A route names its page's render function directly, or names a page
+      // that lives in its own chunk and is fetched the first time it shows.
+      if (match.route.render) draw(match.route.render);
+      else loadPage(match.route.page, draw);
     }
 
     window.addEventListener("popstate", () => {
@@ -553,6 +564,40 @@ const WF = (() => {
     } else {
       window.location.href = path;
     }
+  }
+
+  // ─── Pages (route chunks) ────────────────────────────
+  //
+  // A build writes each page as `pages/<Name>.js`, which registers itself
+  // here when it runs; app.js holds the runtime, the stores and the
+  // components every page shares. A page's HTML links its own chunk beside
+  // app.js, so a static build loads the two in parallel; a route change in a
+  // single-page build fetches the chunk the first time the route shows.
+  const pages = {};
+  const waiting = {};
+
+  function definePage(name, renderFn) {
+    pages[name] = renderFn;
+    const callbacks = waiting[name];
+    delete waiting[name];
+    if (callbacks) for (const cb of callbacks) cb(renderFn);
+  }
+
+  function loadPage(name, cb) {
+    if (pages[name]) {
+      cb(pages[name]);
+      return;
+    }
+    (waiting[name] = waiting[name] || []).push(cb);
+    // Already linked by the page's HTML, or already requested: it will
+    // register itself when it runs.
+    if (document.querySelector('script[data-wf-page="' + name + '"]')) return;
+    const script = document.createElement("script");
+    script.src = _basePath + "/pages/" + name + ".js";
+    script.async = true;
+    script.setAttribute("data-wf-page", name);
+    script.onerror = () => console.error("WebFluent: could not load the page chunk for " + name);
+    (document.head || document.body).appendChild(script);
   }
 
   function getParams() {
@@ -1301,7 +1346,7 @@ const WF = (() => {
     h, text, reactiveText, appendChildren, onRoot, props,
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
-    createRouter, navigate, getParams, activeLink,
+    createRouter, navigate, getParams, activeLink, definePage, loadPage,
     createStore,
     createI18n,
     wfFetch, showToast,

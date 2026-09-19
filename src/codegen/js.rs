@@ -52,6 +52,11 @@ pub struct JsCodegen {
     studio: bool,
     /// Deterministic node ids keyed by element span (empty unless in studio mode).
     node_ids: NodeMap,
+    /// Whether each page is written as its own chunk (`pages/<Name>.js`),
+    /// registered with `WF.definePage`, rather than into the main bundle.
+    split_pages: bool,
+    /// The page chunks, `(name, source)`, when `split_pages` is on.
+    chunks: Vec<(String, String)>,
 }
 
 impl Default for JsCodegen {
@@ -79,7 +84,19 @@ impl JsCodegen {
             in_thead: false,
             studio: false,
             node_ids: NodeMap::default(),
+            split_pages: false,
+            chunks: Vec::new(),
         }
+    }
+
+    /// Write each page as its own chunk, loaded when its route shows.
+    pub fn set_split_pages(&mut self, enabled: bool) {
+        self.split_pages = enabled;
+    }
+
+    /// The page chunks `generate` set aside, `(page name, source)`.
+    pub fn take_chunks(&mut self) -> Vec<(String, String)> {
+        std::mem::take(&mut self.chunks)
     }
 
     pub fn set_i18n(
@@ -156,10 +173,14 @@ impl JsCodegen {
             ),
             None => String::new(),
         };
-        format!(
-            "{{ path: \"{}\", {}render: (params) => Page_{}(params) }},",
-            path, title, page
-        )
+        if self.split_pages {
+            format!("{{ path: \"{}\", {}page: \"{}\" }},", path, title, page)
+        } else {
+            format!(
+                "{{ path: \"{}\", {}render: (params) => Page_{}(params) }},",
+                path, title, page
+            )
+        }
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
@@ -206,10 +227,21 @@ impl JsCodegen {
             }
         }
 
-        // Emit pages
+        // Emit pages: into the bundle, or each into its own chunk that
+        // registers itself with the runtime when it runs.
         for decl in &program.declarations {
             if let Declaration::Page(p) = decl {
-                self.emit_page(p);
+                if self.split_pages {
+                    let saved = std::mem::take(&mut self.output);
+                    let indent = std::mem::replace(&mut self.indent, 0);
+                    self.emit_page(p);
+                    self.emit_line(&format!("WF.definePage(\"{}\", Page_{});", p.name, p.name));
+                    let chunk = std::mem::replace(&mut self.output, saved);
+                    self.indent = indent;
+                    self.chunks.push((p.name.clone(), chunk));
+                } else {
+                    self.emit_page(p);
+                }
             }
         }
 
@@ -242,10 +274,17 @@ impl JsCodegen {
                 let mount_fn = if self.ssg_mode { "hydrate" } else { "mount" };
                 // Into the main landmark, not the bare container: a page with no
                 // router still needs one, and the skip link still has to land.
-                self.emit_line(&format!(
-                    "WF.{}(() => Page_{}({{}}), WF.mainOf(document.getElementById('app')));",
-                    mount_fn, pages[0].name
-                ));
+                if self.split_pages {
+                    self.emit_line(&format!(
+                        "WF.loadPage(\"{}\", (page) => WF.{}(() => page({{}}), WF.mainOf(document.getElementById('app'))));",
+                        pages[0].name, mount_fn
+                    ));
+                } else {
+                    self.emit_line(&format!(
+                        "WF.{}(() => Page_{}({{}}), WF.mainOf(document.getElementById('app')));",
+                        mount_fn, pages[0].name
+                    ));
+                }
             } else if !pages.is_empty() {
                 // Auto-create router from page paths
                 self.emit_line("(function() {");

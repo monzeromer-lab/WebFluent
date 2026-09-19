@@ -368,9 +368,10 @@ wf generate page|component|store <name> Scaffold a new file
 # Web (SPA/SSG)                    # PDF
 build/                             build/
 ├── index.html                     └── report.pdf
-├── app.js
-├── styles.css
-└── public/
+├── app.js          runtime, stores, components
+├── pages/*.js      one chunk per page, loaded on demand
+├── styles.css      only the rules the project uses
+└── …               public/ copied to the root
 ```
 
 ## Architecture

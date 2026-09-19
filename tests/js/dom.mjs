@@ -11,6 +11,7 @@ class ClassList {
   add(...names) { for (const n of names) if (n) this._set.add(n); }
   remove(...names) { for (const n of names) this._set.delete(n); }
   contains(n) { return this._set.has(n); }
+  [Symbol.iterator]() { return this._set.values(); }
   toString() { return [...this._set].join(" "); }
 }
 
@@ -159,6 +160,7 @@ export function makeDom() {
     createComment: () => new TextNode(""),
     createDocumentFragment: () => new DocumentFragment(),
     body: new Element("body"),
+    head: new Element("head"),
     documentElement: new Element("html"),
     addEventListener() {},
     querySelector: (s) => document.body.querySelector(s),

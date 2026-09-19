@@ -88,6 +88,10 @@ pub struct BuildConfig {
     /// that is a decision to make deliberately rather than inherit.
     #[serde(default)]
     pub csp: bool,
+    /// Whether each page is written as its own `pages/<Name>.js`, loaded when
+    /// its route is shown, rather than every page shipping in `app.js`.
+    #[serde(default = "default_true")]
+    pub split: bool,
     /// Output type: "spa" (default), "static", "pdf", or "slides"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
@@ -405,6 +409,7 @@ impl Default for BuildConfig {
             ssg: false,
             base_path: String::new(),
             csp: false,
+            split: true,
             output_type: OutputType::Spa,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),

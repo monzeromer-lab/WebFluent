@@ -154,6 +154,17 @@ pub fn render_page_html_studio(
         (0..depth).map(|_| "..").collect::<Vec<_>>().join("/")
     };
 
+    // The page's own chunk, linked beside app.js so the two load in parallel
+    // and the router finds the page registered by the time it runs.
+    let page_chunk = if config.build.split {
+        format!(
+            "    <script src=\"{}/pages/{}.js\" data-wf-page=\"{}\" defer></script>\n",
+            base, page.name, page.name
+        )
+    } else {
+        String::new()
+    };
+
     format!(
         r#"<!DOCTYPE html>
 <html lang="{}">
@@ -163,7 +174,7 @@ pub fn render_page_html_studio(
     <title>{}</title>
 {}{}{}    <link rel="stylesheet" href="{}/styles.css">
     <script src="{}/app.js" defer></script>
-</head>
+{}</head>
 <body>
 {}    <div id="app">
 {}    </div>
@@ -176,6 +187,7 @@ pub fn render_page_html_studio(
         crate::codegen::html::head_links(config, &base),
         base,
         base,
+        page_chunk,
         crate::codegen::html::SKIP_LINK,
         body_html
     )

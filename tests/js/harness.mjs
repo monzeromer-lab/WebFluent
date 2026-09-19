@@ -5,13 +5,23 @@
 //! and executes it against the fake DOM, so the assertions are about the page a
 //! user would get — the codegen and the runtime together, not either alone.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { makeDom } from "./dom.mjs";
 
 /// Where `tests/e2e_sites.rs` builds the fixture projects.
+///
+/// A build writes app.js and one chunk per page under pages/; a browser runs
+/// them in that order in one global scope, so they are joined the same way.
 export function siteBundle(name) {
-  const url = new URL(`../../target/e2e/${name}/build/app.js`, import.meta.url);
-  return readFileSync(url, "utf8");
+  const build = new URL(`../../target/e2e/${name}/build/`, import.meta.url);
+  let src = readFileSync(new URL("app.js", build), "utf8");
+  const pages = new URL("pages/", build);
+  if (existsSync(pages)) {
+    for (const file of readdirSync(pages).sort()) {
+      if (file.endsWith(".js")) src += "\n" + readFileSync(new URL(file, pages), "utf8");
+    }
+  }
+  return src;
 }
 
 export function sitePage(name, rel = "index.html") {

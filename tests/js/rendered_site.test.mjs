@@ -11,7 +11,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mountSite, byClass, byTag, button, click, type } from "./harness.mjs";
+import { mountSite, sitePage, byClass, byTag, button, click, type } from "./harness.mjs";
 
 // ─── The page paints at all ─────────────────────────────────────────────
 
@@ -180,9 +180,10 @@ test("a progress bar bound to state follows it", () => {
 
 test("a style value bound to state follows it", () => {
   const ctx = mountSite("dashboard", { path: "/" });
-  const bar = byClass(ctx.app, "wf-container").find((el) => el.style.height === "4px");
+  // The literal height is a stylesheet rule now; the bound width is inline.
+  const bar = byClass(ctx.app, "wf-container").find((el) => el.style.width === "0%");
   assert.ok(bar, "no bar with a bound width painted");
-  assert.equal(bar.style.width, "0%");
+  assert.ok([...bar.classList].some((c) => c.startsWith("wf-s")), "and it carries its style class");
   click(button(ctx.app, "Increment"), ctx);
   assert.equal(bar.style.width, "10%");
 });
@@ -317,14 +318,18 @@ test("a router nested inside a sidebar layout still resolves, and the sidebar su
 test("hand-authored style blocks are applied to the painted elements", () => {
   const { app } = mountSite("bespoke");
 
-  const styled = app.all().filter((el) => el.style._props.size > 0);
+  // A literal declaration is a stylesheet rule under a content-named class
+  // the element carries; the sheet the build wrote holds the values.
+  const styled = app.all().filter((el) => [...el.classList].some((c) => c.startsWith("wf-s")));
   assert.ok(styled.length >= 5, `only ${styled.length} elements received author styling`);
 
-  const declarations = styled.flatMap((el) => [...el.style._props.entries()].map(([k, v]) => `${k}:${v}`));
-  const joined = declarations.join(" ");
-
+  const sheet = sitePage("bespoke", "styles.css");
   for (const decl of ["68rem", "0.3em", "4rem"]) {
-    assert.ok(joined.includes(decl), `the author's ${decl} never reached a live element`);
+    assert.ok(sheet.includes(decl), `the author's ${decl} never reached the stylesheet`);
+  }
+  for (const el of styled.slice(0, 5)) {
+    const cls = [...el.classList].find((c) => c.startsWith("wf-s"));
+    assert.ok(sheet.includes(`.${cls}`), `no rule for ${cls} in the stylesheet`);
   }
 });
 
@@ -335,7 +340,7 @@ test("a component handled by a special emitter still receives its style block", 
   const modal = byClass(app, "wf-modal")[0];
   assert.ok(modal, "no modal in the live DOM");
   assert.ok(
-    modal.style._props.size > 0,
+    [...modal.classList].some((c) => c.startsWith("wf-s")),
     "the modal's style block was dropped — the special emitter skipped it",
   );
 });

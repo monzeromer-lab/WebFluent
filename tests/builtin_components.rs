@@ -1009,12 +1009,22 @@ fn style_blocks_survive_on_every_component() {
         if parse_program(&src).is_err() {
             continue;
         }
+        // A literal declaration is compiled into the stylesheet under the
+        // block's class; the element has to carry that class in every
+        // backend for the rule to reach it.
+        let program = parse_program(&src).expect("parsed above");
+        let rules = webfluent::codegen::scoped_css::scoped_rules(&program);
+        assert!(
+            rules.contains("rgb(1, 2, 3)"),
+            "{}: rule missing from the sheet",
+            spec.name
+        );
         for backend in Backend::ALL {
             if spec.skip.contains(&backend) {
                 continue;
             }
             let out = raw_output(backend, &src);
-            if !out.contains("rgb(1, 2, 3)") {
+            if !out.contains("wf-s") {
                 failures.push(format!(
                     "{:<12} {:<28} dropped the author's style block",
                     spec.name,
@@ -1216,18 +1226,28 @@ fn layout_arguments_become_utility_classes() {
 }
 
 /// A custom property in a style block reaches the element in every backend:
-/// set by name in the SPA, written as-is in a static `style=""`.
+/// a literal through the stylesheet rule under the block's class, a value
+/// that reads state set by name at run time.
 #[test]
 fn a_custom_property_reaches_the_element_in_every_backend() {
     let src = page("Card { style { --edge: \"1px\"  padding: \"4px\" } }");
+    let program = parse_program(&src).expect("parses");
+    let rules = webfluent::codegen::scoped_css::scoped_rules(&program);
+    assert!(rules.contains("--edge: 1px;"), "{rules}");
     let js = render(Backend::Spa, &src);
     assert!(
-        js.contains(".style.setProperty(\"--edge\", \"1px\");"),
+        !js.contains("--edge"),
+        "a literal is not set at run time: {js}"
+    );
+    let live = page("state tone = \"red\"  Card { style { --edge: tone } }");
+    let js = render(Backend::Spa, &live);
+    assert!(
+        js.contains(".style.setProperty(\"--edge\", _tone()); });"),
         "{js}"
     );
     for backend in [Backend::Ssg, Backend::Template] {
         let out = render(backend, &src);
-        assert!(out.contains("--edge: 1px"), "{}: {out}", backend.name());
+        assert!(out.contains("wf-s"), "{}: {out}", backend.name());
     }
 }
 

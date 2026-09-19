@@ -832,6 +832,26 @@ For values a machine supplies (a deploy pipeline injecting a brand colour),
 { "theme": { "tokens": { "color-primary": "#8B5CF6" } } }
 ```
 
+## Build output
+
+```
+build/
+├── index.html            # the shell (SPA) or the pre-rendered page (SSG)
+├── app.js                # runtime, stores, components — shared by every page
+├── pages/<Name>.js       # one chunk per Page, loaded when its route shows
+├── styles.css            # tokens, only the component rules the project uses,
+│                         # and the rules its style { } blocks compile to
+└── …                     # public/ copied to the root, sitemap.xml, robots.txt
+```
+
+`build.minify` (on by default) strips comments and whitespace from the
+bundle and the sheet. `build.split` (on by default) writes each page as its
+own chunk: a static build's page links `app.js` and its chunk side by side,
+and a single-page build fetches a chunk the first time its route is shown.
+A literal in a `style { }` block is compiled into `styles.css` under a class
+named by the block's content, so a hundred identical cards share one rule;
+only a value that reads state is set on the element.
+
 ## Search and Sharing
 
 Set `meta.site_url` and the compiler writes everything a search engine and a link
@@ -1138,6 +1158,7 @@ The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
         "ssg": false,
         "base_path": "",
         "csp": false,
+        "split": true,
         "output_type": "spa",
         "pdf": {
             "page_size": "A4",

@@ -126,6 +126,21 @@ impl Built {
         std::fs::read(self.out(rel))
             .unwrap_or_else(|e| panic!("reading {}: {e}", self.out(rel).display()))
     }
+    /// The JavaScript the build produced: app.js and every page chunk under
+    /// pages/, in the order a browser runs them.
+    fn scripts(&self) -> String {
+        let mut js = self.read("app.js");
+        let pages = self.out("pages");
+        if let Ok(entries) = std::fs::read_dir(&pages) {
+            let mut files: Vec<PathBuf> = entries.flatten().map(|e| e.path()).collect();
+            files.sort();
+            for file in files {
+                js.push('\n');
+                js.push_str(&std::fs::read_to_string(&file).expect("page chunk"));
+            }
+        }
+        js
+    }
     /// Every HTML file the build produced.
     fn html_files(&self) -> Vec<(String, String)> {
         let mut out = Vec::new();
@@ -352,22 +367,23 @@ fn the_catch_all_page_is_written_as_404_html() {
 fn pseudo_state_blocks_compile_into_the_stylesheet() {
     let built = build_site("bespoke");
     let css = built.read("styles.css");
-    let js = built.read("app.js");
-    let rule = css
-        .lines()
-        .find(|l| {
-            l.contains(":hover { background: #1C1917 !important; color: #FAF9F6 !important; }")
-        })
+    let js = built.scripts();
+    // The sheet is minified; the rule is matched with its whitespace removed.
+    let squashed: String = css.chars().filter(|c| !c.is_whitespace()).collect();
+    let needle = ":hover{background:#1C1917!important;color:#FAF9F6!important}";
+    let at = squashed
+        .find(needle)
         .unwrap_or_else(|| panic!("no compiled hover rule in styles.css:\n{css}"));
+    let rule = &squashed[..at];
     let class = rule
-        .trim_start_matches('.')
-        .split(':')
+        .rsplit(['}', ';'])
         .next()
-        .expect("class before the pseudo-class");
+        .expect("selector before the pseudo-class")
+        .trim_start_matches('.');
     assert!(class.starts_with("wf-s"), "{rule}");
     assert!(
-        css.contains(&format!(
-            ".{class}:focus-visible {{ outline-offset: 4px !important; }}"
+        squashed.contains(&format!(
+            ".{class}:focus-visible{{outline-offset:4px!important}}"
         )),
         "focus compiles to :focus-visible:\n{css}"
     );
@@ -461,7 +477,7 @@ fn built_pages_carry_their_content_and_document_shell() {
             .map(|(_, s)| s)
             .collect::<Vec<_>>()
             .join("\n");
-        let js = built.read("app.js");
+        let js = built.scripts();
         let haystack = format!("{all}\n{js}");
 
         for needle in site.contains {
@@ -737,11 +753,15 @@ fn hand_authored_design_reaches_the_output() {
     let mut failures = Vec::new();
     for (site, decls) in cases.iter().copied() {
         let built = build_site(site);
-        let js = built.read("app.js");
+        let js = built.scripts();
         let html: String = built.html_files().into_iter().map(|(_, s)| s).collect();
-        let haystack = format!("{js}{html}");
+        let css = built.read("styles.css");
+        // A literal declaration lives in the (minified) stylesheet; compared
+        // with whitespace removed on both sides.
+        let squash = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+        let haystack = squash(&format!("{js}{html}{css}"));
         for decl in decls.iter().copied() {
-            if !haystack.contains(decl) {
+            if !haystack.contains(&squash(decl)) {
                 failures.push(format!(
                     "{site}: the author's `{decl}` never reached the build"
                 ));
@@ -779,10 +799,11 @@ fn a_declared_theme_reaches_the_stylesheet() {
 fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
     let css = build_site("marketing").read("styles.css");
     assert!(
-        css.contains("--spacing-md: 1rem"),
+        css.contains("--spacing-md:1rem"),
         "an unnamed token lost its baseline value"
     );
-    let declared = css.matches("  --").count();
+    let root = css.split_once('}').map(|(r, _)| r).unwrap_or("");
+    let declared = root.matches("--").count();
     assert!(
         declared > 50,
         "only {declared} tokens reached :root — the baseline was not layered under the theme"
@@ -794,7 +815,7 @@ fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
 #[test]
 fn a_theme_applies_in_structural_mode_too() {
     let css = build_site("bespoke").read("styles.css");
-    for value in ["#FAF9F6", "'Editorial New', Georgia, serif"] {
+    for value in ["#FAF9F6", "'Editorial New',Georgia,serif"] {
         assert!(
             css.contains(value),
             "structural mode dropped the author's `{value}` — it is the whole design there"
