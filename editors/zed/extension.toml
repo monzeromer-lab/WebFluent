@@ -13,7 +13,7 @@ snippets = ["snippets/webfluent.json"]
 # it after the grammar changes land (`just zed-pin-grammar`).
 [grammars.webfluent]
 repository = "https://github.com/monzeromer-lab/WebFluent"
-rev = "7f442171fc9173be4fae3f8af7e1115429943156"
+rev = "143858d74da74baeeea0decedf5e67f65e0eeda0"
 path = "editors/tree-sitter-webfluent"
 
 [language_servers.wf-lsp]
