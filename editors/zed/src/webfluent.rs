@@ -10,9 +10,10 @@
 //! 1. `lsp.wf-lsp.binary.path` in the user's Zed settings.
 //! 2. A `wf-lsp` on the `PATH` Zed was launched with (`cargo install --path
 //!    crates/wf-lsp` puts it there).
-//! 3. A copy this extension downloaded earlier.
-//! 4. The latest GitHub release of WebFluent, downloaded into the extension's
-//!    working directory.
+//! 3. The latest GitHub release of WebFluent, downloaded into the extension's
+//!    working directory — a new release is picked up on the next start.
+//! 4. A copy this extension downloaded earlier, when the release cannot be
+//!    looked up.
 
 use std::fs;
 
@@ -53,14 +54,27 @@ impl WebFluentExtension {
             &LanguageServerInstallationStatus::CheckingForUpdate,
         );
 
-        let release = zed::latest_github_release(
+        // The latest release is what gets downloaded, so a new server ships
+        // to every editor on its next start. When the lookup fails — no
+        // network, a rate limit — a copy downloaded earlier still serves.
+        let release = match zed::latest_github_release(
             GITHUB_REPO,
             zed::GithubReleaseOptions {
                 require_assets: true,
                 pre_release: false,
             },
-        )
-        .map_err(|error| install_hint(&format!("could not look up the latest release: {error}")))?;
+        ) {
+            Ok(release) => release,
+            Err(error) => {
+                if let Some(path) = downloaded_server() {
+                    self.cached_binary_path = Some(path.clone());
+                    return Ok(path);
+                }
+                return Err(install_hint(&format!(
+                    "could not look up the latest release: {error}"
+                )));
+            }
+        };
 
         let (os, arch) = zed::current_platform();
         let asset_name = format!(
@@ -130,6 +144,32 @@ impl WebFluentExtension {
         self.cached_binary_path = Some(binary_path.clone());
         Ok(binary_path)
     }
+}
+
+/// The newest server this extension downloaded before, if any: the
+/// `wf-lsp-<version>/wf-lsp` with the highest version in the working
+/// directory.
+fn downloaded_server() -> Option<String> {
+    let (os, _) = zed::current_platform();
+    let exe = if os == zed::Os::Windows { ".exe" } else { "" };
+    let mut versions: Vec<(Vec<u32>, String)> = fs::read_dir(".")
+        .ok()?
+        .flatten()
+        .filter_map(|entry| {
+            let name = entry.file_name().to_str()?.to_string();
+            let version = name.strip_prefix(&format!("{SERVER_NAME}-"))?;
+            let path = format!("{name}/{SERVER_NAME}{exe}");
+            fs::metadata(&path).ok()?.is_file().then_some(())?;
+            let parts = version
+                .trim_start_matches('v')
+                .split('.')
+                .map(|p| p.parse().unwrap_or(0))
+                .collect();
+            Some((parts, path))
+        })
+        .collect();
+    versions.sort();
+    versions.pop().map(|(_, path)| path)
 }
 
 /// An error that also says how to get past it, since the fix is one command.

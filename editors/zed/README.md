@@ -41,9 +41,13 @@ The extension looks for `wf-lsp` in this order and uses the first it finds:
 1. `lsp.wf-lsp.binary.path` in your Zed `settings.json`.
 2. A `wf-lsp` on your `PATH` — `cargo install --path crates/wf-lsp` from a
    checkout, or `cargo install --git https://github.com/monzeromer-lab/WebFluent wf-lsp`.
-3. A copy it downloaded before.
-4. The latest [GitHub release](https://github.com/monzeromer-lab/WebFluent/releases),
-   which it downloads on first use (the status shows in Zed's bottom bar).
+3. The latest [GitHub release](https://github.com/monzeromer-lab/WebFluent/releases),
+   which it downloads on first use (the status shows in Zed's bottom bar) —
+   and again, into a new `wf-lsp-<version>/` directory, when a newer release
+   is out: restart Zed after a WebFluent release and the server is the new
+   one. Extension 1.1 was cut with wf-lsp 2.2.0.
+4. A copy it downloaded before, when the release lookup fails (offline, or
+   rate-limited), so the editor keeps working without the network.
 
 To pin a binary, or pass it arguments or environment:
 
