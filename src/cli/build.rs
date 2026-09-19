@@ -74,11 +74,11 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     }
 
     // Run accessibility linter
-    let mut a11y_warnings = crate::linter::lint_accessibility(&program);
+    let mut a11y_warnings = crate::linter::lint_accessibility_in(&program, &file_of);
     // Contrast is checked against the tokens this build will actually ship, so
     // the ratio reported is the one a reader will experience.
     if let Ok(tokens) = crate::themes::resolve_tokens(&program, &config.theme) {
-        a11y_warnings.extend(crate::linter::lint_contrast(&program, &tokens));
+        a11y_warnings.extend(crate::linter::lint_contrast_in(&program, &tokens, &file_of));
     }
     for warning in &a11y_warnings {
         eprintln!("{}", warning);

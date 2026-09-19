@@ -1,228 +1,239 @@
+//! Document symbols (the outline of one file) and workspace symbols (every
+//! declaration in the project, for "go to symbol in project").
+
 use tower_lsp::lsp_types::*;
 use webfluent::parser::ast::*;
 
 use crate::line_index::LineIndex;
+use crate::project::{Project, SourceFile};
 
-/// Build hierarchical document symbols (or flat symbols) from a parsed program.
 #[allow(deprecated)]
-pub fn build_document_symbols(
-    program: &Program,
-    source: &str,
-    index: &LineIndex,
-    uri: &Url,
-    supports_hierarchical: bool,
-) -> DocumentSymbolResponse {
-    let mut nested_symbols = Vec::new();
-
-    for decl in &program.declarations {
-        match decl {
-            Declaration::Page(page) => {
-                let range = index.span_to_range(source, page.span);
-                let selection_range = index.span_to_range(source, page.header_span);
-                let children = collect_statement_symbols(&page.body, source, index);
-
-                nested_symbols.push(DocumentSymbol {
-                    name: page.name.clone(),
-                    detail: Some(format!("Route: {}", page.path)),
-                    kind: SymbolKind::CLASS,
-                    tags: None,
-                    deprecated: None,
-                    range,
-                    selection_range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
-            }
-
-            Declaration::Component(comp) => {
-                let range = index.span_to_range(source, comp.span);
-                let selection_range = index.span_to_range(source, comp.header_span);
-                let mut children = Vec::new();
-
-                // Props
-                for prop in &comp.props {
-                    children.push(DocumentSymbol {
-                        name: prop.name.clone(),
-                        detail: Some(format!("{:?}{}", prop.prop_type, if prop.optional { "?" } else { "" })),
-                        kind: SymbolKind::PROPERTY,
-                        tags: None,
-                        deprecated: None,
-                        range: selection_range,
-                        selection_range,
-                        children: None,
-                    });
-                }
-
-                children.extend(collect_statement_symbols(&comp.body, source, index));
-
-                nested_symbols.push(DocumentSymbol {
-                    name: comp.name.clone(),
-                    detail: Some("Component".to_string()),
-                    kind: SymbolKind::CLASS,
-                    tags: None,
-                    deprecated: None,
-                    range,
-                    selection_range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
-            }
-
-            Declaration::Store(store) => {
-                let range = index.span_to_range(source, store.span);
-                let selection_range = index.span_to_range(source, store.header_span);
-                let children = collect_statement_symbols(&store.body, source, index);
-
-                nested_symbols.push(DocumentSymbol {
-                    name: store.name.clone(),
-                    detail: Some("Store".to_string()),
-                    kind: SymbolKind::MODULE,
-                    tags: None,
-                    deprecated: None,
-                    range,
-                    selection_range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
-            }
-
-            Declaration::Theme(theme) => {
-                let range = index.span_to_range(source, theme.span);
-                let mut children = Vec::new();
-
-                for token in &theme.tokens {
-                    let token_range = index.span_to_range(source, token.span);
-                    children.push(DocumentSymbol {
-                        name: token.name.clone(),
-                        detail: Some(format!("var(--{})", token.name)),
-                        kind: SymbolKind::CONSTANT,
-                        tags: None,
-                        deprecated: None,
-                        range: token_range,
-                        selection_range: token_range,
-                        children: None,
-                    });
-                }
-
-                nested_symbols.push(DocumentSymbol {
-                    name: theme.name.clone(),
-                    detail: Some("Theme".to_string()),
-                    kind: SymbolKind::NAMESPACE,
-                    tags: None,
-                    deprecated: None,
-                    range,
-                    selection_range: range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
-            }
-
-            Declaration::App(app) => {
-                let children = collect_statement_symbols(&app.body, source, index);
-                let range = children.first().map(|c| c.range).unwrap_or_default();
-
-                nested_symbols.push(DocumentSymbol {
-                    name: "App".to_string(),
-                    detail: Some("Root Application".to_string()),
-                    kind: SymbolKind::CLASS,
-                    tags: None,
-                    deprecated: None,
-                    range,
-                    selection_range: range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
-            }
-        }
-    }
-
-    if supports_hierarchical {
-        DocumentSymbolResponse::Nested(nested_symbols)
-    } else {
-        // Flatten nested symbols for older flat SymbolInformation clients
-        let mut flat_symbols = Vec::new();
-        flatten_symbols(&nested_symbols, uri, None, &mut flat_symbols);
-        DocumentSymbolResponse::Flat(flat_symbols)
+fn symbol(
+    name: String,
+    detail: &str,
+    kind: SymbolKind,
+    range: Range,
+    selection: Range,
+    children: Vec<DocumentSymbol>,
+) -> DocumentSymbol {
+    DocumentSymbol {
+        name,
+        detail: Some(detail.to_string()),
+        kind,
+        tags: None,
+        deprecated: None,
+        range,
+        selection_range: selection,
+        children: if children.is_empty() {
+            None
+        } else {
+            Some(children)
+        },
     }
 }
 
-#[allow(deprecated)]
-fn collect_statement_symbols(
-    stmts: &[Statement],
-    source: &str,
-    index: &LineIndex,
-) -> Vec<DocumentSymbol> {
-    let mut symbols = Vec::new();
+/// The outline of `file_ix`, nested when the client supports it.
+pub fn document_symbols(
+    project: &Project,
+    file_ix: usize,
+    hierarchical: bool,
+) -> DocumentSymbolResponse {
+    let file = &project.files[file_ix];
+    let symbols: Vec<DocumentSymbol> = project
+        .declarations_of(file_ix)
+        .map(|(_, decl)| declaration_symbol(decl, &file.source, &file.index))
+        .collect();
+    if hierarchical {
+        DocumentSymbolResponse::Nested(symbols)
+    } else {
+        let mut flat = Vec::new();
+        flatten(&symbols, &file.uri, None, &mut flat);
+        DocumentSymbolResponse::Flat(flat)
+    }
+}
 
+fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> DocumentSymbol {
+    match decl {
+        Declaration::Page(page) => symbol(
+            page.name.clone(),
+            &format!("Page · {}", page.path),
+            SymbolKind::CLASS,
+            index.span_to_range(source, page.span),
+            index.span_to_range(source, page.header_span),
+            statement_symbols(&page.body, source, index),
+        ),
+        Declaration::Component(comp) => {
+            let selection = index.span_to_range(source, comp.header_span);
+            let mut children: Vec<DocumentSymbol> = comp
+                .props
+                .iter()
+                .map(|prop| {
+                    symbol(
+                        prop.name.clone(),
+                        &format!(
+                            "prop · {:?}{}",
+                            prop.prop_type,
+                            if prop.optional { "?" } else { "" }
+                        ),
+                        SymbolKind::PROPERTY,
+                        selection,
+                        selection,
+                        Vec::new(),
+                    )
+                })
+                .collect();
+            children.extend(statement_symbols(&comp.body, source, index));
+            symbol(
+                comp.name.clone(),
+                "Component",
+                SymbolKind::CLASS,
+                index.span_to_range(source, comp.span),
+                selection,
+                children,
+            )
+        }
+        Declaration::Store(store) => symbol(
+            store.name.clone(),
+            "Store",
+            SymbolKind::MODULE,
+            index.span_to_range(source, store.span),
+            index.span_to_range(source, store.header_span),
+            statement_symbols(&store.body, source, index),
+        ),
+        Declaration::Theme(theme) => {
+            let range = index.span_to_range(source, theme.span);
+            let children = theme
+                .tokens
+                .iter()
+                .map(|token| {
+                    let r = index.span_to_range(source, token.span);
+                    symbol(
+                        token.name.clone(),
+                        &format!("token · var(--{})", token.name),
+                        SymbolKind::CONSTANT,
+                        r,
+                        r,
+                        Vec::new(),
+                    )
+                })
+                .collect();
+            symbol(
+                theme.name.clone(),
+                "Theme",
+                SymbolKind::NAMESPACE,
+                range,
+                range,
+                children,
+            )
+        }
+        Declaration::App(app) => {
+            let children = statement_symbols(&app.body, source, index);
+            let range = match (app.body.first(), app.body.last()) {
+                (Some(first), Some(last)) => Range::new(
+                    index.span_to_range(source, first.span).start,
+                    index.span_to_range(source, last.span).end,
+                ),
+                _ => Range::default(),
+            };
+            symbol(
+                "App".to_string(),
+                "App",
+                SymbolKind::CLASS,
+                range,
+                range,
+                children,
+            )
+        }
+    }
+}
+
+fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Vec<DocumentSymbol> {
+    let mut symbols = Vec::new();
     for stmt in stmts {
-        let stmt_range = index.span_to_range(source, stmt.span);
+        let range = index.span_to_range(source, stmt.span);
         match &stmt.kind {
-            StatementKind::State(s) => {
-                symbols.push(DocumentSymbol {
-                    name: s.name.clone(),
-                    detail: Some("state".to_string()),
-                    kind: SymbolKind::VARIABLE,
-                    tags: None,
-                    deprecated: None,
-                    range: stmt_range,
-                    selection_range: stmt_range,
-                    children: None,
-                });
-            }
-            StatementKind::Derived(d) => {
-                symbols.push(DocumentSymbol {
-                    name: d.name.clone(),
-                    detail: Some("derived".to_string()),
-                    kind: SymbolKind::VARIABLE,
-                    tags: None,
-                    deprecated: None,
-                    range: stmt_range,
-                    selection_range: stmt_range,
-                    children: None,
-                });
-            }
+            StatementKind::State(s) => symbols.push(symbol(
+                s.name.clone(),
+                "state",
+                SymbolKind::VARIABLE,
+                range,
+                range,
+                Vec::new(),
+            )),
+            StatementKind::Derived(d) => symbols.push(symbol(
+                d.name.clone(),
+                "derived",
+                SymbolKind::VARIABLE,
+                range,
+                range,
+                Vec::new(),
+            )),
             StatementKind::Action(a) => {
-                let params = a.params.iter().map(|p| p.name.as_str()).collect::<Vec<_>>().join(", ");
-                let children = collect_statement_symbols(&a.body, source, index);
-                symbols.push(DocumentSymbol {
-                    name: format!("{}({})", a.name, params),
-                    detail: Some("action".to_string()),
-                    kind: SymbolKind::FUNCTION,
-                    tags: None,
-                    deprecated: None,
-                    range: stmt_range,
-                    selection_range: stmt_range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
+                let params = a
+                    .params
+                    .iter()
+                    .map(|p| p.name.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                symbols.push(symbol(
+                    format!("{}({params})", a.name),
+                    "action",
+                    SymbolKind::FUNCTION,
+                    range,
+                    range,
+                    statement_symbols(&a.body, source, index),
+                ));
             }
+            StatementKind::Fetch(f) => symbols.push(symbol(
+                f.variable.clone(),
+                "fetch",
+                SymbolKind::VARIABLE,
+                range,
+                range,
+                Vec::new(),
+            )),
             StatementKind::UIElement(el) => {
-                let name = match &el.component {
-                    ComponentRef::BuiltIn(n) => n.clone(),
-                    ComponentRef::SubComponent(p, c) => format!("{p}.{c}"),
-                    ComponentRef::UserDefined(n) => n.clone(),
-                };
-                let children = collect_statement_symbols(&el.children, source, index);
-                symbols.push(DocumentSymbol {
-                    name,
-                    detail: None,
-                    kind: SymbolKind::FIELD,
-                    tags: None,
-                    deprecated: None,
-                    range: stmt_range,
-                    selection_range: stmt_range,
-                    children: if children.is_empty() { None } else { Some(children) },
-                });
+                // Elements that structure the file: the ones with a body.
+                let children = statement_symbols(&el.children, source, index);
+                if !children.is_empty() {
+                    let name = crate::analysis::component_name(&el.component);
+                    symbols.push(symbol(
+                        name,
+                        "element",
+                        SymbolKind::OBJECT,
+                        range,
+                        range,
+                        children,
+                    ));
+                } else {
+                    symbols.extend(children);
+                }
             }
+            StatementKind::If(i) => {
+                symbols.extend(statement_symbols(&i.then_body, source, index));
+                for (_, body) in &i.else_if_branches {
+                    symbols.extend(statement_symbols(body, source, index));
+                }
+                if let Some(body) = &i.else_body {
+                    symbols.extend(statement_symbols(body, source, index));
+                }
+            }
+            StatementKind::For(f) => symbols.extend(statement_symbols(&f.body, source, index)),
+            StatementKind::Show(s) => symbols.extend(statement_symbols(&s.body, source, index)),
             _ => {}
         }
     }
-
     symbols
 }
 
 #[allow(deprecated)]
-fn flatten_symbols(
-    nested: &[DocumentSymbol],
+fn flatten(
+    symbols: &[DocumentSymbol],
     uri: &Url,
     container: Option<&str>,
     out: &mut Vec<SymbolInformation>,
 ) {
-    for sym in nested {
+    for sym in symbols {
         out.push(SymbolInformation {
             name: sym.name.clone(),
             kind: sym.kind,
@@ -232,11 +243,67 @@ fn flatten_symbols(
                 uri: uri.clone(),
                 range: sym.range,
             },
-            container_name: container.map(ToString::to_string),
+            container_name: container.map(str::to_string),
         });
-
         if let Some(children) = &sym.children {
-            flatten_symbols(children, uri, Some(&sym.name), out);
+            flatten(children, uri, Some(&sym.name), out);
         }
     }
+}
+
+/// Every declaration in the project whose name contains `query`
+/// (case-insensitively); an empty query lists them all.
+#[allow(deprecated)]
+pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformation> {
+    let query = query.to_lowercase();
+    let mut out = Vec::new();
+    for (ix, decl) in project.program.declarations.iter().enumerate() {
+        let file: &SourceFile = project.file_of_declaration(ix);
+        let (name, kind, span, container) = match decl {
+            Declaration::Page(p) => (p.name.clone(), SymbolKind::CLASS, p.header_span, "Page"),
+            Declaration::Component(c) => (
+                c.name.clone(),
+                SymbolKind::CLASS,
+                c.header_span,
+                "Component",
+            ),
+            Declaration::Store(s) => (s.name.clone(), SymbolKind::MODULE, s.header_span, "Store"),
+            Declaration::Theme(t) => (t.name.clone(), SymbolKind::NAMESPACE, t.span, "Theme"),
+            Declaration::App(_) => continue,
+        };
+        if query.is_empty() || name.to_lowercase().contains(&query) {
+            out.push(SymbolInformation {
+                name,
+                kind,
+                tags: None,
+                deprecated: None,
+                location: Location {
+                    uri: file.uri.clone(),
+                    range: file.index.span_to_range(&file.source, span),
+                },
+                container_name: Some(container.to_string()),
+            });
+        }
+        if let Declaration::Store(s) = decl {
+            for member in crate::analysis::store_members(s) {
+                if query.is_empty() || member.name.to_lowercase().contains(&query) {
+                    out.push(SymbolInformation {
+                        name: member.name.clone(),
+                        kind: match member.kind {
+                            crate::analysis::BindingKind::Action => SymbolKind::FUNCTION,
+                            _ => SymbolKind::VARIABLE,
+                        },
+                        tags: None,
+                        deprecated: None,
+                        location: Location {
+                            uri: file.uri.clone(),
+                            range: file.index.span_to_range(&file.source, member.span),
+                        },
+                        container_name: Some(s.name.clone()),
+                    });
+                }
+            }
+        }
+    }
+    out
 }

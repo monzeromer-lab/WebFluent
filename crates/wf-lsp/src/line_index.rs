@@ -1,10 +1,16 @@
+//! Coordinate conversion between the three systems in play.
+//!
+//! - The compiler's [`Span`]s are UTF-8 **byte** offsets.
+//! - The compiler's diagnostics carry a 1-based line and a 1-based **character**
+//!   column (the lexer advances its column once per `char`).
+//! - LSP positions are 0-based lines and 0-based **UTF-16 code unit** columns.
+//!
+//! Mixing the three is the classic way an editor's squiggles drift on lines
+//! with Arabic, an em dash or an emoji, so every conversion goes through here.
+
 use tower_lsp::lsp_types::{Position, Range};
 use webfluent::parser::ast::Span;
 
-/// An index mapping UTF-8 byte offsets to LSP 0-based UTF-16 line and character coordinates.
-///
-/// LSP coordinates are 0-based and count UTF-16 code units on each line.
-/// Rust strings and WebFluent `Span`s use 0-based UTF-8 byte offsets.
 #[derive(Debug, Clone)]
 pub struct LineIndex {
     /// Byte offset of the start of each line.
@@ -27,102 +33,137 @@ impl LineIndex {
         }
     }
 
+    /// Number of lines (a trailing newline starts an empty last line).
+    pub fn line_count(&self) -> usize {
+        self.line_starts.len()
+    }
+
+    /// Byte range of a 0-based line, newline excluded.
+    fn line_bounds(&self, line: usize) -> Option<(usize, usize)> {
+        let start = *self.line_starts.get(line)?;
+        let end = self
+            .line_starts
+            .get(line + 1)
+            .map(|&next| next.saturating_sub(1))
+            .unwrap_or(self.total_len);
+        Some((start, end.max(start)))
+    }
+
     /// Convert a byte offset in `source` to an LSP `Position`.
     pub fn offset_to_position(&self, source: &str, offset: usize) -> Position {
         let offset = offset.min(self.total_len);
-
-        // Binary search for the line index
-        let line_idx = match self.line_starts.binary_search(&offset) {
+        let line = match self.line_starts.binary_search(&offset) {
             Ok(idx) => idx,
             Err(idx) => idx.saturating_sub(1),
         };
-
-        let line_start = self.line_starts[line_idx];
-        let line_slice = &source[line_start..offset];
-
-        // Count UTF-16 code units in the slice
-        let utf16_col = line_slice.encode_utf16().count() as u32;
-
-        Position::new(line_idx as u32, utf16_col)
+        let line_start = self.line_starts[line];
+        let slice = source.get(line_start..offset).unwrap_or("");
+        Position::new(line as u32, slice.encode_utf16().count() as u32)
     }
 
-    /// Convert an LSP `Position` to a UTF-8 byte offset in `source`.
-    #[allow(dead_code)]
+    /// Convert an LSP `Position` to a byte offset in `source`.
+    ///
+    /// A column past the end of the line clamps to the end of the line, as the
+    /// protocol asks; a line past the end of the file is `None`.
     pub fn position_to_offset(&self, source: &str, position: Position) -> Option<usize> {
-        let line_idx = position.line as usize;
-        if line_idx >= self.line_starts.len() {
-            return None;
-        }
-
-        let line_start = self.line_starts[line_idx];
-        let line_end = self
-            .line_starts
-            .get(line_idx + 1)
-            .map(|&s| s.saturating_sub(1)) // exclude \n
-            .unwrap_or(self.total_len);
-
-        let line_str = source.get(line_start..line_end)?;
-        let mut utf16_count = 0u32;
-        let target_utf16 = position.character;
-
-        for (byte_idx, ch) in line_str.char_indices() {
-            if utf16_count >= target_utf16 {
-                return Some(line_start + byte_idx);
+        let (start, end) = self.line_bounds(position.line as usize)?;
+        let line = source.get(start..end)?;
+        let mut units = 0u32;
+        for (byte, ch) in line.char_indices() {
+            if units >= position.character {
+                return Some(start + byte);
             }
-            utf16_count += ch.len_utf16() as u32;
+            units += ch.len_utf16() as u32;
         }
-
-        if utf16_count >= target_utf16 {
-            Some(line_start + line_str.len())
-        } else {
-            Some(line_end)
-        }
+        Some(end)
     }
 
-    /// Convert a WebFluent AST `Span` to an LSP `Range`.
+    /// Byte offset of a compiler coordinate: 1-based line, 1-based character
+    /// column. Clamps to the line, so a column past its end lands on the end.
+    pub fn line_col_to_offset(&self, source: &str, line: usize, col: usize) -> Option<usize> {
+        let (start, end) = self.line_bounds(line.saturating_sub(1))?;
+        let text = source.get(start..end)?;
+        let target = col.saturating_sub(1);
+        let byte = text
+            .char_indices()
+            .nth(target)
+            .map(|(b, _)| b)
+            .unwrap_or(text.len());
+        Some(start + byte)
+    }
+
+    /// Convert a compiler `Span` to an LSP `Range`.
     pub fn span_to_range(&self, source: &str, span: Span) -> Range {
-        let start = self.offset_to_position(source, span.start as usize);
-        let end = self.offset_to_position(source, span.end as usize);
-        Range::new(start, end)
+        Range::new(
+            self.offset_to_position(source, span.start as usize),
+            self.offset_to_position(source, span.end as usize),
+        )
     }
 
-    /// Convert a 1-based (line, column) coordinate (e.g. from a linter) to an LSP `Range`.
-    pub fn line_col_to_range(&self, source: &str, line: usize, col: usize, len: usize) -> Range {
-        let lsp_line = if line > 0 { line - 1 } else { 0 };
-        let lsp_col = if col > 0 { col - 1 } else { 0 };
-
-        if lsp_line < self.line_starts.len() {
-            let line_start = self.line_starts[lsp_line];
-            let line_end = self
-                .line_starts
-                .get(lsp_line + 1)
-                .map(|&s| s.saturating_sub(1))
-                .unwrap_or(self.total_len);
-
-            let line_str = source.get(line_start..line_end).unwrap_or("");
-            // Convert byte col to UTF-16
-            let col_byte = lsp_col.min(line_str.len());
-            let prefix = &line_str[..col_byte];
-            let start_utf16 = prefix.encode_utf16().count() as u32;
-
-            let end_byte = (col_byte + len).min(line_str.len());
-            let span_str = &line_str[col_byte..end_byte];
-            let span_utf16 = span_str.encode_utf16().count() as u32;
-
-            Range::new(
-                Position::new(lsp_line as u32, start_utf16),
-                Position::new(
-                    lsp_line as u32,
-                    start_utf16 + if span_utf16 > 0 { span_utf16 } else { 1 },
-                ),
-            )
+    /// The range of the word at a compiler coordinate — the identifier a
+    /// diagnostic is about — or a single character when nothing word-like
+    /// starts there.
+    pub fn word_range_at_line_col(&self, source: &str, line: usize, col: usize) -> Range {
+        let Some(start) = self.line_col_to_offset(source, line, col) else {
+            let line = line.saturating_sub(1) as u32;
+            let col = col.saturating_sub(1) as u32;
+            return Range::new(Position::new(line, col), Position::new(line, col + 1));
+        };
+        let end = word_end(source, start);
+        let end = if end == start {
+            source[start..]
+                .chars()
+                .next()
+                .map(|c| start + c.len_utf8())
+                .unwrap_or(start)
         } else {
-            Range::new(
-                Position::new(lsp_line as u32, lsp_col as u32),
-                Position::new(lsp_line as u32, (lsp_col + len.max(1)) as u32),
-            )
+            end
+        };
+        Range::new(
+            self.offset_to_position(source, start),
+            self.offset_to_position(source, end),
+        )
+    }
+}
+
+/// Whether `c` can be part of a WebFluent name: an identifier character, or
+/// the hyphen that joins `aria-pressed` and `border-radius`.
+pub fn is_word_char(c: char) -> bool {
+    c.is_alphanumeric() || c == '_' || c == '-'
+}
+
+/// Byte offset one past the end of the word that starts at `start`.
+pub fn word_end(source: &str, start: usize) -> usize {
+    let tail = &source[start..];
+    let len: usize = tail
+        .chars()
+        .take_while(|&c| is_word_char(c))
+        .map(char::len_utf8)
+        .sum();
+    start + len
+}
+
+/// The word touching byte `offset` (an identifier, keyword or hyphenated
+/// name) and its byte range, if any.
+pub fn word_at(source: &str, offset: usize) -> Option<(&str, std::ops::Range<usize>)> {
+    let offset = offset.min(source.len());
+    // Step back to a char boundary, then over any word characters.
+    let mut start = offset;
+    while !source.is_char_boundary(start) {
+        start -= 1;
+    }
+    while let Some(prev) = source[..start].chars().next_back() {
+        if is_word_char(prev) {
+            start -= prev.len_utf8();
+        } else {
+            break;
         }
     }
+    let end = word_end(source, start);
+    if start == end {
+        return None;
+    }
+    Some((&source[start..end], start..end))
 }
 
 #[cfg(test)]
@@ -133,28 +174,58 @@ mod tests {
     fn ascii_coordinates() {
         let src = "Page Home {\n  Button(\"Save\")\n}\n";
         let index = LineIndex::new(src);
-
         let pos = index.offset_to_position(src, 14); // 'B' of Button
-        assert_eq!(pos.line, 1);
-        assert_eq!(pos.character, 2);
-
-        let offset = index.position_to_offset(src, pos).unwrap();
-        assert_eq!(offset, 14);
+        assert_eq!((pos.line, pos.character), (1, 2));
+        assert_eq!(index.position_to_offset(src, pos), Some(14));
     }
 
     #[test]
-    fn multibyte_coordinates() {
-        // '🎉' is 4 bytes in UTF-8, but 2 code units in UTF-16
+    fn multibyte_coordinates_round_trip() {
+        // '🎉' is 4 bytes in UTF-8, 2 code units in UTF-16, 1 char.
         let src = "Text(\"🎉 Hello\")\n";
         let index = LineIndex::new(src);
-
-        // After the emoji
         let offset = "Text(\"🎉".len();
         let pos = index.offset_to_position(src, offset);
-        assert_eq!(pos.line, 0);
-        assert_eq!(pos.character, 8); // 'Text("' = 6 + 2 (UTF-16 emoji) = 8
+        assert_eq!((pos.line, pos.character), (0, 8));
+        assert_eq!(index.position_to_offset(src, pos), Some(offset));
+    }
 
-        let back_offset = index.position_to_offset(src, pos).unwrap();
-        assert_eq!(back_offset, offset);
+    #[test]
+    fn compiler_columns_count_chars_not_bytes() {
+        // The word after the Arabic string starts at char column 22 (1-based)
+        // but at a much later byte, and at UTF-16 unit 21.
+        let src = "Text(\"أهلاً بالعالم\", muted)\n";
+        let index = LineIndex::new(src);
+        let col = src.chars().position(|c| c == 'm').unwrap() + 1;
+        let range = index.word_range_at_line_col(src, 1, col);
+        let expected_start = index.offset_to_position(src, src.find("muted").unwrap());
+        assert_eq!(range.start, expected_start);
+        assert_eq!(range.end.character, range.start.character + 5);
+    }
+
+    #[test]
+    fn word_at_handles_hyphens_and_multibyte_neighbours() {
+        let src = "Button(\"ö\", aria-pressed: on)";
+        let at = src.find("pressed").unwrap();
+        let (word, range) = word_at(src, at).unwrap();
+        assert_eq!(word, "aria-pressed");
+        assert_eq!(&src[range], "aria-pressed");
+        // Just before the `(` the word is `Button`; on the `"` there is none.
+        assert_eq!(
+            word_at(src, src.find('(').unwrap()).map(|w| w.0),
+            Some("Button")
+        );
+        assert_eq!(
+            word_at(src, src.find("\"ö").unwrap() + 1).map(|w| w.0),
+            Some("ö")
+        );
+    }
+
+    #[test]
+    fn positions_past_the_line_end_clamp() {
+        let src = "Text(\"x\")\n";
+        let index = LineIndex::new(src);
+        assert_eq!(index.position_to_offset(src, Position::new(0, 99)), Some(9));
+        assert_eq!(index.position_to_offset(src, Position::new(5, 0)), None);
     }
 }

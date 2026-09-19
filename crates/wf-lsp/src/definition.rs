@@ -1,193 +1,129 @@
+//! Go to definition, across the files of the project.
+//!
+//! A component call jumps to the `Component` in whichever file declares it;
+//! `Route(page: Home)` to the page; `use CartStore` and `CartStore.total` to
+//! the store and its member; a name to the state, derived value, action,
+//! prop, parameter, loop variable or fetch binding that declares it in the
+//! enclosing declaration — the nearest one, not the first one in the file.
+
 use tower_lsp::lsp_types::*;
 use webfluent::parser::ast::*;
 
-use crate::line_index::LineIndex;
+use crate::analysis::{self, Binding, ElementPart};
+use crate::line_index::word_at;
+use crate::project::Project;
 
-/// Find definition location for the symbol under cursor.
 pub fn find_definition(
-    program: &Program,
-    source: &str,
-    index: &LineIndex,
-    uri: &Url,
+    project: &Project,
+    file_ix: usize,
     position: Position,
 ) -> Option<GotoDefinitionResponse> {
-    let word = word_at_position(source, position)?;
-
-    // 1. Check for Component declaration
-    for decl in &program.declarations {
-        if let Declaration::Component(c) = decl {
-            if c.name == word {
-                let range = index.span_to_range(source, c.header_span);
-                return Some(GotoDefinitionResponse::Scalar(Location {
-                    uri: uri.clone(),
-                    range,
-                }));
-            }
-            // Check props
-            for p in &c.props {
-                if p.name == word {
-                    let range = index.span_to_range(source, c.header_span);
-                    return Some(GotoDefinitionResponse::Scalar(Location {
-                        uri: uri.clone(),
-                        range,
-                    }));
-                }
-            }
-        }
+    let file = &project.files[file_ix];
+    let source: &str = &file.source;
+    let offset = file.index.position_to_offset(source, position)?;
+    let tokens = analysis::tokens_of(file).unwrap_or_default();
+    if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
+        return None;
     }
+    let (word, _) = word_at(source, offset)?;
 
-    // 2. Check for Page declaration
-    for decl in &program.declarations {
-        if let Declaration::Page(p) = decl {
-            if p.name == word {
-                let range = index.span_to_range(source, p.header_span);
-                return Some(GotoDefinitionResponse::Scalar(Location {
-                    uri: uri.clone(),
-                    range,
-                }));
-            }
-        }
-    }
+    if let Some(decl_ix) = analysis::declaration_at(project, file_ix, offset) {
+        let decl = &project.program.declarations[decl_ix];
 
-    // 3. Check for Store declaration
-    for decl in &program.declarations {
-        if let Declaration::Store(s) = decl {
-            if s.name == word {
-                let range = index.span_to_range(source, s.header_span);
-                return Some(GotoDefinitionResponse::Scalar(Location {
-                    uri: uri.clone(),
-                    range,
-                }));
-            }
-        }
-    }
-
-    // 4. Check for Theme and Theme tokens
-    for decl in &program.declarations {
-        if let Declaration::Theme(t) = decl {
-            if t.name == word {
-                let range = index.span_to_range(source, t.span);
-                return Some(GotoDefinitionResponse::Scalar(Location {
-                    uri: uri.clone(),
-                    range,
-                }));
-            }
-            for token in &t.tokens {
-                if token.name == word {
-                    let range = index.span_to_range(source, token.span);
-                    return Some(GotoDefinitionResponse::Scalar(Location {
-                        uri: uri.clone(),
-                        range,
-                    }));
-                }
-            }
-        }
-    }
-
-    // 5. Check in-scope statements (state, derived, action)
-    for decl in &program.declarations {
-        let stmts = match decl {
-            Declaration::Page(p) => &p.body,
-            Declaration::Component(c) => &c.body,
-            Declaration::Store(s) => &s.body,
-            Declaration::App(a) => &a.body,
-            Declaration::Theme(_) => continue,
-        };
-
-        if let Some(loc) = find_stmt_def(stmts, source, index, uri, &word) {
-            return Some(GotoDefinitionResponse::Scalar(loc));
-        }
-    }
-
-    None
-}
-
-fn find_stmt_def(
-    stmts: &[Statement],
-    source: &str,
-    index: &LineIndex,
-    uri: &Url,
-    word: &str,
-) -> Option<Location> {
-    for stmt in stmts {
-        match &stmt.kind {
-            StatementKind::State(s) if s.name == word => {
-                return Some(Location {
-                    uri: uri.clone(),
-                    range: index.span_to_range(source, stmt.span),
-                });
-            }
-            StatementKind::Derived(d) if d.name == word => {
-                return Some(Location {
-                    uri: uri.clone(),
-                    range: index.span_to_range(source, stmt.span),
-                });
-            }
-            StatementKind::Action(a) if a.name == word => {
-                return Some(Location {
-                    uri: uri.clone(),
-                    range: index.span_to_range(source, stmt.span),
-                });
-            }
-            StatementKind::UIElement(el) => {
-                if let Some(loc) = find_stmt_def(&el.children, source, index, uri, word) {
-                    return Some(loc);
-                }
-            }
-            StatementKind::If(i) => {
-                if let Some(loc) = find_stmt_def(&i.then_body, source, index, uri, word) {
-                    return Some(loc);
-                }
-                if let Some(else_body) = &i.else_body {
-                    if let Some(loc) = find_stmt_def(else_body, source, index, uri, word) {
-                        return Some(loc);
+        if let Some(el) = analysis::element_at(analysis::body_of(decl), offset) {
+            if let Some(ElementPart::Name) = analysis::element_part_at(el, source, offset) {
+                return match &el.component {
+                    ComponentRef::UserDefined(name) => {
+                        declaration_location(project, name, Kind::Component)
                     }
+                    _ => None,
+                };
+            }
+            // `Route(page: Home)`: the page.
+            if let ComponentRef::BuiltIn(name) = &el.component
+                && name == "Route"
+            {
+                let is_page_arg = el.args.iter().zip(&el.arg_spans).any(|(arg, span)| {
+                    matches!(arg, Arg::Named(k, Expr::Identifier(v)) if k == "page" && v == word)
+                        && analysis::contains(*span, offset)
+                });
+                if is_page_arg {
+                    return declaration_location(project, word, Kind::Page);
                 }
             }
-            StatementKind::For(f) => {
-                if let Some(loc) = find_stmt_def(&f.body, source, index, uri, word) {
-                    return Some(loc);
-                }
-            }
-            _ => {}
+        }
+
+        // `Store.member`
+        if let Some((store_ix, store)) = analysis::member_owner(project, &tokens, offset)
+            && let Some(member) = analysis::store_members(store)
+                .into_iter()
+                .find(|m| m.name == word)
+        {
+            let store_file = project.decl_file[store_ix];
+            return Some(location(project, store_file, member.span).into());
+        }
+
+        if let Some(binding) = analysis::scope_at(decl, offset)
+            .into_iter()
+            .find(|b| b.name == word)
+        {
+            return match binding.kind {
+                analysis::BindingKind::Store => declaration_location(project, word, Kind::Store),
+                _ => Some(location(project, file_ix, binding_span(&binding)).into()),
+            };
         }
     }
-    None
+
+    // A name used where the tree gives no context: any declaration of it.
+    declaration_location(project, word, Kind::Any)
 }
 
-fn word_at_position(source: &str, position: Position) -> Option<String> {
-    let line = source.lines().nth(position.line as usize)?;
-    let col = position.character as usize;
+/// The span to land on: the name of a declaration when the whole statement
+/// is known, since the statement may be long.
+fn binding_span(binding: &Binding) -> Span {
+    binding.span
+}
 
-    if col > line.len() {
-        return None;
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Kind {
+    Component,
+    Page,
+    Store,
+    Any,
+}
+
+fn declaration_location(
+    project: &Project,
+    name: &str,
+    kind: Kind,
+) -> Option<GotoDefinitionResponse> {
+    let (ix, span) = project
+        .program
+        .declarations
+        .iter()
+        .enumerate()
+        .find_map(|(ix, decl)| match decl {
+            Declaration::Component(c)
+                if c.name == name && matches!(kind, Kind::Component | Kind::Any) =>
+            {
+                Some((ix, c.header_span))
+            }
+            Declaration::Page(p) if p.name == name && matches!(kind, Kind::Page | Kind::Any) => {
+                Some((ix, p.header_span))
+            }
+            Declaration::Store(s) if s.name == name && matches!(kind, Kind::Store | Kind::Any) => {
+                Some((ix, s.header_span))
+            }
+            Declaration::Theme(t) if t.name == name && kind == Kind::Any => Some((ix, t.span)),
+            _ => None,
+        })?;
+    Some(location(project, project.decl_file[ix], span).into())
+}
+
+fn location(project: &Project, file_ix: usize, span: Span) -> Location {
+    let file = &project.files[file_ix];
+    Location {
+        uri: file.uri.clone(),
+        range: file.index.span_to_range(&file.source, span),
     }
-
-    let bytes = line.as_bytes();
-
-    let mut start = col;
-    while start > 0 {
-        let ch = bytes[start - 1] as char;
-        if ch.is_alphanumeric() || ch == '_' || ch == '-' {
-            start -= 1;
-        } else {
-            break;
-        }
-    }
-
-    let mut end = col;
-    while end < bytes.len() {
-        let ch = bytes[end] as char;
-        if ch.is_alphanumeric() || ch == '_' || ch == '-' {
-            end += 1;
-        } else {
-            break;
-        }
-    }
-
-    if start == end {
-        return None;
-    }
-
-    Some(line[start..end].to_string())
 }

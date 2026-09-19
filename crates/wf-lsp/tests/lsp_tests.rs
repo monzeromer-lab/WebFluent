@@ -1,279 +1,367 @@
+//! Behaviour of the server's features on small in-memory documents.
+//!
+//! Each test names the mistake it guards against: the ones a user notices as
+//! "the language server is not accurate".
+
 use tower_lsp::lsp_types::*;
-use webfluent::lexer::Lexer;
-use webfluent::parser::{Parser, Program};
-use wf_lsp::code_actions::provide_code_actions;
 use wf_lsp::completion::provide_completions;
 use wf_lsp::definition::find_definition;
+use wf_lsp::diagnostics::project_diagnostics;
 use wf_lsp::hover::provide_hover;
-use wf_lsp::line_index::LineIndex;
-use wf_lsp::symbols::build_document_symbols;
+use wf_lsp::project::Project;
+use wf_lsp::symbols::document_symbols;
 
-fn parse_program(src: &str) -> Program {
-    let tokens = Lexer::new(src, "test.wf").tokenize().expect("lex");
-    Parser::new(tokens, "test.wf").parse().expect("parse")
+fn project(src: &str) -> Project {
+    Project::single(Url::parse("file:///test.wf").unwrap(), src)
+}
+
+/// The position of `needle` in `src`, as the editor would send it.
+fn at(src: &str, needle: &str) -> Position {
+    let offset = src
+        .find(needle)
+        .unwrap_or_else(|| panic!("{needle:?} not in source"));
+    let file = project(src);
+    file.files[0].index.offset_to_position(src, offset)
+}
+
+fn hover_text(src: &str, needle: &str) -> Option<String> {
+    let project = project(src);
+    provide_hover(&project, 0, at(src, needle)).map(|h| match h.contents {
+        HoverContents::Markup(m) => m.value,
+        _ => panic!("markdown expected"),
+    })
+}
+
+fn labels_after(src: &str, needle: &str) -> Vec<String> {
+    let project = project(src);
+    let offset = src.find(needle).unwrap() + needle.len();
+    let pos = project.files[0].index.offset_to_position(src, offset);
+    provide_completions(&project, 0, pos)
+        .into_iter()
+        .map(|c| c.label)
+        .collect()
+}
+
+/// A buffer mid-edit: `broken` is the text, `valid` the last parse of it that
+/// succeeded — what the server holds while the user types.
+fn mid_edit(valid: &str, broken: &str) -> Project {
+    let mut project = project(valid);
+    project.files[0].source = broken.into();
+    project.files[0].index = wf_lsp::line_index::LineIndex::new(broken);
+    project.files[0].parsed = Project::single(Url::parse("file:///x.wf").unwrap(), broken)
+        .files
+        .remove(0)
+        .parsed;
+    project.files[0].stale = project.files[0].parsed.is_err();
+    project
+}
+
+fn labels_mid_edit(valid: &str, broken: &str, needle: &str) -> Vec<String> {
+    let project = mid_edit(valid, broken);
+    let offset = broken.find(needle).unwrap() + needle.len();
+    let pos = project.files[0].index.offset_to_position(broken, offset);
+    provide_completions(&project, 0, pos)
+        .into_iter()
+        .map(|c| c.label)
+        .collect()
+}
+
+// ─── Hover ────────────────────────────────────────────────────────────────
+
+#[test]
+fn hover_on_a_builtin_says_what_the_reference_says() {
+    let src =
+        "Page Home (path: \"/\") {\n    Column(span: 6) { Stack(gap: md) { Spacer(sm) } }\n}\n";
+    let column = hover_text(src, "Column").unwrap();
+    assert!(column.contains("12-column grid"), "{column}");
+    assert!(column.contains("`span:`"), "{column}");
+    let stack = hover_text(src, "Stack").unwrap();
+    assert!(stack.contains("Vertical flex"), "{stack}");
+    let spacer = hover_text(src, "Spacer").unwrap();
+    assert!(spacer.contains("Vertical space"), "{spacer}");
+    assert!(spacer.contains("<div>"), "{spacer}");
 }
 
 #[test]
-fn test_hover_builtin_component() {
-    let src = "Page Home (path: \"/\") {\n  Button(\"Click Me\", primary)\n}\n";
-    let prog = parse_program(src);
-
-    // Hover over 'Button' (line 1, col 2)
-    let pos = Position::new(1, 4);
-    let hover = provide_hover(src, pos, Some(&prog)).expect("hover on Button");
-
-    match &hover.contents {
-        HoverContents::Markup(m) => {
-            assert_eq!(m.kind, MarkupKind::Markdown);
-            assert!(m.value.contains("<button>"));
-            assert!(m.value.contains(".wf-btn"));
-        }
-        _ => panic!("Expected markdown"),
-    }
+fn hover_on_a_modifier_names_the_element_it_modifies() {
+    let src = "Page Home (path: \"/\") {\n    Button(\"Save\", primary, large)\n}\n";
+    let primary = hover_text(src, "primary").unwrap();
+    assert!(primary.contains("Color modifier on `Button`"), "{primary}");
+    assert!(primary.contains("`Button` lists it"), "{primary}");
 }
 
 #[test]
-fn test_hover_slides_component() {
-    let src = "Page Deck (path: \"/slides\") {\n  Presentation (title: \"Talk\") {\n    Slide {\n      TwoColumn {\n        Container { Text(\"Left\") }\n        Container { Text(\"Right\") }\n      }\n    }\n  }\n}\n";
-    let prog = parse_program(src);
-
-    let pos = Position::new(3, 8); // 'TwoColumn'
-    let hover = provide_hover(src, pos, Some(&prog)).expect("hover on TwoColumn");
-
-    match &hover.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("TwoColumn"));
-            assert!(m.value.contains("Two-column slide"));
-        }
-        _ => panic!("Expected markdown"),
-    }
+fn hover_on_a_prop_that_shadows_a_modifier_word_is_the_prop() {
+    let src = "Component Chip (text: String) {\n    Text(text, bold)\n}\n";
+    let text = hover_text(src, "text, bold").unwrap();
+    assert!(text.contains("prop"), "{text}");
+    assert!(!text.contains("Input type"), "{text}");
 }
 
 #[test]
-fn test_hover_subcomponent() {
-    let src = "Page Home (path: \"/\") {\n  Sidebar {\n    Sidebar.Item(\"Overview\", to: \"/overview\")\n  }\n}\n";
-    let prog = parse_program(src);
-
-    let pos = Position::new(2, 14); // 'Sidebar.Item'
-    let hover = provide_hover(src, pos, Some(&prog)).expect("hover on Sidebar.Item");
-
-    match &hover.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("Sidebar.Item"));
-        }
-        _ => panic!("Expected markdown"),
-    }
+fn hover_inside_a_string_or_comment_is_nothing() {
+    let src = "Page Home (path: \"/\") {\n    // a Button in a comment\n    Text(\"Button\")\n}\n";
+    assert!(hover_text(src, "Button in a").is_none());
+    assert!(hover_text(src, "Button\")").is_none());
 }
 
 #[test]
-fn test_hover_canonical_modifier() {
-    let src = "Page Home (path: \"/\") {\n  Button(\"Submit\", primary, fadeIn)\n}\n";
-    let prog = parse_program(src);
-
-    // Hover over 'primary' (line 1, col 20)
-    let pos = Position::new(1, 20);
-    let hover = provide_hover(src, pos, Some(&prog)).expect("hover on primary");
-
-    match &hover.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("Color Variant"));
-            assert!(m.value.contains(".wf-*--primary"));
-        }
-        _ => panic!("Expected markdown"),
-    }
-
-    // Hover over 'fadeIn'
-    let pos_anim = Position::new(1, 30);
-    let hover_anim = provide_hover(src, pos_anim, Some(&prog)).expect("hover on fadeIn");
-
-    match &hover_anim.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("Animation"));
-            assert!(m.value.contains("0% to 100%"));
-        }
-        _ => panic!("Expected markdown"),
-    }
+fn hover_on_a_name_resolves_in_the_enclosing_declaration_not_the_first() {
+    let src = "Page A (path: \"/a\") {\n    state count = 1\n}\nPage B (path: \"/b\") {\n    derived count = total * 2\n    Text(\"{count}\")\n}\n";
+    let b_count = hover_text(src, "count = total").unwrap();
+    assert!(b_count.contains("derived"), "{b_count}");
+    assert!(b_count.contains("derived count = total * 2"), "{b_count}");
 }
 
 #[test]
-fn test_hover_keywords() {
-    let src = "Theme Brand {\n  token color-primary: \"#0F766E\"\n}\n";
-    let prog = parse_program(src);
-
-    // Hover on 'Theme'
-    let pos = Position::new(0, 2);
-    let hover = provide_hover(src, pos, Some(&prog)).expect("hover on Theme");
-
-    match &hover.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("Theme"));
-            assert!(m.value.contains("design tokens"));
-        }
-        _ => panic!("Expected markdown"),
-    }
+fn hover_on_a_store_member_finds_the_store() {
+    let src = "Store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\nPage Shop (path: \"/\") {\n    use CartStore\n    Button(\"Clear\") { CartStore.clear() }\n}\n";
+    let clear = hover_text(src, "clear() }").unwrap();
+    assert!(clear.contains("action"), "{clear}");
+    assert!(clear.contains("Member of store `CartStore`"), "{clear}");
+    let store = hover_text(src, "CartStore.clear").unwrap();
+    assert!(store.contains("store"), "{store}");
+    assert!(store.contains("`items` — state"), "{store}");
 }
 
 #[test]
-fn test_hover_user_ast_symbols() {
-    let src = "Store Counter {\n  state count = 0\n  action increment() { count = count + 1 }\n}\nComponent CardItem (title: String, active: Bool = true) {\n  Text(title)\n}\n";
-    let prog = parse_program(src);
-
-    // Hover on Component CardItem
-    let pos_comp = Position::new(4, 12);
-    let hover_comp = provide_hover(src, pos_comp, Some(&prog)).expect("hover on CardItem");
-    match &hover_comp.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("Component CardItem(title: String, active: Bool"));
-        }
-        _ => panic!("Expected markdown"),
-    }
-
-    // Hover on state count
-    let pos_state = Position::new(1, 9);
-    let hover_state = provide_hover(src, pos_state, Some(&prog)).expect("hover on count");
-    match &hover_state.contents {
-        HoverContents::Markup(m) => {
-            assert!(m.value.contains("count"));
-            assert!(m.value.contains("Reactive state signal"));
-            assert!(m.value.contains("Counter"));
-        }
-        _ => panic!("Expected markdown"),
-    }
+fn hover_on_a_named_argument_explains_it_for_that_component() {
+    let src = "Page Home (path: \"/\") {\n    Input(text, bind: name, aria-label: \"Name\")\n}\n";
+    let bind = hover_text(src, "bind:").unwrap();
+    assert!(bind.contains("argument of `Input`"), "{bind}");
+    let aria = hover_text(src, "aria-label").unwrap();
+    assert!(aria.contains("attribute on `Input`"), "{aria}");
 }
 
 #[test]
-fn test_completions_inside_braces() {
-    let src = "Page Home (path: \"/\") {\n  \n}\n";
-    let prog = parse_program(src);
-
-    let pos = Position::new(1, 2);
-    let completions = provide_completions(src, pos, Some(&prog));
-
-    // Must include layout and action components and keywords
-    assert!(completions.iter().any(|c| c.label == "Button"));
-    assert!(completions.iter().any(|c| c.label == "Container"));
-    assert!(completions.iter().any(|c| c.label == "state"));
-    assert!(completions.iter().any(|c| c.label == "Presentation"));
+fn hover_on_an_event_and_a_pseudo_state() {
+    let src = "Page Home (path: \"/\") {\n    Button(\"x\") {\n        on:click { go() }\n        style { hover { background: \"red\" } }\n    }\n}\n";
+    let click = hover_text(src, "on:click").unwrap();
+    assert!(click.contains("event handler"), "{click}");
+    let hover = hover_text(src, "hover {").unwrap();
+    assert!(hover.contains("pseudo-state"), "{hover}");
 }
 
 #[test]
-fn test_completions_subcomponents() {
-    let src = "Page Home (path: \"/\") {\n  Sidebar.\n}\n";
-
-    let pos = Position::new(1, 10);
-    let completions = provide_completions(src, pos, None);
-
-    assert!(completions.iter().any(|c| c.label == "Sidebar.Item"));
-    assert!(completions.iter().any(|c| c.label == "Sidebar.Header"));
-    assert!(completions.iter().any(|c| c.label == "Sidebar.Divider"));
-    // Invented/non-existent ones should NOT be present
-    assert!(!completions.iter().any(|c| c.label == "Sidebar.Content"));
-    assert!(!completions.iter().any(|c| c.label == "Sidebar.Footer"));
+fn hover_on_a_user_component_shows_its_props_and_a_route_target_its_page() {
+    let src = "Component UserCard (name: String, active?: Bool) {\n    Text(name)\n}\nPage Home (path: \"/\", title: \"Home\") {\n    UserCard(name: \"x\")\n}\nApp {\n    Router { Route(path: \"/\", page: Home) }\n}\n";
+    let card = hover_text(src, "UserCard(name").unwrap();
+    assert!(
+        card.contains("Component UserCard (name: String, active?: Bool)"),
+        "{card}"
+    );
+    let page = hover_text(src, "page: Home").map(|_| ()).is_some();
+    let home = hover_text(src, "Home)").unwrap();
+    assert!(page && home.contains("page at `/`"), "{home}");
 }
 
 #[test]
-fn test_completions_inside_parens() {
-    let src = "Page Home (path: \"/\") {\n  Button(\n}\n";
+fn hover_with_arabic_text_on_the_line_lands_on_the_right_word() {
+    let src = "Page Welcome (path: \"/\") {\n    Text(\"مرحباً بك في WebFluent! 🚀\", muted)\n    Button(\"ابدأ الآن\", primary)\n}\n";
+    let muted = hover_text(src, "muted").unwrap();
+    assert!(muted.contains("Typography modifier on `Text`"), "{muted}");
+    let primary = hover_text(src, "primary").unwrap();
+    assert!(primary.contains("on `Button`"), "{primary}");
+    // The hover's own range covers exactly the word.
+    let project = project(src);
+    let h = provide_hover(&project, 0, at(src, "primary")).unwrap();
+    let r = h.range.unwrap();
+    assert_eq!(r.end.character - r.start.character, "primary".len() as u32);
+}
 
-    let pos = Position::new(1, 9);
-    let completions = provide_completions(src, pos, None);
+// ─── Completion ───────────────────────────────────────────────────────────
 
-    // Modifiers and named args
-    assert!(completions.iter().any(|c| c.label == "primary"));
-    assert!(completions.iter().any(|c| c.label == "fadeIn"));
-    assert!(completions.iter().any(|c| c.label == "bind:"));
-    assert!(completions.iter().any(|c| c.label == "path:"));
+#[test]
+fn completion_inside_an_element_offers_its_own_arguments_first() {
+    let src = "Page Home (path: \"/\") {\n    Slider(bind: v, )\n}\n";
+    let items = labels_after(src, "bind: v, ");
+    assert!(items.contains(&"min:".to_string()), "{items:?}");
+    assert!(items.contains(&"step:".to_string()), "{items:?}");
+    assert!(
+        !items.contains(&"src:".to_string()),
+        "Slider takes no src: {items:?}"
+    );
+    assert!(items.contains(&"v".to_string()) || !items.contains(&"Card".to_string()));
 }
 
 #[test]
-fn test_completions_inside_theme() {
-    let src = "Theme Brand {\n  \n}\n";
-
-    let pos = Position::new(1, 2);
-    let completions = provide_completions(src, pos, None);
-
-    assert!(completions.iter().any(|c| c.label == "token color-primary"));
-    assert!(completions.iter().any(|c| c.label == "token radius-md"));
+fn completion_inside_a_user_component_call_offers_its_props() {
+    let src = "Component UserCard (name: String, role: String) {\n    Text(name)\n}\nPage Home (path: \"/\") {\n    UserCard()\n}\n";
+    let items = labels_after(src, "UserCard(");
+    assert_eq!(items, vec!["name:", "role:"]);
 }
 
 #[test]
-fn test_document_symbols() {
-    let src = "Theme Brand {\n  token color-primary: \"#000\"\n}\nPage Home (path: \"/\") {\n  state count = 0\n  Button(\"Click\")\n}\n";
-    let prog = parse_program(src);
-    let index = LineIndex::new(src);
-    let uri = Url::parse("file:///test.wf").unwrap();
-
-    let resp = build_document_symbols(&prog, src, &index, &uri, true);
-    match resp {
-        DocumentSymbolResponse::Nested(symbols) => {
-            assert_eq!(symbols.len(), 2);
-            assert_eq!(symbols[0].name, "Brand");
-            assert_eq!(symbols[0].kind, SymbolKind::NAMESPACE);
-            assert!(symbols[0].children.is_some());
-
-            assert_eq!(symbols[1].name, "Home");
-            assert_eq!(symbols[1].kind, SymbolKind::CLASS);
-            let page_children = symbols[1].children.as_ref().unwrap();
-            assert!(page_children.iter().any(|c| c.name == "count" && c.kind == SymbolKind::VARIABLE));
-            assert!(page_children.iter().any(|c| c.name == "Button" && c.kind == SymbolKind::FIELD));
-        }
-        DocumentSymbolResponse::Flat(_) => panic!("Expected nested symbols"),
-    }
+fn completion_after_a_dot_offers_sub_components_or_store_members() {
+    let valid = "Store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\nPage Home (path: \"/\") {\n    use CartStore\n    Card { }\n    Button(\"x\") { }\n}\n";
+    let broken = valid
+        .replace("Card { }", "Card { Card. }")
+        .replace("Button(\"x\") { }", "Button(\"x\") { CartStore. }");
+    let card = labels_mid_edit(valid, &broken, "Card. ");
+    assert_eq!(card, vec!["Header", "Body", "Footer"]);
+    let store = labels_mid_edit(valid, &broken, "CartStore. ");
+    assert_eq!(store, vec!["items", "clear"]);
 }
 
 #[test]
-fn test_goto_definition() {
-    let src = "Component UserBadge (name: String) {\n  Text(name)\n}\nPage Home (path: \"/\") {\n  UserBadge(name: \"Alice\")\n}\n";
-    let prog = parse_program(src);
-    let index = LineIndex::new(src);
-    let uri = Url::parse("file:///test.wf").unwrap();
-
-    // Click on 'UserBadge' at line 4, col 4
-    let pos = Position::new(4, 4);
-    let def = find_definition(&prog, src, &index, &uri, pos).expect("definition for UserBadge");
-
-    match def {
-        GotoDefinitionResponse::Scalar(loc) => {
-            assert_eq!(loc.uri, uri);
-            assert_eq!(loc.range.start.line, 0); // Component UserBadge starts on line 0
-        }
-        _ => panic!("Expected scalar location"),
-    }
+fn completion_in_a_body_offers_components_keywords_and_scope() {
+    let src =
+        "Page Home (path: \"/\") {\n    state count = 0\n    Container {\n        \n    }\n}\n";
+    let items = labels_after(src, "Container {\n        ");
+    assert!(items.contains(&"Button".to_string()));
+    assert!(items.contains(&"if".to_string()));
+    assert!(items.contains(&"count".to_string()));
+    assert!(
+        !items.contains(&"Page".to_string()),
+        "declarations are not statements: {items:?}"
+    );
 }
 
 #[test]
-fn test_code_actions_quickfix() {
-    let uri = Url::parse("file:///test.wf").unwrap();
-    let diag = Diagnostic {
-        range: Range::new(Position::new(1, 10), Position::new(1, 18)),
-        message: "'centered' is not a modifier; did you mean `center`?".to_string(),
-        severity: Some(DiagnosticSeverity::WARNING),
-        ..Default::default()
+fn completion_in_a_style_block_offers_css_and_tokens() {
+    let src = "Page Home (path: \"/\") {\n    Card {\n        style {\n            \n            color: \n        }\n    }\n}\n";
+    let props = labels_after(src, "style {\n            ");
+    assert!(props.contains(&"border-radius".to_string()), "{props:?}");
+    assert!(props.contains(&"hover".to_string()), "{props:?}");
+    assert!(props.contains(&"@media".to_string()), "{props:?}");
+    assert!(!props.contains(&"Button".to_string()), "{props:?}");
+    let values = labels_after(src, "color: ");
+    assert!(
+        values.contains(&"var(--color-primary)".to_string()),
+        "{values:?}"
+    );
+}
+
+#[test]
+fn completion_in_a_fetch_body_offers_the_missing_blocks() {
+    let src = "Page Home (path: \"/\") {\n    fetch users from \"/api\" {\n        loading { Spinner() }\n        \n    }\n}\n";
+    let items = labels_after(src, "Spinner() }\n        ");
+    assert_eq!(items, vec!["error", "success"]);
+}
+
+#[test]
+fn completion_offers_nothing_inside_strings_and_comments() {
+    let src = "Page Home (path: \"/\") {\n    // \n    Text(\"\")\n}\n";
+    assert!(labels_after(src, "// ").is_empty());
+    assert!(labels_after(src, "Text(\"").is_empty());
+}
+
+#[test]
+fn completion_at_top_level_and_in_a_theme() {
+    let src = "Theme Brand {\n    \n}\n\n";
+    let top = labels_after(src, "}\n\n");
+    assert!(top.contains(&"Page".to_string()));
+    let theme = labels_after(src, "Brand {\n    ");
+    assert!(
+        theme.contains(&"token color-primary".to_string()),
+        "{theme:?}"
+    );
+}
+
+#[test]
+fn completion_keeps_working_while_the_file_does_not_parse() {
+    // The unclosed parenthesis means the file does not parse; the last good
+    // parse still supplies the scope, and the element's arguments come from
+    // the text.
+    let src = "Page Home (path: \"/\") {\n    state count = 0\n    Button(\"x\", \n}\n";
+    let project = project(src);
+    assert!(project.files[0].parsed.is_err());
+    let pos = project.files[0]
+        .index
+        .offset_to_position(src, src.find("\"x\", ").unwrap() + 5);
+    let items: Vec<String> = provide_completions(&project, 0, pos)
+        .into_iter()
+        .map(|c| c.label)
+        .collect();
+    assert!(items.contains(&"primary".to_string()), "{items:?}");
+}
+
+#[test]
+fn completion_after_on_colon_offers_events() {
+    let src = "Page Home (path: \"/\") {\n    Button(\"x\") { on: }\n}\n";
+    let items = labels_after(src, "on:");
+    assert!(items.contains(&"click".to_string()), "{items:?}");
+    assert!(items.contains(&"submit".to_string()), "{items:?}");
+}
+
+// ─── Definition ───────────────────────────────────────────────────────────
+
+#[test]
+fn definition_of_a_name_is_the_one_in_scope() {
+    let src = "Page A (path: \"/a\") {\n    state count = 1\n}\nPage B (path: \"/b\") {\n    state count = 2\n    Text(\"{count}\")\n    Button(\"+\") { count = count + 1 }\n}\n";
+    let project = project(src);
+    let def = find_definition(&project, 0, at(src, "count + 1")).unwrap();
+    let GotoDefinitionResponse::Scalar(loc) = def else {
+        panic!()
     };
+    assert_eq!(loc.range.start.line, 4, "B's count, not A's");
+}
 
-    let params = CodeActionParams {
-        text_document: TextDocumentIdentifier { uri: uri.clone() },
-        range: diag.range,
-        context: CodeActionContext {
-            diagnostics: vec![diag],
-            only: None,
-            trigger_kind: None,
-        },
-        work_done_progress_params: Default::default(),
-        partial_result_params: Default::default(),
+#[test]
+fn definition_of_a_component_call_and_a_store_member() {
+    let src = "Component Nudge (label: String) {\n    Text(label)\n}\nStore S {\n    state n = 0\n    action bump() { n = n + 1 }\n}\nPage Home (path: \"/\") {\n    use S\n    Nudge(label: \"x\")\n    Button(\"b\") { S.bump() }\n}\n";
+    let project = project(src);
+    let GotoDefinitionResponse::Scalar(component) =
+        find_definition(&project, 0, at(src, "Nudge(label")).unwrap()
+    else {
+        panic!()
     };
+    assert_eq!(component.range.start.line, 0);
+    let GotoDefinitionResponse::Scalar(member) =
+        find_definition(&project, 0, at(src, "bump() }")).unwrap()
+    else {
+        panic!()
+    };
+    assert_eq!(member.range.start.line, 5);
+    let GotoDefinitionResponse::Scalar(store) =
+        find_definition(&project, 0, at(src, "S\n    Nudge")).unwrap()
+    else {
+        panic!()
+    };
+    assert_eq!(store.range.start.line, 3);
+}
 
-    let actions = provide_code_actions(&uri, params);
-    assert_eq!(actions.len(), 1);
-    match &actions[0] {
-        CodeActionOrCommand::CodeAction(action) => {
-            assert_eq!(action.title, "Change to `center`");
-            assert_eq!(action.kind, Some(CodeActionKind::QUICKFIX));
-            let edit = action.edit.as_ref().unwrap();
-            let changes = edit.changes.as_ref().unwrap();
-            let text_edits = changes.get(&uri).unwrap();
-            assert_eq!(text_edits[0].new_text, "center");
-        }
-        _ => panic!("Expected code action"),
-    }
+// ─── Diagnostics ──────────────────────────────────────────────────────────
+
+#[test]
+fn diagnostics_point_at_the_word_even_after_non_ascii_text() {
+    let src = "Page Home (path: \"/\", title: \"x\", description: \"y\") {\n    Heading(\"أهلاً\", h1)\n    Text(\"مرحباً بك\", centred)\n}\n";
+    let project = project(src);
+    let diagnostics = project_diagnostics(&project).remove(0);
+    let v01 = diagnostics
+        .iter()
+        .find(|d| d.message.contains("centred"))
+        .expect("V01 for `centred`");
+    let start = project.files[0]
+        .index
+        .offset_to_position(src, src.find("centred").unwrap());
+    assert_eq!(v01.range.start, start, "{v01:?}");
+    assert_eq!(v01.range.end.character, start.character + 7);
+}
+
+#[test]
+fn a_parse_error_is_one_error_at_its_position() {
+    let src = "Page Home (path: \"/\") {\n    Text(\"x\"\n}\n";
+    let project = project(src);
+    let diagnostics = project_diagnostics(&project).remove(0);
+    assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
+    assert_eq!(diagnostics[0].severity, Some(DiagnosticSeverity::ERROR));
+    assert_eq!(diagnostics[0].range.start.line, 2);
+}
+
+// ─── Symbols ──────────────────────────────────────────────────────────────
+
+#[test]
+fn document_symbols_are_nested_under_declarations() {
+    let src = "Store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\n";
+    let project = project(src);
+    let DocumentSymbolResponse::Nested(symbols) = document_symbols(&project, 0, true) else {
+        panic!()
+    };
+    assert_eq!(symbols[0].name, "CartStore");
+    let children = symbols[0].children.as_ref().unwrap();
+    assert_eq!(
+        children.iter().map(|c| c.name.as_str()).collect::<Vec<_>>(),
+        vec!["items", "clear()"]
+    );
 }

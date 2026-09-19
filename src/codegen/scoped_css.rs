@@ -227,7 +227,7 @@ mod tests {
             Button("b") { style { color: "red" hover { color: "blue" } } }
             Button("c") { style { hover { color: "green" } } }
         }"#;
-        let p = program(&src);
+        let p = program(src);
         let css = scoped_rules(&p);
         assert_eq!(css.matches(":hover").count(), 2, "{css}");
         let a = first_block(src);

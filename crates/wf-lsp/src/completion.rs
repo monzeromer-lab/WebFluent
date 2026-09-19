@@ -1,741 +1,858 @@
+//! Completions for the position, read from the tree and the project.
+//!
+//! What is offered depends on where the cursor is:
+//!
+//! - top level: the declaration snippets;
+//! - a `Theme` body: `token` and the baseline token names;
+//! - a `fetch` body: `loading`, `error`, `success`;
+//! - a `style` block: CSS properties, pseudo-states, `@media`, and — after a
+//!   colon — the design tokens as `var(--…)`;
+//! - after `use`: the project's stores; after `on:`: the events;
+//! - after `Store.`: that store's members; after `Card.`: its sub-components;
+//! - inside an element's parentheses: the arguments and modifiers that
+//!   element takes, and the names in scope;
+//! - inside a body: the built-in and project components, the statement
+//!   keywords, and the names in scope.
+//!
+//! Nothing is offered inside a string or a comment.
+
 use tower_lsp::lsp_types::*;
+use webfluent::lexer::{Token, TokenType};
 use webfluent::parser::ast::*;
 use webfluent::parser::vocabulary::MODIFIER_KEYWORDS;
 
-// ---------------------------------------------------------------------------
-// Static data
-// ---------------------------------------------------------------------------
+use crate::analysis::{self, Binding, BindingKind};
+use crate::project::Project;
+use crate::reference::{self, ArgDoc, Place};
 
-struct ComponentInfo {
-    name: &'static str,
-    detail: &'static str,
-}
-
-const LAYOUT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Container", detail: "Responsive centered container" },
-    ComponentInfo { name: "Row", detail: "Horizontal flex row" },
-    ComponentInfo { name: "Column", detail: "Vertical flex column" },
-    ComponentInfo { name: "Grid", detail: "CSS grid layout (cols:, gap:)" },
-    ComponentInfo { name: "Stack", detail: "Stacked/overlapping layout" },
-    ComponentInfo { name: "Spacer", detail: "Flexible space filler" },
-    ComponentInfo { name: "Divider", detail: "Horizontal divider line" },
-];
-
-const NAV_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Navbar", detail: "Navigation bar (Navbar.Brand, Navbar.Links, Navbar.Actions)" },
-    ComponentInfo { name: "Sidebar", detail: "Side navigation panel (Sidebar.Header, Sidebar.Item, Sidebar.Divider)" },
-    ComponentInfo { name: "Breadcrumb", detail: "Breadcrumb navigation trail (Breadcrumb.Item)" },
-    ComponentInfo { name: "Link", detail: "Navigation link (to:, href:)" },
-    ComponentInfo { name: "Menu", detail: "Dropdown menu (Menu.Item)" },
-    ComponentInfo { name: "Tabs", detail: "Tab navigation with TabPage children" },
-    ComponentInfo { name: "TabPage", detail: "Individual tab page" },
-];
-
-const DATA_DISPLAY_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Card", detail: "Content card container (Card.Header, Card.Body, Card.Footer)" },
-    ComponentInfo { name: "Table", detail: "Data table (Thead, Tbody, Trow, Tcell)" },
-    ComponentInfo { name: "Thead", detail: "Table header section" },
-    ComponentInfo { name: "Tbody", detail: "Table body section" },
-    ComponentInfo { name: "Trow", detail: "Table row" },
-    ComponentInfo { name: "Tcell", detail: "Table cell" },
-    ComponentInfo { name: "List", detail: "Ordered/unordered list" },
-    ComponentInfo { name: "Badge", detail: "Status badge / counter" },
-    ComponentInfo { name: "Avatar", detail: "User avatar image" },
-    ComponentInfo { name: "Tooltip", detail: "Hover tooltip" },
-    ComponentInfo { name: "Tag", detail: "Label tag / chip" },
-];
-
-const INPUT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Input", detail: "Text input field (text, email, password, number, bind:)" },
-    ComponentInfo { name: "Select", detail: "Dropdown select with Option children (bind:)" },
-    ComponentInfo { name: "Option", detail: "Select option (value:)" },
-    ComponentInfo { name: "Checkbox", detail: "Checkbox toggle (bind:)" },
-    ComponentInfo { name: "Radio", detail: "Radio button (bind:, value:)" },
-    ComponentInfo { name: "Switch", detail: "Toggle switch (bind:)" },
-    ComponentInfo { name: "Slider", detail: "Range slider (min:, max:, step:, bind:)" },
-    ComponentInfo { name: "DatePicker", detail: "Date picker input (bind:)" },
-    ComponentInfo { name: "FileUpload", detail: "File upload input (accept:, bind:)" },
-    ComponentInfo { name: "Form", detail: "Form wrapper (on:submit:)" },
-];
-
-const FEEDBACK_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Alert", detail: "Alert message banner (success, warning, danger, info, dismissible)" },
-    ComponentInfo { name: "Toast", detail: "Toast notification" },
-    ComponentInfo { name: "Modal", detail: "Modal overlay dialog (Modal.Header, Modal.Body, Modal.Footer, visible:)" },
-    ComponentInfo { name: "Dialog", detail: "Confirmation dialog (Dialog.Header, Dialog.Body, Dialog.Footer, visible:)" },
-    ComponentInfo { name: "Spinner", detail: "Loading spinner" },
-    ComponentInfo { name: "Progress", detail: "Progress bar (value:, max:)" },
-    ComponentInfo { name: "Skeleton", detail: "Skeleton loading placeholder" },
-];
-
-const ACTION_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Button", detail: "Clickable button (primary, secondary, outlined, danger, large)" },
-    ComponentInfo { name: "IconButton", detail: "Icon-only button (icon:, label:)" },
-    ComponentInfo { name: "ButtonGroup", detail: "Group of related buttons" },
-    ComponentInfo { name: "Dropdown", detail: "Dropdown button with Dropdown.Item" },
-];
-
-const MEDIA_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Image", detail: "Responsive image (src:, alt:)" },
-    ComponentInfo { name: "Video", detail: "Video player (src:, controls:, autoplay:, loop:)" },
-    ComponentInfo { name: "Icon", detail: "Vector icon" },
-    ComponentInfo { name: "Carousel", detail: "Image carousel with Carousel.Slide" },
-];
-
-const TYPOGRAPHY_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Text", detail: "Paragraph text (bold, italic, muted, uppercase)" },
-    ComponentInfo { name: "Heading", detail: "Heading (h1-h6)" },
-    ComponentInfo { name: "Code", detail: "Code block / inline code" },
-    ComponentInfo { name: "Blockquote", detail: "Block quotation" },
-];
-
-const DOCUMENT_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Document", detail: "PDF document root (title:)" },
-    ComponentInfo { name: "Section", detail: "Document section" },
-    ComponentInfo { name: "Paragraph", detail: "Document paragraph" },
-    ComponentInfo { name: "PageBreak", detail: "PDF page break" },
-    ComponentInfo { name: "Header", detail: "Page header" },
-    ComponentInfo { name: "Footer", detail: "Page footer" },
-];
-
-const SLIDES_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Presentation", detail: "Slide deck root (title:)" },
-    ComponentInfo { name: "Slide", detail: "Freeform slide (one output page)" },
-    ComponentInfo { name: "TitleSlide", detail: "Title slide: TitleSlide(\"Title\", \"Subtitle\")" },
-    ComponentInfo { name: "SectionSlide", detail: "Section divider slide: SectionSlide(\"Label\")" },
-    ComponentInfo { name: "TwoColumn", detail: "Two-column slide; takes exactly 2 Container children" },
-    ComponentInfo { name: "ImageSlide", detail: "Image slide: ImageSlide(src: \"...\", caption: \"...\")" },
-];
-
-const ROUTING_COMPONENTS: &[ComponentInfo] = &[
-    ComponentInfo { name: "Router", detail: "Client-side router outlet" },
-    ComponentInfo { name: "Route", detail: "Route definition (path:, page:)" },
-];
-
-const ALL_COMPONENT_GROUPS: &[&[ComponentInfo]] = &[
-    LAYOUT_COMPONENTS,
-    NAV_COMPONENTS,
-    DATA_DISPLAY_COMPONENTS,
-    INPUT_COMPONENTS,
-    FEEDBACK_COMPONENTS,
-    ACTION_COMPONENTS,
-    MEDIA_COMPONENTS,
-    TYPOGRAPHY_COMPONENTS,
-    DOCUMENT_COMPONENTS,
-    SLIDES_COMPONENTS,
-    ROUTING_COMPONENTS,
-];
-
-// Sub-component mappings matching the actual WebFluent standard library
-const SUB_COMPONENTS: &[(&str, &[(&str, &str)])] = &[
-    (
-        "Navbar",
-        &[
-            ("Brand", "Navbar brand / logo area"),
-            ("Links", "Navbar link group"),
-            ("Actions", "Navbar action buttons"),
-        ],
-    ),
-    (
-        "Sidebar",
-        &[
-            ("Header", "Sidebar header section"),
-            ("Item", "Sidebar navigation link item: Sidebar.Item(\"Label\", to: \"/route\")"),
-            ("Divider", "Sidebar horizontal divider"),
-        ],
-    ),
-    (
-        "Breadcrumb",
-        &[
-            ("Item", "Breadcrumb link item: Breadcrumb.Item(\"Label\", to: \"/route\")"),
-        ],
-    ),
-    (
-        "Carousel",
-        &[
-            ("Slide", "Carousel slide wrapper: Carousel.Slide { ... }"),
-        ],
-    ),
-    (
-        "Card",
-        &[
-            ("Header", "Card header section"),
-            ("Body", "Card body content"),
-            ("Footer", "Card footer section"),
-        ],
-    ),
-    (
-        "Modal",
-        &[
-            ("Header", "Modal dialog header"),
-            ("Body", "Modal dialog body"),
-            ("Footer", "Modal dialog footer"),
-        ],
-    ),
-    (
-        "Dialog",
-        &[
-            ("Header", "Dialog header"),
-            ("Body", "Dialog body"),
-            ("Footer", "Dialog footer"),
-        ],
-    ),
-    (
-        "Dropdown",
-        &[
-            ("Item", "Dropdown menu item"),
-        ],
-    ),
-    (
-        "Menu",
-        &[
-            ("Item", "Menu list item"),
-        ],
-    ),
-];
-
-const KEYWORDS: &[(&str, &str)] = &[
-    ("state", "Declare reactive state variable"),
-    ("derived", "Declare computed/derived signal"),
-    ("effect", "Side-effect block that re-runs on dependency changes"),
-    ("action", "Define a named action function"),
-    ("if", "Conditional rendering"),
-    ("else", "Else branch of conditional"),
-    ("for", "List rendering / iteration"),
-    ("in", "Iterator source in for-loop"),
-    ("show", "Conditionally show/hide an element via CSS display"),
-    ("use", "Import a store into current scope"),
-    ("fetch", "Async data fetching block"),
-    ("navigate", "Client-side navigation"),
-    ("log", "Log expression to browser console"),
-    ("return", "Return from an action"),
-    ("animate", "Apply animation to element"),
-    ("style", "Inline style block"),
-    ("transition", "CSS transition block"),
-    ("Theme", "Design system theme declaration"),
-    ("token", "Design token declaration"),
-];
-
-const EVENTS: &[(&str, &str)] = &[
-    ("click", "Mouse click event"),
-    ("dblclick", "Double click event"),
-    ("input", "Input value changed (real-time)"),
-    ("change", "Value committed / changed"),
-    ("submit", "Form submission"),
-    ("focus", "Element gained focus"),
-    ("blur", "Element lost focus"),
-    ("keydown", "Key pressed down"),
-    ("keyup", "Key released"),
-    ("mouseenter", "Mouse entered element"),
-    ("mouseleave", "Mouse left element"),
-    ("scroll", "Element scrolled"),
-];
-
-const NAMED_ARGS: &[(&str, &str)] = &[
-    ("bind:", "Two-way data binding to state variable"),
-    ("placeholder:", "Placeholder text for inputs"),
-    ("path:", "URL path for pages / routes"),
-    ("title:", "Title text"),
-    ("src:", "Source URL (images, video)"),
-    ("alt:", "Alternative text for images"),
-    ("href:", "Link destination URL"),
-    ("to:", "Navigation target path"),
-    ("label:", "Accessible label text"),
-    ("icon:", "Icon name"),
-    ("columns:", "Number of grid columns"),
-    ("gap:", "Grid / flex gap spacing"),
-    ("visible:", "Visibility binding for modals / dialogs"),
-    ("disabled:", "Disable the element"),
-    ("required:", "Mark input as required"),
-    ("controls:", "Show media controls"),
-    ("autoplay:", "Auto-play media"),
-    ("loop:", "Loop media playback"),
-    ("caption:", "Caption text for ImageSlide"),
-    ("interval:", "Interval in ms for Carousel"),
-    ("guard:", "Route guard condition"),
-    ("redirect:", "Redirect path when guard fails"),
-    ("accept:", "Accepted file types for FileUpload"),
-];
-
-const PAGE_ATTRS: &[(&str, &str)] = &[
-    ("path", "URL route, e.g. \"/about\" or \"/user/:id\""),
-    ("title", "Browser tab title and search-result heading"),
-    ("description", "Search-result snippet and link-preview text"),
-    ("image", "Link-preview image, site-relative or absolute"),
-    ("type", "og:type \u{2014} \"website\" or \"article\""),
-    ("noindex", "Keep this page out of search results"),
-    ("guard", "Expression that must hold for the route to render"),
-    ("redirect", "Path to redirect to when the guard fails"),
-];
-
-const BASELINE_TOKENS: &[(&str, &str)] = &[
-    ("color-primary", "Primary brand accent color"),
-    ("color-secondary", "Secondary neutral color"),
-    ("color-success", "Success notification color"),
-    ("color-danger", "Destructive / error color"),
-    ("color-warning", "Warning / alert color"),
-    ("color-info", "Informational color"),
-    ("color-background", "Main background surface color"),
-    ("color-surface", "Elevated card/surface color"),
-    ("color-text", "Primary foreground text color"),
-    ("color-text-muted", "Secondary muted text color"),
-    ("color-border", "Border perimeter color"),
-    ("font-family", "Body font family"),
-    ("font-family-mono", "Monospace font family"),
-    ("font-size-xs", "Fluid extra-small font size"),
-    ("font-size-sm", "Fluid small font size"),
-    ("font-size-base", "Fluid base font size (1rem)"),
-    ("font-size-lg", "Fluid large font size"),
-    ("font-size-xl", "Fluid extra-large font size"),
-    ("font-size-2xl", "Fluid 2xl font size"),
-    ("font-size-3xl", "Fluid 3xl font size"),
-    ("spacing-xs", "Extra-small spacing (0.25rem)"),
-    ("spacing-sm", "Small spacing (0.5rem)"),
-    ("spacing-md", "Medium spacing (1rem)"),
-    ("spacing-lg", "Large spacing (1.5rem)"),
-    ("spacing-xl", "Fluid extra-large spacing"),
-    ("radius-sm", "Small border radius (0.25rem)"),
-    ("radius-md", "Medium border radius (0.5rem)"),
-    ("radius-lg", "Large border radius (1rem)"),
-    ("radius-full", "Fully rounded pill radius (9999px)"),
-    ("shadow-sm", "Subtle elevation shadow"),
-    ("shadow-md", "Medium surface shadow"),
-    ("shadow-lg", "High elevation shadow"),
-];
-
-fn modifier_detail(modifier: &str) -> &'static str {
-    match modifier {
-        "small" | "medium" | "large" => "Size",
-        "primary" | "secondary" | "success" | "danger" | "warning" | "info" => "Color variant",
-        "error" | "loading" => "State",
-        "rounded" | "pill" | "square" => "Shape",
-        "flat" | "elevated" | "outlined" => "Elevation",
-        "full" | "fit" => "Width",
-        "bold" | "italic" | "underline" | "uppercase" | "lowercase" => "Text style",
-        "left" | "center" | "right" => "Text alignment",
-        "heading" | "subtitle" | "muted" => "Typography",
-        "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => "Heading level",
-        "dismissible" | "block" | "bordered" => "Behavior",
-        "controls" | "autoplay" => "Media",
-        "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"
-        | "datetime" | "color" => "Input type",
-        "submit" | "reset" => "Button type",
-        "fast" | "slow" => "Animation speed",
-        _ => "Animation",
+pub fn provide_completions(
+    project: &Project,
+    file_ix: usize,
+    position: Position,
+) -> Vec<CompletionItem> {
+    let file = &project.files[file_ix];
+    let source: &str = &file.source;
+    let Some(offset) = file.index.position_to_offset(source, position) else {
+        return Vec::new();
+    };
+    let tokens = analysis::tokens_of(file).unwrap_or_else(|| tokens_until_error(source));
+    if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
+        return Vec::new();
     }
+
+    // The word being typed is part of the query the editor filters with; the
+    // context is decided by what comes before it.
+    let typing = analysis::token_at(&tokens, offset)
+        .filter(|t| {
+            t.offset < offset && matches!(t.token_type, TokenType::Identifier(_))
+                || is_word_token(t)
+        })
+        .filter(|t| t.offset < offset && t.end >= offset);
+    let anchor = typing.map(|t| t.offset).unwrap_or(offset);
+    let previous: Vec<&Token> = tokens.iter().filter(|t| t.end <= anchor).collect();
+    let last = previous.last().copied();
+    let before_last = previous.len().checked_sub(2).map(|i| previous[i]);
+    let source: &str = source;
+
+    // `on:` — the lexer refuses `on:` with no name after it, so this is read
+    // from the text rather than the tokens.
+    let line_prefix = &source[..offset];
+    let line_prefix = &line_prefix[line_prefix.rfind('\n').map(|i| i + 1).unwrap_or(0)..];
+    let typed_word = line_prefix.trim_end_matches(|c: char| c.is_alphanumeric() || c == '_');
+    if typed_word.ends_with("on:") {
+        return events();
+    }
+
+    if let Some(Token {
+        token_type: TokenType::Use,
+        ..
+    }) = last
+    {
+        return stores(project);
+    }
+
+    if let Some(Token {
+        token_type: TokenType::Dot,
+        ..
+    }) = last
+    {
+        return after_dot(project, before_last);
+    }
+
+    let mut items = Vec::new();
+
+    // Blocks the tokens alone identify, whether or not the file parses.
+    match enclosing_block(&previous) {
+        Some(Block::Theme) => return theme_body(),
+        Some(Block::Style) => return style_block(&previous),
+        _ => {}
+    }
+
+    let Some(decl_ix) = analysis::declaration_at(project, file_ix, anchor.saturating_sub(1))
+        .or_else(|| analysis::declaration_at(project, file_ix, anchor))
+    else {
+        // Outside every declaration: the file's top level — or a file that
+        // does not parse, where the tree is no help.
+        if file.parsed.is_ok() || previous.is_empty() {
+            return top_level();
+        }
+        return fallback(project, &previous);
+    };
+    let decl = &project.program.declarations[decl_ix];
+
+    let body = analysis::body_of(decl);
+    let path = analysis::statement_path(body, anchor.saturating_sub(1));
+    let innermost = path.last().copied();
+
+    // Inside a `fetch { }` but not in one of its blocks: its three keywords.
+    if let Some(Statement {
+        kind: StatementKind::Fetch(f),
+        ..
+    }) = innermost
+    {
+        let in_block = analysis::child_bodies(innermost.unwrap())
+            .into_iter()
+            .any(|b| {
+                b.iter()
+                    .any(|s| analysis::contains(s.span, anchor.saturating_sub(1)))
+            });
+        if !in_block && fetch_body_open(&previous) {
+            return fetch_blocks(f);
+        }
+    }
+
+    let scope = analysis::scope_at(decl, anchor);
+
+    if let Some(open) = open_paren_owner(&previous) {
+        // Inside the parentheses of something. Whose?
+        match open {
+            ParenOwner::Element(name) => {
+                items.extend(element_arguments(project, &name));
+                items.extend(scope_items(&scope));
+                return items;
+            }
+            ParenOwner::PageHeader => {
+                items.extend(args(reference::PAGE_ATTRIBUTES, "Page attribute"));
+                return items;
+            }
+            ParenOwner::Animate => {
+                items.extend(animations());
+                items.extend(args(reference::ANIMATE_ARGUMENTS, "animate option"));
+                return items;
+            }
+            ParenOwner::FetchOptions => {
+                items.extend(args(reference::FETCH_OPTIONS, "fetch option"));
+                items.extend(scope_items(&scope));
+                return items;
+            }
+            ParenOwner::Call | ParenOwner::Unknown => {
+                items.extend(scope_items(&scope));
+                return items;
+            }
+        }
+    }
+
+    // In a body: what a statement can start with, and the names in scope.
+    let in_store = matches!(decl, Declaration::Store(_));
+    if !in_store {
+        items.extend(components(project));
+    }
+    items.extend(keywords(in_store));
+    items.extend(scope_items(&scope));
+    items
 }
 
-// ---------------------------------------------------------------------------
-// Top-level snippets
-// ---------------------------------------------------------------------------
+fn is_word_token(t: &Token) -> bool {
+    matches!(
+        t.token_type,
+        TokenType::Identifier(_)
+            | TokenType::Error
+            | TokenType::Loading
+            | TokenType::Success
+            | TokenType::State
+            | TokenType::Style
+            | TokenType::Show
+            | TokenType::Action
+    ) || webfluent::lexer::token::component_name(&t.token_type).is_some()
+}
 
-fn top_level_snippets() -> Vec<CompletionItem> {
+/// Tokens of a source that fails to lex, up to the failure.
+fn tokens_until_error(source: &str) -> Vec<Token> {
+    // Lex line by line so a bad character late in the file does not blind
+    // the whole of it; offsets are corrected to the file.
+    let mut tokens = Vec::new();
+    let mut base = 0;
+    for line in source.split_inclusive('\n') {
+        if let Ok(mut line_tokens) = webfluent::lexer::Lexer::new(line, "").tokenize() {
+            line_tokens.retain(|t| !matches!(t.token_type, TokenType::EOF));
+            for t in &mut line_tokens {
+                t.offset += base;
+                t.end += base;
+            }
+            tokens.extend(line_tokens);
+        }
+        base += line.len();
+    }
+    tokens
+}
+
+enum ParenOwner {
+    Element(String),
+    PageHeader,
+    Animate,
+    FetchOptions,
+    Call,
+    Unknown,
+}
+
+/// If the cursor is inside an unclosed `(`, what opened it.
+fn open_paren_owner(previous: &[&Token]) -> Option<ParenOwner> {
+    let mut depth = 0i32;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseParen => depth += 1,
+            TokenType::OpenParen => {
+                if depth > 0 {
+                    depth -= 1;
+                    continue;
+                }
+                let owner = previous.get(ix.checked_sub(1)?)?;
+                return Some(match &owner.token_type {
+                    TokenType::Animate => ParenOwner::Animate,
+                    TokenType::Identifier(name) => {
+                        // `Page Name (` — the page header.
+                        if let Some(Token {
+                            token_type: TokenType::Page,
+                            ..
+                        }) = ix.checked_sub(2).and_then(|i| previous.get(i)).copied()
+                        {
+                            ParenOwner::PageHeader
+                        } else if name.chars().next().is_some_and(char::is_uppercase) {
+                            // `Store.member(` is a call; a bare capitalised name is an element.
+                            match ix.checked_sub(2).and_then(|i| previous.get(i)) {
+                                Some(Token {
+                                    token_type: TokenType::Dot,
+                                    ..
+                                }) => ParenOwner::Call,
+                                _ => ParenOwner::Element(name.clone()),
+                            }
+                        } else {
+                            ParenOwner::Call
+                        }
+                    }
+                    TokenType::TypeList => ParenOwner::Element("List".to_string()),
+                    // A built-in component keyword, or `Card.Header(`.
+                    other => match webfluent::lexer::token::component_name(other) {
+                        Some(name) => {
+                            let full = match (
+                                ix.checked_sub(2).and_then(|i| previous.get(i)),
+                                ix.checked_sub(3).and_then(|i| previous.get(i)),
+                            ) {
+                                (
+                                    Some(Token {
+                                        token_type: TokenType::Dot,
+                                        ..
+                                    }),
+                                    Some(parent),
+                                ) => {
+                                    match webfluent::lexer::token::component_name(
+                                        &parent.token_type,
+                                    ) {
+                                        Some(p) => format!("{p}.{name}"),
+                                        None => name.to_string(),
+                                    }
+                                }
+                                _ => name.to_string(),
+                            };
+                            ParenOwner::Element(full)
+                        }
+                        None => {
+                            // `fetch x from url (` — options.
+                            if matches!(other, TokenType::StringLiteral(_) | TokenType::CloseParen)
+                                && previous[..ix]
+                                    .iter()
+                                    .rev()
+                                    .take(8)
+                                    .any(|t| matches!(t.token_type, TokenType::From))
+                            {
+                                ParenOwner::FetchOptions
+                            } else {
+                                ParenOwner::Unknown
+                            }
+                        }
+                    },
+                });
+            }
+            TokenType::OpenBrace | TokenType::CloseBrace if depth == 0 => return None,
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Whether the cursor is directly inside a `fetch … {` body.
+fn fetch_body_open(previous: &[&Token]) -> bool {
+    let mut depth = 0i32;
+    for token in previous.iter().rev() {
+        match token.token_type {
+            TokenType::CloseBrace => depth += 1,
+            TokenType::OpenBrace => {
+                if depth > 0 {
+                    depth -= 1;
+                } else {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+enum Block {
+    Style,
+    Theme,
+}
+
+/// The nearest enclosing block the tokens alone identify: a `style { … }`
+/// (at any depth: a pseudo-state or `@media` block inside one counts), or a
+/// `Theme Name { … }` body.
+fn enclosing_block(previous: &[&Token]) -> Option<Block> {
+    let mut depth = 0i32;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseBrace => depth += 1,
+            TokenType::OpenBrace => {
+                if depth > 0 {
+                    depth -= 1;
+                    continue;
+                }
+                let opener = ix
+                    .checked_sub(1)
+                    .and_then(|i| previous.get(i))
+                    .map(|t| &t.token_type);
+                let before_opener = ix
+                    .checked_sub(2)
+                    .and_then(|i| previous.get(i))
+                    .map(|t| &t.token_type);
+                match (opener, before_opener) {
+                    (Some(TokenType::Style), _) => return Some(Block::Style),
+                    (Some(TokenType::Identifier(_)), Some(TokenType::Theme)) => {
+                        return Some(Block::Theme);
+                    }
+                    // A pseudo-state or `@media` block: keep looking outward
+                    // for the `style` that holds it. Any other opener is a
+                    // body, and ends the search.
+                    (Some(TokenType::Identifier(_)), _) | (Some(TokenType::CloseParen), _) => {}
+                    _ => return None,
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+fn after_dot(project: &Project, owner: Option<&Token>) -> Vec<CompletionItem> {
+    let Some(owner) = owner else {
+        return Vec::new();
+    };
+    let name = match &owner.token_type {
+        TokenType::Identifier(n) => n.clone(),
+        other => match webfluent::lexer::token::component_name(other) {
+            Some(n) => n.to_string(),
+            None => return Vec::new(),
+        },
+    };
+    if let Some(doc) = reference::component(&name) {
+        return doc
+            .children
+            .iter()
+            .map(|child| {
+                let short = child.split('.').nth(1).unwrap_or(child);
+                CompletionItem {
+                    label: short.to_string(),
+                    kind: Some(CompletionItemKind::CLASS),
+                    detail: Some(format!("{child} — part of {}", doc.name)),
+                    ..Default::default()
+                }
+            })
+            .collect();
+    }
+    if let Some(store) = project.program.declarations.iter().find_map(|d| match d {
+        Declaration::Store(s) if s.name == name => Some(s),
+        _ => None,
+    }) {
+        return analysis::store_members(store)
+            .into_iter()
+            .map(|m| binding_item(&m, Some(&store.name)))
+            .collect();
+    }
+    Vec::new()
+}
+
+fn events() -> Vec<CompletionItem> {
+    reference::EVENTS
+        .iter()
+        .map(|(name, doc)| CompletionItem {
+            label: name.to_string(),
+            kind: Some(CompletionItemKind::EVENT),
+            detail: Some(doc.to_string()),
+            insert_text: Some(format!("{name} {{\n\t$0\n}}")),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            ..Default::default()
+        })
+        .collect()
+}
+
+fn stores(project: &Project) -> Vec<CompletionItem> {
+    project
+        .program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Store(s) => Some(CompletionItem {
+                label: s.name.clone(),
+                kind: Some(CompletionItemKind::MODULE),
+                detail: Some("Store".to_string()),
+                ..Default::default()
+            }),
+            _ => None,
+        })
+        .collect()
+}
+
+fn top_level() -> Vec<CompletionItem> {
     vec![
-        snippet_item(
+        snippet(
             "Page",
-            "Page route declaration",
-            "Page ${1:Name} (path: \"${2:/}\", title: \"${3:Title}\") {\n\t$0\n}",
+            "A routed page",
+            "Page ${1:Name} (path: \"${2:/}\", title: \"${3:$1}\") {\n\t$0\n}",
         ),
-        snippet_item(
+        snippet(
             "Component",
-            "Reusable component declaration",
-            "Component ${1:Name} (${2:props}) {\n\t$0\n}",
+            "A reusable component",
+            "Component ${1:Name} (${2:label}: ${3:String}) {\n\t$0\n}",
         ),
-        snippet_item(
+        snippet(
             "Store",
-            "Shared state store declaration",
-            "Store ${1:Name} {\n\tstate ${2:value} = ${3:0}\n\t$0\n}",
+            "Shared state",
+            "Store ${1:Name}Store {\n\tstate ${2:items} = ${3:[]}\n\t$0\n}",
         ),
-        snippet_item(
+        snippet(
             "Theme",
-            "Design system theme declaration",
-            "Theme ${1:Brand} {\n\ttoken ${2:color-primary}: \"${3:#3B82F6}\"\n\t$0\n}",
+            "Design tokens",
+            "Theme ${1:Brand} {\n\ttoken color-primary: \"${2:#3B82F6}\"\n\t$0\n}",
         ),
-        snippet_item("App", "Root app declaration", "App {\n\t$0\n}"),
+        snippet(
+            "App",
+            "The root of the site",
+            "App {\n\tRouter {\n\t\tRoute(path: \"/\", page: ${1:Home})\n\t}\n}",
+        ),
     ]
 }
 
-fn snippet_item(label: &str, detail: &str, insert_text: &str) -> CompletionItem {
-    CompletionItem {
-        label: label.to_string(),
-        kind: Some(CompletionItemKind::SNIPPET),
-        detail: Some(detail.to_string()),
-        insert_text: Some(insert_text.to_string()),
+fn theme_body() -> Vec<CompletionItem> {
+    let mut items = vec![snippet(
+        "token",
+        "A design token",
+        "token ${1:name}: \"${2:value}\"",
+    )];
+    items.extend(reference::TOKENS.iter().map(|(name, doc)| CompletionItem {
+        label: format!("token {name}"),
+        kind: Some(CompletionItemKind::CONSTANT),
+        detail: Some(doc.to_string()),
+        insert_text: Some(format!("token {name}: \"${{1:value}}\"")),
         insert_text_format: Some(InsertTextFormat::SNIPPET),
+        filter_text: Some(name.to_string()),
+        ..Default::default()
+    }));
+    items
+}
+
+fn fetch_blocks(fetch: &FetchDecl) -> Vec<CompletionItem> {
+    let mut items = Vec::new();
+    if fetch.loading_block.is_none() {
+        items.push(snippet(
+            "loading",
+            "While the request is in flight",
+            "loading {\n\t$0\n}",
+        ));
+    }
+    if fetch.error_block.is_none() {
+        items.push(snippet(
+            "error",
+            "When the request fails",
+            "error (${1:err}) {\n\t$0\n}",
+        ));
+    }
+    if fetch.success_block.is_none() {
+        items.push(snippet(
+            "success",
+            "Once the data arrived",
+            "success {\n\t$0\n}",
+        ));
+    }
+    items
+}
+
+fn style_block(previous: &[&Token]) -> Vec<CompletionItem> {
+    // After `name:` a value is wanted: the design tokens, quoted.
+    let after_colon = matches!(
+        previous.last().map(|t| &t.token_type),
+        Some(TokenType::Colon)
+    );
+    if after_colon {
+        return reference::TOKENS
+            .iter()
+            .map(|(name, doc)| CompletionItem {
+                label: format!("var(--{name})"),
+                kind: Some(CompletionItemKind::VALUE),
+                detail: Some(doc.to_string()),
+                insert_text: Some(format!("\"var(--{name})\"")),
+                filter_text: Some(format!("var {name} {}", name.replace('-', " "))),
+                ..Default::default()
+            })
+            .collect();
+    }
+    let mut items: Vec<CompletionItem> = reference::CSS_PROPERTIES
+        .iter()
+        .map(|prop| CompletionItem {
+            label: prop.to_string(),
+            kind: Some(CompletionItemKind::PROPERTY),
+            detail: Some("CSS property".to_string()),
+            insert_text: Some(format!("{prop}: \"$0\"")),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            sort_text: Some(format!("1{prop}")),
+            ..Default::default()
+        })
+        .collect();
+    items.extend(
+        reference::pseudo_states()
+            .iter()
+            .map(|state| CompletionItem {
+                label: state.to_string(),
+                kind: Some(CompletionItemKind::KEYWORD),
+                detail: Some("Pseudo-state rule".to_string()),
+                insert_text: Some(format!("{state} {{\n\t$0\n}}")),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("2{state}")),
+                ..Default::default()
+            }),
+    );
+    items.push(CompletionItem {
+        label: "@media".to_string(),
+        kind: Some(CompletionItemKind::KEYWORD),
+        detail: Some("Responsive rule".to_string()),
+        insert_text: Some("@media (max-width: ${1:768px}) {\n\t$0\n}".to_string()),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        sort_text: Some("3@media".to_string()),
+        ..Default::default()
+    });
+    items
+}
+
+fn element_arguments(project: &Project, name: &str) -> Vec<CompletionItem> {
+    let mut items = Vec::new();
+
+    // A user component: its props, by name.
+    if let Some(Declaration::Component(c)) = project
+        .program
+        .declarations
+        .iter()
+        .find(|d| matches!(d, Declaration::Component(c) if c.name == name))
+    {
+        for prop in &c.props {
+            items.push(CompletionItem {
+                label: format!("{}:", prop.name),
+                kind: Some(CompletionItemKind::PROPERTY),
+                detail: Some(format!(
+                    "{:?}{} — prop of {}",
+                    prop.prop_type,
+                    if prop.optional { "?" } else { "" },
+                    c.name
+                )),
+                insert_text: Some(format!("{}: ", prop.name)),
+                sort_text: Some(format!("0{}", prop.name)),
+                ..Default::default()
+            });
+        }
+        return items;
+    }
+
+    let doc = reference::component(name).or_else(|| reference::sub_component(name).map(|(d, _)| d));
+    let (args_docs, modifiers): (&[ArgDoc], &[&str]) = match doc {
+        Some(doc) if doc.name == name => (doc.args, doc.modifiers),
+        _ => (&[], &[]),
+    };
+    if name == "Sidebar.Item" {
+        items.extend(args(
+            &[
+                ArgDoc {
+                    name: "to",
+                    doc: "Route to navigate to",
+                },
+                ArgDoc {
+                    name: "icon",
+                    doc: "One of the built-in icon names",
+                },
+                ArgDoc {
+                    name: "active",
+                    doc: "`\"prefix\"` also matches routes beneath `to`",
+                },
+            ],
+            "Sidebar.Item argument",
+        ));
+    } else if name == "Breadcrumb.Item" {
+        items.extend(args(
+            &[ArgDoc {
+                name: "to",
+                doc: "Route to navigate to; omit on the current page",
+            }],
+            "Breadcrumb.Item argument",
+        ));
+    }
+    items.extend(args(args_docs, &format!("{name} argument")));
+
+    // The modifiers it lists first, then the rest of the vocabulary.
+    for m in modifiers {
+        items.push(modifier_item(m, name, true));
+    }
+    for m in MODIFIER_KEYWORDS {
+        if !modifiers.contains(m) {
+            items.push(modifier_item(m, name, false));
+        }
+    }
+    if name == "Icon" {
+        items.extend(icons());
+    }
+    items
+}
+
+fn args(docs: &[ArgDoc], detail: &str) -> Vec<CompletionItem> {
+    docs.iter()
+        .map(|a| CompletionItem {
+            label: format!("{}:", a.name),
+            kind: Some(CompletionItemKind::PROPERTY),
+            detail: Some(detail.to_string()),
+            documentation: Some(Documentation::MarkupContent(MarkupContent {
+                kind: MarkupKind::Markdown,
+                value: a.doc.to_string(),
+            })),
+            insert_text: Some(format!("{}: ", a.name)),
+            sort_text: Some(format!("0{}", a.name)),
+            ..Default::default()
+        })
+        .collect()
+}
+
+fn modifier_item(m: &str, component: &str, listed: bool) -> CompletionItem {
+    let (group, doc) = reference::modifier_doc(m).unwrap_or(("Modifier", ""));
+    CompletionItem {
+        label: m.to_string(),
+        kind: Some(CompletionItemKind::ENUM_MEMBER),
+        detail: Some(if listed {
+            format!("{group} — {component}")
+        } else {
+            group.to_string()
+        }),
+        documentation: (!doc.is_empty()).then(|| Documentation::String(doc.to_string())),
+        sort_text: Some(format!("{}{m}", if listed { "1" } else { "3" })),
         ..Default::default()
     }
 }
 
-// ---------------------------------------------------------------------------
-// Context detection
-// ---------------------------------------------------------------------------
-
-#[derive(Debug)]
-enum CompletionContext {
-    /// Cursor is right after a `.` — provide sub-components or store members for `parent`.
-    DotAccess(String),
-    /// Cursor is after `use ` — provide store names.
-    UseStore,
-    /// Cursor is inside `Theme { ... }` — provide design token suggestions.
-    InsideTheme,
-    /// Cursor is after `on:` — provide event names.
-    EventTrigger,
-    /// Cursor is inside `( )` — provide named args, modifiers, in-scope identifiers.
-    InsideParens,
-    /// Cursor is inside `{ }` — provide components and keywords.
-    InsideBraces,
-    /// Cursor is at top level — provide Page, Component, Store, Theme, App.
-    TopLevel,
+fn animations() -> Vec<CompletionItem> {
+    [
+        "fadeIn",
+        "fadeOut",
+        "slideUp",
+        "slideDown",
+        "slideLeft",
+        "slideRight",
+        "scaleIn",
+        "scaleOut",
+        "bounce",
+        "shake",
+        "pulse",
+        "spin",
+    ]
+    .iter()
+    .map(|a| CompletionItem {
+        label: a.to_string(),
+        kind: Some(CompletionItemKind::ENUM_MEMBER),
+        detail: Some("Animation".to_string()),
+        ..Default::default()
+    })
+    .collect()
 }
 
-fn detect_context(source: &str, position: Position) -> CompletionContext {
-    let line_idx = position.line as usize;
-    let col_idx = position.character as usize;
-
-    let lines: Vec<&str> = source.lines().collect();
-    let current_line = lines.get(line_idx).copied().unwrap_or("");
-    let prefix = if col_idx <= current_line.len() {
-        &current_line[..col_idx]
-    } else {
-        current_line
-    };
-
-    let trimmed_prefix = prefix.trim_end();
-
-    // Count open/close parens and braces up to cursor to determine nesting
-    let text_up_to_cursor: String = lines
+fn icons() -> Vec<CompletionItem> {
+    reference::ICONS
         .iter()
-        .take(line_idx)
-        .copied()
-        .chain(std::iter::once(prefix))
-        .collect::<Vec<&str>>()
-        .join("\n");
-
-    let mut paren_depth: i32 = 0;
-    let mut brace_depth: i32 = 0;
-    let mut in_string = false;
-    let mut escaped = false;
-    let mut last_top_decl = String::new();
-
-    let mut chars = text_up_to_cursor.chars().peekable();
-    while let Some(ch) = chars.next() {
-        if escaped {
-            escaped = false;
-            continue;
-        }
-        if ch == '\\' {
-            escaped = true;
-            continue;
-        }
-        match ch {
-            '"' => in_string = !in_string,
-            '(' if !in_string => paren_depth += 1,
-            ')' if !in_string => paren_depth -= 1,
-            '{' if !in_string => brace_depth += 1,
-            '}' if !in_string => brace_depth -= 1,
-            _ if !in_string && brace_depth == 0 => {
-                // Record declaration keyword if at top-level
-                if ch.is_alphabetic() {
-                    let mut word = String::new();
-                    word.push(ch);
-                    while let Some(&next_ch) = chars.peek() {
-                        if next_ch.is_alphanumeric() {
-                            word.push(chars.next().unwrap());
-                        } else {
-                            break;
-                        }
-                    }
-                    if word == "Theme" || word == "Page" || word == "Component" || word == "Store" || word == "App" {
-                        last_top_decl = word;
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-
-    if !in_string {
-        // Check for `use ` immediately before cursor
-        if trimmed_prefix == "use" || trimmed_prefix.ends_with(" use") || trimmed_prefix.ends_with("\tuse") {
-            return CompletionContext::UseStore;
-        }
-
-        // Check for `on:` immediately before cursor
-        if trimmed_prefix.ends_with("on:") {
-            return CompletionContext::EventTrigger;
-        }
-
-        // Check for dot access: e.g. "Navbar." or "Navbar.It"
-        if let Some(dot_pos) = prefix.rfind('.') {
-            let after_dot = &prefix[dot_pos + 1..];
-            // Must only be an optional alphanumeric word being typed directly after the dot
-            if after_dot.chars().all(|c| c.is_alphanumeric() || c == '_') {
-                let before_dot = prefix[..dot_pos].trim_end();
-                if let Some(word) = before_dot.split(|c: char| !c.is_alphanumeric() && c != '_').next_back() {
-                    if !word.is_empty() && word.chars().next().map_or(false, |c| c.is_uppercase()) {
-                        return CompletionContext::DotAccess(word.to_string());
-                    }
-                }
-            }
-        }
-    }
-
-    if paren_depth > 0 {
-        return CompletionContext::InsideParens;
-    }
-
-    if brace_depth > 0 {
-        if last_top_decl == "Theme" {
-            return CompletionContext::InsideTheme;
-        }
-        return CompletionContext::InsideBraces;
-    }
-
-    CompletionContext::TopLevel
+        .map(|icon| CompletionItem {
+            label: format!("\"{icon}\""),
+            kind: Some(CompletionItemKind::VALUE),
+            detail: Some("Built-in icon".to_string()),
+            filter_text: Some(icon.to_string()),
+            sort_text: Some(format!("2{icon}")),
+            ..Default::default()
+        })
+        .collect()
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-pub fn provide_completions(
-    source: &str,
-    position: Position,
-    program: Option<&Program>,
-) -> Vec<CompletionItem> {
-    let ctx = detect_context(source, position);
-    let mut items = Vec::new();
-
-    match ctx {
-        CompletionContext::DotAccess(parent) => {
-            // 1. Check built-in sub-components
-            for &(p, children) in SUB_COMPONENTS {
-                if p == parent {
-                    for &(child, detail) in children {
-                        items.push(CompletionItem {
-                            label: format!("{}.{}", parent, child),
-                            kind: Some(CompletionItemKind::CLASS),
-                            detail: Some(detail.to_string()),
-                            insert_text: Some(child.to_string()),
-                            ..Default::default()
-                        });
-                    }
-                    return items;
-                }
-            }
-
-            // 2. Check Store members if parent is a Store in program
-            if let Some(prog) = program {
-                for decl in &prog.declarations {
-                    if let Declaration::Store(s) = decl {
-                        if s.name == parent {
-                            for stmt in &s.body {
-                                match &stmt.kind {
-                                    StatementKind::State(st) => {
-                                        items.push(CompletionItem {
-                                            label: st.name.clone(),
-                                            kind: Some(CompletionItemKind::VARIABLE),
-                                            detail: Some(format!("Store state of {}", s.name)),
-                                            ..Default::default()
-                                        });
-                                    }
-                                    StatementKind::Derived(d) => {
-                                        items.push(CompletionItem {
-                                            label: d.name.clone(),
-                                            kind: Some(CompletionItemKind::VARIABLE),
-                                            detail: Some(format!("Store derived signal of {}", s.name)),
-                                            ..Default::default()
-                                        });
-                                    }
-                                    StatementKind::Action(a) => {
-                                        items.push(CompletionItem {
-                                            label: a.name.clone(),
-                                            kind: Some(CompletionItemKind::FUNCTION),
-                                            detail: Some(format!("Store action of {}", s.name)),
-                                            ..Default::default()
-                                        });
-                                    }
-                                    _ => {}
-                                }
-                            }
-                            return items;
-                        }
-                    }
-                }
-            }
-        }
-
-        CompletionContext::UseStore => {
-            if let Some(prog) = program {
-                for decl in &prog.declarations {
-                    if let Declaration::Store(s) = decl {
-                        items.push(CompletionItem {
-                            label: s.name.clone(),
-                            kind: Some(CompletionItemKind::MODULE),
-                            detail: Some("Shared reactive store".to_string()),
-                            ..Default::default()
-                        });
-                    }
-                }
-            }
-        }
-
-        CompletionContext::InsideTheme => {
-            items.push(snippet_item(
-                "token",
-                "Declare design token: token <name>: <value>",
-                "token ${1:name}: \"${2:value}\"",
-            ));
-            for &(name, desc) in BASELINE_TOKENS {
-                items.push(CompletionItem {
-                    label: format!("token {name}"),
-                    kind: Some(CompletionItemKind::CONSTANT),
-                    detail: Some(desc.to_string()),
-                    insert_text: Some(format!("token {name}: \"${{1:value}}\"")),
-                    insert_text_format: Some(InsertTextFormat::SNIPPET),
-                    ..Default::default()
-                });
-            }
-        }
-
-        CompletionContext::EventTrigger => {
-            for &(event, detail) in EVENTS {
-                items.push(CompletionItem {
-                    label: event.to_string(),
-                    kind: Some(CompletionItemKind::EVENT),
-                    detail: Some(detail.to_string()),
-                    ..Default::default()
-                });
-            }
-        }
-
-        CompletionContext::InsideParens => {
-            // Named arguments
-            for &(arg, detail) in NAMED_ARGS {
-                items.push(CompletionItem {
-                    label: arg.to_string(),
-                    kind: Some(CompletionItemKind::PROPERTY),
-                    detail: Some(detail.to_string()),
-                    ..Default::default()
-                });
-            }
-            // Canonical modifiers
-            for modifier in MODIFIER_KEYWORDS {
-                items.push(CompletionItem {
-                    label: modifier.to_string(),
-                    kind: Some(CompletionItemKind::ENUM_MEMBER),
-                    detail: Some(modifier_detail(modifier).to_string()),
-                    ..Default::default()
-                });
-            }
-            // Page attributes
-            for &(attr, detail) in PAGE_ATTRS {
-                items.push(CompletionItem {
-                    label: format!("{attr}:"),
-                    kind: Some(CompletionItemKind::PROPERTY),
-                    detail: Some(detail.to_string()),
-                    ..Default::default()
-                });
-            }
-            // In-scope variables (state, derived, props) if program is available
-            if let Some(prog) = program {
-                for decl in &prog.declarations {
-                    match decl {
-                        Declaration::Page(p) => {
-                            collect_stmt_identifiers(&p.body, &mut items);
-                        }
-                        Declaration::Component(c) => {
-                            for p in &c.props {
-                                items.push(CompletionItem {
-                                    label: p.name.clone(),
-                                    kind: Some(CompletionItemKind::VARIABLE),
-                                    detail: Some(format!("Prop of {}", c.name)),
-                                    ..Default::default()
-                                });
-                            }
-                            collect_stmt_identifiers(&c.body, &mut items);
-                        }
-                        Declaration::Store(s) => {
-                            collect_stmt_identifiers(&s.body, &mut items);
-                        }
-                        _ => {}
-                    }
-                }
-            }
-        }
-
-        CompletionContext::InsideBraces => {
-            // Built-in components
-            for group in ALL_COMPONENT_GROUPS {
-                for info in *group {
-                    items.push(CompletionItem {
-                        label: info.name.to_string(),
-                        kind: Some(CompletionItemKind::CLASS),
-                        detail: Some(info.detail.to_string()),
-                        ..Default::default()
-                    });
-                }
-            }
-            // User-defined components in program
-            if let Some(prog) = program {
-                for decl in &prog.declarations {
-                    if let Declaration::Component(c) = decl {
-                        items.push(CompletionItem {
-                            label: c.name.clone(),
-                            kind: Some(CompletionItemKind::CLASS),
-                            detail: Some("User-defined component".to_string()),
-                            ..Default::default()
-                        });
-                    }
-                }
-            }
-            // Keywords
-            for &(kw, detail) in KEYWORDS {
-                items.push(CompletionItem {
-                    label: kw.to_string(),
-                    kind: Some(CompletionItemKind::KEYWORD),
-                    detail: Some(detail.to_string()),
-                    ..Default::default()
-                });
-            }
-        }
-
-        CompletionContext::TopLevel => {
-            items = top_level_snippets();
+fn components(project: &Project) -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = reference::COMPONENTS
+        .iter()
+        .map(|c| CompletionItem {
+            label: c.name.to_string(),
+            kind: Some(CompletionItemKind::CLASS),
+            detail: Some(format!("{} — {}", c.group, c.summary)),
+            documentation: Some(Documentation::MarkupContent(MarkupContent {
+                kind: MarkupKind::Markdown,
+                value: format!("```wf\n{}\n```", c.usage),
+            })),
+            sort_text: Some(format!("1{}", c.name)),
+            ..Default::default()
+        })
+        .collect();
+    for (ix, decl) in project.program.declarations.iter().enumerate() {
+        if let Declaration::Component(c) = decl {
+            let call = if c.props.is_empty() {
+                c.name.clone()
+            } else {
+                format!(
+                    "{}({})",
+                    c.name,
+                    c.props
+                        .iter()
+                        .enumerate()
+                        .map(|(i, p)| format!("{}: ${{{}:{}}}", p.name, i + 1, p.name))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            };
+            items.push(CompletionItem {
+                label: c.name.clone(),
+                kind: Some(CompletionItemKind::CLASS),
+                detail: Some(format!(
+                    "Component — {}",
+                    project.label_of(project.decl_file[ix])
+                )),
+                insert_text: Some(call),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("0{}", c.name)),
+                ..Default::default()
+            });
         }
     }
-
     items
 }
 
-fn collect_stmt_identifiers(stmts: &[Statement], items: &mut Vec<CompletionItem>) {
-    for stmt in stmts {
-        match &stmt.kind {
-            StatementKind::State(s) => {
-                items.push(CompletionItem {
-                    label: s.name.clone(),
-                    kind: Some(CompletionItemKind::VARIABLE),
-                    detail: Some("Reactive state variable".to_string()),
-                    ..Default::default()
-                });
-            }
-            StatementKind::Derived(d) => {
-                items.push(CompletionItem {
-                    label: d.name.clone(),
-                    kind: Some(CompletionItemKind::VARIABLE),
-                    detail: Some("Computed derived signal".to_string()),
-                    ..Default::default()
-                });
-            }
-            StatementKind::Action(a) => {
-                items.push(CompletionItem {
-                    label: a.name.clone(),
-                    kind: Some(CompletionItemKind::FUNCTION),
-                    detail: Some("Action function".to_string()),
-                    ..Default::default()
-                });
-            }
-            _ => {}
-        }
+fn keywords(in_store: bool) -> Vec<CompletionItem> {
+    reference::KEYWORDS
+        .iter()
+        .filter(|k| k.place == Place::Body)
+        .filter(|k| {
+            !in_store
+                || matches!(
+                    k.name,
+                    "state"
+                        | "derived"
+                        | "action"
+                        | "effect"
+                        | "return"
+                        | "if"
+                        | "else"
+                        | "for"
+                        | "in"
+                        | "log"
+                        | "navigate"
+                )
+        })
+        .map(|k| CompletionItem {
+            label: k.name.to_string(),
+            kind: Some(CompletionItemKind::KEYWORD),
+            detail: Some(k.summary.to_string()),
+            insert_text: Some(keyword_snippet(k.name)),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            sort_text: Some(format!("2{}", k.name)),
+            ..Default::default()
+        })
+        .collect()
+}
+
+fn keyword_snippet(name: &str) -> String {
+    match name {
+        "state" => "state ${1:name} = ${2:0}".into(),
+        "derived" => "derived ${1:name} = ${2:expression}".into(),
+        "effect" => "effect {\n\t$0\n}".into(),
+        "action" => "action ${1:name}(${2}) {\n\t$0\n}".into(),
+        "use" => "use ${1:Store}".into(),
+        "if" => "if ${1:condition} {\n\t$0\n}".into(),
+        "else" => "else {\n\t$0\n}".into(),
+        "for" => "for ${1:item} in ${2:items} {\n\t$0\n}".into(),
+        "show" => "show ${1:visible} {\n\t$0\n}".into(),
+        "fetch" => "fetch ${1:data} from \"${2:/api/}\" {\n\tloading { Spinner() }\n\terror (err) { Alert(\"{err.message}\", danger) }\n\tsuccess {\n\t\t$0\n\t}\n}".into(),
+        "navigate" => "navigate(\"${1:/}\")".into(),
+        "log" => "log(${1:value})".into(),
+        "return" => "return $0".into(),
+        "animate" => "animate(${1:target}, ${2:fadeIn})".into(),
+        "style" => "style {\n\t${1:padding}: \"${2:1rem}\"\n\t$0\n}".into(),
+        "transition" => "transition {\n\t${1:background} ${2:200ms} ${3:ease}\n}".into(),
+        other => other.into(),
+    }
+}
+
+fn scope_items(scope: &[Binding]) -> Vec<CompletionItem> {
+    let mut seen = std::collections::HashSet::new();
+    scope
+        .iter()
+        .filter(|b| seen.insert(b.name.clone()))
+        .map(|b| binding_item(b, None))
+        .collect()
+}
+
+fn binding_item(b: &Binding, store: Option<&str>) -> CompletionItem {
+    let kind = match b.kind {
+        BindingKind::Action => CompletionItemKind::FUNCTION,
+        BindingKind::Store => CompletionItemKind::MODULE,
+        BindingKind::Prop | BindingKind::Param => CompletionItemKind::VARIABLE,
+        _ => CompletionItemKind::VARIABLE,
+    };
+    let detail = match store {
+        Some(s) => format!("{} of {s}", b.kind.label()),
+        None => b.kind.label().to_string(),
+    };
+    CompletionItem {
+        label: b.name.clone(),
+        kind: Some(kind),
+        detail: Some(detail),
+        insert_text: (b.kind == BindingKind::Action).then(|| format!("{}($0)", b.name)),
+        insert_text_format: (b.kind == BindingKind::Action).then_some(InsertTextFormat::SNIPPET),
+        sort_text: Some(format!("0{}", b.name)),
+        ..Default::default()
+    }
+}
+
+/// When the file does not parse, offer by the nearest shape: components and
+/// keywords in a body, arguments of the element whose parenthesis is open.
+fn fallback(project: &Project, previous: &[&Token]) -> Vec<CompletionItem> {
+    if let Some(ParenOwner::Element(name)) = open_paren_owner(previous) {
+        return element_arguments(project, &name);
+    }
+    let mut items = components(project);
+    items.extend(keywords(false));
+    items
+}
+
+fn snippet(label: &str, detail: &str, body: &str) -> CompletionItem {
+    CompletionItem {
+        label: label.to_string(),
+        kind: Some(CompletionItemKind::SNIPPET),
+        detail: Some(detail.to_string()),
+        insert_text: Some(body.to_string()),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        ..Default::default()
     }
 }

@@ -3,7 +3,25 @@ use crate::parser::ast::*;
 
 /// Run all accessibility lint rules on the parsed program.
 /// Returns a list of warnings (non-fatal).
+///
+/// Warnings name files by the project convention (`src/pages/<Name>.wf`);
+/// a caller that merged several files knows the real ones and should use
+/// [`lint_accessibility_in`].
 pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
+    lint_accessibility_in(program, &|index| match &program.declarations[index] {
+        Declaration::Page(page) => format!("src/pages/{}.wf", page.name),
+        Declaration::Component(comp) => format!("src/components/{}.wf", comp.name),
+        _ => "src/App.wf".to_string(),
+    })
+}
+
+/// [`lint_accessibility`] for a program merged from several files: `file_of`
+/// names the file the declaration at that index came from, so a warning
+/// points at the source a reader can open.
+pub fn lint_accessibility_in(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<A11yWarning> {
     let mut warnings = Vec::new();
     // A page's outline includes the headings of the components it calls, so
     // the outline check reads through a call to the component's body.
@@ -16,20 +34,23 @@ pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
         })
         .collect();
 
-    for decl in &program.declarations {
+    for (index, decl) in program.declarations.iter().enumerate() {
         match decl {
             Declaration::Page(page) => {
-                let file = format!("src/pages/{}.wf", page.name);
-                lint_page(page, &file, &mut warnings, &components);
+                lint_page(page, &file_of(index), &mut warnings, &components);
             }
             Declaration::Component(comp) => {
-                let file = format!("src/components/{}.wf", comp.name);
-                lint_statements(&comp.body, &file, &mut warnings, &mut HeadingTracker::new());
+                lint_statements(
+                    &comp.body,
+                    &file_of(index),
+                    &mut warnings,
+                    &mut HeadingTracker::new(),
+                );
             }
             Declaration::App(app) => {
                 lint_statements(
                     &app.body,
-                    "src/App.wf",
+                    &file_of(index),
                     &mut warnings,
                     &mut HeadingTracker::new(),
                 );
@@ -39,7 +60,7 @@ pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
         }
     }
 
-    warnings.extend(lint_seo(program));
+    warnings.extend(lint_seo(program, file_of));
     warnings
 }
 
@@ -49,15 +70,21 @@ pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
 /// crawler cannot summarise is usually a page a screen reader cannot either. A
 /// missing description is a search result whose snippet is written by whatever
 /// crawled it; a duplicate route is two pages competing for one ranking.
-fn lint_seo(program: &Program) -> Vec<A11yWarning> {
+fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
     let mut warnings = Vec::new();
     let mut seen_paths: Vec<(&str, &str)> = Vec::new();
 
-    for decl in &program.declarations {
+    for (index, decl) in program.declarations.iter().enumerate() {
         let Declaration::Page(page) = decl else {
             continue;
         };
-        let file = format!("src/pages/{}.wf", page.name);
+        let file = file_of(index);
+        // These are findings about the page as a whole, so they point at its
+        // header — where the title and description are written.
+        let (line, col) = (
+            page.header_span.line.max(1) as usize,
+            page.header_span.col.max(1) as usize,
+        );
 
         // S01: a page with no title has nothing to show as a search result link.
         if page.title.as_deref().unwrap_or("").trim().is_empty() {
@@ -65,8 +92,8 @@ fn lint_seo(program: &Program) -> Vec<A11yWarning> {
                 "S01",
                 format!("Page {} has no title", page.name),
                 &file,
-                1,
-                1,
+                line,
+                col,
                 "Add one: Page Name (path: \"/\", title: \"What this page is\")",
             ));
         }
@@ -77,8 +104,8 @@ fn lint_seo(program: &Program) -> Vec<A11yWarning> {
                 "S02",
                 format!("Page {} has no description", page.name),
                 &file,
-                1,
-                1,
+                line,
+                col,
                 "Add one: Page Name (path: \"/\", title: \"…\", description: \"A sentence a search result can show\")",
             ));
         }
@@ -94,8 +121,8 @@ fn lint_seo(program: &Program) -> Vec<A11yWarning> {
                         page.name
                     ),
                     &file,
-                    1,
-                    1,
+                    line,
+                    col,
                     "Shorten it, or accept that it will be cut mid-sentence",
                 ));
             }
@@ -110,8 +137,8 @@ fn lint_seo(program: &Program) -> Vec<A11yWarning> {
                     other, page.name, page.path
                 ),
                 &file,
-                1,
-                1,
+                line,
+                col,
                 "Give each page its own path",
             ));
         }

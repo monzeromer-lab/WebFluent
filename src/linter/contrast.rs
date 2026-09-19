@@ -131,21 +131,40 @@ fn used_modifiers(program: &Program) -> std::collections::HashSet<String> {
 }
 
 /// Check the declared theme's tokens, layered over the baseline.
+///
+/// Warnings name the file by convention (`src/theme.wf`); a caller that
+/// merged several files knows the real one and should use [`lint_contrast_in`].
 pub fn lint_contrast(
     program: &Program,
     resolved: &std::collections::HashMap<String, String>,
 ) -> Vec<A11yWarning> {
+    lint_contrast_in(program, resolved, &|_| "src/theme.wf".to_string())
+}
+
+/// [`lint_contrast`] for a program merged from several files: `file_of` names
+/// the file the declaration at that index came from.
+pub fn lint_contrast_in(
+    program: &Program,
+    resolved: &std::collections::HashMap<String, String>,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<A11yWarning> {
     // Only report on projects that actually declare a theme: the baseline is the
     // engine's own problem, and warning about it on every build of every project
     // would say nothing the author can act on.
-    let Some(theme) = program.declarations.iter().find_map(|d| match d {
-        Declaration::Theme(t) => Some(t),
-        _ => None,
-    }) else {
+    let Some((index, theme)) = program
+        .declarations
+        .iter()
+        .enumerate()
+        .find_map(|(i, d)| match d {
+            Declaration::Theme(t) => Some((i, t)),
+            _ => None,
+        })
+    else {
         return Vec::new();
     };
 
-    let file = "src/theme.wf";
+    let file = file_of(index);
+    let file = file.as_str();
     let touched: Vec<&str> = theme.tokens.iter().map(|t| t.name.as_str()).collect();
     let mut warnings = Vec::new();
 

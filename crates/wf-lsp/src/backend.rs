@@ -1,37 +1,42 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+//! The server: holds the open documents, assembles the project a request
+//! concerns, and answers.
+//!
+//! Every request rebuilds the project from the open buffers and the disk
+//! cache — a few milliseconds for a project of dozens of files, and the only
+//! way an edit in one file is seen at once by every other file's diagnostics.
+//! Diagnostics are pushed: a change to any file re-reports every open file of
+//! the same project, since a renamed component changes what its callers say.
+
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
-use webfluent::lexer::Lexer;
-use webfluent::linter::{lint_accessibility, lint_contrast, lint_vocabulary, validate_semantics};
-use webfluent::parser::{Parser, Program};
-use webfluent::themes::resolve_tokens;
+use webfluent::parser::Program;
 
 use crate::code_actions::provide_code_actions;
 use crate::completion::provide_completions;
 use crate::definition::find_definition;
-use crate::diagnostics::publish_all_diagnostics;
+use crate::diagnostics::project_diagnostics;
 use crate::hover::provide_hover;
-use crate::line_index::LineIndex;
-use crate::symbols::build_document_symbols;
+use crate::project::{FileCache, OpenText, Project};
+use crate::symbols::{document_symbols, workspace_symbols};
 
-/// Per-document cached state.
-pub struct DocumentState {
-    pub source: String,
-    pub index: LineIndex,
-    pub program: Option<Program>,
-    /// Last successfully parsed AST snapshot, keeping hover/completions alive during typing.
-    pub last_valid_program: Option<Program>,
+/// An open editor buffer.
+struct OpenDocument {
+    text: Arc<str>,
+    /// The last parse of this buffer that succeeded.
+    last_valid: Option<Arc<Program>>,
 }
 
-/// The WebFluent LSP backend.
 pub struct Backend {
-    pub client: Client,
-    pub documents: DashMap<String, DocumentState>,
-    pub supports_hierarchical_symbols: Arc<AtomicBool>,
+    client: Client,
+    documents: DashMap<PathBuf, OpenDocument>,
+    cache: FileCache,
+    hierarchical_symbols: AtomicBool,
 }
 
 impl Backend {
@@ -39,112 +44,71 @@ impl Backend {
         Self {
             client,
             documents: DashMap::new(),
-            supports_hierarchical_symbols: Arc::new(AtomicBool::new(true)),
+            cache: FileCache::default(),
+            hierarchical_symbols: AtomicBool::new(true),
         }
     }
 
-    /// Parse a document and cache results; run all compiler linters and publish diagnostics.
-    async fn on_change(&self, uri: Url, text: String) {
-        let uri_str = uri.to_string();
-        let file = uri.path().to_string();
-        let index = LineIndex::new(&text);
+    fn path_of(uri: &Url) -> PathBuf {
+        uri.to_file_path()
+            .unwrap_or_else(|_| PathBuf::from(uri.path()))
+    }
 
-        let mut lexer = Lexer::new(&text, &file);
-        let tokens = lexer.tokenize();
+    /// The project `uri` belongs to, with every open buffer's text.
+    fn project(&self, uri: &Url) -> Project {
+        let open = |path: &Path| -> Option<OpenText> {
+            let doc = self.documents.get(path)?;
+            Some(OpenText {
+                text: doc.text.clone(),
+                last_valid: doc.last_valid.clone(),
+            })
+        };
+        Project::load(uri, &open, &self.cache)
+    }
 
-        match tokens {
-            Ok(tokens) => {
-                let mut parser = Parser::new(tokens, &file);
-                match parser.parse() {
-                    Ok(program) => {
-                        let semantic_diagnostics = validate_semantics(&program, &file);
-                        let vocab_warnings = lint_vocabulary(&program, &file);
-                        let a11y_warnings = lint_accessibility(&program);
-                        let resolved = resolve_tokens(&program, &Default::default()).unwrap_or_default();
-                        let contrast_warnings = lint_contrast(&program, &resolved);
+    /// The project and the index of `uri` in it.
+    fn locate(&self, uri: &Url) -> Option<(Project, usize)> {
+        let project = self.project(uri);
+        let ix = project.file_index(uri)?;
+        Some((project, ix))
+    }
 
-                        self.documents.insert(
-                            uri_str.clone(),
-                            DocumentState {
-                                source: text.clone(),
-                                index: index.clone(),
-                                program: Some(program.clone()),
-                                last_valid_program: Some(program),
-                            },
-                        );
+    /// Records the buffer's text and re-reports the project's open files.
+    async fn changed(&self, uri: Url, text: String) {
+        let path = Self::path_of(&uri);
+        let text: Arc<str> = text.into();
+        let previous = self
+            .documents
+            .get(&path)
+            .and_then(|doc| doc.last_valid.clone());
+        self.documents.insert(
+            path.clone(),
+            OpenDocument {
+                text: text.clone(),
+                last_valid: previous,
+            },
+        );
 
-                        publish_all_diagnostics(
-                            &self.client,
-                            &uri,
-                            &text,
-                            &index,
-                            &[],
-                            &semantic_diagnostics,
-                            &a11y_warnings,
-                            &vocab_warnings,
-                            &contrast_warnings,
-                        )
-                        .await;
-                    }
-                    Err(e) => {
-                        let previous_valid = self
-                            .documents
-                            .get(&uri_str)
-                            .and_then(|doc| doc.last_valid_program.clone());
+        let project = self.project(&uri);
 
-                        self.documents.insert(
-                            uri_str.clone(),
-                            DocumentState {
-                                source: text.clone(),
-                                index: index.clone(),
-                                program: None,
-                                last_valid_program: previous_valid,
-                            },
-                        );
+        // Remember the parse that succeeded, for the next edit that does not.
+        if let Some(file) = project.file(&uri)
+            && let Ok(program) = &file.parsed
+            && let Some(mut doc) = self.documents.get_mut(&path)
+        {
+            doc.last_valid = Some(Arc::new(program.clone()));
+        }
 
-                        publish_all_diagnostics(
-                            &self.client,
-                            &uri,
-                            &text,
-                            &index,
-                            &[e],
-                            &[],
-                            &[],
-                            &[],
-                            &[],
-                        )
-                        .await;
-                    }
-                }
-            }
-            Err(e) => {
-                let previous_valid = self
-                    .documents
-                    .get(&uri_str)
-                    .and_then(|doc| doc.last_valid_program.clone());
+        self.publish(&project).await;
+    }
 
-                self.documents.insert(
-                    uri_str.clone(),
-                    DocumentState {
-                        source: text.clone(),
-                        index: index.clone(),
-                        program: None,
-                        last_valid_program: previous_valid,
-                    },
-                );
-
-                publish_all_diagnostics(
-                    &self.client,
-                    &uri,
-                    &text,
-                    &index,
-                    &[e],
-                    &[],
-                    &[],
-                    &[],
-                    &[],
-                )
-                .await;
+    async fn publish(&self, project: &Project) {
+        let per_file = project_diagnostics(project);
+        for (file, diagnostics) in project.files.iter().zip(per_file) {
+            if file.open {
+                self.client
+                    .publish_diagnostics(file.uri.clone(), diagnostics, None)
+                    .await;
             }
         }
     }
@@ -153,41 +117,48 @@ impl Backend {
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
     async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
-        if let Some(text_doc) = &params.capabilities.text_document {
-            if let Some(doc_sym) = &text_doc.document_symbol {
-                let hierarchical = doc_sym.hierarchical_document_symbol_support.unwrap_or(false);
-                self.supports_hierarchical_symbols
-                    .store(hierarchical, Ordering::Relaxed);
-            }
-        }
+        let hierarchical = params
+            .capabilities
+            .text_document
+            .as_ref()
+            .and_then(|t| t.document_symbol.as_ref())
+            .and_then(|s| s.hierarchical_document_symbol_support)
+            .unwrap_or(false);
+        self.hierarchical_symbols
+            .store(hierarchical, Ordering::Relaxed);
 
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
-                text_document_sync: Some(TextDocumentSyncCapability::Kind(
-                    TextDocumentSyncKind::FULL,
+                text_document_sync: Some(TextDocumentSyncCapability::Options(
+                    TextDocumentSyncOptions {
+                        open_close: Some(true),
+                        change: Some(TextDocumentSyncKind::FULL),
+                        save: Some(TextDocumentSyncSaveOptions::SaveOptions(SaveOptions {
+                            include_text: Some(false),
+                        })),
+                        ..Default::default()
+                    },
                 )),
                 completion_provider: Some(CompletionOptions {
+                    // `.` for members and sub-components, `:` for `on:`; a
+                    // space is not a trigger — it opened the menu after every
+                    // word.
                     trigger_characters: Some(vec![
                         ".".to_string(),
                         ":".to_string(),
                         "(".to_string(),
-                        " ".to_string(),
                     ]),
                     resolve_provider: Some(false),
                     ..Default::default()
                 }),
                 hover_provider: Some(HoverProviderCapability::Simple(true)),
                 document_symbol_provider: Some(OneOf::Left(true)),
+                workspace_symbol_provider: Some(OneOf::Left(true)),
                 definition_provider: Some(OneOf::Left(true)),
-                code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
-                diagnostic_provider: Some(DiagnosticServerCapabilities::Options(
-                    DiagnosticOptions {
-                        identifier: Some("webfluent".to_string()),
-                        inter_file_dependencies: false,
-                        workspace_diagnostics: false,
-                        work_done_progress_options: WorkDoneProgressOptions {
-                            work_done_progress: None,
-                        },
+                code_action_provider: Some(CodeActionProviderCapability::Options(
+                    CodeActionOptions {
+                        code_action_kinds: Some(vec![CodeActionKind::QUICKFIX]),
+                        ..Default::default()
                     },
                 )),
                 ..Default::default()
@@ -203,7 +174,7 @@ impl LanguageServer for Backend {
         self.client
             .log_message(
                 MessageType::INFO,
-                format!("WebFluent LSP v{} initialized", env!("CARGO_PKG_VERSION")),
+                format!("WebFluent language server v{}", env!("CARGO_PKG_VERSION")),
             )
             .await;
     }
@@ -213,80 +184,73 @@ impl LanguageServer for Backend {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        let uri = params.text_document.uri;
-        let text = params.text_document.text;
-        self.on_change(uri, text).await;
+        self.changed(params.text_document.uri, params.text_document.text)
+            .await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
-        let uri = params.text_document.uri;
         if let Some(change) = params.content_changes.into_iter().last() {
-            self.on_change(uri, change.text).await;
+            self.changed(params.text_document.uri, change.text).await;
         }
     }
 
+    async fn did_save(&self, params: DidSaveTextDocumentParams) {
+        // The disk now agrees with the buffer; other files of the project
+        // that read it from the disk are re-reported.
+        let project = self.project(&params.text_document.uri);
+        self.publish(&project).await;
+    }
+
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
-        let uri_str = params.text_document.uri.to_string();
-        self.documents.remove(&uri_str);
+        let uri = params.text_document.uri;
+        self.documents.remove(&Self::path_of(&uri));
+        self.client.publish_diagnostics(uri, Vec::new(), None).await;
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
-        let uri_str = params.text_document_position.text_document.uri.to_string();
-        let position = params.text_document_position.position;
-
-        let items = if let Some(doc) = self.documents.get(&uri_str) {
-            let prog = doc
-                .program
-                .as_ref()
-                .or(doc.last_valid_program.as_ref());
-            provide_completions(&doc.source, position, prog)
-        } else {
-            vec![]
+        let uri = params.text_document_position.text_document.uri;
+        let items = match self.locate(&uri) {
+            Some((project, ix)) => {
+                provide_completions(&project, ix, params.text_document_position.position)
+            }
+            None => Vec::new(),
         };
-
         Ok(Some(CompletionResponse::Array(items)))
     }
 
     async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
-        let uri_str = params
-            .text_document_position_params
-            .text_document
-            .uri
-            .to_string();
-        let position = params.text_document_position_params.position;
-
-        if let Some(doc) = self.documents.get(&uri_str) {
-            let prog = doc
-                .program
-                .as_ref()
-                .or(doc.last_valid_program.as_ref());
-            Ok(provide_hover(&doc.source, position, prog))
-        } else {
-            Ok(None)
-        }
+        let uri = params.text_document_position_params.text_document.uri;
+        Ok(self.locate(&uri).and_then(|(project, ix)| {
+            provide_hover(&project, ix, params.text_document_position_params.position)
+        }))
     }
 
     async fn document_symbol(
         &self,
         params: DocumentSymbolParams,
     ) -> Result<Option<DocumentSymbolResponse>> {
-        let uri = params.text_document.uri;
-        let uri_str = uri.to_string();
+        let hierarchical = self.hierarchical_symbols.load(Ordering::Relaxed);
+        Ok(self
+            .locate(&params.text_document.uri)
+            .map(|(project, ix)| document_symbols(&project, ix, hierarchical)))
+    }
 
-        if let Some(doc) = self.documents.get(&uri_str) {
-            if let Some(program) = doc.program.as_ref().or(doc.last_valid_program.as_ref()) {
-                let hierarchical = self.supports_hierarchical_symbols.load(Ordering::Relaxed);
-                return Ok(Some(build_document_symbols(
-                    program,
-                    &doc.source,
-                    &doc.index,
-                    &uri,
-                    hierarchical,
-                )));
-            }
-        }
-
-        Ok(Some(DocumentSymbolResponse::Flat(vec![])))
+    async fn symbol(
+        &self,
+        params: WorkspaceSymbolParams,
+    ) -> Result<Option<Vec<SymbolInformation>>> {
+        // The project of any open document; they are all the same project
+        // in the usual case of one window per project.
+        let Some(uri) = self
+            .documents
+            .iter()
+            .next()
+            .and_then(|entry| Url::from_file_path(entry.key()).ok())
+        else {
+            return Ok(Some(Vec::new()));
+        };
+        let project = self.project(&uri);
+        Ok(Some(workspace_symbols(&project, &params.query)))
     }
 
     async fn goto_definition(
@@ -294,21 +258,13 @@ impl LanguageServer for Backend {
         params: GotoDefinitionParams,
     ) -> Result<Option<GotoDefinitionResponse>> {
         let uri = params.text_document_position_params.text_document.uri;
-        let uri_str = uri.to_string();
-        let position = params.text_document_position_params.position;
-
-        if let Some(doc) = self.documents.get(&uri_str) {
-            if let Some(program) = doc.program.as_ref().or(doc.last_valid_program.as_ref()) {
-                return Ok(find_definition(program, &doc.source, &doc.index, &uri, position));
-            }
-        }
-
-        Ok(None)
+        Ok(self.locate(&uri).and_then(|(project, ix)| {
+            find_definition(&project, ix, params.text_document_position_params.position)
+        }))
     }
 
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = params.text_document.uri.clone();
-        let actions = provide_code_actions(&uri, params);
-        Ok(Some(actions))
+        Ok(Some(provide_code_actions(&uri, params)))
     }
 }

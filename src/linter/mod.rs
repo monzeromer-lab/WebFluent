@@ -18,14 +18,18 @@ pub mod semantic;
 pub mod slides_validation;
 pub mod vocabulary;
 
-pub use accessibility::lint_accessibility;
-pub use contrast::lint_contrast;
+pub use accessibility::lint_accessibility_in;
+pub use contrast::lint_contrast_in;
 pub use pdf_validation::validate_for_pdf;
 pub use semantic::validate_semantics_in;
 pub use slides_validation::validate_for_slides;
 pub use vocabulary::lint_vocabulary_in;
-// The single-file forms are public API — the LSP, the studio and the docs
-// reach them as `webfluent::…` — while the build uses the per-file forms.
+// The single-file forms are public API — the studio and the docs reach them
+// as `webfluent::…` — while the build and the LSP use the per-file forms.
+#[allow(unused_imports)]
+pub use accessibility::lint_accessibility;
+#[allow(unused_imports)]
+pub use contrast::lint_contrast;
 #[allow(unused_imports)]
 pub use semantic::validate_semantics;
 #[allow(unused_imports)]
