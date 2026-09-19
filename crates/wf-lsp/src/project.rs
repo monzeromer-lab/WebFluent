@@ -211,9 +211,13 @@ impl Project {
         }
     }
 
-    /// The file `uri` names, if it is part of this project.
+    /// The file `uri` names, if it is part of this project. Matched by path
+    /// rather than by URL text, since clients differ in how they escape one.
     pub fn file_index(&self, uri: &Url) -> Option<usize> {
-        self.files.iter().position(|file| &file.uri == uri)
+        match uri.to_file_path() {
+            Ok(path) => self.files.iter().position(|file| file.path == path),
+            Err(_) => self.files.iter().position(|file| &file.uri == uri),
+        }
     }
 
     pub fn file(&self, uri: &Url) -> Option<&SourceFile> {
