@@ -335,3 +335,26 @@ test("a menu's items are menuitems the arrow keys move between, and choosing one
   assert.equal(open(), false, "choosing an item closes the menu");
   assert.equal(document.activeElement, trigger, "and focus returns to the button");
 });
+
+test("a field labels its control, describes it, and announces its error", () => {
+  const { WF, document } = loadRuntime();
+  const error = WF.signal("");
+  const input = WF.h("input", { className: "wf-input", type: "text" });
+  const field = WF.field(input, { label: "Name", hint: "As on your passport", error: () => error() });
+  document.body.appendChild(field);
+
+  const label = field.querySelector("label");
+  assert.equal(label.textContent, "Name");
+  assert.equal(label.getAttribute("for"), input.id, "the label points at the control");
+  const hint = field.querySelector(".wf-field__hint");
+  const message = field.querySelector(".wf-field__error");
+  assert.equal(input.getAttribute("aria-describedby"), `${hint.id} ${message.id}`);
+  assert.equal(message.getAttribute("role"), "alert");
+  assert.equal(message.getAttribute("hidden"), "", "no error, no message");
+  assert.equal(input.getAttribute("aria-invalid"), "false");
+
+  error.set("Enter your name");
+  assert.equal(message.textContent, "Enter your name");
+  assert.equal(message.getAttribute("hidden"), null);
+  assert.equal(input.getAttribute("aria-invalid"), "true");
+});

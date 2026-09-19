@@ -1018,6 +1018,13 @@ impl JsCodegen {
                     classes.push(mod_class);
                 }
 
+                // An `Input` or `Select` with a label, hint or error is wrapped
+                // in a field that carries them.
+                let is_field = matches!(name.as_str(), "Input" | "Select")
+                    && ui.args.iter().any(|a| {
+                        matches!(a, Arg::Named(k, _) if k == "label" || k == "hint" || k == "error")
+                    });
+
                 // Process named args as HTML attributes
                 for arg in &ui.args {
                     match arg {
@@ -1051,6 +1058,9 @@ impl JsCodegen {
                                         ));
                                     }
                                 }
+                                // A field's label, hint and error are elements
+                                // beside the control, built by `WF.field` below.
+                                "label" | "hint" | "error" if is_field => {}
                                 "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max"
                                 | "step" | "accept" | "label" | "required" | "disabled"
                                 | "controls" | "autoplay" | "role" | "width" | "height"
@@ -1235,12 +1245,12 @@ impl JsCodegen {
                     attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
                 }
 
-                // An image with no intrinsic size gets no space reserved, so the
-                // page reflows around it when it lands — the single largest
-                // source of layout shift on a content site. Lazy loading and
-                // async decoding keep offscreen images off the critical path.
+                // Async decoding keeps an image off the critical path. Whether
+                // it loads lazily is the runtime's call: the first image of a
+                // page is the one the largest paint waits for, and is fetched
+                // first; the rest load lazily. An explicit `loading:` wins.
                 if name == "Image" {
-                    for (key, default) in [("loading", "lazy"), ("decoding", "async")] {
+                    for (key, default) in [("decoding", "async")] {
                         if !attrs.iter().any(|a| a.starts_with(&format!("{}:", key)))
                             && !ui
                                 .args
@@ -1520,7 +1530,31 @@ impl JsCodegen {
 
                 self.emit_style_and_transition(&var, ui);
 
-                self.emit_line(&format!("{}.appendChild({});", parent, var));
+                if is_field {
+                    let mut opts = Vec::new();
+                    for key in ["label", "hint", "error"] {
+                        if let Some(Arg::Named(_, val)) = ui
+                            .args
+                            .iter()
+                            .find(|a| matches!(a, Arg::Named(k, _) if k == key))
+                        {
+                            let v = self.emit_expr(val);
+                            if self.is_reactive(&v) {
+                                opts.push(format!("{key}: () => {v}"));
+                            } else {
+                                opts.push(format!("{key}: {v}"));
+                            }
+                        }
+                    }
+                    self.emit_line(&format!(
+                        "{}.appendChild(WF.field({}, {{ {} }}));",
+                        parent,
+                        var,
+                        opts.join(", ")
+                    ));
+                } else {
+                    self.emit_line(&format!("{}.appendChild({});", parent, var));
+                }
             }
 
             ComponentRef::SubComponent(parent_name, sub_name) => {

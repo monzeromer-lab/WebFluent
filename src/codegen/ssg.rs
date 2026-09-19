@@ -98,6 +98,8 @@ pub fn render_page_html_studio(
     let link_base = config.build.base_path.clone();
 
     let mut ctx = SsgContext {
+        images: 0,
+        fields: 0,
         default_messages,
         indent: 2,
         base_path,
@@ -194,6 +196,10 @@ pub fn render_page_html_studio(
 }
 
 struct SsgContext {
+    /// Images painted so far on this page; the first is fetched eagerly.
+    images: usize,
+    /// Fields painted so far, for their ids.
+    fields: usize,
     default_messages: HashMap<String, String>,
     indent: usize,
     base_path: String, // Relative path to root for assets (e.g., ".." for /about)
@@ -241,6 +247,11 @@ fn link_is_current(href: &str, current: &str, prefix: bool) -> bool {
 const MAX_COMPONENT_DEPTH: usize = 12;
 
 impl SsgContext {
+    fn next_field_id(&mut self) -> usize {
+        self.fields += 1;
+        self.fields
+    }
+
     fn indent_str(&self) -> String {
         "    ".repeat(self.indent)
     }
@@ -747,14 +758,27 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     // dimensions the browser allocates none, and the page shifts when the image
     // arrives.
     if name == "Image" {
-        for (key, default) in [("loading", "lazy"), ("decoding", "async")] {
-            if !ui
-                .args
-                .iter()
-                .any(|a| matches!(a, Arg::Named(k, _) if k == key))
-            {
-                attrs.push(format!("{}=\"{}\"", key, default));
+        if !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "decoding"))
+        {
+            attrs.push("decoding=\"async\"".to_string());
+        }
+        // The page's first image is the one its largest paint waits for, so
+        // it is fetched first; the rest load when they come into view.
+        if !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "loading"))
+        {
+            if ctx.images == 0 {
+                attrs.push("loading=\"eager\"".to_string());
+                attrs.push("fetchpriority=\"high\"".to_string());
+            } else {
+                attrs.push("loading=\"lazy\"".to_string());
             }
+            ctx.images += 1;
         }
     }
 
@@ -790,6 +814,43 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     } else {
         format!(" {}", attrs.join(" "))
     };
+
+    // An Input with a label, hint or error is a field: the label, the
+    // control, then the hint and the error message, as the bundle builds it.
+    if matches!(name, "Input" | "Select")
+        && field_parts(ui, |e| static_attr(e, &ctx.scope)).is_some()
+    {
+        let mut parts = field_parts(ui, |e| static_attr(e, &ctx.scope)).unwrap_or_default();
+        let id = format!("wf-field-{}", ctx.next_field_id());
+        parts.set_id(&id);
+        let control = if actual_tag == "input" {
+            format!(
+                "<{}{} id=\"{}\"{}>",
+                actual_tag,
+                attrs_str,
+                id,
+                parts.control_attrs()
+            )
+        } else {
+            let inner = {
+                ctx.indent += 1;
+                let r = render_statements(&ui.children, ctx);
+                ctx.indent -= 1;
+                r
+            };
+            format!(
+                "<{}{} id=\"{}\"{}>\n{}{}</{}>",
+                actual_tag,
+                attrs_str,
+                id,
+                parts.control_attrs(),
+                inner,
+                indent,
+                actual_tag
+            )
+        };
+        return static_field(&indent, &id, &control, &parts);
+    }
 
     // Self-closing tags
     if matches!(actual_tag, "input" | "img" | "hr" | "br") {
@@ -846,6 +907,96 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
 
     result.push_str(&format!("{}</{}>\n", indent, actual_tag));
     result
+}
+
+/// A field's label, hint and error, resolved to text.
+#[derive(Default)]
+pub struct FieldParts {
+    pub label: Option<String>,
+    pub hint: Option<String>,
+    /// The error argument as written: `Some(None)` when it is there but
+    /// cannot be known at build time (the client will fill it in),
+    /// `Some(Some(text))` when it can.
+    pub error: Option<Option<String>>,
+    id: String,
+}
+
+impl FieldParts {
+    pub fn set_id(&mut self, id: &str) {
+        self.id = id.to_string();
+    }
+
+    /// The `aria-describedby` and `aria-invalid` attributes the control
+    /// carries, given its id.
+    pub fn control_attrs(&self) -> String {
+        let mut described = Vec::new();
+        if self.hint.is_some() {
+            described.push(format!("{}-hint", self.id));
+        }
+        if self.error.is_some() {
+            described.push(format!("{}-error", self.id));
+        }
+        let mut out = String::new();
+        if !described.is_empty() {
+            out.push_str(&format!(" aria-describedby=\"{}\"", described.join(" ")));
+        }
+        if let Some(error) = &self.error {
+            let invalid = error.as_deref().is_some_and(|e| !e.is_empty());
+            out.push_str(&format!(" aria-invalid=\"{}\"", invalid));
+        }
+        out
+    }
+}
+
+/// The field parts of an `Input`/`Select`, or `None` when it has none.
+pub fn field_parts(
+    ui: &UIElement,
+    resolve: impl Fn(&Expr) -> Option<String>,
+) -> Option<FieldParts> {
+    let arg = |key: &str| {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == key => Some(v),
+            _ => None,
+        })
+    };
+    let (label, hint, error) = (arg("label"), arg("hint"), arg("error"));
+    if label.is_none() && hint.is_none() && error.is_none() {
+        return None;
+    }
+    Some(FieldParts {
+        label: label.and_then(&resolve),
+        hint: hint.and_then(&resolve),
+        error: error.map(resolve),
+        id: String::new(),
+    })
+}
+
+/// The static markup of a field: label, control, hint, error.
+pub fn static_field(indent: &str, id: &str, control: &str, parts: &FieldParts) -> String {
+    let mut out = format!("{indent}<div class=\"wf-field\">\n");
+    if let Some(label) = &parts.label {
+        out.push_str(&format!(
+            "{indent}    <label class=\"wf-label\" for=\"{id}\">{}</label>\n",
+            html_escape(label)
+        ));
+    }
+    out.push_str(&format!("{indent}    {control}\n"));
+    if let Some(hint) = &parts.hint {
+        out.push_str(&format!(
+            "{indent}    <p class=\"wf-field__hint\" id=\"{id}-hint\">{}</p>\n",
+            html_escape(hint)
+        ));
+    }
+    if let Some(error) = &parts.error {
+        let text = error.as_deref().unwrap_or("");
+        let hidden = if text.is_empty() { " hidden" } else { "" };
+        out.push_str(&format!(
+            "{indent}    <p class=\"wf-field__error\" id=\"{id}-error\" role=\"alert\"{hidden}>{}</p>\n",
+            html_escape(text)
+        ));
+    }
+    out.push_str(&format!("{indent}</div>\n"));
+    out
 }
 
 /// `Slider`, `DatePicker` and `FileUpload`: a wrapper carrying the component

@@ -304,6 +304,8 @@ struct RenderContext<'a> {
     /// The caller's block for each user component being expanded, innermost
     /// last; `children` renders the top one.
     slots: Vec<Vec<Statement>>,
+    /// Fields rendered so far, for their ids.
+    fields: usize,
 }
 
 impl<'a> RenderContext<'a> {
@@ -315,6 +317,7 @@ impl<'a> RenderContext<'a> {
             indent: 1,
             in_thead: false,
             slots: Vec::new(),
+            fields: 0,
         }
     }
 
@@ -861,6 +864,40 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         format!(" {}", attrs.join(" "))
     };
 
+    // A field: label, control, hint, error — the shape the bundle builds.
+    if matches!(name, "Input" | "Select") {
+        let resolve = |e: &Expr| Some(value_to_string(&ctx.eval_expr(e)));
+        if let Some(mut parts) = crate::codegen::ssg::field_parts(ui, resolve) {
+            ctx.fields += 1;
+            let id = format!("wf-field-{}", ctx.fields);
+            parts.set_id(&id);
+            let control = if actual_tag == "input" {
+                format!(
+                    "<{}{} id=\"{}\"{}>",
+                    actual_tag,
+                    attrs_str,
+                    id,
+                    parts.control_attrs()
+                )
+            } else {
+                ctx.indent += 1;
+                let inner = render_statements(&ui.children, ctx);
+                ctx.indent -= 1;
+                format!(
+                    "<{}{} id=\"{}\"{}>\n{}{}</{}>",
+                    actual_tag,
+                    attrs_str,
+                    id,
+                    parts.control_attrs(),
+                    inner,
+                    indent,
+                    actual_tag
+                )
+            };
+            return crate::codegen::ssg::static_field(&indent, &id, &control, &parts);
+        }
+    }
+
     // Self-closing tags
     if matches!(actual_tag, "input" | "img" | "hr" | "br") {
         return format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
@@ -1069,6 +1106,7 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                             indent: ctx.indent,
                             in_thead: ctx.in_thead,
                             slots: ctx.slots.clone(),
+                            fields: ctx.fields + i * 1000,
                         };
                         child_ctx.locals.insert(for_stmt.item.clone(), item.clone());
                         if let Some(idx_var) = &for_stmt.index {

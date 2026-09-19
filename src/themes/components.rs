@@ -239,6 +239,12 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-dropdown__divider { border-top: 1px solid var(--color-border); margin: var(--spacing-xs) 0; }
 
 /* ─── Input ─────────────────────────────────────────── */
+.wf-field { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+.wf-field .wf-label { font-weight: var(--font-weight-medium); }
+.wf-field__hint { margin: 0; font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.wf-field__error { margin: 0; font-size: var(--font-size-sm); color: var(--color-danger); }
+.wf-field__error[hidden] { display: none; }
+.wf-input[aria-invalid="true"], .wf-select[aria-invalid="true"] { border-color: var(--color-danger); }
 .wf-input { display: block; width: 100%; padding: var(--spacing-sm) var(--spacing-md); font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .wf-input:focus-visible { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 .wf-input::placeholder { color: var(--color-text-muted); }

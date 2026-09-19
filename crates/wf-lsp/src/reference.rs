@@ -44,6 +44,14 @@ const BIND: ArgDoc = arg(
     "State variable the control reads and writes (two-way)",
 );
 const LABEL: ArgDoc = arg("label", "Visible label; also the control's accessible name");
+const HINT: ArgDoc = arg(
+    "hint",
+    "Help text under the control, linked to it by `aria-describedby`",
+);
+const ERROR: ArgDoc = arg(
+    "error",
+    "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`",
+);
 const GAP: ArgDoc = arg(
     "gap",
     "Space between children: `xs`, `sm`, `md`, `lg` or `xl`",
@@ -349,11 +357,13 @@ pub const COMPONENTS: &[ComponentDoc] = &[
         name: "Input",
         group: "Form",
         summary: "Text field. The first positional word is the input type.",
-        usage: "Input(text, bind: name, placeholder: \"…\", label: \"Name\")",
+        usage: "Input(text, bind: name, label: \"Name\", hint: \"As on your passport\", error: nameError)",
         positional: "the type: `text`, `email`, `password`, `number`, `search`, `tel`, `url`, `date`, `time` or `color`",
         args: &[
             BIND,
             LABEL,
+            HINT,
+            ERROR,
             arg("placeholder", "Hint shown while the field is empty"),
             arg("required", "Whether the form refuses to submit without it"),
             arg("disabled", "Whether the field is inert"),
@@ -369,7 +379,13 @@ pub const COMPONENTS: &[ComponentDoc] = &[
         summary: "Drop-down of `Option` children.",
         usage: "Select(bind: role, label: \"Choose\") { Option(\"admin\", \"Admin\") }",
         positional: "",
-        args: &[BIND, LABEL, arg("disabled", "Whether the control is inert")],
+        args: &[
+            BIND,
+            LABEL,
+            HINT,
+            ERROR,
+            arg("disabled", "Whether the control is inert"),
+        ],
         modifiers: &[],
         children: &[],
     },
@@ -633,7 +649,7 @@ pub const COMPONENTS: &[ComponentDoc] = &[
             arg("height", "Intrinsic height"),
             arg(
                 "loading",
-                "`\"lazy\"` to defer loading until near the viewport",
+                "`\"lazy\"` or `\"eager\"`; unset, the first image on a page is eager at high priority and the rest lazy",
             ),
         ],
         modifiers: &["rounded", "circle"],

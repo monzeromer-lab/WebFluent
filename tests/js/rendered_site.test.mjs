@@ -463,10 +463,17 @@ test("alerts are live regions, chosen by severity", () => {
   assert.ok(roles.includes("status"), "a success alert must not interrupt");
 });
 
-test("images reserve space and stay off the critical path", () => {
+test("the first image is fetched first and the rest stay off the critical path", () => {
   const { app } = mountSite("gallery");
-  for (const img of byTag(app, "img")) {
-    assert.equal(img.getAttribute("loading"), "lazy", "images should default to lazy");
+  const images = byTag(app, "img");
+  assert.ok(images.length >= 2, "the gallery has several images");
+  const [first, ...rest] = images;
+  assert.equal(first.getAttribute("loading"), "eager", "the page's first image is what the largest paint waits for");
+  assert.equal(first.getAttribute("fetchpriority"), "high");
+  for (const img of rest) {
+    assert.equal(img.getAttribute("loading"), "lazy", "later images default to lazy");
+  }
+  for (const img of images) {
     assert.equal(img.getAttribute("decoding"), "async");
   }
 });

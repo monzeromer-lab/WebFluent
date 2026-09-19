@@ -430,8 +430,8 @@ Link(to: "/about") { Text("About") } // Declarative
 
 | Component | Usage |
 |-----------|-------|
-| `Input` | `Input(text, bind: var, placeholder: "...", label: "Name")` |
-| `Select` | `Select(bind: var, label: "Choose") { Option("val1", "Label 1") }` — an `Option`'s first positional is the value, the second the visible label (one positional is both) |
+| `Input` | `Input(text, bind: var, placeholder: "...", label: "Name", hint: "As on your passport", error: nameError)` — with `label:`, `hint:` or `error:` the control is wrapped in a field: the label is a `<label for>`, the hint and the error are linked by `aria-describedby`, the error (a string, empty when there is none) is announced as it appears and sets `aria-invalid` |
+| `Select` | `Select(bind: var, label: "Choose", hint: "...", error: roleError) { Option("val1", "Label 1") }` — field wrapping as `Input`; an `Option`'s first positional is the value, the second the visible label (one positional is both) |
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
@@ -470,7 +470,7 @@ Button modifiers: `small`, `large`, `full`, `rounded`, `pill`, `outlined`
 
 | Component | Usage |
 |-----------|-------|
-| `Image` | `Image(src: "/photo.jpg", alt: "Description")` |
+| `Image` | `Image(src: "/photo.jpg", alt: "Description")` — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", controls: true)` |
 | `Icon` | `Icon("home")` or `Icon("search", large, primary)` — 30 built-in SVG icons rendered inline |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
@@ -851,6 +851,10 @@ and a single-page build fetches a chunk the first time its route is shown.
 A literal in a `style { }` block is compiled into `styles.css` under a class
 named by the block's content, so a hundred identical cards share one rule;
 only a value that reads state is set on the element.
+
+Images are given `decoding="async"`; the first on a page is eager with
+`fetchpriority="high"` and every later one `loading="lazy"`, unless the
+element sets `loading:` itself.
 
 ## Search and Sharing
 

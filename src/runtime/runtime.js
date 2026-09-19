@@ -120,7 +120,31 @@ const WF = (() => {
     } else if (selectValue != null) {
       el.value = selectValue;
     }
+    if (tag === "img" && !el.hasAttribute("loading")) _imageDefaults(el);
     return el;
+  }
+
+  // ─── Images ──────────────────────────────────────────
+  //
+  // The first image a page creates is, near enough always, the one at the
+  // top of it — the hero, the product shot — and the one Largest
+  // Contentful Paint waits for. Lazy-loading it defers exactly the request
+  // that matters; the rest of the page's images are what lazy loading is
+  // for. The count restarts with every page the router draws.
+  let imagesThisPage = 0;
+
+  function _imageDefaults(el) {
+    if (imagesThisPage === 0) {
+      el.setAttribute("loading", "eager");
+      el.setAttribute("fetchpriority", "high");
+    } else {
+      el.setAttribute("loading", "lazy");
+    }
+    imagesThisPage += 1;
+  }
+
+  function _newPage() {
+    imagesThisPage = 0;
   }
 
   // A component's props: what the caller gave, with declared defaults for
@@ -494,6 +518,7 @@ const WF = (() => {
         // The page arrived after the reader had already moved on.
         if (currentPath() !== path) return;
         container.innerHTML = "";
+        _newPage();
         // The tab, the history entry and a screen reader all read the title;
         // a single-page app used to keep the entry page's title on every route.
         if (match.route.title) document.title = match.route.title;
@@ -911,6 +936,54 @@ const WF = (() => {
     setTimeout(() => { announcer.textContent = text; }, 50);
   }
 
+  // ─── Form fields ─────────────────────────────────────
+  //
+  // `Input(label: …)`, `Select(label: …)`: the label has to be a <label>
+  // pointing at the control for a screen reader to read it and a click on
+  // it to focus the field. `hint:` is a description the control refers to;
+  // `error:` is a message that, while it is not empty, is announced, refers
+  // to the control, and marks it invalid — so a validation failure reaches
+  // a reader who cannot see the red text.
+  let fieldSeq = 0;
+
+  function field(control, opts) {
+    const wrapper = h("div", { className: "wf-field" });
+    if (!control.id) control.id = "wf-field-" + (++fieldSeq);
+    const described = [];
+    const existing = control.getAttribute("aria-describedby");
+    if (existing) described.push(existing);
+
+    if (opts.label != null) {
+      wrapper.appendChild(
+        h("label", { className: "wf-label", for: control.id }, opts.label),
+      );
+    }
+    wrapper.appendChild(control);
+
+    if (opts.hint != null) {
+      const id = control.id + "-hint";
+      wrapper.appendChild(h("p", { className: "wf-field__hint", id }, opts.hint));
+      described.push(id);
+    }
+    if (opts.error !== undefined) {
+      const id = control.id + "-error";
+      const message = h("p", { className: "wf-field__error", id, role: "alert" });
+      wrapper.appendChild(message);
+      described.push(id);
+      const apply = (value) => {
+        const has = value != null && value !== false && value !== "";
+        message.textContent = has ? String(value) : "";
+        if (has) message.removeAttribute("hidden");
+        else message.setAttribute("hidden", "");
+        control.setAttribute("aria-invalid", has ? "true" : "false");
+      };
+      if (typeof opts.error === "function") effect(() => apply(opts.error()));
+      else apply(opts.error);
+    }
+    if (described.length) control.setAttribute("aria-describedby", described.join(" "));
+    return wrapper;
+  }
+
   /// Wire a tooltip: the tip describes the trigger, and can be reached and
   /// dismissed without a pointer.
   ///
@@ -1148,6 +1221,7 @@ const WF = (() => {
 
   // ─── Mount ───────────────────────────────────────────
   function mount(renderFn, container) {
+    _newPage();
     const el = renderFn();
     if (el instanceof Node) {
       container.innerHTML = "";
@@ -1351,7 +1425,7 @@ const WF = (() => {
     createI18n,
     wfFetch, showToast,
     mount, hydrate, setSsgMode, setBasePath,
-    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce, carousel, tooltip, menu,
+    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce, carousel, tooltip, menu, field,
     __debug, __reg,
     get _basePath() { return _basePath; },
     i18n: null,
