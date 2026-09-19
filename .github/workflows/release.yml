@@ -16,18 +16,23 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # `--workspace`, so the language server is built too: `cargo build` at
+      # the root builds the root package alone.
       - name: Build release
-        run: cargo build --release
+        run: cargo build --release --workspace
 
       - name: Build .deb package
         run: |
           cargo install cargo-deb
           cargo deb --no-build
 
-      - name: Create tarball
+      # The `wf-lsp-<tag>-<arch>-<os>.tar.gz` name is what the Zed extension
+      # asks a release for (editors/zed/src/webfluent.rs); keep them in step.
+      - name: Create tarballs
         run: |
           mkdir -p dist
           tar czf dist/wf-${{ github.ref_name }}-x86_64-linux.tar.gz -C target/release wf
+          tar czf dist/wf-lsp-${{ github.ref_name }}-x86_64-linux.tar.gz -C target/release wf-lsp
 
       - name: Collect artifacts
         run: |
@@ -46,7 +51,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Build release
-        run: cargo build --release
+        run: cargo build --release --workspace
 
       - name: Install WiX and cargo-wix
         run: |
@@ -60,10 +65,11 @@ jobs:
       - name: Build MSI
         run: cargo wix --package webfluent --no-build --nocapture
 
-      - name: Create zip
+      - name: Create zips
         run: |
           New-Item -ItemType Directory -Force -Path dist
           Compress-Archive -Path target\release\wf.exe -DestinationPath dist\wf-${{ github.ref_name }}-x86_64-windows.zip
+          Compress-Archive -Path target\release\wf-lsp.exe -DestinationPath dist\wf-lsp-${{ github.ref_name }}-x86_64-windows.zip
 
       - name: Collect MSI
         run: |
@@ -74,8 +80,39 @@ jobs:
           name: windows-packages
           path: dist/*
 
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [aarch64-apple-darwin, x86_64-apple-darwin]
+        include:
+          - target: aarch64-apple-darwin
+            arch: aarch64
+          - target: x86_64-apple-darwin
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build release
+        run: cargo build --release --workspace --target ${{ matrix.target }}
+
+      - name: Create tarballs
+        run: |
+          mkdir -p dist
+          tar czf dist/wf-${{ github.ref_name }}-${{ matrix.arch }}-macos.tar.gz -C target/${{ matrix.target }}/release wf
+          tar czf dist/wf-lsp-${{ github.ref_name }}-${{ matrix.arch }}-macos.tar.gz -C target/${{ matrix.target }}/release wf-lsp
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-packages-${{ matrix.arch }}
+          path: dist/*
+
   release:
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

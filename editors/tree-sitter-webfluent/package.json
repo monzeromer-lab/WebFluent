@@ -1,22 +1,25 @@
 {
   "name": "tree-sitter-webfluent",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Tree-sitter grammar for WebFluent",
-  "main": "bindings/node",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monzeromer-lab/WebFluent.git",
+    "directory": "editors/tree-sitter-webfluent"
+  },
   "keywords": [
     "tree-sitter",
     "parser",
     "webfluent"
   ],
   "license": "GPL-3.0",
-  "dependencies": {
-    "nan": "^2.18.0"
-  },
+  "private": true,
   "devDependencies": {
     "tree-sitter-cli": "^0.24.0"
   },
   "scripts": {
     "generate": "tree-sitter generate",
-    "test": "tree-sitter test"
+    "test": "tree-sitter test",
+    "parse": "tree-sitter parse"
   }
 }

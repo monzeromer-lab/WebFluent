@@ -90,3 +90,32 @@ jobs:
       # breaks it, the compiler is broken.
       - name: Documentation site builds
         run: cargo run --release -- build -d site
+
+  editors:
+    name: Zed extension and grammar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: editors/zed
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: extractions/setup-just@v2
+
+      - name: Install the tree-sitter CLI
+        run: just grammar-setup
+
+      # `grammar-test` regenerates the parser first; a grammar.js change that
+      # was committed without its generated parser.c shows up as a diff here,
+      # since the parser Zed compiles is the committed one.
+      - name: Grammar corpus, every .wf in the repo, queries, crate, vocabulary
+        run: just zed-check
+
+      - name: Generated parser is committed
+        run: git diff --exit-code -- editors/tree-sitter-webfluent/src

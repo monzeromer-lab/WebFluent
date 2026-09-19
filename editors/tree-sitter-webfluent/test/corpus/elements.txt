@@ -1,0 +1,369 @@
+================================================================================
+Built-in with positional argument and modifiers
+================================================================================
+
+Page P (path: "/") {
+    Button("Save", primary, large) { save() }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content))
+          (identifier)
+          (identifier))
+        (block
+          (expression_statement
+            (call_expression
+              (identifier)
+              (arguments))))))))
+
+================================================================================
+Element with no arguments and no body
+================================================================================
+
+Page P (path: "/") {
+    Footer
+    Spacer()
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component))
+      (element
+        (builtin_component)
+        (argument_list)))))
+
+================================================================================
+Sub-components
+================================================================================
+
+Page P (path: "/") {
+    Card {
+        Card.Header { Text("t") }
+        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+        Carousel.Slide { Image(src: "/a.png", alt: "a") }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (block
+          (element
+            (sub_component
+              (builtin_component)
+              (builtin_component))
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (string
+                    (string_content))))))
+          (element
+            (sub_component
+              (builtin_component)
+              (component_identifier))
+            (argument_list
+              (named_argument
+                (attribute_name
+                  (identifier))
+                (string
+                  (string_content)))
+              (named_argument
+                (attribute_name
+                  (identifier))
+                (string
+                  (string_content))))
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (string
+                    (string_content))))))
+          (element
+            (sub_component
+              (builtin_component)
+              (builtin_component))
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (named_argument
+                    (attribute_name
+                      (identifier))
+                    (string
+                      (string_content)))
+                  (named_argument
+                    (attribute_name
+                      (identifier))
+                    (string
+                      (string_content))))))))))))
+
+================================================================================
+User component with named arguments and a slot body
+================================================================================
+
+Page P (path: "/") {
+    Panel(title: "Keys") {
+        Text("Rotate every 90 days.")
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (component_identifier)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (string
+              (string_content))))
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content)))))))))
+
+================================================================================
+Hyphenated attribute names versus subtraction
+================================================================================
+
+Page P (path: "/") {
+    Button("Errors", aria-pressed: showErrors, data-tone: "danger")
+    Text(a - b)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content))
+          (named_argument
+            (attribute_name
+              (identifier)
+              (identifier))
+            (identifier))
+          (named_argument
+            (attribute_name
+              (identifier)
+              (identifier))
+            (string
+              (string_content)))))
+      (element
+        (builtin_component)
+        (argument_list
+          (binary_expression
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+List is a component in element position and a type in a parameter
+================================================================================
+
+Component Items (rows: List) {
+    List(ordered) { Text("a") }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (component_declaration
+    (component_identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (builtin_type)))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (identifier))
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content)))))))))
+
+================================================================================
+Fetch keywords are plain names in argument position
+================================================================================
+
+Page P (path: "/") {
+    Alert("Failed", error)
+    Badge("Ready", success)
+    Spinner(loading)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content))
+          (identifier)))
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content))
+          (identifier)))
+      (element
+        (builtin_component)
+        (argument_list
+          (identifier))))))
+
+================================================================================
+Event handlers, style and transition inside an element body
+================================================================================
+
+Page P (path: "/") {
+    Input(text, bind: query) {
+        on:input { search(query) }
+        style { width: "100%" }
+        transition { opacity 150ms }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (identifier)
+          (named_argument
+            (attribute_name
+              (identifier))
+            (identifier)))
+        (block
+          (event_handler
+            (event_name)
+            (block
+              (expression_statement
+                (call_expression
+                  (identifier)
+                  (arguments
+                    (identifier))))))
+          (style_block
+            (style_property
+              (property_name
+                (identifier))
+              (string
+                (string_content))))
+          (transition_block
+            (transition_property
+              (property_name
+                (identifier))
+              (duration))))))))
+
+================================================================================
+Children keyword
+================================================================================
+
+Component Panel (title: String) {
+    Card {
+        Heading(title, h3)
+        children
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (component_declaration
+    (component_identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (builtin_type)))
+    (block
+      (element
+        (builtin_component)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (identifier)
+              (identifier)))
+          (children))))))

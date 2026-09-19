@@ -1,13 +1,17 @@
 [package]
-name = "webfluent-zed"
-version = "0.2.0"
+name = "zed_webfluent"
+version = "1.0.0"
 edition = "2021"
 publish = false
+license = "GPL-3.0"
 
+# Zed builds this crate on its own (`cargo build --target wasm32-wasip2`),
+# outside the WebFluent workspace, so it must not be a workspace member.
 [workspace]
 
 [lib]
+path = "src/webfluent.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-zed_extension_api = "0.5.0"
+zed_extension_api = "0.7.0"

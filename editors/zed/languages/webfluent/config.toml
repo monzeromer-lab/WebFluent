@@ -1,15 +1,27 @@
 name = "WebFluent"
 grammar = "webfluent"
 path_suffixes = ["wf"]
+# ```wf fences in Markdown are highlighted as WebFluent.
+code_fence_block_name = "wf"
+modeline_aliases = ["wf", "webfluent"]
 line_comments = ["// "]
-block_comment = ["/* ", " */"]
+block_comment = { start = "/*", prefix = "* ", end = "*/", tab_size = 1 }
 autoclose_before = ";:.,=}])"
 brackets = [
-  { start = "{", end = "}", close = true, newline = true },
-  { start = "(", end = ")", close = true, newline = false },
-  { start = "[", end = "]", close = true, newline = false },
-  { start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
+    { start = "{", end = "}", close = true, newline = true },
+    { start = "(", end = ")", close = true, newline = true },
+    { start = "[", end = "]", close = true, newline = true },
+    { start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
+    { start = "/*", end = " */", close = true, newline = false, not_in = ["string", "comment"] },
 ]
-word_characters = ["_"]
 tab_size = 4
 hard_tabs = false
+collapsed_placeholder = " /* ... */ "
+
+# `border-radius`, `aria-pressed`, `color-text-muted`: the hyphen is part of
+# the name when completing inside a style block or an argument list.
+[overrides.style]
+completion_query_characters = ["-"]
+
+[overrides.arguments]
+completion_query_characters = ["-"]

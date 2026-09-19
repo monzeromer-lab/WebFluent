@@ -121,6 +121,44 @@ fmt:
 fmt-check:
     cargo fmt -- --check
 
+# ── Editors ──────────────────────────────────────────
+
+grammar_dir := "editors/tree-sitter-webfluent"
+zed_dir := "editors/zed"
+
+# Install the tree-sitter CLI the grammar is generated with
+grammar-setup:
+    cd {{grammar_dir}} && npm ci --no-audit --no-fund
+
+# Regenerate the parser from grammar.js
+grammar-generate:
+    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter generate
+
+# Regenerate, run the grammar's corpus tests, and parse every .wf in the repo
+grammar-test: grammar-generate
+    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter test
+    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q \
+        $(find ../../site ../../tests ../../examples -name '*.wf' 2>/dev/null) \
+        | tee /dev/stderr | grep -q 'failed parses: 0;'
+
+# Build the Zed extension's Rust crate for the target Zed uses
+zed-build:
+    cd {{zed_dir}} && cargo build --target wasm32-wasip2
+
+# Everything the Zed extension needs to hold: crate, queries, vocabulary
+zed-check: grammar-test zed-build
+    cd {{zed_dir}} && cargo clippy --target wasm32-wasip2 -- -D warnings
+    cd {{zed_dir}} && cargo fmt -- --check
+    cd {{grammar_dir}} && for q in highlights brackets outline indents injections overrides textobjects; do \
+        ./node_modules/.bin/tree-sitter query ../zed/languages/webfluent/$q.scm ../../site/src/App.wf > /dev/null || exit 1; \
+    done
+    node {{zed_dir}}/scripts/check-vocabulary.mjs
+
+# Point the Zed extension at the grammar in the current HEAD commit
+zed-pin-grammar:
+    sed -i 's/^rev = "[0-9a-f]*"/rev = "'"$(git rev-parse HEAD)"'"/' {{zed_dir}}/extension.toml
+    @grep '^rev' {{zed_dir}}/extension.toml
+
 # ── Clean ────────────────────────────────────────────
 
 # Clean build artifacts

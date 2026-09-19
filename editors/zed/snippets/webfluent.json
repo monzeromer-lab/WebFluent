@@ -1,0 +1,261 @@
+{
+  "Page": {
+    "prefix": "page",
+    "description": "A routed page",
+    "body": [
+      "Page ${1:Name} (path: \"${2:/}\", title: \"${3:$1}\") {",
+      "    $0",
+      "}"
+    ]
+  },
+  "Component": {
+    "prefix": "component",
+    "description": "A reusable component with props",
+    "body": [
+      "Component ${1:Name} (${2:label}: ${3:String}) {",
+      "    $0",
+      "}"
+    ]
+  },
+  "Store": {
+    "prefix": "store",
+    "description": "A shared state store",
+    "body": [
+      "Store ${1:Name}Store {",
+      "    state ${2:items} = ${3:[]}",
+      "",
+      "    action ${4:add}(${5:item}: ${6:Map}) {",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  },
+  "Theme": {
+    "prefix": "theme",
+    "description": "A theme overriding design tokens",
+    "body": [
+      "Theme ${1:Brand} {",
+      "    token color-primary: \"${2:#3B82F6}\"",
+      "    $0",
+      "}"
+    ]
+  },
+  "App": {
+    "prefix": "app",
+    "description": "The root App with a router",
+    "body": [
+      "App {",
+      "    Router {",
+      "        Route(path: \"/\", page: ${1:Home})",
+      "        Route(path: \"*\", page: ${2:NotFound})",
+      "    }",
+      "}"
+    ]
+  },
+  "state": {
+    "prefix": "state",
+    "description": "A reactive state variable",
+    "body": "state ${1:name} = ${2:0}"
+  },
+  "derived": {
+    "prefix": "derived",
+    "description": "A computed value",
+    "body": "derived ${1:name} = ${2:expression}"
+  },
+  "effect": {
+    "prefix": "effect",
+    "description": "A side effect that re-runs when its state changes",
+    "body": [
+      "effect {",
+      "    $0",
+      "}"
+    ]
+  },
+  "action": {
+    "prefix": "action",
+    "description": "A store action",
+    "body": [
+      "action ${1:name}(${2}) {",
+      "    $0",
+      "}"
+    ]
+  },
+  "if / else": {
+    "prefix": "ifelse",
+    "description": "Conditional rendering with an else branch",
+    "body": [
+      "if ${1:condition} {",
+      "    $2",
+      "} else {",
+      "    $0",
+      "}"
+    ]
+  },
+  "for": {
+    "prefix": "for",
+    "description": "Render a list",
+    "body": [
+      "for ${1:item} in ${2:items} {",
+      "    $0",
+      "}"
+    ]
+  },
+  "for with index": {
+    "prefix": "fori",
+    "description": "Render a list with the index",
+    "body": [
+      "for ${1:item}, ${2:index} in ${3:items} {",
+      "    $0",
+      "}"
+    ]
+  },
+  "show": {
+    "prefix": "show",
+    "description": "Toggle visibility without unmounting",
+    "body": [
+      "show ${1:visible} {",
+      "    $0",
+      "}"
+    ]
+  },
+  "fetch": {
+    "prefix": "fetch",
+    "description": "Fetch data with loading, error and success states",
+    "body": [
+      "fetch ${1:data} from \"${2:/api/}\" {",
+      "    loading { Spinner() }",
+      "    error (err) { Alert(\"{err.message}\", danger) }",
+      "    success {",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  },
+  "on:click": {
+    "prefix": "onclick",
+    "description": "A click handler",
+    "body": [
+      "on:click {",
+      "    $0",
+      "}"
+    ]
+  },
+  "on:submit": {
+    "prefix": "onsubmit",
+    "description": "A form submit handler",
+    "body": [
+      "on:submit {",
+      "    $0",
+      "}"
+    ]
+  },
+  "style": {
+    "prefix": "style",
+    "description": "An inline style block",
+    "body": [
+      "style {",
+      "    ${1:padding}: \"${2:1rem}\"",
+      "    $0",
+      "}"
+    ]
+  },
+  "hover": {
+    "prefix": "hover",
+    "description": "A hover rule inside a style block",
+    "body": [
+      "hover {",
+      "    ${1:background}: \"${2:var(--brand-hover)}\"",
+      "}"
+    ]
+  },
+  "@media": {
+    "prefix": "media",
+    "description": "A responsive rule inside a style block",
+    "body": [
+      "@media (max-width: ${1:768px}) {",
+      "    ${2:display}: \"${3:none}\"",
+      "}"
+    ]
+  },
+  "transition": {
+    "prefix": "transition",
+    "description": "A per-property transition block",
+    "body": [
+      "transition {",
+      "    ${1:background} ${2:200ms} ${3:ease}",
+      "}"
+    ]
+  },
+  "Card": {
+    "prefix": "card",
+    "description": "A card with header and body",
+    "body": [
+      "Card(${1:elevated}) {",
+      "    Card.Header { Heading(\"${2:Title}\", h3) }",
+      "    Card.Body {",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  },
+  "Button": {
+    "prefix": "button",
+    "description": "A button with a click handler",
+    "body": "Button(\"${1:Label}\", ${2:primary}) { ${3:action()} }"
+  },
+  "Input": {
+    "prefix": "input",
+    "description": "A bound text input",
+    "body": "Input(${1:text}, bind: ${2:value}, label: \"${3:Label}\", placeholder: \"${4}\")"
+  },
+  "Table": {
+    "prefix": "table",
+    "description": "A table with a header row",
+    "body": [
+      "Table(caption: \"${1:Caption}\") {",
+      "    Thead { Trow { Tcell(\"${2:Column}\") } }",
+      "    Tbody {",
+      "        for ${3:row} in ${4:rows} {",
+      "            Trow { Tcell(${3}.${5:name}) }",
+      "        }",
+      "    }",
+      "}"
+    ]
+  },
+  "Modal": {
+    "prefix": "modal",
+    "description": "A modal bound to a state flag",
+    "body": [
+      "Modal(visible: ${1:showModal}, title: \"${2:Title}\") {",
+      "    $0",
+      "    Modal.Footer { Button(\"Close\") { $1 = false } }",
+      "}"
+    ]
+  },
+  "Presentation": {
+    "prefix": "presentation",
+    "description": "A slide deck",
+    "body": [
+      "Presentation {",
+      "    TitleSlide(\"${1:Title}\", \"${2:Subtitle}\")",
+      "    Slide {",
+      "        Heading(\"${3:Heading}\", h1)",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  },
+  "Document": {
+    "prefix": "document",
+    "description": "A PDF document with header and footer",
+    "body": [
+      "Document(page_size: \"${1:A4}\") {",
+      "    Header { Text(\"${2:Company}\", muted, small, right) }",
+      "    Footer { Text(\"${3:Confidential}\", muted, small, center) }",
+      "    Section {",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  }
+}

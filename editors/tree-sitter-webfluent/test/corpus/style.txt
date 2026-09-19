@@ -1,0 +1,183 @@
+================================================================================
+Style block with properties, custom property, pseudo-states and a media query
+================================================================================
+
+Page P (path: "/") {
+    Button("x") {
+        style {
+            background: "var(--brand)"
+            border-radius: "1rem"
+            --hover-bg: hoverColor
+            width: a - b
+            hover { background: "var(--hover-bg)" }
+            focus-within { outline: "2px solid red" }
+            @media (max-width: 768px) {
+                display: "none"
+            }
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (style_block
+            (style_property
+              (property_name
+                (identifier))
+              (string
+                (string_content)))
+            (style_property
+              (property_name
+                (identifier)
+                (identifier))
+              (string
+                (string_content)))
+            (style_property
+              (custom_property_name)
+              (identifier))
+            (style_property
+              (property_name
+                (identifier))
+              (binary_expression
+                (identifier)
+                (identifier)))
+            (pseudo_block
+              (pseudo_state
+                (identifier))
+              (style_property
+                (property_name
+                  (identifier))
+                (string
+                  (string_content))))
+            (pseudo_block
+              (pseudo_state
+                (identifier)
+                (identifier))
+              (style_property
+                (property_name
+                  (identifier))
+                (string
+                  (string_content))))
+            (at_rule
+              (at_keyword)
+              (at_rule_condition)
+              (style_property
+                (property_name
+                  (identifier))
+                (string
+                  (string_content))))))))))
+
+================================================================================
+Style block as a statement and keywords as property names
+================================================================================
+
+Page P (path: "/") {
+    Row {
+        style {
+            transition: "all 200ms ease"
+            state: "x"
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (block
+          (style_block
+            (style_property
+              (property_name
+                (identifier))
+              (string
+                (string_content)))
+            (style_property
+              (property_name
+                (identifier))
+              (string
+                (string_content)))))))))
+
+================================================================================
+Transition block
+================================================================================
+
+Page P (path: "/") {
+    Button("x") {
+        transition {
+            background 200ms ease
+            transform fast spring
+            opacity "150ms"
+            color 1.5s
+            width 200
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (transition_block
+            (transition_property
+              (property_name
+                (identifier))
+              (duration)
+              (easing))
+            (transition_property
+              (property_name
+                (identifier))
+              (duration_keyword)
+              (easing))
+            (transition_property
+              (property_name
+                (identifier))
+              (string
+                (string_content)))
+            (transition_property
+              (property_name
+                (identifier))
+              (duration))
+            (transition_property
+              (property_name
+                (identifier))
+              (number))))))))

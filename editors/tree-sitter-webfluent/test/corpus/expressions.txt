@@ -1,0 +1,433 @@
+================================================================================
+Binary operator precedence
+================================================================================
+
+Store S {
+    state x = a + b * c - d / e % f
+    state y = a == b && c != d || e !== f
+    state z = a < b || c >= d
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (binary_expression
+          (binary_expression
+            (identifier)
+            (binary_expression
+              (identifier)
+              (identifier)))
+          (binary_expression
+            (binary_expression
+              (identifier)
+              (identifier))
+            (identifier))))
+      (state_declaration
+        (identifier)
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (identifier)
+              (identifier))
+            (binary_expression
+              (identifier)
+              (identifier)))
+          (binary_expression
+            (identifier)
+            (identifier))))
+      (state_declaration
+        (identifier)
+        (binary_expression
+          (binary_expression
+            (identifier)
+            (identifier))
+          (binary_expression
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Unary operators
+================================================================================
+
+Store S {
+    state a = !done
+    state b = -1
+    state c = !!x
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (unary_expression
+          (identifier)))
+      (state_declaration
+        (identifier)
+        (unary_expression
+          (number)))
+      (state_declaration
+        (identifier)
+        (unary_expression
+          (unary_expression
+            (identifier)))))))
+
+================================================================================
+Member, index and call chains
+================================================================================
+
+Store S {
+    derived first = incidents.filter(i => i.id == id)[0]
+    derived total = items.map(i => i.price).sum()
+    derived byAge = rows.slice().sort((a, b) => a.age - b.age)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (derived_declaration
+        (identifier)
+        (index_expression
+          (call_expression
+            (member_expression
+              (identifier)
+              (identifier))
+            (arguments
+              (lambda
+                (identifier)
+                (binary_expression
+                  (member_expression
+                    (identifier)
+                    (identifier))
+                  (identifier)))))
+          (number)))
+      (derived_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (call_expression
+              (member_expression
+                (identifier)
+                (identifier))
+              (arguments
+                (lambda
+                  (identifier)
+                  (member_expression
+                    (identifier)
+                    (identifier)))))
+            (identifier))
+          (arguments)))
+      (derived_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (call_expression
+              (member_expression
+                (identifier)
+                (identifier))
+              (arguments))
+            (identifier))
+          (arguments
+            (lambda
+              (lambda_parameters
+                (identifier)
+                (identifier))
+              (binary_expression
+                (member_expression
+                  (identifier)
+                  (identifier))
+                (member_expression
+                  (identifier)
+                  (identifier))))))))))
+
+================================================================================
+Lambda returning a map
+================================================================================
+
+Store S {
+    derived rows = items.map((x) => { key: x.id, label: x.name })
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (derived_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (identifier)
+            (identifier))
+          (arguments
+            (lambda
+              (lambda_parameters
+                (identifier))
+              (object
+                (pair
+                  (identifier)
+                  (member_expression
+                    (identifier)
+                    (identifier)))
+                (pair
+                  (identifier)
+                  (member_expression
+                    (identifier)
+                    (identifier)))))))))))
+
+================================================================================
+If expression
+================================================================================
+
+Store S {
+    derived label = if count > 1 { "many" } else if count == 1 { "one" } else { "none" }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (derived_declaration
+        (identifier)
+        (if_expression
+          (binary_expression
+            (identifier)
+            (number))
+          (string
+            (string_content))
+          (if_expression
+            (binary_expression
+              (identifier)
+              (number))
+            (string
+              (string_content))
+            (string
+              (string_content))))))))
+
+================================================================================
+Strings with interpolation, escapes and literal braces
+================================================================================
+
+Store S {
+    state a = "Count: {count} of {CartStore.total}"
+    state b = "fn() \{ return 42; \}"
+    state c = "{ not: interpolation }"
+    state d = "Total: ${total}"
+    state e = "say \"hi\"\n"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (string
+          (string_content)
+          (interpolation
+            (identifier))
+          (string_content)
+          (interpolation
+            (member_expression
+              (component_identifier)
+              (identifier)))))
+      (state_declaration
+        (identifier)
+        (string
+          (string_content)
+          (escape_sequence)
+          (string_content)
+          (escape_sequence)))
+      (state_declaration
+        (identifier)
+        (string
+          (string_content)
+          (string_content)))
+      (state_declaration
+        (identifier)
+        (string
+          (string_content)
+          (interpolation
+            (identifier))))
+      (state_declaration
+        (identifier)
+        (string
+          (string_content)
+          (escape_sequence)
+          (string_content)
+          (escape_sequence)
+          (escape_sequence))))))
+
+================================================================================
+Arrays and maps with quoted and keyword keys
+================================================================================
+
+Store S {
+    state a = [1, "two", true, null]
+    state b = { "Content-Type": "application/json", action: "create", token: tok, state: 1 }
+    state c = {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (array
+          (number)
+          (string
+            (string_content))
+          (boolean)
+          (null)))
+      (state_declaration
+        (identifier)
+        (object
+          (pair
+            (string
+              (string_content))
+            (string
+              (string_content)))
+          (pair
+            (identifier)
+            (string
+              (string_content)))
+          (pair
+            (identifier)
+            (identifier))
+          (pair
+            (identifier)
+            (number))))
+      (state_declaration
+        (identifier)
+        (object)))))
+
+================================================================================
+Type names and built-in names as expressions
+================================================================================
+
+Store S {
+    state a = Number(y) + String(z).length
+    state b = Number.isFinite(n)
+    state c = Array.from(list)
+    state d = Math.PI
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (binary_expression
+          (call_expression
+            (builtin_type)
+            (arguments
+              (identifier)))
+          (member_expression
+            (call_expression
+              (builtin_type)
+              (arguments
+                (identifier)))
+            (identifier))))
+      (state_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (builtin_type)
+            (identifier))
+          (arguments
+            (identifier))))
+      (state_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (component_identifier)
+            (identifier))
+          (arguments
+            (identifier))))
+      (state_declaration
+        (identifier)
+        (member_expression
+          (component_identifier)
+          (component_identifier))))))
+
+================================================================================
+Reserved words as properties after a dot
+================================================================================
+
+Store S {
+    state a = item.action + req.state + row.token + x.from
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (member_expression
+                (identifier)
+                (identifier))
+              (member_expression
+                (identifier)
+                (identifier)))
+            (member_expression
+              (identifier)
+              (identifier)))
+          (member_expression
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Parenthesised expressions
+================================================================================
+
+Store S {
+    state a = (b + c) * d
+    state e = (x)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (binary_expression
+          (parenthesized_expression
+            (binary_expression
+              (identifier)
+              (identifier)))
+          (identifier)))
+      (state_declaration
+        (identifier)
+        (parenthesized_expression
+          (identifier))))))

@@ -1,0 +1,259 @@
+================================================================================
+Page with attributes and a bare flag
+================================================================================
+
+Page Draft (path: "/draft", title: "Draft", noindex) {
+    Text("hello")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content)))
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content)))
+      (identifier))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))))))
+
+================================================================================
+Page named after a built-in
+================================================================================
+
+Page Menu (path: "/menu") {
+    Route(path: "/menu", page: Menu)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (builtin_component)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (string
+              (string_content)))
+          (named_argument
+            (attribute_name
+              (identifier))
+            (builtin_component)))))))
+
+================================================================================
+Component with typed, optional and defaulted props
+================================================================================
+
+Component UserCard (name: String, avatar?: String, active: Bool = true, tags: List) {
+    Card { children }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (component_declaration
+    (component_identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (builtin_type))
+      (parameter
+        (identifier)
+        (builtin_type))
+      (parameter
+        (identifier)
+        (builtin_type)
+        (boolean))
+      (parameter
+        (identifier)
+        (builtin_type)))
+    (block
+      (element
+        (builtin_component)
+        (block
+          (children))))))
+
+================================================================================
+Store with state, derived, actions and return
+================================================================================
+
+Store CartStore {
+    state items = []
+    derived count = items.length
+
+    action add(product: Map) {
+        items = items.concat([product])
+        return items
+    }
+
+    action clear() {
+        return
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (array))
+      (derived_declaration
+        (identifier)
+        (member_expression
+          (identifier)
+          (identifier)))
+      (action_declaration
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type)))
+        (block
+          (assignment
+            (identifier)
+            (call_expression
+              (member_expression
+                (identifier)
+                (identifier))
+              (arguments
+                (array
+                  (identifier)))))
+          (return_statement
+            (identifier))))
+      (action_declaration
+        (identifier)
+        (parameter_list)
+        (block
+          (return_statement))))))
+
+================================================================================
+Theme with hyphenated and digit-led token segments
+================================================================================
+
+Theme Brand {
+    token color-primary: "#3B82F6"
+    token radius-2xl: "1rem"
+    token viz-1: "#f00"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (theme_declaration
+    (component_identifier)
+    (theme_body
+      (token_declaration
+        (property_name
+          (identifier)
+          (identifier))
+        (string
+          (string_content)))
+      (token_declaration
+        (property_name
+          (identifier)
+          (number)
+          (identifier))
+        (string
+          (string_content)))
+      (token_declaration
+        (property_name
+          (identifier)
+          (number))
+        (string
+          (string_content))))))
+
+================================================================================
+App with bare user components and a router
+================================================================================
+
+App {
+    NavBar
+    Router {
+        Route(path: "/", page: Home)
+    }
+    SiteFooter
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (app_declaration
+    (block
+      (element
+        (component_identifier))
+      (element
+        (builtin_component)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (named_argument
+                (attribute_name
+                  (identifier))
+                (string
+                  (string_content)))
+              (named_argument
+                (attribute_name
+                  (identifier))
+                (component_identifier))))))
+      (element
+        (component_identifier)))))
+
+================================================================================
+Comments are extras
+================================================================================
+
+// A line comment
+/* a block
+   comment */
+Page Home (path: "/") { // trailing
+    Text("x") /* inline */
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (comment)
+  (page_declaration
+    (component_identifier)
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (comment)
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content))))
+      (comment))))

@@ -1,1 +1,4 @@
+# Written by Zed when the extension is installed as a dev extension.
 /target
+/grammars
+/extension.wasm

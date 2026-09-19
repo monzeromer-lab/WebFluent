@@ -382,6 +382,19 @@ build/                             build/
 
 The compiler is written in Rust. The generated JavaScript uses a minimal signal-based reactivity runtime with no framework dependencies. PDF output is raw PDF 1.7 bytes with Base14 font metrics — no external crates.
 
+## Editor Support
+
+| Editor | Where | What you get |
+|--------|-------|--------------|
+| [Zed](editors/zed) | `editors/zed` — install with `zed: install dev extension` | Tree-sitter highlighting, outline, brackets, indentation, snippets, and `wf-lsp` (found on `PATH` or downloaded from the latest release) |
+| [VS Code](editors/vscode) | `editors/vscode` | TextMate highlighting and `wf-lsp` |
+
+Both editors talk to the same language server, `crates/wf-lsp`, for
+diagnostics, completions, hover documentation, go to definition, document
+symbols and quick fixes. `cargo install --path crates/wf-lsp` puts it on your
+`PATH`. The Tree-sitter grammar the Zed extension uses lives in
+`editors/tree-sitter-webfluent`.
+
 ## Documentation
 
 - **[Live Docs](https://monzeromer-lab.github.io/WebFluent)** — Interactive documentation built with WebFluent itself
