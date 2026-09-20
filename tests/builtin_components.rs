@@ -453,6 +453,36 @@ fn every_builtin_renders_its_contracted_tag() {
     assert!(failures.is_empty(), "tag drift:\n{}", failures.join("\n"));
 }
 
+/// Every spec means the same thing in the new grammar: its migrated source
+/// renders byte for byte what the original does, in every backend.
+#[test]
+fn every_spec_renders_the_same_in_the_new_grammar() {
+    let mut failures = Vec::new();
+    for spec in SPECS {
+        let v1 = spec_source(spec);
+        let v2 = migrated(&v1);
+        for backend in Backend::ALL {
+            if spec.skip.contains(&backend) {
+                continue;
+            }
+            let a = raw_output(backend, &v1);
+            let b = raw_output(backend, &v2);
+            if a != b {
+                failures.push(format!(
+                    "{:<12} {:<28} differs\n--- v1 ---\n{v1}\n--- v2 ---\n{v2}",
+                    spec.name,
+                    backend.name()
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "grammar drift:\n{}",
+        failures.join("\n")
+    );
+}
+
 /// Every built-in must put its base class on its root, in every backend. This is
 /// what the stylesheet targets — a root without it is an unstyled component.
 #[test]

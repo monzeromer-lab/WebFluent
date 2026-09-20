@@ -151,7 +151,7 @@ Page Styling (path: "/styling", description: "Themes, design tokens and style bl
                         Badge("Tag", info)
                     }
                     Spacer(sm)
-                    Progress(value: 65, max: 100, primary)
+                    Progress(value: 65, max: 100)
                     Spacer(sm)
                     Text("No declaration needed.", muted, small)
                 }
@@ -176,7 +176,7 @@ Page Styling (path: "/styling", description: "Themes, design tokens and style bl
                         Badge("Live", success)
                     }
                     Spacer(sm)
-                    Progress(value: 80, max: 100, info)
+                    Progress(value: 80, max: 100)
                     Spacer(sm)
                     Code("examples/themes/dark.wf", block)
                 }
@@ -225,7 +225,7 @@ Page Styling (path: "/styling", description: "Themes, design tokens and style bl
                         Badge("Alert", danger)
                     }
                     Spacer(sm)
-                    Progress(value: 90, max: 100, danger)
+                    Progress(value: 90, max: 100)
                     Spacer(sm)
                     Code("examples/themes/brutalist.wf", block)
                 }

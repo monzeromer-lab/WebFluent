@@ -151,6 +151,15 @@ const STATUS_TONES: &[CaseSig] = &[
 ];
 const BADGE_TONES: &[CaseSig] = &[
     case("primary", "primary", "The brand colour"),
+    case("secondary", "secondary", "Grey, for the quiet"),
+    case("success", "success", "Green"),
+    case("danger", "danger", "Red"),
+    case("warning", "warning", "Amber"),
+    case("info", "info", "Blue"),
+];
+/// The band colours a `SectionSlide` paints.
+const BAND_TONES: &[CaseSig] = &[
+    case("primary", "primary", "The brand colour"),
     case("success", "success", "Green"),
     case("danger", "danger", "Red"),
     case("warning", "warning", "Amber"),
@@ -250,6 +259,16 @@ const ERROR: PropSig = special(
     "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`",
 );
 const DISABLED: PropSig = attr_flag("disabled", "Whether the control is inert");
+const VALUE: PropSig = attr(
+    "value",
+    PropType::Any,
+    "The control's value, when its state is not bound",
+);
+const CHECKED: PropSig = attr(
+    "checked",
+    PropType::Bool,
+    "Whether it is checked, when its state is not bound",
+);
 const GAP: PropSig = special("gap", PropType::Enum(GAP_SPACES), "Space between children");
 const ALIGN: PropSig = special("align", PropType::Enum(ALIGNS), "Cross-axis alignment");
 const JUSTIFY: PropSig = special(
@@ -294,6 +313,11 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
     variant("speed", SPEEDS, "How fast its animation runs"),
     special("duration", PropType::Str, "Animation length, e.g. `300ms`"),
     special("delay", PropType::Str, "Wait before the animation starts"),
+    special(
+        "easing",
+        PropType::Str,
+        "Timing function of the animation, e.g. `ease-out`",
+    ),
     special(
         "stagger",
         PropType::Str,
@@ -612,12 +636,15 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Navigation",
         "Menu opened by a trigger button.",
         None,
-        &[special(
-            "trigger",
-            PropType::Str,
-            "Label of the button that opens the menu",
-        )],
-        &["Item"],
+        &[
+            special(
+                "trigger",
+                PropType::Str,
+                "Label of the button that opens the menu",
+            ),
+            special("label", PropType::Str, "Same as `trigger`"),
+        ],
+        &["Item", "Divider"],
         G,
         Children::Elements,
     ),
@@ -630,6 +657,16 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
+    ),
+    part(
+        "Menu",
+        "Divider",
+        Ir::Sub("Menu", "Divider"),
+        "A rule between groups of entries.",
+        None,
+        &[],
+        G,
+        Children::None,
     ),
     // ─── Data display ─────────────────────────────────────────────────────
     comp(
@@ -780,6 +817,16 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "List of its children; `ordered` for a numbered list.",
         None,
         &[flag("ordered", "ordered", "Numbered (`<ol>`)")],
+        &["Item"],
+        G,
+        Children::Elements,
+    ),
+    part(
+        "List",
+        "Item",
+        Ir::Sub("List", "Item"),
+        "One entry (`<li>`).",
+        None,
         &[],
         G,
         Children::Elements,
@@ -870,6 +917,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 PropType::Str,
                 "Hint shown while the field is empty",
             ),
+            VALUE,
             attr("min", PropType::Any, "Lowest value"),
             attr("max", PropType::Any, "Highest value"),
             attr("step", PropType::Num, "Granularity"),
@@ -890,6 +938,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         None,
         &[
             BIND,
+            VALUE,
             LABEL,
             HINT,
             ERROR,
@@ -940,7 +989,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Form",
         "Checkbox bound to a boolean state.",
         None,
-        &[BIND, LABEL, DISABLED],
+        &[BIND, CHECKED, LABEL, DISABLED],
         &[],
         G_INPUT,
         Children::None,
@@ -957,6 +1006,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 PropType::Any,
                 "The value `bind` takes when this one is chosen",
             ),
+            CHECKED,
             LABEL,
             DISABLED,
         ],
@@ -969,7 +1019,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Form",
         "On/off toggle bound to a boolean state.",
         None,
-        &[BIND, LABEL, DISABLED],
+        &[BIND, CHECKED, LABEL, DISABLED],
         &[],
         G_INPUT,
         Children::None,
@@ -1181,6 +1231,15 @@ pub const COMPONENTS: &[ComponentSig] = &[
             ),
             SIZE,
             variant("tone", PRIMARY_DANGER, "Colour"),
+            attr(
+                "type",
+                PropType::Enum(&[
+                    case("button", "", "A plain button, the default"),
+                    case("submit", "submit", "Submits the enclosing form"),
+                    case("reset", "reset", "Resets the enclosing form"),
+                ]),
+                "Its role inside a form",
+            ),
             DISABLED,
         ],
         &[],
@@ -1207,7 +1266,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             "Label of the button that opens it",
         )),
         &[],
-        &["Item"],
+        &["Item", "Divider"],
         G,
         Children::Elements,
     ),
@@ -1220,6 +1279,16 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
+    ),
+    part(
+        "Dropdown",
+        "Divider",
+        Ir::Sub("Dropdown", "Divider"),
+        "A rule between groups of entries.",
+        None,
+        &[],
+        G,
+        Children::None,
     ),
     // ─── Media ────────────────────────────────────────────────────────────
     comp(
@@ -1356,8 +1425,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Blockquote",
         "Typography",
-        "Quotation; its block is the quoted content.",
-        None,
+        "Quotation: the text, or its block as the quoted content.",
+        Some(special("content", PropType::Any, "The quoted text")),
         &[],
         &[],
         G,
@@ -1470,7 +1539,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Slides",
         "Full-bleed coloured band with a centred label.",
         Some(special("label", PropType::Str, "The label")),
-        &[variant("tone", BADGE_TONES, "Colour of the band")],
+        &[variant("tone", BAND_TONES, "Colour of the band")],
         &[],
         G,
         Children::None,

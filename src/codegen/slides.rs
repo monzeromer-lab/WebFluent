@@ -573,7 +573,15 @@ impl SlidesCodegen {
 
     fn emit_title_slide(&mut self, ui: &UIElement) {
         let title = self.positional_string(ui, 0);
-        let subtitle = self.positional_string(ui, 1);
+        // `subtitle:` by name; the original grammar passed it second.
+        let subtitle = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, v) if k == "subtitle" => Some(self.expr_to_string(v)),
+                _ => None,
+            })
+            .unwrap_or_else(|| self.positional_string(ui, 1));
 
         let title_size = 56.0;
         let sub_size = 28.0;

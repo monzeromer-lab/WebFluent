@@ -461,7 +461,9 @@ impl Checker<'_, '_> {
                 }
                 Arg::Named(key, value) => {
                     let Some(prop) = decl.props.iter().find(|p| p.name == *key) else {
-                        if key != "class" && !key.contains('-') {
+                        if !key.contains('-')
+                            && !registry::UNIVERSAL_PROPS.iter().any(|p| p.name == key)
+                        {
                             self.warning(
                                 at,
                                 format!("`{name}` declares no prop `{key}`"),
@@ -597,7 +599,15 @@ fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
         match &mut stmt.kind {
             StatementKind::UIElement(el) => lower_element(el, user),
             StatementKind::If(i) => {
-                lift_animation(&mut i.animate, &i.then_body);
+                // One config for the whole `if`, read from the first branch
+                // that carries motion props; the others give theirs up too.
+                lift_animation(&mut i.animate, &mut i.then_body);
+                for (_, b) in &mut i.else_if_branches {
+                    lift_animation(&mut i.animate, b);
+                }
+                if let Some(b) = &mut i.else_body {
+                    lift_animation(&mut i.animate, b);
+                }
                 lower_statements(&mut i.then_body, user);
                 for (_, b) in &mut i.else_if_branches {
                     lower_statements(b, user);
@@ -607,11 +617,11 @@ fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
                 }
             }
             StatementKind::For(f) => {
-                lift_animation(&mut f.animate, &f.body);
+                lift_animation(&mut f.animate, &mut f.body);
                 lower_statements(&mut f.body, user);
             }
             StatementKind::Show(s) => {
-                lift_animation(&mut s.animate, &s.body);
+                lift_animation(&mut s.animate, &mut s.body);
                 lower_statements(&mut s.body, user);
             }
             StatementKind::Match(m) => {
@@ -635,16 +645,21 @@ fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
     }
 }
 
-/// The universal motion props on a branch's root elements become the
-/// branch's animation config, which is what the runtime's conditional and
-/// list rendering read; the enter animation stays a class as well, so the
-/// static paint has it.
-fn lift_animation(target: &mut Option<AnimateConfig>, body: &[Statement]) {
-    if target.is_some() {
-        return;
-    }
-    for stmt in body {
-        let StatementKind::UIElement(el) = &stmt.kind else {
+/// The universal motion props on a branch's root elements are the branch's
+/// animation config — what the runtime's conditional and list rendering
+/// play on enter and exit — and come off the elements, as the original
+/// grammar's `if …, animate(…)` clause never touched them. An element
+/// outside a branch keeps its enter animation as a class, which plays when
+/// it is first painted.
+fn lift_animation(target: &mut Option<AnimateConfig>, body: &mut [Statement]) {
+    const MOTION_ARGS: &[&str] = &[
+        "animate", "exit", "delay", "stagger", "duration", "speed", "easing",
+    ];
+    let is_motion_word =
+        |m: &str| crate::themes::prune::ANIMATIONS.contains(&m) || matches!(m, "fast" | "slow");
+    let mut config: Option<AnimateConfig> = None;
+    for stmt in body.iter_mut() {
+        let StatementKind::UIElement(el) = &mut stmt.kind else {
             continue;
         };
         let named = |key: &str| {
@@ -658,29 +673,70 @@ fn lift_animation(target: &mut Option<AnimateConfig>, body: &[Statement]) {
             .modifiers
             .iter()
             .find(|m| crate::themes::prune::ANIMATIONS.contains(&m.as_str()))
-            .cloned();
+            .cloned()
+            .or_else(|| named("animate"));
+        let speed = el
+            .modifiers
+            .iter()
+            .find(|m| matches!(m.as_str(), "fast" | "slow"))
+            .cloned()
+            .or_else(|| named("speed"));
         let exit = named("exit");
         let delay = named("delay");
         let stagger = named("stagger");
-        let duration = named("duration").or_else(|| {
-            el.modifiers.iter().find_map(|m| match m.as_str() {
-                "fast" => Some("150ms".to_string()),
-                "slow" => Some("500ms".to_string()),
-                _ => None,
-            })
+        let easing = named("easing");
+        let duration = named("duration").or_else(|| match speed.as_deref() {
+            Some("fast") => Some("150ms".to_string()),
+            Some("slow") => Some("500ms".to_string()),
+            _ => None,
         });
-        if exit.is_some() || delay.is_some() || stagger.is_some() {
-            *target = Some(AnimateConfig {
+        let has_motion = enter.is_some()
+            || exit.is_some()
+            || delay.is_some()
+            || stagger.is_some()
+            || duration.is_some();
+        if !has_motion {
+            continue;
+        }
+        if config.is_none() {
+            config = Some(AnimateConfig {
                 enter: enter.unwrap_or_else(|| "fadeIn".to_string()),
                 exit,
                 duration,
                 delay,
                 stagger,
-                easing: None,
+                easing,
             });
-            return;
         }
+        // Off the element: the branch plays them.
+        let keep: Vec<bool> = el.modifiers.iter().map(|m| !is_motion_word(m)).collect();
+        retain_by(&mut el.modifiers, &keep);
+        retain_by(&mut el.modifier_spans, &keep);
+        let keep: Vec<bool> = el
+            .args
+            .iter()
+            .map(|a| !matches!(a, Arg::Named(k, _) if MOTION_ARGS.contains(&k.as_str())))
+            .collect();
+        retain_by(&mut el.args, &keep);
+        retain_by(&mut el.arg_spans, &keep);
     }
+    if target.is_none() {
+        *target = config;
+    }
+}
+
+/// Keep the items of `items` whose flag in `keep` is set; a list of spans
+/// shorter than its items (a node built by hand) is left alone.
+fn retain_by<T>(items: &mut Vec<T>, keep: &[bool]) {
+    if items.len() != keep.len() {
+        return;
+    }
+    let mut i = 0;
+    items.retain(|_| {
+        let k = keep[i];
+        i += 1;
+        k
+    });
 }
 
 fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
@@ -709,14 +765,82 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
         (_, Some(sig)) => lower_builtin(el, sig),
         _ => {}
     }
+    lower_action_shorthand(el);
 
-    // The motion props are read by `lift_animation` on the enclosing
-    // branch and by nothing else; the enter animation is a class already.
-    el.args.retain(|a| !matches!(a, Arg::Named(k, _) if matches!(k.as_str(), "exit" | "delay" | "stagger" | "duration")));
+    // Off a branch there is nothing to play an exit or a delay yet; the
+    // enter animation is a class already.
+    let keep: Vec<bool> = el
+        .args
+        .iter()
+        .map(|a| {
+            !matches!(a, Arg::Named(k, _) if matches!(k.as_str(), "exit" | "delay" | "stagger" | "duration" | "easing"))
+        })
+        .collect();
+    retain_by(&mut el.args, &keep);
+    retain_by(&mut el.arg_spans, &keep);
 
     lower_statements(&mut el.children, user);
     for fill in &mut el.slot_fills {
         lower_statements(&mut fill.body, user);
+    }
+}
+
+/// The original grammar's click shorthand — a Button's, an IconButton's or
+/// a user component's block of action statements — spelled out as the
+/// `on click { … }` handler it always was, so one emitter serves both
+/// grammars. A Button's block may mix content with its actions; a user
+/// component's block is a handler only when it holds nothing else,
+/// because otherwise it fills the default slot.
+fn lower_action_shorthand(el: &mut UIElement) {
+    if !el.events.is_empty() || el.children.is_empty() {
+        return;
+    }
+    let mixed = match &el.component {
+        ComponentRef::BuiltIn(name) => matches!(name.as_str(), "Button" | "IconButton"),
+        ComponentRef::UserDefined(_) => false,
+        ComponentRef::SubComponent(..) => return,
+    };
+    if !mixed && !el.children.iter().all(is_action_statement) {
+        return;
+    }
+    let (actions, content): (Vec<Statement>, Vec<Statement>) = std::mem::take(&mut el.children)
+        .into_iter()
+        .partition(is_action_statement);
+    el.children = content;
+    if actions.is_empty() {
+        return;
+    }
+    let span = Span {
+        start: actions[0].span.start,
+        end: actions[actions.len() - 1].span.end,
+        ..actions[0].span
+    };
+    el.events.push(EventHandler {
+        event: "click".to_string(),
+        param: None,
+        body: actions,
+        span,
+    });
+}
+
+/// Whether a statement does something rather than shows something.
+fn is_action_statement(stmt: &Statement) -> bool {
+    match &stmt.kind {
+        StatementKind::Assignment(_)
+        | StatementKind::MethodCall(_)
+        | StatementKind::Navigate(_)
+        | StatementKind::Log(_)
+        | StatementKind::Emit(_)
+        | StatementKind::ExprStatement(_) => true,
+        // A branch of nothing but actions is a guard on them, not a
+        // conditional render.
+        StatementKind::If(i) => {
+            let all = |b: &[Statement]| !b.is_empty() && b.iter().all(is_action_statement);
+            all(&i.then_body)
+                && i.else_if_branches.iter().all(|(_, b)| all(b))
+                && i.else_body.as_deref().is_none_or(all)
+        }
+        _ => false,
     }
 }
 
@@ -917,7 +1041,8 @@ mod tests {
         let StatementKind::UIElement(chip) = &i.then_body[0].kind else {
             panic!()
         };
-        assert_eq!(chip.modifiers, vec!["fadeIn"]);
+        // The branch plays the enter animation; the element keeps no class.
+        assert!(chip.modifiers.is_empty(), "{:?}", chip.modifiers);
         assert!(
             chip.args.iter().any(
                 |a| matches!(a, Arg::Named(k, Expr::EnumCase(c)) if k == "tone" && c == "loud")

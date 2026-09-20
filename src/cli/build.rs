@@ -68,6 +68,26 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         )));
     }
 
+    // What the new grammar wrote, checked against what the components
+    // declare: a flag, case, event, slot or part that resolves to nothing is
+    // a broken site, and stops the build like a parse error.
+    let findings = crate::sema::check(&program, &file_of);
+    for warning in &findings.warnings {
+        eprintln!("Warning: {}", warning);
+    }
+    if !findings.errors.is_empty() {
+        for error in &findings.errors {
+            eprintln!("{}", error);
+        }
+        return Err(WebFluentError::CodegenError(format!(
+            "{} error(s)",
+            findings.errors.len()
+        )));
+    }
+    // Then lowered onto the vocabulary the code generators — and the
+    // linters, which read the words the stylesheet knows — read.
+    let program = crate::sema::lower(program);
+
     // Run accessibility linter
     let mut a11y_warnings = crate::linter::lint_accessibility_in(&program, &file_of);
     // Contrast is checked against the tokens this build will actually ship, so
@@ -88,25 +108,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     for warning in &vocab_warnings {
         eprintln!("{}", warning);
     }
-    // What the new grammar wrote, checked against what the components
-    // declare: a flag, case, event, slot or part that resolves to nothing is
-    // a broken site, and stops the build like a parse error.
-    let findings = crate::sema::check(&program, &file_of);
-    for warning in &findings.warnings {
-        eprintln!("Warning: {}", warning);
-    }
-    if !findings.errors.is_empty() {
-        for error in &findings.errors {
-            eprintln!("{}", error);
-        }
-        return Err(WebFluentError::CodegenError(format!(
-            "{} error(s)",
-            findings.errors.len()
-        )));
-    }
     let warning_count = a11y_warnings.len() + vocab_warnings.len() + findings.warnings.len();
-    // Then lowered onto the vocabulary the code generators read.
-    let program = crate::sema::lower(program);
 
     // PDF output mode
     if config.build.output_type == OutputType::Pdf {

@@ -708,12 +708,16 @@ impl Parser {
                     _ => {}
                 }
             } else {
-                // Second positional: exit animation name
-                if exit.is_none() {
-                    exit = Some(self.expect_identifier()?);
-                } else {
-                    // Skip unknown positional
-                    let _ = self.parse_expression()?;
+                // Second positional: exit animation name — unless it is a
+                // speed word, which used to be read as an exit animation
+                // called `fast` and held the element for the fallback
+                // timeout with nothing to play.
+                let word = self.expect_identifier()?;
+                match word.as_str() {
+                    "fast" => duration = Some("150ms".to_string()),
+                    "slow" => duration = Some("500ms".to_string()),
+                    _ if exit.is_none() => exit = Some(word),
+                    _ => {}
                 }
             }
         }

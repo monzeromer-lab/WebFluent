@@ -207,8 +207,8 @@ Page Components (path: "/components", description: "Every built-in component, wi
                 Spacer()
                 Row(gap: md, align: center) {
                     Avatar(initials: "MO", primary)
-                    Avatar(initials: "SA", success)
-                    Avatar(initials: "OH", info)
+                    Avatar(initials: "SA")
+                    Avatar(initials: "OH")
                     Badge("Admin", primary)
                     Badge("Online", success)
                     Tag("WebFluent")

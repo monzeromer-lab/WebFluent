@@ -716,7 +716,15 @@ impl ParserV2 {
             ));
         };
         if self.is_capitalized() {
+            // `Store.load(x)` at the top of a page or component: set-up
+            // code, run once when it renders.
+            if self.setup_call_ahead(body) {
+                return self.parse_imperative_kind();
+            }
             return Ok(StatementKind::UIElement(self.parse_element()?));
+        }
+        if self.setup_call_ahead(body) {
+            return self.parse_imperative_kind();
         }
         match word.as_str() {
             "state" => self.parse_state(),
@@ -786,6 +794,70 @@ impl ParserV2 {
                 ))
             }
         }
+    }
+
+    /// Whether a call statement — `load()`, `Store.load(x)` — starts here,
+    /// at the top level of a page or component, where it is set-up code.
+    fn setup_call_ahead(&self, body: Body) -> bool {
+        if !matches!(body, Body::Page | Body::Component) {
+            return false;
+        }
+        const KEYWORDS: &[&str] = &[
+            "state",
+            "derived",
+            "effect",
+            "action",
+            "use",
+            "resource",
+            "if",
+            "for",
+            "show",
+            "match",
+            "children",
+            "event",
+            "slot",
+            "let",
+            "return",
+            "emit",
+            "else",
+            "on",
+            "style",
+            "transition",
+        ];
+        let open = match self.kind_at(1) {
+            TokenType::OpenParen
+                if !self.is_capitalized()
+                    && !self.ident().is_some_and(|w| KEYWORDS.contains(&w)) =>
+            {
+                1
+            }
+            TokenType::Dot
+                if matches!(self.kind_at(2), TokenType::Identifier(m) if m.chars().next().is_some_and(char::is_lowercase))
+                    && matches!(self.kind_at(3), TokenType::OpenParen) =>
+            {
+                3
+            }
+            _ => return false,
+        };
+        // A call ends at its parenthesis; an element goes on to a block
+        // or a flag (`Row.gap(md) { }` is a mistaken flag, not set-up).
+        let mut depth = 0usize;
+        let mut i = open;
+        loop {
+            match self.kind_at(i) {
+                TokenType::OpenParen => depth += 1,
+                TokenType::CloseParen => {
+                    depth -= 1;
+                    if depth == 0 {
+                        break;
+                    }
+                }
+                TokenType::EOF => return false,
+                _ => {}
+            }
+            i += 1;
+        }
+        !matches!(self.kind_at(i + 1), TokenType::OpenBrace | TokenType::Dot)
     }
 
     /// The pseudo element that stands for a slot's content.
@@ -1806,6 +1878,7 @@ impl ParserV2 {
                     for _ in 0..(params.len() * 2 + 1) {
                         self.advance();
                     }
+                    self.expect(&TokenType::Arrow, "`=>`")?;
                     let body = self.parse_expression()?;
                     return Ok(Expr::Lambda(params.join(", "), Box::new(body)));
                 }
@@ -2283,6 +2356,45 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         assert!(
             matches!(&body[3].kind, StatementKind::Derived(d) if matches!(&d.value, Expr::MethodCall(_, m, _) if m == "__if"))
         );
+    }
+
+    #[test]
+    fn a_call_at_the_top_of_a_page_is_set_up_code() {
+        let body = page_body(
+            "page P(path: \"/\", hash: String) {\n  use BuildStore\n  BuildStore.open(hash)\n  load()\n  Text(\"x\")\n}",
+        );
+        assert!(
+            matches!(&body[1].kind, StatementKind::ExprStatement(Expr::MethodCall(_, m, _)) if m == "open")
+        );
+        assert!(
+            matches!(&body[2].kind, StatementKind::ExprStatement(Expr::FunctionCall(f, _)) if f == "load")
+        );
+        assert!(matches!(&body[3].kind, StatementKind::UIElement(_)));
+        // Inside an element it is still nothing a render block holds.
+        let err = fails("page P(path: \"/\") { Card { Store.load() } }");
+        assert!(err.contains("`.load` takes no arguments"), "{err}");
+        let err = fails("page P(path: \"/\") { Card { load() } }");
+        assert!(err.contains("Loose code in an element's block"), "{err}");
+    }
+
+    #[test]
+    fn lambdas_take_one_parameter_or_a_parenthesised_list() {
+        let body = page_body(
+            "page P(path: \"/\") {\n  derived a = xs.map(x => x.n)\n  derived b = xs.reduce((n, g) => n + g.k, 0)\n  derived c = xs.map((l, n) => { n: n + 1, t: l.t })\n}",
+        );
+        let lambda = |i: usize| match &body[i].kind {
+            StatementKind::Derived(d) => match &d.value {
+                Expr::MethodCall(_, _, args) => match &args[0] {
+                    Expr::Lambda(params, _) => params.clone(),
+                    other => panic!("{other:?}"),
+                },
+                other => panic!("{other:?}"),
+            },
+            other => panic!("{other:?}"),
+        };
+        assert_eq!(lambda(0), "x");
+        assert_eq!(lambda(1), "n, g");
+        assert_eq!(lambda(2), "l, n");
     }
 
     #[test]

@@ -3,3 +3,4 @@
 /dist
 RELEASE_NOTES.md
 .idea/
+/tests/fixtures/*/build/

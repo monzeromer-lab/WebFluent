@@ -129,10 +129,10 @@ pub fn apply_edits(source: &str, ops: &[EditOp]) -> Result<String> {
 // ─── Patch model ─────────────────────────────────────────
 
 /// A single byte-range replacement.
-struct Patch {
-    start: usize,
-    end: usize,
-    text: String,
+pub(crate) struct Patch {
+    pub(crate) start: usize,
+    pub(crate) end: usize,
+    pub(crate) text: String,
 }
 
 fn compute_patches(
@@ -346,7 +346,7 @@ fn insert_child_patch(ui: &UIElement, index: usize, wf: &str, source: &str) -> P
 }
 
 /// Apply patches right-to-left so earlier offsets stay valid; reject overlaps.
-fn apply_patches(source: &str, mut patches: Vec<Patch>) -> Result<String> {
+pub(crate) fn apply_patches(source: &str, mut patches: Vec<Patch>) -> Result<String> {
     patches.sort_by_key(|p| std::cmp::Reverse(p.start));
     for w in patches.windows(2) {
         let (later, earlier) = (&w[0], &w[1]); // later has the greater start
@@ -430,7 +430,7 @@ fn ident_end(source: &str, start: usize) -> usize {
 /// The byte range to delete when removing one modifier: its span extended to
 /// swallow the adjacent comma (trailing preferred, else leading), so the argument
 /// list stays well-formed.
-fn modifier_removal_range(source: &str, span: Span) -> (usize, usize) {
+pub(crate) fn modifier_removal_range(source: &str, span: Span) -> (usize, usize) {
     let bytes = source.as_bytes();
     let start = span.start as usize;
     let end = span.end as usize;

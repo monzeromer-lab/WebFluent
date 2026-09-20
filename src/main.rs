@@ -3,9 +3,11 @@
 mod cli;
 mod codegen;
 mod config;
+mod edit;
 mod error;
 mod lexer;
 mod linter;
+mod migrate;
 mod parser;
 mod registry;
 mod runtime;
@@ -76,6 +78,18 @@ enum Commands {
         #[arg(long)]
         theme: Option<String>,
     },
+    /// Rewrite a project's .wf files from the original grammar to WebFluent 3
+    Migrate {
+        /// Project directory (default: current directory), or one .wf file
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Report what would change without writing anything
+        #[arg(long)]
+        check: bool,
+        /// Print the migrated text of one file to stdout instead of writing it
+        #[arg(long)]
+        stdout: bool,
+    },
 }
 
 fn main() {
@@ -99,6 +113,11 @@ fn main() {
             output.as_deref(),
             theme.as_deref(),
         ),
+        Commands::Migrate {
+            path,
+            check,
+            stdout,
+        } => cli::migrate::run_migrate(&path, check, stdout),
     };
 
     if let Err(e) = result {

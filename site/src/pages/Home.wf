@@ -41,7 +41,7 @@ Page Home (path: "/", description: "WebFluent — the web-first language that co
                 Card.Body {
                     Row(align: center, gap: md) {
                         Button("-", large) { counter = counter - 1 }
-                        Heading("{counter}", h2, primary)
+                        Heading("{counter}", h2)
                         Button("+", primary, large) { counter = counter + 1 }
                     }
                     Spacer(sm)

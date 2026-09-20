@@ -917,8 +917,11 @@ impl JsCodegen {
             }
             if routes.is_empty() {
                 routes = self.page_paths.clone();
-                routes.sort_by_key(|(path, _)| route_order(path));
             }
+            // The table is matched top down, so the more specific route
+            // comes first; the rest is a fixed order, so a site builds the
+            // same however its pages and routes are laid out.
+            routes.sort_by(|(a, _), (b, _)| route_order(a).cmp(&route_order(b)).then(a.cmp(b)));
             // Emit route definitions
             self.emit_line("const _routes = [");
             self.indent += 1;
@@ -1352,25 +1355,6 @@ impl JsCodegen {
                 // one name in one object literal keep only the last — so an
                 // Input with both used to lose its binding.
 
-                // If element has a block with just statements (Button shorthand click)
-                // A Button's block may mix what it shows with what it does:
-                // the action-like statements are its click handler, the rest
-                // its content. They used to become a handler only when the
-                // block held nothing else; a badge beside an assignment made
-                // the assignment run at render time.
-                if ui.events.is_empty() && matches!(name.as_str(), "Button" | "IconButton") {
-                    let actions: Vec<Statement> = ui
-                        .children
-                        .iter()
-                        .filter(|s| is_action_statement(s))
-                        .cloned()
-                        .collect();
-                    if !actions.is_empty() {
-                        let body = self.emit_statements_inline(&actions);
-                        attrs.push(format!("\"on:click\": (e) => {{ {} }}", body));
-                    }
-                }
-
                 // A form never navigates away: the author's submit handler
                 // is attached after creation, on top of this.
                 if name == "Form" {
@@ -1604,8 +1588,6 @@ impl JsCodegen {
                 }
 
                 // Emit children
-                let is_button = matches!(name.as_str(), "Button" | "IconButton");
-
                 {
                     let was_in_thead = self.in_thead;
                     if name == "Thead" {
@@ -1614,11 +1596,6 @@ impl JsCodegen {
                         self.in_thead = false;
                     }
                     for child in &ui.children {
-                        // A button's action statements are its click handler
-                        // (see above), not content.
-                        if is_button && ui.events.is_empty() && is_action_statement(child) {
-                            continue;
-                        }
                         if slot_in_select
                             && matches!(&child.kind, StatementKind::UIElement(u)
                                 if matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Children"))
@@ -1780,21 +1757,7 @@ impl JsCodegen {
                         format!("{}, {} }}", &args_obj[..args_obj.len() - 2], on)
                     };
                 }
-                // A block of nothing but actions is a click handler, as it is
-                // on a Button — `Save(label: "x") { save() }` — rather than a
-                // slot filled with statements that render nothing.
-                let is_action_shorthand = ui.events.is_empty()
-                    && !ui.children.is_empty()
-                    && ui.children.iter().all(|s| {
-                        matches!(
-                            &s.kind,
-                            StatementKind::Assignment(_)
-                                | StatementKind::MethodCall(_)
-                                | StatementKind::Navigate(_)
-                                | StatementKind::ExprStatement(_)
-                        )
-                    });
-                let has_default_slot = !ui.children.is_empty() && !is_action_shorthand;
+                let has_default_slot = !ui.children.is_empty();
                 if !has_default_slot && ui.slot_fills.is_empty() {
                     self.emit_line(&format!(
                         "const {} = Component_{}({});",
@@ -1829,13 +1792,6 @@ impl JsCodegen {
                     }
                     self.indent -= 1;
                     self.emit_line("});");
-                }
-                if is_action_shorthand {
-                    let body = self.emit_statements_inline(&ui.children);
-                    self.emit_line(&format!(
-                        "WF.onRoot({}, \"click\", (event) => {{ {} }});",
-                        var, body
-                    ));
                 }
                 for handler in attached {
                     let body = self.emit_event_body(handler);
@@ -2928,22 +2884,6 @@ impl JsCodegen {
             }
         }
 
-        // Click handler from children (same as Button shorthand)
-        if ui.events.is_empty() && !ui.children.is_empty() {
-            let all_actions = ui.children.iter().all(|s| {
-                matches!(
-                    &s.kind,
-                    StatementKind::Assignment(_)
-                        | StatementKind::MethodCall(_)
-                        | StatementKind::Navigate(_)
-                        | StatementKind::ExprStatement(_)
-                )
-            });
-            if all_actions {
-                let body = self.emit_statements_inline(&ui.children);
-                btn_attrs.push_str(&format!(", \"on:click\": (e) => {{ {} }}", body));
-            }
-        }
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
             btn_attrs.push_str(&format!(
@@ -4191,10 +4131,10 @@ impl JsCodegen {
     }
 }
 
-/// The order routes are matched in when they come from the pages' own
-/// paths: the more specific first — every static segment before a
-/// `:param`, and the catch-all `*` last — so that declaration order, which
-/// is file-system order, cannot shadow a route.
+/// The order routes are matched in: the more specific first — every static
+/// segment before a `:param`, and the catch-all `*` last — so that neither
+/// the order of `Route`s nor of pages, which is file-system order, can
+/// shadow a route.
 fn route_order(path: &str) -> (bool, usize, std::cmp::Reverse<usize>) {
     let segments: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
     let wildcard = path.trim() == "*" || segments.contains(&"*");
@@ -4266,18 +4206,6 @@ impl JsCodegen {
     }
 }
 
-/// Whether a statement does something rather than shows something: the kind
-/// a Button's block turns into its click handler.
-fn is_action_statement(stmt: &Statement) -> bool {
-    matches!(
-        &stmt.kind,
-        StatementKind::Assignment(_)
-            | StatementKind::MethodCall(_)
-            | StatementKind::Navigate(_)
-            | StatementKind::ExprStatement(_)
-    )
-}
-
 fn is_reactive_expr(expr_str: &str) -> bool {
     // Check for signal access pattern: _identifier()
     let bytes = expr_str.as_bytes();
@@ -4336,7 +4264,7 @@ mod tests {
 
     fn compile(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
-        JsCodegen::new().generate(&program)
+        JsCodegen::new().generate(&crate::sema::lower(program))
     }
 
     // ─── Nodes the new grammar produces, built by hand until it parses ───
@@ -4843,7 +4771,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("\"on:click\": (e) => { _open.set(!_open()); }"),
+            out.contains(".addEventListener(\"click\", (event) => { _open.set(!_open()); });"),
             "{out}"
         );
         // The assignment is not executed at render time.
