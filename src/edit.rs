@@ -103,6 +103,7 @@ impl EditOp {
 /// (the caller still holds it) — a malformed edit never corrupts the file.
 pub fn apply_edits(source: &str, ops: &[EditOp]) -> Result<String> {
     let program = parse_program(source)?;
+    let dialect = crate::syntax::detect_dialect(source);
 
     // id -> element, using the SAME traversal the codegen ids come from.
     let mut index: HashMap<String, &UIElement> = HashMap::new();
@@ -115,7 +116,7 @@ pub fn apply_edits(source: &str, ops: &[EditOp]) -> Result<String> {
         let ui = index
             .get(op.node())
             .ok_or_else(|| edit_err(format!("unknown node id '{}'", op.node())))?;
-        patches.extend(compute_patches(op, ui, source, &index)?);
+        patches.extend(compute_patches(op, ui, source, &index, dialect)?);
     }
 
     let result = apply_patches(source, patches)?;
@@ -140,8 +141,10 @@ fn compute_patches(
     ui: &UIElement,
     source: &str,
     index: &HashMap<String, &UIElement>,
+    dialect: crate::syntax::Dialect,
 ) -> Result<Vec<Patch>> {
     let one = |p: Patch| Ok(vec![p]);
+    let v2 = dialect == crate::syntax::Dialect::V2;
     match op {
         EditOp::SetText { value, .. } => {
             let k = first_positional_string(ui)
@@ -165,6 +168,49 @@ fn compute_patches(
         EditOp::AddModifier { modifier, .. } => {
             if ui.modifiers.iter().any(|m| m == modifier) {
                 return Ok(vec![]); // already present — no-op
+            }
+            if v2 {
+                // A flag, tight after the last flag, the parenthesis group
+                // or the name: `Button("x").primary` → `Button("x").primary.lg`.
+                // A word of the original grammar is respelled where the
+                // registry knows it — as a flag, or as `prop: .case` when
+                // the case alone would be ambiguous.
+                match flag_spelling(ui, modifier) {
+                    Spelling::Flag(flag) => {
+                        if ui.modifiers.contains(&flag) {
+                            return Ok(vec![]);
+                        }
+                        let at = ui
+                            .modifier_spans
+                            .iter()
+                            .map(|sp| sp.end as usize)
+                            .max()
+                            .or(ui.paren_span.map(|p| p.end as usize))
+                            .unwrap_or_else(|| ident_end(source, ui.span.start as usize));
+                        return one(Patch {
+                            start: at,
+                            end: at,
+                            text: format!(".{flag}"),
+                        });
+                    }
+                    Spelling::Named(text) => {
+                        if let Some(paren) = ui.paren_span {
+                            let close = paren.end as usize - 1;
+                            let sep = if ui.args.is_empty() { "" } else { ", " };
+                            return one(Patch {
+                                start: close,
+                                end: close,
+                                text: format!("{sep}{text}"),
+                            });
+                        }
+                        let at = ident_end(source, ui.span.start as usize);
+                        return one(Patch {
+                            start: at,
+                            end: at,
+                            text: format!("({text})"),
+                        });
+                    }
+                }
             }
             if let Some(paren) = ui.paren_span {
                 let close = paren.end as usize - 1; // the ')'
@@ -200,7 +246,13 @@ fn compute_patches(
                         modifier
                     ))
                 })?;
-            let (start, end) = modifier_removal_range(source, ui.modifier_spans[i]);
+            let (start, end) = if v2 {
+                // The flag's span already holds its dot.
+                let sp = ui.modifier_spans[i];
+                (sp.start as usize, sp.end as usize)
+            } else {
+                modifier_removal_range(source, ui.modifier_spans[i])
+            };
             one(Patch {
                 start,
                 end,
@@ -208,6 +260,13 @@ fn compute_patches(
             })
         }
         EditOp::SetStyle { prop, value, .. } => {
+            // A style value is raw CSS in the new grammar: a quoted value
+            // handed over from the original grammar loses its quotes.
+            let value = if v2 {
+                raw_style_value(value)
+            } else {
+                value.clone()
+            };
             if let Some(sb) = &ui.style_block {
                 if let Some(p) = sb.properties.iter().find(|p| &p.name == prop) {
                     one(replace(p.value_span, value.clone()))
@@ -255,15 +314,15 @@ fn compute_patches(
             })
         }
         EditOp::InsertChild { index: idx, wf, .. } => {
-            validate_snippet(wf)?;
+            validate_snippet(wf, dialect)?;
             one(insert_child_patch(ui, *idx, wf, source))
         }
         EditOp::AppendChild { wf, .. } => {
-            validate_snippet(wf)?;
+            validate_snippet(wf, dialect)?;
             one(append_child_patch(ui, wf, source))
         }
         EditOp::ReplaceNode { wf, .. } => {
-            validate_snippet(wf)?;
+            validate_snippet(wf, dialect)?;
             one(replace(ui.span, wf.clone()))
         }
         EditOp::RemoveNode { .. } => {
@@ -503,11 +562,63 @@ fn parse_program(source: &str) -> Result<Program> {
 
 /// Validate a `.wf` child snippet by parsing it inside a throwaway page. A bad
 /// snippet is rejected here, before any bytes are patched.
-fn validate_snippet(wf: &str) -> Result<()> {
-    let wrapped = format!("Page __EditValidate (path: \"/\") {{\n{}\n}}", wf);
+fn validate_snippet(wf: &str, dialect: crate::syntax::Dialect) -> Result<()> {
+    let wrapped = match dialect {
+        crate::syntax::Dialect::V2 => {
+            format!("page __EditValidate(path: \"/\") {{\n{}\n}}", wf)
+        }
+        crate::syntax::Dialect::V1 => {
+            format!("Page __EditValidate (path: \"/\") {{\n{}\n}}", wf)
+        }
+    };
     parse_program(&wrapped)
         .map(|_| ())
         .map_err(|e| edit_err(format!("invalid wf snippet: {}", e)))
+}
+
+/// How a modifier word is written on an element of the new grammar.
+enum Spelling {
+    /// `.flag`
+    Flag(String),
+    /// `prop: .case`, for a case more than one prop has.
+    Named(String),
+}
+
+/// The spelling of `word` on `ui`'s component: the word itself when the
+/// registry knows it as a flag, its new spelling when it is a modifier word
+/// of the original grammar (`large` → `lg`), else the word as given.
+fn flag_spelling(ui: &UIElement, word: &str) -> Spelling {
+    let sig = match &ui.component {
+        crate::parser::ast::ComponentRef::BuiltIn(name) => crate::registry::component(name),
+        crate::parser::ast::ComponentRef::SubComponent(owner, part) => {
+            crate::registry::part(owner, part)
+        }
+        crate::parser::ast::ComponentRef::UserDefined(_) => None,
+    };
+    let Some(sig) = sig else {
+        return Spelling::Flag(word.to_string());
+    };
+    if !matches!(sig.flag(word), crate::registry::Flag::Unknown) {
+        return Spelling::Flag(word.to_string());
+    }
+    match sig.spelling_of_legacy(word) {
+        Some(s) if s.contains(':') => Spelling::Named(s),
+        Some(s) => Spelling::Flag(s.trim_start_matches('.').to_string()),
+        None => Spelling::Flag(word.to_string()),
+    }
+}
+
+/// A style value as the new grammar writes it: without the quotes the
+/// original grammar needed, and with `{` `}` escapes undone.
+fn raw_style_value(value: &str) -> String {
+    let trimmed = value.trim();
+    if trimmed.len() >= 2 && trimmed.starts_with('"') && trimmed.ends_with('"') {
+        let inner = &trimmed[1..trimmed.len() - 1];
+        if !inner.contains('"') {
+            return inner.replace("\\{", "{").replace("\\}", "}");
+        }
+    }
+    value.to_string()
 }
 
 fn edit_err(msg: impl Into<String>) -> WebFluentError {
@@ -1117,5 +1228,121 @@ mod tests {
         ) {
             parse_program(&out).unwrap();
         }
+    }
+
+    // ─── The new grammar ─────────────────────────────────
+
+    #[test]
+    fn add_modifier_appends_a_flag_in_the_new_grammar() {
+        let src = "page P(path: \"/\") {\n  Button(\"Go\").primary\n  Divider\n  Badge(\"x\")\n}\n";
+        let button = id_of(src, "Button");
+        let divider = id_of(src, "Divider");
+        let badge = id_of(src, "Badge");
+        let out = apply_edits(
+            src,
+            &[
+                EditOp::AddModifier {
+                    node: button,
+                    modifier: "large".into(),
+                },
+                EditOp::AddModifier {
+                    node: divider,
+                    modifier: "muted".into(),
+                },
+                EditOp::AddModifier {
+                    node: badge,
+                    modifier: "success".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert!(out.contains("Button(\"Go\").primary.lg"), "{out}");
+        assert!(out.contains("Divider.muted"), "{out}");
+        assert!(out.contains("Badge(\"x\").success"), "{out}");
+        parse_program(&out).unwrap();
+    }
+
+    #[test]
+    fn add_and_remove_modifier_round_trip_in_the_new_grammar() {
+        let src = "page P(path: \"/\") {\n  Button(\"Go\").primary.lg { Text(\"a\") }\n}\n";
+        let id = id_of(src, "Button");
+        let same = apply_edits(
+            src,
+            &[EditOp::AddModifier {
+                node: id.clone(),
+                modifier: "lg".into(),
+            }],
+        )
+        .unwrap();
+        assert_eq!(same, src);
+        let out = apply_edits(
+            src,
+            &[EditOp::RemoveModifier {
+                node: id,
+                modifier: "primary".into(),
+            }],
+        )
+        .unwrap();
+        assert!(out.contains("Button(\"Go\").lg { Text(\"a\") }"), "{out}");
+        parse_program(&out).unwrap();
+    }
+
+    #[test]
+    fn set_style_writes_raw_values_in_the_new_grammar() {
+        let src = "page P(path: \"/\") {\n  Card {\n    style {\n      color: red\n    }\n    Text(\"x\")\n  }\n  Text(\"y\")\n}\n";
+        let card = id_of(src, "Card");
+        let text = id_of(src, "Text(\"y\")");
+        let out = apply_edits(
+            src,
+            &[
+                EditOp::SetStyle {
+                    node: card.clone(),
+                    prop: "color".into(),
+                    value: "\"blue\"".into(),
+                },
+                EditOp::SetStyle {
+                    node: card,
+                    prop: "padding".into(),
+                    value: "10px 0".into(),
+                },
+                EditOp::SetStyle {
+                    node: text,
+                    prop: "margin".into(),
+                    value: "\"0\"".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert!(out.contains("color: blue"), "{out}");
+        assert!(out.contains("padding: 10px 0"), "{out}");
+        assert!(out.contains("Text(\"y\") { style { margin: 0 } }"), "{out}");
+        parse_program(&out).unwrap();
+    }
+
+    #[test]
+    fn snippets_are_validated_in_the_grammar_of_the_file() {
+        let src = "page P(path: \"/\") {\n  Card { Text(\"a\") }\n}\n";
+        let id = id_of(src, "Card");
+        let out = apply_edits(
+            src,
+            &[EditOp::AppendChild {
+                node: id.clone(),
+                wf: "Button(\"Go\").primary { on click { go() } }".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("Button(\"Go\").primary { on click { go() } }"),
+            "{out}"
+        );
+        let err = apply_edits(
+            src,
+            &[EditOp::AppendChild {
+                node: id,
+                wf: "Button(\"Go\", primary)".into(),
+            }],
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("invalid wf snippet"), "{err}");
     }
 }
