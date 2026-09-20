@@ -1,6 +1,6 @@
 id = "webfluent"
 name = "WebFluent"
-description = "WebFluent language support: syntax highlighting, outline, bracket matching, auto-indent, snippets, and the wf-lsp language server (diagnostics, completions, hover, go to definition, code actions)."
+description = "WebFluent language support for .wf and .wfx files: syntax highlighting, outline, bracket matching, auto-indent, snippets, and the wf-lsp language server (diagnostics, completions, hover, go to definition, code actions)."
 version = "2.0.0"
 schema_version = 1
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
@@ -16,7 +16,14 @@ repository = "https://github.com/monzeromer-lab/WebFluent"
 rev = "ec22d1d1744ac19daaf63e94cd5e8fcd2b1eac16"
 path = "editors/tree-sitter-webfluent"
 
+# The indented layout, `.wfx`: the same grammar generated with its layout
+# tokens on, from the same commit.
+[grammars.webfluentx]
+repository = "https://github.com/monzeromer-lab/WebFluent"
+rev = "ec22d1d1744ac19daaf63e94cd5e8fcd2b1eac16"
+path = "editors/tree-sitter-webfluentx"
+
 [language_servers.wf-lsp]
 name = "WebFluent Language Server"
-languages = ["WebFluent"]
+languages = ["WebFluent", "WebFluent (indented)"]
 code_action_kinds = ["quickfix"]

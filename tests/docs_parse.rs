@@ -9,26 +9,27 @@ use std::path::Path;
 
 use webfluent::parse_source;
 
-/// The `wf`-tagged fences of a Markdown file, with the line each starts on.
-fn wf_blocks(markdown: &str) -> Vec<(usize, String)> {
+/// The `wf`- and `wfx`-tagged fences of a Markdown file, with the line
+/// each starts on and whether it is indented.
+fn wf_blocks(markdown: &str) -> Vec<(usize, String, bool)> {
     let mut blocks = Vec::new();
-    let mut current: Option<(usize, String)> = None;
+    let mut current: Option<(usize, String, bool)> = None;
     for (ix, line) in markdown.lines().enumerate() {
         match &mut current {
-            Some((_, body)) => {
+            Some((_, body, _)) => {
                 if line.trim_end() == "```" {
-                    let (start, body) = current.take().unwrap();
-                    blocks.push((start + 1, body));
+                    let (start, body, wfx) = current.take().unwrap();
+                    blocks.push((start + 1, body, wfx));
                 } else {
                     body.push_str(line);
                     body.push('\n');
                 }
             }
-            None => {
-                if line.trim_end() == "```wf" {
-                    current = Some((ix + 1, String::new()));
-                }
-            }
+            None => match line.trim_end() {
+                "```wf" => current = Some((ix + 1, String::new(), false)),
+                "```wfx" => current = Some((ix + 1, String::new(), true)),
+                _ => {}
+            },
         }
     }
     blocks
@@ -162,13 +163,26 @@ fn check_until(path: &str, stop: Option<&str>) -> Vec<String> {
         None => markdown,
     };
     let mut failures = Vec::new();
-    for (line, block) in wf_blocks(&markdown) {
+    for (line, block, wfx) in wf_blocks(&markdown) {
         for old in old_spellings(&block) {
             failures.push(format!("{path}:{line}: the block still spells `{old}`"));
         }
         if block.contains("...") || block.contains('…') {
             continue;
         }
+        // An indented block is checked as its braced spelling, which the
+        // converter holds to the same tokens.
+        let block = if wfx {
+            match webfluent::layout::to_braces(&block, &format!("{path}.wfx")) {
+                Ok(braced) => braced,
+                Err(e) => {
+                    failures.push(format!("{path}:{line}: {e}\n{block}"));
+                    continue;
+                }
+            }
+        } else {
+            block
+        };
         let (declarations, loose) = split(&block);
         let loose = loose.trim_matches('\n');
         let as_render = format!(

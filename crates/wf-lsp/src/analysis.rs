@@ -368,9 +368,10 @@ pub fn store_members(store: &StoreDecl) -> Vec<Binding> {
     members
 }
 
-/// The lexer's view of a file: `None` when it does not tokenize.
+/// The lexer's view of a file: `None` when it does not tokenize. The
+/// file's name picks its layout: a `.wfx` is tokenized by indentation.
 pub fn tokens_of(file: &SourceFile) -> Option<Vec<Token>> {
-    webfluent::syntax::tokens(&file.source, "").ok()
+    webfluent::syntax::tokens(&file.source, &file.path.to_string_lossy()).ok()
 }
 
 /// The index of the token whose extent contains `offset`, or that ends

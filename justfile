@@ -124,21 +124,31 @@ fmt-check:
 # ── Editors ──────────────────────────────────────────
 
 grammar_dir := "editors/tree-sitter-webfluent"
+# The `.wfx` grammar: the same grammar.js generated with its layout tokens on.
+grammarx_dir := "editors/tree-sitter-webfluentx"
+tree_sitter := "../tree-sitter-webfluent/node_modules/.bin/tree-sitter"
 zed_dir := "editors/zed"
 
-# Install the tree-sitter CLI the grammar is generated with
+# Install the tree-sitter CLI the grammars are generated with
 grammar-setup:
     cd {{grammar_dir}} && npm ci --no-audit --no-fund
 
-# Regenerate the parser from grammar.js
+# Regenerate both parsers from grammar.js; the scanner is one file, included
 grammar-generate:
     cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter generate
+    cd {{grammarx_dir}} && {{tree_sitter}} generate
 
-# Regenerate, run the grammar's corpus tests, and parse every .wf in the repo
+# Regenerate, run both corpora, and parse every .wf in the repo with the
+# braced grammar and its .wfx spelling with the indented one
 grammar-test: grammar-generate
     cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter test
+    cd {{grammarx_dir}} && {{tree_sitter}} test
     cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q \
         $(find ../../site ../../tests ../../examples -name '*.wf' -not -path '*/tests/migrate/corpus/*' 2>/dev/null) \
+        | tee /dev/stderr | grep -q 'failed parses: 0;'
+    rm -rf target/grammar-wfx && mkdir -p target/grammar-wfx && cp -r site target/grammar-wfx/site \
+        && cargo run -q -- fmt --to wfx target/grammar-wfx/site > /dev/null
+    cd {{grammarx_dir}} && {{tree_sitter}} parse --stat -q $(find ../../target/grammar-wfx -name '*.wfx') \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
 
 # Build the Zed extension's Rust crate for the target Zed uses
@@ -151,6 +161,12 @@ zed-check: grammar-test zed-build
     cd {{zed_dir}} && cargo fmt -- --check
     cd {{grammar_dir}} && for q in highlights brackets outline indents injections overrides textobjects; do \
         ./node_modules/.bin/tree-sitter query ../zed/languages/webfluent/$q.scm ../../site/src/App.wf > /dev/null || exit 1; \
+    done
+    cd {{grammarx_dir}} && for q in highlights brackets outline indents injections overrides textobjects; do \
+        {{tree_sitter}} query ../zed/languages/webfluentx/$q.scm ../../target/grammar-wfx/site/src/App.wfx > /dev/null || exit 1; \
+    done
+    for q in highlights brackets outline injections overrides textobjects; do \
+        cmp {{zed_dir}}/languages/webfluent/$q.scm {{zed_dir}}/languages/webfluentx/$q.scm || exit 1; \
     done
     node {{zed_dir}}/scripts/check-vocabulary.mjs
 

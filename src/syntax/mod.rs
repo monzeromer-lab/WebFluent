@@ -3,7 +3,9 @@
 //! Every consumer of a `.wf` file — the build, the template engine, the
 //! structured editor, the studio, the language server — goes through here.
 //!
-//! WebFluent 3 has one grammar (see `spec/SYNTAX_V2.md`). The grammar
+//! WebFluent 3 has one grammar (see `spec/SYNTAX_V2.md`), written with
+//! braces in a `.wf` file and by indentation in a `.wfx` file
+//! ([`crate::lexer::v2::Layout`]). The grammar
 //! WebFluent 2 had is read by `wf migrate` alone, through
 //! [`crate::migrate`]; a file written in it is refused here with a pointer
 //! to the migration. The dialect is read from a file's first word: the
@@ -23,6 +25,12 @@ pub enum Dialect {
     V1,
     /// WebFluent 3: `page Home(path: "/") { … }`.
     V2,
+}
+
+/// Whether `path` is a WebFluent source file: `.wf`, or `.wfx` for the
+/// indented layout.
+pub fn is_source_file(path: &std::path::Path) -> bool {
+    path.extension().is_some_and(|e| e == "wf" || e == "wfx")
 }
 
 /// The dialect of `source`, read from its first word after comments.
@@ -98,7 +106,7 @@ fn position_of_first_word(source: &str) -> (usize, usize) {
 /// The token stream of `source`, for tools that work at the token level
 /// (the language server's cursor context).
 pub fn tokens(source: &str, file: &str) -> Result<Vec<Token>> {
-    crate::lexer::LexerV2::new(source, file).tokenize()
+    crate::lexer::LexerV2::for_file(source, file).tokenize()
 }
 
 #[cfg(test)]

@@ -7,12 +7,16 @@
 
 mod common;
 
-use common::{Backend, migrated, raw_output};
+use common::{Backend, migrated, raw_output, raw_output_as};
 
 /// Assert that `v1`, migrated, and `v2` compile to identical output on
 /// every backend.
 fn same(v1: &str, v2: &str) {
     let from_v1 = migrated(v1);
+    // The indented layout of the hand-written spelling, as `wf fmt --to
+    // wfx` writes it; the converter itself holds it to the same tokens.
+    let wfx = webfluent::layout::to_offside(&dedent(v2), "t.wf")
+        .unwrap_or_else(|e| panic!("to_offside failed for:\n{v2}\n{e}"));
     for backend in [Backend::Spa, Backend::Ssg, Backend::Template] {
         let a = raw_output(backend, &from_v1);
         let b = raw_output(backend, v2);
@@ -20,7 +24,36 @@ fn same(v1: &str, v2: &str) {
             a, b,
             "{backend:?} output differs between the migrated and the hand-written spelling\n--- migrated ---\n{from_v1}\n--- v2 ---\n{v2}"
         );
+        let c = raw_output_as(backend, &wfx, "t.wfx");
+        assert_eq!(
+            b, c,
+            "{backend:?} output differs between the braced and the indented layout\n--- wf ---\n{v2}\n--- wfx ---\n{wfx}"
+        );
     }
+}
+
+/// The sources here are indented as Rust string literals inside a
+/// function; the layout converter wants the file's own indentation.
+fn dedent(src: &str) -> String {
+    let indent = src
+        .lines()
+        .skip(1)
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| l.len() - l.trim_start().len())
+        .min()
+        .unwrap_or(0);
+    let mut out = String::new();
+    for (i, line) in src.lines().enumerate() {
+        if i == 0 {
+            out.push_str(line.trim_start());
+        } else if line.len() >= indent {
+            out.push_str(&line[indent..]);
+        } else {
+            out.push_str(line.trim_start());
+        }
+        out.push('\n');
+    }
+    out
 }
 
 #[test]

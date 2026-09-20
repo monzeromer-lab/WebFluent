@@ -199,7 +199,13 @@ impl Project {
     /// document with no path on disk gets.
     pub fn single(uri: Url, source: &str) -> Project {
         let source: Arc<str> = source.into();
-        let parsed = parse(&source, "test.wf");
+        // The name picks the layout: an untitled `.wfx` buffer is indented.
+        let label = if uri.path().ends_with(".wfx") {
+            "test.wfx"
+        } else {
+            "test.wf"
+        };
+        let parsed = parse(&source, label);
         let file = SourceFile {
             uri,
             path: PathBuf::new(),
@@ -278,19 +284,22 @@ fn find_root(path: &Path) -> Option<PathBuf> {
         .map(Path::to_path_buf)
 }
 
-/// Every `.wf` under `dir`, in the order `wf build` reads them: `App.wf`
-/// first, then the rest depth-first, alphabetically.
+/// Every `.wf` and `.wfx` under `dir`, in the order `wf build` reads
+/// them: `App.wf` first, then the rest depth-first, alphabetically.
 fn source_files(dir: &Path) -> Vec<PathBuf> {
     let mut files = Vec::new();
-    let app = dir.join("App.wf");
-    if app.is_file() {
-        files.push(app);
+    let app = ["App.wf", "App.wfx"]
+        .iter()
+        .map(|n| dir.join(n))
+        .find(|p| p.is_file());
+    if let Some(app) = &app {
+        files.push(app.clone());
     }
-    walk(dir, dir, &mut files);
+    walk(dir, app.as_deref(), &mut files);
     files
 }
 
-fn walk(dir: &Path, top: &Path, files: &mut Vec<PathBuf>) {
+fn walk(dir: &Path, app: Option<&Path>, files: &mut Vec<PathBuf>) {
     let Ok(entries) = fs::read_dir(dir) else {
         return;
     };
@@ -298,9 +307,9 @@ fn walk(dir: &Path, top: &Path, files: &mut Vec<PathBuf>) {
     entries.sort();
     for path in entries {
         if path.is_dir() {
-            walk(&path, top, files);
-        } else if path.extension().is_some_and(|ext| ext == "wf") {
-            if dir == top && path.file_name().is_some_and(|n| n == "App.wf") {
+            walk(&path, app, files);
+        } else if webfluent::syntax::is_source_file(&path) {
+            if app == Some(path.as_path()) {
                 continue;
             }
             files.push(path);

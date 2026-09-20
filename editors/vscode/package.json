@@ -29,7 +29,8 @@
           "wf"
         ],
         "extensions": [
-          ".wf"
+          ".wf",
+          ".wfx"
         ],
         "configuration": "./language-configuration.json"
       }

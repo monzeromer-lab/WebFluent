@@ -1,0 +1,17 @@
+{
+  "name": "tree-sitter-webfluentx",
+  "version": "1.0.0",
+  "description": "Tree-sitter grammar for WebFluent in the indented layout (.wfx)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monzeromer-lab/WebFluent.git",
+    "directory": "editors/tree-sitter-webfluentx"
+  },
+  "keywords": [
+    "tree-sitter",
+    "parser",
+    "webfluent"
+  ],
+  "license": "GPL-3.0",
+  "private": true
+}

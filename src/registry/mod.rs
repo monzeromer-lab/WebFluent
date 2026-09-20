@@ -21,6 +21,7 @@
 //! lookups over it.
 
 pub mod builtins;
+pub mod json;
 
 pub use builtins::{COMPONENTS, UNIVERSAL_EVENTS, UNIVERSAL_PROPS};
 

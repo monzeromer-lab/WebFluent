@@ -330,6 +330,23 @@ Button("Custom") {
 Card(class: "feature feature--first")
 ```
 
+### Braces or indentation
+
+The same grammar reads two layouts. A `.wf` file writes its blocks in
+braces; a `.wfx` file writes them by indentation, and `wf fmt --to wfx`
+switches a project from one to the other without changing what it builds:
+
+```wfx
+page Home(path: "/", title: "Home")
+    state count = 0
+    Container
+        Heading("Welcome").h1
+        Text("Count: {count}")
+        Button("+1").primary
+            on click
+                count = count + 1
+```
+
 ## Project Configuration
 
 ```json
@@ -369,6 +386,8 @@ wf init <name> [-t spa|static|pdf]      Create a new project
 wf build [--dir DIR]                    Compile to HTML/CSS/JS or PDF
 wf serve [--dir DIR]                    Start dev server
 wf generate page|component|store <name> Scaffold a new file
+wf fmt --to wfx|wf [path]               Switch between braces (.wf) and indentation (.wfx)
+wf migrate [path] [--check] [--wfx]     Rewrite a WebFluent 2 project as WebFluent 3
 ```
 
 ## Build Output
@@ -398,14 +417,15 @@ The compiler is written in Rust. The generated JavaScript uses a minimal signal-
 
 | Editor | Where | What you get |
 |--------|-------|--------------|
-| [Zed](editors/zed) | `editors/zed` — install with `zed: install dev extension` | Tree-sitter highlighting, outline, brackets, indentation, snippets, and `wf-lsp` (found on `PATH` or downloaded from the latest release) |
+| [Zed](editors/zed) | `editors/zed` — install with `zed: install dev extension` | Tree-sitter highlighting, outline, brackets, indentation, snippets, and `wf-lsp` (found on `PATH` or downloaded from the latest release), for `.wf` and `.wfx` |
 | [VS Code](editors/vscode) | `editors/vscode` | TextMate highlighting and `wf-lsp` |
 
 Both editors talk to the same language server, `crates/wf-lsp`, for
 diagnostics, completions, hover documentation, go to definition, document
 symbols and quick fixes. `cargo install --path crates/wf-lsp` puts it on your
-`PATH`. The Tree-sitter grammar the Zed extension uses lives in
-`editors/tree-sitter-webfluent`.
+`PATH`. The Tree-sitter grammars the Zed extension uses live in
+`editors/tree-sitter-webfluent` (`.wf`) and `editors/tree-sitter-webfluentx`
+(`.wfx`, generated from the same `grammar.js`).
 
 ## Documentation
 

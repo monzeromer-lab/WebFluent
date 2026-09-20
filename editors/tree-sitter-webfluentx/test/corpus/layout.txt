@@ -1,0 +1,233 @@
+================================================================================
+Blocks by indentation: a page, elements, handlers, style and control flow
+================================================================================
+
+page Home(path: "/")
+    state open = true
+    Row(gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click
+            open = !open
+        Text("a").bold
+    if open
+        Spinner
+    else
+        Text("b")
+    Router
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (boolean))
+      (element
+        (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (enum_case
+              (identifier))))
+        (block
+          (style_block
+            (style_property
+              (property_name
+                (identifier))
+              (style_value
+                (style_text)))
+            (nested_rule
+              (selector)
+              (style_property
+                (property_name
+                  (identifier))
+                (style_value
+                  (design_token)))))
+          (event_handler
+            (identifier)
+            (block
+              (assignment
+                (identifier)
+                (unary_expression
+                  (identifier)))))
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content)))
+            (flag))))
+      (if_statement
+        (identifier)
+        (block
+          (element
+            (builtin_component)))
+        (else_clause
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (string
+                  (string_content)))))))
+      (element
+        (builtin_component)))))
+
+================================================================================
+Written braces, parentheses and one-line blocks keep their free layout
+================================================================================
+
+page P(
+    path: "/",
+    title: "x"
+)
+    state user = {
+        name: "a"
+    }
+    Button("x") { on click { save() } }
+    Card {
+        Text("a")
+    }
+    Text(user.name)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content)))
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (object
+          (pair
+            (identifier)
+            (string
+              (string_content)))))
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (event_handler
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (identifier)
+                  (arguments)))))))
+      (element
+        (builtin_component)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content))))))
+      (element
+        (builtin_component)
+        (argument_list
+          (member_expression
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Comment lines count for nothing; match arms, a theme and an enum by indentation
+================================================================================
+
+enum Tone
+    calm
+    loud
+
+theme Brand
+    color-primary: #8B5CF6
+    // a comment at any indent
+  // another
+    radius-md: 6px
+
+page P(path: "/")
+    resource r = fetch("/x")
+    match r
+        loading
+            Spinner
+        ready(v)
+            Text(v)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (enum_declaration
+    (component_identifier)
+    (enum_case_declaration
+      (identifier))
+    (enum_case_declaration
+      (identifier)))
+  (theme_declaration
+    (component_identifier)
+    (theme_body
+      (token_declaration
+        (property_name
+          (identifier)
+          (identifier))
+        (style_value
+          (style_text)))
+      (comment)
+      (comment)
+      (token_declaration
+        (property_name
+          (identifier)
+          (identifier))
+        (style_value
+          (style_text)))))
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (resource_declaration
+        (identifier)
+        (call_expression
+          (identifier)
+          (arguments
+            (string
+              (string_content)))))
+      (match_statement
+        (identifier)
+        (match_arm
+          (loading_pattern)
+          (block
+            (element
+              (builtin_component))))
+        (match_arm
+          (ready_pattern
+            (identifier))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (identifier)))))))))

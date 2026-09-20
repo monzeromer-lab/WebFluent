@@ -12,41 +12,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
 
     println!("Building {}...", config.name);
 
-    // Discover all .wf files
-    let src_dir = project_dir.join("src");
-    if !src_dir.exists() {
-        return Err(WebFluentError::IoError(
-            "src/ directory not found".to_string(),
-        ));
-    }
-
-    let wf_files = find_wf_files(&src_dir)?;
-    if wf_files.is_empty() {
-        return Err(WebFluentError::IoError(
-            "No .wf files found in src/".to_string(),
-        ));
-    }
-
-    // Lex and parse all files into a single program
-    let mut all_declarations = Vec::new();
-    // The file each declaration came from, so a diagnostic over the merged
-    // program can still name a file the reader can open.
-    let mut declaration_files: Vec<String> = Vec::new();
-
-    for file_path in &wf_files {
-        let source = fs::read_to_string(file_path)?;
-        let relative = file_path.strip_prefix(project_dir).unwrap_or(file_path);
-        let file_name = relative.to_string_lossy().to_string();
-
-        let program = crate::syntax::parse_source(&source, &file_name)?;
-
-        declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
-        all_declarations.extend(program.declarations);
-    }
-
-    let program = Program {
-        declarations: all_declarations,
-    };
+    let (program, declaration_files) = read_project(project_dir)?;
     let file_of = |index: usize| {
         declaration_files
             .get(index)
@@ -107,7 +73,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // while; a build from the command line said nothing.
     // The author's own stylesheets — every `.css` under `src/` — ship in
     // `styles.css`, and a modifier class one of them defines is a real one.
-    let project_css = crate::codegen::project_css::bundle(project_dir, &src_dir)?;
+    let project_css = crate::codegen::project_css::bundle(project_dir, &project_dir.join("src"))?;
     let vocab_warnings = crate::linter::lint_vocabulary_with(&program, &project_css, &file_of);
     for warning in &vocab_warnings {
         eprintln!("{}", warning);
@@ -405,6 +371,41 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Every source file under the project's `src/`, parsed and merged into
+/// one program, with the file each declaration came from (relative to the
+/// project) so a diagnostic over the merged program can still name a file
+/// the reader can open.
+pub fn read_project(project_dir: &Path) -> Result<(Program, Vec<String>)> {
+    let src_dir = project_dir.join("src");
+    if !src_dir.exists() {
+        return Err(WebFluentError::IoError(
+            "src/ directory not found".to_string(),
+        ));
+    }
+    let wf_files = find_wf_files(&src_dir)?;
+    if wf_files.is_empty() {
+        return Err(WebFluentError::IoError(
+            "No .wf files found in src/".to_string(),
+        ));
+    }
+    let mut all_declarations = Vec::new();
+    let mut declaration_files: Vec<String> = Vec::new();
+    for file_path in &wf_files {
+        let source = fs::read_to_string(file_path)?;
+        let relative = file_path.strip_prefix(project_dir).unwrap_or(file_path);
+        let file_name = relative.to_string_lossy().to_string();
+        let program = crate::syntax::parse_source(&source, &file_name)?;
+        declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
+        all_declarations.extend(program.declarations);
+    }
+    Ok((
+        Program {
+            declarations: all_declarations,
+        },
+        declaration_files,
+    ))
+}
+
 fn find_wf_files(dir: &Path) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
@@ -412,21 +413,28 @@ fn find_wf_files(dir: &Path) -> Result<Vec<PathBuf>> {
         return Ok(files);
     }
 
-    // Process App.wf first if it exists (so App declaration comes first)
-    let app_file = dir.join("App.wf");
-    if app_file.exists() {
-        files.push(app_file);
+    // Process App.wf (or App.wfx) first if it exists (so App declaration comes first)
+    let app_file = ["App.wf", "App.wfx"]
+        .iter()
+        .map(|n| dir.join(n))
+        .find(|p| p.exists());
+    if let Some(app) = &app_file {
+        files.push(app.clone());
     }
 
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-
+    // In name order, so a build is the same wherever the project sits:
+    // the directory's own order is the file system's, and a page's
+    // element numbering follows the order the files are read in.
+    let mut entries: Vec<PathBuf> = fs::read_dir(dir)?
+        .map(|entry| entry.map(|e| e.path()))
+        .collect::<std::result::Result<_, _>>()?;
+    entries.sort();
+    for path in entries {
         if path.is_dir() {
             files.extend(find_wf_files(&path)?);
-        } else if path.extension().is_some_and(|ext| ext == "wf") {
+        } else if crate::syntax::is_source_file(&path) {
             // Skip App.wf since we already added it
-            if path.file_name().is_some_and(|n| n == "App.wf") && path.parent() == Some(dir) {
+            if app_file.as_ref() == Some(&path) {
                 continue;
             }
             files.push(path);

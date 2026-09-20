@@ -18,8 +18,12 @@
 //   called `action`, `Array.from`.
 // - A style value is raw CSS to the end of its line or a `;`, with
 //   `$token` and `{expr}` splices inside it. The end of a line means
-//   something there and nowhere else, so an external scanner
-//   (`src/scanner.c`) reads those chunks; everything else is regular.
+//   something there and nowhere else — except in the indented layout: a
+//   `.wfx` file writes a block as the lines indented under the line that
+//   opens it, and the same external scanner (`src/scanner.c`) turns that
+//   into the `_indent` and `_dedent` tokens a block may be delimited by
+//   instead of braces. One grammar reads both layouts, as the compiler's
+//   lexer does (`src/lexer/v2.rs`, `Layout`).
 
 const PREC = {
   coalesce: 0,
@@ -63,6 +67,26 @@ const BUILTIN_COMPONENTS = [
   "ImageSlide",
 ];
 
+// One grammar file, two grammars: `tree-sitter-webfluent` reads `.wf`,
+// where a block is braced; generated with `WFX=1` — as
+// `tree-sitter-webfluentx` is — it reads `.wfx`, where a block may also be
+// the lines indented under the line that opens it. A braced file can
+// indent a continuation line deeper than the line before it, so the
+// indent tokens are only offered to the grammar that needs them.
+const OFFSIDE = process.env.WFX === "1";
+
+/**
+ * A block's body, between braces or — in the indented layout — between the
+ * indent that follows the line opening it and the dedent that ends it.
+ *
+ * @param {GrammarSymbols<any>} $
+ * @param {RuleOrLiteral} body
+ */
+function braced($, body) {
+  const withBraces = seq("{", body, "}");
+  return OFFSIDE ? choice(withBraces, seq($._indent, body, $._dedent)) : withBraces;
+}
+
 /**
  * @param {RuleOrLiteral} rule
  * @param {RuleOrLiteral} separator
@@ -80,13 +104,19 @@ function sepBy(rule, separator) {
 }
 
 module.exports = grammar({
-  name: "webfluent",
+  name: OFFSIDE ? "webfluentx" : "webfluent",
 
   word: ($) => $.identifier,
 
-  extras: ($) => [/\s/, $.doc_comment, $.comment],
+  // `_layout` is the scanner's empty mark: a line at the same level, or
+  // blanks it skipped and found nothing after.
+  extras: ($) => [/\s/, $.doc_comment, $.comment, $._layout],
 
-  externals: ($) => [$.style_text],
+  // The layout tokens are declared in both grammars so one scanner serves
+  // both; the braced grammar never asks for an indent or a dedent. The
+  // braces go through the scanner too, counted: inside them the layout is
+  // free.
+  externals: ($) => [$.style_text, $._indent, $._dedent, $._layout, "{", "}"],
 
   conflicts: ($) => [
     // `Button("x", aria-pressed: on)` versus `Text(a - b)`: after the first
@@ -161,7 +191,7 @@ module.exports = grammar({
     theme_declaration: ($) =>
       seq("theme", field("name", $._name), field("body", $.theme_body)),
 
-    theme_body: ($) => seq("{", repeat($.token_declaration), "}"),
+    theme_body: ($) => braced($, repeat($.token_declaration)),
 
     // `color-primary: #6366F1` — a raw CSS value.
     token_declaration: ($) =>
@@ -174,10 +204,7 @@ module.exports = grammar({
       seq(
         "type",
         field("name", $._name),
-        "{",
-        sepBy($.field_declaration, optional(",")),
-        optional(","),
-        "}",
+        braced($, seq(sepBy($.field_declaration, optional(",")), optional(","))),
       ),
 
     field_declaration: ($) =>
@@ -193,10 +220,7 @@ module.exports = grammar({
       seq(
         "enum",
         field("name", $._name),
-        "{",
-        sepBy($.enum_case_declaration, ","),
-        optional(","),
-        "}",
+        braced($, seq(sepBy($.enum_case_declaration, optional(",")), optional(","))),
       ),
 
     enum_case_declaration: ($) => $.identifier,
@@ -232,7 +256,7 @@ module.exports = grammar({
 
     // ─── Statements ─────────────────────────────────────────────────────
 
-    block: ($) => seq("{", repeat($._statement), "}"),
+    block: ($) => braced($, repeat($._statement)),
 
     _statement: ($) =>
       choice(
@@ -365,7 +389,7 @@ module.exports = grammar({
 
     // `match users { loading { } error(e) { } ready(list) { } else { } }`
     match_statement: ($) =>
-      seq("match", field("value", $._expression), "{", repeat($.match_arm), "}"),
+      seq("match", field("value", $._expression), braced($, repeat($.match_arm))),
 
     match_arm: ($) => seq(field("pattern", $._arm_pattern), field("body", $.block)),
 
@@ -459,7 +483,7 @@ module.exports = grammar({
     // ─── Style ──────────────────────────────────────────────────────────
 
     style_block: ($) =>
-      seq("style", "{", repeat(choice($.style_property, $.nested_rule)), "}"),
+      seq("style", braced($, repeat(choice($.style_property, $.nested_rule)))),
 
     // `padding: 6px 0`, `--accent: {color}`, `background: $surface;`
     style_property: ($) =>
@@ -477,9 +501,7 @@ module.exports = grammar({
     nested_rule: ($) =>
       seq(
         field("selector", $.selector),
-        "{",
-        repeat(choice($.style_property, $.nested_rule)),
-        "}",
+        braced($, repeat(choice($.style_property, $.nested_rule))),
       ),
 
     selector: (_) => /[&@.:\[>*+~][^{}\n]*/,
@@ -498,7 +520,7 @@ module.exports = grammar({
 
     // `transition { background: 200ms ease-out }` — raw values, like a style.
     transition_block: ($) =>
-      seq("transition", "{", repeat($.style_property), "}"),
+      seq("transition", braced($, repeat($.style_property))),
 
     // ─── Assignment & expression statements ─────────────────────────────
 
@@ -713,7 +735,10 @@ module.exports = grammar({
 
     escape_sequence: (_) => token.immediate(/\\./),
 
-    interpolation: ($) => seq("{", $._expression, "}"),
+    // Its braces are the grammar's own tokens, not the scanner's: inside a
+    // string or a style value they are not the writer's block braces.
+    interpolation: ($) =>
+      seq(alias(/\{/, "{"), $._expression, alias(/\}/, "}")),
 
     number: (_) => /\d+(\.\d+)?/,
 

@@ -27,9 +27,10 @@ use crate::lexer::v2::LexerV2;
 use crate::lexer::{Token, TokenType};
 use crate::parser::ast::*;
 
-/// Parse a WebFluent 3 source file.
+/// Parse a WebFluent 3 source file, in the layout its name asks for: a
+/// `.wfx` file writes its blocks by indentation.
 pub fn parse_v2(source: &str, file: &str) -> Result<Program> {
-    let tokens = LexerV2::new(source, file).tokenize()?;
+    let tokens = LexerV2::for_file(source, file).tokenize()?;
     ParserV2::new(tokens, file).parse()
 }
 

@@ -1,0 +1,33 @@
+# The same language as `webfluent/`, in the indented layout: a `.wfx` file
+# writes a block as the lines indented under the line that opens it. The
+# grammar is generated from the same grammar.js with the layout tokens on;
+# the queries are copies of `webfluent/`'s (`just zed-sync-wfx` keeps them
+# so), because the nodes are the same.
+name = "WebFluent (indented)"
+grammar = "webfluentx"
+path_suffixes = ["wfx"]
+# ```wfx fences in Markdown are highlighted as indented WebFluent.
+code_fence_block_name = "wfx"
+modeline_aliases = ["wfx"]
+line_comments = ["// "]
+block_comment = { start = "/*", prefix = "* ", end = "*/", tab_size = 1 }
+autoclose_before = ";:.,=}])"
+brackets = [
+    { start = "{", end = "}", close = true, newline = true },
+    { start = "(", end = ")", close = true, newline = true },
+    { start = "[", end = "]", close = true, newline = true },
+    { start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
+    { start = "/*", end = " */", close = true, newline = false, not_in = ["string", "comment"] },
+]
+tab_size = 4
+hard_tabs = false
+collapsed_placeholder = " ... "
+# A line that opens a block ends without a brace; the next line is indented
+# by the block it starts, and dedenting is the writer's.
+auto_indent_using_last_non_empty_line = true
+
+[overrides.style]
+completion_query_characters = ["-"]
+
+[overrides.arguments]
+completion_query_characters = ["-"]

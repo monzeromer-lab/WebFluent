@@ -86,7 +86,7 @@ impl Template {
         })
     }
 
-    /// Create a template from a `.wf` file on disk.
+    /// Create a template from a `.wf` (or `.wfx`) file on disk.
     ///
     /// # Errors
     ///
@@ -96,6 +96,13 @@ impl Template {
         let source = fs::read_to_string(path).map_err(|e| {
             WebFluentError::IoError(format!("Failed to read template '{}': {}", path, e))
         })?;
+        // An indented file is read as its braced spelling, which is what
+        // the renderers parse.
+        let source = if path.ends_with(".wfx") {
+            crate::layout::to_braces(&source, path)?
+        } else {
+            source
+        };
         Self::from_str(&source)
     }
 

@@ -5,6 +5,7 @@ mod codegen;
 mod config;
 mod edit;
 mod error;
+mod layout;
 mod lexer;
 mod linter;
 mod migrate;
@@ -89,6 +90,37 @@ enum Commands {
         /// Print the migrated text of one file to stdout instead of writing it
         #[arg(long)]
         stdout: bool,
+        /// Write the migrated files in the indented layout, as `.wfx`
+        #[arg(long)]
+        wfx: bool,
+    },
+    /// Describe every built-in component: props, cases, flags, events, slots, parts
+    Registry {
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
+    /// Describe what a project declares: enums, types, components, stores, pages
+    Types {
+        /// Project directory (default: current directory)
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
+    /// Rewrite a project's source files in the other layout: `.wfx` (blocks
+    /// by indentation) or `.wf` (blocks in braces)
+    Fmt {
+        /// Project directory (default: current directory), or one file
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// The layout to write: `wfx` or `wf`
+        #[arg(long)]
+        to: String,
+        /// Print the converted text of one file to stdout instead of writing it
+        #[arg(long)]
+        stdout: bool,
     },
 }
 
@@ -117,7 +149,11 @@ fn main() {
             path,
             check,
             stdout,
-        } => cli::migrate::run_migrate(&path, check, stdout),
+            wfx,
+        } => cli::migrate::run_migrate(&path, check, stdout, wfx),
+        Commands::Fmt { path, to, stdout } => cli::fmt::run_fmt(&path, &to, stdout),
+        Commands::Registry { json } => cli::describe::run_registry(json),
+        Commands::Types { path, json } => cli::describe::run_types(&path, json),
     };
 
     if let Err(e) = result {

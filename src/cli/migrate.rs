@@ -3,8 +3,8 @@ use std::path::Path;
 use crate::error::{Result, WebFluentError};
 use crate::migrate::{migrate_project, report, source_files};
 
-/// `wf migrate [path] [--check] [--stdout]`.
-pub fn run_migrate(path: &Path, check: bool, stdout: bool) -> Result<()> {
+/// `wf migrate [path] [--check] [--stdout] [--wfx]`.
+pub fn run_migrate(path: &Path, check: bool, stdout: bool, wfx: bool) -> Result<()> {
     let files = if path.is_file() {
         vec![(path.to_path_buf(), std::fs::read_to_string(path)?)]
     } else {
@@ -29,18 +29,36 @@ pub fn run_migrate(path: &Path, check: bool, stdout: bool) -> Result<()> {
     for (file, outcome) in &outcomes {
         match outcome {
             Ok(migrated) => {
+                // `--wfx`: the migrated text in the indented layout, under
+                // the `.wfx` name; the `.wf` file goes.
+                let (text, written_to) = if wfx {
+                    let name = file.to_string_lossy();
+                    match crate::layout::to_offside(&migrated.text, &name) {
+                        Ok(text) => (text, super::fmt::offside_path(file)),
+                        Err(e) => {
+                            failed += 1;
+                            eprintln!("  {}: {e}", file.display());
+                            continue;
+                        }
+                    }
+                } else {
+                    (migrated.text.clone(), file.clone())
+                };
                 if stdout {
-                    print!("{}", migrated.text);
+                    print!("{text}");
                     continue;
                 }
-                if migrated.changed {
+                if migrated.changed || wfx {
                     changed += 1;
-                    println!("  {}", file.display());
+                    println!("  {}", written_to.display());
                 }
                 notes += migrated.notes.len();
                 print!("{}", report(file, migrated));
-                if migrated.changed && !check {
-                    std::fs::write(file, &migrated.text)?;
+                if (migrated.changed || wfx) && !check {
+                    std::fs::write(&written_to, &text)?;
+                    if written_to != *file {
+                        std::fs::remove_file(file)?;
+                    }
                 }
             }
             Err(e) => {

@@ -75,7 +75,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: "file", language: "webfluent" }],
     synchronize: {
-      fileEvents: workspace.createFileSystemWatcher("**/*.wf"),
+      fileEvents: workspace.createFileSystemWatcher("**/*.{wf,wfx}"),
     },
   };
 

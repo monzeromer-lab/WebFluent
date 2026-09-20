@@ -492,3 +492,35 @@ fn document_symbols_are_nested_under_declarations() {
         vec!["items", "clear()"]
     );
 }
+
+#[test]
+fn an_indented_file_is_read_by_its_layout() {
+    // The same page, blocks by indentation: no parse error, the same
+    // diagnostics, hover and completion as its braced spelling.
+    let src = "page Home(path: \"/\", title: \"x\", description: \"y\")\n    state count = 0\n    Heading(\"Hi\").h1\n    Button(\"+1\").primary\n        on click\n            count = count + 1\n    Text(\"{count}\").centred\n";
+    let project = Project::single(Url::parse("file:///test.wfx").unwrap(), src);
+    let diagnostics = project_diagnostics(&project).remove(0);
+    assert!(
+        diagnostics.iter().all(|d| !d.message.contains("Expected")),
+        "{diagnostics:?}"
+    );
+    let unknown = diagnostics
+        .iter()
+        .find(|d| d.message.contains("centred"))
+        .expect("an error for `centred`");
+    let start = project.files[0]
+        .index
+        .offset_to_position(src, src.find(".centred").unwrap());
+    assert_eq!(unknown.range.start, start, "{unknown:?}");
+    let pos = project.files[0]
+        .index
+        .offset_to_position(src, src.find(".primary").unwrap() + 1);
+    let hover = provide_hover(&project, 0, pos).map(|h| match h.contents {
+        HoverContents::Markup(m) => m.value,
+        _ => panic!("markdown expected"),
+    });
+    assert!(
+        hover.as_deref().is_some_and(|h| h.contains("tone")),
+        "{hover:?}"
+    );
+}

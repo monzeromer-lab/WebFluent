@@ -12,9 +12,18 @@
 //! bad edit can never corrupt the file — it returns an error and the caller keeps
 //! the original source.
 //!
-//! This first cut implements the text-replacement / whole-node / append ops. The
-//! remaining ops (`AddModifier`/`RemoveModifier`, `InsertChild` at an index,
-//! `SetStyle`/`RemoveStyle`, `MoveNode`) build on the same machinery and land next.
+//! The ops speak the grammar of WebFluent 3: a flag (`SetFlag`), a named
+//! prop (`SetProp`), a handler (`SetHandler`), a slot fill (`SetSlot`), a raw
+//! style value (`SetStyle`); the older names (`AddModifier`, `SetArg`) stay
+//! as aliases where their meaning survives. A `.wfx` file is edited through
+//! its braced spelling — [`apply_edits_to`] converts, edits and converts
+//! back — because node ids are structural and survive the change of layout.
+//!
+//! Node ids are per source version: structural paths (`Home:2.0.3`) that a
+//! change of a sibling shifts, and that `wf migrate` keeps where the
+//! statement structure holds — which it does for every element, since the
+//! migration moves clauses and respells arguments but adds and removes no
+//! element.
 
 use crate::codegen::node_id;
 use crate::error::{Result, WebFluentError};
@@ -75,11 +84,47 @@ pub enum EditOp {
         new_parent: String,
         index: usize,
     },
+
+    // ── The grammar of WebFluent 3, by name ──────────────────────────────
+    /// Set a named prop to `value` — raw expression text: `"x"`, `.md`,
+    /// `count + 1` — replacing it when the call has it, adding it when not.
+    SetProp {
+        node: String,
+        prop: String,
+        value: String,
+    },
+    /// Remove a named prop from the call.
+    RemoveProp { node: String, prop: String },
+    /// Set a flag (`.primary`, `.lg`, `.outlined`) on the node; a case two
+    /// props share is written as `prop: .case`. The same as `AddModifier`.
+    SetFlag { node: String, flag: String },
+    /// Remove a flag from the node. The same as `RemoveModifier`.
+    RemoveFlag { node: String, flag: String },
+    /// Replace the body of the node's `on <event>` handler with `body`
+    /// (statements, one per line), or add the handler, with `param` as
+    /// the event's name (`on click(e)`) when given.
+    SetHandler {
+        node: String,
+        event: String,
+        param: Option<String>,
+        body: String,
+    },
+    /// Remove the node's `on <event>` handler.
+    RemoveHandler { node: String, event: String },
+    /// Fill the node's named slot with the `wf` snippet, replacing the
+    /// fill it has.
+    SetSlot {
+        node: String,
+        slot: String,
+        wf: String,
+    },
+    /// Remove the fill of the node's named slot.
+    RemoveSlot { node: String, slot: String },
 }
 
 impl EditOp {
     /// The id of the node this op targets.
-    fn node(&self) -> &str {
+    pub fn node(&self) -> &str {
         match self {
             EditOp::SetText { node, .. }
             | EditOp::SetArg { node, .. }
@@ -91,7 +136,15 @@ impl EditOp {
             | EditOp::AppendChild { node, .. }
             | EditOp::ReplaceNode { node, .. }
             | EditOp::RemoveNode { node }
-            | EditOp::MoveNode { node, .. } => node,
+            | EditOp::MoveNode { node, .. }
+            | EditOp::SetProp { node, .. }
+            | EditOp::RemoveProp { node, .. }
+            | EditOp::SetFlag { node, .. }
+            | EditOp::RemoveFlag { node, .. }
+            | EditOp::SetHandler { node, .. }
+            | EditOp::RemoveHandler { node, .. }
+            | EditOp::SetSlot { node, .. }
+            | EditOp::RemoveSlot { node, .. } => node,
         }
     }
 }
@@ -102,6 +155,21 @@ impl EditOp {
 /// is reparsed as a final guard. On any error the original `source` is untouched
 /// (the caller still holds it) — a malformed edit never corrupts the file.
 pub fn apply_edits(source: &str, ops: &[EditOp]) -> Result<String> {
+    apply_edits_to(source, "<edit>.wf", ops)
+}
+
+/// [`apply_edits`] for a file by name: a `.wfx` source is converted to its
+/// braced spelling, edited there, and written back by indentation.
+pub fn apply_edits_to(source: &str, file: &str, ops: &[EditOp]) -> Result<String> {
+    if file.ends_with(".wfx") {
+        let braced = crate::layout::to_braces(source, file)?;
+        let edited = apply_edits_braced(&braced, ops)?;
+        return crate::layout::to_offside(&edited, file);
+    }
+    apply_edits_braced(source, ops)
+}
+
+fn apply_edits_braced(source: &str, ops: &[EditOp]) -> Result<String> {
     let program = parse_program(source)?;
     let dialect = crate::syntax::detect_dialect(source);
 
@@ -342,6 +410,133 @@ fn compute_patches(
                 text: String::new(),
             })
         }
+        EditOp::SetFlag { node, flag } => compute_patches(
+            &EditOp::AddModifier {
+                node: node.clone(),
+                modifier: flag.clone(),
+            },
+            ui,
+            source,
+            index,
+            dialect,
+        ),
+        EditOp::RemoveFlag { node, flag } => compute_patches(
+            &EditOp::RemoveModifier {
+                node: node.clone(),
+                modifier: flag.clone(),
+            },
+            ui,
+            source,
+            index,
+            dialect,
+        ),
+        EditOp::SetProp { prop, value, .. } => {
+            if let Some(k) = named_arg_index(ui, prop) {
+                return one(replace(ui.arg_spans[k], format!("{prop}: {value}")));
+            }
+            // Added last inside the parentheses, or in a new group after
+            // the name — before the flags, which come after the group.
+            if let Some(paren) = ui.paren_span {
+                let close = paren.end as usize - 1;
+                let sep = if ui.args.is_empty() { "" } else { ", " };
+                return one(Patch {
+                    start: close,
+                    end: close,
+                    text: format!("{sep}{prop}: {value}"),
+                });
+            }
+            let at = ident_end(source, ui.span.start as usize);
+            one(Patch {
+                start: at,
+                end: at,
+                text: format!("({prop}: {value})"),
+            })
+        }
+        EditOp::RemoveProp { prop, .. } => {
+            let k = named_arg_index(ui, prop)
+                .ok_or_else(|| edit_err(format!("remove_prop: node has no prop '{prop}'")))?;
+            if ui.args.len() == 1
+                && let Some(paren) = ui.paren_span
+            {
+                // The last argument takes the parentheses with it.
+                return one(Patch {
+                    start: paren.start as usize,
+                    end: paren.end as usize,
+                    text: String::new(),
+                });
+            }
+            let (start, end) = modifier_removal_range(source, ui.arg_spans[k]);
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
+        }
+        EditOp::SetHandler {
+            event, param, body, ..
+        } => {
+            let head = match param {
+                Some(p) => format!("on {event}({p})"),
+                None => format!("on {event}"),
+            };
+            validate_snippet(&format!("Container {{ {head} {{ {body} }} }}"), dialect)?;
+            if let Some(h) = ui.events.iter().find(|h| &h.event == event) {
+                let indent = line_indent(source, h.span.start as usize);
+                return one(replace(h.span, clause_text(&head, body, &indent)));
+            }
+            // A new handler goes after the style and transition blocks and
+            // the other handlers, before fills and children.
+            let after = ui
+                .events
+                .last()
+                .map(|h| h.span.end as usize)
+                .or(ui.transition_block.as_ref().map(|t| t.span.end as usize))
+                .or(ui.style_span.map(|s| s.end as usize));
+            one(insert_clause(ui, after, &head, body, source))
+        }
+        EditOp::RemoveHandler { event, .. } => {
+            let h = ui
+                .events
+                .iter()
+                .find(|h| &h.event == event)
+                .ok_or_else(|| edit_err(format!("remove_handler: node has no `on {event}`")))?;
+            let (start, end) = removal_range(source, h.span);
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
+        }
+        EditOp::SetSlot { slot, wf, .. } => {
+            validate_snippet(&format!("Container {{ {slot} {{ {wf} }} }}"), dialect)?;
+            if let Some(f) = ui.slot_fills.iter().find(|f| &f.name == slot) {
+                let indent = line_indent(source, f.span.start as usize);
+                return one(replace(f.span, clause_text(slot, wf, &indent)));
+            }
+            // A new fill goes after the handlers and the other fills,
+            // before the children.
+            let after = ui
+                .slot_fills
+                .last()
+                .map(|f| f.span.end as usize)
+                .or(ui.events.last().map(|h| h.span.end as usize))
+                .or(ui.transition_block.as_ref().map(|t| t.span.end as usize))
+                .or(ui.style_span.map(|s| s.end as usize));
+            one(insert_clause(ui, after, slot, wf, source))
+        }
+        EditOp::RemoveSlot { slot, .. } => {
+            let f = ui
+                .slot_fills
+                .iter()
+                .find(|f| &f.name == slot)
+                .ok_or_else(|| edit_err(format!("remove_slot: node has no `{slot}` fill")))?;
+            let (start, end) = removal_range(source, f.span);
+            one(Patch {
+                start,
+                end,
+                text: String::new(),
+            })
+        }
         EditOp::MoveNode {
             new_parent,
             index: idx,
@@ -361,6 +556,68 @@ fn compute_patches(
                 },
                 insert,
             ])
+        }
+    }
+}
+
+/// A clause — a handler or a fill — with its body one statement per line,
+/// indented one level under `indent`; a one-statement body stays on the
+/// clause's line.
+fn clause_text(head: &str, body: &str, indent: &str) -> String {
+    let lines: Vec<&str> = body
+        .lines()
+        .map(str::trim)
+        .filter(|l| !l.is_empty())
+        .collect();
+    match lines.as_slice() {
+        [] => format!("{head} {{ }}"),
+        [one] => format!("{head} {{ {one} }}"),
+        many => {
+            let inner: Vec<String> = many.iter().map(|l| format!("{indent}    {l}")).collect();
+            format!("{head} {{\n{}\n{indent}}}", inner.join("\n"))
+        }
+    }
+}
+
+/// A patch that puts a clause into `ui`'s block: after the clause at
+/// `after` when there is one, else first in the block, creating the block
+/// when the element has none.
+fn insert_clause(
+    ui: &UIElement,
+    after: Option<usize>,
+    head: &str,
+    body: &str,
+    source: &str,
+) -> Patch {
+    match (after, ui.body_span) {
+        (Some(at), _) => {
+            let indent = line_indent(source, at);
+            let text = clause_text(head, body, &indent);
+            Patch {
+                start: at,
+                end: at,
+                text: format!("\n{indent}{text}"),
+            }
+        }
+        (None, Some(body_span)) => {
+            let at = body_span.start as usize;
+            let indent = format!("{}    ", line_indent(source, ui.span.start as usize));
+            let text = clause_text(head, body, &indent);
+            Patch {
+                start: at,
+                end: at,
+                text: format!("\n{indent}{text}"),
+            }
+        }
+        (None, None) => {
+            let at = ui.span.end as usize;
+            let indent = line_indent(source, ui.span.start as usize);
+            let text = clause_text(head, body, &indent);
+            Patch {
+                start: at,
+                end: at,
+                text: format!(" {{ {text} }}"),
+            }
         }
     }
 }
@@ -414,16 +671,19 @@ fn insert_child_patch(ui: &UIElement, index: usize, wf: &str, source: &str) -> P
 }
 
 /// Apply patches right-to-left so earlier offsets stay valid; reject overlaps.
-pub(crate) fn apply_patches(source: &str, mut patches: Vec<Patch>) -> Result<String> {
-    patches.sort_by_key(|p| std::cmp::Reverse(p.start));
+pub(crate) fn apply_patches(source: &str, patches: Vec<Patch>) -> Result<String> {
+    // Two insertions at one offset land in the order they were asked for:
+    // the later is applied first, so the earlier ends up before it.
+    let mut patches: Vec<(usize, Patch)> = patches.into_iter().enumerate().collect();
+    patches.sort_by_key(|(i, p)| (std::cmp::Reverse(p.start), std::cmp::Reverse(*i)));
     for w in patches.windows(2) {
-        let (later, earlier) = (&w[0], &w[1]); // later has the greater start
+        let (later, earlier) = (&w[0].1, &w[1].1); // later has the greater start
         if earlier.end > later.start {
             return Err(edit_err("overlapping edits target the same source region"));
         }
     }
     let mut result = source.to_string();
-    for p in &patches {
+    for (_, p) in &patches {
         result.replace_range(p.start..p.end, &p.text);
     }
     Ok(result)
@@ -1335,5 +1595,215 @@ mod tests {
         )
         .unwrap_err();
         assert!(err.to_string().contains("invalid wf snippet"), "{err}");
+    }
+
+    // ── The grammar of WebFluent 3, by name ──────────────────────────────
+
+    #[test]
+    fn set_prop_replaces_or_adds_a_named_prop_and_remove_prop_takes_it_away() {
+        let src = "page P(path: \"/\") {\n  Row(gap: .sm).center\n  Spacer\n}\n";
+        let row = id_of(src, "Row");
+        let out = apply_edits(
+            src,
+            &[
+                EditOp::SetProp {
+                    node: row.clone(),
+                    prop: "gap".into(),
+                    value: ".lg".into(),
+                },
+                EditOp::SetProp {
+                    node: row,
+                    prop: "align".into(),
+                    value: ".center".into(),
+                },
+                EditOp::SetProp {
+                    node: id_of(src, "Spacer"),
+                    prop: "size".into(),
+                    value: ".xl".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert!(
+            out.contains("Row(gap: .lg, align: .center).center"),
+            "got: {out}"
+        );
+        assert!(out.contains("Spacer(size: .xl)"), "got: {out}");
+        let row = id_of(&out, "Row");
+        let back = apply_edits(
+            &out,
+            &[
+                EditOp::RemoveProp {
+                    node: row.clone(),
+                    prop: "align".into(),
+                },
+                EditOp::RemoveProp {
+                    node: id_of(&out, "Spacer"),
+                    prop: "size".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert_eq!(
+            back,
+            "page P(path: \"/\") {\n  Row(gap: .lg).center\n  Spacer\n}\n"
+        );
+    }
+
+    #[test]
+    fn set_flag_and_remove_flag_are_the_modifier_ops_by_their_new_name() {
+        let src = "page P(path: \"/\") {\n  Button(\"Go\")\n}\n";
+        let id = id_of(src, "Button");
+        let out = apply_edits(
+            src,
+            &[
+                EditOp::SetFlag {
+                    node: id.clone(),
+                    flag: "primary".into(),
+                },
+                EditOp::SetFlag {
+                    node: id,
+                    flag: "lg".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert!(out.contains("Button(\"Go\").primary.lg"), "got: {out}");
+        let back = apply_edits(
+            &out,
+            &[EditOp::RemoveFlag {
+                node: id_of(&out, "Button"),
+                flag: "primary".into(),
+            }],
+        )
+        .unwrap();
+        assert!(back.contains("Button(\"Go\").lg"), "got: {back}");
+    }
+
+    #[test]
+    fn set_handler_adds_a_handler_in_its_place_and_replaces_its_body() {
+        let src = "page P(path: \"/\") {\n    Button(\"Go\") {\n        style { color: red }\n        Text(\"x\")\n    }\n    Spacer\n}\n";
+        let button = id_of(src, "Button");
+        let out = apply_edits(
+            src,
+            &[
+                EditOp::SetHandler {
+                    node: button,
+                    event: "click".into(),
+                    param: None,
+                    body: "count = count + 1\nsave()".into(),
+                },
+                EditOp::SetHandler {
+                    node: id_of(src, "Spacer"),
+                    event: "mouseenter".into(),
+                    param: Some("e".into()),
+                    body: "log(e)".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert!(
+            out.contains("        style { color: red }\n        on click {\n            count = count + 1\n            save()\n        }\n        Text(\"x\")"),
+            "got: {out}"
+        );
+        assert!(
+            out.contains("Spacer { on mouseenter(e) { log(e) } }"),
+            "got: {out}"
+        );
+        let again = apply_edits(
+            &out,
+            &[EditOp::SetHandler {
+                node: id_of(&out, "Button"),
+                event: "click".into(),
+                param: None,
+                body: "reset()".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            again.contains("        on click { reset() }\n        Text(\"x\")"),
+            "got: {again}"
+        );
+        let gone = apply_edits(
+            &again,
+            &[EditOp::RemoveHandler {
+                node: id_of(&again, "Button"),
+                event: "click".into(),
+            }],
+        )
+        .unwrap();
+        assert!(!gone.contains("on click"), "got: {gone}");
+        parse_program(&gone).unwrap();
+    }
+
+    #[test]
+    fn set_slot_fills_a_named_slot_and_remove_slot_empties_it() {
+        let src = "component Panel(_ title: String) {\n    slot trailing\n    Row { Heading(title).h3  trailing }\n    children\n}\npage P(path: \"/\") {\n    Panel(\"Keys\") {\n        on click { open() }\n        Text(\"body\")\n    }\n}\n";
+        let panel = id_of(src, "Panel(\"Keys\")");
+        let out = apply_edits(
+            src,
+            &[EditOp::SetSlot {
+                node: panel,
+                slot: "trailing".into(),
+                wf: "Badge(\"Beta\").info".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            out.contains("        on click { open() }\n        trailing { Badge(\"Beta\").info }\n        Text(\"body\")"),
+            "got: {out}"
+        );
+        let replaced = apply_edits(
+            &out,
+            &[EditOp::SetSlot {
+                node: id_of(&out, "Panel(\"Keys\")"),
+                slot: "trailing".into(),
+                wf: "Icon(\"star\")".into(),
+            }],
+        )
+        .unwrap();
+        assert!(
+            replaced.contains("trailing { Icon(\"star\") }"),
+            "got: {replaced}"
+        );
+        assert!(!replaced.contains("Badge"), "got: {replaced}");
+        let gone = apply_edits(
+            &replaced,
+            &[EditOp::RemoveSlot {
+                node: id_of(&replaced, "Panel(\"Keys\")"),
+                slot: "trailing".into(),
+            }],
+        )
+        .unwrap();
+        assert!(!gone.contains("trailing {"), "got: {gone}");
+        parse_program(&gone).unwrap();
+    }
+
+    #[test]
+    fn an_indented_file_is_edited_through_its_braced_spelling() {
+        let src = "page P(path: \"/\")\n    Container\n        Heading(\"Welcome\").h1\n        Text(\"Body\")\n";
+        let braced = crate::layout::to_braces(src, "t.wfx").unwrap();
+        let id = id_of(&braced, "Heading");
+        let out = apply_edits_to(
+            src,
+            "t.wfx",
+            &[
+                EditOp::SetText {
+                    node: id.clone(),
+                    value: "Hi".into(),
+                },
+                EditOp::SetHandler {
+                    node: id,
+                    event: "click".into(),
+                    param: None,
+                    body: "log(1)".into(),
+                },
+            ],
+        )
+        .unwrap();
+        assert_eq!(
+            out,
+            "page P(path: \"/\")\n    Container\n        Heading(\"Hi\").h1 { on click { log(1) } }\n        Text(\"Body\")\n"
+        );
     }
 }

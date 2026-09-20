@@ -1328,7 +1328,7 @@ pub fn source_files(dir: &Path) -> std::io::Result<Vec<(PathBuf, String)>> {
         for path in entries {
             if path.is_dir() {
                 walk(&path, out)?;
-            } else if path.extension().is_some_and(|e| e == "wf") {
+            } else if crate::syntax::is_source_file(&path) {
                 out.push(path);
             }
         }

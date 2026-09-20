@@ -26,8 +26,18 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 wf init <name> -t spa|static|pdf|slides   # Create project
 wf build [-d DIR]                         # Compile
 wf serve [-d DIR]                         # Dev server (localhost:3000)
-wf generate page|component|store <name>
+wf generate page|component|store <name>   # Scaffold a file, in the project's layout
+wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
+wf migrate [path] [--check] [--wfx]       # WebFluent 2 → 3 (and to .wfx)
+wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
+wf types [path] [--json]                  # What a project declares: enums, types, components, stores, pages
 ```
+
+`wf registry --json` and `wf types --json` are the registry and a project's
+declarations as a tool reads them — the studio's inspector offers a dropdown
+for an enum prop, a toggle for a flag, a handler editor for an event and a
+drop target for a slot from these, and a call site of the project's own
+`UserCard` reads like one of `Button`.
 
 ## Core Syntax
 
@@ -460,6 +470,50 @@ Reserved words (`action`, `token`, `error`, `state`, etc.) work as map keys.
 navigate("/path")                    // Programmatic
 Link("About", to: "/about")          // Declarative
 ```
+
+### The indented layout: `.wfx`
+
+The same grammar, with blocks written by indentation instead of braces. A
+file named `.wfx` is read that way: a line whose next line is indented
+deeper opens a block, and a dedent closes every block it leaves. Nothing
+else changes — the parser, the checks, the output and the editor support
+are the same, and a project may mix `.wf` and `.wfx` files.
+
+```wfx
+page Home(path: "/", title: "Todos")
+    use Todos
+    state draft = ""
+    Row(align: .center, gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click
+            draft = ""
+        Text("Todos").bold
+    if Todos.items.length == 0
+        Text("Nothing yet").muted
+    else
+        for t in Todos.items by t.id
+            TodoRow(t.title, todo: t)
+    Button("Add").primary { on click { Todos.add(draft) } }
+```
+
+- Inside parentheses, brackets, and braces you write yourself, layout is
+  free, as it is in a `.wf` file: a multi-line argument list, a map
+  literal, a one-line `{ on click { save() } }` all read the same.
+- An empty block is written `{ }`.
+- A comment line counts for nothing; blank lines count for nothing.
+- Indentation must be consistent: a line that lines up with no enclosing
+  block is an error.
+
+`wf fmt --to wfx` rewrites a project's `.wf` files as `.wfx` (and `--to
+wf` the other way); it is a change of layout and nothing else — the build
+is byte-identical — and it refuses a file whose indentation does not
+already follow its braces rather than change what it says. `wf migrate
+--wfx` migrates a WebFluent 2 project straight into the indented layout.
+`wf generate` writes `.wfx` in a project that has `.wfx` files and no
+`.wf`.
 
 ## Built-in Components
 

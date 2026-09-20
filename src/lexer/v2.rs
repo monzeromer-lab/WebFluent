@@ -14,11 +14,38 @@
 //!   a `;`, a nested rule is a [`TokenType::RawSelector`] before its `{`.
 //!   The parser reads `{expr}` splices and `$token`s out of the raw value.
 //!
+//! A `.wfx` file is the same grammar with its blocks written by
+//! indentation ([`Layout::Offside`]): a line whose next line is indented
+//! deeper opens a block, and a dedent closes as many as it leaves. The
+//! lexer emits the `{` and `}` the parser expects, zero-width, so the
+//! parser is the same. Inside parentheses, brackets and braces the writer
+//! wrote, layout is free, as it is in a `.wf` file.
+//!
 //! Spans are byte offsets, lines and columns count from 1, columns in
 //! characters — the same three coordinate systems as the original lexer.
 
 use super::token::{Token, TokenType};
 use crate::error::{Diagnostic, Result, WebFluentError};
+
+/// How a file writes its blocks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Layout {
+    /// `{ … }`, as a `.wf` file has them.
+    Braces,
+    /// By indentation, as a `.wfx` file has them; `{ … }` still allowed.
+    Offside,
+}
+
+impl Layout {
+    /// The layout a file's name asks for: `.wfx` is offside.
+    pub fn of_file(file: &str) -> Layout {
+        if file.ends_with(".wfx") {
+            Layout::Offside
+        } else {
+            Layout::Braces
+        }
+    }
+}
 
 pub struct LexerV2 {
     source: Vec<char>,
@@ -37,10 +64,26 @@ pub struct LexerV2 {
     /// Whether a declaration's name was just emitted and its raw value is
     /// the next thing to read.
     pending_value: bool,
+    layout: Layout,
+    /// Offside: the indentation of each open block, innermost last.
+    indents: Vec<String>,
+    /// Offside: unclosed `(` and `[` — layout is free inside them.
+    parens: usize,
+    /// Offside: unclosed `{` the writer wrote — layout is free inside them.
+    explicit: usize,
 }
 
 impl LexerV2 {
     pub fn new(source: &str, file: &str) -> Self {
+        Self::with_layout(source, file, Layout::Braces)
+    }
+
+    /// A lexer for the layout the file's name asks for.
+    pub fn for_file(source: &str, file: &str) -> Self {
+        Self::with_layout(source, file, Layout::of_file(file))
+    }
+
+    pub fn with_layout(source: &str, file: &str, layout: Layout) -> Self {
         Self {
             source: source.chars().collect(),
             pos: 0,
@@ -52,6 +95,10 @@ impl LexerV2 {
             style_from: None,
             style_pending: false,
             pending_value: false,
+            layout,
+            indents: Vec::new(),
+            parens: 0,
+            explicit: 0,
         }
     }
 
@@ -70,14 +117,107 @@ impl LexerV2 {
             };
             token.offset = start_byte;
             token.end = self.byte_pos;
+            self.track_layout(&token);
             self.track_braces(&token, &tokens);
             tokens.push(token);
+        }
+        // Every block still open closes at the end of the file.
+        while self.indents.pop().is_some() {
+            self.synthetic(TokenType::CloseBrace, &mut tokens);
         }
         let mut eof = Token::new(TokenType::EOF, self.line, self.column);
         eof.offset = self.byte_pos;
         eof.end = self.byte_pos;
         tokens.push(eof);
         Ok(tokens)
+    }
+
+    /// Count what suspends the offside rule: the writer's own parentheses,
+    /// brackets and braces.
+    fn track_layout(&mut self, token: &Token) {
+        if self.layout != Layout::Offside {
+            return;
+        }
+        match &token.token_type {
+            TokenType::OpenParen | TokenType::OpenBracket => self.parens += 1,
+            TokenType::CloseParen | TokenType::CloseBracket => {
+                self.parens = self.parens.saturating_sub(1)
+            }
+            TokenType::OpenBrace => self.explicit += 1,
+            TokenType::CloseBrace => self.explicit = self.explicit.saturating_sub(1),
+            _ => {}
+        }
+    }
+
+    /// A brace the layout implies: zero width, at the end of the last token
+    /// (the end of the line that opened the block, or of the block's last
+    /// line).
+    fn synthetic(&mut self, kind: TokenType, tokens: &mut Vec<Token>) {
+        let (line, column, at) = match tokens.last() {
+            Some(t) => (t.line, t.column + self.source_width(t), t.end),
+            None => (1, 1, 0),
+        };
+        let mut token = Token::new(kind, line, column);
+        token.offset = at;
+        token.end = at;
+        self.track_braces(&token, tokens);
+        tokens.push(token);
+    }
+
+    /// The width of a token in characters, for the column after it.
+    fn source_width(&self, token: &Token) -> usize {
+        let mut chars = 0;
+        let mut bytes = 0;
+        for ch in &self.source {
+            if bytes >= token.end {
+                break;
+            }
+            if bytes >= token.offset {
+                chars += 1;
+            }
+            bytes += ch.len_utf8();
+        }
+        chars
+    }
+
+    /// Offside: a line of code starts here, indented by `indent`. Deeper
+    /// than the block around it opens a block; shallower closes every block
+    /// it leaves; the same continues it.
+    fn line_layout(&mut self, indent: &str, tokens: &mut Vec<Token>) -> Result<()> {
+        if self.parens > 0 || self.explicit > 0 {
+            return Ok(());
+        }
+        let current = self.indents.last().cloned().unwrap_or_default();
+        if indent == current {
+            return Ok(());
+        }
+        if indent.starts_with(&current) {
+            if tokens.is_empty() {
+                return Err(self.error("The first line of a file is not indented"));
+            }
+            self.indents.push(indent.to_string());
+            self.synthetic(TokenType::OpenBrace, tokens);
+            return Ok(());
+        }
+        loop {
+            let current = self.indents.last().cloned().unwrap_or_default();
+            if indent == current {
+                return Ok(());
+            }
+            if current.starts_with(indent) && self.indents.pop().is_some() {
+                self.synthetic(TokenType::CloseBrace, tokens);
+                continue;
+            }
+            return Err(WebFluentError::LexerError(
+                Diagnostic::new(
+                    "This line's indentation matches no block around it",
+                    &self.file,
+                    self.line,
+                    self.column,
+                )
+                .with_hint("Indent it to the block it belongs to, with the same spaces or tabs as the lines around it"),
+            ));
+        }
     }
 
     /// Enter and leave style mode on braces: a `{` after `style`,
@@ -269,7 +409,10 @@ impl LexerV2 {
                     text.push(self.current());
                     self.advance();
                 }
-                if self.pos >= self.source.len() || self.current() != '{' {
+                // Offside: the rule's block is the indented lines below.
+                let offside_block = self.layout == Layout::Offside
+                    && (self.pos >= self.source.len() || self.current() == '\n');
+                if !offside_block && (self.pos >= self.source.len() || self.current() != '{') {
                     return Err(WebFluentError::LexerError(Diagnostic::new(
                         format!("Expected `{{` after the selector `{}`", text.trim()),
                         &self.file,
@@ -426,11 +569,24 @@ impl LexerV2 {
                 tokens.push(token);
                 continue;
             }
+            let mut new_line = self.pos == 0 && self.layout == Layout::Offside;
             while self.pos < self.source.len() && self.current().is_whitespace() {
+                if self.current() == '\n' {
+                    new_line = self.layout == Layout::Offside;
+                }
                 self.advance();
             }
             if self.pos >= self.source.len() {
                 return Ok(());
+            }
+            if new_line && !self.at_comment() {
+                // The indentation of this line: from the line's start to here.
+                let line_start = self.source[..self.pos]
+                    .iter()
+                    .rposition(|c| *c == '\n')
+                    .map_or(0, |i| i + 1);
+                let indent: String = self.source[line_start..self.pos].iter().collect();
+                self.line_layout(&indent, tokens)?;
             }
             if self.current() == '/' && self.peek() == Some('/') {
                 let third = self.source.get(self.pos + 2).copied();
@@ -551,6 +707,13 @@ impl LexerV2 {
             }
         }
         text.trim().to_string()
+    }
+
+    /// Whether a `//` or `/* */` comment — not a `///` doc — starts here.
+    fn at_comment(&self) -> bool {
+        self.current() == '/'
+            && (self.peek() == Some('*')
+                || (self.peek() == Some('/') && self.source.get(self.pos + 2) != Some(&'/')))
     }
 
     fn current(&self) -> char {
@@ -721,6 +884,72 @@ mod tests {
         assert_eq!(&src[text.offset..text.end], "\"héllo\"");
         let tok = &tokens[4];
         assert_eq!(&src[tok.offset..tok.end], "$tok");
+    }
+
+    fn offside(src: &str) -> Vec<TokenType> {
+        LexerV2::with_layout(src, "<t>", Layout::Offside)
+            .tokenize()
+            .expect("lex")
+            .into_iter()
+            .map(|t| t.token_type)
+            .filter(|t| !matches!(t, TokenType::EOF))
+            .collect()
+    }
+
+    #[test]
+    fn indentation_writes_the_braces() {
+        let wfx = "page Home(path: \"/\")\n    state open = true\n    Row(gap: .sm)\n        style\n            padding: 6px 0\n            &:hover\n                background: $surface-hover\n        on click\n            open = !open\n        Text(\"a\").bold\n    if open\n        Spinner\n    else\n        Text(\"b\")\n\n    // a comment at any indent\n  // another\n    Router\napp\n    Router\n";
+        let wf = "page Home(path: \"/\") {\n    state open = true\n    Row(gap: .sm) {\n        style {\n            padding: 6px 0\n            &:hover {\n                background: $surface-hover\n            }\n        }\n        on click {\n            open = !open\n        }\n        Text(\"a\").bold\n    }\n    if open {\n        Spinner\n    } else {\n        Text(\"b\")\n    }\n    Router\n}\napp {\n    Router\n}\n";
+        assert_eq!(offside(wfx), kinds(wf));
+    }
+
+    #[test]
+    fn layout_is_free_inside_parentheses_and_written_braces() {
+        let wfx = "page P(\n    path: \"/\",\n    title: \"x\"\n)\n    state user = {\n        name: \"a\",\n        tags: [\n            1\n        ]\n    }\n    Button(\"x\") { on click { save() } }\n    Text(user.name)\n";
+        let wf = "page P(path: \"/\", title: \"x\") {\n    state user = { name: \"a\", tags: [1] }\n    Button(\"x\") { on click { save() } }\n    Text(user.name)\n}\n";
+        assert_eq!(offside(wfx), kinds(wf));
+    }
+
+    #[test]
+    fn a_synthetic_brace_sits_at_the_end_of_its_line() {
+        let tokens = LexerV2::with_layout(
+            "page P(path: \"/\")\n    Text(\"a\")\n",
+            "<t>",
+            Layout::Offside,
+        )
+        .tokenize()
+        .unwrap();
+        let open = tokens
+            .iter()
+            .find(|t| t.token_type == TokenType::OpenBrace)
+            .unwrap();
+        assert_eq!(
+            (open.line, open.column, open.offset, open.end),
+            (1, 18, 17, 17)
+        );
+        let close = tokens
+            .iter()
+            .find(|t| t.token_type == TokenType::CloseBrace)
+            .unwrap();
+        assert_eq!((close.line, close.offset), (2, 31));
+    }
+
+    #[test]
+    fn indentation_that_matches_no_block_is_an_error() {
+        let err = LexerV2::with_layout(
+            "page P(path: \"/\")\n        Text(\"a\")\n    Text(\"b\")\n",
+            "<t>",
+            Layout::Offside,
+        )
+        .tokenize()
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("matches no block"), "{err}");
+        let err = LexerV2::with_layout("    page P(path: \"/\")\n", "<t>", Layout::Offside)
+            .tokenize()
+            .unwrap_err()
+            .to_string();
+        assert!(err.contains("first line"), "{err}");
     }
 
     #[test]

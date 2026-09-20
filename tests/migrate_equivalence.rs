@@ -6,6 +6,10 @@
 //! grammars still built to have built byte for byte what the original
 //! did. The migration must still write exactly that, every result must
 //! build, and a second migration must have nothing to say.
+//!
+//! `wf fmt --to wfx` is a change of layout and nothing else: every migrated
+//! project, written by indentation, must build byte for byte what its
+//! braced spelling builds, and come back to that spelling.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -195,5 +199,122 @@ fn every_project_of_the_corpus_builds_the_same_after_migration() {
     assert!(names.len() >= 12, "{names:?}");
     for name in names {
         assert_migrates_as_expected(&name, &corpus.join(&name));
+    }
+}
+
+/// Every source file under `dir` with the extension `ext`.
+fn sources(dir: &Path, ext: &str) -> Vec<PathBuf> {
+    let mut files: Vec<PathBuf> = walkdir(dir)
+        .into_iter()
+        .filter(|p| p.extension().is_some_and(|e| e == ext))
+        .collect();
+    files.sort();
+    files
+}
+
+fn fmt_to(dir: &Path, layout: &str) -> String {
+    let output = wf()
+        .arg("fmt")
+        .arg("--to")
+        .arg(layout)
+        .arg(dir)
+        .output()
+        .unwrap();
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        output.status.success(),
+        "fmt --to {layout} failed in {}:\n{text}",
+        dir.display()
+    );
+    text
+}
+
+#[test]
+fn every_migrated_project_builds_the_same_by_indentation_and_comes_back() {
+    // The expected migrations hold the sources; the corpus, everything
+    // else a project has (its config, its public files).
+    let corpus = repo_root().join("tests/migrate/corpus");
+    let expected = repo_root().join("tests/migrate/expected");
+    let mut names: Vec<String> = std::fs::read_dir(&corpus)
+        .unwrap()
+        .flatten()
+        .filter(|e| e.path().join("webfluent.app.json").exists())
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .collect();
+    names.sort();
+    assert!(names.len() >= 12, "{names:?}");
+    for name in names {
+        let root = repo_root().join("target/layout").join(&name);
+        let _ = std::fs::remove_dir_all(&root);
+        copy_tree(&corpus.join(&name), &root);
+        let _ = std::fs::remove_dir_all(root.join("src"));
+        copy_tree(&expected.join(&name).join("src"), &root.join("src"));
+        let braced: BTreeMap<PathBuf, String> = sources(&root.join("src"), "wf")
+            .into_iter()
+            .map(|p| {
+                let text = std::fs::read_to_string(&p).unwrap();
+                (p, text)
+            })
+            .collect();
+        let before = build(&root);
+
+        // To the indented layout: every `.wf` becomes a `.wfx`, and the
+        // project builds the same.
+        fmt_to(&root, "wfx");
+        assert!(
+            sources(&root.join("src"), "wf").is_empty(),
+            "{name}: a .wf remained"
+        );
+        assert_eq!(
+            sources(&root.join("src"), "wfx").len(),
+            braced.len(),
+            "{name}: a file was lost"
+        );
+        let after = build(&root);
+        assert_eq!(
+            before.keys().collect::<Vec<_>>(),
+            after.keys().collect::<Vec<_>>(),
+            "{name}: the indented project wrote different files"
+        );
+        for (file, bytes) in &before {
+            assert!(
+                after[file] == *bytes,
+                "{name}: {file} differs between the braced and the indented project\n{}",
+                excerpt(bytes, &after[file])
+            );
+        }
+
+        // And back: the braced spelling, line for line — a blank line
+        // before a closing brace, and an empty block's brace on a line of
+        // its own, are what the indented layout cannot keep.
+        fmt_to(&root, "wf");
+        let lines = |text: &str| {
+            let mut out: Vec<String> = Vec::new();
+            for line in text.lines().map(str::trim_end).filter(|l| !l.is_empty()) {
+                if line.trim() == "}" && out.last().is_some_and(|p| p.ends_with('{')) {
+                    let last = out.last_mut().unwrap();
+                    last.push_str(" }");
+                } else {
+                    out.push(line.to_string());
+                }
+            }
+            out.join("\n")
+        };
+        for (path, text) in &braced {
+            let again = std::fs::read_to_string(path)
+                .unwrap_or_else(|_| panic!("{name}: {} did not come back", path.display()));
+            let (was, back) = (lines(text), lines(&again));
+            assert!(
+                was == back,
+                "{name}: {} did not come back as it was\n--- was ---\n{}\n--- came back ---\n{}",
+                path.display(),
+                excerpt(was.as_bytes(), back.as_bytes()),
+                excerpt(back.as_bytes(), was.as_bytes())
+            );
+        }
     }
 }

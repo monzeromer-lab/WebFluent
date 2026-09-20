@@ -88,7 +88,12 @@ pub fn migrated(src: &str) -> String {
 }
 
 pub fn parse_program(src: &str) -> Result<Program, String> {
-    webfluent::parse_source(src, "<test>")
+    parse_program_as(src, "<test>")
+}
+
+/// Parsed under a file name, which picks the layout: `t.wfx` is indented.
+pub fn parse_program_as(src: &str, file: &str) -> Result<Program, String> {
+    webfluent::parse_source(src, file)
         .map(webfluent::sema::lower)
         .map_err(|e| format!("parse error: {e:?}"))
 }
@@ -101,13 +106,21 @@ fn test_config() -> ProjectConfig {
 
 /// The JS bundle `wf build` writes to `app.js`.
 pub fn spa_js(src: &str) -> String {
-    let program = parse_program(src).expect("source must parse");
+    spa_js_as(src, "<test>")
+}
+
+pub fn spa_js_as(src: &str, file: &str) -> String {
+    let program = parse_program_as(src, file).expect("source must parse");
     JsCodegen::new().generate(&program)
 }
 
 /// The static HTML `wf build` writes when SSG is on (full document).
 pub fn ssg_html(src: &str) -> String {
-    let program = parse_program(src).expect("source must parse");
+    ssg_html_as(src, "<test>")
+}
+
+pub fn ssg_html_as(src: &str, file: &str) -> String {
+    let program = parse_program_as(src, file).expect("source must parse");
     let components: HashMap<String, ComponentDecl> = program
         .declarations
         .iter()
@@ -171,6 +184,24 @@ pub fn raw_output(backend: Backend, src: &str) -> String {
         Backend::Spa => spa_js(src),
         Backend::Ssg => ssg_html(src),
         Backend::Template => template_html(src),
+    }
+}
+
+/// Raw output of one backend for a source under a file name; a `.wfx`
+/// source reaches the template engine as its braced spelling, as
+/// `Template::from_file` reads it.
+pub fn raw_output_as(backend: Backend, src: &str, file: &str) -> String {
+    match backend {
+        Backend::Spa => spa_js_as(src, file),
+        Backend::Ssg => ssg_html_as(src, file),
+        Backend::Template => {
+            let braced = if file.ends_with(".wfx") {
+                webfluent::layout::to_braces(src, file).expect("layout")
+            } else {
+                src.to_string()
+            };
+            template_html(&braced)
+        }
     }
 }
 

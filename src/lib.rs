@@ -126,6 +126,10 @@ pub mod sema;
 /// `wf migrate`: the original grammar rewritten as WebFluent 3.
 pub mod migrate;
 
+/// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
+/// indentation.
+pub mod layout;
+
 /// Code generation — compiles the AST to various output formats.
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),

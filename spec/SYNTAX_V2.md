@@ -359,6 +359,67 @@ Browser globals compile as written: `window`, `document`, `localStorage`,
 
 ---
 
+## 8a. The Indented Layout (`.wfx`)
+
+The grammar has two layouts. A `.wf` file writes a block between braces; a
+`.wfx` file writes it as the lines indented under the line that opens it.
+The lexer of a `.wfx` file emits the `{` and `}` the parser expects — zero
+width, at the end of the opening line and at the end of the block's last
+line — so the parser, the checks, the lowering and every backend are the
+same, and diagnostics point at the same lines.
+
+```wfx
+component TodoRow(_ label: String, todo: Todo)
+    event toggle(id: String)
+    Row(align: .center, gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click
+            emit toggle(todo.id)
+        Text(label).bold
+```
+
+The rules:
+
+- A line indented deeper than the line before it opens a block on that
+  line. A line indented less closes one block per level it leaves, and
+  must line up with an enclosing block exactly; one that lines up with
+  none is an error. The first line of a file is not indented.
+- Indentation is compared as text, so spaces and tabs may not be mixed
+  within one nesting.
+- Inside `( )`, `[ ]` and any `{ }` the writer wrote, the layout is free,
+  as it is in a `.wf` file: a multi-line argument list, a map literal, a
+  braced block spanning lines. A block opened with a written `{` is
+  closed with a written `}`.
+- An empty block is written `{ }`. A one-line block keeps its braces:
+  `Button("x") { on click { save() } }`.
+- Blank lines and comment lines do not count. A `///` doc comment stands
+  where it is written.
+- A style value still runs to the end of its line or a `;`; a nested
+  rule's selector ends its line and its declarations are indented under
+  it.
+- `else`, `else if` and a `match` arm stand at the indentation of the
+  `if` or `match` that owns them.
+
+`wf fmt --to wfx` converts a `.wf` file by removing the braces that open a
+block at the end of a line and close it on a line of their own, keeping
+the indentation the file already has; `--to wf` adds them back. Each
+result is lexed and held to the token stream of the original, so a file
+whose indentation does not follow its braces is refused rather than
+changed. `wf migrate --wfx` chains the conversion after a migration. The
+build, the language server, the template engine and `wf generate` read
+and write both layouts; a project may hold both.
+
+The editor grammar (`editors/tree-sitter-webfluentx`) is the `.wf`
+grammar generated with its layout tokens on: an external scanner emits
+`_indent` and `_dedent` where the grammar allows a block, measured against
+the line before, and counts the writer's own braces so that inside them
+the layout stays free.
+
+---
+
 ## 9. Diagnostics
 
 The grammar makes these errors decidable, and they are errors, not
@@ -392,7 +453,7 @@ TypeDecl      = "type" NAME "{" (Doc? NAME ":" Type ("=" Expression)? ","?)* "}"
 EnumDecl      = "enum" NAME "{" NAME ("," NAME)* ","? "}" ;
 Type          = ("String" | "Number" | "Bool" | "Map" | "Any" | NAME | "[" Type "]") "?"? ;
 
-RenderBlock   = "{" RenderStmt* "}" ;
+RenderBlock   = "{" RenderStmt* "}" ;            (* or INDENT RenderStmt* DEDENT in a .wfx *)
 RenderStmt    = Element | State | Derived | Action | Effect | Use | Resource | SetupCall
               | If | For | Show | Match | SlotUse ;
 State         = "state" NAME (":" Type)? "=" Expression ;

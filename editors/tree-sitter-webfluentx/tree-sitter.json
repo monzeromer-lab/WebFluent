@@ -1,0 +1,36 @@
+{
+  "grammars": [
+    {
+      "name": "webfluentx",
+      "camelcase": "Webfluentx",
+      "scope": "source.webfluentx",
+      "path": ".",
+      "file-types": [
+        "wfx"
+      ],
+      "injection-regex": "^(wfx)$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "GPL-3.0",
+    "description": "Tree-sitter grammar for WebFluent in the indented layout (.wfx)",
+    "authors": [
+      {
+        "name": "Monzer Omer",
+        "email": "monzer.a.omer@gmail.com"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/monzeromer-lab/WebFluent"
+    }
+  },
+  "bindings": {
+    "c": false,
+    "go": false,
+    "node": false,
+    "python": false,
+    "rust": false,
+    "swift": false
+  }
+}
