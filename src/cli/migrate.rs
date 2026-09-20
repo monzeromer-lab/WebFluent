@@ -50,6 +50,11 @@ pub fn run_migrate(path: &Path, check: bool, stdout: bool) -> Result<()> {
         }
     }
     if stdout {
+        if failed > 0 {
+            return Err(WebFluentError::IoError(format!(
+                "{failed} file(s) could not be migrated"
+            )));
+        }
         return Ok(());
     }
     let verb = if check { "would change" } else { "migrated" };

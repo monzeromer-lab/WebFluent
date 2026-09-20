@@ -1,76 +1,76 @@
-Page Home (path: "/", description: "WebFluent — the web-first language that compiles to HTML, CSS, JavaScript and PDF.", title: "WebFluent — The Web-First Language") {
+page Home(path: "/", description: "WebFluent — the web-first language that compiles to HTML, CSS, JavaScript and PDF.", title: "WebFluent — The Web-First Language") {
     state counter = 0
     state taskInput = ""
     state showDemo = false
 
     Container {
-        Spacer(xl)
+        Spacer.xl
 
-        Heading(t("hero.title"), h1, center, slideUp)
-        Spacer(sm)
-        Text(t("hero.sub1"), muted, center, fadeIn)
-        Text(t("hero.sub2"), muted, center, fadeIn)
+        Heading(t("hero.title")).h1.center.slideUp
+        Spacer.sm
+        Text(t("hero.sub1")).muted.center.fadeIn
+        Text(t("hero.sub2")).muted.center.fadeIn
 
-        Spacer()
+        Spacer
 
-        Row(gap: md, justify: center) {
-            Button(t("hero.cta"), primary, large) { navigate("/getting-started") }
-            Button(t("hero.guide"), large) { navigate("/guide") }
+        Row(gap: .md, justify: .center) {
+            Button(t("hero.cta")).primary.lg { on click { navigate("/getting-started") } }
+            Button(t("hero.guide")).lg { on click { navigate("/guide") } }
         }
 
-        Spacer(xl)
+        Spacer.xl
 
-        Card(outlined) {
+        Card.outlined {
             Card.Body {
-                Code("Page Home (path: \"/\") \{\n    Container \{\n        Heading(\"Hello, WebFluent!\", h1)\n        Text(\"Build for the web. Nothing else.\")\n\n        Button(\"Get Started\", primary, large) \{\n            navigate(\"/docs\")\n        \}\n    \}\n\}", block)
+                Code("page Home(path: \"/\") \{\n    Container \{\n        Heading(\"Hello, WebFluent!\").h1\n        Text(\"Build for the web. Nothing else.\")\n\n        Button(\"Get Started\").primary.lg \{\n            on click \{\n                navigate(\"/docs\")\n            \}\n        \}\n    \}\n\}").block
             }
         }
 
-        Spacer(xl)
-        Divider()
-        Spacer()
+        Spacer.xl
+        Divider
+        Spacer
 
-        Heading(t("demo.title"), h2, center)
-        Text(t("demo.subtitle"), muted, center)
+        Heading(t("demo.title")).h2.center
+        Text(t("demo.subtitle")).muted.center
 
-        Spacer()
+        Spacer
 
-        Grid(columns: 2, gap: lg) {
-            Card(elevated, fadeIn) {
-                Card.Header { Heading(t("demo.counter"), h2) }
+        Grid(columns: 2, gap: .lg) {
+            Card.elevated.fadeIn {
+                Card.Header { Heading(t("demo.counter")).h2 }
                 Card.Body {
-                    Row(align: center, gap: md) {
-                        Button("-", large) { counter = counter - 1 }
-                        Heading("{counter}", h2)
-                        Button("+", primary, large) { counter = counter + 1 }
+                    Row(align: .center, gap: .md) {
+                        Button("-").lg { on click { counter = counter - 1 } }
+                        Heading("{counter}").h2
+                        Button("+").primary.lg { on click { counter = counter + 1 } }
                     }
-                    Spacer(sm)
-                    Text(t("demo.counter.hint"), muted, small)
+                    Spacer.sm
+                    Text(t("demo.counter.hint")).muted.sm
                 }
             }
 
-            Card(elevated, fadeIn) {
-                Card.Header { Heading(t("demo.binding"), h2) }
+            Card.elevated.fadeIn {
+                Card.Header { Heading(t("demo.binding")).h2 }
                 Card.Body {
-                    Input(text, bind: taskInput, placeholder: t("demo.binding.placeholder"), label: "Input")
-                    Spacer(sm)
+                    Input(bind: taskInput, placeholder: t("demo.binding.placeholder"), label: "Input").text
+                    Spacer.sm
                     if taskInput != "" {
-                        Alert("You typed: {taskInput}", info)
+                        Alert("You typed: {taskInput}").info
                     }
-                    Text(t("demo.binding.hint"), muted, small)
+                    Text(t("demo.binding.hint")).muted.sm
                 }
             }
 
-            Card(elevated, fadeIn) {
-                Card.Header { Heading(t("demo.conditional"), h2) }
+            Card.elevated.fadeIn {
+                Card.Header { Heading(t("demo.conditional")).h2 }
                 Card.Body {
                     Switch(bind: showDemo, label: t("demo.conditional.toggle"))
-                    Spacer(sm)
-                    if showDemo, animate(slideUp, fadeOut) {
-                        Card(outlined) {
+                    Spacer.sm
+                    if showDemo {
+                        Card(exit: .fadeOut).slideUp.outlined {
                             Card.Body {
-                                Badge("Visible!", success)
-                                Spacer(sm)
+                                Badge("Visible!").success
+                                Spacer.sm
                                 Text(t("demo.conditional.text"))
                             }
                         }
@@ -78,38 +78,38 @@ Page Home (path: "/", description: "WebFluent — the web-first language that co
                 }
             }
 
-            Card(elevated, fadeIn) {
-                Card.Header { Heading(t("demo.components"), h2) }
+            Card.elevated.fadeIn {
+                Card.Header { Heading(t("demo.components")).h2 }
                 Card.Body {
-                    Stack(gap: sm) {
-                        Row(gap: sm) {
-                            Button("Primary", primary)
-                            Button("Danger", danger)
-                            Button("Success", success)
+                    Stack(gap: .sm) {
+                        Row(gap: .sm) {
+                            Button("Primary").primary
+                            Button("Danger").danger
+                            Button("Success").success
                         }
-                        Row(gap: sm) {
-                            Badge("New", primary)
-                            Badge("Sale", danger)
-                            Badge("Active", success)
+                        Row(gap: .sm) {
+                            Badge("New").primary
+                            Badge("Sale").danger
+                            Badge("Active").success
                             Tag("WebFluent")
                         }
                         Progress(value: 72, max: 100)
-                        Text(t("demo.components.hint"), muted, small)
+                        Text(t("demo.components.hint")).muted.sm
                     }
                 }
             }
         }
 
-        Spacer(xl)
-        Divider()
-        Spacer()
+        Spacer.xl
+        Divider
+        Spacer
 
-        Heading(t("why.title"), h2, center)
-        Text(t("why.subtitle"), muted, center)
+        Heading(t("why.title")).h2.center
+        Text(t("why.subtitle")).muted.center
 
-        Spacer()
+        Spacer
 
-        Grid(columns: 3, gap: md) {
+        Grid(columns: 3, gap: .md) {
             FeatureCard(title: t("why.syntax"), description: t("why.syntax.desc"))
             FeatureCard(title: t("why.components"), description: t("why.components.desc"))
             FeatureCard(title: t("why.reactivity"), description: t("why.reactivity.desc"))
@@ -121,20 +121,20 @@ Page Home (path: "/", description: "WebFluent — the web-first language that co
             FeatureCard(title: t("why.zero"), description: t("why.zero.desc"))
         }
 
-        Spacer(xl)
+        Spacer.xl
 
-        Card(elevated) {
+        Card.elevated {
             Card.Body {
-                Row(align: center, justify: between) {
+                Row(align: .center, justify: .between) {
                     Stack {
-                        Heading(t("cta.title"), h2)
-                        Text(t("cta.subtitle"), muted)
+                        Heading(t("cta.title")).h2
+                        Text(t("cta.subtitle")).muted
                     }
-                    Button(t("hero.cta"), primary, large) { navigate("/getting-started") }
+                    Button(t("hero.cta")).primary.lg { on click { navigate("/getting-started") } }
                 }
             }
         }
 
-        Spacer(xl)
+        Spacer.xl
     }
 }

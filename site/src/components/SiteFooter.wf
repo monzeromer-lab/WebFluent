@@ -1,14 +1,14 @@
-Component SiteFooter () {
-    Divider()
+component SiteFooter {
+    Divider
     Container {
-        Spacer()
-        Row(align: center, justify: between) {
-            Text(t("footer.built"), muted, small)
-            Row(gap: md) {
-                Link(to: "/") { Text(t("nav.home"), muted, small) }
-                Link(to: "/getting-started") { Text(t("footer.docs"), muted, small) }
+        Spacer
+        Row(align: .center, justify: .between) {
+            Text(t("footer.built")).muted.sm
+            Row(gap: .md) {
+                Link(to: "/") { Text(t("nav.home")).muted.sm }
+                Link(to: "/getting-started") { Text(t("footer.docs")).muted.sm }
             }
         }
-        Spacer()
+        Spacer
     }
 }

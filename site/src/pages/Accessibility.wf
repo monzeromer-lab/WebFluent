@@ -1,123 +1,123 @@
-Page Accessibility (path: "/accessibility", description: "The accessibility checks the compiler runs, and what each one means.", title: "Accessibility Linting") {
-    Container(fadeIn) {
-        Spacer()
-        Heading("Accessibility Linting", h1)
-        Text("WebFluent checks your code for accessibility issues at compile time. Warnings are printed during build but never block compilation.", muted)
+page Accessibility(path: "/accessibility", description: "The accessibility checks the compiler runs, and what each one means.", title: "Accessibility Linting") {
+    Container.fadeIn {
+        Spacer
+        Heading("Accessibility Linting").h1
+        Text("WebFluent checks your code for accessibility issues at compile time. Warnings are printed during build but never block compilation.").muted
 
-        Spacer()
+        Spacer
 
-        Heading("How It Works", h2)
+        Heading("How It Works").h2
         Text("The linter runs automatically after parsing, before code generation. It walks the AST and checks each component against 12 rules.")
-        Spacer(sm)
-        Card(outlined) {
+        Spacer.sm
+        Card.outlined {
             Card.Body {
-                Code("$ wf build\nBuilding my-app...\n  Warning [A01]: Image missing \"alt\" attribute at src/pages/Home.wf:12:5\n    Add alt text: Image(src: \"...\", alt: \"Description of image\")\n  Warning [A03]: Input missing \"label\" attribute at src/pages/Form.wf:8:9\n    Add a label: Input(text, label: \"Username\")\n  3 pages, 2 components, 1 stores\n  Build complete with 2 accessibility warning(s).", block)
+                Code("$ wf build\nBuilding my-app...\n  Warning [A01]: Image missing \"alt\" attribute at src/pages/Home.wf:12:5\n    Add alt text: Image(src: \"...\", alt: \"Description of image\")\n  Warning [A03]: Input missing \"label\" attribute at src/pages/Form.wf:8:9\n    Add a label: Input(text, label: \"Username\")\n  3 pages, 2 components, 1 stores\n  Build complete with 2 accessibility warning(s).").block
             }
         }
 
-        Spacer()
-        Divider()
-        Spacer()
+        Spacer
+        Divider
+        Spacer
 
-        Heading("Lint Rules", h2)
+        Heading("Lint Rules").h2
         Table {
-            Thead { Tcell("Rule") Tcell("Component") Tcell("Check") }
-            Trow { Tcell("A01") Tcell("Image") Tcell("Must have alt attribute") }
-            Trow { Tcell("A02") Tcell("IconButton") Tcell("Must have label attribute (no visible text)") }
-            Trow { Tcell("A03") Tcell("Input") Tcell("Must have label or placeholder") }
-            Trow { Tcell("A04") Tcell("Checkbox, Radio, Switch, Slider") Tcell("Must have label attribute") }
-            Trow { Tcell("A05") Tcell("Button") Tcell("Must have text content") }
-            Trow { Tcell("A06") Tcell("Link") Tcell("Must have text content or children") }
-            Trow { Tcell("A07") Tcell("Heading") Tcell("Must not be empty") }
-            Trow { Tcell("A08") Tcell("Modal, Dialog") Tcell("Must have title attribute") }
-            Trow { Tcell("A09") Tcell("Video") Tcell("Must have controls attribute") }
-            Trow { Tcell("A10") Tcell("Table") Tcell("Must have Thead header row") }
-            Trow { Tcell("A11") Tcell("Heading") Tcell("Levels must not skip (h1 to h3)") }
-            Trow { Tcell("A12") Tcell("Page") Tcell("Must have exactly one h1 (not for Presentation or Document)") }
-            Trow { Tcell("A13") Tcell("Theme") Tcell("Colour pairings must clear the WCAG AA contrast ratio") }
-            Trow { Tcell("S01") Tcell("Page") Tcell("Must have a title") }
-            Trow { Tcell("S02") Tcell("Page") Tcell("Should have a description, or its search snippet gets written for it") }
-            Trow { Tcell("S03") Tcell("Page") Tcell("A description over ~160 characters is truncated in results") }
-            Trow { Tcell("S04") Tcell("Page") Tcell("Two pages must not claim one route") }
-            Trow { Tcell("V01") Tcell("Any") Tcell("A bare word that resolves to nothing") }
-            Trow { Tcell("V02") Tcell("Any") Tcell("A real modifier whose class no stylesheet defines") }
+            Table.Head { Table.Cell("Rule") Table.Cell("Component") Table.Cell("Check") }
+            Table.Row { Table.Cell("A01") Table.Cell("Image") Table.Cell("Must have alt attribute") }
+            Table.Row { Table.Cell("A02") Table.Cell("IconButton") Table.Cell("Must have label attribute (no visible text)") }
+            Table.Row { Table.Cell("A03") Table.Cell("Input") Table.Cell("Must have label or placeholder") }
+            Table.Row { Table.Cell("A04") Table.Cell("Checkbox, Radio, Switch, Slider") Table.Cell("Must have label attribute") }
+            Table.Row { Table.Cell("A05") Table.Cell("Button") Table.Cell("Must have text content") }
+            Table.Row { Table.Cell("A06") Table.Cell("Link") Table.Cell("Must have text content or children") }
+            Table.Row { Table.Cell("A07") Table.Cell("Heading") Table.Cell("Must not be empty") }
+            Table.Row { Table.Cell("A08") Table.Cell("Modal, Dialog") Table.Cell("Must have title attribute") }
+            Table.Row { Table.Cell("A09") Table.Cell("Video") Table.Cell("Must have controls attribute") }
+            Table.Row { Table.Cell("A10") Table.Cell("Table") Table.Cell("Must have Thead header row") }
+            Table.Row { Table.Cell("A11") Table.Cell("Heading") Table.Cell("Levels must not skip (h1 to h3)") }
+            Table.Row { Table.Cell("A12") Table.Cell("Page") Table.Cell("Must have exactly one h1 (not for Presentation or Document)") }
+            Table.Row { Table.Cell("A13") Table.Cell("Theme") Table.Cell("Colour pairings must clear the WCAG AA contrast ratio") }
+            Table.Row { Table.Cell("S01") Table.Cell("Page") Table.Cell("Must have a title") }
+            Table.Row { Table.Cell("S02") Table.Cell("Page") Table.Cell("Should have a description, or its search snippet gets written for it") }
+            Table.Row { Table.Cell("S03") Table.Cell("Page") Table.Cell("A description over ~160 characters is truncated in results") }
+            Table.Row { Table.Cell("S04") Table.Cell("Page") Table.Cell("Two pages must not claim one route") }
+            Table.Row { Table.Cell("V01") Table.Cell("Any") Table.Cell("A bare word that resolves to nothing") }
+            Table.Row { Table.Cell("V02") Table.Cell("Any") Table.Cell("A real modifier whose class no stylesheet defines") }
         }
 
-        Spacer()
-        Divider()
-        Spacer()
+        Spacer
+        Divider
+        Spacer
 
-        Heading("Examples", h2)
+        Heading("Examples").h2
 
-        Row(gap: md) {
+        Row(gap: .md) {
             Column(span: 6) {
-                Card(outlined) {
+                Card.outlined {
                     Card.Body {
-                        Text("Bad (triggers warning)", danger, bold)
-                        Code("Image(src: \"/photo.jpg\")\nIconButton(icon: \"close\")\nInput(text)\nCheckbox(bind: agreed)\nButton()", block)
+                        Text("Bad (triggers warning)").danger.bold
+                        Code("Image(src: \"/photo.jpg\")\nIconButton(icon: \"close\")\nInput.text\nCheckbox(bind: agreed)\nButton").block
                     }
                 }
             }
             Column(span: 6) {
-                Card(outlined) {
+                Card.outlined {
                     Card.Body {
-                        Text("Good (no warnings)", success, bold)
-                        Code("Image(src: \"/photo.jpg\", alt: \"Team photo\")\nIconButton(icon: \"close\", label: \"Close\")\nInput(text, label: \"Username\")\nCheckbox(bind: agreed, label: \"I agree\")\nButton(\"Save\")", block)
+                        Text("Good (no warnings)").success.bold
+                        Code("Image(src: \"/photo.jpg\", alt: \"Team photo\")\nIconButton(icon: \"close\", label: \"Close\")\nInput(label: \"Username\").text\nCheckbox(bind: agreed, label: \"I agree\")\nButton(\"Save\")").block
                     }
                 }
             }
         }
 
-        Spacer(xl)
-        Spacer()
-        Divider()
-        Spacer()
+        Spacer.xl
+        Spacer
+        Divider
+        Spacer
 
-        Heading("What the engine does without being asked", h2)
+        Heading("What the engine does without being asked").h2
         Text("The checks above tell you what to fix. Most of the work is already done in the output.")
-        Spacer(sm)
+        Spacer.sm
 
-        Row(gap: md) {
+        Row(gap: .md) {
             Column(span: 4) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
-                        Heading("Structure", h3)
-                        Text("Every page has a main landmark and a skip link ahead of the navigation. Heading modifiers produce real heading elements, so the document outline matches what is on screen.", muted, small)
+                        Heading("Structure").h3
+                        Text("Every page has a main landmark and a skip link ahead of the navigation. Heading modifiers produce real heading elements, so the document outline matches what is on screen.").muted.sm
                     }
                 }
             }
             Column(span: 4) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
-                        Heading("Keyboard", h3)
-                        Text("Tabs, menus and dialogs handle the keys their pattern requires. Focus is always visible, never removed, and always returned when a panel closes.", muted, small)
+                        Heading("Keyboard").h3
+                        Text("Tabs, menus and dialogs handle the keys their pattern requires. Focus is always visible, never removed, and always returned when a panel closes.").muted.sm
                     }
                 }
             }
             Column(span: 4) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
-                        Heading("Announcements", h3)
-                        Text("Alerts and toasts are live regions, so a screen reader hears them when they appear. Fetches say when they are loading and when they have finished.", muted, small)
+                        Heading("Announcements").h3
+                        Text("Alerts and toasts are live regions, so a screen reader hears them when they appear. Fetches say when they are loading and when they have finished.").muted.sm
                     }
                 }
             }
         }
-        Spacer(sm)
-        Row(gap: md) {
+        Spacer.sm
+        Row(gap: .md) {
             Column(span: 6) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
-                        Heading("Motion and targets", h3)
-                        Text("Animations respect a reduced-motion preference. Every pointer target meets the 24 by 24 minimum, so a control is reachable with a thumb and not only a mouse.", muted, small)
+                        Heading("Motion and targets").h3
+                        Text("Animations respect a reduced-motion preference. Every pointer target meets the 24 by 24 minimum, so a control is reachable with a thumb and not only a mouse.").muted.sm
                     }
                 }
             }
             Column(span: 6) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
-                        Heading("Contrast, at compile time", h3)
-                        Text("Because a Theme is source the compiler reads, it can check colour pairings before you have written a page with them — something a tool working from CSS cannot do.", muted, small)
+                        Heading("Contrast, at compile time").h3
+                        Text("Because a Theme is source the compiler reads, it can check colour pairings before you have written a page with them — something a tool working from CSS cannot do.").muted.sm
                     }
                 }
             }
