@@ -230,7 +230,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             .collect::<Option<Vec<_>>>()
             .map(Static::List),
 
-        Expr::MapLiteral(entries) => entries
+        Expr::MapLiteral(entries) | Expr::Record(_, entries) => entries
             .iter()
             .map(|(k, v)| eval_in(v, scope, fuel).map(|v| (k.trim_matches('"').to_string(), v)))
             .collect::<Option<Vec<_>>>()

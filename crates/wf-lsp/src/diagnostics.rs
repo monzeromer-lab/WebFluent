@@ -52,7 +52,10 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
         }
     }
 
-    let findings = webfluent::sema::check(&project.program, &file_of);
+    let mut findings = webfluent::sema::check(&project.program, &file_of);
+    let typed = webfluent::sema::types::check(&project.program, &file_of);
+    findings.errors.extend(typed.findings.errors);
+    findings.warnings.extend(typed.findings.warnings);
     for (finding, severity) in findings
         .errors
         .iter()

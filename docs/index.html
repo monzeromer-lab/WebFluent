@@ -21,6 +21,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/#webpage","url":"https://monzeromer-lab.github.io/WebFluent/","name":"WebFluent — The Web-First Language","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"WebFluent — the web-first language that compiles to HTML, CSS, JavaScript and PDF."}]}</script>
     <link rel="stylesheet" href="./styles.css">
     <script src="./app.js" defer></script>
+    <script src="./pages/Home.js" data-wf-page="Home" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +35,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -105,23 +102,21 @@
                     <p class="wf-text wf-text--muted wf-text--center wf-animate-fadeIn">Built-in components, reactivity, routing, i18n, animations, and SSG.</p>
                     <div class="wf-spacer"></div>
                     <div class="wf-row wf-gap--md wf-justify--center">
-                        <button class="wf-btn wf-btn--primary wf-btn--large">
-                            Get Started
-                        </button>
-                        <button class="wf-btn wf-btn--large">
-                            View Guide
-                        </button>
+                        <button class="wf-btn wf-btn--primary wf-btn--large">Get Started</button>
+                        <button class="wf-btn wf-btn--large">View Guide</button>
                     </div>
                     <div class="wf-spacer wf-spacer--xl"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Page Home (path: &quot;/&quot;) {
+                            <code class="wf-code wf-code--block">page Home(path: &quot;/&quot;) {
     Container {
-        Heading(&quot;Hello, WebFluent!&quot;, h1)
+        Heading(&quot;Hello, WebFluent!&quot;).h1
         Text(&quot;Build for the web. Nothing else.&quot;)
 
-        Button(&quot;Get Started&quot;, primary, large) {
-            navigate(&quot;/docs&quot;)
+        Button(&quot;Get Started&quot;).primary.lg {
+            on click {
+                navigate(&quot;/docs&quot;)
+            }
         }
     }
 }</code>
@@ -140,13 +135,9 @@
                             </div>
                             <div class="wf-card__body">
                                 <div class="wf-row wf-align--center wf-gap--md">
-                                    <button class="wf-btn wf-btn--large">
-                                        -
-                                    </button>
-                                    <h2 class="wf-heading wf-heading--primary">0</h2>
-                                    <button class="wf-btn wf-btn--primary wf-btn--large">
-                                        +
-                                    </button>
+                                    <button class="wf-btn wf-btn--large">-</button>
+                                    <h2 class="wf-heading">0</h2>
+                                    <button class="wf-btn wf-btn--primary wf-btn--large">+</button>
                                 </div>
                                 <div class="wf-spacer wf-spacer--sm"></div>
                                 <p class="wf-text wf-text--muted wf-text--small">Click the buttons. The number updates instantly.</p>
@@ -157,7 +148,10 @@
                                 <h2 class="wf-heading">Two-Way Binding</h2>
                             </div>
                             <div class="wf-card__body">
-                                <input class="wf-input" type="text">
+                                <div class="wf-field">
+                                    <label class="wf-label" for="wf-field-1">Input</label>
+                                    <input class="wf-input" type="text" id="wf-field-1">
+                                </div>
                                 <div class="wf-spacer wf-spacer--sm"></div>
                                 <p class="wf-text wf-text--muted wf-text--small">The alert updates as you type.</p>
                             </div>
@@ -273,9 +267,7 @@
                                     <h2 class="wf-heading">Ready to build?</h2>
                                     <p class="wf-text wf-text--muted">Create your first project in seconds.</p>
                                 </div>
-                                <button class="wf-btn wf-btn--primary wf-btn--large">
-                                    Get Started
-                                </button>
+                                <button class="wf-btn wf-btn--primary wf-btn--large">Get Started</button>
                             </div>
                         </div>
                     </div>

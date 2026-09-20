@@ -21,6 +21,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/ssg#webpage","url":"https://monzeromer-lab.github.io/WebFluent/ssg","name":"Static Site Generation","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Pre-render every route to static HTML."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/ssg#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Static Site Generation","item":"https://monzeromer-lab.github.io/WebFluent/ssg"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
     <script src="../app.js" defer></script>
+    <script src="../pages/Ssg.js" data-wf-page="Ssg" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +35,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -240,7 +237,7 @@
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Store PostStore {
+                            <code class="wf-code wf-code--block">store PostStore {
     state posts = [
         { title: &quot;Slow roasting&quot;, tag: &quot;coffee&quot; },
         { title: &quot;Closed Mondays&quot;, tag: &quot;shop&quot; }
@@ -249,7 +246,7 @@
 
 List {
     for post in PostStore.posts {
-        Card { Heading(post.title, h2) Badge(post.tag) }
+        Card { Heading(post.title).h2 Badge(post.tag) }
     }
 }</code>
                         </div>

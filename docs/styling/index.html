@@ -20,7 +20,9 @@
     <meta name="twitter:description" content="Themes, design tokens and style blocks.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/styling#webpage","url":"https://monzeromer-lab.github.io/WebFluent/styling","name":"Design System \u0026 Styling","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Themes, design tokens and style blocks."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/styling#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Design System \u0026 Styling","item":"https://monzeromer-lab.github.io/WebFluent/styling"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../pages/Styling.css" data-wf-page-css="Styling">
     <script src="../app.js" defer></script>
+    <script src="../pages/Styling.js" data-wf-page="Styling" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +36,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -280,11 +278,11 @@
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Theme Ledger {
-    token color-primary: &quot;#0F766E&quot;
-    token color-secondary: &quot;#134E4A&quot;
-    token font-family: &quot;&#x27;Söhne&#x27;, system-ui, sans-serif&quot;
-    token radius-md: &quot;14px&quot;
+                            <code class="wf-code wf-code--block">theme Ledger {
+    color-primary: #0F766E
+    color-secondary: #134E4A
+    font-family: &#x27;Söhne&#x27;, system-ui, sans-serif
+    radius-md: 14px
 }</code>
                         </div>
                     </div>
@@ -310,7 +308,7 @@
                                     <span class="wf-badge wf-badge--info">Tag</span>
                                 </div>
                                 <div class="wf-spacer wf-spacer--sm"></div>
-                                <progress class="wf-progress wf-progress--primary" value="65" max="100"></progress>
+                                <progress class="wf-progress" value="65" max="100"></progress>
                                 <div class="wf-spacer wf-spacer--sm"></div>
                                 <p class="wf-text wf-text--muted wf-text--small">No declaration needed.</p>
                             </div>
@@ -330,7 +328,7 @@
                                     <span class="wf-badge wf-badge--success">Live</span>
                                 </div>
                                 <div class="wf-spacer wf-spacer--sm"></div>
-                                <progress class="wf-progress wf-progress--info" value="80" max="100"></progress>
+                                <progress class="wf-progress" value="80" max="100"></progress>
                                 <div class="wf-spacer wf-spacer--sm"></div>
                                 <code class="wf-code wf-code--block">examples/themes/dark.wf</code>
                             </div>
@@ -368,7 +366,7 @@
                                     <span class="wf-badge wf-badge--danger">Alert</span>
                                 </div>
                                 <div class="wf-spacer wf-spacer--sm"></div>
-                                <progress class="wf-progress wf-progress--danger" value="90" max="100"></progress>
+                                <progress class="wf-progress" value="90" max="100"></progress>
                                 <div class="wf-spacer wf-spacer--sm"></div>
                                 <code class="wf-code wf-code--block">examples/themes/brutalist.wf</code>
                             </div>
@@ -401,9 +399,9 @@
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Button(&quot;Custom&quot;) {
     style {
-        background: &quot;#8B5CF6&quot;
-        padding: xl
-        radius: lg
+        background: #8B5CF6
+        padding: $xl
+        radius: $lg
     }
 }</code>
                         </div>
@@ -415,11 +413,11 @@
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">// Responds to the viewport by itself.
-Heading(&quot;Invoicing&quot;, h1)
+Heading(&quot;Invoicing&quot;).h1
 
 // Fixed at every width, because you said so.
-Heading(&quot;Invoicing&quot;, h1) {
-    style { font-size: &quot;3.25rem&quot; }
+Heading(&quot;Invoicing&quot;).h1 {
+    style { font-size: 3.25rem }
 }</code>
                         </div>
                     </div>

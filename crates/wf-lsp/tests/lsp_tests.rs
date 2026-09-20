@@ -191,7 +191,49 @@ fn hover_with_arabic_text_on_the_line_lands_on_the_right_word() {
     assert_eq!(r.end.character - r.start.character, "primary".len() as u32);
 }
 
+#[test]
+fn hover_shows_the_type_the_checker_infers() {
+    let src = "type Todo { id: String, title: String }\nstore S {\n    state items: [Todo] = []\n    derived count = items.length\n    action add(t: Todo) { items = items.concat([t]) }\n}\npage Home(path: \"/\", id: String) {\n    use S\n    state draft = \"\"\n    for todo in S.items by todo.id { Text(todo.title) }\n    derived c = S.count\n}\n";
+    let draft = hover_text(src, "draft = ").unwrap();
+    assert!(draft.contains("Type `String`"), "{draft}");
+    let todo = hover_text(src, "todo.title").unwrap();
+    assert!(todo.contains("Type `Todo`"), "{todo}");
+    let count = hover_text(src, "count\n").unwrap();
+    assert!(count.contains("Type `Number`"), "{count}");
+    let add = hover_text(src, "add(t").unwrap();
+    assert!(add.contains("Type `action(Todo)`"), "{add}");
+}
+
 // ─── Completion ───────────────────────────────────────────────────────────
+
+#[test]
+fn completion_after_a_typed_value_offers_its_fields_or_methods() {
+    let valid = "type Todo { id: String, title: String, done: Bool }\npage Home(path: \"/\") {\n    state todos: [Todo] = []\n    state name = \"\"\n    for t in todos by t.id { Text(t.title) }\n}\n";
+    let broken = valid.replace("Text(t.title)", "Text(t.)");
+    let fields = labels_mid_edit(valid, &broken, "Text(t.");
+    assert_eq!(fields, vec!["id", "title", "done"]);
+    let broken = valid.replace("Text(t.title)", "Text(todos.)");
+    let methods = labels_mid_edit(valid, &broken, "Text(todos.");
+    assert!(methods.contains(&"length".to_string()), "{methods:?}");
+    assert!(methods.contains(&"filter".to_string()), "{methods:?}");
+    let broken = valid.replace("Text(t.title)", "Text(name.)");
+    let methods = labels_mid_edit(valid, &broken, "Text(name.");
+    assert!(methods.contains(&"toUpperCase".to_string()), "{methods:?}");
+}
+
+#[test]
+fn a_type_error_is_a_diagnostic_with_its_hint() {
+    let src = "page Home(path: \"/\") {\n    state n: Number = \"x\"\n    Text(\"{n}\")\n}\n";
+    let project = project(src);
+    let diagnostics = project_diagnostics(&project).remove(0);
+    let t01 = diagnostics
+        .iter()
+        .find(|d| d.message.contains("[T01]"))
+        .expect("a type error");
+    assert_eq!(t01.severity, Some(DiagnosticSeverity::ERROR));
+    assert_eq!(t01.range.start.line, 1);
+    assert!(t01.message.contains("Convert it"), "{}", t01.message);
+}
 
 #[test]
 fn completion_inside_an_element_offers_its_own_props_first() {

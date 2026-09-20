@@ -21,6 +21,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/components#webpage","url":"https://monzeromer-lab.github.io/WebFluent/components","name":"Components Reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every built-in component, with the modifiers each accepts."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/components#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Components Reference","item":"https://monzeromer-lab.github.io/WebFluent/components"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
     <script src="../app.js" defer></script>
+    <script src="../pages/Components.js" data-wf-page="Components" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +35,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -128,10 +125,10 @@
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Button(&quot;Primary&quot;, primary)
-Button(&quot;Large&quot;, primary, large)
-Button(&quot;Rounded&quot;, success, rounded)
-Button(&quot;Full Width&quot;, danger, full)</code>
+                            <code class="wf-code wf-code--block">Button(&quot;Primary&quot;).primary
+Button(&quot;Large&quot;).primary.lg
+Button(&quot;Rounded&quot;).success.rounded
+Button(&quot;Full Width&quot;).danger.full</code>
                         </div>
                     </div>
                     <div class="wf-spacer"></div>
@@ -150,9 +147,7 @@ Button(&quot;Full Width&quot;, danger, full)</code>
                                     <p class="wf-text wf-text--muted">Basic card with header and body.</p>
                                 </div>
                                 <div class="wf-card__footer">
-                                    <button class="wf-btn wf-btn--primary wf-btn--small">
-                                        Action
-                                    </button>
+                                    <button class="wf-btn wf-btn--primary wf-btn--small">Action</button>
                                 </div>
                             </div>
                         </div>
@@ -186,14 +181,19 @@ Button(&quot;Full Width&quot;, danger, full)</code>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <div class="wf-stack wf-gap--md">
-                                <input class="wf-input" placeholder="Type here..." type="text">
+                                <div class="wf-field">
+                                    <label class="wf-label" for="wf-field-1">Text Input</label>
+                                    <input class="wf-input" placeholder="Type here..." type="text" id="wf-field-1">
+                                </div>
                                 <hr class="wf-divider">
-                                <select class="wf-select">
-                                    Select
+                                <div class="wf-field">
+                                    <label class="wf-label" for="wf-field-2">Select</label>
+                                    <select class="wf-select" id="wf-field-2">
                                     <option value="opt1">Option One</option>
                                     <option value="opt2">Option Two</option>
                                     <option value="opt3">Option Three</option>
                                 </select>
+                                </div>
                                 <p class="wf-text wf-text--muted wf-text--small">Selected: opt1</p>
                                 <hr class="wf-divider">
                                 <label class="wf-checkbox">I agree to the terms</label>
@@ -249,13 +249,11 @@ Button(&quot;Full Width&quot;, danger, full)</code>
                             <div class="wf-spacer"></div>
                             <div class="wf-row wf-gap--md wf-align--center">
                                 <div class="wf-spinner"></div>
-                                <div class="wf-spinner wf-spinner--large wf-spinner--primary"></div>
+                                <div class="wf-spinner wf-spinner--large"></div>
                                 <progress class="wf-progress" value="50" max="100"></progress>
                             </div>
                             <div class="wf-spacer"></div>
-                            <button class="wf-btn wf-btn--primary">
-                                Open Modal
-                            </button>
+                            <button class="wf-btn wf-btn--primary">Open Modal</button>
                         </div>
                     </div>
                     <dialog class="wf-modal" title="Example Modal">
@@ -263,12 +261,8 @@ Button(&quot;Full Width&quot;, danger, full)</code>
                         <div class="wf-spacer wf-spacer--sm"></div>
                         <p class="wf-text wf-text--muted">The modal is controlled by a state variable.</p>
                         <div class="wf-modal__footer">
-                            <button class="wf-btn">
-                                Close
-                            </button>
-                            <button class="wf-btn wf-btn--primary">
-                                Confirm
-                            </button>
+                            <button class="wf-btn">Close</button>
+                            <button class="wf-btn wf-btn--primary">Confirm</button>
                         </div>
                     </dialog>
                     <div class="wf-spacer"></div>
@@ -304,8 +298,8 @@ Button(&quot;Full Width&quot;, danger, full)</code>
                             <div class="wf-spacer"></div>
                             <div class="wf-row wf-gap--md wf-align--center">
                                 <div class="wf-avatar wf-avatar--primary"></div>
-                                <div class="wf-avatar wf-avatar--success"></div>
-                                <div class="wf-avatar wf-avatar--info"></div>
+                                <div class="wf-avatar"></div>
+                                <div class="wf-avatar"></div>
                                 <span class="wf-badge wf-badge--primary">Admin</span>
                                 <span class="wf-badge wf-badge--success">Online</span>
                                 <span class="wf-tag">WebFluent</span>
@@ -514,9 +508,9 @@ Button(&quot;Full Width&quot;, danger, full)</code>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Icon(&quot;home&quot;)
-Icon(&quot;search&quot;, large, primary)
+Icon(&quot;search&quot;).lg.primary
 IconButton(icon: &quot;edit&quot;, label: &quot;Edit&quot;)
-IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;, danger)</code>
+IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;).danger</code>
                         </div>
                     </div>
                     <div class="wf-spacer"></div>
@@ -544,7 +538,7 @@ IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;, danger)</code>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Tooltip(text: &quot;Help text&quot;) {
-    Button(&quot;Hover me&quot;, primary)
+    Button(&quot;Hover me&quot;).primary
 }</code>
                         </div>
                     </div>
@@ -589,10 +583,10 @@ IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;, danger)</code>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Sidebar {
-    Sidebar.Header { Text(&quot;My App&quot;, heading) }
+    Sidebar.Header { Text(&quot;My App&quot;).heading }
     Sidebar.Item(to: &quot;/&quot;, icon: &quot;home&quot;) { Text(&quot;Dashboard&quot;) }
     Sidebar.Item(icon: &quot;settings&quot;) { Text(&quot;Settings&quot;) }
-    Sidebar.Divider()
+    Sidebar.Divider
     Sidebar.Item(icon: &quot;logout&quot;) { Text(&quot;Logout&quot;) }
 }</code>
                         </div>
@@ -655,7 +649,7 @@ IconButton(icon: &quot;trash&quot;, label: &quot;Delete&quot;, danger)</code>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Skeleton(height: &quot;16px&quot;, width: &quot;80%&quot;)
-Skeleton(circle, size: &quot;48px&quot;)</code>
+Skeleton(size: &quot;48px&quot;).circle</code>
                         </div>
                     </div>
                     <div class="wf-spacer"></div>
@@ -702,7 +696,7 @@ Skeleton(circle, size: &quot;48px&quot;)</code>
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Dropdown(label: &quot;Actions&quot;) {
     Dropdown.Item { Text(&quot;Edit&quot;) }
-    Dropdown.Divider()
+    Dropdown.Divider
     Dropdown.Item { Text(&quot;Delete&quot;) }
 }</code>
                         </div>
@@ -773,12 +767,8 @@ Skeleton(circle, size: &quot;48px&quot;)</code>
                     </div>
                     <div class="wf-spacer wf-spacer--xl"></div>
                     <div class="wf-row wf-gap--md wf-justify--center">
-                        <button class="wf-btn wf-btn--primary">
-                            Styling Guide
-                        </button>
-                        <button class="wf-btn">
-                            Animation System
-                        </button>
+                        <button class="wf-btn wf-btn--primary">Styling Guide</button>
+                        <button class="wf-btn">Animation System</button>
                     </div>
                     <div class="wf-spacer wf-spacer--xl"></div>
                     <div class="wf-spacer"></div>
@@ -799,7 +789,7 @@ Skeleton(circle, size: &quot;48px&quot;)</code>
                                     <code class="wf-code wf-code--block">Modal(title: &quot;Confirm&quot;, visible: open) {
     Text(&quot;Are you sure?&quot;)
     Modal.Footer {
-        Button(&quot;Cancel&quot;) { open = false }
+        Button(&quot;Cancel&quot;) { on click { open = false } }
     }
 }</code>
                                 </div>
@@ -812,8 +802,8 @@ Skeleton(circle, size: &quot;48px&quot;)</code>
                                     <p class="wf-text wf-text--muted wf-text--small">Wired as a tablist: each tab is linked to its panel and back, only the selected tab is in the tab order, and the arrow keys, Home and End move between them.</p>
                                     <div class="wf-spacer wf-spacer--sm"></div>
                                     <code class="wf-code wf-code--block">Tabs {
-    TabPage(&quot;Overview&quot;) { Text(&quot;...&quot;) }
-    TabPage(&quot;Details&quot;) { Text(&quot;...&quot;) }
+    Tabs.Page(&quot;Overview&quot;) { Text(&quot;...&quot;) }
+    Tabs.Page(&quot;Details&quot;) { Text(&quot;...&quot;) }
 }</code>
                                 </div>
                             </div>
@@ -852,7 +842,7 @@ Skeleton(circle, size: &quot;48px&quot;)</code>
       width: 1200, height: 630)
 
 // Above the fold? Load it straight away.
-Image(src: &quot;/logo.png&quot;, alt: &quot;Ledger&quot;, loading: &quot;eager&quot;)</code>
+Image(src: &quot;/logo.png&quot;, alt: &quot;Ledger&quot;, loading: .eager)</code>
                         </div>
                     </div>
                 </div>

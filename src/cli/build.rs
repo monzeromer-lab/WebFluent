@@ -71,7 +71,11 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // What the new grammar wrote, checked against what the components
     // declare: a flag, case, event, slot or part that resolves to nothing is
     // a broken site, and stops the build like a parse error.
-    let findings = crate::sema::check(&program, &file_of);
+    let mut findings = crate::sema::check(&program, &file_of);
+    // Then the types: what every name is, and the values that do not fit.
+    let typed = crate::sema::types::check(&program, &file_of);
+    findings.errors.extend(typed.findings.errors);
+    findings.warnings.extend(typed.findings.warnings);
     for warning in &findings.warnings {
         eprintln!("Warning: {}", warning);
     }

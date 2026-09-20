@@ -21,6 +21,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/template-engine#webpage","url":"https://monzeromer-lab.github.io/WebFluent/template-engine","name":"Template Engine","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Render .wf templates with JSON data from Rust."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/template-engine#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Template Engine","item":"https://monzeromer-lab.github.io/WebFluent/template-engine"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
     <script src="../app.js" defer></script>
+    <script src="../pages/TemplateEngine.js" data-wf-page="TemplateEngine" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +35,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -165,25 +162,25 @@ wf render template.wf --data data.json --format html --theme Brand</code>
                                 <p class="wf-text wf-text--bold">invoice.wf</p>
                             </div>
                             <div class="wf-card__body">
-                                <code class="wf-code wf-code--block">Page Invoice (path: &quot;/&quot;, title: &quot;Invoice&quot;) {
+                                <code class="wf-code wf-code--block">page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;) {
     Container {
-        Heading(&quot;Invoice #{number}&quot;, h1)
+        Heading(&quot;Invoice #{number}&quot;).h1
         Text(&quot;Customer: {customer.name}&quot;)
 
         Table {
-            Thead { Trow { Tcell(&quot;Item&quot;) Tcell(&quot;Price&quot;) } }
+            Table.Head { Table.Row { Table.Cell(&quot;Item&quot;) Table.Cell(&quot;Price&quot;) } }
             for item in items {
-                Trow {
-                    Tcell(item.name)
-                    Tcell(&quot;${item.price}&quot;)
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell(&quot;${item.price}&quot;)
                 }
             }
         }
 
         if paid {
-            Badge(&quot;PAID&quot;, success)
+            Badge(&quot;PAID&quot;).success
         } else {
-            Badge(&quot;UNPAID&quot;, danger)
+            Badge(&quot;UNPAID&quot;).danger
         }
     }
 }</code>
@@ -392,7 +389,7 @@ app.get(&#x27;/invoice/:id/pdf&#x27;, async (req, res) =&gt; {
                                     </div>
                                     <div class="wf-row wf-gap--sm">
                                         <span class="wf-badge wf-badge--danger">No</span>
-                                        <p class="wf-text">Events (on:click, on:submit)</p>
+                                        <p class="wf-text">Events (on click, on submit)</p>
                                     </div>
                                     <div class="wf-row wf-gap--sm">
                                         <span class="wf-badge wf-badge--danger">No</span>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Linting</title>
+    <meta name="description" content="The accessibility checks the compiler runs, and what each one means.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/accessibility">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/accessibility?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/accessibility?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/accessibility">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Accessibility Linting">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The accessibility checks the compiler runs, and what each one means.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/accessibility">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Accessibility Linting">
+    <meta name="twitter:description" content="The accessibility checks the compiler runs, and what each one means.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/accessibility#webpage","url":"https://monzeromer-lab.github.io/WebFluent/accessibility","name":"Accessibility Linting","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The accessibility checks the compiler runs, and what each one means."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/accessibility#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Accessibility Linting","item":"https://monzeromer-lab.github.io/WebFluent/accessibility"}]}]}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
+    <script src="../pages/Accessibility.js" data-wf-page="Accessibility" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <p class="wf-text wf-text--heading">WebFluent</p>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
+            </div>
+        </nav>
+        <div class="wf-row">
+            <aside class="wf-sidebar">
+                <div class="wf-sidebar__header">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                    </a>
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Introduction</p>
+                <a class="wf-sidebar__item" href="/WebFluent/">
+                    <p class="wf-text">Home</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/getting-started">
+                    <p class="wf-text">Get Started</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/guide">
+                    <p class="wf-text">Guide</p>
+                </a>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Features</p>
+                <a class="wf-sidebar__item" href="/WebFluent/components">
+                    <p class="wf-text">Components</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/styling">
+                    <p class="wf-text">Styling</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/animation">
+                    <p class="wf-text">Animation</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/i18n">
+                    <p class="wf-text">i18n</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/seo">
+                    <p class="wf-text">Search &amp; Sharing</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/ssg">
+                    <p class="wf-text">SSG</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/pdf">
+                    <p class="wf-text">PDF</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/template-engine">
+                    <p class="wf-text">Template Engine</p>
+                </a>
+                <div class="wf-sidebar__divider">
+                </div>
+                <p class="wf-text wf-text--muted wf-text--small wf-text--bold wf-text--uppercase">Tools</p>
+                <a class="wf-sidebar__item active" href="/WebFluent/accessibility" aria-current="page">
+                    <p class="wf-text">Accessibility</p>
+                </a>
+                <a class="wf-sidebar__item" href="/WebFluent/cli">
+                    <p class="wf-text">CLI</p>
+                </a>
+            </aside>
+            <main id="wf-main">
+                <div class="wf-container wf-animate-fadeIn">
+                    <div class="wf-spacer"></div>
+                    <h1 class="wf-heading">Accessibility Linting</h1>
+                    <p class="wf-text wf-text--muted">WebFluent checks your code for accessibility issues at compile time. Warnings are printed during build but never block compilation.</p>
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">How It Works</h2>
+                    <p class="wf-text">The linter runs automatically after parsing, before code generation. It walks the AST and checks each component against 12 rules.</p>
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-card wf-card--outlined">
+                        <div class="wf-card__body">
+                            <code class="wf-code wf-code--block">$ wf build
+Building my-app...
+  Warning [A01]: Image missing &quot;alt&quot; attribute at src/pages/Home.wf:12:5
+    Add alt text: Image(src: &quot;...&quot;, alt: &quot;Description of image&quot;)
+  Warning [A03]: Input missing &quot;label&quot; attribute at src/pages/Form.wf:8:9
+    Add a label: Input(text, label: &quot;Username&quot;)
+  3 pages, 2 components, 1 stores
+  Build complete with 2 accessibility warning(s).</code>
+                        </div>
+                    </div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Lint Rules</h2>
+                    <table class="wf-table">
+                        <thead>
+                            <th scope="col">Rule</th>
+                            <th scope="col">Component</th>
+                            <th scope="col">Check</th>
+                        </thead>
+                        <tr>
+                            <td>A01</td>
+                            <td>Image</td>
+                            <td>Must have alt attribute</td>
+                        </tr>
+                        <tr>
+                            <td>A02</td>
+                            <td>IconButton</td>
+                            <td>Must have label attribute (no visible text)</td>
+                        </tr>
+                        <tr>
+                            <td>A03</td>
+                            <td>Input</td>
+                            <td>Must have label or placeholder</td>
+                        </tr>
+                        <tr>
+                            <td>A04</td>
+                            <td>Checkbox, Radio, Switch, Slider</td>
+                            <td>Must have label attribute</td>
+                        </tr>
+                        <tr>
+                            <td>A05</td>
+                            <td>Button</td>
+                            <td>Must have text content</td>
+                        </tr>
+                        <tr>
+                            <td>A06</td>
+                            <td>Link</td>
+                            <td>Must have text content or children</td>
+                        </tr>
+                        <tr>
+                            <td>A07</td>
+                            <td>Heading</td>
+                            <td>Must not be empty</td>
+                        </tr>
+                        <tr>
+                            <td>A08</td>
+                            <td>Modal, Dialog</td>
+                            <td>Must have title attribute</td>
+                        </tr>
+                        <tr>
+                            <td>A09</td>
+                            <td>Video</td>
+                            <td>Must have controls attribute</td>
+                        </tr>
+                        <tr>
+                            <td>A10</td>
+                            <td>Table</td>
+                            <td>Must have Thead header row</td>
+                        </tr>
+                        <tr>
+                            <td>A11</td>
+                            <td>Heading</td>
+                            <td>Levels must not skip (h1 to h3)</td>
+                        </tr>
+                        <tr>
+                            <td>A12</td>
+                            <td>Page</td>
+                            <td>Must have exactly one h1 (not for Presentation or Document)</td>
+                        </tr>
+                        <tr>
+                            <td>A13</td>
+                            <td>Theme</td>
+                            <td>Colour pairings must clear the WCAG AA contrast ratio</td>
+                        </tr>
+                        <tr>
+                            <td>S01</td>
+                            <td>Page</td>
+                            <td>Must have a title</td>
+                        </tr>
+                        <tr>
+                            <td>S02</td>
+                            <td>Page</td>
+                            <td>Should have a description, or its search snippet gets written for it</td>
+                        </tr>
+                        <tr>
+                            <td>S03</td>
+                            <td>Page</td>
+                            <td>A description over ~160 characters is truncated in results</td>
+                        </tr>
+                        <tr>
+                            <td>S04</td>
+                            <td>Page</td>
+                            <td>Two pages must not claim one route</td>
+                        </tr>
+                        <tr>
+                            <td>V01</td>
+                            <td>Any</td>
+                            <td>A bare word that resolves to nothing</td>
+                        </tr>
+                        <tr>
+                            <td>V02</td>
+                            <td>Any</td>
+                            <td>A real modifier whose class no stylesheet defines</td>
+                        </tr>
+                    </table>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">Examples</h2>
+                    <div class="wf-row wf-gap--md">
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__body">
+                                    <p class="wf-text wf-text--danger wf-text--bold">Bad (triggers warning)</p>
+                                    <code class="wf-code wf-code--block">Image(src: &quot;/photo.jpg&quot;)
+IconButton(icon: &quot;close&quot;)
+Input(text)
+Checkbox(bind: agreed)
+Button()</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--outlined">
+                                <div class="wf-card__body">
+                                    <p class="wf-text wf-text--success wf-text--bold">Good (no warnings)</p>
+                                    <code class="wf-code wf-code--block">Image(src: &quot;/photo.jpg&quot;, alt: &quot;Team photo&quot;)
+IconButton(icon: &quot;close&quot;, label: &quot;Close&quot;)
+Input(text, label: &quot;Username&quot;)
+Checkbox(bind: agreed, label: &quot;I agree&quot;)
+Button(&quot;Save&quot;)</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer wf-spacer--xl"></div>
+                    <div class="wf-spacer"></div>
+                    <hr class="wf-divider">
+                    <div class="wf-spacer"></div>
+                    <h2 class="wf-heading">What the engine does without being asked</h2>
+                    <p class="wf-text">The checks above tell you what to fix. Most of the work is already done in the output.</p>
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-row wf-gap--md">
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h3 class="wf-heading">Structure</h3>
+                                    <p class="wf-text wf-text--muted wf-text--small">Every page has a main landmark and a skip link ahead of the navigation. Heading modifiers produce real heading elements, so the document outline matches what is on screen.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h3 class="wf-heading">Keyboard</h3>
+                                    <p class="wf-text wf-text--muted wf-text--small">Tabs, menus and dialogs handle the keys their pattern requires. Focus is always visible, never removed, and always returned when a panel closes.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h3 class="wf-heading">Announcements</h3>
+                                    <p class="wf-text wf-text--muted wf-text--small">Alerts and toasts are live regions, so a screen reader hears them when they appear. Fetches say when they are loading and when they have finished.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-row wf-gap--md">
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h3 class="wf-heading">Motion and targets</h3>
+                                    <p class="wf-text wf-text--muted wf-text--small">Animations respect a reduced-motion preference. Every pointer target meets the 24 by 24 minimum, so a control is reachable with a thumb and not only a mouse.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-col">
+                            <div class="wf-card wf-card--elevated">
+                                <div class="wf-card__body">
+                                    <h3 class="wf-heading">Contrast, at compile time</h3>
+                                    <p class="wf-text wf-text--muted wf-text--small">Because a Theme is source the compiler reads, it can check colour pairings before you have written a page with them — something a tool working from CSS cannot do.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <hr class="wf-divider">
+        <div class="wf-container">
+            <div class="wf-spacer"></div>
+            <div class="wf-row wf-align--center wf-justify--between">
+                <p class="wf-text wf-text--muted wf-text--small">WebFluent — The Web-First Language</p>
+                <div class="wf-row wf-gap--md">
+                    <a class="wf-link" href="/WebFluent/">
+                        <p class="wf-text wf-text--muted wf-text--small">Home</p>
+                    </a>
+                    <a class="wf-link" href="/WebFluent/getting-started">
+                        <p class="wf-text wf-text--muted wf-text--small">Docs</p>
+                    </a>
+                </div>
+            </div>
+            <div class="wf-spacer"></div>
+        </div>
+    </div>
+</body>
+</html>

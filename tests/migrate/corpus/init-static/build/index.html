@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <meta name="description" content="An overview of what needs your attention today.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Home">
+    <meta property="og:site_name" content="static">
+    <meta property="og:description" content="An overview of what needs your attention today.">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Home">
+    <meta name="twitter:description" content="An overview of what needs your attention today.">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+    <script src="./pages/Home.js" data-wf-page="Home" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <p class="wf-text wf-text--heading">static</p>
+            </div>
+            <div class="wf-navbar__links">
+                <a class="wf-link active" href="/" aria-current="page">
+                    <p class="wf-text">Home</p>
+                </a>
+                <a class="wf-link" href="/about">
+                    <p class="wf-text">About</p>
+                </a>
+                <a class="wf-link" href="/blog">
+                    <p class="wf-text">Blog</p>
+                </a>
+                <a class="wf-link" href="/contact">
+                    <p class="wf-text">Contact</p>
+                </a>
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
+            </div>
+        </nav>
+        <main id="wf-main">
+            <div class="wf-container">
+                <div class="wf-spacer wf-spacer--xl"></div>
+                <div class="wf-stack wf-gap--md">
+                    <h1 class="wf-heading wf-text--center wf-animate-slideUp">Build Beautiful Websites</h1>
+                    <p class="wf-text wf-text--muted wf-text--center wf-animate-fadeIn">A modern, fast, and accessible website built entirely with WebFluent — the web-first language for building SPAs and static sites.</p>
+                    <div class="wf-spacer wf-spacer--sm"></div>
+                    <div class="wf-row wf-gap--md wf-justify--center">
+                        <button class="wf-btn wf-btn--primary wf-btn--large">Get Started</button>
+                        <button class="wf-btn wf-btn--large">Learn More</button>
+                    </div>
+                </div>
+                <div class="wf-spacer wf-spacer--xl"></div>
+                <hr class="wf-divider">
+                <div class="wf-spacer"></div>
+                <h2 class="wf-heading wf-text--center">Why Choose Us</h2>
+                <p class="wf-text wf-text--muted wf-text--center">Everything you need to succeed online.</p>
+                <div class="wf-spacer"></div>
+                <div class="wf-grid wf-gap--lg" style="grid-template-columns: repeat(2, 1fr)">
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <i class="wf-icon wf-icon--primary wf-icon--large" data-icon="zap"></i>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Lightning Fast</h2>
+                            <p class="wf-text wf-text--muted">Static site generation delivers instant page loads with pre-rendered HTML.</p>
+                        </div>
+                    </div>
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <i class="wf-icon wf-icon--primary wf-icon--large" data-icon="palette"></i>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Beautiful Design</h2>
+                            <p class="wf-text wf-text--muted">A built-in design system with tokens for colors, spacing, and typography.</p>
+                        </div>
+                    </div>
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <i class="wf-icon wf-icon--primary wf-icon--large" data-icon="globe"></i>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Multi-Language</h2>
+                            <p class="wf-text wf-text--muted">Built-in internationalization with RTL support for global audiences.</p>
+                        </div>
+                    </div>
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <i class="wf-icon wf-icon--primary wf-icon--large" data-icon="shield"></i>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Accessible</h2>
+                            <p class="wf-text wf-text--muted">Compile-time accessibility checks ensure your site works for everyone.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-spacer wf-spacer--xl"></div>
+            </div>
+        </main>
+        <footer class="wf-footer"></footer>
+    </div>
+</body>
+</html>

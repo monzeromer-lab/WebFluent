@@ -12,6 +12,7 @@ use webfluent::codegen::builtin::{builtin_to_html, implicit_role, landmark_label
 use webfluent::lexer::TokenType;
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, Flag, PropSig, PropType, Sink};
+use webfluent::sema::types::Type;
 
 use crate::analysis::{self, Binding, BindingKind, ElementPart};
 use crate::line_index::word_at;
@@ -167,7 +168,8 @@ fn hover_text(
                 .find(|m| m.name == word)
         {
             let store_file = &project.files[project.decl_file[store_ix]];
-            return Some(binding_doc(store_file, &member, Some(&store.name)));
+            let ty = type_of_binding(project, store_ix, &member);
+            return Some(binding_doc(store_file, &member, Some(&store.name), ty));
         }
 
         if let Some(binding) = analysis::scope_at(decl, offset)
@@ -179,7 +181,8 @@ fn hover_text(
             {
                 return Some(declaration_doc(project, store));
             }
-            return Some(binding_doc(&project.files[file_ix], &binding, None));
+            let ty = type_of_binding(project, decl_ix, &binding);
+            return Some(binding_doc(&project.files[file_ix], &binding, None, ty));
         }
 
         // A declared event or slot, at its declaration.
@@ -502,11 +505,33 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
     }
 }
 
-fn binding_doc(file: &SourceFile, binding: &Binding, store: Option<&str>) -> String {
+/// The type the checker infers for a binding, when it is more than `Any`.
+pub fn type_of_binding(project: &Project, decl_ix: usize, binding: &Binding) -> Option<Type> {
+    let info = webfluent::sema::types::check(&project.program, &|_| String::new());
+    let ty = info
+        .type_at(decl_ix, &binding.name, binding.span)
+        .cloned()
+        .or_else(|| {
+            info.bindings
+                .iter()
+                .rev()
+                .find(|t| t.decl == decl_ix && t.name == binding.name)
+                .map(|t| t.ty.clone())
+        })?;
+    (!ty.is_any()).then_some(ty)
+}
+
+fn binding_doc(
+    file: &SourceFile,
+    binding: &Binding,
+    store: Option<&str>,
+    ty: Option<Type>,
+) -> String {
     let source = declaring_line(file, binding);
     let owner = store
         .map(|s| format!("\n\nMember of store `{s}`."))
         .unwrap_or_default();
+    let typed = ty.map(|t| format!("\n\nType `{t}`.")).unwrap_or_default();
     let what = match binding.kind {
         BindingKind::State => {
             "A reactive variable: every element that reads it updates when it changes."
@@ -525,12 +550,12 @@ fn binding_doc(file: &SourceFile, binding: &Binding, store: Option<&str>) -> Str
     };
     match source {
         Some(line) => format!(
-            "**{}** — {}\n\n```wf\n{line}\n```\n\n{what}{owner}",
+            "**{}** — {}\n\n```wf\n{line}\n```\n\n{what}{typed}{owner}",
             binding.name,
             binding.kind.label()
         ),
         None => format!(
-            "**{}** — {}\n\n{what}{owner}",
+            "**{}** — {}\n\n{what}{typed}{owner}",
             binding.name,
             binding.kind.label()
         ),

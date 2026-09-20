@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <meta name="description" content="Writing from the team.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Blog">
+    <meta property="og:site_name" content="static">
+    <meta property="og:description" content="Writing from the team.">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Blog">
+    <meta name="twitter:description" content="Writing from the team.">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../app.js" defer></script>
+    <script src="../pages/Blog.js" data-wf-page="Blog" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <nav aria-label="Main" class="wf-navbar">
+            <div class="wf-navbar__brand">
+                <p class="wf-text wf-text--heading">static</p>
+            </div>
+            <div class="wf-navbar__links">
+                <a class="wf-link" href="/">
+                    <p class="wf-text">Home</p>
+                </a>
+                <a class="wf-link" href="/about">
+                    <p class="wf-text">About</p>
+                </a>
+                <a class="wf-link active" href="/blog" aria-current="page">
+                    <p class="wf-text">Blog</p>
+                </a>
+                <a class="wf-link" href="/contact">
+                    <p class="wf-text">Contact</p>
+                </a>
+            </div>
+            <div class="wf-navbar__actions">
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
+            </div>
+        </nav>
+        <main id="wf-main">
+            <div class="wf-container wf-animate-fadeIn">
+                <h1 class="wf-heading">Blog</h1>
+                <p class="wf-text wf-text--muted">Latest articles and updates.</p>
+                <div class="wf-spacer"></div>
+                <div class="wf-grid wf-gap--md" style="grid-template-columns: repeat(3, 1fr)">
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <span class="wf-badge wf-badge--success">New</span>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Getting Started with WebFluent</h2>
+                            <p class="wf-text wf-text--muted">Learn how to build your first web application using the WebFluent language.</p>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <span class="wf-tag">Tutorial</span>
+                            <span class="wf-tag">Beginner</span>
+                        </div>
+                        <div class="wf-card__footer">
+                            <a class="wf-link active" href="/blog" aria-current="page">
+                                <p class="wf-text wf-text--primary">Read More</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <span class="wf-badge wf-badge--primary">Popular</span>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Building with SSG</h2>
+                            <p class="wf-text wf-text--muted">How to use Static Site Generation for lightning-fast page loads.</p>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <span class="wf-tag">SSG</span>
+                            <span class="wf-tag">Performance</span>
+                        </div>
+                        <div class="wf-card__footer">
+                            <a class="wf-link active" href="/blog" aria-current="page">
+                                <p class="wf-text wf-text--primary">Read More</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-card wf-card--elevated wf-animate-scaleIn">
+                        <div class="wf-card__body">
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <h2 class="wf-heading">Multi-Language Sites</h2>
+                            <p class="wf-text wf-text--muted">Add internationalization to your WebFluent site with built-in i18n support.</p>
+                            <div class="wf-spacer wf-spacer--sm"></div>
+                            <span class="wf-tag">i18n</span>
+                            <span class="wf-tag">RTL</span>
+                        </div>
+                        <div class="wf-card__footer">
+                            <a class="wf-link active" href="/blog" aria-current="page">
+                                <p class="wf-text wf-text--primary">Read More</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer"></footer>
+    </div>
+</body>
+</html>

@@ -13,6 +13,8 @@
 //! `lower` is idempotent, and a no-op on a program the original grammar
 //! produced.
 
+pub mod types;
+
 use crate::error::Diagnostic;
 use crate::parser::ast::*;
 use crate::registry::{self, ComponentSig, Flag, Legacy, PropType, Sink};

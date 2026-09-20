@@ -25,6 +25,7 @@ use tower_lsp::lsp_types::*;
 use webfluent::lexer::{Token, TokenType};
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, PropType};
+use webfluent::sema::types::Type;
 
 use crate::analysis::{self, Binding, BindingKind};
 use crate::project::Project;
@@ -432,10 +433,130 @@ fn after_dot(
                 };
                 return name.map(|n| flags(project, &n)).unwrap_or_default();
             }
-            // `item.` — a value: nothing is known of it yet.
-            let _ = (file_ix, anchor);
-            Vec::new()
+            // `item.` — a value: its fields, or the methods of its kind,
+            // when the checker knows what it is.
+            value_members(project, file_ix, anchor, word)
         }
+        _ => Vec::new(),
+    }
+}
+
+/// What follows `name.` for a name in scope: a record's fields, an enum's
+/// nothing, a list's or a string's methods.
+fn value_members(
+    project: &Project,
+    file_ix: usize,
+    anchor: usize,
+    name: &str,
+) -> Vec<CompletionItem> {
+    let Some(decl_ix) = analysis::declaration_at(project, file_ix, anchor.saturating_sub(1)) else {
+        return Vec::new();
+    };
+    let decl = &project.program.declarations[decl_ix];
+    let Some(binding) = analysis::scope_at(decl, anchor)
+        .into_iter()
+        .find(|b| b.name == name)
+    else {
+        return Vec::new();
+    };
+    let Some(ty) = crate::hover::type_of_binding(project, decl_ix, &binding) else {
+        return Vec::new();
+    };
+    let method = |m: &str, detail: &str| CompletionItem {
+        label: m.to_string(),
+        kind: Some(CompletionItemKind::METHOD),
+        detail: Some(detail.to_string()),
+        insert_text: Some(format!("{m}($0)")),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        sort_text: Some(format!("1{m}")),
+        ..Default::default()
+    };
+    // A value that may be null offers what it holds; the checker says so.
+    let ty = match ty {
+        Type::Optional(inner) => *inner,
+        other => other,
+    };
+    match ty {
+        Type::Record(record) => project
+            .program
+            .declarations
+            .iter()
+            .find_map(|d| match d {
+                Declaration::Type(t) if t.name == record => Some(t),
+                _ => None,
+            })
+            .map(|t| {
+                t.fields
+                    .iter()
+                    .map(|f| CompletionItem {
+                        label: f.name.clone(),
+                        kind: Some(CompletionItemKind::FIELD),
+                        detail: Some(format!("{} — field of {}", type_name(&f.ty), record)),
+                        documentation: f.doc.clone().map(Documentation::String),
+                        sort_text: Some(format!("0{}", f.name)),
+                        ..Default::default()
+                    })
+                    .collect()
+            })
+            .unwrap_or_default(),
+        Type::List(_) => {
+            let mut items = vec![CompletionItem {
+                label: "length".to_string(),
+                kind: Some(CompletionItemKind::PROPERTY),
+                detail: Some("Number".to_string()),
+                sort_text: Some("0length".to_string()),
+                ..Default::default()
+            }];
+            for (m, d) in [
+                ("map", "a new list, one result per item"),
+                ("filter", "the items the test holds for"),
+                ("find", "the first item the test holds for, or null"),
+                ("some", "whether the test holds for any item"),
+                ("every", "whether the test holds for every item"),
+                ("includes", "whether the list holds the value"),
+                ("indexOf", "where the value is, or -1"),
+                ("concat", "this list and another"),
+                ("slice", "a part of the list"),
+                ("join", "the items as one string"),
+                ("reduce", "one value folded from the items"),
+                ("sum", "the total of the numbers"),
+            ] {
+                items.push(method(m, d));
+            }
+            items
+        }
+        Type::String => {
+            let mut items = vec![CompletionItem {
+                label: "length".to_string(),
+                kind: Some(CompletionItemKind::PROPERTY),
+                detail: Some("Number".to_string()),
+                sort_text: Some("0length".to_string()),
+                ..Default::default()
+            }];
+            for (m, d) in [
+                ("toUpperCase", "in upper case"),
+                ("toLowerCase", "in lower case"),
+                ("trim", "without surrounding whitespace"),
+                ("includes", "whether it holds the text"),
+                ("startsWith", "whether it begins with the text"),
+                ("endsWith", "whether it ends with the text"),
+                ("split", "the parts between a separator"),
+                ("replace", "with a part swapped"),
+                ("slice", "a part of it"),
+            ] {
+                items.push(method(m, d));
+            }
+            items
+        }
+        Type::Resource(_) => ["state", "data", "error"]
+            .iter()
+            .map(|f| CompletionItem {
+                label: f.to_string(),
+                kind: Some(CompletionItemKind::FIELD),
+                detail: Some("of the resource".to_string()),
+                ..Default::default()
+            })
+            .collect(),
         _ => Vec::new(),
     }
 }

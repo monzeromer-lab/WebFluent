@@ -632,7 +632,7 @@ impl JsCodegen {
                     .collect();
                 format!("[{}]", items_str.join(", "))
             }
-            Expr::MapLiteral(entries) => {
+            Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
                 let entries_str: Vec<String> = entries
                     .iter()
                     .map(|(k, v)| format!("{}: {}", k, self.emit_store_expr(v, store_states)))
@@ -4062,7 +4062,7 @@ impl JsCodegen {
                 let items_str: Vec<String> = items.iter().map(|i| self.emit_expr(i)).collect();
                 format!("[{}]", items_str.join(", "))
             }
-            Expr::MapLiteral(entries) => {
+            Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
                 let entries_str: Vec<String> = entries
                     .iter()
                     .map(|(k, v)| format!("{}: {}", k, self.emit_expr(v)))

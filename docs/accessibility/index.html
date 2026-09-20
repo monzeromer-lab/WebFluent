@@ -21,6 +21,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/accessibility#webpage","url":"https://monzeromer-lab.github.io/WebFluent/accessibility","name":"Accessibility Linting","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The accessibility checks the compiler runs, and what each one means."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/accessibility#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Accessibility Linting","item":"https://monzeromer-lab.github.io/WebFluent/accessibility"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
     <script src="../app.js" defer></script>
+    <script src="../pages/Accessibility.js" data-wf-page="Accessibility" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +35,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -234,9 +231,9 @@ Building my-app...
                                     <p class="wf-text wf-text--danger wf-text--bold">Bad (triggers warning)</p>
                                     <code class="wf-code wf-code--block">Image(src: &quot;/photo.jpg&quot;)
 IconButton(icon: &quot;close&quot;)
-Input(text)
+Input.text
 Checkbox(bind: agreed)
-Button()</code>
+Button</code>
                                 </div>
                             </div>
                         </div>
@@ -246,7 +243,7 @@ Button()</code>
                                     <p class="wf-text wf-text--success wf-text--bold">Good (no warnings)</p>
                                     <code class="wf-code wf-code--block">Image(src: &quot;/photo.jpg&quot;, alt: &quot;Team photo&quot;)
 IconButton(icon: &quot;close&quot;, label: &quot;Close&quot;)
-Input(text, label: &quot;Username&quot;)
+Input(label: &quot;Username&quot;).text
 Checkbox(bind: agreed, label: &quot;I agree&quot;)
 Button(&quot;Save&quot;)</code>
                                 </div>

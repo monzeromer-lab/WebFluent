@@ -1915,7 +1915,7 @@ impl ParserV2 {
                 }
             }
             self.expect(&TokenType::CloseParen, "`)`")?;
-            return Ok(Expr::MapLiteral(fields));
+            return Ok(Expr::Record(name, fields));
         }
         let args = self.parse_expr_list(&TokenType::CloseParen)?;
         Ok(Expr::FunctionCall(name, args))
@@ -2403,7 +2403,7 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
             "page P(path: \"/\") { state a = Todo(id: 1, title: \"x\")  state b = Number(\"3\") }",
         );
         assert!(
-            matches!(&body[0].kind, StatementKind::State(s) if matches!(&s.value, Expr::MapLiteral(f) if f.len() == 2 && f[0].0 == "id"))
+            matches!(&body[0].kind, StatementKind::State(s) if matches!(&s.value, Expr::Record(n, f) if n == "Todo" && f.len() == 2 && f[0].0 == "id"))
         );
         assert!(
             matches!(&body[1].kind, StatementKind::State(s) if matches!(&s.value, Expr::FunctionCall(n, _) if n == "Number"))

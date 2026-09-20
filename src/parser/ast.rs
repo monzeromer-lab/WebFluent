@@ -677,6 +677,9 @@ pub enum Expr {
     // Collections
     ListLiteral(Vec<Expr>),
     MapLiteral(Vec<(String, Expr)>),
+    /// `Todo(id: 1, title: "x")`: a record of a declared `type`, built
+    /// with named fields. Emitted as a map; typed by its name.
+    Record(String, Vec<(String, Expr)>),
 
     // Lambda
     Lambda(String, Box<Expr>),
@@ -706,7 +709,9 @@ impl Expr {
             Expr::UnaryOp(_, e) | Expr::Lambda(_, e) | Expr::Await(e) => vec![e],
             Expr::MethodCall(obj, _, args) => std::iter::once(&**obj).chain(args).collect(),
             Expr::FunctionCall(_, args) | Expr::ListLiteral(args) => args.iter().collect(),
-            Expr::MapLiteral(pairs) => pairs.iter().map(|(_, v)| v).collect(),
+            Expr::MapLiteral(pairs) | Expr::Record(_, pairs) => {
+                pairs.iter().map(|(_, v)| v).collect()
+            }
             Expr::StringLiteral(_)
             | Expr::NumberLiteral(_)
             | Expr::BoolLiteral(_)

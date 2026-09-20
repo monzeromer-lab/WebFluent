@@ -21,6 +21,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/guide#webpage","url":"https://monzeromer-lab.github.io/WebFluent/guide","name":"Language Guide","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The language, end to end: pages, components, state and routing."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/guide#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Language Guide","item":"https://monzeromer-lab.github.io/WebFluent/guide"}]}]}</script>
     <link rel="stylesheet" href="../styles.css">
     <script src="../app.js" defer></script>
+    <script src="../pages/Guide.js" data-wf-page="Guide" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -34,12 +35,8 @@
             <div class="wf-navbar__links">
             </div>
             <div class="wf-navbar__actions">
-                <button class="wf-btn wf-btn--small">
-                    EN
-                </button>
-                <button class="wf-btn wf-btn--small">
-                    AR
-                </button>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
             </div>
         </nav>
         <div class="wf-row">
@@ -107,9 +104,9 @@
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Page Home (path: &quot;/&quot;, title: &quot;Home&quot;) {
+                            <code class="wf-code wf-code--block">page Home(path: &quot;/&quot;, title: &quot;Home&quot;) {
     Container {
-        Heading(&quot;Welcome&quot;, h1)
+        Heading(&quot;Welcome&quot;).h1
         Text(&quot;This is the home page.&quot;)
     }
 }</code>
@@ -172,16 +169,16 @@
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Component UserCard (name: String, role: String, active: Bool = true) {
-    Card(elevated) {
-        Row(align: center, gap: md) {
-            Avatar(initials: &quot;U&quot;, primary)
+                            <code class="wf-code wf-code--block">component UserCard(name: String, role: String, active: Bool = true) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            Avatar(initials: &quot;U&quot;).primary
             Stack {
-                Text(name, bold)
-                Text(role, muted)
+                Text(name).bold
+                Text(role).muted
             }
             if active {
-                Badge(&quot;Active&quot;, success)
+                Badge(&quot;Active&quot;).success
             }
         }
     }
@@ -201,13 +198,13 @@ UserCard(name: &quot;Monzer&quot;, role: &quot;Developer&quot;)</code>
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Page Counter (path: &quot;/counter&quot;) {
+                            <code class="wf-code wf-code--block">page Counter(path: &quot;/counter&quot;) {
     state count = 0
 
     Container {
         Text(&quot;Count: {count}&quot;)
-        Button(&quot;+1&quot;, primary) { count = count + 1 }
-        Button(&quot;-1&quot;) { count = count - 1 }
+        Button(&quot;+1&quot;).primary { on click { count = count + 1 } }
+        Button(&quot;-1&quot;) { on click { count = count - 1 } }
     }
 }</code>
                         </div>
@@ -230,16 +227,16 @@ derived isEmpty = items.length == 0</code>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
                             <code class="wf-code wf-code--block">Button(&quot;Submit&quot;) {
-    on:click {
+    on click {
         submitForm()
     }
 }
 
-Input(text, placeholder: &quot;Search...&quot;) {
-    on:input {
+Input(placeholder: &quot;Search...&quot;).text {
+    on input {
         searchQuery = value
     }
-    on:keydown {
+    on keydown {
         if key == &quot;Enter&quot; {
             performSearch()
         }
@@ -247,11 +244,11 @@ Input(text, placeholder: &quot;Search...&quot;) {
 }
 
 // Shorthand: block on Button defaults to on:click
-Button(&quot;Save&quot;) { save() }</code>
+Button(&quot;Save&quot;) { on click { save() } }</code>
                         </div>
                     </div>
                     <div class="wf-spacer wf-spacer--sm"></div>
-                    <p class="wf-text wf-text--muted">Supported events: on:click, on:submit, on:input, on:change, on:focus, on:blur, on:keydown, on:keyup, on:mouseover, on:mouseout, on:mount, on:unmount</p>
+                    <p class="wf-text wf-text--muted">Supported events: click, submit, input, change, focus, blur, keydown, keyup, mouseover, mouseout, mount, unmount — written `on click { … }`; `on click(event) { … }` names the event.</p>
                     <div class="wf-spacer"></div>
                     <hr class="wf-divider">
                     <div class="wf-spacer"></div>
@@ -264,7 +261,7 @@ Button(&quot;Save&quot;) { save() }</code>
 } else if isGuest {
     Text(&quot;Hello, guest&quot;)
 } else {
-    Button(&quot;Log In&quot;) { navigate(&quot;/login&quot;) }
+    Button(&quot;Log In&quot;) { on click { navigate(&quot;/login&quot;) } }
 }</code>
                         </div>
                     </div>
@@ -299,7 +296,7 @@ for item, index in items {
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Store CartStore {
+                            <code class="wf-code wf-code--block">store CartStore {
     state items = []
 
     derived total = items.map(i =&gt; i.price * i.quantity).sum()
@@ -315,11 +312,11 @@ for item, index in items {
 }
 
 // Usage in a page
-Page Cart (path: &quot;/cart&quot;) {
+page Cart(path: &quot;/cart&quot;) {
     use CartStore
 
     Text(&quot;Total: ${CartStore.total}&quot;)
-    Button(&quot;Clear&quot;) { CartStore.clear() }
+    Button(&quot;Clear&quot;) { on click { CartStore.clear() } }
 }</code>
                         </div>
                     </div>
@@ -331,29 +328,30 @@ Page Cart (path: &quot;/cart&quot;) {
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">App {
+                            <code class="wf-code wf-code--block">app {
     Navbar {
-        Navbar.Brand { Text(&quot;My App&quot;, heading) }
+        Navbar.Brand { Text(&quot;My App&quot;).heading }
         Navbar.Links {
             Link(to: &quot;/&quot;) { Text(&quot;Home&quot;) }
             Link(to: &quot;/about&quot;) { Text(&quot;About&quot;) }
         }
     }
 
-    Router {
-        Route(path: &quot;/&quot;, page: Home)
-        Route(path: &quot;/about&quot;, page: About)
-        Route(path: &quot;/user/:id&quot;, page: UserProfile)
-        Route(path: &quot;*&quot;, page: NotFound)
-    }
+    // Every page declares its own path; the router shows the one that matches.
+    Router
 }
 
 // Programmatic navigation
-Button(&quot;Go Home&quot;) { navigate(&quot;/&quot;) }
+Button(&quot;Go Home&quot;) { on click { navigate(&quot;/&quot;) } }
 
-// Dynamic routes access params
-Page UserProfile (path: &quot;/user/:id&quot;) {
-    Text(&quot;User ID: {params.id}&quot;)
+// Dynamic routes bind their params
+page UserProfile(path: &quot;/user/:id&quot;, id: String) {
+    Text(&quot;User ID: {id}&quot;)
+}
+
+// A catch-all page
+page NotFound(path: &quot;*&quot;) {
+    Text(&quot;Not found&quot;)
 }</code>
                         </div>
                     </div>
@@ -365,14 +363,15 @@ Page UserProfile (path: &quot;/user/:id&quot;) {
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">fetch users from &quot;/api/users&quot; {
+                            <code class="wf-code wf-code--block">resource users = fetch(&quot;/api/users&quot;)
+match users {
     loading {
-        Spinner()
+        Spinner
     }
     error (err) {
-        Alert(&quot;Failed to load users&quot;, danger)
+        Alert(&quot;Failed to load users&quot;).danger
     }
-    success {
+    ready(users) {
         for user in users {
             UserCard(name: user.name, role: user.role)
         }
@@ -380,9 +379,10 @@ Page UserProfile (path: &quot;/user/:id&quot;) {
 }
 
 // With options
-fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { name: name, email: email }) {
-    success {
-        Alert(&quot;Saved!&quot;, success)
+resource result = fetch(&quot;/api/submit&quot;, method: &quot;POST&quot;, body: { name: name, email: email })
+match result {
+    ready(result) {
+        Alert(&quot;Saved!&quot;).success
     }
 }</code>
                         </div>
@@ -395,7 +395,7 @@ fetch result from &quot;/api/submit&quot; (method: &quot;POST&quot;, body: { nam
                     <div class="wf-spacer wf-spacer--sm"></div>
                     <div class="wf-card wf-card--outlined">
                         <div class="wf-card__body">
-                            <code class="wf-code wf-code--block">Store AuthStore {
+                            <code class="wf-code wf-code--block">store AuthStore {
     state accessToken = &quot;&quot;
 
     action getHeaders() {
@@ -491,12 +491,8 @@ body: { action: &quot;create&quot;, token: sessionToken, state: &quot;active&quo
                     </table>
                     <div class="wf-spacer"></div>
                     <div class="wf-row wf-gap--md">
-                        <button class="wf-btn wf-btn--primary">
-                            Components Reference
-                        </button>
-                        <button class="wf-btn">
-                            Styling Guide
-                        </button>
+                        <button class="wf-btn wf-btn--primary">Components Reference</button>
+                        <button class="wf-btn">Styling Guide</button>
                     </div>
                     <div class="wf-spacer wf-spacer--xl"></div>
                 </div>

@@ -461,7 +461,7 @@ impl<'a> RenderContext<'a> {
             Expr::ListLiteral(items) => {
                 Value::Array(items.iter().map(|e| self.eval_expr(e)).collect())
             }
-            Expr::MapLiteral(pairs) => {
+            Expr::MapLiteral(pairs) | Expr::Record(_, pairs) => {
                 let map: serde_json::Map<String, Value> = pairs
                     .iter()
                     .map(|(k, v)| (k.clone(), self.eval_expr(v)))
