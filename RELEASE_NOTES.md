@@ -1,4 +1,4 @@
-# Unreleased — WebFluent v3.1
+# WebFluent v3.1 Release Notes
 
 ## Added
 
