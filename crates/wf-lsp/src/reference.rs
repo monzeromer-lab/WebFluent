@@ -539,10 +539,10 @@ pub const COMPONENTS: &[ComponentDoc] = &[
         name: "Spinner",
         group: "Feedback",
         summary: "Loading indicator.",
-        usage: "Spinner()  ·  Spinner(large, primary)",
+        usage: "Spinner()  ·  Spinner(large)",
         positional: "",
         args: &[],
-        modifiers: &["small", "large", "primary"],
+        modifiers: &["small", "large"],
         children: &[],
     },
     ComponentDoc {

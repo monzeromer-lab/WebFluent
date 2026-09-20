@@ -457,7 +457,7 @@ Input types (first positional arg): `text`, `email`, `password`, `number`, `sear
 | `Toast` | `Toast("Saved!", success)` — temporary notification |
 | `Modal` | `Modal(visible: showModal, title: "Title") { ... Modal.Footer { ... } }` |
 | `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` |
-| `Spinner` | `Spinner()` or `Spinner(large, primary)` |
+| `Spinner` | `Spinner()` or `Spinner(large)` |
 | `Progress` | `Progress(value: 75, max: 100)` |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(circle, size: "48px")` — modifiers: circle |
 

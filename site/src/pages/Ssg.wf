@@ -107,7 +107,7 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Code("store PostStore \{\n    state posts = [\n        \{ title: \"Slow roasting\", tag: \"coffee\" \},\n        \{ title: \"Closed Mondays\", tag: \"shop\" \}\n    ]\n\}\n\nList \{\n    for post in PostStore.posts \{\n        Card \{ Heading(post.title).h2 Badge(post.tag) \}\n    \}\n\}".block
+                Code("store PostStore \{\n    state posts = [\n        \{ title: \"Slow roasting\", tag: \"coffee\" \},\n        \{ title: \"Closed Mondays\", tag: \"shop\" \}\n    ]\n\}\n\nList \{\n    for post in PostStore.posts \{\n        Card \{ Heading(post.title).h2 Badge(post.tag) \}\n    \}\n\}").block
             }
         }
         Spacer.sm

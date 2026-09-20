@@ -1149,7 +1149,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Feedback",
         "Loading indicator, announced as a status.",
         None,
-        &[SIZE, variant("tone", PRIMARY_ONLY, "Colour")],
+        &[SIZE],
         &[],
         G,
         Children::None,

@@ -26,7 +26,7 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Code("page Post(path: \"/blog/slow-roasting\",\n          title: \"Slow roasting, explained\",\n          description: \"Why we take eleven minutes over it.\",\n          type: \"article\",\n          image: \"/roast.png\") \{\n    Container \{ ... \}\n\}".block
+                Code("page Post(path: \"/blog/slow-roasting\",\n          title: \"Slow roasting, explained\",\n          description: \"Why we take eleven minutes over it.\",\n          type: \"article\",\n          image: \"/roast.png\") \{\n    Container \{ ... \}\n\}").block
             }
         }
         Spacer.sm
@@ -63,7 +63,7 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Code("page Draft(path: \"/draft\", title: \"Draft\", noindex: true) \{ ... \}".block
+                Code("page Draft(path: \"/draft\", title: \"Draft\", noindex: true) \{ ... \}").block
             }
         }
 

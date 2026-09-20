@@ -155,7 +155,7 @@ Page Components (path: "/components", description: "Every built-in component, wi
                 Spacer()
                 Row(gap: md, align: center) {
                     Spinner()
-                    Spinner(large, primary)
+                    Spinner(large)
                     Progress(value: sliderVal, max: 100)
                 }
                 Spacer()

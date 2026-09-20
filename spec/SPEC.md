@@ -1468,7 +1468,7 @@ Dialog(visible: showDialog, title: "Delete Item?") {
 Loading indicator.
 ```
 Spinner()
-Spinner(large, primary)
+Spinner(large)
 ```
 
 #### Progress

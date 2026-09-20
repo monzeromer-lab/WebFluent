@@ -155,7 +155,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                 Spacer
                 Row(gap: .md, align: .center) {
                     Spinner
-                    Spinner.lg.primary
+                    Spinner.lg
                     Progress(value: sliderVal, max: 100)
                 }
                 Spacer
