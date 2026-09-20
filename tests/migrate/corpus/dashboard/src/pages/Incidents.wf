@@ -1,0 +1,35 @@
+Page Incidents (path: "/incidents", description: "Open and resolved incidents.", title: "Incidents") {
+    use IncidentStore
+
+    state draft = ""
+
+    Container {
+        Heading("Incidents", h1)
+
+        Form {
+            Input(text, bind: draft, placeholder: "What broke?")
+            Button("Report", primary) { IncidentStore.report(draft) }
+        }
+
+        Table {
+            Thead {
+                Trow {
+                    Tcell("Incident")
+                    Tcell("Severity")
+                    Tcell("Action")
+                }
+            }
+            Tbody {
+                for incident in IncidentStore.incidents {
+                    Trow {
+                        Tcell(incident.title)
+                        Tcell(incident.severity)
+                        Tcell("") {
+                            Button("Resolve", small) { IncidentStore.resolve(incident.id) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

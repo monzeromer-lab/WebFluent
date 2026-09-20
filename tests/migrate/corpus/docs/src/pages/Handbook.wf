@@ -1,0 +1,17 @@
+Page Handbook (path: "/handbook", description: "Hours, reviews and how decisions get made.", title: "Working here") {
+    Container {
+        Heading(t("handbook.title"), h1)
+
+        Section {
+            Heading("Hours", h2)
+            Paragraph { Text("Work when you think best. Overlap four hours with your team.") }
+
+            Heading("Reviews", h2)
+            Paragraph { Text("Twice a year, no surprises, written before spoken.") }
+
+            Blockquote("If it is not written down, it did not happen.")
+
+            Code("git commit --amend  # yes, really")
+        }
+    }
+}

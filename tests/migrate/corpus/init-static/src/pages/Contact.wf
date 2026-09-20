@@ -1,0 +1,66 @@
+Page Contact (path: "/contact", description: "How to reach us.", title: "Contact") {
+    state name = ""
+    state email = ""
+    state subject = "general"
+    state message = ""
+    state agreed = false
+    state submitted = false
+    state errorMsg = ""
+
+    Container(fadeIn) {
+        Heading(t("contact.title"), h1)
+        Text(t("contact.subtitle"), muted)
+
+        Spacer()
+
+        Row(gap: lg) {
+            Column(span: 8) {
+                Card(elevated) {
+                    Card.Body {
+                        show submitted {
+                            Alert(t("contact.success"), success)
+                            Spacer()
+                        }
+
+                        Form {
+                            Input(text, bind: name, label: t("contact.name"), placeholder: t("contact.name"), required: true)
+                            Spacer(sm)
+                            Input(email, bind: email, label: t("contact.email"), placeholder: t("contact.email"), required: true)
+                            Spacer(sm)
+                            Select(bind: subject, label: t("contact.subject")) {
+                                Option("general", t("contact.subject.general"))
+                                Option("support", t("contact.subject.support"))
+                                Option("feedback", t("contact.subject.feedback"))
+                            }
+                            Spacer(sm)
+                            Input(text, bind: message, label: t("contact.message"), placeholder: t("contact.message"))
+                            Spacer()
+                            Checkbox(bind: agreed, label: t("contact.agree"))
+                            Spacer()
+                            Button(t("contact.send"), primary, large, full) {
+                                submitted = true
+                            }
+
+                            on:submit {
+                                submitted = true
+                            }
+                        }
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card {
+                    Card.Body {
+                        Heading("Info", h2)
+                        Spacer(sm)
+                        Stack(gap: sm) {
+                            Text("hello@example.com")
+                            Text("+1 (555) 123-4567")
+                            Text("123 Main Street")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

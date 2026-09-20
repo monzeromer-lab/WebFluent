@@ -1,0 +1,5 @@
+{
+  "name": "deck",
+  "build": { "output": "build", "output_type": "slides" },
+  "meta": { "title": "Quarterly Review" }
+}

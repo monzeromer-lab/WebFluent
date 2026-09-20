@@ -1,0 +1,52 @@
+Page Blog (path: "/blog", description: "Writing from the team.", title: "Blog") {
+    Container(fadeIn) {
+        Heading(t("blog.title"), h1)
+        Text(t("blog.subtitle"), muted)
+
+        Spacer()
+
+        Grid(columns: 3, gap: md) {
+            Card(elevated, scaleIn) {
+                Card.Body {
+                    Badge("New", success)
+                    Spacer(sm)
+                    Heading("Getting Started with WebFluent", h2)
+                    Text("Learn how to build your first web application using the WebFluent language.", muted)
+                    Spacer(sm)
+                    Tag("Tutorial")
+                    Tag("Beginner")
+                }
+                Card.Footer {
+                    Link(to: "/blog") { Text(t("blog.read"), primary) }
+                }
+            }
+            Card(elevated, scaleIn) {
+                Card.Body {
+                    Badge("Popular", primary)
+                    Spacer(sm)
+                    Heading("Building with SSG", h2)
+                    Text("How to use Static Site Generation for lightning-fast page loads.", muted)
+                    Spacer(sm)
+                    Tag("SSG")
+                    Tag("Performance")
+                }
+                Card.Footer {
+                    Link(to: "/blog") { Text(t("blog.read"), primary) }
+                }
+            }
+            Card(elevated, scaleIn) {
+                Card.Body {
+                    Spacer(sm)
+                    Heading("Multi-Language Sites", h2)
+                    Text("Add internationalization to your WebFluent site with built-in i18n support.", muted)
+                    Spacer(sm)
+                    Tag("i18n")
+                    Tag("RTL")
+                }
+                Card.Footer {
+                    Link(to: "/blog") { Text(t("blog.read"), primary) }
+                }
+            }
+        }
+    }
+}

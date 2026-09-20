@@ -1,0 +1,35 @@
+Store TaskStore {
+    state tasks = [
+        { id: 1, title: "Learn WebFluent", done: false, priority: "high" },
+        { id: 2, title: "Build a dashboard", done: false, priority: "medium" },
+        { id: 3, title: "Deploy to production", done: false, priority: "low" }
+    ]
+    state filter = "all"
+
+    derived remaining = tasks.filter(t => !t.done).length
+    derived completed = tasks.filter(t => t.done).length
+    derived filtered = if filter == "all" {
+        tasks
+    } else if filter == "active" {
+        tasks.filter(t => !t.done)
+    } else {
+        tasks.filter(t => t.done)
+    }
+
+    action add(title: String) {
+        tasks.push({ id: tasks.length + 1, title: title, done: false, priority: "medium" })
+    }
+
+    action toggle(id: Number) {
+        state task = tasks.filter(t => t.id == id)[0]
+        task.done = !task.done
+    }
+
+    action remove(id: Number) {
+        tasks = tasks.filter(t => t.id != id)
+    }
+
+    action setFilter(value: String) {
+        filter = value
+    }
+}

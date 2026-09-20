@@ -1,0 +1,17 @@
+{
+  "name": "slides",
+  "version": "0.1.0",
+  "build": {
+    "output": "./build",
+    "output_type": "slides",
+    "slides": {
+      "size": "16:9",
+      "default_font": "Helvetica",
+      "default_font_size": 24,
+      "margin": 60,
+      "show_slide_numbers": true,
+      "footer_text": "slides",
+      "output_filename": "slides.pdf"
+    }
+  }
+}

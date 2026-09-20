@@ -1,0 +1,50 @@
+{
+    "nav.home": "Home",
+    "nav.about": "About",
+    "nav.blog": "Blog",
+    "nav.contact": "Contact",
+    "nav.language": "Language",
+
+    "hero.title": "Build Beautiful Websites",
+    "hero.subtitle": "A modern, fast, and accessible website built entirely with WebFluent — the web-first language for building SPAs and static sites.",
+    "hero.cta": "Get Started",
+    "hero.secondary": "Learn More",
+
+    "features.title": "Why Choose Us",
+    "features.subtitle": "Everything you need to succeed online.",
+    "features.speed.title": "Lightning Fast",
+    "features.speed.desc": "Static site generation delivers instant page loads with pre-rendered HTML.",
+    "features.design.title": "Beautiful Design",
+    "features.design.desc": "A built-in design system with tokens for colors, spacing, and typography.",
+    "features.i18n.title": "Multi-Language",
+    "features.i18n.desc": "Built-in internationalization with RTL support for global audiences.",
+    "features.a11y.title": "Accessible",
+    "features.a11y.desc": "Compile-time accessibility checks ensure your site works for everyone.",
+
+    "about.title": "About Us",
+    "about.mission.title": "Our Mission",
+    "about.mission.text": "We believe the web should be fast, beautiful, and accessible to everyone. Our tools make it easy to build websites that meet these standards.",
+    "about.team.title": "Our Team",
+    "about.quote": "The best way to predict the future is to create it.",
+
+    "blog.title": "Blog",
+    "blog.subtitle": "Latest articles and updates.",
+    "blog.read": "Read More",
+
+    "contact.title": "Contact Us",
+    "contact.subtitle": "We would love to hear from you.",
+    "contact.name": "Your Name",
+    "contact.email": "Email Address",
+    "contact.subject": "Subject",
+    "contact.subject.general": "General Inquiry",
+    "contact.subject.support": "Support",
+    "contact.subject.feedback": "Feedback",
+    "contact.message": "Message",
+    "contact.agree": "I agree to the privacy policy",
+    "contact.send": "Send Message",
+    "contact.success": "Thank you! Your message has been sent.",
+    "contact.error": "Something went wrong. Please try again.",
+
+    "footer.built": "Built with WebFluent",
+    "footer.rights": "All rights reserved."
+}

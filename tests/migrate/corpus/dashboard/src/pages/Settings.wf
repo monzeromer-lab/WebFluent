@@ -1,0 +1,22 @@
+Page Settings (path: "/settings", description: "Paging and alert thresholds.", title: "Settings") {
+    state notify = true
+    state threshold = 30
+
+    Container {
+        Heading("Settings", h1)
+
+        Form {
+            Switch(bind: notify, label: "Page me out of hours")
+            Slider(bind: threshold, label: "Alert threshold", min: 0, max: 100, step: 5)
+            Select {
+                Option("UTC")
+                Option("Africa/Khartoum")
+            }
+            Button("Save", primary, submit)
+        }
+
+        show notify {
+            Alert("You will be paged.", info)
+        }
+    }
+}

@@ -1,0 +1,92 @@
+Page GettingStarted (path: "/getting-started", description: "Install WebFluent and build your first page.", title: "Getting Started") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Getting Started", h1)
+        Text("Get up and running with WebFluent in under a minute.", muted)
+
+        Spacer()
+
+        Heading("Install", h2)
+        Text("Build from source (requires Rust):")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("git clone https://github.com/user/webfluent.git\ncd webfluent\ncargo build --release", block)
+            }
+        }
+        Spacer(sm)
+        Text("The binary is at target/release/wf. Add it to your PATH.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Create a Project", h2)
+        Spacer(sm)
+        Grid(columns: 3, gap: md) {
+            Card(elevated) {
+                Card.Body {
+                    Badge("SPA", primary)
+                    Spacer(sm)
+                    Heading("Interactive App", h2)
+                    Text("Dashboard with routing, stores, forms, modals, animations.", muted)
+                    Spacer()
+                    Code("wf init my-app -t spa", block)
+                }
+            }
+            Card(elevated) {
+                Card.Body {
+                    Badge("Static", success)
+                    Spacer(sm)
+                    Heading("Static Site", h2)
+                    Text("Marketing site with SSG, i18n, blog, contact form.", muted)
+                    Spacer()
+                    Code("wf init my-site -t static", block)
+                }
+            }
+            Card(elevated) {
+                Card.Body {
+                    Badge("PDF", info)
+                    Spacer(sm)
+                    Heading("PDF Document", h2)
+                    Text("Reports, invoices, docs. Tables, code blocks, auto page breaks.", muted)
+                    Spacer()
+                    Code("wf init my-report -t pdf", block)
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Build and Serve", h2)
+        Card(outlined) {
+            Card.Body {
+                Code("cd my-app\nwf build\nwf serve", block)
+            }
+        }
+        Spacer(sm)
+        Text("Open http://localhost:3000 in your browser.", muted)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Project Structure", h2)
+        Card(outlined) {
+            Card.Body {
+                Code("my-app/\n+-- webfluent.app.json       # Config\n+-- src/\n|   +-- App.wf               # Root (router, layout)\n|   +-- pages/\n|   +-- components/\n|   +-- stores/\n|   +-- translations/\n+-- public/\n+-- build/", block)
+            }
+        }
+
+        Spacer()
+
+        Row(gap: md) {
+            Button("Read the Guide", primary) { navigate("/guide") }
+            Button("Browse Components") { navigate("/components") }
+        }
+
+        Spacer(xl)
+    }
+}

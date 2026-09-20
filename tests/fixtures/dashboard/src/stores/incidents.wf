@@ -1,4 +1,4 @@
-Store IncidentStore {
+store IncidentStore {
     state incidents = [
         { id: 1, title: "Payment webhook timing out", severity: "high", resolved: false },
         { id: 2, title: "Stale cache on the pricing page", severity: "low", resolved: false },
@@ -10,7 +10,7 @@ Store IncidentStore {
     derived closed = incidents.filter(i => i.resolved).length
 
     action resolve(id: Number) {
-        state hit = incidents.filter(i => i.id == id)[0]
+        let hit = incidents.filter(i => i.id == id)[0]
         hit.resolved = true
     }
 

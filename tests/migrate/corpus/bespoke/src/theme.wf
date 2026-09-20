@@ -1,0 +1,10 @@
+// Structural mode ships no baseline design, so this is not an override of the
+// engine's opinions — it is the entire palette the site has.
+Theme Atelier {
+    token color-primary: "#1C1917"
+    token color-background: "#FAF9F6"
+    token color-text: "#1C1917"
+    token color-border: "#1C1917"
+    token font-family: "'Editorial New', Georgia, serif"
+    token radius-md: "0"
+}

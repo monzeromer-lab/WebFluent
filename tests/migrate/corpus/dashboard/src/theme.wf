@@ -1,0 +1,12 @@
+// The `dark` palette the engine used to ship in Rust.
+//
+// Copy this into your project's `src/` and edit it — that is the point of it
+// being a file rather than a name. Every token not listed keeps its baseline
+// value, so a theme is as small as the difference you actually want.
+Theme dark {
+    token color-background: "#0F172A"
+    token color-surface: "#1E293B"
+    token color-text: "#F1F5F9"
+    token color-text-muted: "#94A3B8"
+    token color-border: "#334155"
+}

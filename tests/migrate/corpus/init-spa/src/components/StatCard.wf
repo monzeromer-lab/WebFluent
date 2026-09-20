@@ -1,0 +1,11 @@
+Component StatCard (title: String, value: Number, color: String) {
+    Card(elevated, fadeIn) {
+        Card.Body {
+            Text(title, muted, small)
+            Heading(value, h2)
+        }
+        style {
+            borderLeft: "4px solid var(--color-primary)"
+        }
+    }
+}

@@ -1,40 +1,40 @@
-Page Overview (path: "/", description: "What is on fire, and what is not.", title: "Overview") {
+page Overview(path: "/", description: "What is on fire, and what is not.", title: "Overview") {
     use IncidentStore
 
     state counter = 0
     derived doubled = counter * 2
 
     Container {
-        Heading("Overview", h1)
-        Text("What is on fire, and what is not.", muted)
+        Heading("Overview").h1
+        Text("What is on fire, and what is not.").muted
 
-        Row(gap: md) {
+        Row(gap: .md) {
             Column(span: 4) {
-                Card { Heading("Open", h2) Text("{IncidentStore.open}") }
+                Card { Heading("Open").h2 Text("{IncidentStore.open}") }
             }
             Column(span: 4) {
-                Card { Heading("Closed", h2) Text("{IncidentStore.closed}") }
+                Card { Heading("Closed").h2 Text("{IncidentStore.closed}") }
             }
             Column(span: 4) {
-                Card { Heading("Counter", h2) Text("count:{counter} doubled:{doubled}") }
+                Card { Heading("Counter").h2 Text("count:{counter} doubled:{doubled}") }
             }
         }
 
         Progress(value: counter, max: 10)
         Container {
-            style { width: "{counter * 10}%"  height: "4px"  background: "#3B82F6" }
+            style { width: {counter * 10}%; height: 4px; background: #3B82F6 }
         }
 
-        Row(gap: sm) {
-            Nudge(label: "Nudge", count: counter) { counter = counter + 5 }
-            Button("Increment", primary) { counter = counter + 1 }
-            Button("Reset") { counter = 0 }
+        Row(gap: .sm) {
+            Nudge(label: "Nudge", count: counter) { on click { counter = counter + 5 } }
+            Button("Increment").primary { on click { counter = counter + 1 } }
+            Button("Reset") { on click { counter = 0 } }
         }
 
         if counter > 2 {
-            Alert("You have clicked that rather a lot.", warning)
+            Alert("You have clicked that rather a lot.").warning
         } else {
-            Text("Click increment a few times.", muted)
+            Text("Click increment a few times.").muted
         }
     }
 }

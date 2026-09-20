@@ -1,0 +1,13 @@
+Component FeatureCard (title: String, body: String, icon: String = "star") {
+    Card {
+        style {
+            height: "100%"
+            padding: "1.75rem"
+            border: "1px solid #E2E8F0"
+        }
+
+        Icon(icon, large, primary)
+        Heading(title, h3)
+        Text(body, muted)
+    }
+}

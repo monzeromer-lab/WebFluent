@@ -1,0 +1,26 @@
+App {
+    Navbar {
+        Navbar.Brand {
+            Text("static", heading)
+        }
+        Navbar.Links {
+            Link(to: "/") { Text(t("nav.home")) }
+            Link(to: "/about") { Text(t("nav.about")) }
+            Link(to: "/blog") { Text(t("nav.blog")) }
+            Link(to: "/contact") { Text(t("nav.contact")) }
+        }
+        Navbar.Actions {
+            Button("EN", small) { setLocale("en") }
+            Button("AR", small) { setLocale("ar") }
+        }
+    }
+
+    Router {
+        Route(path: "/", page: Home)
+        Route(path: "/about", page: About)
+        Route(path: "/blog", page: Blog)
+        Route(path: "/contact", page: Contact)
+    }
+
+    Footer
+}

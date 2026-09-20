@@ -1,0 +1,88 @@
+Page Settings (path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
+    state username = "demo_user"
+    state email = "user@example.com"
+    state notifications = true
+    state theme = "light"
+    state fontSize = 16
+    state language = "en"
+    state autoSave = false
+    state saved = false
+
+    Container(fadeIn) {
+        Heading("Settings", h1)
+
+        Spacer()
+
+        Tabs {
+            TabPage("General") {
+                Form {
+                    Heading("Profile", h2)
+                    Input(text, bind: username, label: "Username", placeholder: "Enter username")
+                    Spacer(sm)
+                    Input(email, bind: email, label: "Email", placeholder: "Enter email")
+                    Spacer(sm)
+                    Select(bind: language, label: "Language") {
+                        Option("en", "English")
+                        Option("es", "Spanish")
+                        Option("ar", "Arabic")
+                    }
+
+                    Spacer()
+
+                    Heading("Preferences", h2)
+                    Switch(bind: notifications, label: "Email Notifications")
+                    Spacer(sm)
+                    Switch(bind: autoSave, label: "Auto-save changes")
+                    Spacer(sm)
+                    Slider(bind: fontSize, min: 12, max: 24, step: 1, label: "Font Size")
+
+                    Spacer()
+
+                    Radio(bind: theme, value: "light", label: "Light Theme")
+                    Radio(bind: theme, value: "dark", label: "Dark Theme")
+
+                    Spacer()
+
+                    Button("Save Settings", primary) {
+                        saved = true
+                    }
+
+                    show saved {
+                        Spacer(sm)
+                        Alert("Settings saved successfully!", success)
+                    }
+
+                    on:submit {
+                        saved = true
+                    }
+                }
+            }
+            TabPage("Account") {
+                Card {
+                    Card.Body {
+                        Heading("Account Info", h2)
+                        Text("Username: {username}")
+                        Text("Email: {email}")
+                        Text("Theme: {theme}")
+                        Text("Font Size: {fontSize}px")
+                        Spacer()
+                        Text("Notifications: {notifications}", muted)
+                        Text("Auto-save: {autoSave}", muted)
+                    }
+                }
+            }
+            TabPage("Danger Zone") {
+                Card(outlined) {
+                    Card.Body {
+                        Heading("Danger Zone", h2)
+                        Text("These actions cannot be undone.", muted)
+                        Spacer()
+                        Button("Delete Account", danger) {
+                            log("Delete account clicked")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

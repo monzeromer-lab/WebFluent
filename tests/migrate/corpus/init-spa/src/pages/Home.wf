@@ -1,0 +1,64 @@
+Page Home (path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
+    use AuthStore
+    use TaskStore
+
+    Container(fadeIn) {
+        Heading("Dashboard", h1, slideUp)
+        Text("Welcome to your dashboard.", muted)
+
+        Spacer()
+
+        Row(gap: md) {
+            Column(span: 4) {
+                StatCard(title: "Total Tasks", value: TaskStore.tasks.length, color: "primary")
+            }
+            Column(span: 4) {
+                StatCard(title: "Remaining", value: TaskStore.remaining, color: "warning")
+            }
+            Column(span: 4) {
+                StatCard(title: "Completed", value: TaskStore.completed, color: "success")
+            }
+        }
+
+        Spacer()
+
+        Row(gap: md) {
+            Column(span: 8) {
+                Card {
+                    Card.Header {
+                        Heading("Recent Tasks", h2)
+                    }
+                    Card.Body {
+                        if TaskStore.tasks.length == 0 {
+                            Text("No tasks yet. Go to the Tasks page to add some!", muted, center)
+                        } else {
+                            for task in TaskStore.tasks {
+                                Row(align: center, justify: between) {
+                                    Row(align: center, gap: md) {
+                                        Checkbox(checked: task.done, label: task.title)
+                                    }
+                                    Badge(task.priority, primary)
+                                }
+                                Divider()
+                            }
+                        }
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Header {
+                        Heading("Quick Actions", h2)
+                    }
+                    Card.Body {
+                        Stack(gap: sm) {
+                            Button("Add Task", primary, full) { navigate("/tasks") }
+                            Button("Settings", full) { navigate("/settings") }
+                            Button("View Profile", full) { navigate("/profile") }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

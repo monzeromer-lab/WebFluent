@@ -1,0 +1,29 @@
+{
+  "name": "docs",
+  "theme": {
+    "name": "minimal"
+  },
+  "build": {
+    "output": "build",
+    "output_type": "static",
+    "ssg": true,
+    "base_path": "/handbook"
+  },
+  "meta": {
+    "title": "Handbook",
+    "description": "The team handbook.",
+    "lang": "en",
+    "site_url": "https://handbook.example",
+    "site_name": "The Handbook",
+    "fonts": [
+      "https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap"
+    ]
+  },
+  "i18n": {
+    "default_locale": "en",
+    "locales": [
+      "en",
+      "ar"
+    ]
+  }
+}

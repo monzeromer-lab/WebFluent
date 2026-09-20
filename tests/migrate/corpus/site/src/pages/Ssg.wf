@@ -1,0 +1,127 @@
+Page Ssg (path: "/ssg", description: "Pre-render every route to static HTML.", title: "Static Site Generation") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Static Site Generation (SSG)", h1)
+        Text("Pre-render pages to HTML at build time for instant content visibility. JavaScript hydrates the page for interactivity.", muted)
+
+        Spacer()
+
+        Heading("Enable SSG", h2)
+        Text("One config flag is all you need.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"build\": \{\n    \"ssg\": true\n  \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("How It Works", h2)
+        Row(gap: md) {
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("1. Build", h2)
+                        Text("The compiler walks the AST for each page and generates static HTML from the component tree.", muted)
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("2. Serve", h2)
+                        Text("The browser loads pre-rendered HTML. Content is visible immediately — no blank white screen.", muted)
+                    }
+                }
+            }
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("3. Hydrate", h2)
+                        Text("JavaScript runs and hydrates the page: attaches events, initializes state, fills dynamic content.", muted)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Build Output", h2)
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(outlined) {
+                    Card.Body {
+                        Text("SPA (default)", bold)
+                        Code("build/\n├── index.html       # Empty shell\n├── app.js\n└── styles.css", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(outlined) {
+                    Card.Body {
+                        Text("SSG mode", bold)
+                        Code("build/\n├── index.html       # Pre-rendered /\n├── about/\n│   └── index.html   # Pre-rendered /about\n├── blog/\n│   └── index.html   # Pre-rendered /blog\n├── app.js\n└── styles.css", block)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("What Gets Pre-Rendered", h2)
+        Table {
+            Thead { Tcell("Element") Tcell("SSG Behavior") }
+            Trow { Tcell("Static text, headings, components") Tcell("Fully rendered to HTML") }
+            Trow { Tcell("Container, Row, Column, Card, etc.") Tcell("Full HTML with classes") }
+            Trow { Tcell("Modifiers (primary, large, etc.)") Tcell("CSS classes applied") }
+            Trow { Tcell("Animation modifiers (fadeIn, etc.)") Tcell("Animation classes applied") }
+            Trow { Tcell("t() i18n calls") Tcell("Default locale text rendered") }
+            Trow { Tcell("State-dependent text") Tcell("Empty placeholder (filled by JS)") }
+            Trow { Tcell("if / for blocks") Tcell("Comment placeholder (filled by JS)") }
+            Trow { Tcell("show blocks") Tcell("Rendered but hidden (display:none)") }
+            Trow { Tcell("fetch blocks") Tcell("Loading block if present, else placeholder") }
+            Trow { Tcell("Event handlers") Tcell("Attached during hydration") }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Dynamic Routes", h2)
+        Text("Pages with :param segments (e.g., /user/:id) cannot be pre-rendered — they fall back to client-side rendering.", muted)
+
+        Spacer(xl)
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Lists are painted, not deferred", h2)
+        Text("A for loop over data the compiler can work out — a store's seeded state, a literal list — is rendered into the HTML at build time. Only what genuinely depends on the running page is left to JavaScript.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Store PostStore \{\n    state posts = [\n        \{ title: \"Slow roasting\", tag: \"coffee\" \},\n        \{ title: \"Closed Mondays\", tag: \"shop\" \}\n    ]\n\}\n\nList \{\n    for post in PostStore.posts \{\n        Card \{ Heading(post.title, h2) Badge(post.tag) \}\n    \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Text("Both cards, both titles and both tags are in the served HTML — visible to a crawler, and painted before the bundle has finished downloading. A list fetched from an API cannot be known at build time, so it stays a placeholder for the client to fill.", muted, small)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Sitemap and robots", h2)
+        Text("Set meta.site_url and the build also writes sitemap.xml and robots.txt, covering every static route.")
+        Spacer(sm)
+        Row(gap: sm) {
+            Link("Read about search and sharing", to: "/seo")
+        }
+    }
+}

@@ -1,0 +1,195 @@
+Page Seo (path: "/seo", description: "Canonical URLs, sharing cards, structured data, sitemap and robots — from what your source already says.", title: "Search & Sharing") {
+    Container(fadeIn) {
+        Spacer()
+        Heading("Search & Sharing", h1)
+        Text("Everything a search engine reads and a chat app previews, generated from the page you already wrote.", muted)
+
+        Spacer()
+
+        Heading("One setting turns it on", h2)
+        Text("Add your site's own address. The compiler knows every route, so it can write the rest itself.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{\n  \"meta\": \{\n    \"site_url\": \"https://example.com\",\n    \"site_name\": \"Ledger\",\n    \"description\": \"Used by any page that sets none\",\n    \"image\": \"/card.png\"\n  \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Alert("Without site_url, the tags that need an absolute address are left out rather than guessed at. A canonical pointing at the wrong host is worse than no canonical at all.", info)
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Describing a page", h2)
+        Text("Four optional attributes on any page. Everything else is derived.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Page Post (path: \"/blog/slow-roasting\",\n          title: \"Slow roasting, explained\",\n          description: \"Why we take eleven minutes over it.\",\n          type: \"article\",\n          image: \"/roast.png\") \{\n    Container \{ ... \}\n\}", block)
+            }
+        }
+        Spacer(sm)
+        Table {
+            Thead {
+                Trow {
+                    Tcell("Attribute")
+                    Tcell("What it does")
+                }
+            }
+            Tbody {
+                Trow {
+                    Tcell("title")
+                    Tcell("The tab title, the search-result heading and the card headline")
+                }
+                Trow {
+                    Tcell("description")
+                    Tcell("The snippet under a search result, and the preview text in a shared link. Around 160 characters before it is cut.")
+                }
+                Trow {
+                    Tcell("image")
+                    Tcell("The preview image. Site-relative or absolute; either way it is made absolute in the output.")
+                }
+                Trow {
+                    Tcell("type")
+                    Tcell("\"website\" by default, or \"article\" for a post — which also changes the structured data type.")
+                }
+                Trow {
+                    Tcell("noindex")
+                    Tcell("A bare flag. Keeps the page out of search results and out of the sitemap.")
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Page Draft (path: \"/draft\", title: \"Draft\", noindex) \{ ... \}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("What each page gets", h2)
+        Text("Written into every page's head, with no further configuration.")
+        Spacer(sm)
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("A canonical URL", h3)
+                        Text("Absolute, and pointing at itself. This is what stops two addresses for one page competing with each other in the rankings.", muted, small)
+                        Spacer(sm)
+                        Code("<link rel=\"canonical\"\n      href=\"https://example.com/blog/slow-roasting\">", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("A sharing card", h3)
+                        Text("Open Graph and Twitter tags, so a link pasted into a chat unfurls with the right title, text and picture.", muted, small)
+                        Spacer(sm)
+                        Code("<meta property=\"og:title\" ...>\n<meta property=\"og:description\" ...>\n<meta property=\"og:image\" ...>\n<meta name=\"twitter:card\"\n      content=\"summary_large_image\">", block)
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Structured data", h3)
+                        Text("JSON-LD describing the site, the organisation, the page, and a breadcrumb trail built from the route itself.", muted, small)
+                        Spacer(sm)
+                        Code("\{\"@type\":\"Article\", ... \}\n\{\"@type\":\"BreadcrumbList\", ... \}", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Language alternates", h3)
+                        Text("When i18n declares more than one locale, every page lists each variant and itself, plus an x-default fallback.", muted, small)
+                        Spacer(sm)
+                        Code("<link rel=\"alternate\" hreflang=\"en\" ...>\n<link rel=\"alternate\" hreflang=\"ar\" ...>\n<link rel=\"alternate\"\n      hreflang=\"x-default\" ...>", block)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Sitemap and robots", h2)
+        Text("Written to your build directory alongside the pages. The compiler already knows every route, so there is nothing to keep in step by hand.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("build/\n  sitemap.xml\n  robots.txt", block)
+            }
+        }
+        Spacer(sm)
+        Text("Dynamic routes, catch-alls and noindex pages are left out. Neither priority nor changefreq is emitted, because Google ignores both — writing them implies a control you do not have.", muted, small)
+        Spacer(sm)
+        Text("Turn the pair off with:", muted, small)
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("\{ \"meta\": \{ \"sitemap\": false \} \}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("What the compiler tells you", h2)
+        Text("Four warnings, none of which fails a build.")
+        Spacer(sm)
+        Table {
+            Thead {
+                Trow {
+                    Tcell("Rule")
+                    Tcell("Meaning")
+                }
+            }
+            Tbody {
+                Trow {
+                    Tcell("S01")
+                    Tcell("A page with no title — nothing to show as the result link")
+                }
+                Trow {
+                    Tcell("S02")
+                    Tcell("A page with no description, so its snippet gets written for it")
+                }
+                Trow {
+                    Tcell("S03")
+                    Tcell("A description a search result will cut mid-sentence")
+                }
+                Trow {
+                    Tcell("S04")
+                    Tcell("Two pages claiming the same route")
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Static builds rank better", h2)
+        Text("A crawler that runs no JavaScript sees only what is in the HTML. With SSG on, that is the whole page — including lists built from seeded data, which the compiler resolves at build time rather than leaving to the browser.")
+        Spacer(sm)
+        Row(gap: sm) {
+            Link("Read about SSG", to: "/ssg")
+            Link("Read about i18n", to: "/i18n")
+        }
+
+        Spacer()
+    }
+}

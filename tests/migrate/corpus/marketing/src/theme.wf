@@ -1,0 +1,9 @@
+// The whole of Ledger's design, in the language. Every token not listed keeps
+// its baseline value.
+Theme Ledger {
+    token color-primary: "#0F766E"
+    token color-secondary: "#134E4A"
+    token font-family: "'Söhne', system-ui, sans-serif"
+    token radius-md: "14px"
+    token spacing-lg: "2.5rem"
+}

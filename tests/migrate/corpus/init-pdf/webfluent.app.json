@@ -1,0 +1,15 @@
+{
+  "name": "pdf",
+  "version": "0.1.0",
+  "build": {
+    "output": "./build",
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "A4",
+      "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 },
+      "default_font": "Helvetica",
+      "default_font_size": 12,
+      "output_filename": "pdf.pdf"
+    }
+  }
+}

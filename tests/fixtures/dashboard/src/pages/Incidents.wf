@@ -1,31 +1,31 @@
-Page Incidents (path: "/incidents", description: "Open and resolved incidents.", title: "Incidents") {
+page Incidents(path: "/incidents", description: "Open and resolved incidents.", title: "Incidents") {
     use IncidentStore
 
     state draft = ""
 
     Container {
-        Heading("Incidents", h1)
+        Heading("Incidents").h1
 
         Form {
-            Input(text, bind: draft, placeholder: "What broke?")
-            Button("Report", primary) { IncidentStore.report(draft) }
+            Input(bind: draft, placeholder: "What broke?").text
+            Button("Report").primary { on click { IncidentStore.report(draft) } }
         }
 
         Table {
-            Thead {
-                Trow {
-                    Tcell("Incident")
-                    Tcell("Severity")
-                    Tcell("Action")
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Incident")
+                    Table.Cell("Severity")
+                    Table.Cell("Action")
                 }
             }
-            Tbody {
+            Table.Body {
                 for incident in IncidentStore.incidents {
-                    Trow {
-                        Tcell(incident.title)
-                        Tcell(incident.severity)
-                        Tcell("") {
-                            Button("Resolve", small) { IncidentStore.resolve(incident.id) }
+                    Table.Row {
+                        Table.Cell(incident.title)
+                        Table.Cell(incident.severity)
+                        Table.Cell("") {
+                            Button("Resolve").sm { on click { IncidentStore.resolve(incident.id) } }
                         }
                     }
                 }

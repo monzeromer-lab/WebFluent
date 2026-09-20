@@ -1,0 +1,14 @@
+Component SiteFooter () {
+    Divider()
+    Container {
+        Spacer()
+        Row(align: center, justify: between) {
+            Text(t("footer.built"), muted, small)
+            Row(gap: md) {
+                Link(to: "/") { Text(t("nav.home"), muted, small) }
+                Link(to: "/getting-started") { Text(t("footer.docs"), muted, small) }
+            }
+        }
+        Spacer()
+    }
+}

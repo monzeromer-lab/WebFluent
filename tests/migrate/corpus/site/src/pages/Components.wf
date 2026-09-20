@@ -1,0 +1,610 @@
+Page Components (path: "/components", description: "Every built-in component, with the modifiers each accepts.", title: "Components Reference") {
+    state activeModal = false
+    state alertVisible = true
+    state switchVal = false
+    state sliderVal = 50
+    state selectVal = "opt1"
+    state inputVal = ""
+    state checkVal = false
+    state radioVal = "a"
+    state tabActive = "preview"
+    state dateVal = ""
+
+    Container(fadeIn) {
+        Spacer()
+        Heading("Components Reference", h1)
+        Text("50+ built-in components. Below are live interactive examples you can play with.", muted)
+
+        Spacer()
+
+        Heading("Buttons", h2)
+        Text("Buttons support size, color, and shape modifiers.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Row(gap: sm) {
+                    Button("Default")
+                    Button("Primary", primary)
+                    Button("Success", success)
+                    Button("Danger", danger)
+                    Button("Warning", warning)
+                    Button("Info", info)
+                }
+                Spacer(sm)
+                Row(gap: sm) {
+                    Button("Small", primary, small)
+                    Button("Medium", primary)
+                    Button("Large", primary, large)
+                    Button("Rounded", primary, rounded)
+                    Button("Full Width", primary, full)
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Button(\"Primary\", primary)\nButton(\"Large\", primary, large)\nButton(\"Rounded\", success, rounded)\nButton(\"Full Width\", danger, full)", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Cards", h2)
+        Text("Cards are surfaces for grouping content. They support Header, Body, and Footer sub-components.")
+        Spacer(sm)
+        Row(gap: md) {
+            Column(span: 4) {
+                Card {
+                    Card.Header { Text("Default Card", bold) }
+                    Card.Body { Text("Basic card with header and body.", muted) }
+                    Card.Footer { Button("Action", primary, small) { log("clicked") } }
+                }
+            }
+            Column(span: 4) {
+                Card(elevated) {
+                    Card.Header { Text("Elevated", bold) }
+                    Card.Body { Text("Card with shadow elevation.", muted) }
+                }
+            }
+            Column(span: 4) {
+                Card(outlined) {
+                    Card.Header { Text("Outlined", bold) }
+                    Card.Body { Text("Card with border only.", muted) }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Form Controls", h2)
+        Text("All form inputs support two-way binding with the bind: attribute.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Stack(gap: md) {
+                    Input(text, bind: inputVal, label: "Text Input", placeholder: "Type here...")
+                    if inputVal != "" {
+                        Text("You typed: {inputVal}", primary, bold)
+                    }
+
+                    Divider()
+
+                    Select(bind: selectVal, label: "Select") {
+                        Option("opt1", "Option One")
+                        Option("opt2", "Option Two")
+                        Option("opt3", "Option Three")
+                    }
+                    Text("Selected: {selectVal}", muted, small)
+
+                    Divider()
+
+                    Checkbox(bind: checkVal, label: "I agree to the terms")
+                    Text("Checked: {checkVal}", muted, small)
+
+                    Divider()
+
+                    Row(gap: lg) {
+                        Radio(bind: radioVal, value: "a", label: "Option A")
+                        Radio(bind: radioVal, value: "b", label: "Option B")
+                        Radio(bind: radioVal, value: "c", label: "Option C")
+                    }
+                    Text("Selected: {radioVal}", muted, small)
+
+                    Divider()
+
+                    Switch(bind: switchVal, label: "Dark Mode")
+                    Text("Enabled: {switchVal}", muted, small)
+
+                    Divider()
+
+                    Slider(bind: sliderVal, min: 0, max: 100, step: 1, label: "Volume")
+                    Text("Value: {sliderVal}", muted, small)
+
+                    Divider()
+
+                    DatePicker(bind: dateVal, label: "Pick a Date")
+                    Text("Selected: {dateVal}", muted, small)
+
+                    Divider()
+
+                    FileUpload(accept: "image/*", label: "Upload Image")
+                    FileUpload(accept: ".pdf,.doc", multiple, label: "Documents")
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Feedback", h2)
+        Text("Alerts, modals, progress bars, and loading indicators.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Stack(gap: sm) {
+                    Alert("This is a success alert.", success)
+                    Alert("This is a warning alert.", warning)
+                    Alert("This is a danger alert.", danger)
+                    Alert("This is an info alert.", info)
+                }
+                Spacer()
+                Row(gap: md, align: center) {
+                    Spinner()
+                    Spinner(large, primary)
+                    Progress(value: sliderVal, max: 100)
+                }
+                Spacer()
+                Button("Open Modal", primary) { activeModal = true }
+            }
+        }
+
+        Modal(visible: activeModal, title: "Example Modal") {
+            Text("This is a real modal dialog. It was triggered by clicking the button.")
+            Spacer(sm)
+            Text("The modal is controlled by a state variable.", muted)
+            Modal.Footer {
+                Button("Close") { activeModal = false }
+                Button("Confirm", primary) { activeModal = false }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Data Display", h2)
+        Text("Tables, badges, avatars, tags, and tooltips.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Table {
+                    Thead {
+                        Tcell("Name")
+                        Tcell("Role")
+                        Tcell("Status")
+                    }
+                    Trow {
+                        Tcell("Monzer Omer")
+                        Tcell("Creator")
+                        Tcell("Active")
+                    }
+                    Trow {
+                        Tcell("Sara Ali")
+                        Tcell("Designer")
+                        Tcell("Active")
+                    }
+                    Trow {
+                        Tcell("Omar Hassan")
+                        Tcell("Developer")
+                        Tcell("Away")
+                    }
+                }
+                Spacer()
+                Row(gap: md, align: center) {
+                    Avatar(initials: "MO", primary)
+                    Avatar(initials: "SA")
+                    Avatar(initials: "OH")
+                    Badge("Admin", primary)
+                    Badge("Online", success)
+                    Tag("WebFluent")
+                    Tag("Rust")
+                    Tag("Open Source")
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Layout", h2)
+        Text("Container, Row, Column, Grid, Stack, Spacer, Divider.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Text("Grid with 3 columns:", bold)
+                Spacer(sm)
+                Grid(columns: 3, gap: sm) {
+                    Card(outlined) { Card.Body { Text("Column 1", center) } }
+                    Card(outlined) { Card.Body { Text("Column 2", center) } }
+                    Card(outlined) { Card.Body { Text("Column 3", center) } }
+                }
+                Spacer()
+                Text("Row with Columns (6/6 split):", bold)
+                Spacer(sm)
+                Row(gap: sm) {
+                    Column(span: 6) {
+                        Card(outlined) { Card.Body { Text("Left Half", center) } }
+                    }
+                    Column(span: 6) {
+                        Card(outlined) { Card.Body { Text("Right Half", center) } }
+                    }
+                }
+                Spacer()
+                Text("Stack (vertical):", bold)
+                Spacer(sm)
+                Stack(gap: sm) {
+                    Card(outlined) { Card.Body { Text("Item 1") } }
+                    Card(outlined) { Card.Body { Text("Item 2") } }
+                    Card(outlined) { Card.Body { Text("Item 3") } }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Icons & Icon Buttons", h2)
+        Text("30 built-in SVG icons. Use Icon for display, IconButton for clickable actions.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Text("Available Icons:", bold)
+                Spacer(sm)
+                Row(gap: md) {
+                    Stack(gap: sm) {
+                        Row(gap: sm, align: center) { Icon("home") Text("home", muted, small) }
+                        Row(gap: sm, align: center) { Icon("search") Text("search", muted, small) }
+                        Row(gap: sm, align: center) { Icon("user") Text("user", muted, small) }
+                        Row(gap: sm, align: center) { Icon("settings") Text("settings", muted, small) }
+                        Row(gap: sm, align: center) { Icon("mail") Text("mail", muted, small) }
+                        Row(gap: sm, align: center) { Icon("bell") Text("bell", muted, small) }
+                    }
+                    Stack(gap: sm) {
+                        Row(gap: sm, align: center) { Icon("edit") Text("edit", muted, small) }
+                        Row(gap: sm, align: center) { Icon("trash") Text("trash", muted, small) }
+                        Row(gap: sm, align: center) { Icon("plus") Text("plus", muted, small) }
+                        Row(gap: sm, align: center) { Icon("check") Text("check", muted, small) }
+                        Row(gap: sm, align: center) { Icon("close") Text("close", muted, small) }
+                        Row(gap: sm, align: center) { Icon("copy") Text("copy", muted, small) }
+                    }
+                    Stack(gap: sm) {
+                        Row(gap: sm, align: center) { Icon("star") Text("star", muted, small) }
+                        Row(gap: sm, align: center) { Icon("heart") Text("heart", muted, small) }
+                        Row(gap: sm, align: center) { Icon("eye") Text("eye", muted, small) }
+                        Row(gap: sm, align: center) { Icon("download") Text("download", muted, small) }
+                        Row(gap: sm, align: center) { Icon("upload") Text("upload", muted, small) }
+                        Row(gap: sm, align: center) { Icon("link") Text("link", muted, small) }
+                    }
+                    Stack(gap: sm) {
+                        Row(gap: sm, align: center) { Icon("calendar") Text("calendar", muted, small) }
+                        Row(gap: sm, align: center) { Icon("filter") Text("filter", muted, small) }
+                        Row(gap: sm, align: center) { Icon("info") Text("info", muted, small) }
+                        Row(gap: sm, align: center) { Icon("warning") Text("warning", muted, small) }
+                        Row(gap: sm, align: center) { Icon("logout") Text("logout", muted, small) }
+                        Row(gap: sm, align: center) { Icon("menu") Text("menu", muted, small) }
+                    }
+                }
+                Spacer()
+                Text("Icon Buttons:", bold)
+                Spacer(sm)
+                Row(gap: sm) {
+                    IconButton(icon: "edit", label: "Edit")
+                    IconButton(icon: "trash", label: "Delete", danger)
+                    IconButton(icon: "plus", label: "Add", primary)
+                    IconButton(icon: "search", label: "Search", large)
+                    IconButton(icon: "close", label: "Close", small)
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Icon(\"home\")\nIcon(\"search\", large, primary)\nIconButton(icon: \"edit\", label: \"Edit\")\nIconButton(icon: \"trash\", label: \"Delete\", danger)", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Tooltips", h2)
+        Text("Wrap any element in a Tooltip to show text on hover.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Row(gap: md) {
+                    Tooltip(text: "This is a primary button") {
+                        Button("Hover me", primary)
+                    }
+                    Tooltip(text: "Deletes the item permanently") {
+                        Button("Delete", danger)
+                    }
+                    Tooltip(text: "User profile picture") {
+                        Avatar(initials: "MO", primary)
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Tooltip(text: \"Help text\") \{\n    Button(\"Hover me\", primary)\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Sidebar", h2)
+        Text("Sidebar navigation with header, items, and dividers. Items support icons and links.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Row(gap: lg) {
+                    Sidebar {
+                        Sidebar.Header { Text("My App", heading) }
+                        Sidebar.Item(to: "/", icon: "home") { Text("Dashboard") }
+                        Sidebar.Item(to: "/components", icon: "settings") { Text("Settings") }
+                        Sidebar.Item(icon: "user") { Text("Profile") }
+                        Sidebar.Divider()
+                        Sidebar.Item(icon: "logout") { Text("Logout") }
+                    }
+                    Stack {
+                        Text("The sidebar renders with proper structure:", muted)
+                        Text("Sidebar.Header for the title", small)
+                        Text("Sidebar.Item with to: and icon: props", small)
+                        Text("Sidebar.Divider for separation", small)
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Sidebar \{\n    Sidebar.Header \{ Text(\"My App\", heading) \}\n    Sidebar.Item(to: \"/\", icon: \"home\") \{ Text(\"Dashboard\") \}\n    Sidebar.Item(icon: \"settings\") \{ Text(\"Settings\") \}\n    Sidebar.Divider()\n    Sidebar.Item(icon: \"logout\") \{ Text(\"Logout\") \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Breadcrumb", h2)
+        Text("Show navigation hierarchy with automatic separators.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Breadcrumb {
+                    Breadcrumb.Item(to: "/") { Text("Home") }
+                    Breadcrumb.Item(to: "/components") { Text("Components") }
+                    Breadcrumb.Item { Text("Breadcrumb") }
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Breadcrumb \{\n    Breadcrumb.Item(to: \"/\") \{ Text(\"Home\") \}\n    Breadcrumb.Item(to: \"/docs\") \{ Text(\"Docs\") \}\n    Breadcrumb.Item \{ Text(\"Current Page\") \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Skeleton Loading", h2)
+        Text("Placeholder shapes that shimmer while content loads.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Stack(gap: sm) {
+                    Skeleton(height: "16px", width: "80%")
+                    Skeleton(height: "16px", width: "60%")
+                    Skeleton(height: "16px", width: "40%")
+                    Spacer(sm)
+                    Row(gap: md, align: center) {
+                        Skeleton(circle, size: "48px")
+                        Stack(gap: sm) {
+                            Skeleton(height: "14px", width: "120px")
+                            Skeleton(height: "12px", width: "80px")
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Skeleton(height: \"16px\", width: \"80%\")\nSkeleton(circle, size: \"48px\")", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Dropdown & Menu", h2)
+        Text("Click-to-toggle dropdown menus with auto-close on outside click.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Row(gap: lg) {
+                    Dropdown(label: "Actions") {
+                        Dropdown.Item { Text("Edit") }
+                        Dropdown.Item { Text("Duplicate") }
+                        Dropdown.Divider()
+                        Dropdown.Item { Text("Delete") }
+                    }
+                    Menu(trigger: "Options") {
+                        Menu.Item { Text("Profile") }
+                        Menu.Item { Text("Settings") }
+                        Menu.Divider()
+                        Menu.Item { Text("Logout") }
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Dropdown(label: \"Actions\") \{\n    Dropdown.Item \{ Text(\"Edit\") \}\n    Dropdown.Divider()\n    Dropdown.Item \{ Text(\"Delete\") \}\n\}", block)
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Navigation", h2)
+        Text("Tabs let you switch between content panels.")
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Tabs {
+                    TabPage("Profile") {
+                        Spacer(sm)
+                        Row(gap: md, align: center) {
+                            Avatar(initials: "MO", primary, large)
+                            Stack {
+                                Text("Monzer Omer", bold)
+                                Text("Creator of WebFluent", muted)
+                            }
+                        }
+                    }
+                    TabPage("Settings") {
+                        Spacer(sm)
+                        Switch(bind: switchVal, label: "Enable notifications")
+                        Spacer(sm)
+                        Slider(bind: sliderVal, min: 0, max: 100, label: "Volume")
+                    }
+                    TabPage("About") {
+                        Spacer(sm)
+                        Text("WebFluent is a web-first programming language.")
+                        Text("It compiles to HTML, CSS, and JavaScript.", muted)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Typography", h2)
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Heading("Heading h2", h2)
+                Heading("Heading h2", h2)
+                Heading("Heading h3", h3)
+                Spacer(sm)
+                Text("Normal text paragraph.")
+                Text("Bold text.", bold)
+                Text("Muted text.", muted)
+                Text("Primary colored.", primary)
+                Text("Danger colored.", danger)
+                Text("Small text.", small)
+                Text("Uppercase.", uppercase)
+                Text("Centered text.", center)
+                Spacer(sm)
+                Blockquote("The best way to predict the future is to create it.")
+                Spacer(sm)
+                Code("const greeting = \"Hello, WebFluent!\";")
+            }
+        }
+
+        Spacer(xl)
+
+        Row(gap: md, justify: center) {
+            Button("Styling Guide", primary) { navigate("/styling") }
+            Button("Animation System") { navigate("/animation") }
+        }
+
+        Spacer(xl)
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("What you get for free", h2)
+        Text("Several components build more than their markup. You write the component; the browser and the runtime supply the behaviour that makes it usable with a keyboard and a screen reader.")
+        Spacer(sm)
+
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Modal and Dialog", h3)
+                        Text("These are real dialog elements, opened with showModal(). The browser traps focus inside, makes the rest of the page inert, closes on Escape and announces the dialog — none of which a styled div can do.", muted, small)
+                        Spacer(sm)
+                        Text("Bind visible to a state and the two stay in step, including when the browser closes the dialog itself.", muted, small)
+                        Spacer(sm)
+                        Code("Modal(title: \"Confirm\", visible: open) \{\n    Text(\"Are you sure?\")\n    Modal.Footer \{\n        Button(\"Cancel\") \{ open = false \}\n    \}\n\}", block)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Tabs", h3)
+                        Text("Wired as a tablist: each tab is linked to its panel and back, only the selected tab is in the tab order, and the arrow keys, Home and End move between them.", muted, small)
+                        Spacer(sm)
+                        Code("Tabs \{\n    TabPage(\"Overview\") \{ Text(\"...\") \}\n    TabPage(\"Details\") \{ Text(\"...\") \}\n\}", block)
+                    }
+                }
+            }
+        }
+        Spacer(sm)
+        Row(gap: md) {
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Sidebar", h3)
+                        Text("Below 768px it slides in from the edge with its own toggle, a scrim you can tap past, and Escape to close — rather than disappearing, which is what it used to do.", muted, small)
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card(elevated) {
+                    Card.Body {
+                        Heading("Alert, Toast and Dropdown", h3)
+                        Text("Alerts and toasts announce themselves — assertively for a failure, politely for a confirmation. A dropdown reports whether it is open and returns focus to its trigger when it closes.", muted, small)
+                    }
+                }
+            }
+        }
+
+        Spacer()
+        Divider()
+        Spacer()
+
+        Heading("Image", h2)
+        Text("Images default to lazy loading and asynchronous decoding, so one below the fold never delays the first paint.")
+        Spacer(sm)
+        Text("Give every image a width and a height. Without them the browser reserves no space and the page jumps when the image lands — the single most common cause of a layout that shifts under the reader.", muted)
+        Spacer(sm)
+        Card(outlined) {
+            Card.Body {
+                Code("Image(src: \"/hero.png\", alt: \"A roastery at dawn\",\n      width: 1200, height: 630)\n\n// Above the fold? Load it straight away.\nImage(src: \"/logo.png\", alt: \"Ledger\", loading: \"eager\")", block)
+            }
+        }
+
+    }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "author": "",
+  "theme": {},
+  "build": {
+    "output": "./build",
+    "minify": true,
+    "ssg": true
+  },
+  "dev": {
+    "port": 3000
+  },
+  "meta": {
+    "title": "static",
+    "description": "A modern website built with WebFluent",
+    "lang": "en"
+  },
+  "i18n": {
+    "defaultLocale": "en",
+    "locales": ["en", "ar"],
+    "dir": "src/translations"
+  }
+}

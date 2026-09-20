@@ -1,0 +1,13 @@
+{
+  "name": "marketing",
+  "theme": {},
+  "build": {
+    "output": "build",
+    "output_type": "spa"
+  },
+  "meta": {
+    "title": "Ledger — invoicing that gets out of the way",
+    "description": "Invoicing for people who would rather be doing anything else.",
+    "lang": "en"
+  }
+}

@@ -1,0 +1,78 @@
+Page Home (path: "/", description: "Send an invoice in nine seconds; Ledger chases it for you.", title: "Ledger — invoicing that gets out of the way") {
+    Container {
+        // Hero: the kind of thing an author styles by hand rather than
+        // accepting the engine's defaults.
+        Stack(gap: md) {
+            style {
+                padding: "6rem 0 4rem"
+                text-align: "center"
+                max-width: "720px"
+                margin: "0 auto"
+            }
+
+            Badge("Now with recurring invoices", primary, pill)
+
+            Heading("Invoicing that gets out of the way", h1) {
+                style {
+                    font-size: "3.25rem"
+                    line-height: "1.05"
+                    letter-spacing: "-0.03em"
+                }
+            }
+
+            Text("Send an invoice in nine seconds. Chase it never — Ledger does that part.", muted) {
+                style { font-size: "1.25rem" }
+            }
+
+            Row(gap: sm, justify: center) {
+                Button("Start free", primary, large, pill)
+                Button("Watch the demo", large, pill, outlined)
+            }
+        }
+
+        Divider
+
+        Heading("Why teams move", h2) {
+            style {
+                text-align: "center"
+                margin-top: "3rem"
+            }
+        }
+
+        Row(gap: md) {
+            Column(span: 4) {
+                FeatureCard(
+                    title: "Nine seconds",
+                    body: "Pick a client, pick a line item, send. No wizard, no six-step flow.",
+                    icon: "bolt"
+                )
+            }
+            Column(span: 4) {
+                FeatureCard(
+                    title: "It chases for you",
+                    body: "Polite on day three, firm on day thirty. You never write the email.",
+                    icon: "mail"
+                )
+            }
+            Column(span: 4) {
+                FeatureCard(
+                    title: "Books that reconcile",
+                    body: "Every payment lands against the right invoice, first time.",
+                    icon: "check"
+                )
+            }
+        }
+
+        Card(elevated) {
+            style {
+                margin: "4rem 0"
+                padding: "2.5rem"
+                background: "linear-gradient(135deg, #0F766E, #134E4A)"
+                color: "#F8FAFC"
+            }
+            Heading("Ready when you are", h2)
+            Text("Free for your first ten invoices. No card.")
+            Button("Start free", large, pill)
+        }
+    }
+}

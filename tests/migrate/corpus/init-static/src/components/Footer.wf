@@ -1,0 +1,11 @@
+Component Footer () {
+    Divider()
+    Container {
+        Spacer()
+        Row(align: center, justify: between) {
+            Text(t("footer.built"), muted, small)
+            Text(t("footer.rights"), muted, small)
+        }
+        Spacer()
+    }
+}

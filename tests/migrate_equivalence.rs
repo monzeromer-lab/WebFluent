@@ -1,10 +1,12 @@
-//! `wf migrate` is a change of spelling and nothing else: every project in
-//! the repository — the fixtures, the documentation site, each `wf init`
-//! template — must build to byte-identical output before and after it.
+//! `wf migrate` is a change of spelling and nothing else: every project of
+//! the corpus under `tests/migrate/corpus` — the fixtures, the documentation
+//! site and each `wf init` template as they were written in the original
+//! grammar — must build to byte-identical output before and after it.
 //!
 //! This is the gate for the new parser, the resolver and the migrator at
 //! once: a difference in any of them shows up here as a diff in a built
-//! file.
+//! file. The corpus is frozen: the live projects have moved to the new
+//! grammar, and these copies are what the migrator is still measured on.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -112,6 +114,13 @@ fn assert_same_build(name: &str, project: &Path) {
             first_word_is_lowercase(&entry);
         }
     }
+    // A migrated project is done: a second pass has nothing to say.
+    let again = wf().arg("migrate").arg("--check").arg(&root).output().unwrap();
+    let again = String::from_utf8_lossy(&again.stdout).to_string();
+    assert!(
+        again.contains("0 file(s) would change"),
+        "{name}: a second migration would change the project again:\n{again}"
+    );
     let after = build(&root);
     let mut diffs = Vec::new();
     for (file, bytes) in &before {
@@ -173,49 +182,17 @@ fn excerpt(a: &[u8], b: &[u8]) -> String {
 }
 
 #[test]
-fn every_fixture_builds_the_same_after_migration() {
-    let fixtures = repo_root().join("tests/fixtures");
-    let mut names: Vec<String> = std::fs::read_dir(&fixtures)
+fn every_project_of_the_corpus_builds_the_same_after_migration() {
+    let corpus = repo_root().join("tests/migrate/corpus");
+    let mut names: Vec<String> = std::fs::read_dir(&corpus)
         .unwrap()
         .flatten()
         .filter(|e| e.path().join("webfluent.app.json").exists())
         .map(|e| e.file_name().to_string_lossy().to_string())
         .collect();
     names.sort();
-    assert!(names.len() >= 5);
+    assert!(names.len() >= 12, "{names:?}");
     for name in names {
-        assert_same_build(&format!("fixture-{name}"), &fixtures.join(&name));
-    }
-}
-
-#[test]
-fn the_documentation_site_builds_the_same_after_migration() {
-    assert_same_build("site", &repo_root().join("site"));
-}
-
-#[test]
-fn every_init_template_builds_the_same_after_migration() {
-    for template in ["spa", "static", "pdf", "slides"] {
-        let root = repo_root().join("target/migrate/init");
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(&root).unwrap();
-        let init = wf()
-            .args(["init", template, "--template", template])
-            .current_dir(&root)
-            .output()
-            .unwrap();
-        assert!(
-            init.status.success(),
-            "{}",
-            String::from_utf8_lossy(&init.stderr)
-        );
-        let project = root.join(template);
-        let before = build(&project);
-        migrate(&project);
-        let after = build(&project);
-        assert_eq!(
-            before, after,
-            "the `{template}` template builds differently after migration"
-        );
+        assert_same_build(&name, &corpus.join(&name));
     }
 }

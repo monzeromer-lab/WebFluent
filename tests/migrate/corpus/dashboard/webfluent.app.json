@@ -1,0 +1,14 @@
+{
+  "name": "dashboard",
+  "theme": {
+    "name": "dark"
+  },
+  "build": {
+    "output": "build",
+    "output_type": "spa"
+  },
+  "meta": {
+    "title": "Ops Console",
+    "description": "Internal operations console."
+  }
+}

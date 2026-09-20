@@ -1,0 +1,13 @@
+Component TaskItem (title: String, done: Bool, priority: String) {
+    Card(outlined) {
+        Row(align: center, justify: between) {
+            Row(align: center, gap: md) {
+                Checkbox(checked: done, label: title)
+            }
+            Row(gap: sm) {
+                Badge(priority, primary)
+                IconButton(icon: "trash", danger, small, label: "Delete task")
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "nav.home": "الرئيسية",
+    "nav.about": "من نحن",
+    "nav.blog": "المدونة",
+    "nav.contact": "اتصل بنا",
+    "nav.language": "اللغة",
+
+    "hero.title": "ابنِ مواقع ويب جميلة",
+    "hero.subtitle": "موقع حديث وسريع وسهل الوصول مبني بالكامل باستخدام ويب فلونت — لغة الويب الأولى لبناء تطبيقات الصفحة الواحدة والمواقع الثابتة.",
+    "hero.cta": "ابدأ الآن",
+    "hero.secondary": "اعرف المزيد",
+
+    "features.title": "لماذا تختارنا",
+    "features.subtitle": "كل ما تحتاجه للنجاح على الإنترنت.",
+    "features.speed.title": "سريع كالبرق",
+    "features.speed.desc": "توليد المواقع الثابتة يوفر تحميل فوري للصفحات مع HTML مُعد مسبقاً.",
+    "features.design.title": "تصميم جميل",
+    "features.design.desc": "نظام تصميم مدمج مع رموز للألوان والمسافات والخطوط.",
+    "features.i18n.title": "متعدد اللغات",
+    "features.i18n.desc": "دعم مدمج للتدويل مع دعم الكتابة من اليمين لليسار للجمهور العالمي.",
+    "features.a11y.title": "سهل الوصول",
+    "features.a11y.desc": "فحوصات إمكانية الوصول أثناء التجميع تضمن أن موقعك يعمل للجميع.",
+
+    "about.title": "من نحن",
+    "about.mission.title": "مهمتنا",
+    "about.mission.text": "نؤمن بأن الويب يجب أن يكون سريعاً وجميلاً وسهل الوصول للجميع. أدواتنا تسهل بناء مواقع تلبي هذه المعايير.",
+    "about.team.title": "فريقنا",
+    "about.quote": "أفضل طريقة للتنبؤ بالمستقبل هي صنعه.",
+
+    "blog.title": "المدونة",
+    "blog.subtitle": "أحدث المقالات والتحديثات.",
+    "blog.read": "اقرأ المزيد",
+
+    "contact.title": "اتصل بنا",
+    "contact.subtitle": "يسعدنا سماع رأيك.",
+    "contact.name": "اسمك",
+    "contact.email": "البريد الإلكتروني",
+    "contact.subject": "الموضوع",
+    "contact.subject.general": "استفسار عام",
+    "contact.subject.support": "الدعم",
+    "contact.subject.feedback": "ملاحظات",
+    "contact.message": "الرسالة",
+    "contact.agree": "أوافق على سياسة الخصوصية",
+    "contact.send": "إرسال الرسالة",
+    "contact.success": "شكراً لك! تم إرسال رسالتك.",
+    "contact.error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+
+    "footer.built": "مبني بواسطة ويب فلونت",
+    "footer.rights": "جميع الحقوق محفوظة."
+}
