@@ -552,6 +552,7 @@ pub fn lower(mut program: Program) -> Program {
             (
                 c.name.clone(),
                 UserSig {
+                    props: c.props.iter().map(|p| p.name.clone()).collect(),
                     bool_props: c
                         .props
                         .iter()
@@ -683,8 +684,20 @@ fn for_each_style_block(stmts: &mut [Statement], f: &mut dyn FnMut(&mut StyleBlo
 
 /// What lowering needs to know about a user component.
 struct UserSig {
+    /// Every prop it declares: one named like a universal motion prop
+    /// (`duration`, `delay`) is the component's own, not motion.
+    props: Vec<String>,
     bool_props: Vec<String>,
     enum_props: Vec<(String, Vec<String>)>,
+}
+
+/// The names of the props `el`'s component declares, when it is the
+/// project's own: what a universal prop of the same name gives way to.
+fn own_props<'u>(el: &UIElement, user: &'u HashMap<String, UserSig>) -> &'u [String] {
+    match &el.component {
+        ComponentRef::UserDefined(name) => user.get(name).map_or(&[], |us| us.props.as_slice()),
+        _ => &[],
+    }
 }
 
 fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
@@ -694,12 +707,12 @@ fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
             StatementKind::If(i) => {
                 // One config for the whole `if`, read from the first branch
                 // that carries motion props; the others give theirs up too.
-                lift_animation(&mut i.animate, &mut i.then_body);
+                lift_animation(&mut i.animate, &mut i.then_body, user);
                 for (_, b) in &mut i.else_if_branches {
-                    lift_animation(&mut i.animate, b);
+                    lift_animation(&mut i.animate, b, user);
                 }
                 if let Some(b) = &mut i.else_body {
-                    lift_animation(&mut i.animate, b);
+                    lift_animation(&mut i.animate, b, user);
                 }
                 lower_statements(&mut i.then_body, user);
                 for (_, b) in &mut i.else_if_branches {
@@ -710,11 +723,11 @@ fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
                 }
             }
             StatementKind::For(f) => {
-                lift_animation(&mut f.animate, &mut f.body);
+                lift_animation(&mut f.animate, &mut f.body, user);
                 lower_statements(&mut f.body, user);
             }
             StatementKind::Show(s) => {
-                lift_animation(&mut s.animate, &mut s.body);
+                lift_animation(&mut s.animate, &mut s.body, user);
                 lower_statements(&mut s.body, user);
             }
             StatementKind::Match(m) => {
@@ -744,18 +757,28 @@ fn lower_statements(stmts: &mut [Statement], user: &HashMap<String, UserSig>) {
 /// grammar's `if …, animate(…)` clause never touched them. An element
 /// outside a branch keeps its enter animation as a class, which plays when
 /// it is first painted.
-fn lift_animation(target: &mut Option<AnimateConfig>, body: &mut [Statement]) {
+fn lift_animation(
+    target: &mut Option<AnimateConfig>,
+    body: &mut [Statement],
+    user: &HashMap<String, UserSig>,
+) {
     const MOTION_ARGS: &[&str] = &[
         "animate", "exit", "delay", "stagger", "duration", "speed", "easing",
     ];
-    let is_motion_word =
-        |m: &str| crate::themes::prune::ANIMATIONS.contains(&m) || matches!(m, "fast" | "slow");
     let mut config: Option<AnimateConfig> = None;
     for stmt in body.iter_mut() {
         let StatementKind::UIElement(el) = &mut stmt.kind else {
             continue;
         };
+        let own = own_props(el, user).to_vec();
+        let is_motion_word = |m: &str| {
+            !own.iter().any(|p| p == m)
+                && (crate::themes::prune::ANIMATIONS.contains(&m) || matches!(m, "fast" | "slow"))
+        };
         let named = |key: &str| {
+            if own.iter().any(|p| p == key) {
+                return None;
+            }
             el.args.iter().find_map(|a| match a {
                 Arg::Named(k, Expr::StringLiteral(v)) if k == key => Some(v.clone()),
                 Arg::Named(k, Expr::EnumCase(v)) if k == key => Some(v.clone()),
@@ -808,7 +831,10 @@ fn lift_animation(target: &mut Option<AnimateConfig>, body: &mut [Statement]) {
         let keep: Vec<bool> = el
             .args
             .iter()
-            .map(|a| !matches!(a, Arg::Named(k, _) if MOTION_ARGS.contains(&k.as_str())))
+            .map(|a| {
+                !matches!(a, Arg::Named(k, _)
+                    if MOTION_ARGS.contains(&k.as_str()) && !own.iter().any(|p| p == k))
+            })
             .collect();
         retain_by(&mut el.args, &keep);
         retain_by(&mut el.arg_spans, &keep);
@@ -854,11 +880,13 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
     // leaves or first animates in. A stagger belongs to a list and means
     // nothing here.
     let user_component = matches!(el.component, ComponentRef::UserDefined(_));
+    let own = own_props(el, user).to_vec();
     // The Router's `duration` times its route transition, not a marker.
     let router = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Router");
     for arg in el.args.iter_mut() {
         if !router
             && let Arg::Named(k, v) = arg
+            && !own.iter().any(|p| p == k)
             && (matches!(k.as_str(), "exit" | "delay" | "duration" | "easing")
                 || (user_component && matches!(k.as_str(), "animate" | "speed")))
         {
@@ -891,7 +919,7 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
     let keep: Vec<bool> = el
         .args
         .iter()
-        .map(|a| !matches!(a, Arg::Named(k, _) if k == "stagger"))
+        .map(|a| !matches!(a, Arg::Named(k, _) if k == "stagger" && !own.iter().any(|p| p == k)))
         .collect();
     retain_by(&mut el.args, &keep);
     retain_by(&mut el.arg_spans, &keep);
@@ -1301,5 +1329,47 @@ mod tests {
             panic!()
         };
         assert!(text.args.iter().any(|a| matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "data-wf-easing" && v == "ease-out")), "{:?}", text.args);
+    }
+
+    #[test]
+    fn a_components_own_prop_shadows_a_universal_motion_prop() {
+        let src = "component DeployRow(duration: String, delay: String) { Text(duration)  Text(delay) }\npage P(path: \"/\") { state open = true\n DeployRow(duration: \"22.4 s\", delay: \"none\", exit: .fadeOut)\n if open { DeployRow(duration: \"1 s\", delay: \"x\").fadeIn } }";
+        let program = lowered(src);
+        let Declaration::Page(page) = &program.declarations[1] else {
+            panic!()
+        };
+        let StatementKind::UIElement(row) = &page.body[1].kind else {
+            panic!()
+        };
+        let named = |el: &UIElement, k: &str| {
+            el.args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(key, _) if key == k))
+        };
+        assert!(
+            named(row, "duration") && named(row, "delay"),
+            "{:?}",
+            row.args
+        );
+        assert!(
+            named(row, "data-wf-exit") && !named(row, "data-wf-duration"),
+            "{:?}",
+            row.args
+        );
+        let StatementKind::If(i) = &page.body[2].kind else {
+            panic!()
+        };
+        let anim = i.animate.as_ref().unwrap();
+        assert_eq!(anim.enter, "fadeIn");
+        assert_eq!(anim.duration, None);
+        assert_eq!(anim.delay, None);
+        let StatementKind::UIElement(inner) = &i.then_body[0].kind else {
+            panic!()
+        };
+        assert!(
+            named(inner, "duration") && named(inner, "delay"),
+            "{:?}",
+            inner.args
+        );
     }
 }
