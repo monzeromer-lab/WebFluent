@@ -232,8 +232,9 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
                     TaskItem(
                         title: task.title,
                         done: task.done,
-                        priority: task.priority
-                    , exit: .fadeOut, stagger: "50ms").slideUp
+                        priority: task.priority,
+                        exit: .fadeOut, stagger: "50ms"
+                    ).slideUp
                 }
             }
         }
@@ -1081,7 +1082,7 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
 
             Spacer
 
-            Code("Document(page_size: \"A4\") \{{\n    Heading(\"Hello!\", h1)\n    Text(\"Generated with WebFluent.\")\n\}}").block
+            Code("Document(page_size: \"A4\") \{{\n    Heading(\"Hello!\").h1\n    Text(\"Generated with WebFluent.\")\n\}}").block
 
             Spacer
 

@@ -93,7 +93,7 @@ page TemplateEngine(path: "/template-engine", description: "Render .wf templates
         Card.outlined {
             Card.Header { Text("Basic Usage").bold.muted }
             Card.Body {
-                Code("const \{ Template \} = require('@aspect/webfluent');\n\nconst tpl = Template.fromFile('templates/invoice.wf');\n// or: Template.fromString('Container \{ Heading(\"Hello!\", h1) \}');\n\n// Render to HTML\nconst html = tpl.renderHtml(\{ name: \"World\" \});\n\n// Render to HTML fragment\nconst frag = tpl.renderHtmlFragment(\{ name: \"World\" \});\n\n// Render to PDF (returns Buffer)\nconst pdf = tpl.renderPdf(\{ name: \"World\" \});\nfs.writeFileSync('output.pdf', pdf);").block
+                Code("const \{ Template \} = require('@aspect/webfluent');\n\nconst tpl = Template.fromFile('templates/invoice.wf');\n// or: Template.fromString('Container \{ Heading(\"Hello!\").h1 \}');\n\n// Render to HTML\nconst html = tpl.renderHtml(\{ name: \"World\" \});\n\n// Render to HTML fragment\nconst frag = tpl.renderHtmlFragment(\{ name: \"World\" \});\n\n// Render to PDF (returns Buffer)\nconst pdf = tpl.renderPdf(\{ name: \"World\" \});\nfs.writeFileSync('output.pdf', pdf);").block
             }
         }
         Spacer.sm

@@ -76,26 +76,34 @@
 //!
 //! The compilation pipeline:
 //!
-//! 1. **Lexer** ([`lexer`]) — tokenizes `.wf` source into a token stream
-//! 2. **Parser** ([`parser`]) — builds an AST from tokens
-//! 3. **Linter** ([`linter`]) — runs accessibility and PDF validation checks
-//! 4. **Codegen** ([`codegen`]) — generates HTML, CSS, JS, SSG pages, or PDF output
-//! 5. **Themes** ([`themes`]) — provides design tokens and component CSS
-//! 6. **Runtime** ([`runtime`]) — embeds the JavaScript runtime for reactivity and routing
+//! 1. **Syntax** ([`syntax`]) — [`parse_source`] reads a `.wf` file into an AST
+//!    ([`lexer`] and [`parser`] beneath it); a file in the grammar of
+//!    WebFluent 2 is refused with a pointer to `wf migrate` ([`migrate`])
+//! 2. **Registry** ([`registry`]) — the one description of every built-in
+//!    component, its props, flags, events, slots and parts
+//! 3. **Semantics** ([`sema`]) — `check` resolves names, flags and cases against
+//!    the registry and the program's declarations; `types::check` infers and
+//!    checks types; `lower` rewrites the new grammar's forms into what the
+//!    backends render
+//! 4. **Linter** ([`linter`]) — accessibility, SEO, vocabulary and PDF checks
+//! 5. **Codegen** ([`codegen`]) — generates HTML, CSS, JS, SSG pages, or PDF output
+//! 6. **Themes** ([`themes`]) — design tokens and component CSS
+//! 7. **Runtime** ([`runtime`]) — the JavaScript runtime for reactivity, routing and motion
 //!
 //! ## Crate Features
 //!
 //! This crate exposes the full compiler pipeline. For most use cases, the [`Template`] API
-//! is the simplest entry point. For full control, use the lexer, parser, and codegen modules
-//! directly.
+//! is the simplest entry point. For full control, use [`parse_source`], [`sema`] and the
+//! codegen modules directly.
 
 #![allow(dead_code)]
 
 /// Lexical analysis — tokenizes `.wf` source code.
 ///
-/// The lexer converts raw source text into a stream of [`lexer::Token`]s, handling
-/// keywords, identifiers, string literals (with `{var}` interpolation), numbers,
-/// operators, and punctuation.
+/// The lexer converts raw source text into a stream of [`lexer::Token`]s:
+/// identifiers, string literals (with `{var}` interpolation), numbers,
+/// `$tokens`, operators, punctuation, and — inside a `style` or `theme`
+/// block — raw CSS values.
 pub mod lexer;
 
 /// Parsing — builds an abstract syntax tree from tokens.

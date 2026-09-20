@@ -86,11 +86,10 @@ const WF = (() => {
           } else {
             el[k] = String(v);
           }
-        } else if (k === "data-wf-delay" || k === "data-wf-duration") {
+        } else if (k === "data-wf-delay" || k === "data-wf-duration" || k === "data-wf-easing") {
           // The element's own timing for the animation class it carries.
-          const prop = k === "data-wf-delay" ? "animationDelay" : "animationDuration";
           el.setAttribute(k, v);
-          el.style[prop] = v;
+          el.style[TIMING[k]] = v;
         } else if (k === "data-icon") {
           // The glyph is drawn after the children: an icon button carries
           // data-icon and a .wf-icon child, and used to draw the glyph twice.
@@ -179,16 +178,23 @@ const WF = (() => {
     if (root) root.addEventListener(event, handler);
   }
 
+  // The style property each timing marker sets.
+  const TIMING = {
+    "data-wf-delay": "animationDelay",
+    "data-wf-duration": "animationDuration",
+    "data-wf-easing": "animationTimingFunction",
+  };
+
   // Motion asked of a component at its call site lands on its root
-  // element: `data-wf-exit`, `data-wf-delay`, `data-wf-duration`.
+  // element: `data-wf-exit`, `data-wf-delay`, `data-wf-duration`,
+  // `data-wf-easing`.
   function mark(frag, attrs) {
     const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
     const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
     if (!root) return;
     for (const [k, v] of Object.entries(attrs)) {
       root.setAttribute(k, v);
-      if (k === "data-wf-delay") root.style.animationDelay = v;
-      if (k === "data-wf-duration") root.style.animationDuration = v;
+      if (TIMING[k]) root.style[TIMING[k]] = v;
       if (k === "data-wf-animate") root.classList.add("wf-animate-" + v);
     }
   }
@@ -223,45 +229,41 @@ const WF = (() => {
   }
 
   // ─── Animation helpers ──────────────────────────────
-  const ANIM_REVERSE = {
-    fadeIn: "fadeOut", fadeOut: "fadeIn",
-    slideUp: "slideDown", slideDown: "slideUp",
-    slideLeft: "slideRight", slideRight: "slideLeft",
-    scaleIn: "scaleOut", scaleOut: "scaleIn",
-    bounce: "fadeOut", shake: "fadeOut", pulse: "fadeOut",
-  };
-
   // A reader who asked for less motion gets none: no class, no wait.
   function reducedMotion() {
     return typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
-  function animateIn(el, name, duration, delay) {
+  // Play the animation class `name` on `el` once, with the timing given
+  // (the stylesheet's when not), and resolve when it has ended.
+  function play(el, name, duration, delay, easing) {
     if (!name || reducedMotion()) return Promise.resolve();
     const cls = "wf-animate-" + name;
     if (duration) el.style.animationDuration = duration;
     if (delay) el.style.animationDelay = delay;
+    if (easing) el.style.animationTimingFunction = easing;
     el.classList.add(cls);
     return new Promise(resolve => {
-      const done = () => { el.classList.remove(cls); el.style.animationDuration = ""; el.style.animationDelay = ""; resolve(); };
+      const done = () => {
+        el.classList.remove(cls);
+        el.style.animationDuration = "";
+        el.style.animationDelay = "";
+        el.style.animationTimingFunction = "";
+        resolve();
+      };
       el.addEventListener("animationend", done, { once: true });
       // Fallback timeout
       setTimeout(done, (parseInt(duration) || 300) + (parseInt(delay) || 0) + 100);
     });
   }
 
-  function animateOut(el, name, duration, delay) {
-    if (!name || reducedMotion()) return Promise.resolve();
-    const cls = "wf-animate-" + name;
-    if (duration) el.style.animationDuration = duration;
-    if (delay) el.style.animationDelay = delay;
-    el.classList.add(cls);
-    return new Promise(resolve => {
-      const done = () => { el.classList.remove(cls); el.style.animationDuration = ""; el.style.animationDelay = ""; resolve(); };
-      el.addEventListener("animationend", done, { once: true });
-      setTimeout(done, (parseInt(duration) || 300) + (parseInt(delay) || 0) + 100);
-    });
+  function animateIn(el, name, duration, delay, easing) {
+    return play(el, name, duration, delay, easing);
+  }
+
+  function animateOut(el, name, duration, delay, easing) {
+    return play(el, name, duration, delay, easing);
   }
 
   // ─── Leaving ─────────────────────────────────────────
@@ -274,11 +276,11 @@ const WF = (() => {
     const marked = (el) => {
       if (!el.hasAttribute || !el.hasAttribute("data-wf-exit")) return;
       const attr = (name) => el.getAttribute(name) || "";
-      plays.push(animateOut(el, attr("data-wf-exit"), attr("data-wf-duration"), attr("data-wf-delay")));
+      plays.push(animateOut(el, attr("data-wf-exit"), attr("data-wf-duration"), attr("data-wf-delay"), attr("data-wf-easing")));
     };
     for (const n of nodes) {
       if (!(n instanceof Element)) continue;
-      if (config && config.exit) plays.push(animateOut(n, config.exit, config.duration));
+      if (config && config.exit) plays.push(animateOut(n, config.exit, config.duration, "", config.easing));
       else marked(n);
       if (typeof n.querySelectorAll === "function") {
         for (const el of n.querySelectorAll("[data-wf-exit]")) marked(el);
@@ -375,7 +377,7 @@ const WF = (() => {
           for (const n of nodes) frag.appendChild(n);
           if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
           if (animConfig && animConfig.enter) {
-            nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay); });
+            nodes.forEach(n => { if (n instanceof Element) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay, animConfig.easing); });
           }
         } finally {
           currentEffect = prev;
@@ -446,7 +448,7 @@ const WF = (() => {
       for (const n of nodes) {
         if (!(n instanceof Element)) continue;
         const delay = config.stagger ? (parseInt(config.stagger) * index) + "ms" : config.delay;
-        animateIn(n, config.enter, config.duration, delay);
+        animateIn(n, config.enter, config.duration, delay, config.easing);
       }
     };
     const depart = (nodes) => {
@@ -579,7 +581,7 @@ const WF = (() => {
         if (condFn()) {
           wrapper.style.display = "contents";
           if (animConfig.enter) {
-            for (const n of wrapper.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay);
+            for (const n of wrapper.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay, animConfig.easing);
           }
         } else {
           const plays = leave([...wrapper.children], animConfig);

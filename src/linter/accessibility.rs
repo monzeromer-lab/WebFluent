@@ -102,7 +102,7 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
                 &file,
                 line,
                 col,
-                "Add one: Page Name (path: \"/\", title: \"What this page is\")",
+                "Add one: page Name(path: \"/\", title: \"What this page is\")",
             ));
         }
 
@@ -114,7 +114,7 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
                 &file,
                 line,
                 col,
-                "Add one: Page Name (path: \"/\", title: \"…\", description: \"A sentence a search result can show\")",
+                "Add one: page Name(path: \"/\", title: \"…\", description: \"A sentence a search result can show\")",
             ));
         }
 
@@ -261,7 +261,7 @@ fn lint_page(
             file,
             1,
             1,
-            "Add a main heading: Heading(\"Page Title\", h1)".to_string(),
+            "Add a main heading: Heading(\"Page Title\").h1".to_string(),
         ));
     } else if tracker.h1_count > 1 {
         warnings.push(A11yWarning::new(
@@ -373,7 +373,7 @@ fn lint_ui_element(
                         file,
                         line,
                         col,
-                        "Add a label: Input(text, label: \"Username\")",
+                        "Add a label: Input(label: \"Username\").text",
                     ));
                 }
             }
@@ -401,7 +401,7 @@ fn lint_ui_element(
                         file,
                         line,
                         col,
-                        "Add text: Button(\"Save\", primary)",
+                        "Add text: Button(\"Save\").primary",
                     ));
                 }
             }
@@ -472,7 +472,7 @@ fn lint_ui_element(
                         file,
                         line,
                         col,
-                        "Add text: Heading(\"Section Title\", h2)",
+                        "Add text: Heading(\"Section Title\").h2",
                     ));
                 } else if has_empty_string_arg(&ui.args) {
                     warnings.push(A11yWarning::new(

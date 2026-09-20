@@ -65,7 +65,7 @@ const PAIRS: &[(&str, &str, f64, &str)] = &[
 // needs to know which component the border is on, which a token cannot say.
 
 /// Foreground tokens the stylesheet pairs with white text, and the modifier
-/// whose variant does so. A site that never writes `Button("x", primary)`
+/// whose variant does so. A site that never writes `Button("x").primary`
 /// has no white label on `--color-primary`, so the pairing is not checked:
 /// in structural mode that token paints only the focus ring, and a warning
 /// about a button that does not exist is noise the author cannot act on.

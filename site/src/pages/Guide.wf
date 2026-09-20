@@ -77,7 +77,7 @@ page Guide(path: "/guide", description: "The language, end to end: pages, compon
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Code("Button(\"Submit\") \{\n    on click \{\n        submitForm()\n    \}\n\}\n\nInput(placeholder: \"Search...\").text \{\n    on input \{\n        searchQuery = value\n    \}\n    on keydown \{\n        if key == \"Enter\" \{\n            performSearch()\n        \}\n    \}\n\}\n\n// Shorthand: block on Button defaults to on:click\nButton(\"Save\") \{ on click \{ save() \} \}").block
+                Code("Button(\"Submit\") \{\n    on click \{\n        submitForm()\n    \}\n\}\n\nInput(placeholder: \"Search...\").text \{\n    on input \{\n        searchQuery = value\n    \}\n    on keydown \{\n        if key == \"Enter\" \{\n            performSearch()\n        \}\n    \}\n\}\n\n// On one line\nButton(\"Save\") \{ on click \{ save() \} \}").block
             }
         }
         Spacer.sm

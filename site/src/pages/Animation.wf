@@ -75,7 +75,7 @@ page Animation(path: "/animation", description: "Transitions, animation modifier
                     Badge("Animated!").success
                     Spacer.sm
                     Text("This card scales in and fades out.")
-                    Text("Controlled by: if showCard, animate(scaleIn, fadeOut)").muted.sm
+                    Text("Controlled by: Card(exit: .fadeOut).scaleIn inside if showCard").muted.sm
                 }
             }
         }

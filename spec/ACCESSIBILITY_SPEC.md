@@ -71,11 +71,11 @@ Every `Input` should have a `label` or at minimum a `placeholder` so users know 
 
 ```wf
 // Bad — triggers warning
-Input(text)
+Input.text
 
 // Good
-Input(text, label: "Username")
-Input(text, placeholder: "Enter your name")
+Input(label: "Username").text
+Input(placeholder: "Enter your name").text
 ```
 
 ### A04 — Form control missing label
@@ -98,11 +98,11 @@ Every `Button` needs visible text (first positional argument) so users know what
 
 ```wf
 // Bad — triggers warning
-Button()
+Button
 
 // Good
 Button("Save")
-Button("Delete", danger)
+Button("Delete").danger
 ```
 
 ### A06 — Link has no text content
@@ -123,10 +123,10 @@ Headings must have text content.
 
 ```wf
 // Bad — triggers warning
-Heading("", h1)
+Heading("").h1
 
 // Good
-Heading("Welcome", h1)
+Heading("Welcome").h1
 ```
 
 ### A08 — Modal/Dialog missing title
@@ -155,18 +155,18 @@ Video(src: "/intro.mp4", controls: true)
 
 ### A10 — Table missing header row
 
-`Table` should contain a `Thead` element with column headers.
+`Table` should contain a `Table.Head` element with column headers.
 
 ```wf
 // Bad — triggers warning
 Table {
-    Trow { Tcell("Alice") Tcell("Admin") }
+    Table.Row { Table.Cell("Alice") Table.Cell("Admin") }
 }
 
 // Good
 Table {
-    Thead { Tcell("Name") Tcell("Role") }
-    Trow { Tcell("Alice") Tcell("Admin") }
+    Table.Head { Table.Cell("Name") Table.Cell("Role") }
+    Table.Row { Table.Cell("Alice") Table.Cell("Admin") }
 }
 ```
 
@@ -176,13 +176,13 @@ Heading levels should follow a logical order: h1 → h2 → h3. Skipping from h1
 
 ```wf
 // Bad — triggers warning (skips h2)
-Heading("Title", h1)
-Heading("Section", h3)
+Heading("Title").h1
+Heading("Section").h3
 
 // Good
-Heading("Title", h1)
-Heading("Section", h2)
-Heading("Subsection", h3)
+Heading("Title").h1
+Heading("Section").h2
+Heading("Subsection").h3
 ```
 
 ### A12 — Page should have exactly one h1
@@ -191,20 +191,20 @@ Each page should have one (and only one) `h1` heading as its main title.
 
 ```wf
 // Bad — no h1
-Page Home (path: "/") {
-    Heading("Welcome", h2)
+page Home(path: "/") {
+    Heading("Welcome").h2
 }
 
 // Bad — multiple h1
-Page Home (path: "/") {
-    Heading("Title One", h1)
-    Heading("Title Two", h1)
+page Home(path: "/") {
+    Heading("Title One").h1
+    Heading("Title Two").h1
 }
 
 // Good
-Page Home (path: "/") {
-    Heading("Welcome", h1)
-    Heading("Features", h2)
+page Home(path: "/") {
+    Heading("Welcome").h1
+    Heading("Features").h2
 }
 ```
 

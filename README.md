@@ -6,14 +6,16 @@ A web-first programming language that compiles to HTML, CSS, JavaScript, and PDF
 
 **[Documentation](https://monzeromer-lab.github.io/WebFluent)** · **[Getting Started](https://monzeromer-lab.github.io/WebFluent/getting-started)**
 
-```
-Page Home (path: "/") {
+```wf
+page Home(path: "/") {
     Container {
-        Heading("Hello, WebFluent!", h1, fadeIn)
+        Heading("Hello, WebFluent!").h1.fadeIn
         Text("Build for the web. Nothing else.")
 
-        Button("Get Started", primary, large) {
-            navigate("/docs")
+        Button("Get Started").primary.lg {
+            on click {
+                navigate("/docs")
+            }
         }
     }
 }
@@ -26,8 +28,10 @@ Page Home (path: "/") {
 - Signal-based reactivity — fine-grained DOM updates, no virtual DOM
 - Client-side routing with SPA navigation
 - Stores for shared state across pages
-- Control flow: `if`/`else`, `for` loops, `show`/hide
-- Data fetching with built-in loading/error/success states
+- Control flow: `if`/`else`, `if let`, keyed `for … by`, `show`/hide, `match`
+- Data fetching as a `resource`, matched on `loading`, `error(e)` and `ready(v)`
+- Typed props, records and enums, checked at compile time; `Any` where you write none
+- Components with declared events (`event`/`emit`) and named slots
 - String interpolation: `"Hello, {name}!"`
 
 **Components**
@@ -43,9 +47,9 @@ Page Home (path: "/") {
 
 **Design System**
 - Design tokens for colors, spacing, typography, radii, shadows
-- Themes written in the language: `Theme Brand { token color-primary: "#0F766E" }`
-- Variant modifiers: `primary`, `large`, `rounded`, `elevated`, `bold`, `center`, ...
-- Custom style blocks on any component
+- Themes written in the language: `theme Brand { color-primary: #0F766E }`
+- Flags on any element: `.primary`, `.lg`, `.rounded`, `.elevated`, `.bold`, `.center`, ...
+- Style blocks of raw CSS on any element, with `$token` and `{expr}` splices and nested `&:hover` rules
 - Responsive grid with breakpoint modifiers
 - Four example themes to copy and edit in `examples/themes/`
 - SEO by default: canonical URLs, Open Graph and Twitter cards, JSON-LD, `sitemap.xml` and `robots.txt`
@@ -53,9 +57,10 @@ Page Home (path: "/") {
 
 **Animation**
 - 12 built-in animations: fadeIn, slideUp, scaleIn, bounce, shake, pulse, ...
-- Mount animations as modifiers: `Card(elevated, fadeIn)`
-- Enter/exit animations on control flow: `if visible, animate(fadeIn, fadeOut) { ... }`
-- Staggered list animations: `for item in list, animate(slideUp, stagger: "50ms") { ... }`
+- Mount animations as flags: `Card.elevated.fadeIn`
+- Enter and exit animations on any element: `Card(exit: .fadeOut).fadeIn`
+- Staggered list animations: `for item in list by item.id { Card(stagger: "50ms").slideUp { ... } }`
+- Keyed lists that move items instead of rebuilding them; page transitions: `Router(transition: .fade)`
 - Transition blocks for CSS property transitions
 
 **Internationalization (i18n)**
@@ -90,7 +95,9 @@ Page Home (path: "/") {
 - Zero-config start: `init` → `build` → `serve`
 - Dev server with SPA route fallback
 - Scaffolding: `generate page|component|store`
-- Clear error messages with file:line:column
+- Clear error messages with file:line:column, and a type checker that says what fits where
+- A language server (hover, completion, go to definition) for Zed and VS Code
+- `wf migrate` rewrites a WebFluent 2 project into the current grammar
 - Three starter templates: SPA, static site, and PDF document
 - Cross-platform packaging: `.deb`, `.msi`, `.tar.gz`, `.zip`
 - Task runner integration with `just`
@@ -146,70 +153,67 @@ wf serve     # opens http://localhost:3000
 
 ### Pages & Routing
 
-```
-Page Home (path: "/", title: "Home") {
+```wf
+page Home(path: "/", title: "Home") {
     Container {
-        Heading("Welcome", h1)
+        Heading("Welcome").h1
         Text("This is the home page.")
     }
 }
 
-App {
+app {
     Navbar {
-        Navbar.Brand { Text("My App", heading) }
+        Navbar.Brand { Text("My App").heading }
         Navbar.Links {
             Link(to: "/") { Text("Home") }
             Link(to: "/about") { Text("About") }
         }
     }
 
-    Router {
-        Route(path: "/", page: Home)
-        Route(path: "/about", page: About)
-    }
+    Router
 }
 ```
 
 ### State & Reactivity
 
-```
-Page Counter (path: "/counter") {
+```wf
+page Counter(path: "/counter") {
     state count = 0
 
     Container {
         Text("Count: {count}")
-        Button("+1", primary) { count = count + 1 }
-        Button("-1") { count = count - 1 }
+        Button("+1").primary { on click { count = count + 1 } }
+        Button("-1") { on click { count = count - 1 } }
     }
 }
 ```
 
 ### Components
 
-```
-Component UserCard (name: String, role: String, active: Bool = true) {
-    Card(elevated) {
-        Row(align: center, gap: md) {
-            Avatar(initials: "U", primary)
+```wf
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            Avatar(initials: "U").primary
             Stack {
-                Text(name, bold)
-                Text(role, muted)
+                Text(name).bold
+                Text(role).muted
             }
             if active {
-                Badge("Active", success)
+                Badge("Active").success
             }
         }
     }
 }
 
 // Usage
-UserCard(name: "Monzer", role: "Developer")
+UserCard("Monzer", role: "Developer")
 ```
 
 ### Stores
 
-```
-Store TaskStore {
+```wf
+store TaskStore {
     state tasks = []
     derived remaining = tasks.filter(t => !t.done).length
 
@@ -221,11 +225,12 @@ Store TaskStore {
 
 ### Data Fetching
 
-```
-fetch users from "/api/users" {
-    loading { Spinner() }
-    error (err) { Alert("Failed to load", danger) }
-    success {
+```wf
+resource users = fetch("/api/users")
+match users {
+    loading { Spinner }
+    error (err) { Alert("Failed to load").danger }
+    ready(users) {
         for user in users {
             UserCard(name: user.name, role: user.role)
         }
@@ -235,18 +240,18 @@ fetch users from "/api/users" {
 
 ### Animations
 
-```
+```wf
 // Mount animations
-Card(elevated, fadeIn) { ... }
+Card.elevated.fadeIn { ... }
 
-// Control flow animations
-if showPanel, animate(scaleIn, scaleOut) {
-    Card { Text("Animated panel") }
+// Enter and exit, on the element that comes and goes
+if showPanel {
+    Card(exit: .scaleOut).scaleIn { Text("Animated panel") }
 }
 
-// Staggered list animations
-for item in items, animate(slideUp, fadeOut, stagger: "50ms") {
-    Text(item.name)
+// Staggered list animations; a keyed list moves items instead of rebuilding them
+for item in items by item.id {
+    Text(item.name, exit: .fadeOut, stagger: "50ms").slideUp
 }
 ```
 
@@ -260,41 +265,41 @@ for item in items, animate(slideUp, fadeOut, stagger: "50ms") {
 { "greeting": "!أهلاً، {name}", "nav.home": "الرئيسية" }
 ```
 
-```
-Text(t("greeting", name: "Monzer"))
-Button("العربية") { setLocale("ar") }
+```wf
+Text(t("greeting", { name: "Monzer" }))
+Button("العربية") { on click { setLocale("ar") } }
 ```
 
 ### PDF Documents
 
-```
-Page Report (path: "/", title: "Q1 Report") {
+```wf
+page Report(path: "/", title: "Q1 Report") {
     Document(page_size: "A4") {
         Header {
-            Text("Company Inc.", muted, small, right)
+            Text("Company Inc.").muted.sm.right
         }
 
         Footer {
-            Text("Confidential", muted, small, center)
+            Text("Confidential").muted.sm.center
         }
 
         Section {
-            Heading("Quarterly Report", h1)
+            Heading("Quarterly Report").h1
             Text("Revenue grew 15% this quarter.")
 
             Table {
-                Thead {
-                    Trow { Tcell("Region") Tcell("Revenue") }
+                Table.Head {
+                    Table.Row { Table.Cell("Region") Table.Cell("Revenue") }
                 }
-                Tbody {
-                    Trow { Tcell("North America") Tcell("$2.4M") }
-                    Trow { Tcell("Europe") Tcell("$1.8M") }
+                Table.Body {
+                    Table.Row { Table.Cell("North America") Table.Cell("$2.4M") }
+                    Table.Row { Table.Cell("Europe") Table.Cell("$1.8M") }
                 }
             }
 
-            PageBreak()
+            PageBreak
 
-            Heading("Key Highlights", h2)
+            Heading("Key Highlights").h2
             List {
                 Text("Launched 3 new products")
                 Text("Expanded to 5 new markets")
@@ -306,17 +311,18 @@ Page Report (path: "/", title: "Q1 Report") {
 
 ### Styling
 
-```
-// Variant modifiers
-Button("Save", primary, large, rounded)
-Text("Warning!", danger, bold, uppercase)
+```wf
+// Flags: a boolean prop, or a case of one of the element's enum props
+Button("Save").primary.lg.rounded
+Text("Warning!").danger.bold.uppercase
 
-// Style blocks
+// Style blocks: raw CSS, `$token` for a design token, `{expr}` to read state
 Button("Custom") {
     style {
-        background: "#8B5CF6"
-        padding: xl
-        radius: lg
+        background: #8B5CF6
+        padding: $xl
+        border-radius: $lg
+        &:hover { background: $primary }
     }
 }
 

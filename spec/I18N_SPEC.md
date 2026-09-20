@@ -96,22 +96,22 @@ Add i18n config to `webfluent.app.json`:
 
 ```wf
 Text(t("home.title"))
-Heading(t("app.name"), h1)
-Button(t("actions.save"), primary)
+Heading(t("app.name")).h1
+Button(t("actions.save")).primary
 ```
 
 `t("key")` returns the translated string for the current locale. It is **reactive** — when the locale changes, all `t()` calls automatically re-evaluate.
 
 ### Interpolation
 
-Translation strings can contain `{placeholder}` tokens. Pass values as named arguments:
+Translation strings can contain `{placeholder}` tokens. Pass values as a map:
 
 ```wf
 // Translation: "Hello, {name}!"
-Text(t("home.greeting", name: user.name))
+Text(t("home.greeting", { name: user.name }))
 
 // Translation: "{count} tasks remaining"
-Text(t("tasks.remaining", count: tasks.length))
+Text(t("tasks.remaining", { count: tasks.length }))
 ```
 
 ### Fallback Behavior
@@ -129,9 +129,9 @@ If a key is missing in the current locale:
 Switch the active locale at runtime:
 
 ```wf
-Button("English") { setLocale("en") }
-Button("العربية") { setLocale("ar") }
-Button("Español") { setLocale("es") }
+Button("English") { on click { setLocale("en") } }
+Button("العربية") { on click { setLocale("ar") } }
+Button("Español") { on click { setLocale("es") } }
 ```
 
 When `setLocale()` is called:
@@ -206,10 +206,10 @@ When an RTL locale is active:
 ### App Code
 
 ```wf
-App {
+app {
     Navbar {
         Navbar.Brand {
-            Text(t("nav.home"), heading)
+            Text(t("nav.home")).heading
         }
         Navbar.Links {
             Link(to: "/") { Text(t("nav.home")) }
@@ -217,24 +217,21 @@ App {
         }
         Navbar.Actions {
             Dropdown(label: t("lang.switch")) {
-                Dropdown.Item { Button("English") { setLocale("en") } }
-                Dropdown.Item { Button("العربية") { setLocale("ar") } }
+                Dropdown.Item { Button("English") { on click { setLocale("en") } } }
+                Dropdown.Item { Button("العربية") { on click { setLocale("ar") } } }
             }
         }
     }
 
-    Router {
-        Route(path: "/", page: Home)
-        Route(path: "/about", page: About)
-    }
+    Router
 }
 ```
 
 ```wf
-Page Home (path: "/") {
+page Home(path: "/") {
     Container {
-        Heading(t("welcome"), h1, fadeIn)
-        Text(t("greeting", name: "Monzer"))
+        Heading(t("welcome")).h1.fadeIn
+        Text(t("greeting", { name: "Monzer" }))
     }
 }
 ```
@@ -262,7 +259,7 @@ Page Home (path: "/") {
 2. Bakes all translations into the generated `app.js` as a JavaScript object
 3. Creates the i18n runtime at the top of `app.js`
 4. Compiles `t("key")` → `WF.i18n.t("key")`
-5. Compiles `t("key", name: val)` → `WF.i18n.t("key", { name: val })`
+5. Compiles `t("key", { name: val })` → `WF.i18n.t("key", { name: val })`
 6. Compiles `setLocale("ar")` → `WF.i18n.setLocale("ar")`
 7. Compiles `locale` → `WF.i18n.locale()`
 

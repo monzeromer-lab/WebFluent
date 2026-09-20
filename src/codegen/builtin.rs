@@ -122,6 +122,23 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
 /// Returns `""` for modifiers that are not classes at all — input types become a
 /// `type=` attribute (see [`input_type`]), and heading levels become the tag (see
 /// [`heading_tag`]).
+/// The CSS timing function an easing name stands for, in a `transition`
+/// block and in the `easing:` prop alike; a name that is not one of the
+/// engine's is passed through as written.
+pub fn easing_css(name: &str) -> &str {
+    match name {
+        "ease" => "ease",
+        "linear" => "linear",
+        "easeIn" => "ease-in",
+        "easeOut" => "ease-out",
+        "easeInOut" => "ease-in-out",
+        "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+        "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
+        other => other,
+    }
+}
+
 pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
     match modifier {
         // ─── Size ────────────────────────────────────────

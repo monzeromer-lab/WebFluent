@@ -4,6 +4,16 @@
 > Author: Monzer Omer
 > Date: 2026-03-24
 
+> **This document specifies the grammar of WebFluent 2** (0.1 through 2.x):
+> `Page X (path: …)`, positional modifiers, `on:click`, quoted style values,
+> `Route` children. WebFluent 3 reads a new grammar, specified in
+> [`SYNTAX_V2.md`](SYNTAX_V2.md), with the type system in
+> [`TYPES.md`](TYPES.md); `wf migrate` converts a project from this grammar
+> to it. The semantics below — pages, components, state and reactivity,
+> stores, control flow, styling, the built-in library, configuration and
+> compilation output — carry over unchanged under the new spelling. This
+> text is kept as the record of what `wf migrate` reads.
+
 ---
 
 ## Table of Contents

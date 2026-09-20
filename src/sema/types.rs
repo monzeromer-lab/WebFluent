@@ -1304,6 +1304,22 @@ impl<'a, 'p> Checker<'a, 'p> {
     }
 
     fn method_call(&mut self, obj: &Expr, method: &str, args: &[Expr]) -> Type {
+        // `if c { a } else { b }` as a value: `c` narrows `a`, as it does a
+        // branch; the value is what both arms fit.
+        if method == "__if" && args.len() == 2 {
+            let cond_ty = self.infer(obj, Some(&Type::Bool));
+            self.condition(&cond_ty, obj, self.current_span, "if");
+            self.push_scope();
+            for name in narrowed_names(obj) {
+                if let Some(Type::Optional(inner)) = self.lookup(&name) {
+                    self.narrow(&name, *inner);
+                }
+            }
+            let then_ty = self.infer(&args[0], None);
+            self.pop_scope();
+            let else_ty = self.infer(&args[1], None);
+            return Type::join(then_ty, else_ty);
+        }
         let obj_ty = self.infer(obj, None);
         if let Type::Optional(_) = obj_ty {
             self.error_at_current(
@@ -1749,6 +1765,16 @@ mod tests {
         ));
         has(
             &format!("{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n Text(sel.title) }}"),
+            "[T04] `sel` may be null, so `.title` may fail",
+        );
+        // The condition of an `if` expression narrows its then-arm too.
+        clean(&format!(
+            "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived label = if sel != null {{ sel.title }} else {{ \"none\" }}\n Text(label) }}"
+        ));
+        has(
+            &format!(
+                "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived label = if true {{ \"x\" }} else {{ sel.title }}\n Text(label) }}"
+            ),
             "[T04] `sel` may be null, so `.title` may fail",
         );
     }

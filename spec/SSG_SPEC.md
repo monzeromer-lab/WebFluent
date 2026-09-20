@@ -67,9 +67,9 @@ Each page gets its own HTML file at its route path. The HTML contains the full p
 |---------|----------------|
 | `Container`, `Row`, `Column`, etc. | `<div class="wf-container">...</div>` |
 | `Text("Hello")` | `<p class="wf-text">Hello</p>` |
-| `Heading("Title", h1)` | `<h1 class="wf-heading">Title</h1>` |
-| `Button("Save", primary)` | `<button class="wf-btn wf-btn--primary">Save</button>` |
-| `Card(elevated) { ... }` | `<div class="wf-card wf-card--elevated">...</div>` |
+| `Heading("Title").h1` | `<h1 class="wf-heading">Title</h1>` |
+| `Button("Save").primary` | `<button class="wf-btn wf-btn--primary">Save</button>` |
+| `Card.elevated { ... }` | `<div class="wf-card wf-card--elevated">...</div>` |
 | `Image(src: "...", alt: "...")` | `<img class="wf-image" src="..." alt="...">` |
 | `Input(text, placeholder: "...")` | `<input class="wf-input" type="text" placeholder="...">` |
 | `Navbar { ... }` | `<nav class="wf-navbar">...</nav>` |
@@ -170,15 +170,15 @@ When both i18n and SSG are enabled, pages are pre-rendered using the **default l
 ### Source
 
 ```wf
-Page Home (path: "/", title: "Home") {
+page Home(path: "/", title: "Home") {
     Container {
-        Heading("Welcome to My App", h1)
+        Heading("Welcome to My App").h1
         Text("This loads instantly with SSG.")
 
-        Spacer()
+        Spacer
 
-        Card(elevated) {
-            Text("Static content pre-rendered at build time.", muted)
+        Card.elevated {
+            Text("Static content pre-rendered at build time.").muted
         }
     }
 }

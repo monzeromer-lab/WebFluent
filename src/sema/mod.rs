@@ -777,7 +777,7 @@ fn lift_animation(target: &mut Option<AnimateConfig>, body: &mut [Statement]) {
         let exit = named("exit");
         let delay = named("delay");
         let stagger = named("stagger");
-        let easing = named("easing");
+        let easing = named("easing").map(|e| crate::codegen::builtin::easing_css(&e).to_string());
         let duration = named("duration").or_else(|| match speed.as_deref() {
             Some("fast") => Some("150ms".to_string()),
             Some("slow") => Some("500ms".to_string()),
@@ -866,7 +866,7 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
                 Expr::EnumCase(c) | Expr::StringLiteral(c) => Expr::StringLiteral(c.clone()),
                 other => other.clone(),
             };
-            // A speed is a duration.
+            // A speed is a duration; an easing name is its timing function.
             let (key, value) = match (k.as_str(), &value) {
                 ("speed", Expr::StringLiteral(s)) => (
                     "duration".to_string(),
@@ -878,6 +878,10 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
                         }
                         .to_string(),
                     ),
+                ),
+                ("easing", Expr::StringLiteral(e)) => (
+                    k.clone(),
+                    Expr::StringLiteral(crate::codegen::builtin::easing_css(e).to_string()),
                 ),
                 _ => (k.clone(), value),
             };
@@ -1273,5 +1277,29 @@ mod tests {
         assert_eq!(format!("{once:?}"), format!("{twice:?}"));
         let f = check(&parsed, &|_| "<t>".to_string());
         assert!(f.errors.is_empty(), "{:?}", f.errors);
+    }
+
+    #[test]
+    fn an_easing_name_becomes_its_timing_function() {
+        let src = "page P(path: \"/\") { state open = true\n if open { Text(\"x\", exit: .fadeOut, easing: \"spring\").fadeIn }\n Card { Text(\"y\", exit: .fadeOut, easing: \"easeOut\") } }";
+        let program = lowered(src);
+        let Declaration::Page(page) = &program.declarations[0] else {
+            panic!()
+        };
+        let StatementKind::If(i) = &page.body[1].kind else {
+            panic!("{:?}", page.body[1].kind)
+        };
+        let anim = i.animate.as_ref().unwrap();
+        assert_eq!(
+            anim.easing.as_deref(),
+            Some("cubic-bezier(0.175, 0.885, 0.32, 1.275)")
+        );
+        let StatementKind::UIElement(card) = &page.body[2].kind else {
+            panic!()
+        };
+        let StatementKind::UIElement(text) = &card.children[0].kind else {
+            panic!()
+        };
+        assert!(text.args.iter().any(|a| matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "data-wf-easing" && v == "ease-out")), "{:?}", text.args);
     }
 }

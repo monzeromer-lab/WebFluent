@@ -980,16 +980,35 @@ impl<'a> Rewriter<'a> {
                 self.patch(paren.start as usize, paren.end as usize, text);
             }
             Some(paren) => {
-                for (s, e) in merged {
+                for &(s, e) in &merged {
                     self.patch(s, e, "");
                 }
                 let close = paren.end as usize - 1;
-                let mut text = String::new();
                 if !new_args.is_empty() {
-                    let sep = if remaining_args == 0 { "" } else { ", " };
-                    text.push_str(&format!("{sep}{}", new_args.join(", ")));
+                    // The end of the last argument that stays, when there is one.
+                    let last_end = el
+                        .arg_spans
+                        .iter()
+                        .map(|s| (s.start as usize, s.end as usize))
+                        .filter(|(start, end)| !merged.iter().any(|(s, m)| s <= start && end <= m))
+                        .map(|(_, end)| end)
+                        .max();
+                    match last_end {
+                        // `)` on its own line, as a call laid out one
+                        // argument per line has it: the new arguments take
+                        // a line of their own, at the arguments' indent.
+                        Some(end) if self.source[end..close].contains('\n') => {
+                            let line_start = self.source[..end].rfind('\n').map_or(0, |i| i + 1);
+                            let indent: String = self.source[line_start..]
+                                .chars()
+                                .take_while(|c| *c == ' ' || *c == '\t')
+                                .collect();
+                            self.patch(end, end, format!(",\n{indent}{}", new_args.join(", ")));
+                        }
+                        Some(_) => self.patch(close, close, format!(", {}", new_args.join(", "))),
+                        None => self.patch(close, close, new_args.join(", ")),
+                    }
                 }
-                self.patch(close, close, text);
                 let mut after = String::new();
                 for f in &flags {
                     after.push_str(f);

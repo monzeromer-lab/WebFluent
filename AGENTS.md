@@ -31,105 +31,160 @@ wf generate page|component|store <name>
 
 ## Core Syntax
 
+One lexeme, one meaning. Declarations are lowercase keywords; elements are
+capitalised; a `.flag` sets a boolean prop or picks a case; `name: value`
+passes a prop; a block is the element's children; `on click { }` is a
+handler; `style { }` is raw CSS. What a component takes — its props, cases,
+events, slots and parts — comes from one registry the compiler, the
+linters and the language server all read, and anything that resolves to
+nothing is an error, never a silent no-op.
+
 ### Pages
 
 ```wf
-Page Home (path: "/", title: "Home") {
+page Home(path: "/", title: "Home") {
     state count = 0
 
     Container {
-        Heading("Welcome", h1)
+        Heading("Welcome").h1
         Text("Count: {count}")
-        Button("+1", primary) { count = count + 1 }
+        Button("+1").primary { on click { count = count + 1 } }
     }
 }
 ```
 
-- `path` — URL route. Supports dynamic segments: `/user/:id` (access via `params.id`)
+- `path` — URL route. A dynamic segment is a typed parameter of the page:
+  `page User(path: "/user/:id", id: String) { Text(id) }`
 - `title` — Browser tab title, and the heading of a search result
 - `description` — The snippet a search result and a link preview show
 - `image` — Link-preview image, site-relative or absolute
 - `type` — `"website"` (default) or `"article"`
-- `noindex` — Bare flag; keeps the page out of search results and out of the sitemap
+- `noindex: true` — keeps the page out of search results and out of the sitemap
+- `layout: Shell(crumb: "Home")` — the component that frames the page; the
+  page renders in its default slot
 - `guard` — Expression that must hold for the route to render
 - `redirect` — Where to send the visitor when the guard fails
 
 ```wf
-Page Post (path: "/blog/slow-roasting", title: "Slow roasting, explained",
-           description: "Why we take eleven minutes over it.",
-           type: "article", image: "/roast.png") { ... }
+page Post(path: "/blog/slow-roasting", title: "Slow roasting, explained",
+          description: "Why we take eleven minutes over it.",
+          type: "article", image: "/roast.png") { Container { Text("…") } }
 ```
+
+Pages own their routes: `app` places a bare `Router`, and the table is built
+from every page's `path`, ordered by specificity (static segments before
+`:params`, `*` last), so declaration order cannot shadow a route.
 
 ### Components
 
 ```wf
-Component UserCard (name: String, role: String, active: Bool = true) {
-    Card(elevated) {
-        Row(align: center, gap: md) {
-            Avatar(initials: "U", primary)
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            Avatar(initials: "U").primary
             Stack {
-                Text(name, bold)
-                Text(role, muted)
+                Text(name).bold
+                Text(role).muted
             }
             if active {
-                Badge("Active", success)
+                Badge("Active").success
             }
         }
     }
 }
 
 // Usage
-UserCard(name: "Monzer", role: "Developer")
+UserCard("Monzer", role: "Developer")
+UserCard("Sam", role: "Designer").active
 ```
 
-- Prop types: `String`, `Number`, `Bool`, `List`, `Map`
-- Optional props: `avatar?: String`
-- Default values: `active: Bool = true`
+- Prop types: `String`, `Number`, `Bool`, `Map`, `Any`, `[T]` (a list), `T?`
+  (may be null), or a declared `type` or `enum`
+- `_ name: Type` — the one prop a call may pass positionally; it must be first
+- Default values: `active: Bool = true`; a `Bool` prop is set with a flag
+  (`.active`), an enum prop with a flag or by name (`.loud`, `tone: .loud`)
+- A `///` comment above a declaration, a prop or an event is its
+  documentation, shown on hover
+
+A prop that reads state stays live inside the component: `Chip(pressed:
+showErrors)` repaints when `showErrors` changes.
 
 #### Slots
 
-A component takes a block from its caller and places it with the `children`
-keyword. The block is compiled in the caller's scope, so it reads the caller's
-state and loop bindings; the component only decides where it lands.
+A component places its caller's block with `children`, and may declare
+named slots the caller fills with `name { … }`. A fill is compiled in the
+caller's scope, so it reads the caller's state and loop bindings; the
+component only decides where it lands.
 
 ```wf
-Component Panel (title: String) {
+component Panel(_ title: String) {
+    slot trailing
     Card {
-        Heading(title, h3)
+        Row(justify: .between) { Heading(title).h3  trailing }
         children
     }
 }
 
-Panel(title: "Keys") {
+Panel("Keys") {
+    trailing { Badge("Beta") }
     Text("Rotate every 90 days.")
-    Button("Generate", primary) { generate() }
+    Button("Generate").primary { on click { generate() } }
 }
 ```
 
-Call user components with **named arguments**. A prop that reads state stays
-live inside the component: `Chip(pressed: showErrors)` repaints when
-`showErrors` changes. A handler written on the call
-— the click shorthand or an explicit `on:…` block — attaches to the
-component's root element, so a styled button component is clickable wherever
-it is used:
+A page's `layout:` is a component with a default slot, called with the page
+as its block.
+
+#### Events
+
+A component declares the events it fires and their arguments; `emit` fires
+one; the caller handles it with `on name(args) { }`. A DOM event written on
+a component call — `on click { }` — attaches to the component's root
+element, so a styled button component is clickable wherever it is used.
 
 ```wf
-Component SaveButton (label: String) {
-    Button(label) { style { background: "var(--brand)" hover { background: "var(--brand-hover)" } } }
+component TodoRow(_ label: String, done: Bool = false) {
+    event toggle(id: String)
+    Row {
+        Checkbox(checked: done) { on change { emit toggle(label) } }
+        Text(label)
+    }
 }
 
-SaveButton(label: "Publish changes") { publish() }
+TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
 ```
+
+### Types and enums
+
+```wf
+enum Tone { calm, loud }
+type Todo { id: String, title: String, done: Bool = false, tone: Tone = .calm, note: String? = null }
+
+store Todos {
+    state items: [Todo] = []
+    action add(title: String) { items = items.concat([Todo(id: uid(), title: title)]) }
+}
+```
+
+A record is built with named fields, `Todo(id: "1", title: "x")`; a case is
+written `.calm`. The type checker reads every declared type and infers the
+rest (literals, records, lists, the built-in methods of strings, numbers and
+lists, store members, lambdas). Anything unresolved is `Any`, which agrees
+with everything, so a program that declares no types checks as it always
+did; every annotation narrows what the checker can say. See
+[Compiler diagnostics](#compiler-diagnostics) for what it reports.
 
 ### Attributes
 
-Any named argument a built-in does not recognise becomes an HTML attribute on
-its root element, and a hyphenated name is allowed, so ARIA state and data
-attributes are written where the design wants them:
+Any named argument a built-in does not declare is written to its root
+element as an HTML attribute, with a warning; `aria-*`, `data-*` and the
+global attributes (`id`, `role`, `tabindex`, `title`, `hidden`, `lang`,
+`dir`) are declared families and draw none:
 
 ```wf
-Button("Errors", aria-pressed: showErrors, data-tone: "danger") { showErrors = !showErrors }
-Trow(aria-selected: isSelected) { ... }
+Button("Errors", aria-pressed: showErrors, data-tone: "danger") { on click { showErrors = !showErrors } }
+Table.Row(aria-selected: isSelected) { Table.Cell("…") }
 Badge("Ready", data-tone: "success")
 ```
 
@@ -137,88 +192,67 @@ A value that reads state follows it. `aria-*` keeps a `false` value as the
 string `"false"` (a real ARIA state); any other attribute given `false` is
 omitted.
 
-`class:` is the exception: it does not replace the element's classes, it
-adds to them. `Card(class: "feature wide")` renders `class="wf-card feature
-wide"`, and a value that reads state is followed — the classes it named last
-time come off, the ones it names now go on. It is how an element picks up a
-rule from the project's own stylesheets (see [Stylesheets](#stylesheets)).
+`class:` does not replace the element's classes, it adds to them.
+`Card(class: "feature wide")` renders `class="wf-card feature wide"`, and a
+value that reads state is followed — the classes it named last time come
+off, the ones it names now go on. It is how an element picks up a rule from
+the project's own stylesheets (see [Stylesheets](#stylesheets)).
 
 ### App (Router + Layout)
 
-The Router can be placed at any nesting depth inside the App. The codegen recursively finds it.
+`app` is the root of the site: what wraps every page, and a bare `Router`
+where the current page renders. The Router can sit at any depth.
 
 ```wf
 // Simple: Router at top level
-App {
-    Navbar { ... }
-    Router {
-        Route(path: "/", page: Home)
-        Route(path: "/about", page: About)
-        Route(path: "*", page: NotFound)
-    }
+app {
+    Navbar(brand: "Ledger") { Navbar.Links { Link("Home", to: "/") } }
+    Router
     Footer
 }
 ```
 
 ```wf
 // Sidebar layout: Router nested inside Row > Container
-App {
+app {
     Row {
-        style { min-height: "100vh" }
+        style { min-height: 100vh }
 
         Sidebar {
             style {
-                width: "220px"
-                position: "fixed"
-                top: "0"
-                left: "0"
-                bottom: "0"
-                background: "#1A1A19"
+                width: 220px
+                position: fixed
+                top: 0
+                left: 0
+                bottom: 0
+                background: #1A1A19
             }
-            Sidebar.Header { Text("My App", bold) }
+            Sidebar.Header { Text("My App").bold }
             Sidebar.Item(to: "/", icon: "home") { Text("Home") }
             Sidebar.Item(to: "/about", icon: "info") { Text("About") }
         }
 
         Container {
             style {
-                margin-left: "220px"
-                flex: "1"
+                margin-left: 220px
+                flex: 1
             }
 
-            Router {
-                Route(path: "/", page: Home)
-                Route(path: "/about", page: About)
-            }
+            Router
         }
     }
 }
 ```
 
-```wf
-// Navbar + Sidebar + Router
-App {
-    NavBar
-
-    Row {
-        DocSidebar
-
-        Router {
-            Route(path: "/", page: Home)
-            Route(path: "/docs", page: Docs)
-        }
-    }
-
-    SiteFooter
-}
-```
-
-The Router can be wrapped in `Row`, `Container`, `Stack`, or any layout component. Sibling elements (Sidebar, Navbar) inside the same wrapper are emitted alongside the router element.
+`Router(transition: .fade, duration: "200ms")` plays the old page out and the
+new one in on a route change (`.slide` slides them). A page that names a
+`layout:` is framed by that component instead of, or as well as, the app's
+own chrome.
 
 ### Stores (Shared State)
 
 ```wf
-Store CartStore {
+store CartStore {
     state items = []
     state total = 0
 
@@ -230,7 +264,7 @@ Store CartStore {
     }
 
     action getHeaders() {
-        h = {}
+        let h = {}
         h["Authorization"] = "Bearer " + accessToken
         return h
     }
@@ -242,10 +276,10 @@ Store CartStore {
 }
 
 // Usage in any page/component:
-Page Shop (path: "/shop") {
+page Shop(path: "/shop") {
     use CartStore
     Text("Cart: {CartStore.count} items")
-    Button("Clear") { CartStore.clear() }
+    Button("Clear") { on click { CartStore.clear() } }
 }
 ```
 
@@ -253,46 +287,60 @@ Page Shop (path: "/shop") {
 
 ```wf
 state count = 0                      // Signal — reactive variable
+state draft: String = ""             // with a declared type
 derived double = count * 2           // Computed — auto-updates
 effect { log(count) }                // Side effect — runs on change
 ```
 
 - UI elements that reference state variables auto-update when values change
 - String interpolation: `"Hello, {name}!"` — reactive in UI elements
+- A call at the top of a page or component — `Store.load(id)` — is set-up
+  code, run once when it renders
 
 ### Events
 
 ```wf
 Button("Click") {
-    on:click { doSomething() }
+    on click { doSomething() }
 }
-Input(text, bind: query) {
-    on:input { search(query) }
+Input(bind: query).text {
+    on input { search(query) }
 }
 Form {
-    on:submit { saveData() }
+    on submit(event) { event.preventDefault()  saveData() }
+}
+Input(bind: q) {
+    on keydown(e) { if e.key == "Escape" { q = "" } }
 }
 ```
 
-Events: `on:click`, `on:input`, `on:change`, `on:submit`, `on:focus`, `on:blur`, `on:keydown`, `on:keyup`, `on:mouseenter`, `on:mouseleave`
+DOM events: `click`, `input`, `change`, `submit`, `focus`, `blur`,
+`keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`. The handler's
+parameter names the DOM event; without one, `event` is in scope. An
+element's block is ordered `style` → `transition` → `on …` → slot fills →
+children.
 
-The event object is available as `event` (e.g., `event.currentTarget`, `event.target`).
-
-### Return Statements
-
-Actions can return values using `return`:
+### Actions, `let`, `return` and `await`
 
 ```wf
-Store AuthStore {
+store AuthStore {
     state accessToken = ""
 
     action getHeaders() {
-        h = {}
+        let h = {}
         h["Authorization"] = "Bearer " + accessToken
         return h
     }
+
+    action load() {
+        let r = await fetch("/api/me")
+        accessToken = r.token
+    }
 }
 ```
+
+`let` declares a local of an action or handler; `await` inside one makes
+it async; `return` leaves it with a value or without.
 
 ### Browser Globals
 
@@ -322,15 +370,17 @@ setTimeout(callback, 1000)
 // alert, confirm, prompt, RegExp, Map, Set, etc.
 ```
 
-### Lambdas
+### Expressions
 
-`x => expr` and `(a, b) => expr` — one expression as the body, returning a
-map with `(x) => { key: value }`. Used with `filter`, `map`, `sort` and the
-other array methods, mostly inside stores:
+`x => expr` and `(a, b) => expr` are lambdas with one expression as the
+body, returning a map with `(x) => { key: value }`; `a ?? b` takes `b` when
+`a` is null; `if c { a } else { b }` and `match t { .calm { 1 } else { 2 } }`
+are values; `$token` is a design token; `.case` is a case of an enum.
 
 ```wf
 derived open = incidents.filter(i => !i.resolved)
 derived byAge = rows.slice().sort((a, b) => a.age - b.age)
+derived label = if selected != null { selected.title } else { "none" }
 ```
 
 ### Control Flow
@@ -340,11 +390,16 @@ derived byAge = rows.slice().sort((a, b) => a.age - b.age)
 if isLoggedIn {
     Text("Welcome!")
 } else {
-    Button("Log In") { navigate("/login") }
+    Button("Log In") { on click { navigate("/login") } }
 }
 
-// Loop
-for item in items {
+// A value that may be null, bound when it is not
+if let user = session.user {
+    Text(user.name)
+}
+
+// Loop, keyed: an item keeps its nodes across inserts, removals and moves
+for item in items by item.id {
     Card { Text(item.name) }
 }
 
@@ -357,33 +412,43 @@ for item, index in items {
 show isVisible {
     Modal { Text("Content") }
 }
+
+// One arm by a value: a resource's states, or an enum's cases
+match tone {
+    .calm { Text("Calm") }
+    else { Text("Loud") }
+}
 ```
 
 ### Data Fetching
 
 ```wf
-fetch users from "/api/users" {
-    loading { Spinner() }
-    error (err) { Alert("Failed: {err.message}", danger) }
-    success {
-        for user in users {
+resource users = fetch("/api/users")
+match users {
+    loading { Spinner }
+    error(err) { Alert("Failed: {err.message}").danger }
+    ready(users) {
+        for user in users by user.id {
             Text(user.name)
         }
     }
 }
 ```
 
-Options: `(method: "POST", body: { key: value }, headers: { "Authorization": token })`
+A resource declares its type — `resource users: [User] = fetch(…)` — and
+the `ready` arm's binding has it. Options: `fetch(url, method: "POST",
+body: { key: value }, headers: { "Authorization": token })`. The request
+repeats when a URL that reads state changes.
 
 Map literals support **quoted string keys** for headers and special field names:
 
 ```wf
-fetch data from "/api/users" (
-    method: "POST",
+resource data = fetch("/api/users", method: "POST",
     headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
-    body: { action: "create", token: sessionToken }
-) {
-    success { Text("Done") }
+    body: { action: "create", token: sessionToken })
+match data {
+    ready(data) { Text("Done") }
+    else { Spinner }
 }
 ```
 
@@ -393,7 +458,7 @@ Reserved words (`action`, `token`, `error`, `state`, etc.) work as map keys.
 
 ```wf
 navigate("/path")                    // Programmatic
-Link(to: "/about") { Text("About") } // Declarative
+Link("About", to: "/about")          // Declarative
 ```
 
 ## Built-in Components
@@ -415,9 +480,9 @@ Link(to: "/about") { Text("About") } // Declarative
 | Component | Usage |
 |-----------|-------|
 | `Navbar` | `Navbar { Navbar.Brand { ... } Navbar.Links { ... } Navbar.Actions { ... } }` |
-| `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider() }` |
-| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: "prefix"` also matches routes beneath it |
-| `Tabs` | `Tabs { TabPage("Tab 1") { ... } TabPage("Tab 2") { ... } }` |
+| `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider }` |
+| `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it |
+| `Tabs` | `Tabs { Tabs.Page("Tab 1") { ... } Tabs.Page("Tab 2") { ... } }` |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item { ... } }` |
 
@@ -425,53 +490,53 @@ Link(to: "/about") { Text("About") } // Declarative
 
 | Component | Usage |
 |-----------|-------|
-| `Card` | `Card(elevated) { Card.Header { ... } Card.Body { ... } Card.Footer { ... } }` |
-| `Table` | `Table(caption: "Deployments") { Thead { Trow { Tcell("Col") } } Tbody { Trow { Tcell("Val") } } }` — cells inside `Thead` are `<th scope="col">`, as is `Tcell("Build", header)` anywhere (a header cell a component renders); `caption` is the table's accessible name, rendered visually hidden |
-| `List` | `List { Text("Item 1") Text("Item 2") }` — `List(ordered)` for numbered |
-| `Badge` | `Badge("Label", primary)` — variants: primary, success, danger, warning, info |
+| `Card` | `Card.elevated { Card.Header { ... } Card.Body { ... } Card.Footer { ... } }` — variants: `.flat`, `.elevated`, `.outlined` |
+| `Table` | `Table(caption: "Deployments") { Table.Head { Table.Row { Table.Cell("Col") } } Table.Body { Table.Row { Table.Cell("Val") } } }` — cells inside `Table.Head` are `<th scope="col">`, as is `Table.Cell("Build").header` anywhere (a header cell a component renders); `caption` is the table's accessible name, rendered visually hidden |
+| `List` | `List { List.Item { Text("Item 1") } List.Item { Text("Item 2") } }` — `List.ordered` for numbered |
+| `Badge` | `Badge("Label").primary` — tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`; `.pill` |
 | `Tag` | `Tag("JavaScript")` |
-| `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO", primary)` — modifiers: small, large, primary |
-| `Tooltip` | `Tooltip(text: "Click to save") { Button("Save", primary) }` — wraps children, shows text on hover |
+| `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.lg`, `.primary` |
+| `Tooltip` | `Tooltip("Click to save") { Button("Save").primary }` — wraps children, shows text on hover |
 
 ### Form & Input
 
 | Component | Usage |
 |-----------|-------|
-| `Input` | `Input(text, bind: var, placeholder: "...", label: "Name", hint: "As on your passport", error: nameError)` — with `label:`, `hint:` or `error:` the control is wrapped in a field: the label is a `<label for>`, the hint and the error are linked by `aria-describedby`, the error (a string, empty when there is none) is announced as it appears and sets `aria-invalid` |
-| `Select` | `Select(bind: var, label: "Choose", hint: "...", error: roleError) { Option("val1", "Label 1") }` — field wrapping as `Input`; an `Option`'s first positional is the value, the second the visible label (one positional is both) |
+| `Input` | `Input(bind: var, placeholder: "...", label: "Name", hint: "As on your passport", error: nameError).text` — with `label:`, `hint:` or `error:` the control is wrapped in a field: the label is a `<label for>`, the hint and the error are linked by `aria-describedby`, the error (a string, empty when there is none) is announced as it appears and sets `aria-invalid` |
+| `Select` | `Select(bind: var, label: "Choose", hint: "...", error: roleError) { Select.Option("Label 1", value: "val1") }` — field wrapping as `Input`; an option's positional is its visible label, `value:` what is bound (the label when there is no `value:`) |
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
 | `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value. `aria-*` arguments reach the input; with `aria-valuetext:` the raw number is not shown beside the track (you are showing it) |
 | `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input |
-| `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on:change { handleFile(event) } }` — modifiers: multiple |
-| `Form` | `Form { ... on:submit { save() } }` |
+| `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on change(e) { handleFile(e) } }` — flags: `.multiple` |
+| `Form` | `Form { on submit { save() } ... }` |
 
-Input types (first positional arg): `text`, `email`, `password`, `number`, `search`, `tel`, `url`, `date`, `time`, `color`
+Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`
 
 ### Feedback
 
 | Component | Usage |
 |-----------|-------|
-| `Alert` | `Alert("Message", success)` — variants: success, danger, warning, info |
-| `Toast` | `Toast("Saved!", success)` — temporary notification |
+| `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
+| `Toast` | `Toast("Saved!").success` — temporary notification |
 | `Modal` | `Modal(visible: showModal, title: "Title") { ... Modal.Footer { ... } }` |
 | `Dialog` | `Dialog(visible: show, title: "Confirm") { ... }` |
-| `Spinner` | `Spinner()` or `Spinner(large)` |
+| `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
-| `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(circle, size: "48px")` — modifiers: circle |
+| `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
 
 ### Actions
 
 | Component | Usage |
 |-----------|-------|
-| `Button` | `Button("Label", primary, large)` — click handler: `Button("Save") { doSave() }` |
-| `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit", primary) { editItem() }` — modifiers: small, large, primary, danger |
+| `Button` | `Button("Label").primary.lg` — click handler: `Button("Save") { on click { doSave() } }` |
+| `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }` — flags: `.sm`, `.lg`, `.primary`, `.danger` |
 | `ButtonGroup` | `ButtonGroup { Button("A") Button("B") }` |
 | `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
 
-Button variants: `primary`, `secondary`, `success`, `danger`, `warning`, `info`
-Button modifiers: `small`, `large`, `full`, `rounded`, `pill`, `outlined`
+Button tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`
+Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .submit` inside a form
 
 ### Media
 
@@ -479,19 +544,19 @@ Button modifiers: `small`, `large`, `full`, `rounded`, `pill`, `outlined`
 |-----------|-------|
 | `Image` | `Image(src: "/photo.jpg", alt: "Description")` — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", controls: true)` |
-| `Icon` | `Icon("home")` or `Icon("search", large, primary)` — 30 built-in SVG icons rendered inline |
+| `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 30 built-in SVG icons rendered inline |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 
 ### Typography
 
 | Component | Usage |
 |-----------|-------|
-| `Text` | `Text("Hello", bold, muted, center)` |
-| `Heading` | `Heading("Title", h1)` — levels: h1, h2, h3, h4, h5, h6 |
-| `Code` | `Code("const x = 1", block)` — `block` for multi-line |
+| `Text` | `Text("Hello").bold.muted.center` |
+| `Heading` | `Heading("Title").h1` — levels: `.h1` … `.h6` (`.h2` is the default) |
+| `Code` | `Code("const x = 1").block` — `.block` for multi-line |
 | `Blockquote` | `Blockquote { Text("Quote text") }` |
 
-Text modifiers: `bold`, `italic`, `underline`, `uppercase`, `lowercase`, `center`, `right`, `muted`, `small`, `large`, `primary`, `danger`, `success`, `warning`, `info`
+Text flags: `.bold`, `.italic`, `.underline`, `.uppercase`, `.lowercase`, `.left`, `.center`, `.right`, `.muted`, `.sm`, `.lg`, `.heading`, `.subtitle`, and the tones `.primary`, `.secondary`, `.danger`, `.success`, `.warning`, `.info`
 
 ### Component Details
 
@@ -501,10 +566,10 @@ Structural codegen with sub-components for app navigation:
 
 ```wf
 Sidebar {
-    Sidebar.Header { Text("My App", heading) }
+    Sidebar.Header { Text("My App").heading }
     Sidebar.Item(to: "/", icon: "home") { Text("Home") }
     Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
-    Sidebar.Divider()
+    Sidebar.Divider
     Sidebar.Item(to: "/logout", icon: "logout") { Text("Logout") }
 }
 ```
@@ -512,7 +577,7 @@ Sidebar {
 Sub-components: `Sidebar.Header`, `Sidebar.Item`, `Sidebar.Divider`
 
 A `Sidebar.Item` whose `to` matches the current route is marked `.active` +
-`aria-current="page"`, like a `Link`; `active: "prefix"` matches sub-routes.
+`aria-current="page"`, like a `Link`; `active: .prefix` matches sub-routes.
 
 #### Breadcrumb
 
@@ -533,8 +598,8 @@ The last item (without `to:`) renders as the current page (no link).
 Wraps children, shows text on hover:
 
 ```wf
-Tooltip(text: "Click to save") {
-    Button("Save", primary)
+Tooltip("Click to save") {
+    Button("Save").primary
 }
 ```
 
@@ -544,11 +609,11 @@ Displays an image or initials:
 
 ```wf
 Avatar(src: "/photo.jpg", alt: "User")
-Avatar(initials: "MO", primary)
-Avatar(initials: "J", large)
+Avatar(initials: "MO").primary
+Avatar(initials: "J").lg
 ```
 
-Modifiers: `small`, `large`, `primary`
+Flags: `.sm`, `.lg`, `.primary`
 
 #### Skeleton
 
@@ -556,10 +621,10 @@ Loading placeholder:
 
 ```wf
 Skeleton(height: "20px", width: "200px")
-Skeleton(circle, size: "48px")
+Skeleton(size: "48px").circle
 ```
 
-Modifiers: `circle`
+Flags: `.circle`
 
 #### Carousel
 
@@ -578,11 +643,11 @@ Icon-only button with aria-label:
 
 ```wf
 IconButton(icon: "close", label: "Close")
-IconButton(icon: "edit", label: "Edit", primary) { editItem() }
-IconButton(icon: "menu", label: "Actions", aria-haspopup: "menu", aria-expanded: open) { toggleMenu() }
+IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }
+IconButton(icon: "menu", label: "Actions", aria-haspopup: "menu", aria-expanded: open) { on click { toggleMenu() } }
 ```
 
-Modifiers: `small`, `large`, `primary`, `danger`. The `label` is the accessible name (`aria-label` and `title`), never visible text; every other named argument (`type`, `disabled`, `aria-*`, `data-*`) is an attribute as on `Button`.
+Flags: `.sm`, `.lg`, `.primary`, `.danger`. The `label` is the accessible name (`aria-label` and `title`), never visible text; every other named argument (`type`, `disabled`, `aria-*`, `data-*`) is an attribute as on `Button`.
 
 #### Slider
 
@@ -606,9 +671,9 @@ Styled file input:
 
 ```wf
 FileUpload(accept: "image/*", label: "Upload Photo") {
-    on:change { handleFile(event) }
+    on change(event) { handleFile(event) }
 }
-FileUpload(accept: ".pdf,.doc", multiple, label: "Documents")
+FileUpload(accept: ".pdf,.doc", label: "Documents").multiple
 ```
 
 ### Icon System
@@ -621,61 +686,78 @@ Usage:
 
 ```wf
 Icon("home")
-Icon("search", large, primary)
+Icon("search").lg.primary
 IconButton(icon: "close", label: "Close")
 Sidebar.Item(to: "/", icon: "home") { Text("Home") }
 ```
 
-## Modifiers Reference
+## Flags Reference
 
-Modifiers are positional keyword arguments that apply CSS classes:
+A flag is written tight after the element, its arguments or another flag:
+`Button("Save").primary.lg`. It sets a `Bool` prop (`.required`,
+`.outlined`, `.pill`) or picks the case of an enum prop (`.lg` is `size:
+.lg`, `.primary` is `tone: .primary`); a case that more than one prop has
+is named — `tone: .info`. Each component's flags are listed in its entry
+above; the language server offers them after `.`, and a flag the
+component does not take is an error.
 
-**Size**: `small`, `medium`, `large`
-**Color**: `primary`, `secondary`, `success`, `danger`, `warning`, `info`
-**Shape**: `rounded`, `pill`, `square`
-**Elevation**: `flat`, `elevated`, `outlined`
-**Width**: `full`, `fit`
-**Text**: `bold`, `italic`, `underline`, `uppercase`, `lowercase`, `center`, `right`, `muted`, `heading`
-**Animation**: `fadeIn`, `fadeOut`, `slideUp`, `slideDown`, `slideLeft`, `slideRight`, `scaleIn`, `scaleOut`, `bounce`, `shake`, `pulse`, `spin`
-**Speed**: `fast` (150ms), `slow` (500ms)
+**Sizes**: `.sm`, `.md`, `.lg` (`Spacer` and `gap:` also take `.xs`, `.xl`)
+**Tones**: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`
+**Shape**: `.rounded`, `.pill`
+**Surface**: `.flat`, `.elevated`, `.outlined`
+**Width**: `.full`, `.fluid`
+**Text**: `.bold`, `.italic`, `.underline`, `.uppercase`, `.lowercase`, `.left`, `.center`, `.right`, `.muted`, `.heading`, `.subtitle`
+**Heading level**: `.h1` … `.h6`
+**Input type**: `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`
+**Animation** (on every element): `.fadeIn`, `.fadeOut`, `.slideUp`, `.slideDown`, `.slideLeft`, `.slideRight`, `.scaleIn`, `.scaleOut`, `.bounce`, `.shake`, `.pulse`, `.spin`
+**Speed** (on every element): `.fast` (150ms), `.slow` (500ms)
 
 ## Animation
 
+Every element takes the universal motion props: an enter animation as a
+flag or `animate:`, `exit:`, `delay:`, `duration:` (or a speed flag),
+`stagger:` inside a list, and `easing:`.
+
 ```wf
 // Mount animation (plays once on appear)
-Card(elevated, fadeIn) { ... }
-Heading("Title", h1, slideUp, slow)
+Card.elevated.fadeIn { Text("…") }
+Heading("Title").h1.slideUp.slow
 
-// Conditional enter/exit
-if showPanel, animate(scaleIn, fadeOut) {
-    Card { Text("Animated panel") }
+// Enter and exit: on the root of an if, for or show, the branch plays
+// them; anywhere else the element plays its own exit when it leaves
+if showPanel {
+    Card(exit: .fadeOut).scaleIn { Text("Animated panel") }
 }
 
-// List with stagger
-for item in items, animate(slideUp, fadeOut, stagger: "50ms") {
-    Text(item.name)
+// List with stagger; a keyed list moves items instead of rebuilding them
+for item in items by item.id {
+    Text(item.name, exit: .fadeOut, stagger: "50ms").slideUp
 }
 
 // Replay on hover (via event)
-Card(outlined, fadeIn) {
-    on:mouseenter { replayAnimation(event.currentTarget, "fadeIn") }
+Card.outlined.fadeIn {
+    on mouseenter(event) { replayAnimation(event.currentTarget, "fadeIn") }
 }
 
-// Transition block (declarative, per-property)
+// Transition block (declarative, per-property; tokens allowed)
 Button("Hover") {
     transition {
-        background 200ms ease
-        transform 150ms spring
+        background: 200ms ease
+        transform: $d-fast spring
     }
 }
 
 // CSS transition property (in style block)
 Button("Hover") {
     style {
-        transition: "all 200ms ease"
+        transition: all 200ms ease
     }
 }
 ```
+
+A route change animates too: `Router(transition: .fade | .slide, duration:
+"200ms")` in `app`. A reader who asked for less motion
+(`prefers-reduced-motion`) gets none: no class, no wait.
 
 ## Styling
 
@@ -684,19 +766,24 @@ Button("Hover") {
 ```wf
 Card {
     style {
-        background: "#f0f0f0"
-        border-radius: "1rem"
-        padding: "2rem"
-        box-shadow: "0 2px 8px rgba(0,0,0,0.1)"
-        transition: "all 200ms ease"
+        background: #f0f0f0
+        border-radius: 1rem
+        padding: 2rem
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1)
+        transition: all 200ms ease
     }
 }
 ```
 
-Style properties use CSS names (hyphenated). Values are strings or numbers. All CSS property names work, including `transition`, `animation`, `filter`, etc.
-
-A value that reads state follows it: `style { width: "{pct}%" }` or
-`style { background: tone }` repaints whenever `pct` or `tone` changes.
+Style properties use CSS names (hyphenated). A value is raw CSS to the end
+of its line or a `;` — no quotes — so anything CSS accepts is written as
+CSS: `rgba(0,0,0,0.1)`, `0 4px 12px`, `"Inter", sans-serif`. Two more
+things may appear in a value: `$token`, a design token (`$surface`, or the
+short name a property's group resolves — `padding: $xl` is `$spacing-xl`),
+and `{expr}`, a splice that reads state. A value that reads state follows
+it: `style { width: {pct}% }` or `style { background: {tone} }` repaints
+whenever `pct` or `tone` changes; a value without a splice compiles to a
+stylesheet rule the element carries by class.
 
 ### Style support in PDF and Slides
 
@@ -727,21 +814,21 @@ Style blocks support `@media` queries for responsive design:
 ```wf
 Sidebar {
     style {
-        width: "260px"
-        position: "fixed"
+        width: 260px
+        position: fixed
 
         @media (max-width: 768px) {
-            display: "none"
+            display: none
         }
     }
 }
 
-Heading("Title", h1) {
+Heading("Title").h1 {
     style {
-        font-size: "3rem"
+        font-size: 3rem
 
         @media (max-width: 768px) {
-            font-size: "1.5rem"
+            font-size: 1.5rem
         }
     }
 }
@@ -750,36 +837,42 @@ Heading("Title", h1) {
 A `@media` block is compiled into `styles.css` under a class named by its
 content, and the element carries the class — so a hundred identical cards
 share one rule, and the static paint has it before JavaScript runs. Values
-inside it take design-token keywords like any other style value.
+inside it take `$tokens` like any other style value.
 
-### Pseudo-states
+### Nested rules
 
 What an inline style cannot say — how an element looks while hovered,
-focused, pressed or disabled — is a nested block in the same `style { }`:
+focused, pressed or disabled — is a nested rule in the same `style { }`,
+in CSS nesting syntax: `&` is the element.
 
 ```wf
 Button("Publish changes") {
     style {
-        background: "var(--brand)"
-        color: "var(--on-brand)"
-        hover { background: "var(--brand-hover)" }
-        active { transform: "translateY(1px)" }
-        focus { outline: "2px solid var(--focus-ring)"  outline-offset: "2px" }
-        disabled { opacity: 0.45 }
+        background: $brand
+        color: $on-brand
+        &:hover { background: $brand-hover }
+        &:active { transform: translateY(1px) }
+        &:focus-visible { outline: 2px solid $focus-ring; outline-offset: 2px }
+        &:disabled { opacity: 0.45 }
     }
 }
-Input(text, placeholder: "shop.example.com") {
-    style { placeholder { color: "var(--text-tertiary)" } }
+Input(placeholder: "shop.example.com").text {
+    style { &::placeholder { color: $text-tertiary } }
+}
+Link("Home", to: "/") {
+    style { &[aria-current="page"] { font-weight: 600 } }
 }
 ```
 
-States: `hover`, `focus` (compiled to `:focus-visible` — the keyboard focus
-ring, not a ring on every click), `active`, `disabled`, `placeholder`,
-`focus-within`, and the ARIA states a control keeps in its attributes —
-`current` (`aria-current="page"`, which the router sets on a `Link`),
-`pressed`, `selected`, `checked`, `expanded`, `invalid` (each `aria-…="true"`)
-— so the rule keys off the attribute assistive technology reads. These are stylesheet rules, so their values must be known at
-build time: literals and token keywords, not state. They override the
+Any selector CSS nesting allows: `&:hover`, `&:focus-visible` (the keyboard
+focus ring, not a ring on every click), `&:active`, `&:disabled`,
+`&::placeholder`, `&:focus-within`, and the ARIA states a control keeps in
+its attributes — `&[aria-current="page"]`, which the router sets on a
+`Link`; `&[aria-pressed="true"]`, `&[aria-selected="true"]`,
+`&[aria-checked="true"]`, `&[aria-expanded="true"]`,
+`&[aria-invalid="true"]` — so the rule keys off the attribute assistive
+technology reads. These are stylesheet rules, so their values must be
+known at build time: literals and tokens, not state. They override the
 element's base declarations while the state or media condition holds (they
 are emitted `!important`, since the base is inline); when a state rule and a
 media rule set the same property, the media rule wins.
@@ -790,11 +883,14 @@ A rule that has to vary per element reads a custom property the element sets
 ```wf
 Button(label) {
     style {
-        --hover-bg: hoverColor          // state, prop or derived
-        hover { background: "var(--hover-bg)" }
+        --hover-bg: {hoverColor}  // state, prop or derived
+        &:hover { background: var(--hover-bg) }
     }
 }
 ```
+
+A custom property of the element's own is read with `var(--name)`; `$name`
+is reserved for design tokens.
 
 ### Stylesheets
 
@@ -831,9 +927,7 @@ The files are read in path order and bundled into `styles.css` after the
 engine's rules (so on equal specificity yours win) and before the rules that
 `style { }` blocks compile to (which carry tripled specificity, as the
 inline styles they replace beat any sheet). They are minified with the rest.
-`var(--token)` reaches every design token the theme declares. A modifier
-class one of these files defines — `.wf-alert--elevated` — makes
-`Alert(elevated)` a real variant rather than a `V02` warning. There is no
+`var(--token)` reaches every design token the theme declares. There is no
 scoping: a class is global, and named on purpose.
 
 `meta.stylesheets` in the config still links a sheet that is *not* built —
@@ -844,20 +938,21 @@ a file in `public/` or a URL — ahead of `styles.css`.
 A theme is written in WebFluent, in your own `src/`:
 
 ```wf
-Theme Brand {
-    token color-primary: "#3B82F6"
-    token color-secondary: "#8B5CF6"
-    token font-family: "Inter, sans-serif"
-    token radius-md: "0.5rem"
+theme Brand {
+    color-primary: #3B82F6
+    color-secondary: #8B5CF6
+    font-family: Inter, sans-serif
+    radius-md: 0.5rem
 }
 ```
 
 Every token you do not name keeps its baseline value, so a theme is only as
 large as the difference you want. A theme may also declare tokens of its own
-(`token surface-raised: "#131519"`, `token viz-1: "#ff6a2b"`); every token
-becomes a custom property on `:root`, usable from any style block as
-`"var(--surface-raised)"`. Declare one and it is used automatically;
-declare several and pick one with `"theme": { "name": "Brand" }`.
+(`surface-raised: #131519`, `viz-1: #ff6a2b`); every token becomes a custom
+property on `:root`, usable from any style block as `$surface-raised` and
+from a stylesheet as `var(--surface-raised)`. Declare one and it is used
+automatically; declare several and pick one with `"theme": { "name":
+"Brand" }`.
 
 Four starting points ship in `examples/themes/` — copy one into `src/` and edit
 it. They are ordinary source files, not engine settings.
@@ -1011,9 +1106,9 @@ find it blocked, and that should be a deliberate choice.
 
 ```wf
 Text(t("nav.home"))                    // Translated text
-Text(t("greeting", name: user.name))   // With interpolation
-Button("EN") { setLocale("en") }       // Switch locale
-Button("AR") { setLocale("ar") }       // Auto-RTL for Arabic
+Text(t("greeting", { name: user.name }))          // With interpolation
+Button("EN") { on click { setLocale("en") } }     // Switch locale
+Button("AR") { on click { setLocale("ar") } }     // Auto-RTL for Arabic
 ```
 
 RTL locales (automatic `dir="rtl"`): `ar`, `he`, `fa`, `ur`
@@ -1067,25 +1162,25 @@ Fonts: Helvetica, Helvetica-Bold, Times-Roman, Times-Bold, Courier, Courier-Bold
 ### PDF example
 
 ```wf
-Page Report (path: "/", title: "Report") {
+page Report(path: "/", title: "Report") {
     Document(page_size: "A4") {
         Header {
-            Text("Company Inc.", muted, small, right)
+            Text("Company Inc.").muted.sm.right
         }
         Footer {
-            Text("Confidential", muted, small, center)
+            Text("Confidential").muted.sm.center
         }
         Section {
-            Heading("Q1 Report", h1)
+            Heading("Q1 Report").h1
             Text("Revenue grew 15% this quarter.")
 
             Table {
-                Thead { Trow { Tcell("Region") Tcell("Revenue") } }
-                Tbody { Trow { Tcell("North America") Tcell("$2.4M") } }
+                Table.Head { Table.Row { Table.Cell("Region") Table.Cell("Revenue") } }
+                Table.Body { Table.Row { Table.Cell("North America") Table.Cell("$2.4M") } }
             }
 
-            PageBreak()
-            Heading("Highlights", h2)
+            PageBreak
+            Heading("Highlights").h2
             List {
                 Text("Launched 3 new products")
                 Text("Expanded to 5 markets")
@@ -1128,8 +1223,8 @@ A deck must be wrapped in a `Presentation { ... }` block inside a `Page` body. S
 |-----------|---------|
 | `Presentation { ... }` | Deck root — children must be slide elements only |
 | `Slide { ... }` | Freeform slide; top-aligned content |
-| `TitleSlide("Title", "Subtitle")` | Cover slide; title 56pt bold + subtitle 28pt grey, vertical-centered |
-| `SectionSlide("Label", primary)` | Full-bleed colored band, white centered label (48pt bold). Color modifiers: `primary`, `success`, `danger`, `warning`, `info` |
+| `TitleSlide("Title", subtitle: "Subtitle")` | Cover slide; title 56pt bold + subtitle 28pt grey, vertical-centered |
+| `SectionSlide("Label").primary` | Full-bleed colored band, white centered label (48pt bold). Tones: `.primary`, `.success`, `.danger`, `.warning`, `.info` |
 | `TwoColumn { Container { ... } Container { ... } }` | Two equal columns with a 24pt gutter — requires exactly 2 `Container` children |
 | `ImageSlide(src: "...", caption: "...")` | Image slide with optional caption; `src` is required |
 
@@ -1162,12 +1257,12 @@ Same interactive components as PDF (`Button`, `Input`, `Form`, `Modal`, `Router`
 ### Slides example
 
 ```wf
-Page Deck (path: "/", title: "Q1 Review") {
+page Deck(path: "/", title: "Q1 Review") {
     Presentation {
-        TitleSlide("Q1 Review", "Company Inc. — March 2026")
+        TitleSlide("Q1 Review", subtitle: "Company Inc. — March 2026")
 
         Slide {
-            Heading("Highlights", h1)
+            Heading("Highlights").h1
             List {
                 Text("Launched 3 new products")
                 Text("Expanded to 5 markets")
@@ -1177,21 +1272,21 @@ Page Deck (path: "/", title: "Q1 Review") {
 
         TwoColumn {
             Container {
-                Heading("Wins", h3)
+                Heading("Wins").h3
                 Text("New enterprise deals")
             }
             Container {
-                Heading("Risks", h3)
+                Heading("Risks").h3
                 Text("Supply chain delays")
             }
         }
 
         ImageSlide(src: "chart.png", caption: "Q1 revenue by region")
 
-        SectionSlide("Q2 Plan", primary)
+        SectionSlide("Q2 Plan").primary
 
         Slide {
-            Heading("Thanks", h1)
+            Heading("Thanks").h1
             Text("Questions?")
         }
     }
@@ -1203,15 +1298,38 @@ Page Deck (path: "/", title: "Q1 Review") {
 In strings, `{` starts interpolation. To use literal braces (e.g., in code blocks), escape with `\{` and `\}`:
 
 ```wf
-Code("function() \{ return 42; \}", block)
+Code("function() \{ return 42; \}").block
 ```
 
 ## Compiler diagnostics
 
-All are warnings; none fails a build. `wf build` prints every one of them,
-with the file and line it came from. A reference to nothing — an undeclared
-component, a `Route` to a page that is not declared, two pages or two
-components with one name — is an error and stops the build.
+`wf build` prints every diagnostic with the file and line it came from.
+Errors stop the build; warnings do not.
+
+**Errors — the program cannot mean what it says.** A parse error; a
+reference to nothing — an undeclared component, a page's `layout:` that
+names no component or one without a default slot, two pages or two
+components with one name; a flag, case, part, event, slot or `emit` the
+registry or the component's declaration does not know (`Button has no
+flag or enum case `huge``, with the flags it takes); and what the type
+checker finds:
+
+| Code | What it means |
+|---|---|
+| `T01` | A value of the wrong type given to a prop, a state, a field, a parameter or an assignment — `` `count` of `C` is `String`, but `Number` is wanted `` |
+| `T02` | A case the enum does not have |
+| `T04` | A value that may be `null` read as if it were not; `if let`, `??` or a `!= null` check narrows it |
+| `T05` | A field or method a record does not have |
+| `T06` | A member or action a store does not have |
+| `T07` | A list, record or action used as a condition, which is always true |
+| `T08` | A `for` over something that is not a list |
+| `T09` | An `emit` whose arguments do not match the event's |
+| `T10` | A call with the wrong number or kind of arguments |
+| `T11` | A `match` on something that is neither a resource nor an enum, or with arms of the wrong kind |
+
+Anything the checker cannot resolve is `Any`, which agrees with everything.
+
+**Warnings.**
 
 | Rule | What it means |
 |---|---|
@@ -1223,11 +1341,21 @@ components with one name — is an error and stops the build.
 | `S02` | A page has no description, so its search snippet is written for it |
 | `S03` | A description longer than ~160 characters, which a search result truncates |
 | `S04` | Two pages claim the same route |
-| `V01` | A bare word that resolves to nothing — a misspelled modifier or an undefined name |
-| `V02` | A real modifier whose class no stylesheet — the engine's or one of the project's `.css` files — defines, e.g. `Alert(elevated)` |
+| `V01` | A bare word in an argument that nothing in scope declares — a name misspelled, or a flag written without its dot (`did you mean `.center`?`) |
+| `V02` | A flag whose class no stylesheet — the engine's or one of the project's `.css` files — defines; the registry keeps this from happening for the built-ins |
+| — | A named argument a built-in does not declare, written to the element as an attribute; a prop a component does not declare, passed anyway |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.
+
+## Migrating from WebFluent 2
+
+`wf migrate [path] [--check] [--stdout]` rewrites a project written in
+the grammar of WebFluent 2 into the current one — every `.wf` under
+`src/`, in place, with a note for anything that needed a decision. It is a
+change of spelling and nothing else: the migrated project builds to what
+it built before. A WebFluent 2 file given to `wf build` is refused with a
+pointer to the migration.
 
 ## Configuration Reference (webfluent.app.json)
 
@@ -1317,7 +1445,7 @@ wf render template.wf --data data.json --format html --theme Brand
 use webfluent::Template;
 use serde_json::json;
 
-let tpl = Template::from_str("Container { Heading(\"Hello, {name}!\", h1) }")?;
+let tpl = Template::from_str("Container { Heading(\"Hello, {name}!\").h1 }")?;
 // or: Template::from_file("templates/invoice.wf")?;
 
 let html   = tpl.render_html(&json!({"name": "World"}))?;           // Full HTML doc
@@ -1336,7 +1464,7 @@ let html = tpl.with_theme("Brand")
 ```javascript
 const { Template } = require('@aspect/webfluent');
 
-const tpl = Template.fromString('Container { Heading("Hello, {name}!", h1) }');
+const tpl = Template.fromString('Container { Heading("Hello, {name}!").h1 }');
 // or: Template.fromFile('templates/invoice.wf');
 
 const html = tpl.renderHtml({ name: "World" });           // Full HTML string
@@ -1355,17 +1483,17 @@ Data is a JSON object. Top-level keys become template variables:
 
 ```wf
 // template.wf
-Page Invoice (path: "/", title: "Invoice") {
+page Invoice(path: "/", title: "Invoice") {
     Container {
-        Heading("Invoice #{number}", h1)
+        Heading("Invoice #{number}").h1
         Text("Customer: {customer.name}")
 
         for item in items {
-            Card { Text(item.name, bold) Text("${item.price}") }
+            Card { Text(item.name).bold Text("${item.price}") }
         }
 
-        if paid { Badge("PAID", success) }
-        else    { Badge("UNPAID", danger) }
+        if paid { Badge("PAID").success }
+        else    { Badge("UNPAID").danger }
     }
 }
 ```
@@ -1379,27 +1507,27 @@ Page Invoice (path: "/", title: "Invoice") {
 }
 ```
 
-**Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, modifiers, themes.
+**Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, flags, themes.
 
-**Not supported**: `state`, `derived`, `effect`, events (`on:click`), navigation, stores, animations, `fetch`.
+**Not supported**: `state`, `derived`, `effect`, handlers (`on click`), navigation, stores, animations, `resource`.
 
 ## Key Rules
 
-1. **Every page needs a path**: `Page Name (path: "/route") { ... }`
+1. **Every page needs a path**: `page Name(path: "/route") { ... }`
 2. **State is reactive**: any UI referencing a state variable auto-updates
-3. **Modifiers are positional**: `Button("Label", primary, large)` — order doesn't matter. A prop, state or derived name declared in the enclosing page or component shadows a modifier word, so a component with a `text` prop writes `Text(text)` and means the prop
-4. **Named args use colon**: `Input(text, bind: myVar, placeholder: "...")`
+3. **Flags are written with a dot, after the parentheses**: `Button("Label").primary.lg` — order doesn't matter. A flag is a Bool prop or an enum case the component declares; a word nothing declares is an error. A prop, state or derived name is an expression, so a component with a `text` prop writes `Text(text)` and means the prop
+4. **One positional argument, then named ones**: `Input(bind: myVar, placeholder: "...").text` — an enum-valued prop takes a case: `Row(gap: .md, align: .center)`
 5. **Braces for children/body**: `Card { Card.Body { Text("content") } }`
-6. **Sub-components use dot**: `Card.Header`, `Card.Body`, `Card.Footer`, `Navbar.Brand`, `Navbar.Links`
-7. **Event handlers**: `on:click { ... }` inside a component's block. A `Button`'s block may mix what it shows with what it does — its action statements (assignments, calls, `navigate`) are its click handler, the elements are its content
+6. **Parts use dot, after the owner**: `Card.Header`, `Card.Body`, `Card.Footer`, `Navbar.Brand`, `Table.Row`, `Select.Option`
+7. **Event handlers**: `on click { ... }` inside an element's block, `on click(e) { ... }` when the body reads the event. A `Button`'s block holds what it shows; `on click` holds what it does
 8. **String interpolation is reactive**: `Text("Count: {count}")` updates when `count` changes
 9. **Imports via `use`**: `use StoreName` to access shared stores
-10. **No semicolons needed**: statements are newline-separated
+10. **No semicolons needed**: statements are newline-separated; `;` separates two on one line
 11. **`return` in actions**: `return expr` returns a value from store actions
-11. **Style blocks support all CSS properties**: including `transition`, `animation`, `filter` — no conflicts with language keywords
-12. **`@media` and pseudo-states inside style blocks**: `@media (max-width: 768px) { display: "none" }` and `hover { … }` compile to stylesheet rules scoped to the element
-13. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth
-14. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
+12. **Style values are CSS**: `padding: 1rem 2rem`, `background: $surface`, `width: {pct}%` — no quotes; `$name` is a design token, `{expr}` a live value
+13. **`@media` and nested rules inside style blocks**: `@media (max-width: 768px) { display: none }` and `&:hover { … }` compile to stylesheet rules scoped to the element
+14. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth; pages own their routes
+15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
 15. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS)
 16. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
 17. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys

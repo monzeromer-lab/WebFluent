@@ -1948,17 +1948,7 @@ impl JsCodegen {
                     let easing = p
                         .easing
                         .as_deref()
-                        .map(|e| match e {
-                            "ease" => "ease",
-                            "linear" => "linear",
-                            "easeIn" => "ease-in",
-                            "easeOut" => "ease-out",
-                            "easeInOut" => "ease-in-out",
-                            "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                            "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-                            "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
-                            other => other,
-                        })
+                        .map(crate::codegen::builtin::easing_css)
                         .unwrap_or("ease");
                     format!("{} {} {}", p.property, p.duration, easing)
                 })

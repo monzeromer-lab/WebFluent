@@ -574,12 +574,13 @@ test("an element marked with an exit animation plays it before its branch is rem
   let inner;
   WF.when(parent, () => open(), () => {
     const card = WF.el("div", { className: "wf-card" });
-    inner = WF.el("p", { "data-wf-exit": "fadeOut", "data-wf-delay": "50ms" }, ["x"]);
+    inner = WF.el("p", { "data-wf-exit": "fadeOut", "data-wf-delay": "50ms", "data-wf-easing": "ease-out" }, ["x"]);
     card.appendChild(inner);
     return card;
   }, null, null);
   assert.equal(parent.querySelectorAll("p").length, 1);
   assert.equal(inner.style.animationDelay, "50ms", "the delay is set from the marker");
+  assert.equal(inner.style.animationTimingFunction, "ease-out", "the easing is set from the marker");
   open.set(false);
   // The exit class is on while the animation plays; the timer runs inline
   // here, so it has already been taken off — but the branch is only removed
@@ -593,11 +594,12 @@ test("a component's motion markers land on its root, and a reader who asked for 
   const { WF, document, window } = loadRuntime();
   const frag = document.createDocumentFragment();
   frag.appendChild(WF.el("div", { className: "chip" }));
-  WF.mark(frag, { "data-wf-exit": "fadeOut", "data-wf-animate": "fadeIn", "data-wf-duration": "150ms" });
+  WF.mark(frag, { "data-wf-exit": "fadeOut", "data-wf-animate": "fadeIn", "data-wf-duration": "150ms", "data-wf-easing": "linear" });
   const root = frag.childNodes[0];
   assert.equal(root.getAttribute("data-wf-exit"), "fadeOut");
   assert.ok(root.classList.contains("wf-animate-fadeIn"));
   assert.equal(root.style.animationDuration, "150ms");
+  assert.equal(root.style.animationTimingFunction, "linear");
 
   window.matchMedia = () => ({ matches: true });
   const parent = document.createElement("div");

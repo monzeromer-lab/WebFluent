@@ -4,6 +4,10 @@
 > Author: Monzer Omer
 > Date: 2026-03-24
 
+> The vision and principles below still hold. The examples are written in
+> the grammar of WebFluent 2; WebFluent 3's grammar, and why it changed, is
+> in [`SYNTAX_V2.md`](SYNTAX_V2.md).
+
 ---
 
 ## 1. Vision

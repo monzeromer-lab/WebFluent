@@ -19,16 +19,16 @@ Sibling of `"spa"`, `"static"`, and `"pdf"`. Produces a single `.pdf` file in th
 
 ## Source structure
 
-A slide deck must live inside a `Page` body, wrapped in a `Presentation { ... }` block:
+A slide deck must live inside a `page` body, wrapped in a `Presentation { ... }` block:
 
-```
-Page Deck (path: "/", title: "My Deck") {
+```wf
+page Deck(path: "/", title: "My Deck") {
     Presentation {
-        TitleSlide("Welcome", "Subtitle here")
-        Slide { Heading("Topic", h2)  Text("Body") }
+        TitleSlide("Welcome", subtitle: "Subtitle here")
+        Slide { Heading("Topic").h2  Text("Body") }
         TwoColumn { Container { ... } Container { ... } }
         ImageSlide(src: "logo.png", caption: "Fig 1")
-        SectionSlide("Wrap-up", primary)
+        SectionSlide("Wrap-up").primary
     }
 }
 ```
@@ -40,12 +40,12 @@ Page Deck (path: "/", title: "My Deck") {
 | Kind | Signature | Renders |
 |------|-----------|---------|
 | `Slide { ... }` | freeform body | top-aligned content with full margin, like a page |
-| `TitleSlide(title, subtitle?)` | two positional strings | both lines vertical-centered, title 56pt bold, subtitle 28pt grey |
-| `SectionSlide(label, [color])` | label + optional color modifier | full-bleed colored background, white label centered, 48pt bold |
+| `TitleSlide(title, subtitle?: String)` | the title, and a `subtitle:` | both lines vertical-centered, title 56pt bold, subtitle 28pt grey |
+| `SectionSlide(label).tone` | label + an optional tone flag | full-bleed colored background, white label centered, 48pt bold |
 | `TwoColumn { Container {..} Container {..} }` | exactly two `Container` children | content split 50/50 with a 24pt gutter |
 | `ImageSlide(src: String, caption?: String)` | required `src`, optional `caption` | image placeholder filling 85%×90% of content area, optional caption below |
 
-`SectionSlide` color modifiers: `primary`, `success`, `danger`, `warning`, `info`. Defaults to `primary`.
+`SectionSlide` tones: `.primary`, `.success`, `.danger`, `.warning`, `.info`. Defaults to `primary`.
 
 `ImageSlide` currently renders a placeholder rectangle with `[Image]` label — same as the `Image` component in PDF mode. Real image embedding is a v2 feature.
 
@@ -91,8 +91,8 @@ All three accept either a hex color or a `linear-gradient(...)`:
 
 ```wf
 Slide {
-    style { background: "linear-gradient(135deg, #C69C6D, #8B5A2B)" }
-    Heading("Tan-to-brown gradient", h1)
+    style { background: linear-gradient(135deg, #C69C6D, #8B5A2B) }
+    Heading("Tan-to-brown gradient").h1
 }
 ```
 
@@ -119,13 +119,13 @@ Example styled card:
 ```wf
 Container {
     style {
-        background: "#2A2A28"
+        background: #2A2A28
         padding: 24
-        border: "1pt #C69C6D"
+        border: 1pt #C69C6D
         border-radius: 12
-        box-shadow: "4 4 #000000"
+        box-shadow: 4 4 #000000
     }
-    Heading("Card heading", h3)
+    Heading("Card heading").h3
     Text("Card body.")
 }
 ```
@@ -143,9 +143,9 @@ A short list of CSS properties is silently accepted (and ignored) without warnin
 Inside a freeform `Slide` (or inside `TwoColumn` containers), the following components are rendered:
 
 - `Text`, `Heading` (h1–h6) — auto-scaled ~2× larger than the PDF defaults
-- `List` (with `ordered` modifier for numbered lists) — bullet `•` marker
+- `List` (`.ordered` for numbered lists) — bullet `•` marker
 - `Container`, `Stack`, `Column`, `Grid`, `Section` — recurse into children
-- `Spacer` — vertical gap; modifiers: `small`/`sm`, `medium`/`md`, `large`/`lg`, `xl`
+- `Spacer` — vertical gap; sizes: `.xs`, `.sm`, `.md`, `.lg`, `.xl`
 - `Divider` — thin grey horizontal line
 - `if`/`for` — control flow (only static iteration over `ListLiteral`)
 
@@ -165,12 +165,12 @@ The build does not fail. Auto-fit / scale-to-fit is a v2 feature.
 
 The slides validator (`slides_validation.rs`) rejects:
 
-1. **All interactive components** — same list PDF rejects (`Button`, `Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Form`, `Dropdown`, `Modal`, `Dialog`, `Toast`, `Spinner`, `Skeleton`, `Tooltip`, etc.) plus navigation (`Router`, `Route`, `Navbar`, `Sidebar`, `Menu`, `Tabs`, `TabPage`, `Breadcrumb`, `Link`) and media (`Video`, `Carousel`).
+1. **All interactive components** — same list PDF rejects (`Button`, `Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Form`, `Dropdown`, `Modal`, `Dialog`, `Toast`, `Spinner`, `Skeleton`, `Tooltip`, etc.) plus navigation (`Router`, `Navbar`, `Sidebar`, `Menu`, `Tabs`, `Tabs.Page`, `Breadcrumb`, `Link`) and media (`Video`, `Carousel`).
 2. **PDF document components** (`Document`, `Paragraph`, `PageBreak`, `Header`, `Footer`) — these belong to the PDF document model, not slides. Use `slides.footer_text` config for slide footers.
 3. **Slide nesting** — slide elements may not be nested inside other slide elements.
 4. **Slide elements outside a Presentation** — must be wrapped.
-5. **Event handlers** (`on:click`, etc.) — not supported.
-6. **`navigate`, `fetch`, `animate`** statements — web-only.
+5. **Event handlers** (`on click`, etc.) — not supported.
+6. **`navigate`, `resource`, motion props** — web-only.
 
 Validation runs before codegen; any error fails the build.
 

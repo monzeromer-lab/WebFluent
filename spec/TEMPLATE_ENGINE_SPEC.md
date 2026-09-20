@@ -18,23 +18,23 @@ Templates use standard `.wf` syntax with one addition: **data context variables*
 ```wf
 // invoice.wf
 Container {
-    Heading("Invoice #{number}", h1)
+    Heading("Invoice #{number}").h1
     Text("Date: {date}")
     Text("Bill to: {customer.name}")
 
     Table {
-        Thead { Trow { Tcell("Item") Tcell("Qty") Tcell("Price") } }
+        Table.Head { Table.Row { Table.Cell("Item") Table.Cell("Qty") Table.Cell("Price") } }
         for item in items {
-            Trow {
-                Tcell(item.name)
-                Tcell("{item.quantity}")
-                Tcell("${item.price}")
+            Table.Row {
+                Table.Cell(item.name)
+                Table.Cell("{item.quantity}")
+                Table.Cell("${item.price}")
             }
         }
     }
 
-    Divider()
-    Text("Total: ${total}", bold, large)
+    Divider
+    Text("Total: ${total}").bold.lg
 }
 ```
 
@@ -77,7 +77,7 @@ Templates support a **subset** of WebFluent — the static, data-driven parts:
 | Modifiers | Yes | `bold`, `primary`, `large`, etc. |
 | **state** | **No** | Use data context instead |
 | **derived/effect** | **No** | Computed at call site, pass result as data |
-| **Events (on:click)** | **No** | No JavaScript in templates |
+| **Handlers (on click)** | **No** | No JavaScript in templates |
 | **Navigation/Router** | **No** | No client-side routing |
 | **Stores** | **No** | Pass data directly |
 | **fetch** | **No** | Fetch data before rendering, pass as data |
@@ -98,22 +98,22 @@ Text("Hello, {user.name}! You have {items.length} items.")
 
 // Conditionals
 if order.status == "shipped" {
-    Badge("Shipped", success)
+    Badge("Shipped").success
 } else if order.status == "pending" {
-    Badge("Pending", warning)
+    Badge("Pending").warning
 }
 
 // Loops
 for product in products {
     Card {
-        Text(product.name, bold)
+        Text(product.name).bold
         Text("${product.price}")
     }
 }
 
 // Nested loops
 for category in categories {
-    Heading(category.name, h2)
+    Heading(category.name).h2
     for item in category.items {
         Text("- {item.name}")
     }
@@ -121,7 +121,7 @@ for category in categories {
 
 // Boolean checks
 if user.verified {
-    Badge("Verified", success)
+    Badge("Verified").success
 }
 ```
 
@@ -143,7 +143,7 @@ use serde_json::json;
 // From string
 let template = Template::from_str(r#"
     Container {
-        Heading("Hello, {name}!", h1)
+        Heading("Hello, {name}!").h1
         Text("You have {count} messages.")
     }
 "#)?;
@@ -212,7 +212,7 @@ const { Template } = require('@aspect/webfluent');
 // From string
 const tpl = Template.fromString(`
     Container {
-        Heading("Hello, {name}!", h1)
+        Heading("Hello, {name}!").h1
         Text("You have {count} messages.")
     }
 `);

@@ -50,8 +50,9 @@ page Tasks(path: "/tasks", description: "Everything on the list, and what is lef
                     TaskItem(
                         title: task.title,
                         done: task.done,
-                        priority: task.priority
-                    , exit: .fadeOut, stagger: "50ms").slideUp
+                        priority: task.priority,
+                        exit: .fadeOut, stagger: "50ms"
+                    ).slideUp
                 }
             }
         }
