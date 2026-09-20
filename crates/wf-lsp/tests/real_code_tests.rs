@@ -106,7 +106,7 @@ fn an_open_buffer_overrides_the_disk_and_keeps_its_last_good_parse() {
 
     // The buffer renames the component; the parse of the buffer fails half
     // way through an edit.
-    let broken = disk.replace("Component Nudge", "Component Nudge (");
+    let broken = disk.replace("component Nudge", "component Nudge (");
     let open = |p: &Path| {
         (p == path).then(|| wf_lsp::project::OpenText {
             text: Arc::from(broken.as_str()),

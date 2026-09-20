@@ -79,7 +79,10 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
         }
     }
 
-    for warning in lint_vocabulary_with(&project.program, &project.stylesheets, &file_of) {
+    // The linters read the vocabulary the generators do: a `.sm` flag is
+    // judged by the class it produces. Lowering keeps every span.
+    let lowered = webfluent::sema::lower(project.program.clone());
+    for warning in lint_vocabulary_with(&lowered, &project.stylesheets, &file_of) {
         if let Some(ix) = route(&warning.file) {
             let file = &project.files[ix];
             out[ix].push(diagnostic(
@@ -95,9 +98,9 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
         }
     }
 
-    let mut a11y = lint_accessibility_in(&project.program, &file_of);
-    if let Ok(tokens) = resolve_tokens(&project.program, &project.theme) {
-        a11y.extend(lint_contrast_in(&project.program, &tokens, &file_of));
+    let mut a11y = lint_accessibility_in(&lowered, &file_of);
+    if let Ok(tokens) = resolve_tokens(&lowered, &project.theme) {
+        a11y.extend(lint_contrast_in(&lowered, &tokens, &file_of));
     }
     for warning in a11y {
         if let Some(ix) = route(&warning.file) {

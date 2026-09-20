@@ -115,7 +115,12 @@ fn assert_same_build(name: &str, project: &Path) {
         }
     }
     // A migrated project is done: a second pass has nothing to say.
-    let again = wf().arg("migrate").arg("--check").arg(&root).output().unwrap();
+    let again = wf()
+        .arg("migrate")
+        .arg("--check")
+        .arg(&root)
+        .output()
+        .unwrap();
     let again = String::from_utf8_lossy(&again.stdout).to_string();
     assert!(
         again.contains("0 file(s) would change"),
