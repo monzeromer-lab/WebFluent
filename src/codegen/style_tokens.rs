@@ -42,6 +42,23 @@ pub fn resolve_style_token(css_prop: &str, value: &Expr) -> Option<String> {
         .then(|| format!("var(--{group}-{name})"))
 }
 
+/// `$xl` on `padding` is `$spacing-xl`: a short token name resolves through
+/// the property's group, unless the theme declares the short name itself.
+/// Anything else is left as written.
+pub fn resolve_short_token(
+    css_prop: &str,
+    name: &str,
+    declared: &dyn Fn(&str) -> bool,
+) -> Option<String> {
+    if declared(name) {
+        return None;
+    }
+    let group = token_group(css_prop)?;
+    group_suffixes(group)
+        .contains(&name)
+        .then(|| format!("{group}-{name}"))
+}
+
 /// The design-token group a style property draws from, or `None` if the property
 /// takes no token. Mirrors the card's "+ padding background color font-size border
 /// width" note and the logical-CSS spacing properties.

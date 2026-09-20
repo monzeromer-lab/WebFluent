@@ -209,6 +209,29 @@ fn components_props_children_and_stores() {
 }
 
 #[test]
+fn a_short_token_resolves_through_the_propertys_group() {
+    same(
+        r#"Page P (path: "/", title: "T") {
+            Card { style { padding: xl  color: primary  border-radius: md  font-size: "var(--font-size-lg)" } Text("x") }
+        }"#,
+        r#"page P(path: "/", title: "T") {
+            Card { style { padding: $xl; color: $primary; border-radius: $md; font-size: $lg } Text("x") }
+        }"#,
+    );
+    // A name the theme declares is itself, whatever the property.
+    same(
+        r##"Theme T { token md: "4px" }
+        Page P (path: "/", title: "T") {
+            Card { style { padding: "var(--md)" } Text("x") }
+        }"##,
+        r##"theme T { md: 4px }
+        page P(path: "/", title: "T") {
+            Card { style { padding: $md } Text("x") }
+        }"##,
+    );
+}
+
+#[test]
 fn a_theme_and_tokens() {
     same(
         r##"Theme Brand {

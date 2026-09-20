@@ -1151,8 +1151,12 @@ impl<'a> Rewriter<'a> {
             }
             Expr::Identifier(name) => {
                 match crate::codegen::style_tokens::resolve_style_token(&css_prop, &prop.value) {
+                    // `padding: xl` → `padding: $xl`: the short name still
+                    // resolves through the property's group — unless the
+                    // theme declares the short name itself, when only the
+                    // full one means what it did.
+                    Some(_) if !self.ctx.tokens.contains(name) => format!("${name}"),
                     Some(var) => {
-                        // `var(--spacing-xl)` → `$spacing-xl`.
                         let inner = var.trim_start_matches("var(--").trim_end_matches(')');
                         format!("${inner}")
                     }

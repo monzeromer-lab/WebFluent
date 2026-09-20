@@ -575,6 +575,15 @@ pub fn lower(mut program: Program) -> Program {
         })
         .collect();
     drop(owned);
+    let theme_tokens: std::collections::HashSet<String> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Theme(t) => Some(t.tokens.iter().map(|tok| tok.name.clone())),
+            _ => None,
+        })
+        .flatten()
+        .collect();
     for decl in &mut program.declarations {
         let body = match decl {
             Declaration::Page(p) => &mut p.body,
@@ -584,8 +593,95 @@ pub fn lower(mut program: Program) -> Program {
             Declaration::Theme(_) | Declaration::Type(_) | Declaration::Enum(_) => continue,
         };
         lower_statements(body, &user);
+        resolve_short_tokens(body, &theme_tokens);
     }
     program
+}
+
+/// `$xl` on a padding is the spacing token `$spacing-xl`: a short name in a
+/// style value resolves through the property's group, as a bare word did
+/// in the original grammar. A name the theme declares stays itself.
+fn resolve_short_tokens(stmts: &mut [Statement], theme: &std::collections::HashSet<String>) {
+    let declared = |name: &str| theme.contains(name);
+    let resolve = |props: &mut Vec<StyleProperty>| {
+        for prop in props.iter_mut() {
+            let css_prop = crate::codegen::style_tokens::canonical_style_prop(&prop.name);
+            let full = |name: &str| {
+                crate::codegen::style_tokens::resolve_short_token(&css_prop, name, &declared)
+            };
+            match &mut prop.value {
+                Expr::Token(name) => {
+                    if let Some(f) = full(name) {
+                        *name = f;
+                    }
+                }
+                Expr::InterpolatedString(parts) => {
+                    for part in parts.iter_mut() {
+                        if let StringPart::Expression(Expr::Token(name)) = part
+                            && let Some(f) = full(name)
+                        {
+                            *name = f;
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    };
+    for_each_style_block(stmts, &mut |block| {
+        resolve(&mut block.properties);
+        for pseudo in &mut block.pseudo_blocks {
+            resolve(&mut pseudo.properties);
+        }
+        for mq in &mut block.media_queries {
+            resolve(&mut mq.properties);
+        }
+    });
+}
+
+/// Every style block under `stmts`, at any depth.
+fn for_each_style_block(stmts: &mut [Statement], f: &mut dyn FnMut(&mut StyleBlock)) {
+    for stmt in stmts.iter_mut() {
+        match &mut stmt.kind {
+            StatementKind::UIElement(el) => {
+                if let Some(block) = &mut el.style_block {
+                    f(block);
+                }
+                for_each_style_block(&mut el.children, f);
+                for fill in &mut el.slot_fills {
+                    for_each_style_block(&mut fill.body, f);
+                }
+            }
+            StatementKind::If(i) => {
+                for_each_style_block(&mut i.then_body, f);
+                for (_, b) in &mut i.else_if_branches {
+                    for_each_style_block(b, f);
+                }
+                if let Some(b) = &mut i.else_body {
+                    for_each_style_block(b, f);
+                }
+            }
+            StatementKind::For(l) => for_each_style_block(&mut l.body, f),
+            StatementKind::Show(s) => for_each_style_block(&mut s.body, f),
+            StatementKind::Match(m) => {
+                for arm in &mut m.arms {
+                    for_each_style_block(&mut arm.body, f);
+                }
+            }
+            StatementKind::Fetch(fe) => {
+                if let Some(b) = &mut fe.loading_block {
+                    for_each_style_block(b, f);
+                }
+                if let Some((_, b)) = &mut fe.error_block {
+                    for_each_style_block(b, f);
+                }
+                if let Some(b) = &mut fe.success_block {
+                    for_each_style_block(b, f);
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 /// What lowering needs to know about a user component.
