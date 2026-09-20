@@ -38,6 +38,11 @@ pub fn detect_dialect(source: &str) -> Dialect {
 
 /// The first word of `source` that is not inside a comment.
 fn first_word(source: &str) -> Option<&str> {
+    first_word_at(source).map(|(word, _)| word)
+}
+
+/// The first word outside a comment, with its byte offset.
+fn first_word_at(source: &str) -> Option<(&str, usize)> {
     let mut rest = source;
     loop {
         rest = rest.trim_start();
@@ -52,7 +57,7 @@ fn first_word(source: &str) -> Option<&str> {
     let end = rest
         .find(|c: char| !(c.is_alphanumeric() || c == '_'))
         .unwrap_or(rest.len());
-    (end > 0).then(|| &rest[..end])
+    (end > 0).then(|| (&rest[..end], source.len() - rest.len()))
 }
 
 /// Parse one file into a program.
@@ -82,10 +87,9 @@ pub fn parse_source(source: &str, file: &str) -> Result<Program> {
 
 /// The line and column of the first word, for the diagnostic.
 fn position_of_first_word(source: &str) -> (usize, usize) {
-    let Some(word) = first_word(source) else {
+    let Some((_, at)) = first_word_at(source) else {
         return (1, 1);
     };
-    let at = source.find(word).unwrap_or(0);
     let line = source[..at].matches('\n').count() + 1;
     let col = at - source[..at].rfind('\n').map(|i| i + 1).unwrap_or(0) + 1;
     (line, col)
@@ -116,9 +120,13 @@ mod tests {
 
     #[test]
     fn the_old_grammar_is_refused_with_the_way_forward() {
-        let err = parse_source("// x\nPage Home (path: \"/\") { Text(\"hi\") }", "t.wf")
-            .unwrap_err()
-            .to_string();
+        // The comment names the word too; the position is the declaration's.
+        let err = parse_source(
+            "// The Page\nPage Home (path: \"/\") { Text(\"hi\") }",
+            "t.wf",
+        )
+        .unwrap_err()
+        .to_string();
         assert!(err.contains("`Page` is a WebFluent 2 declaration"), "{err}");
         assert!(err.contains("wf migrate"), "{err}");
         assert!(err.contains("t.wf:2:1"), "{err}");
