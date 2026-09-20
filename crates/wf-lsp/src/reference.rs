@@ -1410,3 +1410,43 @@ pub fn color_variants() -> &'static [&'static str] {
 pub fn sizes() -> &'static [&'static str] {
     SIZES
 }
+
+#[cfg(test)]
+mod registry_tests {
+    //! Until this file's component docs are replaced by the compiler's
+    //! registry, the two must describe the same language.
+    use super::*;
+    use webfluent::registry;
+
+    #[test]
+    fn every_documented_component_and_argument_is_in_the_registry() {
+        for doc in COMPONENTS {
+            let sig = registry::component(doc.name)
+                .unwrap_or_else(|| panic!("{} is documented but not in the registry", doc.name));
+            for arg in doc.args {
+                assert!(
+                    sig.accepts_named(arg.name),
+                    "{}: the documented argument `{}` is not a prop or attribute in the registry",
+                    doc.name,
+                    arg.name
+                );
+            }
+            for modifier in doc.modifiers {
+                assert!(
+                    sig.spelling_of_legacy(modifier).is_some()
+                        || registry::RETIRED_MODIFIERS.contains(modifier),
+                    "{}: the documented modifier `{}` has no spelling in the registry",
+                    doc.name,
+                    modifier
+                );
+            }
+            for child in doc.children {
+                let (_, part) = child.split_once('.').unwrap();
+                assert!(
+                    registry::part(doc.name, part).is_some(),
+                    "{child} is documented but not a part in the registry"
+                );
+            }
+        }
+    }
+}

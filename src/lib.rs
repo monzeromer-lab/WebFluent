@@ -108,6 +108,9 @@ pub mod parser;
 /// whichever grammar it is written in.
 pub mod syntax;
 
+/// What every built-in component is: [`registry::COMPONENTS`].
+pub mod registry;
+
 /// Code generation — compiles the AST to various output formats.
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),

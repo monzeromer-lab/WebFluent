@@ -268,6 +268,90 @@ impl Token {
 /// `Icon`, `Footer`, `Badge` — and `Menu` is the likeliest page name a restaurant
 /// site will ever have.
 ///
+/// Every built-in component name the parser accepts as an element, in the
+/// language reference's order. `List` is spelled by the `TypeList` token.
+pub const ALL_COMPONENT_NAMES: &[&str] = &[
+    // Layout
+    "Container",
+    "Row",
+    "Column",
+    "Grid",
+    "Stack",
+    "Spacer",
+    "Divider",
+    // Navigation
+    "Navbar",
+    "Sidebar",
+    "Breadcrumb",
+    "Link",
+    "Menu",
+    "Tabs",
+    "TabPage",
+    // Data display
+    "Card",
+    "Table",
+    "Thead",
+    "Tbody",
+    "Trow",
+    "Tcell",
+    "List",
+    "Badge",
+    "Avatar",
+    "Tooltip",
+    "Tag",
+    // Form
+    "Input",
+    "Select",
+    "Option",
+    "Checkbox",
+    "Radio",
+    "Switch",
+    "Slider",
+    "DatePicker",
+    "FileUpload",
+    "Form",
+    // Feedback
+    "Alert",
+    "Toast",
+    "Modal",
+    "Dialog",
+    "Spinner",
+    "Progress",
+    "Skeleton",
+    // Actions
+    "Button",
+    "IconButton",
+    "ButtonGroup",
+    "Dropdown",
+    // Media
+    "Image",
+    "Video",
+    "Icon",
+    "Carousel",
+    // Typography
+    "Text",
+    "Heading",
+    "Code",
+    "Blockquote",
+    // Document
+    "Document",
+    "Section",
+    "Paragraph",
+    "PageBreak",
+    "Header",
+    "Footer",
+    // Slides
+    "Presentation",
+    "Slide",
+    "TitleSlide",
+    "SectionSlide",
+    "TwoColumn",
+    "ImageSlide",
+    // Routing
+    "Router",
+    "Route",
+];
+
 /// The parser uses this to accept such a token where a name is expected. Only
 /// component keywords are listed: control-flow and declaration keywords (`if`,
 /// `for`, `Page`, `style`) stay reserved.

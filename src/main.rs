@@ -7,6 +7,7 @@ mod error;
 mod lexer;
 mod linter;
 mod parser;
+mod registry;
 mod runtime;
 mod syntax;
 mod template;
