@@ -79,12 +79,12 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     fs::write(
         dir.join("src/App.wf"),
         format!(
-            r#"App {{
+            r#"app {{
     use AuthStore
 
     Navbar {{
         Navbar.Brand {{
-            Text("{}", heading)
+            Text("{}").heading
         }}
         Navbar.Links {{
             Link(to: "/") {{ Text("Dashboard") }}
@@ -93,21 +93,16 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
         }}
         Navbar.Actions {{
             if AuthStore.isLoggedIn {{
-                Avatar(initials: "U", primary)
+                Avatar(initials: "U").primary
                 Link(to: "/profile") {{ Text("Profile") }}
-                Button("Logout", small) {{ AuthStore.logout() }}
+                Button("Logout").sm {{ on click {{ AuthStore.logout() }} }}
             }} else {{
-                Button("Login", primary, small) {{ AuthStore.login("user@demo.com", "demo") }}
+                Button("Login").primary.sm {{ on click {{ AuthStore.login("user@demo.com", "demo") }} }}
             }}
         }}
     }}
 
-    Router {{
-        Route(path: "/", page: Home)
-        Route(path: "/tasks", page: Tasks)
-        Route(path: "/settings", page: Settings)
-        Route(path: "/profile", page: Profile)
-    }}
+    Router
 }}"#,
             name
         ),
@@ -116,17 +111,17 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     // ── Home.wf ──
     fs::write(
         dir.join("src/pages/Home.wf"),
-        r#"Page Home (path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
+        r#"page Home(path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
     use AuthStore
     use TaskStore
 
-    Container(fadeIn) {
-        Heading("Dashboard", h1, slideUp)
-        Text("Welcome to your dashboard.", muted)
+    Container.fadeIn {
+        Heading("Dashboard").h1.slideUp
+        Text("Welcome to your dashboard.").muted
 
-        Spacer()
+        Spacer
 
-        Row(gap: md) {
+        Row(gap: .md) {
             Column(span: 4) {
                 StatCard(title: "Total Tasks", value: TaskStore.tasks.length, color: "primary")
             }
@@ -138,41 +133,41 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             }
         }
 
-        Spacer()
+        Spacer
 
-        Row(gap: md) {
+        Row(gap: .md) {
             Column(span: 8) {
                 Card {
                     Card.Header {
-                        Heading("Recent Tasks", h2)
+                        Heading("Recent Tasks").h2
                     }
                     Card.Body {
                         if TaskStore.tasks.length == 0 {
-                            Text("No tasks yet. Go to the Tasks page to add some!", muted, center)
+                            Text("No tasks yet. Go to the Tasks page to add some!").muted.center
                         } else {
                             for task in TaskStore.tasks {
-                                Row(align: center, justify: between) {
-                                    Row(align: center, gap: md) {
+                                Row(align: .center, justify: .between) {
+                                    Row(align: .center, gap: .md) {
                                         Checkbox(checked: task.done, label: task.title)
                                     }
-                                    Badge(task.priority, primary)
+                                    Badge(task.priority).primary
                                 }
-                                Divider()
+                                Divider
                             }
                         }
                     }
                 }
             }
             Column(span: 4) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Header {
-                        Heading("Quick Actions", h2)
+                        Heading("Quick Actions").h2
                     }
                     Card.Body {
-                        Stack(gap: sm) {
-                            Button("Add Task", primary, full) { navigate("/tasks") }
-                            Button("Settings", full) { navigate("/settings") }
-                            Button("View Profile", full) { navigate("/profile") }
+                        Stack(gap: .sm) {
+                            Button("Add Task").primary.full { on click { navigate("/tasks") } }
+                            Button("Settings").full { on click { navigate("/settings") } }
+                            Button("View Profile").full { on click { navigate("/profile") } }
                         }
                     }
                 }
@@ -185,58 +180,60 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     // ── Tasks.wf ──
     fs::write(
         dir.join("src/pages/Tasks.wf"),
-        r#"Page Tasks (path: "/tasks", description: "Everything on the list, and what is left of it.", title: "Tasks") {
+        r#"page Tasks(path: "/tasks", description: "Everything on the list, and what is left of it.", title: "Tasks") {
     use TaskStore
 
     state newTask = ""
     state showDeleteModal = false
     state deleteId = 0
 
-    Container(fadeIn) {
-        Heading("My Tasks", h1)
-        Text("{TaskStore.remaining} tasks remaining", muted)
+    Container.fadeIn {
+        Heading("My Tasks").h1
+        Text("{TaskStore.remaining} tasks remaining").muted
 
-        Spacer()
+        Spacer
 
-        Row(gap: md) {
-            Input(text, bind: newTask, placeholder: "What needs to be done?", full) {
-                on:keydown {
+        Row(gap: .md) {
+            Input(bind: newTask, placeholder: "What needs to be done?").text.full {
+                on keydown {
                     if key == "Enter" && newTask != "" {
                         TaskStore.add(newTask)
                         newTask = ""
                     }
                 }
             }
-            Button("Add", primary) {
-                if newTask != "" {
-                    TaskStore.add(newTask)
-                    newTask = ""
+            Button("Add").primary {
+                on click {
+                    if newTask != "" {
+                        TaskStore.add(newTask)
+                        newTask = ""
+                    }
                 }
             }
         }
 
-        Spacer()
+        Spacer
 
         ButtonGroup {
-            Button("All") { TaskStore.setFilter("all") }
-            Button("Active") { TaskStore.setFilter("active") }
-            Button("Done") { TaskStore.setFilter("done") }
+            Button("All") { on click { TaskStore.setFilter("all") } }
+            Button("Active") { on click { TaskStore.setFilter("active") } }
+            Button("Done") { on click { TaskStore.setFilter("done") } }
         }
 
-        Spacer()
+        Spacer
 
         if TaskStore.filtered.length == 0 {
-            Card(outlined, scaleIn) {
-                Text("No tasks found.", muted, center)
+            Card.outlined.scaleIn {
+                Text("No tasks found.").muted.center
             }
         } else {
-            Stack(gap: sm) {
-                for task in TaskStore.filtered, animate(slideUp, fadeOut, stagger: "50ms") {
+            Stack(gap: .sm) {
+                for task in TaskStore.filtered {
                     TaskItem(
                         title: task.title,
                         done: task.done,
                         priority: task.priority
-                    )
+                    , exit: .fadeOut, stagger: "50ms").slideUp
                 }
             }
         }
@@ -244,10 +241,12 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
         Modal(visible: showDeleteModal, title: "Delete Task") {
             Text("Are you sure you want to delete this task?")
             Modal.Footer {
-                Button("Cancel") { showDeleteModal = false }
-                Button("Delete", danger) {
-                    TaskStore.remove(deleteId)
-                    showDeleteModal = false
+                Button("Cancel") { on click { showDeleteModal = false } }
+                Button("Delete").danger {
+                    on click {
+                        TaskStore.remove(deleteId)
+                        showDeleteModal = false
+                    }
                 }
             }
         }
@@ -258,7 +257,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     // ── Settings.wf ──
     fs::write(
         dir.join("src/pages/Settings.wf"),
-        r#"Page Settings (path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
+        r#"page Settings(path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
     state username = "demo_user"
     state email = "user@example.com"
     state notifications = true
@@ -268,77 +267,81 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     state autoSave = false
     state saved = false
 
-    Container(fadeIn) {
-        Heading("Settings", h1)
+    Container.fadeIn {
+        Heading("Settings").h1
 
-        Spacer()
+        Spacer
 
         Tabs {
-            TabPage("General") {
+            Tabs.Page("General") {
                 Form {
-                    Heading("Profile", h2)
-                    Input(text, bind: username, label: "Username", placeholder: "Enter username")
-                    Spacer(sm)
-                    Input(email, bind: email, label: "Email", placeholder: "Enter email")
-                    Spacer(sm)
+                    on submit {
+                        saved = true
+                    }
+                    Heading("Profile").h2
+                    Input(bind: username, label: "Username", placeholder: "Enter username").text
+                    Spacer.sm
+                    Input(bind: email, label: "Email", placeholder: "Enter email").email
+                    Spacer.sm
                     Select(bind: language, label: "Language") {
-                        Option("en", "English")
-                        Option("es", "Spanish")
-                        Option("ar", "Arabic")
+                        Select.Option("English", value: "en")
+                        Select.Option("Spanish", value: "es")
+                        Select.Option("Arabic", value: "ar")
                     }
 
-                    Spacer()
+                    Spacer
 
-                    Heading("Preferences", h2)
+                    Heading("Preferences").h2
                     Switch(bind: notifications, label: "Email Notifications")
-                    Spacer(sm)
+                    Spacer.sm
                     Switch(bind: autoSave, label: "Auto-save changes")
-                    Spacer(sm)
+                    Spacer.sm
                     Slider(bind: fontSize, min: 12, max: 24, step: 1, label: "Font Size")
 
-                    Spacer()
+                    Spacer
 
                     Radio(bind: theme, value: "light", label: "Light Theme")
                     Radio(bind: theme, value: "dark", label: "Dark Theme")
 
-                    Spacer()
+                    Spacer
 
-                    Button("Save Settings", primary) {
-                        saved = true
+                    Button("Save Settings").primary {
+                        on click {
+                            saved = true
+                        }
                     }
 
                     show saved {
-                        Spacer(sm)
-                        Alert("Settings saved successfully!", success)
+                        Spacer.sm
+                        Alert("Settings saved successfully!").success
                     }
 
-                    on:submit {
-                        saved = true
-                    }
                 }
             }
-            TabPage("Account") {
+            Tabs.Page("Account") {
                 Card {
                     Card.Body {
-                        Heading("Account Info", h2)
+                        Heading("Account Info").h2
                         Text("Username: {username}")
                         Text("Email: {email}")
                         Text("Theme: {theme}")
                         Text("Font Size: {fontSize}px")
-                        Spacer()
-                        Text("Notifications: {notifications}", muted)
-                        Text("Auto-save: {autoSave}", muted)
+                        Spacer
+                        Text("Notifications: {notifications}").muted
+                        Text("Auto-save: {autoSave}").muted
                     }
                 }
             }
-            TabPage("Danger Zone") {
-                Card(outlined) {
+            Tabs.Page("Danger Zone") {
+                Card.outlined {
                     Card.Body {
-                        Heading("Danger Zone", h2)
-                        Text("These actions cannot be undone.", muted)
-                        Spacer()
-                        Button("Delete Account", danger) {
-                            log("Delete account clicked")
+                        Heading("Danger Zone").h2
+                        Text("These actions cannot be undone.").muted
+                        Spacer
+                        Button("Delete Account").danger {
+                            on click {
+                                log("Delete account clicked")
+                            }
                         }
                     }
                 }
@@ -351,29 +354,29 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     // ── Profile.wf ──
     fs::write(
         dir.join("src/pages/Profile.wf"),
-        r#"Page Profile (path: "/profile", description: "Your details and how they appear to others.", title: "Profile") {
+        r#"page Profile(path: "/profile", description: "Your details and how they appear to others.", title: "Profile") {
     use AuthStore
 
     state editing = false
 
-    Container(fadeIn) {
-        Heading("Profile", h1)
+    Container.fadeIn {
+        Heading("Profile").h1
 
-        Spacer()
+        Spacer
 
-        Row(gap: md) {
+        Row(gap: .md) {
             Column(span: 4) {
-                Card(elevated, scaleIn) {
+                Card.elevated.scaleIn {
                     Card.Body {
-                        Stack(gap: md) {
-                            Avatar(initials: "U", primary, large)
-                            Heading("Demo User", h2, center)
-                            Text("user@demo.com", muted, center)
-                            Divider()
-                            Badge("Active", success)
-                            Spacer(sm)
+                        Stack(gap: .md) {
+                            Avatar(initials: "U").primary.lg
+                            Heading("Demo User").h2.center
+                            Text("user@demo.com").muted.center
+                            Divider
+                            Badge("Active").success
+                            Spacer.sm
                             Progress(value: 75, max: 100)
-                            Text("Profile 75% complete", muted, small)
+                            Text("Profile 75% complete").muted.sm
                         }
                     }
                 }
@@ -381,45 +384,45 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             Column(span: 8) {
                 Card {
                     Card.Header {
-                        Row(align: center, justify: between) {
-                            Heading("Details", h2)
-                            Button("Edit", primary, small) { editing = !editing }
+                        Row(align: .center, justify: .between) {
+                            Heading("Details").h2
+                            Button("Edit").primary.sm { on click { editing = !editing } }
                         }
                     }
                     Card.Body {
                         if editing {
                             Form {
-                                Input(text, placeholder: "Full Name", label: "Name")
-                                Spacer(sm)
-                                Input(email, placeholder: "Email", label: "Email")
-                                Spacer(sm)
-                                Input(text, placeholder: "Bio", label: "Bio")
-                                Spacer()
-                                Row(gap: sm) {
-                                    Button("Save", primary) { editing = false }
-                                    Button("Cancel") { editing = false }
-                                }
-
-                                on:submit {
+                                on submit {
                                     editing = false
                                 }
+                                Input(placeholder: "Full Name", label: "Name").text
+                                Spacer.sm
+                                Input(placeholder: "Email", label: "Email").email
+                                Spacer.sm
+                                Input(placeholder: "Bio", label: "Bio").text
+                                Spacer
+                                Row(gap: .sm) {
+                                    Button("Save").primary { on click { editing = false } }
+                                    Button("Cancel") { on click { editing = false } }
+                                }
+
                             }
                         } else {
-                            Stack(gap: md) {
+                            Stack(gap: .md) {
                                 Row {
-                                    Text("Name:", bold)
+                                    Text("Name:").bold
                                     Text("Demo User")
                                 }
                                 Row {
-                                    Text("Email:", bold)
+                                    Text("Email:").bold
                                     Text("user@demo.com")
                                 }
                                 Row {
-                                    Text("Bio:", bold)
+                                    Text("Bio:").bold
                                     Text("WebFluent developer")
                                 }
                                 Row {
-                                    Text("Joined:", bold)
+                                    Text("Joined:").bold
                                     Text("March 2026")
                                 }
                             }
@@ -435,15 +438,15 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     // ── Components ──
     fs::write(
         dir.join("src/components/TaskItem.wf"),
-        r#"Component TaskItem (title: String, done: Bool, priority: String) {
-    Card(outlined) {
-        Row(align: center, justify: between) {
-            Row(align: center, gap: md) {
+        r#"component TaskItem(title: String, done: Bool, priority: String) {
+    Card.outlined {
+        Row(align: .center, justify: .between) {
+            Row(align: .center, gap: .md) {
                 Checkbox(checked: done, label: title)
             }
-            Row(gap: sm) {
-                Badge(priority, primary)
-                IconButton(icon: "trash", danger, small, label: "Delete task")
+            Row(gap: .sm) {
+                Badge(priority).primary
+                IconButton(icon: "trash", label: "Delete task").danger.sm
             }
         }
     }
@@ -452,14 +455,14 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 
     fs::write(
         dir.join("src/components/StatCard.wf"),
-        r#"Component StatCard (title: String, value: Number, color: String) {
-    Card(elevated, fadeIn) {
-        Card.Body {
-            Text(title, muted, small)
-            Heading(value, h2)
-        }
+        r#"component StatCard(title: String, value: Number, color: String) {
+    Card.elevated.fadeIn {
         style {
-            borderLeft: "4px solid var(--color-primary)"
+            borderLeft: 4px solid $color-primary
+        }
+        Card.Body {
+            Text(title).muted.sm
+            Heading(value).h2
         }
     }
 }"#,
@@ -467,7 +470,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 
     fs::write(
         dir.join("src/components/ThemeToggle.wf"),
-        r#"Component ThemeToggle () {
+        r#"component ThemeToggle {
     state isDark = false
 
     Switch(bind: isDark, label: "Dark Mode")
@@ -477,7 +480,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     // ── Stores ──
     fs::write(
         dir.join("src/stores/tasks.wf"),
-        r#"Store TaskStore {
+        r#"store TaskStore {
     state tasks = [
         { id: 1, title: "Learn WebFluent", done: false, priority: "high" },
         { id: 2, title: "Build a dashboard", done: false, priority: "medium" },
@@ -500,7 +503,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     }
 
     action toggle(id: Number) {
-        state task = tasks.filter(t => t.id == id)[0]
+        let task = tasks.filter(t => t.id == id)[0]
         task.done = !task.done
     }
 
@@ -516,7 +519,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 
     fs::write(
         dir.join("src/stores/auth.wf"),
-        r#"Store AuthStore {
+        r#"store AuthStore {
     state user = null
     state authToken = ""
 
@@ -694,10 +697,10 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     fs::write(
         dir.join("src/App.wf"),
         format!(
-            r#"App {{
+            r#"app {{
     Navbar {{
         Navbar.Brand {{
-            Text("{}", heading)
+            Text("{}").heading
         }}
         Navbar.Links {{
             Link(to: "/") {{ Text(t("nav.home")) }}
@@ -706,17 +709,12 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             Link(to: "/contact") {{ Text(t("nav.contact")) }}
         }}
         Navbar.Actions {{
-            Button("EN", small) {{ setLocale("en") }}
-            Button("AR", small) {{ setLocale("ar") }}
+            Button("EN").sm {{ on click {{ setLocale("en") }} }}
+            Button("AR").sm {{ on click {{ setLocale("ar") }} }}
         }}
     }}
 
-    Router {{
-        Route(path: "/", page: Home)
-        Route(path: "/about", page: About)
-        Route(path: "/blog", page: Blog)
-        Route(path: "/contact", page: Contact)
-    }}
+    Router
 
     Footer
 }}"#,
@@ -727,37 +725,37 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     // ── Home.wf ──
     fs::write(
         dir.join("src/pages/Home.wf"),
-        r#"Page Home (path: "/", description: "An overview of what needs your attention today.", title: "Home") {
+        r#"page Home(path: "/", description: "An overview of what needs your attention today.", title: "Home") {
     Container {
-        Spacer(xl)
+        Spacer.xl
 
-        Stack(gap: md) {
-            Heading(t("hero.title"), h1, center, slideUp)
-            Text(t("hero.subtitle"), muted, center, fadeIn)
-            Spacer(sm)
-            Row(gap: md, justify: center) {
-                Button(t("hero.cta"), primary, large) { navigate("/contact") }
-                Button(t("hero.secondary"), large) { navigate("/about") }
+        Stack(gap: .md) {
+            Heading(t("hero.title")).h1.center.slideUp
+            Text(t("hero.subtitle")).muted.center.fadeIn
+            Spacer.sm
+            Row(gap: .md, justify: .center) {
+                Button(t("hero.cta")).primary.lg { on click { navigate("/contact") } }
+                Button(t("hero.secondary")).lg { on click { navigate("/about") } }
             }
         }
 
-        Spacer(xl)
-        Divider()
-        Spacer()
+        Spacer.xl
+        Divider
+        Spacer
 
-        Heading(t("features.title"), h2, center)
-        Text(t("features.subtitle"), muted, center)
+        Heading(t("features.title")).h2.center
+        Text(t("features.subtitle")).muted.center
 
-        Spacer()
+        Spacer
 
-        Grid(columns: 2, gap: lg) {
+        Grid(columns: 2, gap: .lg) {
             FeatureCard(title: t("features.speed.title"), description: t("features.speed.desc"), icon: "zap")
             FeatureCard(title: t("features.design.title"), description: t("features.design.desc"), icon: "palette")
             FeatureCard(title: t("features.i18n.title"), description: t("features.i18n.desc"), icon: "globe")
             FeatureCard(title: t("features.a11y.title"), description: t("features.a11y.desc"), icon: "shield")
         }
 
-        Spacer(xl)
+        Spacer.xl
     }
 }"#,
     )?;
@@ -765,20 +763,20 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     // ── About.wf ──
     fs::write(
         dir.join("src/pages/About.wf"),
-        r#"Page About (path: "/about", description: "Who we are and what we do.", title: "About") {
-    Container(fadeIn) {
-        Heading(t("about.title"), h1)
+        r#"page About(path: "/about", description: "Who we are and what we do.", title: "About") {
+    Container.fadeIn {
+        Heading(t("about.title")).h1
 
-        Spacer()
+        Spacer
 
-        Row(gap: lg) {
+        Row(gap: .lg) {
             Column(span: 6) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
-                        Heading(t("about.mission.title"), h2)
-                        Spacer(sm)
+                        Heading(t("about.mission.title")).h2
+                        Spacer.sm
                         Text(t("about.mission.text"))
-                        Spacer()
+                        Spacer
                         Blockquote(t("about.quote"))
                     }
                 }
@@ -786,13 +784,13 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             Column(span: 6) {
                 Card {
                     Card.Body {
-                        Heading(t("about.team.title"), h2)
-                        Spacer(sm)
-                        Stack(gap: md) {
+                        Heading(t("about.team.title")).h2
+                        Spacer.sm
+                        Stack(gap: .md) {
                             TeamMember(name: "Monzer Omer", role: "Creator", initials: "MO")
-                            Divider()
+                            Divider
                             TeamMember(name: "Sara Ali", role: "Designer", initials: "SA")
-                            Divider()
+                            Divider
                             TeamMember(name: "Omar Hassan", role: "Developer", initials: "OH")
                         }
                     }
@@ -806,53 +804,53 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     // ── Blog.wf ──
     fs::write(
         dir.join("src/pages/Blog.wf"),
-        r#"Page Blog (path: "/blog", description: "Writing from the team.", title: "Blog") {
-    Container(fadeIn) {
-        Heading(t("blog.title"), h1)
-        Text(t("blog.subtitle"), muted)
+        r#"page Blog(path: "/blog", description: "Writing from the team.", title: "Blog") {
+    Container.fadeIn {
+        Heading(t("blog.title")).h1
+        Text(t("blog.subtitle")).muted
 
-        Spacer()
+        Spacer
 
-        Grid(columns: 3, gap: md) {
-            Card(elevated, scaleIn) {
+        Grid(columns: 3, gap: .md) {
+            Card.elevated.scaleIn {
                 Card.Body {
-                    Badge("New", success)
-                    Spacer(sm)
-                    Heading("Getting Started with WebFluent", h2)
-                    Text("Learn how to build your first web application using the WebFluent language.", muted)
-                    Spacer(sm)
+                    Badge("New").success
+                    Spacer.sm
+                    Heading("Getting Started with WebFluent").h2
+                    Text("Learn how to build your first web application using the WebFluent language.").muted
+                    Spacer.sm
                     Tag("Tutorial")
                     Tag("Beginner")
                 }
                 Card.Footer {
-                    Link(to: "/blog") { Text(t("blog.read"), primary) }
+                    Link(to: "/blog") { Text(t("blog.read")).primary }
                 }
             }
-            Card(elevated, scaleIn) {
+            Card.elevated.scaleIn {
                 Card.Body {
-                    Badge("Popular", primary)
-                    Spacer(sm)
-                    Heading("Building with SSG", h2)
-                    Text("How to use Static Site Generation for lightning-fast page loads.", muted)
-                    Spacer(sm)
+                    Badge("Popular").primary
+                    Spacer.sm
+                    Heading("Building with SSG").h2
+                    Text("How to use Static Site Generation for lightning-fast page loads.").muted
+                    Spacer.sm
                     Tag("SSG")
                     Tag("Performance")
                 }
                 Card.Footer {
-                    Link(to: "/blog") { Text(t("blog.read"), primary) }
+                    Link(to: "/blog") { Text(t("blog.read")).primary }
                 }
             }
-            Card(elevated, scaleIn) {
+            Card.elevated.scaleIn {
                 Card.Body {
-                    Spacer(sm)
-                    Heading("Multi-Language Sites", h2)
-                    Text("Add internationalization to your WebFluent site with built-in i18n support.", muted)
-                    Spacer(sm)
+                    Spacer.sm
+                    Heading("Multi-Language Sites").h2
+                    Text("Add internationalization to your WebFluent site with built-in i18n support.").muted
+                    Spacer.sm
                     Tag("i18n")
                     Tag("RTL")
                 }
                 Card.Footer {
-                    Link(to: "/blog") { Text(t("blog.read"), primary) }
+                    Link(to: "/blog") { Text(t("blog.read")).primary }
                 }
             }
         }
@@ -863,7 +861,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     // ── Contact.wf ──
     fs::write(
         dir.join("src/pages/Contact.wf"),
-        r#"Page Contact (path: "/contact", description: "How to reach us.", title: "Contact") {
+        r#"page Contact(path: "/contact", description: "How to reach us.", title: "Contact") {
     state name = ""
     state email = ""
     state subject = "general"
@@ -872,43 +870,45 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     state submitted = false
     state errorMsg = ""
 
-    Container(fadeIn) {
-        Heading(t("contact.title"), h1)
-        Text(t("contact.subtitle"), muted)
+    Container.fadeIn {
+        Heading(t("contact.title")).h1
+        Text(t("contact.subtitle")).muted
 
-        Spacer()
+        Spacer
 
-        Row(gap: lg) {
+        Row(gap: .lg) {
             Column(span: 8) {
-                Card(elevated) {
+                Card.elevated {
                     Card.Body {
                         show submitted {
-                            Alert(t("contact.success"), success)
-                            Spacer()
+                            Alert(t("contact.success")).success
+                            Spacer
                         }
 
                         Form {
-                            Input(text, bind: name, label: t("contact.name"), placeholder: t("contact.name"), required: true)
-                            Spacer(sm)
-                            Input(email, bind: email, label: t("contact.email"), placeholder: t("contact.email"), required: true)
-                            Spacer(sm)
-                            Select(bind: subject, label: t("contact.subject")) {
-                                Option("general", t("contact.subject.general"))
-                                Option("support", t("contact.subject.support"))
-                                Option("feedback", t("contact.subject.feedback"))
-                            }
-                            Spacer(sm)
-                            Input(text, bind: message, label: t("contact.message"), placeholder: t("contact.message"))
-                            Spacer()
-                            Checkbox(bind: agreed, label: t("contact.agree"))
-                            Spacer()
-                            Button(t("contact.send"), primary, large, full) {
+                            on submit {
                                 submitted = true
+                            }
+                            Input(bind: name, label: t("contact.name"), placeholder: t("contact.name"), required: true).text
+                            Spacer.sm
+                            Input(bind: email, label: t("contact.email"), placeholder: t("contact.email")).email.required
+                            Spacer.sm
+                            Select(bind: subject, label: t("contact.subject")) {
+                                Select.Option(t("contact.subject.general"), value: "general")
+                                Select.Option(t("contact.subject.support"), value: "support")
+                                Select.Option(t("contact.subject.feedback"), value: "feedback")
+                            }
+                            Spacer.sm
+                            Input(bind: message, label: t("contact.message"), placeholder: t("contact.message")).text
+                            Spacer
+                            Checkbox(bind: agreed, label: t("contact.agree"))
+                            Spacer
+                            Button(t("contact.send")).primary.lg.full {
+                                on click {
+                                    submitted = true
+                                }
                             }
 
-                            on:submit {
-                                submitted = true
-                            }
                         }
                     }
                 }
@@ -916,9 +916,9 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
             Column(span: 4) {
                 Card {
                     Card.Body {
-                        Heading("Info", h2)
-                        Spacer(sm)
-                        Stack(gap: sm) {
+                        Heading("Info").h2
+                        Spacer.sm
+                        Stack(gap: .sm) {
                             Text("hello@example.com")
                             Text("+1 (555) 123-4567")
                             Text("123 Main Street")
@@ -934,13 +934,13 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     // ── Components ──
     fs::write(
         dir.join("src/components/FeatureCard.wf"),
-        r#"Component FeatureCard (title: String, description: String, icon: String) {
-    Card(elevated, scaleIn) {
+        r#"component FeatureCard(title: String, description: String, icon: String) {
+    Card.elevated.scaleIn {
         Card.Body {
-            Icon(icon, primary, large)
-            Spacer(sm)
-            Heading(title, h2)
-            Text(description, muted)
+            Icon(icon).primary.lg
+            Spacer.sm
+            Heading(title).h2
+            Text(description).muted
         }
     }
 }"#,
@@ -948,12 +948,12 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 
     fs::write(
         dir.join("src/components/TeamMember.wf"),
-        r#"Component TeamMember (name: String, role: String, initials: String) {
-    Row(align: center, gap: md) {
-        Avatar(initials: initials, primary)
+        r#"component TeamMember(name: String, role: String, initials: String) {
+    Row(align: .center, gap: .md) {
+        Avatar(initials: initials).primary
         Stack {
-            Text(name, bold)
-            Text(role, muted, small)
+            Text(name).bold
+            Text(role).muted.sm
         }
     }
 }"#,
@@ -961,15 +961,15 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 
     fs::write(
         dir.join("src/components/Footer.wf"),
-        r#"Component Footer () {
-    Divider()
+        r#"component Footer {
+    Divider
     Container {
-        Spacer()
-        Row(align: center, justify: between) {
-            Text(t("footer.built"), muted, small)
-            Text(t("footer.rights"), muted, small)
+        Spacer
+        Row(align: .center, justify: .between) {
+            Text(t("footer.built")).muted.sm
+            Text(t("footer.rights")).muted.sm
         }
-        Spacer()
+        Spacer
     }
 }"#,
     )?;
@@ -1004,69 +1004,69 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
     fs::write(
         project_dir.join("src/pages/Report.wf"),
         format!(
-            r#"Page Report (path: "/", description: "A generated report.", title: "{name} Report") {{
+            r#"page Report(path: "/", description: "A generated report.", title: "{name} Report") {{
     Document(page_size: "A4") {{
         Header {{
-            Text("{name}", muted, small, right)
+            Text("{name}").muted.sm.right
         }}
 
         Footer {{
-            Text("Confidential", muted, small, center)
+            Text("Confidential").muted.sm.center
         }}
 
         Section {{
-            Heading("{name}", h1)
+            Heading("{name}").h1
 
-            Spacer(sm)
+            Spacer.sm
 
             Text("This document was generated with WebFluent's PDF output.")
 
-            Spacer()
+            Spacer
 
-            Heading("Summary", h2)
+            Heading("Summary").h2
 
             Paragraph {{
                 Text("WebFluent generates PDF documents directly from .wf source files. The same declarative syntax used for web UIs works for documents.")
             }}
 
-            Divider()
+            Divider
 
-            Heading("Data Table", h2)
+            Heading("Data Table").h2
 
             Table {{
-                Thead {{
-                    Trow {{
-                        Tcell("Item")
-                        Tcell("Category")
-                        Tcell("Status")
-                        Tcell("Value")
+                Table.Head {{
+                    Table.Row {{
+                        Table.Cell("Item")
+                        Table.Cell("Category")
+                        Table.Cell("Status")
+                        Table.Cell("Value")
                     }}
                 }}
-                Tbody {{
-                    Trow {{
-                        Tcell("Widget A")
-                        Tcell("Hardware")
-                        Tcell("Active")
-                        Tcell("$1,200")
+                Table.Body {{
+                    Table.Row {{
+                        Table.Cell("Widget A")
+                        Table.Cell("Hardware")
+                        Table.Cell("Active")
+                        Table.Cell("$1,200")
                     }}
-                    Trow {{
-                        Tcell("Service B")
-                        Tcell("Software")
-                        Tcell("Pending")
-                        Tcell("$3,400")
+                    Table.Row {{
+                        Table.Cell("Service B")
+                        Table.Cell("Software")
+                        Table.Cell("Pending")
+                        Table.Cell("$3,400")
                     }}
-                    Trow {{
-                        Tcell("License C")
-                        Tcell("Legal")
-                        Tcell("Complete")
-                        Tcell("$800")
+                    Table.Row {{
+                        Table.Cell("License C")
+                        Table.Cell("Legal")
+                        Table.Cell("Complete")
+                        Table.Cell("$800")
                     }}
                 }}
             }}
 
-            Spacer()
+            Spacer
 
-            Heading("Key Points", h3)
+            Heading("Key Points").h3
 
             List {{
                 Text("PDF output uses raw PDF 1.7 — no external dependencies")
@@ -1075,23 +1075,23 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
                 Text("Font support for all 14 PDF base fonts")
             }}
 
-            Spacer()
+            Spacer
 
-            Alert("Interactive elements like Button and Input are rejected at compile time in PDF mode.", info)
+            Alert("Interactive elements like Button and Input are rejected at compile time in PDF mode.").info
 
-            Spacer()
+            Spacer
 
-            Code("Document(page_size: \"A4\") \{{\n    Heading(\"Hello!\", h1)\n    Text(\"Generated with WebFluent.\")\n\}}", block)
+            Code("Document(page_size: \"A4\") \{{\n    Heading(\"Hello!\", h1)\n    Text(\"Generated with WebFluent.\")\n\}}").block
 
-            Spacer()
+            Spacer
 
             Blockquote {{
                 Text("WebFluent — build for the web, print for the world.")
             }}
 
-            PageBreak()
+            PageBreak
 
-            Heading("Page Two", h1)
+            Heading("Page Two").h1
 
             Paragraph {{
                 Text("Content continues after PageBreak. Headers and footers repeat on every page.")
@@ -1099,9 +1099,9 @@ fn generate_pdf(name: &str, project_dir: &Path) -> Result<()> {
 
             Progress(value: 75, max: 100)
 
-            Spacer()
+            Spacer
 
-            Badge("Complete", success)
+            Badge("Complete").success
         }}
     }}
 }}
@@ -1145,17 +1145,17 @@ fn generate_slides(name: &str, project_dir: &Path) -> Result<()> {
     fs::write(
         project_dir.join("src/pages/Deck.wf"),
         format!(
-            r#"Page Deck (path: "/", description: "A slide deck.", title: "{name}") {{
+            r#"page Deck(path: "/", description: "A slide deck.", title: "{name}") {{
     Presentation {{
-        TitleSlide("{name}", "Built with WebFluent")
+        TitleSlide("{name}", subtitle: "Built with WebFluent")
 
         Slide {{
-            Heading("What this deck is", h1)
+            Heading("What this deck is").h1
             Text("A starter PDF slide deck. Each Slide compiles to one PDF page.")
         }}
 
         Slide {{
-            Heading("Layouts", h2)
+            Heading("Layouts").h2
             List {{
                 Text("Slide — freeform content")
                 Text("TitleSlide — cover page")
@@ -1167,19 +1167,19 @@ fn generate_slides(name: &str, project_dir: &Path) -> Result<()> {
 
         TwoColumn {{
             Container {{
-                Heading("Left column", h3)
+                Heading("Left column").h3
                 Text("Content on the left wraps at the gutter.")
             }}
             Container {{
-                Heading("Right column", h3)
+                Heading("Right column").h3
                 Text("Content on the right has its own layout cursor.")
             }}
         }}
 
-        SectionSlide("Wrap up", primary)
+        SectionSlide("Wrap up").primary
 
         Slide {{
-            Heading("Thanks!", h1)
+            Heading("Thanks!").h1
             Text("Edit src/pages/Deck.wf to make this deck your own.")
         }}
     }}

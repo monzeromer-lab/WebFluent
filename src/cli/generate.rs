@@ -23,9 +23,9 @@ fn generate_page(name: &str, project_dir: &Path) -> Result<()> {
 
     let path_slug = name.to_lowercase();
     let content = format!(
-        r#"Page {} (path: "/{}", title: "{}") {{
+        r#"page {}(path: "/{}", title: "{}") {{
     Container {{
-        Heading("{}", h1)
+        Heading("{}").h1
         Text("This is the {} page.")
     }}
 }}
@@ -49,7 +49,7 @@ fn generate_component(name: &str, project_dir: &Path) -> Result<()> {
     fs::create_dir_all(&dir)?;
 
     let content = format!(
-        r#"Component {} () {{
+        r#"component {} {{
     Card {{
         Text("{} component")
     }}
@@ -74,7 +74,7 @@ fn generate_store(name: &str, project_dir: &Path) -> Result<()> {
     fs::create_dir_all(&dir)?;
 
     let content = format!(
-        r#"Store {} {{
+        r#"store {} {{
     state items = []
 
     action add(item: String) {{
