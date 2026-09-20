@@ -8,13 +8,13 @@ import { makeDom } from "./dom.mjs";
 
 /// Load runtime.js against a fake DOM and hand back its public surface.
 function loadRuntime() {
-  const { window, document, Node } = makeDom();
+  const { window, document, Node, DocumentFragment } = makeDom();
   const src = readFileSync(new URL("../../src/runtime/runtime.js", import.meta.url), "utf8");
   // Timers run inline: the runtime defers by a tick, and a test wants the
   // settled state.
   const setTimeout = (fn) => { fn(); return 0; };
-  const fn = new Function("window", "document", "Node", "setTimeout", `${src}\nreturn WF;`);
-  return { WF: fn(window, document, Node, setTimeout), document, window };
+  const fn = new Function("window", "document", "Node", "DocumentFragment", "setTimeout", `${src}\nreturn WF;`);
+  return { WF: fn(window, document, Node, DocumentFragment, setTimeout), document, window };
 }
 
 test("hydrate leaves a live page: the click handler on the server paint works", () => {
@@ -400,4 +400,70 @@ test("classes an expression names follow it, and leave the element's other class
   assert.equal(el.className, "wf-card wf-s0123abcd alert", "what it no longer names comes off");
   tone.set("");
   assert.equal(el.className, "wf-card wf-s0123abcd");
+});
+
+test("a match shows the arm its key names and swaps it when the key changes", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const state = WF.signal("loading");
+  const data = WF.signal(null);
+  let rendered = 0;
+  WF.match(parent, () => state(), () => data(), {
+    loading: () => WF.h("p", {}, ["…"]),
+    ready: (rows) => { rendered++; return WF.h("p", {}, [`${rows.length} rows`]); },
+    else: () => WF.h("p", {}, ["?"]),
+  });
+  assert.equal(parent.querySelector("p").textContent, "…");
+
+  data.set([1, 2, 3]);
+  state.set("ready");
+  assert.equal(parent.querySelector("p").textContent, "3 rows", "the arm receives the argument");
+  assert.equal(parent.querySelectorAll("p").length, 1, "the old arm is gone");
+
+  data.set([1]);
+  assert.equal(rendered, 1, "only the key decides when to redraw");
+
+  state.set("unknown");
+  assert.equal(parent.querySelector("p").textContent, "?", "an unknown key falls to else");
+});
+
+test("a resource loads, exposes its state, ignores a stale answer, and reloads", async () => {
+  const { WF } = loadRuntime();
+  const pending = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (url) => new Promise((resolve, reject) => pending.push({ url, resolve, reject }));
+  try {
+    const r = WF.resource("/api/rows", null);
+    assert.equal(r.state(), "loading");
+    assert.equal(pending[0].url, "/api/rows");
+    pending[0].resolve({ ok: true, json: async () => [1, 2] });
+    await new Promise((res) => setTimeout(res, 0));
+    await new Promise((res) => setTimeout(res, 0));
+    assert.equal(r.state(), "ready");
+    assert.deepEqual(r.data(), [1, 2]);
+
+    r.reload();
+    assert.equal(r.state(), "loading");
+    r.reload();
+    // The first reload's answer arrives after the second was asked: ignored.
+    pending[1].resolve({ ok: true, json: async () => ["stale"] });
+    pending[2].resolve({ ok: false, status: 500 });
+    await new Promise((res) => setTimeout(res, 0));
+    await new Promise((res) => setTimeout(res, 0));
+    assert.equal(r.state(), "error");
+    assert.equal(r.error().message, "HTTP 500");
+    assert.deepEqual(r.data(), [1, 2], "a stale answer never landed");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("emit calls the handler the caller passed, and is silent without one", () => {
+  const { WF } = loadRuntime();
+  const seen = [];
+  WF.emit({ on: { pick: (x) => seen.push(x) } }, "pick", 42);
+  WF.emit({ on: {} }, "pick", 1);
+  WF.emit({}, "pick", 2);
+  WF.emit(null, "pick", 3);
+  assert.deepEqual(seen, [42]);
 });

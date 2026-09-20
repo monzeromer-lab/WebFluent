@@ -60,6 +60,19 @@ pub struct JsCodegen {
     /// The pages with a stylesheet of their own (`pages/<Name>.css`), which
     /// the router loads before drawing them.
     page_sheets: std::collections::BTreeSet<String>,
+    /// The next fresh variable name. Per generator, so two builds of one
+    /// program in one process emit identical code.
+    next_var: std::cell::Cell<usize>,
+    /// The resources declared in the page or component being emitted: a
+    /// reference to one is the resource object, not a signal read.
+    resources: Vec<String>,
+    /// Each user component's positional prop, when it declares one: a
+    /// positional argument at a call binds to it. Absent a declared one,
+    /// the first prop, as the static paint has always done.
+    component_positional: HashMap<String, String>,
+    /// Each user component's declared events, which a call passes handlers
+    /// for as `on: { name: fn }`.
+    component_events: HashMap<String, Vec<String>>,
 }
 
 impl Default for JsCodegen {
@@ -90,6 +103,10 @@ impl JsCodegen {
             split_pages: false,
             chunks: Vec::new(),
             page_sheets: std::collections::BTreeSet::new(),
+            next_var: std::cell::Cell::new(0),
+            resources: Vec::new(),
+            component_positional: HashMap::new(),
+            component_events: HashMap::new(),
         }
     }
 
@@ -210,7 +227,22 @@ impl JsCodegen {
         // First pass: collect component and store names
         for decl in &program.declarations {
             match decl {
-                Declaration::Component(c) => self.components.push(c.name.clone()),
+                Declaration::Component(c) => {
+                    self.components.push(c.name.clone());
+                    let positional = c
+                        .props
+                        .iter()
+                        .find(|p| p.positional)
+                        .or_else(|| c.props.first())
+                        .map(|p| p.name.clone());
+                    if let Some(name) = positional {
+                        self.component_positional.insert(c.name.clone(), name);
+                    }
+                    self.component_events.insert(
+                        c.name.clone(),
+                        c.events.iter().map(|e| e.name.clone()).collect(),
+                    );
+                }
                 Declaration::Store(s) => self.stores.push(s.name.clone()),
                 Declaration::Page(p) => {
                     if let Some(title) = &p.title {
@@ -414,8 +446,13 @@ impl JsCodegen {
             for a in &actions {
                 let params: Vec<String> = a.params.iter().map(|p| p.name.clone()).collect();
                 self.emit_line(&format!(
-                    "{}: (store{}) => {{",
+                    "{}: {}(store{}) => {{",
                     a.name,
+                    if crate::parser::ast::awaits(&a.body) {
+                        "async "
+                    } else {
+                        ""
+                    },
                     if params.is_empty() {
                         String::new()
                     } else {
@@ -485,6 +522,7 @@ impl JsCodegen {
                     BinOp::Gte => ">=",
                     BinOp::And => "&&",
                     BinOp::Or => "||",
+                    BinOp::NullCoalesce => "??",
                 };
                 format!("({} {} {})", l, op_str, r)
             }
@@ -521,6 +559,9 @@ impl JsCodegen {
                 let body_str = self.emit_store_expr(body, store_states);
                 format!("(({}) => {})", param, body_str)
             }
+            Expr::EnumCase(case) => format!("\"{}\"", case),
+            Expr::Token(name) => format!("\"var(--{})\"", name),
+            Expr::Await(inner) => format!("(await {})", self.emit_store_expr(inner, store_states)),
             Expr::FunctionCall(name, args) => {
                 let args_str: Vec<String> = args
                     .iter()
@@ -729,20 +770,20 @@ impl JsCodegen {
                     .map(|d| format!("{}: {}", p.name, self.emit_expr(d)))
             })
             .collect();
-        // The second parameter is the caller's block, as a thunk that builds
-        // it, so `children` can be placed anywhere in the body — including
-        // inside a conditional or a loop, whose closures see the parameter.
-        self.emit_line(&format!(
-            "function Component_{}(_p, _children) {{",
-            comp.name
-        ));
+        // The second parameter holds the caller's slot fills, each a thunk
+        // that builds its content, so `children` (and a named slot) can be
+        // placed anywhere in the body — including inside a conditional or a
+        // loop, whose closures see the parameter.
+        self.emit_line(&format!("function Component_{}(_p, _slots) {{", comp.name));
         self.indent += 1;
+        self.emit_line("_slots = _slots || {};");
         self.emit_line(&format!(
             "_p = WF.props(_p, {{ {} }});",
             defaults.join(", ")
         ));
 
         // Emit state declarations first
+        self.resources = resource_names(&comp.body);
         for stmt in &comp.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
@@ -777,6 +818,7 @@ impl JsCodegen {
         self.indent += 1;
 
         // Emit state declarations
+        self.resources = resource_names(&page.body);
         for stmt in &page.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
@@ -957,6 +999,8 @@ impl JsCodegen {
             StatementKind::For(for_stmt) => self.emit_for_dom(for_stmt, parent),
             StatementKind::Show(show_stmt) => self.emit_show_dom(show_stmt, parent),
             StatementKind::Fetch(fetch) => self.emit_fetch_dom(fetch, parent),
+            StatementKind::Resource(r) => self.emit_resource(r),
+            StatementKind::Match(m) => self.emit_match_dom(m, parent),
             StatementKind::Use(_) => {} // Stores are global, no DOM output
             StatementKind::State(_) => {} // Already handled
             StatementKind::Derived(d) => {
@@ -978,7 +1022,13 @@ impl JsCodegen {
             }
             StatementKind::Action(a) => {
                 let params: Vec<String> = a.params.iter().map(|p| p.name.clone()).collect();
-                self.emit_line(&format!("function {}({}) {{", a.name, params.join(", ")));
+                // An action that awaits is an async function.
+                let kind = if crate::parser::ast::awaits(&a.body) {
+                    "async function"
+                } else {
+                    "function"
+                };
+                self.emit_line(&format!("{} {}({}) {{", kind, a.name, params.join(", ")));
                 self.indent += 1;
                 for s in &a.body {
                     self.emit_statement(s);
@@ -1005,8 +1055,9 @@ impl JsCodegen {
             ComponentRef::BuiltIn(name) => {
                 match name.as_str() {
                     "Children" => {
+                        let slot = ui.slot_name().unwrap_or("children");
                         self.emit_line(&format!(
-                            "if (typeof _children === 'function') {}.appendChild(_children());",
+                            "if (typeof _slots.{slot} === 'function') {}.appendChild(_slots.{slot}());",
                             parent
                         ));
                         return;
@@ -1466,8 +1517,10 @@ impl JsCodegen {
                             if matches!(&u.component, ComponentRef::BuiltIn(n) if n == "Children"))
                     });
                 if slot_in_select {
-                    children_arr
-                        .push("(typeof _children === 'function' ? _children() : null)".to_string());
+                    children_arr.push(
+                        "(typeof _slots.children === 'function' ? _slots.children() : null)"
+                            .to_string(),
+                    );
                 }
 
                 if children_arr.is_empty() && ui.children.is_empty() {
@@ -1538,10 +1591,13 @@ impl JsCodegen {
                 }
 
                 for handler in &ui.events {
-                    let body = self.emit_event_body(&handler.body);
+                    let body = self.emit_event_body(handler);
                     self.emit_line(&format!(
-                        "{}.addEventListener(\"{}\", (event) => {{ {} }});",
-                        var, handler.event, body
+                        "{}.addEventListener(\"{}\", {} => {{ {} }});",
+                        var,
+                        handler.event,
+                        Self::handler_head(handler, "event"),
+                        body
                     ));
                 }
 
@@ -1625,10 +1681,13 @@ impl JsCodegen {
                     self.emit_statement_dom(child, &var);
                 }
                 for handler in &ui.events {
-                    let body = self.emit_event_body(&handler.body);
+                    let body = self.emit_event_body(handler);
                     self.emit_line(&format!(
-                        "{}.addEventListener(\"{}\", (event) => {{ {} }});",
-                        var, handler.event, body
+                        "{}.addEventListener(\"{}\", {} => {{ {} }});",
+                        var,
+                        handler.event,
+                        Self::handler_head(handler, "event"),
+                        body
                     ));
                 }
                 // A sub-component used to drop its style block and its
@@ -1638,7 +1697,34 @@ impl JsCodegen {
             }
 
             ComponentRef::UserDefined(name) => {
-                let args_obj = self.emit_component_args(&ui.args);
+                // A handler for an event the component declares is passed in
+                // as `on: { name: fn }`; a DOM event's handler attaches to the
+                // component's root element, so a styled button component is
+                // clickable where it is used.
+                let declared = self.component_events.get(name).cloned().unwrap_or_default();
+                let (emitted, attached): (Vec<&EventHandler>, Vec<&EventHandler>) =
+                    ui.events.iter().partition(|h| declared.contains(&h.event));
+                let mut args_obj = self.emit_component_args(name, &ui.args);
+                if !emitted.is_empty() {
+                    let handlers: Vec<String> = emitted
+                        .iter()
+                        .map(|h| {
+                            let body = self.emit_event_body(h);
+                            format!(
+                                "{}: {} => {{ {} }}",
+                                h.event,
+                                Self::handler_head(h, "_ev"),
+                                body
+                            )
+                        })
+                        .collect();
+                    let on = format!("on: {{ {} }}", handlers.join(", "));
+                    args_obj = if args_obj == "{}" {
+                        format!("{{ {} }}", on)
+                    } else {
+                        format!("{}, {} }}", &args_obj[..args_obj.len() - 2], on)
+                    };
+                }
                 // A block of nothing but actions is a click handler, as it is
                 // on a Button — `Save(label: "x") { save() }` — rather than a
                 // slot filled with statements that render nothing.
@@ -1653,31 +1739,42 @@ impl JsCodegen {
                                 | StatementKind::ExprStatement(_)
                         )
                     });
-                if ui.children.is_empty() || is_action_shorthand {
+                let has_default_slot = !ui.children.is_empty() && !is_action_shorthand;
+                if !has_default_slot && ui.slot_fills.is_empty() {
                     self.emit_line(&format!(
                         "const {} = Component_{}({});",
                         var, name, args_obj
                     ));
                 } else {
-                    // The block is compiled here, in the caller's scope, so it
+                    // Each fill is compiled here, in the caller's scope, so it
                     // reads the caller's state and loop bindings; the component
                     // only decides where it lands.
                     self.emit_line(&format!(
-                        "const {} = Component_{}({}, () => {{",
+                        "const {} = Component_{}({}, {{",
                         var, name, args_obj
                     ));
                     self.indent += 1;
-                    self.emit_line("const _cf = document.createDocumentFragment();");
-                    for child in &ui.children {
-                        self.emit_statement_dom(child, "_cf");
+                    let mut fills: Vec<(&str, &[Statement])> = Vec::new();
+                    if has_default_slot {
+                        fills.push(("children", &ui.children));
                     }
-                    self.emit_line("return _cf;");
+                    for fill in &ui.slot_fills {
+                        fills.push((fill.name.as_str(), &fill.body));
+                    }
+                    for (slot, body) in fills {
+                        self.emit_line(&format!("{}: () => {{", slot));
+                        self.indent += 1;
+                        self.emit_line("const _cf = document.createDocumentFragment();");
+                        for child in body {
+                            self.emit_statement_dom(child, "_cf");
+                        }
+                        self.emit_line("return _cf;");
+                        self.indent -= 1;
+                        self.emit_line("},");
+                    }
                     self.indent -= 1;
                     self.emit_line("});");
                 }
-                // Handlers written on the call attach to the component's root
-                // element, so a styled button component is clickable where it
-                // is used. They used to be dropped.
                 if is_action_shorthand {
                     let body = self.emit_statements_inline(&ui.children);
                     self.emit_line(&format!(
@@ -1685,11 +1782,14 @@ impl JsCodegen {
                         var, body
                     ));
                 }
-                for handler in &ui.events {
-                    let body = self.emit_event_body(&handler.body);
+                for handler in attached {
+                    let body = self.emit_event_body(handler);
                     self.emit_line(&format!(
-                        "WF.onRoot({}, \"{}\", (event) => {{ {} }});",
-                        var, handler.event, body
+                        "WF.onRoot({}, \"{}\", {} => {{ {} }});",
+                        var,
+                        handler.event,
+                        Self::handler_head(handler, "event"),
+                        body
                     ));
                 }
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -2167,10 +2267,12 @@ impl JsCodegen {
 
         // Emit events from ui.events
         for handler in &ui.events {
-            let body = self.emit_event_body(&handler.body);
+            let body = self.emit_event_body(handler);
             input_attrs.push_str(&format!(
-                ", \"on:{}\": (e) => {{ {} }}",
-                handler.event, body
+                ", \"on:{}\": {} => {{ {} }}",
+                handler.event,
+                Self::handler_head(handler, "e"),
+                body
             ));
         }
 
@@ -2788,10 +2890,12 @@ impl JsCodegen {
             }
         }
         for handler in &ui.events {
-            let body = self.emit_event_body(&handler.body);
+            let body = self.emit_event_body(handler);
             btn_attrs.push_str(&format!(
-                ", \"on:{}\": (event) => {{ {} }}",
-                handler.event, body
+                ", \"on:{}\": {} => {{ {} }}",
+                handler.event,
+                Self::handler_head(handler, "event"),
+                body
             ));
         }
         if let Some(entry) = self.wf_node_entry(ui) {
@@ -2904,7 +3008,7 @@ impl JsCodegen {
                 .events
                 .iter()
                 .find(|h| h.event == "input")
-                .map(|h| self.emit_event_body(&h.body))
+                .map(|h| self.emit_event_body(h))
                 .unwrap_or_default();
             input_attrs.push_str(&format!(
                 ", value: () => _{}(), \"on:input\": (event) => {{ _{}.set(Number(event.target.value)); {} }}",
@@ -2935,10 +3039,12 @@ impl JsCodegen {
             if handler.event == "input" && bind_var.is_some() {
                 continue; // merged into the binding above
             }
-            let body = self.emit_event_body(&handler.body);
+            let body = self.emit_event_body(handler);
             input_attrs.push_str(&format!(
-                ", \"on:{}\": (event) => {{ {} }}",
-                handler.event, body
+                ", \"on:{}\": {} => {{ {} }}",
+                handler.event,
+                Self::handler_head(handler, "event"),
+                body
             ));
         }
         self.emit_line(&format!(
@@ -3044,10 +3150,12 @@ impl JsCodegen {
             input_attrs.push_str(&format!(", max: {}", mx));
         }
         for handler in &ui.events {
-            let body = self.emit_event_body(&handler.body);
+            let body = self.emit_event_body(handler);
             input_attrs.push_str(&format!(
-                ", \"on:{}\": (event) => {{ {} }}",
-                handler.event, body
+                ", \"on:{}\": {} => {{ {} }}",
+                handler.event,
+                Self::handler_head(handler, "event"),
+                body
             ));
         }
         self.emit_line(&format!(
@@ -3111,10 +3219,12 @@ impl JsCodegen {
             input_attrs.push_str(", multiple: true");
         }
         for handler in &ui.events {
-            let body = self.emit_event_body(&handler.body);
+            let body = self.emit_event_body(handler);
             input_attrs.push_str(&format!(
-                ", \"on:{}\": (event) => {{ {} }}",
-                handler.event, body
+                ", \"on:{}\": {} => {{ {} }}",
+                handler.event,
+                Self::handler_head(handler, "event"),
+                body
             ));
         }
         self.emit_line(&format!(
@@ -3130,7 +3240,13 @@ impl JsCodegen {
     // ─── Control flow (DOM) ──────────────────────────
 
     fn emit_if_dom(&mut self, if_stmt: &IfStmt, parent: &str) {
-        let cond = self.emit_expr(&if_stmt.condition);
+        let value = self.emit_expr(&if_stmt.condition);
+        // `if let x = e`: the branch shows while the value is not null, and
+        // reads it as a plain name.
+        let cond = match &if_stmt.binding {
+            Some(_) => format!("{} != null", value),
+            None => value.clone(),
+        };
 
         self.emit_line(&format!("WF.condRender({},", parent));
         self.indent += 1;
@@ -3144,9 +3260,15 @@ impl JsCodegen {
             "const {} = document.createDocumentFragment();",
             then_var
         ));
+        let bound = self.loop_bindings.len();
+        if let Some(name) = &if_stmt.binding {
+            self.emit_line(&format!("const {} = {};", name, value));
+            self.loop_bindings.push(name.clone());
+        }
         for stmt in &if_stmt.then_body {
             self.emit_statement_dom(stmt, &then_var);
         }
+        self.loop_bindings.truncate(bound);
         self.emit_line(&format!("return {};", then_var));
         self.indent -= 1;
         self.emit_line("},");
@@ -3165,6 +3287,7 @@ impl JsCodegen {
             ));
             let elif = IfStmt {
                 condition: if_stmt.else_if_branches[0].0.clone(),
+                binding: None,
                 animate: if_stmt.animate.clone(),
                 animate_span: None,
                 then_body: if_stmt.else_if_branches[0].1.clone(),
@@ -3242,6 +3365,14 @@ impl JsCodegen {
         // Animation config (4th argument)
         self.emit_animate_config(&for_stmt.animate);
 
+        // `by key`: the identity of an item across renders (5th argument).
+        if let Some(key) = &for_stmt.key {
+            self.loop_bindings.push(for_stmt.item.clone());
+            let key_js = self.emit_expr(key);
+            self.loop_bindings.pop();
+            self.emit_line(&format!(", ({}) => {}", for_stmt.item, key_js));
+        }
+
         self.indent -= 1;
         self.emit_line(");");
     }
@@ -3296,6 +3427,84 @@ impl JsCodegen {
         } else {
             self.emit_line("null");
         }
+    }
+
+    /// `resource rows = fetch(url, opts)`: the request, made once here and
+    /// again whenever a URL that reads state changes.
+    fn emit_resource(&mut self, r: &ResourceDecl) {
+        let url = self.emit_expr(&r.url);
+        let url_js = if self.is_reactive(&url) {
+            format!("() => {}", url)
+        } else {
+            url
+        };
+        let opts: Vec<String> = r
+            .options
+            .iter()
+            .map(|opt| format!("{}: {}", opt.key, self.emit_expr(&opt.value)))
+            .collect();
+        let opts_js = if opts.is_empty() {
+            "null".to_string()
+        } else {
+            format!("{{ {} }}", opts.join(", "))
+        };
+        self.emit_line(&format!(
+            "const _{} = WF.resource({}, {});",
+            r.name, url_js, opts_js
+        ));
+    }
+
+    /// `match x { … }`: one arm shown at a time, chosen by a resource's
+    /// state or an enum's case, and re-chosen when it changes.
+    fn emit_match_dom(&mut self, m: &MatchStmt, parent: &str) {
+        let over_resource = m.arms.iter().any(|a| {
+            matches!(
+                a.pattern,
+                ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
+            )
+        });
+        let subject = self.emit_expr(&m.scrutinee);
+        let (key, arg) = if over_resource {
+            (
+                format!("() => {}.state()", subject),
+                format!(
+                    "() => {}.state() === \"error\" ? {}.error() : {}.data()",
+                    subject, subject, subject
+                ),
+            )
+        } else {
+            (format!("() => {}", subject), "null".to_string())
+        };
+        self.emit_line(&format!("WF.match({}, {}, {}, {{", parent, key, arg));
+        self.indent += 1;
+        for arm in &m.arms {
+            let name = match &arm.pattern {
+                ArmPattern::Loading => "loading".to_string(),
+                ArmPattern::Error => "error".to_string(),
+                ArmPattern::Ready => "ready".to_string(),
+                ArmPattern::Case(c) => c.clone(),
+                ArmPattern::Else => "else".to_string(),
+            };
+            let param = arm.binding.clone().unwrap_or_else(|| "_v".to_string());
+            self.emit_line(&format!("{}: ({}) => {{", name, param));
+            self.indent += 1;
+            // The bound name is a plain parameter inside the arm.
+            self.loop_bindings.push(param.clone());
+            let var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {} = document.createDocumentFragment();",
+                var
+            ));
+            for stmt in &arm.body {
+                self.emit_statement_dom(stmt, &var);
+            }
+            self.emit_line(&format!("return {};", var));
+            self.loop_bindings.pop();
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+        self.indent -= 1;
+        self.emit_line("});");
     }
 
     fn emit_fetch_dom(&mut self, fetch: &FetchDecl, parent: &str) {
@@ -3430,13 +3639,32 @@ impl JsCodegen {
                 self.emit_line(&format!("const _{} = WF.signal({});", s.name, val));
             }
             StatementKind::If(if_stmt) => {
-                let cond = self.emit_expr(&if_stmt.condition);
+                // `if let x = e` binds the value for the branch, which runs
+                // when it is not null.
+                let cond = match &if_stmt.binding {
+                    Some(name) => {
+                        let value = self.emit_expr(&if_stmt.condition);
+                        self.emit_line(&format!("const {} = {};", name, value));
+                        format!("{} != null", name)
+                    }
+                    None => self.emit_expr(&if_stmt.condition),
+                };
                 self.emit_line(&format!("if ({}) {{", cond));
                 self.indent += 1;
                 for s in &if_stmt.then_body {
                     self.emit_statement(s);
                 }
                 self.indent -= 1;
+                // An `else if` chain used to be dropped here.
+                for (cond, body) in &if_stmt.else_if_branches {
+                    let cond = self.emit_expr(cond);
+                    self.emit_line(&format!("}} else if ({}) {{", cond));
+                    self.indent += 1;
+                    for s in body {
+                        self.emit_statement(s);
+                    }
+                    self.indent -= 1;
+                }
                 if let Some(else_body) = &if_stmt.else_body {
                     self.emit_line("} else {");
                     self.indent += 1;
@@ -3458,7 +3686,63 @@ impl JsCodegen {
                     self.emit_line("return;");
                 }
             }
+            // `emit toggle(id)`: the handler the caller passed for the
+            // event, when it passed one.
+            StatementKind::Emit(e) => {
+                let args: Vec<String> = e.args.iter().map(|a| self.emit_expr(a)).collect();
+                let rest = if args.is_empty() {
+                    String::new()
+                } else {
+                    format!(", {}", args.join(", "))
+                };
+                self.emit_line(&format!("WF.emit(_p, \"{}\"{});", e.event, rest));
+            }
+            // Statements that render — an element in an action body — have
+            // nowhere to go; the parsers keep them out of imperative blocks.
             _ => {}
+        }
+    }
+
+    /// The statements of a handler, action or effect as one line of code,
+    /// for a handler written inside an attribute object.
+    fn emit_statements_inline(&mut self, stmts: &[Statement]) -> String {
+        let saved = std::mem::take(&mut self.output);
+        let indent = std::mem::replace(&mut self.indent, 0);
+        for stmt in stmts {
+            self.emit_statement(stmt);
+        }
+        let out = std::mem::replace(&mut self.output, saved);
+        self.indent = indent;
+        out.split('\n')
+            .map(str::trim)
+            .filter(|l| !l.is_empty())
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    /// A handler's body: the same as any imperative block. The handler's
+    /// named parameter (`on click(e)`) is a plain name inside it; a handler
+    /// of the original grammar reads an implicit `event`.
+    fn emit_event_body(&mut self, handler: &EventHandler) -> String {
+        match &handler.param {
+            Some(param) => {
+                self.loop_bindings.push(param.clone());
+                let body = self.emit_statements_inline(&handler.body);
+                self.loop_bindings.pop();
+                body
+            }
+            None => self.emit_statements_inline(&handler.body),
+        }
+    }
+
+    /// The head of a handler's arrow function: its parameter, and `async`
+    /// when the body awaits.
+    fn handler_head(handler: &EventHandler, default_param: &str) -> String {
+        let param = handler.param.as_deref().unwrap_or(default_param);
+        if crate::parser::ast::awaits(&handler.body) {
+            format!("async ({})", param)
+        } else {
+            format!("({})", param)
         }
     }
 
@@ -3633,6 +3917,9 @@ impl JsCodegen {
                 if self.current_props.contains(name) {
                     return format!("_p.{}", name);
                 }
+                if self.resources.contains(name) {
+                    return format!("_{}", name);
+                }
                 if self.stores.contains(name)
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
@@ -3675,6 +3962,7 @@ impl JsCodegen {
                     BinOp::Gte => ">=",
                     BinOp::And => "&&",
                     BinOp::Or => "||",
+                    BinOp::NullCoalesce => "??",
                 };
                 format!("({} {} {})", l, op_str, r)
             }
@@ -3780,6 +4068,13 @@ impl JsCodegen {
                 }
                 format!("(({}) => {})", param, body_str)
             }
+            // An enum case is its name: the code generators read cases as
+            // the words they always were (`"primary"`), and a user enum's
+            // case is a string at run time.
+            Expr::EnumCase(case) => format!("\"{}\"", case),
+            // A design token is its custom property.
+            Expr::Token(name) => format!("\"var(--{})\"", name),
+            Expr::Await(inner) => format!("(await {})", self.emit_expr(inner)),
         }
     }
 
@@ -3791,12 +4086,12 @@ impl JsCodegen {
     }
 
     fn fresh_var(&self) -> String {
-        use std::sync::atomic::{AtomicUsize, Ordering};
-        static COUNTER: AtomicUsize = AtomicUsize::new(0);
-        format!("_e{}", COUNTER.fetch_add(1, Ordering::Relaxed))
+        let n = self.next_var.get();
+        self.next_var.set(n + 1);
+        format!("_e{}", n)
     }
 
-    fn emit_component_args(&self, args: &[Arg]) -> String {
+    fn emit_component_args(&self, component: &str, args: &[Arg]) -> String {
         let mut parts = Vec::new();
         for arg in args {
             match arg {
@@ -3815,8 +4110,18 @@ impl JsCodegen {
                         parts.push(format!("{}: {}", key, value));
                     }
                 }
+                // A positional argument binds to the component's positional
+                // prop. It used to be written into the object bare, which is
+                // not a property.
                 Arg::Positional(expr) => {
-                    parts.push(self.emit_expr(expr));
+                    if let Some(prop) = self.component_positional.get(component) {
+                        let value = self.emit_expr(expr);
+                        if self.is_reactive(&value) {
+                            parts.push(format!("get {}() {{ return {}; }}", prop, value));
+                        } else {
+                            parts.push(format!("{}: {}", prop, value));
+                        }
+                    }
                 }
             }
         }
@@ -3826,78 +4131,38 @@ impl JsCodegen {
             format!("{{ {} }}", parts.join(", "))
         }
     }
+}
 
-    fn emit_event_body(&mut self, stmts: &[Statement]) -> String {
-        let mut parts = Vec::new();
+/// The names of the resources a body declares, at any depth.
+fn resource_names(stmts: &[Statement]) -> Vec<String> {
+    let mut names = Vec::new();
+    fn walk(stmts: &[Statement], names: &mut Vec<String>) {
         for stmt in stmts {
             match &stmt.kind {
-                StatementKind::Assignment(a) => {
-                    let value = self.emit_expr(&a.value);
-                    if let Expr::Identifier(name) = &a.target {
-                        parts.push(format!("_{}.set({});", name, value));
-                    } else {
-                        let target = self.emit_expr(&a.target);
-                        parts.push(format!("{} = {};", target, value));
+                StatementKind::Resource(r) => names.push(r.name.clone()),
+                StatementKind::If(i) => {
+                    walk(&i.then_body, names);
+                    for (_, b) in &i.else_if_branches {
+                        walk(b, names);
+                    }
+                    if let Some(b) = &i.else_body {
+                        walk(b, names);
                     }
                 }
-                StatementKind::Navigate(expr) => {
-                    let path = self.emit_expr(expr);
-                    parts.push(format!("WF.navigate({});", path));
-                }
-                StatementKind::ExprStatement(expr) => {
-                    let val = self.emit_expr(expr);
-                    parts.push(format!("{};", val));
-                }
-                StatementKind::MethodCall(mc) => {
-                    let obj = self.emit_expr(&mc.object);
-                    let args: Vec<String> = mc.args.iter().map(|a| self.emit_expr(a)).collect();
-                    parts.push(format!("{}.{}({});", obj, mc.method, args.join(", ")));
-                }
-                StatementKind::If(if_stmt) => {
-                    let cond = self.emit_expr(&if_stmt.condition);
-                    let then_body = self.emit_statements_inline(&if_stmt.then_body);
-                    if let Some(else_body) = &if_stmt.else_body {
-                        let else_str = self.emit_statements_inline(else_body);
-                        parts.push(format!(
-                            "if ({}) {{ {} }} else {{ {} }}",
-                            cond, then_body, else_str
-                        ));
-                    } else {
-                        parts.push(format!("if ({}) {{ {} }}", cond, then_body));
+                StatementKind::For(f) => walk(&f.body, names),
+                StatementKind::Show(s) => walk(&s.body, names),
+                StatementKind::Match(m) => {
+                    for arm in &m.arms {
+                        walk(&arm.body, names);
                     }
                 }
+                StatementKind::UIElement(el) => walk(&el.children, names),
                 _ => {}
             }
         }
-        parts.join(" ")
     }
-
-    fn emit_statements_inline(&mut self, stmts: &[Statement]) -> String {
-        let mut parts = Vec::new();
-        for stmt in stmts {
-            match &stmt.kind {
-                StatementKind::Assignment(a) => {
-                    let value = self.emit_expr(&a.value);
-                    if let Expr::Identifier(name) = &a.target {
-                        parts.push(format!("_{}.set({});", name, value));
-                    } else {
-                        let target = self.emit_expr(&a.target);
-                        parts.push(format!("{} = {};", target, value));
-                    }
-                }
-                StatementKind::Navigate(expr) => {
-                    let path = self.emit_expr(expr);
-                    parts.push(format!("WF.navigate({});", path));
-                }
-                StatementKind::ExprStatement(expr) => {
-                    let val = self.emit_expr(expr);
-                    parts.push(format!("{};", val));
-                }
-                _ => {}
-            }
-        }
-        parts.join(" ")
-    }
+    walk(stmts, &mut names);
+    names
 }
 
 /// Whether `ui` directly contains a `Parent.Sub` element.
@@ -4001,6 +4266,352 @@ mod tests {
         JsCodegen::new().generate(&program)
     }
 
+    // ─── Nodes the new grammar produces, built by hand until it parses ───
+
+    fn stmt(kind: StatementKind) -> Statement {
+        Statement::new(kind, Span::dummy())
+    }
+
+    fn element(name: &str, args: Vec<Arg>, children: Vec<Statement>) -> UIElement {
+        UIElement {
+            component: ComponentRef::BuiltIn(name.to_string()),
+            args,
+            modifiers: Vec::new(),
+            children,
+            style_block: None,
+            transition_block: None,
+            events: Vec::new(),
+            slot_fills: Vec::new(),
+            span: Span::dummy(),
+            paren_span: None,
+            body_span: None,
+            style_span: None,
+            arg_spans: Vec::new(),
+            modifier_spans: Vec::new(),
+        }
+    }
+
+    fn text(expr: Expr) -> Statement {
+        stmt(StatementKind::UIElement(element(
+            "Text",
+            vec![Arg::Positional(expr)],
+            Vec::new(),
+        )))
+    }
+
+    fn page(name: &str, body: Vec<Statement>) -> Declaration {
+        Declaration::Page(PageDecl {
+            name: name.to_string(),
+            path: "/".to_string(),
+            title: None,
+            guard: None,
+            redirect: None,
+            description: None,
+            image: None,
+            page_type: None,
+            noindex: false,
+            layout: None,
+            body,
+            span: Span::dummy(),
+            header_span: Span::dummy(),
+            body_span: Span::dummy(),
+        })
+    }
+
+    fn generate(declarations: Vec<Declaration>) -> String {
+        JsCodegen::new().generate(&Program { declarations })
+    }
+
+    #[test]
+    fn a_resource_is_declared_once_and_a_match_renders_its_states() {
+        let ident = |n: &str| Expr::Identifier(n.to_string());
+        let arm = |pattern, binding: Option<&str>, body| MatchArm {
+            pattern,
+            binding: binding.map(str::to_string),
+            body,
+            span: Span::dummy(),
+        };
+        let out = generate(vec![page(
+            "Home",
+            vec![
+                stmt(StatementKind::Resource(ResourceDecl {
+                    name: "rows".to_string(),
+                    ty: None,
+                    url: Expr::StringLiteral("/api/rows".to_string()),
+                    options: Vec::new(),
+                })),
+                stmt(StatementKind::Match(MatchStmt {
+                    scrutinee: ident("rows"),
+                    arms: vec![
+                        arm(
+                            ArmPattern::Loading,
+                            None,
+                            vec![text(Expr::StringLiteral("…".into()))],
+                        ),
+                        arm(
+                            ArmPattern::Error,
+                            Some("e"),
+                            vec![text(Expr::PropertyAccess(
+                                Box::new(ident("e")),
+                                "message".to_string(),
+                            ))],
+                        ),
+                        arm(
+                            ArmPattern::Ready,
+                            Some("list"),
+                            vec![text(Expr::PropertyAccess(
+                                Box::new(ident("list")),
+                                "length".to_string(),
+                            ))],
+                        ),
+                    ],
+                })),
+                stmt(StatementKind::UIElement(element(
+                    "Button",
+                    vec![Arg::Positional(Expr::StringLiteral("Reload".into()))],
+                    vec![stmt(StatementKind::ExprStatement(Expr::MethodCall(
+                        Box::new(ident("rows")),
+                        "reload".to_string(),
+                        Vec::new(),
+                    )))],
+                ))),
+            ],
+        )]);
+        assert!(
+            out.contains("const _rows = WF.resource(\"/api/rows\", null);"),
+            "{out}"
+        );
+        assert!(out.contains("WF.match(_root, () => _rows.state(), () => _rows.state() === \"error\" ? _rows.error() : _rows.data(), {"), "{out}");
+        assert!(out.contains("loading: (_v) => {"), "{out}");
+        assert!(
+            out.contains("error: (e) => {") && out.contains("e.message"),
+            "{out}"
+        );
+        assert!(
+            out.contains("ready: (list) => {") && out.contains("list.length"),
+            "{out}"
+        );
+        // A reference to the resource is the object, not a signal read.
+        assert!(out.contains("_rows.reload()"), "{out}");
+        assert!(!out.contains("_rows()"), "{out}");
+    }
+
+    #[test]
+    fn a_match_over_an_enum_picks_the_arm_by_case() {
+        let out = generate(vec![page(
+            "Home",
+            vec![
+                stmt(StatementKind::State(StateDecl {
+                    name: "tone".to_string(),
+                    ty: None,
+                    value: Expr::EnumCase("danger".to_string()),
+                })),
+                stmt(StatementKind::Match(MatchStmt {
+                    scrutinee: Expr::Identifier("tone".to_string()),
+                    arms: vec![
+                        MatchArm {
+                            pattern: ArmPattern::Case("danger".to_string()),
+                            binding: None,
+                            body: vec![text(Expr::StringLiteral("red".into()))],
+                            span: Span::dummy(),
+                        },
+                        MatchArm {
+                            pattern: ArmPattern::Else,
+                            binding: None,
+                            body: vec![text(Expr::StringLiteral("calm".into()))],
+                            span: Span::dummy(),
+                        },
+                    ],
+                })),
+            ],
+        )]);
+        assert!(
+            out.contains("WF.signal(\"danger\")"),
+            "an enum case is its name: {out}"
+        );
+        assert!(
+            out.contains("WF.match(_root, () => _tone(), null, {"),
+            "{out}"
+        );
+        assert!(
+            out.contains("danger: (_v) => {") && out.contains("else: (_v) => {"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_declared_event_is_emitted_to_the_handler_the_caller_passed() {
+        let component = Declaration::Component(ComponentDecl {
+            name: "Row".to_string(),
+            props: vec![PropDecl {
+                name: "label".to_string(),
+                prop_type: TypeRef::String,
+                optional: false,
+                default: None,
+                positional: true,
+                doc: None,
+                span: Span::dummy(),
+            }],
+            events: vec![EventDecl {
+                name: "pick".to_string(),
+                params: Vec::new(),
+                doc: None,
+                span: Span::dummy(),
+            }],
+            slots: vec![SlotDecl {
+                name: Some("trailing".to_string()),
+                span: Span::dummy(),
+            }],
+            doc: None,
+            body: vec![
+                stmt(StatementKind::UIElement({
+                    let mut b = element(
+                        "Button",
+                        vec![Arg::Positional(Expr::Identifier("label".to_string()))],
+                        Vec::new(),
+                    );
+                    b.events.push(EventHandler {
+                        event: "click".to_string(),
+                        param: Some("ev".to_string()),
+                        body: vec![stmt(StatementKind::Emit(EmitStmt {
+                            event: "pick".to_string(),
+                            args: vec![Expr::Identifier("label".to_string())],
+                        }))],
+                        span: Span::dummy(),
+                    });
+                    b
+                })),
+                stmt(StatementKind::UIElement(element(
+                    "Children",
+                    vec![Arg::Named(
+                        "slot".to_string(),
+                        Expr::StringLiteral("trailing".to_string()),
+                    )],
+                    Vec::new(),
+                ))),
+            ],
+            span: Span::dummy(),
+            header_span: Span::dummy(),
+            body_span: Span::dummy(),
+        });
+        let mut call = UIElement {
+            component: ComponentRef::UserDefined("Row".to_string()),
+            ..element(
+                "Row",
+                vec![Arg::Positional(Expr::StringLiteral("Hi".into()))],
+                Vec::new(),
+            )
+        };
+        call.events.push(EventHandler {
+            event: "pick".to_string(),
+            param: Some("which".to_string()),
+            body: vec![stmt(StatementKind::Log(Expr::Identifier(
+                "which".to_string(),
+            )))],
+            span: Span::dummy(),
+        });
+        call.events.push(EventHandler {
+            event: "mouseenter".to_string(),
+            param: None,
+            body: vec![stmt(StatementKind::Log(Expr::StringLiteral("in".into())))],
+            span: Span::dummy(),
+        });
+        call.slot_fills.push(SlotFill {
+            name: "trailing".to_string(),
+            body: vec![text(Expr::StringLiteral("→".into()))],
+            span: Span::dummy(),
+            body_span: Span::dummy(),
+        });
+        let out = generate(vec![
+            component,
+            page("Home", vec![stmt(StatementKind::UIElement(call))]),
+        ]);
+        // Inside the component: the handler's own parameter, and the emit.
+        assert!(
+            out.contains(
+                "addEventListener(\"click\", (ev) => { WF.emit(_p, \"pick\", _p.label); })"
+            ),
+            "{out}"
+        );
+        assert!(
+            out.contains(
+                "if (typeof _slots.trailing === 'function') _frag.appendChild(_slots.trailing());"
+            ),
+            "{out}"
+        );
+        // At the call: the positional prop by name, the declared event as a
+        // handler in the props, the DOM event on the root, the named fill.
+        assert!(out.contains("Component_Row({ label: \"Hi\", on: { pick: (which) => { console.log(which); } } }, {"), "{out}");
+        assert!(out.contains("trailing: () => {"), "{out}");
+        assert!(
+            out.contains("WF.onRoot(_e2, \"mouseenter\", (event) => { console.log(\"in\"); });"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn if_let_binds_the_value_and_for_by_passes_the_key() {
+        let out = generate(vec![page(
+            "Home",
+            vec![
+                stmt(StatementKind::State(StateDecl {
+                    name: "hint".to_string(),
+                    ty: None,
+                    value: Expr::Null,
+                })),
+                stmt(StatementKind::State(StateDecl {
+                    name: "items".to_string(),
+                    ty: None,
+                    value: Expr::ListLiteral(Vec::new()),
+                })),
+                stmt(StatementKind::If(IfStmt {
+                    condition: Expr::Identifier("hint".to_string()),
+                    binding: Some("h".to_string()),
+                    animate: None,
+                    animate_span: None,
+                    then_body: vec![text(Expr::Identifier("h".to_string()))],
+                    else_if_branches: Vec::new(),
+                    else_body: None,
+                })),
+                stmt(StatementKind::For(ForStmt {
+                    item: "it".to_string(),
+                    index: None,
+                    iterable: Expr::Identifier("items".to_string()),
+                    key: Some(Expr::PropertyAccess(
+                        Box::new(Expr::Identifier("it".to_string())),
+                        "id".to_string(),
+                    )),
+                    animate: None,
+                    animate_span: None,
+                    body: vec![text(Expr::Identifier("it".to_string()))],
+                })),
+                stmt(StatementKind::Action(ActionDecl {
+                    name: "load".to_string(),
+                    params: Vec::new(),
+                    body: vec![stmt(StatementKind::Assignment(Assignment {
+                        target: Expr::Identifier("hint".to_string()),
+                        value: Expr::Await(Box::new(Expr::FunctionCall(
+                            "fetch".to_string(),
+                            vec![Expr::StringLiteral("/x".into())],
+                        ))),
+                    }))],
+                })),
+            ],
+        )]);
+        assert!(
+            out.contains("() => _hint() != null") || out.contains("const h = _hint();"),
+            "{out}"
+        );
+        assert!(
+            out.contains(", (it) => it.id"),
+            "the key function is the fifth argument: {out}"
+        );
+        assert!(
+            out.contains("async function load()") && out.contains("(await fetch(\"/x\"))"),
+            "{out}"
+        );
+    }
+
     /// `WF.listRender` hands the body its item as a plain callback parameter, so
     /// every reference to it must stay plain.
     ///
@@ -4022,11 +4633,12 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("function Component_Panel(_p, _children)"),
+            out.contains("function Component_Panel(_p, _slots)"),
             "{out}"
         );
         assert!(
-            out.contains("Component_Panel({ title: \"Keys\" }, () => {"),
+            out.contains("Component_Panel({ title: \"Keys\" }, {")
+                && out.contains("children: () => {"),
             "{out}"
         );
         // The block is compiled in the caller's scope.
@@ -4242,10 +4854,10 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("WF.h(\"select\", { className: \"wf-select\", value: () => _p.value }, (typeof _children === 'function' ? _children() : null))"),
+            out.contains("WF.h(\"select\", { className: \"wf-select\", value: () => _p.value }, (typeof _slots.children === 'function' ? _slots.children() : null))"),
             "{out}"
         );
-        assert!(!out.contains("appendChild(_children())"), "{out}");
+        assert!(!out.contains("appendChild(_slots.children())"), "{out}");
     }
 
     #[test]

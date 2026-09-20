@@ -53,7 +53,7 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
         Declaration::Component(c) => &c.body,
         Declaration::Store(s) => &s.body,
         Declaration::App(a) => &a.body,
-        Declaration::Theme(_) => &[],
+        Declaration::Theme(_) | Declaration::Type(_) | Declaration::Enum(_) => &[],
     }
 }
 
@@ -63,6 +63,7 @@ pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
         StatementKind::UIElement(el) => {
             let mut bodies: Vec<&[Statement]> = vec![&el.children];
             bodies.extend(el.events.iter().map(|e| e.body.as_slice()));
+            bodies.extend(el.slot_fills.iter().map(|f| f.body.as_slice()));
             bodies
         }
         StatementKind::If(i) => {
@@ -80,6 +81,7 @@ pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
             bodies.extend(f.success_block.as_deref());
             bodies
         }
+        StatementKind::Match(m) => m.arms.iter().map(|a| a.body.as_slice()).collect(),
         StatementKind::Effect(e) => vec![&e.body],
         StatementKind::Action(a) => vec![&a.body],
         StatementKind::EventHandler(h) => vec![&h.body],
@@ -198,6 +200,10 @@ pub enum BindingKind {
     FetchResult,
     FetchError,
     Store,
+    /// A `resource`, rendered with `match`.
+    Resource,
+    /// The value or error a `match` arm binds, or an `if let` name.
+    ArmBinding,
 }
 
 impl BindingKind {
@@ -213,6 +219,8 @@ impl BindingKind {
             BindingKind::FetchResult => "fetch result",
             BindingKind::FetchError => "fetch error",
             BindingKind::Store => "store",
+            BindingKind::Resource => "resource",
+            BindingKind::ArmBinding => "binding",
         }
     }
 }
@@ -265,6 +273,37 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
                     });
                 }
             }
+            StatementKind::If(i) => {
+                if let Some(name) = &i.binding {
+                    scope.push(Binding {
+                        name: name.clone(),
+                        kind: BindingKind::ArmBinding,
+                        span: stmt.span,
+                    });
+                }
+            }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    if let Some(name) = &arm.binding
+                        && contains(arm.span, offset)
+                    {
+                        scope.push(Binding {
+                            name: name.clone(),
+                            kind: BindingKind::ArmBinding,
+                            span: arm.span,
+                        });
+                    }
+                }
+            }
+            StatementKind::EventHandler(h) => {
+                if let Some(param) = &h.param {
+                    scope.push(Binding {
+                        name: param.clone(),
+                        kind: BindingKind::Param,
+                        span: h.span,
+                    });
+                }
+            }
             _ => {}
         }
     }
@@ -306,6 +345,11 @@ pub fn hoisted(stmts: &[Statement], scope: &mut Vec<Binding>) {
             StatementKind::Use(u) => scope.push(Binding {
                 name: u.store_name.clone(),
                 kind: BindingKind::Store,
+                span: stmt.span,
+            }),
+            StatementKind::Resource(r) => scope.push(Binding {
+                name: r.name.clone(),
+                kind: BindingKind::Resource,
                 span: stmt.span,
             }),
             _ => {}

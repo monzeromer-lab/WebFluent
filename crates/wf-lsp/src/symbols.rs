@@ -144,6 +144,58 @@ fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> Do
                 children,
             )
         }
+        Declaration::Type(t) => {
+            let range = index.span_to_range(source, t.span);
+            let children = t
+                .fields
+                .iter()
+                .map(|f| {
+                    let r = index.span_to_range(source, f.span);
+                    symbol(
+                        f.name.clone(),
+                        &format!("field · {:?}", f.ty),
+                        SymbolKind::FIELD,
+                        r,
+                        r,
+                        Vec::new(),
+                    )
+                })
+                .collect();
+            symbol(
+                t.name.clone(),
+                "Type",
+                SymbolKind::STRUCT,
+                range,
+                index.span_to_range(source, t.header_span),
+                children,
+            )
+        }
+        Declaration::Enum(e) => {
+            let range = index.span_to_range(source, e.span);
+            let children = e
+                .cases
+                .iter()
+                .map(|c| {
+                    let r = index.span_to_range(source, e.header_span);
+                    symbol(
+                        format!(".{c}"),
+                        "case",
+                        SymbolKind::ENUM_MEMBER,
+                        r,
+                        r,
+                        Vec::new(),
+                    )
+                })
+                .collect();
+            symbol(
+                e.name.clone(),
+                "Enum",
+                SymbolKind::ENUM,
+                range,
+                index.span_to_range(source, e.header_span),
+                children,
+            )
+        }
     }
 }
 
@@ -220,6 +272,19 @@ fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Ve
             }
             StatementKind::For(f) => symbols.extend(statement_symbols(&f.body, source, index)),
             StatementKind::Show(s) => symbols.extend(statement_symbols(&s.body, source, index)),
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    symbols.extend(statement_symbols(&arm.body, source, index));
+                }
+            }
+            StatementKind::Resource(r) => symbols.push(symbol(
+                r.name.clone(),
+                "resource",
+                SymbolKind::VARIABLE,
+                range,
+                range,
+                Vec::new(),
+            )),
             _ => {}
         }
     }
@@ -269,6 +334,8 @@ pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformatio
             ),
             Declaration::Store(s) => (s.name.clone(), SymbolKind::MODULE, s.header_span, "Store"),
             Declaration::Theme(t) => (t.name.clone(), SymbolKind::NAMESPACE, t.span, "Theme"),
+            Declaration::Type(t) => (t.name.clone(), SymbolKind::STRUCT, t.header_span, "Type"),
+            Declaration::Enum(e) => (e.name.clone(), SymbolKind::ENUM, e.header_span, "Enum"),
             Declaration::App(_) => continue,
         };
         if query.is_empty() || name.to_lowercase().contains(&query) {

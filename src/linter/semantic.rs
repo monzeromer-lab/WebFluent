@@ -59,7 +59,10 @@ pub fn validate_semantics_in(
             Declaration::Component(c) => &c.body,
             Declaration::App(a) => &a.body,
             // Neither holds UI.
-            Declaration::Store(_) | Declaration::Theme(_) => continue,
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => continue,
         };
         walk_stmts(body, &pages, &components, &file_of(index), &mut diags);
     }
@@ -173,6 +176,11 @@ fn walk_stmts(
                 }
                 if let Some(body) = &s.success_block {
                     walk_stmts(body, pages, components, file, diags);
+                }
+            }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    walk_stmts(&arm.body, pages, components, file, diags);
                 }
             }
             _ => {}

@@ -7,7 +7,7 @@ use crate::codegen::pdf::PdfCodegen;
 use crate::codegen::slides::SlidesCodegen;
 use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::error::{Result, WebFluentError};
-use crate::parser::ast::{ForStmt, IfStmt};
+use crate::parser::ast::{ArmPattern, ForStmt, IfStmt};
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
@@ -295,7 +295,7 @@ struct RenderContext<'a> {
     in_thead: bool,
     /// The caller's block for each user component being expanded, innermost
     /// last; `children` renders the top one.
-    slots: Vec<Vec<Statement>>,
+    slots: Vec<HashMap<String, Vec<Statement>>>,
     /// Fields rendered so far, for their ids.
     fields: usize,
 }
@@ -468,6 +468,8 @@ impl<'a> RenderContext<'a> {
                     .collect();
                 Value::Object(map)
             }
+            Expr::EnumCase(case) => Value::String(case.clone()),
+            Expr::Token(name) => Value::String(format!("var(--{name})")),
             _ => Value::Null,
         }
     }
@@ -527,6 +529,18 @@ fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
             StatementKind::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
             StatementKind::If(if_stmt) => html.push_str(&render_if(if_stmt, ctx)),
             StatementKind::For(for_stmt) => html.push_str(&render_for(for_stmt, ctx)),
+            // A resource has no data at render time: the `loading` arm, or
+            // `else`, is what a document can show.
+            StatementKind::Match(m) => {
+                let arm = m
+                    .arms
+                    .iter()
+                    .find(|a| a.pattern == ArmPattern::Loading)
+                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Else));
+                if let Some(arm) = arm {
+                    html.push_str(&render_statements(&arm.body, ctx));
+                }
+            }
             // Skip state, derived, effect, action, use, events, navigate, etc.
             _ => {}
         }
@@ -634,7 +648,12 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
                 // Also handle positional args mapped to prop names
                 // (simplified: just render the body)
 
-                ctx.slots.push(ui.children.clone());
+                let mut slots: HashMap<String, Vec<Statement>> = HashMap::new();
+                slots.insert("children".to_string(), ui.children.clone());
+                for fill in &ui.slot_fills {
+                    slots.insert(fill.name.clone(), fill.body.clone());
+                }
+                ctx.slots.push(slots);
                 let html = render_statements(&body, ctx);
                 ctx.slots.pop();
 
@@ -658,8 +677,8 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
     // The `children` slot: the block the caller of the enclosing component
     // wrote, rendered in its place. Outside a component there is none.
-    if name == "Children" {
-        return match ctx.slots.last().cloned() {
+    if let Some(slot) = ui.slot_name() {
+        return match ctx.slots.last().and_then(|s| s.get(slot)).cloned() {
             Some(slot) => render_statements(&slot, ctx),
             None => String::new(),
         };
@@ -1251,6 +1270,13 @@ fn eval_binary_op(left: &Value, op: &crate::parser::ast::BinOp, right: &Value) -
         BinOp::Gte => Value::Bool(as_f64(left) >= as_f64(right)),
         BinOp::And => Value::Bool(is_truthy(left) && is_truthy(right)),
         BinOp::Or => Value::Bool(is_truthy(left) || is_truthy(right)),
+        BinOp::NullCoalesce => {
+            if left.is_null() {
+                right.clone()
+            } else {
+                left.clone()
+            }
+        }
         BinOp::Add => {
             // String concatenation or numeric addition
             match (left, right) {

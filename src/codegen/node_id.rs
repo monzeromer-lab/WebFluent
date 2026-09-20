@@ -123,7 +123,10 @@ pub fn visit_nodes<'a>(program: &'a Program, visit: &mut dyn FnMut(&'a UIElement
             Declaration::Component(c) => (&c.body, c.name.as_str(), "component"),
             Declaration::App(a) => (&a.body, "App", "app"),
             // Stores and themes hold no UI.
-            Declaration::Store(_) | Declaration::Theme(_) => continue,
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => continue,
         };
         let owner = if name_counts.get(name).copied().unwrap_or(0) > 1 {
             format!("{}#{}", name, kind)
@@ -140,7 +143,10 @@ fn decl_owner_name(decl: &Declaration) -> Option<&str> {
         Declaration::Page(p) => Some(&p.name),
         Declaration::Component(c) => Some(&c.name),
         Declaration::App(_) => Some("App"),
-        Declaration::Store(_) | Declaration::Theme(_) => None,
+        Declaration::Store(_)
+        | Declaration::Theme(_)
+        | Declaration::Type(_)
+        | Declaration::Enum(_) => None,
     }
 }
 
@@ -176,6 +182,14 @@ fn walk_stmt<'a>(
         StatementKind::UIElement(ui) => {
             visit(ui, seg, component);
             walk_body(&ui.children, component, Some(seg), visit);
+            for fill in &ui.slot_fills {
+                walk_body(
+                    &fill.body,
+                    component,
+                    Some(&format!("{}.{}", seg, fill.name)),
+                    visit,
+                );
+            }
         }
         StatementKind::For(f) => walk_body(&f.body, component, Some(seg), visit),
         StatementKind::Show(s) => walk_body(&s.body, component, Some(seg), visit),
@@ -202,6 +216,16 @@ fn walk_stmt<'a>(
             }
             if let Some(b) = &f.success_block {
                 walk_body(b, component, Some(&format!("{}.s", seg)), visit);
+            }
+        }
+        StatementKind::Match(m) => {
+            for (k, arm) in m.arms.iter().enumerate() {
+                walk_body(
+                    &arm.body,
+                    component,
+                    Some(&format!("{}.m{}", seg, k)),
+                    visit,
+                );
             }
         }
         // State/Derived/Effect/Action/Use/EventHandler/Navigate/Log/Animate/… render no DOM.

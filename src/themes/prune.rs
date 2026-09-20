@@ -40,7 +40,10 @@ impl Usage {
                 Declaration::Page(p) => &p.body,
                 Declaration::Component(c) => &c.body,
                 Declaration::App(a) => &a.body,
-                Declaration::Store(_) | Declaration::Theme(_) => continue,
+                Declaration::Store(_)
+                | Declaration::Theme(_)
+                | Declaration::Type(_)
+                | Declaration::Enum(_) => continue,
             };
             walk(body, &mut usage);
         }
@@ -106,6 +109,11 @@ fn walk(stmts: &[Statement], usage: &mut Usage) {
                     walk(b, usage);
                 }
             }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    walk(&arm.body, usage);
+                }
+            }
             StatementKind::Animate(_) => usage.animation = true,
             StatementKind::Action(a) => walk(&a.body, usage),
             StatementKind::Effect(e) => walk(&e.body, usage),
@@ -141,6 +149,9 @@ fn element(el: &UIElement, usage: &mut Usage) {
         usage.icon_arg = true;
     }
     walk(&el.children, usage);
+    for fill in &el.slot_fills {
+        walk(&fill.body, usage);
+    }
     for handler in &el.events {
         walk(&handler.body, usage);
     }

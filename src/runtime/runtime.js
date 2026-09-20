@@ -329,6 +329,42 @@ const WF = (() => {
     });
   }
 
+  // ─── Match ───────────────────────────────────────────
+  //
+  // Renders the arm named by `key()` — a resource's state, or an enum's case
+  // — and renders again when it changes. The arm is called with `arg()`: a
+  // resource's data or error, nothing for an enum. Rendering is untracked, as
+  // it is for a condition, so only the key decides when to redraw.
+  function match(parent, key, arg, arms) {
+    const marker = document.createComment("wf-match");
+    parent.appendChild(marker);
+    let currentNodes = [];
+    let lastKey;
+    effect(() => {
+      const k = key();
+      if (k === lastKey) return;
+      lastKey = k;
+      removeNodes(currentNodes);
+      currentNodes = [];
+      const arm = Object.prototype.hasOwnProperty.call(arms, k) ? arms[k] : arms.else;
+      if (!arm) return;
+      const prev = currentEffect;
+      currentEffect = null;
+      try {
+        const result = arm(arg ? arg() : undefined);
+        const nodes = result instanceof DocumentFragment
+          ? [...result.childNodes]
+          : [].concat(result).flat().filter(n => n instanceof Node);
+        currentNodes = nodes.slice();
+        const frag = document.createDocumentFragment();
+        for (const n of nodes) frag.appendChild(n);
+        if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
+      } finally {
+        currentEffect = prev;
+      }
+    });
+  }
+
   // ─── List rendering ─────────────────────────────────
   function listRender(parent, listFn, itemFn, animConfig) {
     const marker = document.createComment("wf-for");
@@ -789,6 +825,60 @@ const WF = (() => {
     doFetch();
 
     return wrapper;
+  }
+
+  // ─── Resource ────────────────────────────────────────
+  //
+  // A request declared once and read anywhere. `state()` is "loading",
+  // "ready" or "error"; `data()` and `error()` hold what arrived; `reload()`
+  // asks again. A URL that reads state is followed: the request is made again
+  // when it changes, and an answer to an older request is ignored.
+  function fetchOptions(options) {
+    const opts = {};
+    if (options) {
+      if (options.method) opts.method = options.method;
+      if (options.headers) opts.headers = options.headers;
+      if (options.body) {
+        opts.body = JSON.stringify(typeof options.body === "function" ? options.body() : options.body);
+        opts.headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+      }
+    }
+    return opts;
+  }
+
+  function resource(url, options) {
+    const state = signal("loading");
+    const data = signal(null);
+    const error = signal(null);
+    let generation = 0;
+    const load = (target) => {
+      const gen = ++generation;
+      state.set("loading");
+      error.set(null);
+      fetch(target, fetchOptions(options))
+        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then(d => { if (gen !== generation) return; data.set(d); state.set("ready"); })
+        .catch(e => { if (gen !== generation) return; error.set(e); state.set("error"); });
+    };
+    if (typeof url === "function") {
+      effect(() => { load(url()); });
+    } else {
+      load(url);
+    }
+    return {
+      state, data, error,
+      reload: () => load(typeof url === "function" ? url() : url),
+    };
+  }
+
+  // ─── Events a component declares ─────────────────────
+  //
+  // `emit toggle(id)` inside a component calls the handler its caller passed
+  // as `on: { toggle: … }`; a caller that passed none is not an error.
+  function emit(props, name, ...args) {
+    const handler = props && props.on && props.on[name];
+    if (typeof handler === "function") return handler(...args);
+    return undefined;
   }
 
   // ─── Toast ───────────────────────────────────────────
@@ -1464,6 +1554,7 @@ const WF = (() => {
     condRender, listRender, showRender,
     animateIn, animateOut, animateEl, replayAnimation,
     createRouter, navigate, getParams, activeLink, definePage, loadPage, loadSheet, classes,
+    resource, match, emit,
     createStore,
     createI18n,
     wfFetch, showToast,

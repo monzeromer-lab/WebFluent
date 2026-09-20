@@ -18,6 +18,7 @@ struct ParenArgs {
 struct ElementBody {
     children: Vec<Statement>,
     events: Vec<EventHandler>,
+    slot_fills: Vec<SlotFill>,
     style_block: Option<StyleBlock>,
     transition_block: Option<TransitionBlock>,
     /// Interior of the `{ … }` (braces excluded); `None` if there was no block.
@@ -273,6 +274,7 @@ impl Parser {
             noindex,
             guard,
             redirect,
+            layout: None,
             body,
             span: self.span_since(decl_mark),
             header_span,
@@ -306,6 +308,9 @@ impl Parser {
         Ok(ComponentDecl {
             name,
             props,
+            events: Vec::new(),
+            slots: Vec::new(),
+            doc: None,
             body,
             span: self.span_since(decl_mark),
             header_span,
@@ -314,6 +319,7 @@ impl Parser {
     }
 
     fn parse_prop_decl(&mut self) -> Result<PropDecl> {
+        let mark = self.mark();
         let name = self.expect_identifier()?;
         let optional = self.match_token(&TokenType::QuestionMark);
         self.expect(&TokenType::Colon)?;
@@ -328,30 +334,33 @@ impl Parser {
             prop_type,
             optional,
             default,
+            positional: false,
+            doc: None,
+            span: self.span_since(mark),
         })
     }
 
-    fn parse_type(&mut self) -> Result<WfType> {
+    fn parse_type(&mut self) -> Result<TypeRef> {
         match self.current_type() {
             TokenType::TypeString => {
                 self.advance();
-                Ok(WfType::String)
+                Ok(TypeRef::String)
             }
             TokenType::TypeNumber => {
                 self.advance();
-                Ok(WfType::Number)
+                Ok(TypeRef::Number)
             }
             TokenType::TypeBool => {
                 self.advance();
-                Ok(WfType::Bool)
+                Ok(TypeRef::Bool)
             }
             TokenType::TypeList => {
                 self.advance();
-                Ok(WfType::List)
+                Ok(TypeRef::List(Box::new(TypeRef::Any)))
             }
             TokenType::TypeMap => {
                 self.advance();
-                Ok(WfType::Map)
+                Ok(TypeRef::Map)
             }
             _ => Err(self.error(format!(
                 "Expected type (String, Number, Bool, List, Map), got {}",
@@ -449,6 +458,7 @@ impl Parser {
                     style_block: None,
                     transition_block: None,
                     events: Vec::new(),
+                    slot_fills: Vec::new(),
                     span: self.span_since(node_mark),
                     paren_span: None,
                     body_span: None,
@@ -480,7 +490,11 @@ impl Parser {
         self.expect(&TokenType::Equals)?;
         let value = self.parse_expression()?;
         self.declared_names.push(name.clone());
-        Ok(StatementKind::State(StateDecl { name, value }))
+        Ok(StatementKind::State(StateDecl {
+            name,
+            ty: None,
+            value,
+        }))
     }
 
     fn parse_derived_decl(&mut self) -> Result<StatementKind> {
@@ -584,6 +598,7 @@ impl Parser {
 
         Ok(StatementKind::If(IfStmt {
             condition,
+            binding: None,
             animate,
             animate_span,
             then_body,
@@ -619,6 +634,7 @@ impl Parser {
             item,
             index,
             iterable,
+            key: None,
             animate,
             animate_span,
             body,
@@ -1076,6 +1092,7 @@ impl Parser {
             style_block: body.style_block,
             transition_block: body.transition_block,
             events: body.events,
+            slot_fills: body.slot_fills,
             span: self.span_since(node_mark),
             paren_span,
             body_span: body.body_span,
@@ -1171,6 +1188,7 @@ impl Parser {
         Ok(ElementBody {
             children,
             events,
+            slot_fills: Vec::new(),
             style_block,
             transition_block,
             body_span,
@@ -1627,6 +1645,7 @@ impl Parser {
             style_block: Some(block),
             transition_block: None,
             events: Vec::new(),
+            slot_fills: Vec::new(),
             span,
             paren_span: None,
             body_span: None,
@@ -1832,6 +1851,7 @@ impl Parser {
                     style_block: body.style_block,
                     transition_block: body.transition_block,
                     events: body.events,
+                    slot_fills: body.slot_fills,
                     span: self.span_since(node_mark),
                     paren_span: Some(p.paren_span),
                     body_span: body.body_span,
@@ -1865,6 +1885,7 @@ impl Parser {
                 style_block: body.style_block,
                 transition_block: body.transition_block,
                 events: body.events,
+                slot_fills: body.slot_fills,
                 span: self.span_since(node_mark),
                 paren_span: None,
                 body_span: body.body_span,
@@ -2756,7 +2777,10 @@ mod span_tests {
                 Declaration::Page(p) => collect(&p.body, &mut out),
                 Declaration::Component(c) => collect(&c.body, &mut out),
                 Declaration::App(a) => collect(&a.body, &mut out),
-                Declaration::Store(_) | Declaration::Theme(_) => {}
+                Declaration::Store(_)
+                | Declaration::Theme(_)
+                | Declaration::Type(_)
+                | Declaration::Enum(_) => {}
             }
         }
         out

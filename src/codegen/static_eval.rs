@@ -338,6 +338,12 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
 
         // A bare lambda is not a value the page can show.
         Expr::Lambda(..) => None,
+
+        // An enum case is its name at run time; a token is its custom
+        // property. A request cannot be awaited at build time.
+        Expr::EnumCase(case) => Some(Static::Str(case.clone())),
+        Expr::Token(name) => Some(Static::Str(format!("var(--{name})"))),
+        Expr::Await(_) => None,
     }
 }
 
@@ -783,6 +789,11 @@ fn binary(l: &Static, op: &BinOp, r: &Static) -> Option<Static> {
         }
         And => Some(Static::Bool(l.truthy() && r.truthy())),
         Or => Some(Static::Bool(l.truthy() || r.truthy())),
+        NullCoalesce => Some(if matches!(l, Static::Null) {
+            r.clone()
+        } else {
+            l.clone()
+        }),
     }
 }
 

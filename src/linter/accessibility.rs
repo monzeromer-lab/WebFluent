@@ -60,8 +60,11 @@ pub fn lint_accessibility_in(
                     &mut HeadingTracker::with_components(&components),
                 );
             }
-            // Neither holds UI.
-            Declaration::Store(_) | Declaration::Theme(_) => {}
+            // None of these holds UI.
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => {}
         }
     }
 
@@ -308,6 +311,11 @@ fn lint_statements(
                 }
                 if let Some(success) = &fetch.success_block {
                     lint_statements(success, file, warnings, heading_tracker);
+                }
+            }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    lint_statements(&arm.body, file, warnings, heading_tracker);
                 }
             }
             _ => {}

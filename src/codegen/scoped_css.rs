@@ -45,7 +45,10 @@ pub fn scoped_rules(program: &Program) -> String {
             Declaration::Page(p) => &p.body,
             Declaration::Component(c) => &c.body,
             Declaration::App(a) => &a.body,
-            Declaration::Store(_) | Declaration::Theme(_) => continue,
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => continue,
         };
         let mut uses = Uses::default();
         collect(body, &mut rules, &mut uses);
@@ -101,7 +104,10 @@ pub fn split_rules(program: &Program) -> SplitRules {
                 components.insert(c.name.clone(), uses);
             }
             Declaration::App(a) => collect(&a.body, &mut rules, &mut app),
-            Declaration::Store(_) | Declaration::Theme(_) => {}
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => {}
         }
     }
 
@@ -166,6 +172,9 @@ fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut
                     uses.components.insert(name.clone());
                 }
                 collect(&el.children, rules, uses);
+                for fill in &el.slot_fills {
+                    collect(&fill.body, rules, uses);
+                }
             }
             StatementKind::If(i) => {
                 collect(&i.then_body, rules, uses);
@@ -187,6 +196,11 @@ fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut
                 }
                 if let Some(body) = &f.success_block {
                     collect(body, rules, uses);
+                }
+            }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    collect(&arm.body, rules, uses);
                 }
             }
             _ => {}

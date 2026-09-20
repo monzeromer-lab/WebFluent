@@ -77,7 +77,10 @@ pub fn lint_vocabulary_with(
             }
             Declaration::App(a) => (&a.body, Vec::new()),
             // Stores and themes hold no UI.
-            Declaration::Store(_) | Declaration::Theme(_) => continue,
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => continue,
         };
         // Hoisted, order-independent scope for the whole declaration: warning on
         // a name that IS declared somewhere would be a false positive, and a
@@ -125,7 +128,10 @@ fn global_names(program: &Program) -> HashSet<String> {
                 names.insert(s.name.clone());
                 hoist_names(&s.body, &mut names);
             }
-            Declaration::App(_) | Declaration::Theme(_) => {}
+            Declaration::App(_)
+            | Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_) => {}
         }
     }
     names
@@ -182,6 +188,17 @@ fn hoist_names(stmts: &[Statement], names: &mut HashSet<String>) {
             }
             StatementKind::Show(s) => hoist_names(&s.body, names),
             StatementKind::UIElement(el) => hoist_names(&el.children, names),
+            StatementKind::Resource(r) => {
+                names.insert(r.name.clone());
+            }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    if let Some(b) = &arm.binding {
+                        names.insert(b.clone());
+                    }
+                    hoist_names(&arm.body, names);
+                }
+            }
             _ => {}
         }
     }
@@ -222,6 +239,11 @@ fn walk(
                 }
                 if let Some(body) = &f.success_block {
                     walk(body, file, scope, sheets, out);
+                }
+            }
+            StatementKind::Match(m) => {
+                for arm in &m.arms {
+                    walk(&arm.body, file, scope, sheets, out);
                 }
             }
             // Actions/effects hold logic, not UI; everything else holds no

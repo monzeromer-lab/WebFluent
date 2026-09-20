@@ -114,6 +114,11 @@ fn used_modifiers(program: &Program) -> std::collections::HashSet<String> {
                         walk(body, out);
                     }
                 }
+                StatementKind::Match(m) => {
+                    for arm in &m.arms {
+                        walk(&arm.body, out);
+                    }
+                }
                 _ => {}
             }
         }

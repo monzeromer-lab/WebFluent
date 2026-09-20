@@ -387,6 +387,20 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
                     html.push_str(&format!("{}<!--wf-fetch-->\n", ctx.indent_str()));
                 }
             }
+            // A resource is still loading when the static page is painted;
+            // a match over one paints its `loading` arm. A match over an
+            // enum is decided at run time, so its `else` arm stands in.
+            StatementKind::Match(m) => {
+                let arm = m
+                    .arms
+                    .iter()
+                    .find(|a| a.pattern == ArmPattern::Loading)
+                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Else));
+                match arm {
+                    Some(arm) => html.push_str(&render_statements(&arm.body, ctx)),
+                    None => html.push_str(&format!("{}<!--wf-match-->\n", ctx.indent_str())),
+                }
+            }
             // Skip state, derived, effect, action, use, events, navigate, log, animate
             _ => {}
         }
@@ -414,12 +428,17 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
     }
 
     let bindings = bind_props(&decl, call);
-    // The call's own children fill the component's `children` slot.
-    let slot: Vec<Statement> = call.children.clone();
+    // The call's own children fill the component's default slot, and each
+    // `name { … }` fill in its block a named one.
+    let mut slots: HashMap<String, Vec<Statement>> = HashMap::new();
+    slots.insert("children".to_string(), call.children.clone());
+    for fill in &call.slot_fills {
+        slots.insert(fill.name.clone(), fill.body.clone());
+    }
     let body: Vec<Statement> = decl
         .body
         .iter()
-        .flat_map(|st| substitute_statement(st, &bindings, &slot))
+        .flat_map(|st| substitute_statement(st, &bindings, &slots))
         .collect();
 
     ctx.depth += 1;
@@ -467,14 +486,14 @@ fn bind_props(decl: &ComponentDecl, call: &UIElement) -> HashMap<String, Expr> {
 fn substitute_statement(
     stmt: &Statement,
     bindings: &HashMap<String, Expr>,
-    slot: &[Statement],
+    slots: &HashMap<String, Vec<Statement>>,
 ) -> Vec<Statement> {
     let mut out = stmt.clone();
     if let StatementKind::UIElement(ui) = &stmt.kind {
-        if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Children") {
-            return slot.to_vec();
+        if let Some(name) = ui.slot_name() {
+            return slots.get(name).cloned().unwrap_or_default();
         }
-        out.kind = StatementKind::UIElement(substitute_ui(ui, bindings, slot));
+        out.kind = StatementKind::UIElement(substitute_ui(ui, bindings, slots));
     }
     vec![out]
 }
@@ -484,7 +503,7 @@ fn substitute_statement(
 fn substitute_ui(
     ui: &UIElement,
     bindings: &HashMap<String, Expr>,
-    slot: &[Statement],
+    slots: &HashMap<String, Vec<Statement>>,
 ) -> UIElement {
     let mut out = ui.clone();
     out.args = ui
@@ -503,8 +522,15 @@ fn substitute_ui(
     out.children = ui
         .children
         .iter()
-        .flat_map(|st| substitute_statement(st, bindings, slot))
+        .flat_map(|st| substitute_statement(st, bindings, slots))
         .collect();
+    for fill in &mut out.slot_fills {
+        fill.body = fill
+            .body
+            .iter()
+            .flat_map(|st| substitute_statement(st, bindings, slots))
+            .collect();
+    }
     out
 }
 

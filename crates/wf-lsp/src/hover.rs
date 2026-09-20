@@ -134,6 +134,8 @@ fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declarat
         Declaration::Component(c) => c.name == name,
         Declaration::Store(s) => s.name == name,
         Declaration::Theme(t) => t.name == name,
+        Declaration::Type(t) => t.name == name,
+        Declaration::Enum(e) => e.name == name,
         Declaration::App(_) => false,
     })
 }
@@ -285,6 +287,24 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
             if t.tokens.len() == 1 { "" } else { "s" }
         ),
         Declaration::App(_) => "**App** — the root of the site".to_string(),
+        Declaration::Type(t) => format!(
+            "**{}** — type\n\n{}{declared}",
+            t.name,
+            t.fields
+                .iter()
+                .map(|f| format!("- `{}: {:?}`", f.name, f.ty))
+                .collect::<Vec<_>>()
+                .join("\n")
+        ),
+        Declaration::Enum(e) => format!(
+            "**{}** — enum\n\nCases: {}{declared}",
+            e.name,
+            e.cases
+                .iter()
+                .map(|c| format!("`.{c}`"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
     }
 }
 
@@ -306,6 +326,8 @@ fn binding_doc(file: &SourceFile, binding: &Binding, store: Option<&str>) -> Str
         BindingKind::FetchResult => "The data the enclosing `fetch` loaded.",
         BindingKind::FetchError => "The error the enclosing `fetch` failed with.",
         BindingKind::Store => "A store brought into scope with `use`.",
+        BindingKind::Resource => "An async value; render its states with `match`.",
+        BindingKind::ArmBinding => "The value the enclosing arm binds.",
     };
     match source {
         Some(line) => format!(
