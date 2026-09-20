@@ -266,6 +266,9 @@ impl LexerV2 {
             '-' => single(self, TokenType::Minus),
             '*' => single(self, TokenType::Star),
             '%' => single(self, TokenType::Percent),
+            // `/` divides after an operand; anywhere else it opens a regular
+            // expression, as it does in JavaScript.
+            '/' if !after_operand(before) => self.read_regex()?,
             '/' => single(self, TokenType::Slash),
             '=' => match self.peek() {
                 Some('=') => self.two(TokenType::DoubleEquals),
@@ -304,6 +307,7 @@ impl LexerV2 {
             },
             '?' => match self.peek() {
                 Some('?') => self.two(TokenType::NullCoalesce),
+                Some('.') => self.two(TokenType::OptionalChain),
                 _ => single(self, TokenType::QuestionMark),
             },
             '(' => single(self, TokenType::OpenParen),
@@ -314,7 +318,22 @@ impl LexerV2 {
             ']' => single(self, TokenType::CloseBracket),
             ':' => single(self, TokenType::Colon),
             ',' => single(self, TokenType::Comma),
-            '.' => single(self, TokenType::Dot),
+            '.' => match (self.peek(), self.source.get(self.pos + 2).copied()) {
+                (Some('.'), Some('.')) => {
+                    self.advance();
+                    self.advance();
+                    self.advance();
+                    Token::new(TokenType::Ellipsis, line, column)
+                }
+                (Some('.'), Some('=')) => {
+                    self.advance();
+                    self.advance();
+                    self.advance();
+                    Token::new(TokenType::DotDotEq, line, column)
+                }
+                (Some('.'), _) => self.two(TokenType::DotDot),
+                _ => single(self, TokenType::Dot),
+            },
             ';' => single(self, TokenType::Semicolon),
             _ => {
                 let hint = if before.is_empty() {
@@ -354,6 +373,54 @@ impl LexerV2 {
             _ => TokenType::Identifier(word),
         };
         Token::new(kind, line, column)
+    }
+
+    /// `/pattern/flags`: the pattern to the closing `/` — a `\/` and a `/`
+    /// inside `[…]` do not close it — then the flags.
+    fn read_regex(&mut self) -> Result<Token> {
+        let (line, column) = (self.line, self.column);
+        self.advance(); // /
+        let mut pattern = String::new();
+        let mut in_class = false;
+        loop {
+            if self.pos >= self.source.len() || self.current() == '\n' {
+                return Err(WebFluentError::LexerError(Diagnostic::new(
+                    "Unterminated regular expression",
+                    &self.file,
+                    line,
+                    column,
+                )));
+            }
+            let ch = self.current();
+            match ch {
+                '\\' => {
+                    pattern.push(ch);
+                    self.advance();
+                    if self.pos < self.source.len() {
+                        pattern.push(self.current());
+                        self.advance();
+                    }
+                    continue;
+                }
+                '[' => in_class = true,
+                ']' => in_class = false,
+                '/' if !in_class => break,
+                _ => {}
+            }
+            pattern.push(ch);
+            self.advance();
+        }
+        self.advance(); // /
+        let mut flags = String::new();
+        while self.pos < self.source.len() && self.current().is_ascii_alphabetic() {
+            flags.push(self.current());
+            self.advance();
+        }
+        Ok(Token::new(
+            TokenType::RegexLiteral(pattern, flags),
+            line,
+            column,
+        ))
     }
 
     /// `$name`, hyphens included: `$surface-hover`.
@@ -399,6 +466,19 @@ impl LexerV2 {
                 self.advance();
                 Ok(Token::new(TokenType::Semicolon, line, column))
             }
+            // A keyframe of an `animation`: `from {`, `to {`, `50% {`.
+            _ if self.keyframe_ahead() => {
+                let mut text = String::new();
+                while self.pos < self.source.len() && self.current() != '{' {
+                    text.push(self.current());
+                    self.advance();
+                }
+                Ok(Token::new(
+                    TokenType::RawSelector(text.trim().to_string()),
+                    line,
+                    column,
+                ))
+            }
             '&' | '@' | '.' | ':' | '[' | '>' | '*' | '+' | '~' => {
                 // A nested rule: its selector, up to the `{`.
                 let mut text = String::new();
@@ -428,6 +508,27 @@ impl LexerV2 {
             }
             _ => self.style_declaration(),
         }
+    }
+
+    /// Whether a keyframe selector — `from`, `to`, or percentages such as
+    /// `50%` or `0%, 100%` — followed by `{` starts here.
+    fn keyframe_ahead(&self) -> bool {
+        let rest: String = self.source[self.pos..]
+            .iter()
+            .take_while(|c| **c != '\n')
+            .collect();
+        let Some((head, _)) = rest.split_once('{') else {
+            return false;
+        };
+        let head = head.trim();
+        if head == "from" || head == "to" {
+            return true;
+        }
+        !head.is_empty()
+            && head.split(',').all(|part| {
+                let part = part.trim();
+                part.ends_with('%') && part[..part.len() - 1].parse::<f64>().is_ok()
+            })
     }
 
     /// `name: value` — the name as a token, then the value as raw text to
@@ -743,6 +844,41 @@ impl LexerV2 {
     }
 }
 
+/// Whether the token before a `/` is the end of an operand, so the `/`
+/// divides: a name, a literal, a closing bracket. After an operator, a
+/// comma, `(`, `{` or `return`, a `/` opens a regular expression.
+fn after_operand(before: &[Token]) -> bool {
+    match before.last().map(|t| &t.token_type) {
+        // A keyword that a value follows is not an operand.
+        Some(TokenType::Identifier(word)) => !matches!(
+            word.as_str(),
+            "return"
+                | "in"
+                | "if"
+                | "else"
+                | "emit"
+                | "await"
+                | "let"
+                | "state"
+                | "derived"
+                | "show"
+                | "match"
+        ),
+        Some(
+            TokenType::StringLiteral(_)
+            | TokenType::NumberLiteral(_)
+            | TokenType::BoolLiteral(_)
+            | TokenType::Null
+            | TokenType::DesignToken(_)
+            | TokenType::RegexLiteral(..)
+            | TokenType::CloseParen
+            | TokenType::CloseBracket
+            | TokenType::CloseBrace,
+        ) => true,
+        _ => false,
+    }
+}
+
 /// Whether the `{` about to be emitted opens a style block: it follows
 /// `style`, `transition`, or `theme Name`.
 fn opens_style_block(before: &[Token]) -> bool {
@@ -764,7 +900,7 @@ fn opens_style_block(before: &[Token]) -> bool {
                 token_type: TokenType::Identifier(_),
                 ..
             },
-        ] if keyword == "theme" => true,
+        ] if keyword == "theme" || keyword == "animation" => true,
         _ => false,
     }
 }

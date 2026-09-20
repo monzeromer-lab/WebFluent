@@ -427,6 +427,260 @@ test("a match shows the arm its key names and swaps it when the key changes", ()
   assert.equal(parent.querySelector("p").textContent, "?", "an unknown key falls to else");
 });
 
+test("what a branch creates leaves with it: timers stop, effects fall silent, cleanups run", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const open = WF.signal(true);
+  const count = WF.signal(0);
+  let ticks = 0;
+  let effectRuns = 0;
+  let cleanups = 0;
+  const realSetInterval = globalThis.setInterval;
+  const realClearInterval = globalThis.clearInterval;
+  const intervals = new Set();
+  globalThis.setInterval = (fn, ms) => { const id = { fn, ms }; intervals.add(id); return id; };
+  globalThis.clearInterval = (id) => intervals.delete(id);
+  try {
+    WF.when(parent, () => open(), () => {
+      WF.every(1000, () => { ticks++; });
+      WF.effect(() => { count(); effectRuns++; return () => { cleanups++; }; });
+      return WF.el("p", {}, ["open"]);
+    }, null);
+    assert.equal(intervals.size, 1, "the timer runs while the branch shows");
+    assert.equal(effectRuns, 1);
+    count.set(1);
+    assert.equal(effectRuns, 2, "the effect follows its signal");
+    assert.equal(cleanups, 1, "the cleanup ran before the effect ran again");
+    open.set(false);
+    assert.equal(intervals.size, 0, "the timer stopped with the branch");
+    assert.equal(cleanups, 2, "the cleanup ran when the branch left");
+    count.set(2);
+    assert.equal(effectRuns, 2, "a disposed effect no longer runs");
+  } finally {
+    globalThis.setInterval = realSetInterval;
+    globalThis.clearInterval = realClearInterval;
+  }
+});
+
+test("a key handler answers to one spelling, modifiers included, and a ref reads as its element", () => {
+  const { WF, document } = loadRuntime();
+  const press = (key, mods = {}) => ({ type: "keydown", key, ctrlKey: false, shiftKey: false, altKey: false, metaKey: false, ...mods });
+  assert.equal(WF.keyIs(press("k", { ctrlKey: true }), "ctrl+k"), true);
+  assert.equal(WF.keyIs(press("k"), "ctrl+k"), false, "the modifier is required");
+  assert.equal(WF.keyIs(press("K", { ctrlKey: true, shiftKey: true }), "ctrl+k"), false, "an extra modifier does not match");
+  assert.equal(WF.keyIs(press("Escape"), "Escape"), true);
+  assert.equal(WF.keyIs(press("Escape"), "esc"), true, "the short names");
+  assert.equal(WF.keyIs(press("ArrowDown"), "down"), true);
+
+  const box = WF.ref();
+  assert.equal(box.current, null);
+  const input = WF.el("input", { ref: box, value: "x" });
+  assert.equal(box.current, input, "the handle takes the element once drawn");
+  assert.equal(box.value, "x", "a property reads through");
+  box.value = "y";
+  assert.equal(input.value, "y", "and writes through");
+  assert.equal(typeof box.focus, "function", "a method is the element's, bound");
+});
+
+test("a persisted signal reads storage first and writes every change; the browser's values follow it", () => {
+  const { WF, window } = loadRuntime();
+  const store = new Map([["wf:P.draft", JSON.stringify("kept")]]);
+  window.localStorage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) };
+  const draft = WF.persist("P.draft", "");
+  assert.equal(draft(), "kept", "what was stored stands in for the initial value");
+  draft.set("new");
+  assert.equal(store.get("wf:P.draft"), JSON.stringify("new"));
+  const fresh = WF.persist("P.other", 3);
+  assert.equal(fresh(), 3, "nothing stored: the initial value");
+  window.localStorage = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } };
+  const blocked = WF.persist("P.blocked", true);
+  assert.equal(blocked(), true, "blocked storage falls back to the initial value");
+  blocked.set(false);
+  assert.equal(blocked(), false, "and the signal still works");
+
+  const listeners = {};
+  window.addEventListener = (type, fn) => { (listeners[type] = listeners[type] || []).push(fn); };
+  window.innerWidth = 800;
+  window.innerHeight = 600;
+  let seen;
+  WF.effect(() => { seen = WF.viewport(); });
+  assert.equal(seen.md, true);
+  assert.equal(seen.lg, false);
+  window.innerWidth = 1100;
+  for (const fn of listeners.resize) fn();
+  assert.equal(seen.lg, true, "the viewport follows a resize");
+
+  window.location.search = "?tab=two";
+  window.location.hash = "#top";
+  let q; let h;
+  WF.effect(() => { q = WF.query(); h = WF.hash(); });
+  assert.equal(q.tab, "two");
+  assert.equal(h, "top");
+  window.location.search = "?tab=three";
+  window.location.hash = "";
+  window.history.pushState(null, "", "/x?tab=three");
+  assert.equal(q.tab, "three", "a navigation refreshes the query");
+  assert.equal(h, "", "and the hash");
+});
+
+test("the theme the reader chose is written to the document, kept, and read back", () => {
+  const { WF, document, window } = loadRuntime();
+  const store = new Map([["wf:theme", "dark"]]);
+  window.localStorage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v), removeItem: (k) => store.delete(k) };
+  let seen;
+  WF.effect(() => { seen = WF.theme(); });
+  assert.equal(seen, "dark", "what was kept");
+  assert.equal(document.documentElement.getAttribute("data-theme"), "dark");
+  WF.setTheme("light");
+  assert.equal(seen, "light");
+  assert.equal(document.documentElement.getAttribute("data-theme"), "light");
+  assert.equal(store.get("wf:theme"), "light");
+  WF.setTheme("system");
+  assert.equal(seen, "system");
+  assert.equal(document.documentElement.getAttribute("data-theme"), null, "system leaves it to the media query");
+  assert.equal(store.has("wf:theme"), false);
+  WF.setTheme("purple");
+  assert.equal(seen, "system", "an unknown choice is the system's");
+});
+
+test("a form handle reports validity and values as the reader types, and a store's async action reports pending", async () => {
+  const { WF, document } = loadRuntime();
+  const handle = WF.form();
+  const email = WF.el("input", { name: "email", value: "" });
+  const agree = WF.el("input", { name: "agree", type: "checkbox" });
+  const formEl = WF.el("form", { ref: handle }, email, agree);
+  formEl.elements = [email, agree];
+  formEl.checkValidity = () => email.value.includes("@");
+  formEl.dispatchEvent({ type: "input" });
+  let seen;
+  WF.effect(() => { seen = { valid: handle.valid, values: handle.values }; });
+  assert.equal(seen.valid, false);
+  assert.deepEqual(seen.values, { email: "", agree: false });
+  email.value = "a@b.c";
+  agree.checked = true;
+  formEl.dispatchEvent({ type: "input" });
+  assert.equal(seen.valid, true, "validity follows the input");
+  assert.deepEqual(seen.values, { email: "a@b.c", agree: true });
+
+  let release;
+  const store = WF.store({
+    state: { n: 0 },
+    actions: { sync: async (s) => { await new Promise((r) => { release = r; }); s.n = s.n + 1; }, bump: (s) => { s.n = s.n + 1; } },
+  });
+  assert.equal(typeof store.bump.pending, "undefined", "a plain action has no pending");
+  let pending;
+  WF.effect(() => { pending = store.sync.pending(); });
+  assert.equal(pending, false);
+  const call = store.sync();
+  assert.equal(pending, true, "pending while the call runs");
+  release();
+  await call;
+  assert.equal(pending, false);
+  assert.equal(store.n, 1);
+});
+
+test("a page's head tags are written for as long as the page shows, and follow state", () => {
+  const { WF, document } = loadRuntime();
+  const stale = document.createElement("meta");
+  stale.setAttribute("data-wf-head", "");
+  document.head.appendChild(stale);
+  const img = WF.signal("/a.png");
+  const [, dispose] = WF.scoped(() => {
+    WF.head([["meta", { property: "og:image", content: () => img() }], ["script", { src: "/x.js", defer: true }]]);
+  });
+  const tags = document.head.querySelectorAll("[data-wf-head]");
+  assert.equal(tags.length, 2, "the static paint's tags are replaced");
+  assert.equal(tags[0].getAttribute("content"), "/a.png");
+  assert.equal(tags[1].getAttribute("defer"), "");
+  img.set("/b.png");
+  assert.equal(tags[0].getAttribute("content"), "/b.png", "an attribute follows its signal");
+  dispose();
+  assert.equal(document.head.querySelectorAll("[data-wf-head]").length, 0, "the page's tags leave with it");
+});
+
+test("the runtime's markdown matches the compiler's, and follows its text", () => {
+  const { WF, document } = loadRuntime();
+  const md = "# Title\n\nA *word* and **more**, `x < y` and [a link](https://x.y) plus ![alt](/i.png).\nSecond line.\n\n- one\n- two\n\n1. first\n2. second\n\n> quoted *text*\n\n---\n\n```js\nlet a = 1 < 2;\n```\n<script>alert(1)</script>";
+  assert.equal(
+    WF.markdown(md),
+    "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n",
+  );
+  const note = WF.signal("plain");
+  const el = WF.el("div", { className: "wf-markdown", markdown: () => note() });
+  assert.equal(el.innerHTML, "<p>plain</p>\n");
+  note.set("**bold**");
+  assert.equal(el.innerHTML, "<p><strong>bold</strong></p>\n", "the render follows the text");
+});
+
+test("a scoped slot is drawn again when a value it is handed changes, and not when its fill reads change", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const selected = WF.signal("a");
+  const count = WF.signal(1);
+  let fills = 0;
+  WF.slot(parent, () => ({ item: selected() }), (_s) => {
+    fills++;
+    const item = _s.item;
+    return WF.el("p", {}, [WF.text(() => `${item}:${count()}`)]);
+  });
+  assert.equal(parent.querySelector("p").textContent, "a:1");
+  count.set(2);
+  assert.equal(parent.querySelector("p").textContent, "a:2", "the fill's own text follows its signal");
+  assert.equal(fills, 1, "a signal the fill reads does not redraw the slot");
+  selected.set("b");
+  assert.equal(parent.querySelector("p").textContent, "b:2", "a handed value redraws the fill");
+  assert.equal(parent.querySelectorAll("p").length, 1);
+  assert.equal(fills, 2);
+});
+
+test("format and ago speak the document's language, and the i18n locale when there is one", () => {
+  const { WF, document } = loadRuntime();
+  document.documentElement.lang = "en";
+  assert.equal(WF.format(1234.5, "currency"), "$1,234.50");
+  assert.equal(WF.format(1234.5, "currency", "EUR"), "€1,234.50");
+  assert.equal(WF.format(1234.5), "1,234.5");
+  assert.equal(WF.format(1234.5, "integer"), "1,235");
+  assert.equal(WF.format(1234.5, "decimal"), "1,234.50");
+  assert.equal(WF.format(0.256, "percent", 1), "25.6%");
+  assert.equal(WF.format(1234, "compact"), "1.2K");
+  assert.equal(WF.format("2024-03-05T14:07:09", "yyyy-MM-dd HH:mm:ss"), "2024-03-05 14:07:09");
+  assert.equal(WF.format("2024-03-05", "EEEE, MMMM d, yyyy"), "Tuesday, March 5, 2024");
+  assert.equal(WF.format("2024-03-05", "date", "long"), "March 5, 2024");
+  assert.equal(WF.format(null, "currency"), "", "nothing formats to nothing");
+  assert.equal(WF.ago("2024-03-05T14:00:00", "2024-03-05T14:03:00"), "3 minutes ago");
+  assert.equal(WF.ago("2024-03-06T14:05:00", "2024-03-05T14:03:00"), "tomorrow");
+  assert.equal(WF.ago("2024-03-05T14:03:10", "2024-03-05T14:03:00"), "now");
+
+  const i18n = WF.locales("de", { de: {}, en: {} });
+  assert.equal(WF.format(1234.5, "currency", "EUR"), "1.234,50\u00a0€", "the i18n locale");
+  i18n.setLocale("en");
+  assert.equal(WF.format(1234.5, "currency", "EUR"), "€1,234.50");
+});
+
+test("an enum case with a payload is its name and the payload; a match over one hands the arm the whole value", () => {
+  const { WF, document } = loadRuntime();
+  assert.equal(WF.caseOf("idle"), "idle");
+  assert.equal(WF.caseOf(["failed", "boom"]), "failed");
+  assert.equal(WF.payload(["failed", "boom"], "failed"), "boom", "one part is the value itself");
+  assert.deepEqual(WF.payload(["done", 2, "two"], "done"), [2, "two"], "more parts are a list");
+  assert.equal(WF.payload(["failed", "boom"], "done"), null, "another case has no payload here");
+  assert.equal(WF.payload("idle", "idle"), null, "a bare case carries nothing");
+
+  const parent = document.createElement("div");
+  const s = WF.signal("idle");
+  WF.match(parent, () => WF.caseOf(s()), () => s(), {
+    idle: () => WF.el("p", {}, ["idle"]),
+    failed: (_v) => { const r = _v[1]; return WF.el("p", {}, [`failed: ${r}`]); },
+    done: (_v) => { const n = _v[1]; const l = _v[2]; return WF.el("p", {}, [`${n} ${l}`]); },
+  });
+  assert.equal(parent.querySelector("p").textContent, "idle");
+  s.set(["failed", "boom"]);
+  assert.equal(parent.querySelector("p").textContent, "failed: boom");
+  s.set(["done", 2, "two"]);
+  assert.equal(parent.querySelector("p").textContent, "2 two");
+  assert.equal(parent.querySelectorAll("p").length, 1);
+});
+
 test("a resource loads, exposes its state, ignores a stale answer, and reloads", async () => {
   const { WF } = loadRuntime();
   const pending = [];
@@ -487,6 +741,53 @@ test("a route with a layout renders the page inside it, with the page's params",
   WF.navigate("/");
   assert.equal(container.querySelector("section"), null, "a page without a layout has none");
   assert.equal(container.querySelector("p").textContent, "home");
+});
+
+test("a route change plays through the View Transitions API where the browser has it", async () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  let started = 0;
+  let finish;
+  document.startViewTransition = (update) => {
+    started++;
+    update();
+    return { finished: new Promise((r) => { finish = r; }) };
+  };
+  WF.router(
+    [
+      { path: "/", render: () => WF.el("p", {}, ["home"]) },
+      { path: "/about", render: () => WF.el("p", {}, ["about"]) },
+    ],
+    container,
+    { transition: "slide", duration: "250ms" },
+  );
+  assert.equal(started, 0, "the first paint is immediate");
+  WF.navigate("/about");
+  assert.equal(started, 1, "a route change runs as a view transition");
+  assert.equal(container.querySelector("p").textContent, "about", "the new page is painted inside it");
+  assert.equal(document.documentElement.getAttribute("data-wf-transition"), "slide", "the sheet is told which transition plays");
+  finish();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(document.documentElement.getAttribute("data-wf-transition"), null, "and it is cleared when the transition ends");
+});
+
+test("t() picks a plural form by count under the locale's rules", () => {
+  const { WF } = loadRuntime();
+  const i18n = WF.locales("en", {
+    en: { "items.one": "{count} item", "items.other": "{count} items", plain: "hi {name}" },
+    ar: { "items.zero": "لا عناصر", "items.one": "عنصر واحد", "items.two": "عنصران", "items.few": "{count} عناصر", "items.many": "{count} عنصرًا", "items.other": "{count} عنصر" },
+  });
+  assert.equal(i18n.t("items", { count: 1 }), "1 item");
+  assert.equal(i18n.t("items", { count: 0 }), "0 items");
+  assert.equal(i18n.t("items", { count: 5 }), "5 items");
+  assert.equal(i18n.t("plain", { name: "Sam" }), "hi Sam", "a message without forms is itself");
+  i18n.setLocale("ar");
+  assert.equal(i18n.t("items", { count: 0 }), "لا عناصر", "zero, under Arabic rules");
+  assert.equal(i18n.t("items", { count: 2 }), "عنصران", "two");
+  assert.equal(i18n.t("items", { count: 5 }), "5 عناصر", "few");
+  assert.equal(i18n.t("items", { count: 11 }), "11 عنصرًا", "many");
 });
 
 test("a keyed list inserts, removes and moves items without rebuilding the others", () => {

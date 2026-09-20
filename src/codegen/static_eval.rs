@@ -25,6 +25,7 @@
 use std::cell::Cell;
 use std::collections::HashMap;
 
+use crate::codegen::format;
 use crate::parser::ast::{
     ActionDecl, BinOp, Declaration, Expr, Program, Statement, StatementKind, UnaryOp,
 };
@@ -43,6 +44,8 @@ pub enum Static {
     Bool(bool),
     List(Vec<Static>),
     Map(Vec<(String, Static)>),
+    /// A regular expression: its pattern and flags, compiled on use.
+    Regex(String, String),
     Null,
 }
 
@@ -60,6 +63,7 @@ impl Static {
             }
             Static::Bool(b) => format!("{}", b),
             Static::Null => String::new(),
+            Static::Regex(p, f) => format!("/{p}/{f}"),
             // A list or map has no sensible text form; the renderer should be
             // iterating it, not printing it.
             Static::List(_) | Static::Map(_) => String::new(),
@@ -74,10 +78,28 @@ impl Static {
             Static::Num(n) => *n != 0.0 && !n.is_nan(),
             Static::Str(s) => !s.is_empty(),
             Static::List(items) => !items.is_empty(),
-            Static::Map(_) => true,
+            Static::Map(_) | Static::Regex(..) => true,
             Static::Null => false,
         }
     }
+}
+
+/// The compiled form of a regex value, JavaScript's flags mapped to Rust's
+/// (`i`, `m`, `s`; `g` and `u` mean nothing to a single match).
+fn compile_regex(pattern: &str, flags: &str) -> Option<regex::Regex> {
+    let mut prefix = String::new();
+    for f in flags.chars() {
+        match f {
+            'i' | 'm' | 's' => prefix.push(f),
+            _ => {}
+        }
+    }
+    let source = if prefix.is_empty() {
+        pattern.to_string()
+    } else {
+        format!("(?{prefix}){pattern}")
+    };
+    regex::Regex::new(&source).ok()
 }
 
 /// Names in scope at build time, innermost last, and the actions a call can
@@ -89,14 +111,84 @@ pub struct Scope {
     depth: u32,
 }
 
+impl Static {
+    /// A JSON value as a static value: what a template's data is.
+    pub fn from_json(value: &serde_json::Value) -> Static {
+        match value {
+            serde_json::Value::Null => Static::Null,
+            serde_json::Value::Bool(b) => Static::Bool(*b),
+            serde_json::Value::Number(n) => Static::Num(n.as_f64().unwrap_or(0.0)),
+            serde_json::Value::String(s) => Static::Str(s.clone()),
+            serde_json::Value::Array(items) => {
+                Static::List(items.iter().map(Static::from_json).collect())
+            }
+            serde_json::Value::Object(map) => Static::Map(
+                map.iter()
+                    .map(|(k, v)| (k.clone(), Static::from_json(v)))
+                    .collect(),
+            ),
+        }
+    }
+
+    /// The static value as JSON.
+    pub fn to_json(&self) -> serde_json::Value {
+        match self {
+            Static::Null => serde_json::Value::Null,
+            Static::Bool(b) => serde_json::Value::Bool(*b),
+            Static::Num(n) => serde_json::Number::from_f64(*n)
+                .map(serde_json::Value::Number)
+                .unwrap_or(serde_json::Value::Null),
+            Static::Str(s) => serde_json::Value::String(s.clone()),
+            Static::Regex(p, f) => serde_json::Value::String(format!("/{p}/{f}")),
+            Static::List(items) => {
+                serde_json::Value::Array(items.iter().map(Static::to_json).collect())
+            }
+            Static::Map(fields) => serde_json::Value::Object(
+                fields
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.to_json()))
+                    .collect(),
+            ),
+        }
+    }
+}
+
 impl Scope {
+    /// A scope of the given names and values, for evaluating an expression
+    /// over data — what the template engine hands over.
+    pub fn of(values: impl IntoIterator<Item = (String, Static)>) -> Self {
+        Scope {
+            frames: vec![values.into_iter().collect()],
+            functions: HashMap::new(),
+            depth: 0,
+        }
+    }
+
     /// The scope a page starts with: every store's seeded state, keyed
     /// `Store.field`, plus the page's own literal `state` declarations.
     ///
     /// Only initial values. A store field a user action has since changed is not
     /// knowable here, and the hydrating client will correct it.
     pub fn from_program(program: &Program, page_body: &[Statement]) -> Self {
+        Self::from_program_with_env(program, page_body, &Default::default())
+    }
+
+    /// [`Scope::from_program`] with the project's `env`, which a constant
+    /// may read.
+    pub fn from_program_with_env(
+        program: &Program,
+        page_body: &[Statement],
+        env: &std::collections::BTreeMap<String, serde_json::Value>,
+    ) -> Self {
         let mut frame = HashMap::new();
+        frame.insert(
+            "env".to_string(),
+            Static::Map(
+                env.iter()
+                    .map(|(k, v)| (k.clone(), Static::from_json(v)))
+                    .collect(),
+            ),
+        );
 
         for decl in &program.declarations {
             if let Declaration::Store(store) = decl {
@@ -109,6 +201,14 @@ impl Scope {
             functions: HashMap::new(),
             depth: 0,
         };
+        // Constants, in order: one may read another.
+        for decl in &program.declarations {
+            if let Declaration::Const(c) = decl
+                && let Some(v) = eval(&c.value, &scope)
+            {
+                scope.set(&c.name, v);
+            }
+        }
         scope.push_state(page_body);
         scope
     }
@@ -122,17 +222,26 @@ impl Scope {
         self
     }
 
-    /// Add the literal `state` declarations of a statement list.
+    /// Add the literal `state` declarations of a statement list, and the
+    /// `derived` values that follow from them, in order.
     pub fn push_state(&mut self, stmts: &[Statement]) {
         let mut frame = HashMap::new();
         for stmt in stmts {
-            if let StatementKind::State(s) = &stmt.kind {
-                if let Some(v) = eval(&s.value, self) {
-                    frame.insert(s.name.clone(), v);
-                }
+            if let StatementKind::State(s) = &stmt.kind
+                && let Some(v) = eval(&s.value, self)
+            {
+                frame.insert(s.name.clone(), v);
             }
         }
         self.frames.push(frame);
+        for stmt in stmts {
+            if let StatementKind::Derived(d) = &stmt.kind
+                && let Some(v) = eval(&d.value, self)
+                && let Some(frame) = self.frames.last_mut()
+            {
+                frame.insert(d.name.clone(), v);
+            }
+        }
     }
 
     /// Bind one name, for a loop body.
@@ -146,6 +255,23 @@ impl Scope {
 
     fn get(&self, name: &str) -> Option<&Static> {
         self.frames.iter().rev().find_map(|f| f.get(name))
+    }
+
+    /// The scope with the locale `format` and `ago` speak, the project's
+    /// default one.
+    pub fn with_locale(mut self, locale: &str) -> Self {
+        if let Some(frame) = self.frames.first_mut() {
+            frame.insert("__locale".to_string(), Static::Str(locale.to_string()));
+        }
+        self
+    }
+
+    /// The locale at hand: the project's, a `locale` in the data, or English.
+    fn locale(&self) -> String {
+        match self.get("__locale").or_else(|| self.get("locale")) {
+            Some(Static::Str(l)) => l.clone(),
+            _ => "en".to_string(),
+        }
     }
 
     fn set(&mut self, name: &str, value: Static) {
@@ -221,20 +347,65 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         Expr::NumberLiteral(n) => Some(Static::Num(*n)),
         Expr::BoolLiteral(b) => Some(Static::Bool(*b)),
         Expr::Null => Some(Static::Null),
+        Expr::Regex(p, f) => Some(Static::Regex(p.clone(), f.clone())),
 
         Expr::Identifier(name) => scope.get(name).cloned(),
 
-        Expr::ListLiteral(items) => items
-            .iter()
-            .map(|e| eval_in(e, scope, fuel))
-            .collect::<Option<Vec<_>>>()
-            .map(Static::List),
+        Expr::ListLiteral(items) => {
+            let mut out = Vec::new();
+            for e in items {
+                match e {
+                    Expr::Spread(inner) => match eval_in(inner, scope, fuel)? {
+                        Static::List(more) => out.extend(more),
+                        _ => return None,
+                    },
+                    _ => out.push(eval_in(e, scope, fuel)?),
+                }
+            }
+            Some(Static::List(out))
+        }
+        // A spread outside a list is not a value.
+        Expr::Spread(_) => None,
+        Expr::Range(a, b, inclusive) => {
+            let (Static::Num(a), Static::Num(b)) =
+                (eval_in(a, scope, fuel)?, eval_in(b, scope, fuel)?)
+            else {
+                return None;
+            };
+            let end = if *inclusive { b } else { b - 1.0 };
+            let mut out = Vec::new();
+            let mut i = a;
+            while i <= end && out.len() < 100_000 {
+                out.push(Static::Num(i));
+                i += 1.0;
+            }
+            Some(Static::List(out))
+        }
 
-        Expr::MapLiteral(entries) | Expr::Record(_, entries) => entries
-            .iter()
-            .map(|(k, v)| eval_in(v, scope, fuel).map(|v| (k.trim_matches('"').to_string(), v)))
-            .collect::<Option<Vec<_>>>()
-            .map(Static::Map),
+        Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
+            let mut out: Vec<(String, Static)> = Vec::new();
+            for (k, v) in entries {
+                let value = eval_in(v, scope, fuel)?;
+                if k == "..." {
+                    let Static::Map(more) = value else {
+                        return None;
+                    };
+                    for (mk, mv) in more {
+                        match out.iter_mut().find(|(key, _)| *key == mk) {
+                            Some(slot) => slot.1 = mv,
+                            None => out.push((mk, mv)),
+                        }
+                    }
+                    continue;
+                }
+                let key = k.trim_matches('"').to_string();
+                match out.iter_mut().find(|(existing, _)| *existing == key) {
+                    Some(slot) => slot.1 = value,
+                    None => out.push((key, value)),
+                }
+            }
+            Some(Static::Map(out))
+        }
 
         Expr::InterpolatedString(parts) => {
             use crate::parser::ast::StringPart;
@@ -248,9 +419,11 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             Some(Static::Str(out))
         }
 
-        Expr::PropertyAccess(base, prop) => {
-            let base = eval_in(base, scope, fuel)?;
+        Expr::PropertyAccess(base_expr, prop) => {
+            let base = eval_in(base_expr, scope, fuel)?;
             match (&base, prop.as_str()) {
+                // The rest of a `?.` chain short-circuits with it.
+                (Static::Null, _) if in_optional_chain(base_expr) => Some(Static::Null),
                 (Static::List(items), "length") => Some(Static::Num(items.len() as f64)),
                 (Static::Str(s), "length") => Some(Static::Num(s.chars().count() as f64)),
                 (Static::Map(fields), _) => fields
@@ -261,10 +434,33 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             }
         }
 
-        Expr::IndexAccess(base, index) => {
-            let base = eval_in(base, scope, fuel)?;
+        // `?.`: null when the base is, else the plain access.
+        Expr::OptionalProperty(base, prop) => match eval_in(base, scope, fuel)? {
+            Static::Null => Some(Static::Null),
+            _ => eval_in(
+                &Expr::PropertyAccess(base.clone(), prop.clone()),
+                scope,
+                fuel,
+            ),
+        },
+        Expr::OptionalIndex(base, index) => match eval_in(base, scope, fuel)? {
+            Static::Null => Some(Static::Null),
+            _ => eval_in(&Expr::IndexAccess(base.clone(), index.clone()), scope, fuel),
+        },
+        Expr::OptionalMethod(base, method, args) => match eval_in(base, scope, fuel)? {
+            Static::Null => Some(Static::Null),
+            _ => eval_in(
+                &Expr::MethodCall(base.clone(), method.clone(), args.clone()),
+                scope,
+                fuel,
+            ),
+        },
+
+        Expr::IndexAccess(base_expr, index) => {
+            let base = eval_in(base_expr, scope, fuel)?;
             let index = eval_in(index, scope, fuel)?;
             match (base, index) {
+                (Static::Null, _) if in_optional_chain(base_expr) => Some(Static::Null),
                 (Static::List(items), Static::Num(n)) => items.get(n as usize).cloned(),
                 (Static::Map(fields), Static::Str(k)) => fields
                     .iter()
@@ -300,7 +496,30 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             };
             eval_in(&branches[chosen], scope, fuel)
         }
+        // `if let x = e { a } else { b }` as a value.
+        Expr::MethodCall(value, name, branches) if name == "__iflet" && branches.len() == 2 => {
+            let v = eval_in(value, scope, fuel)?;
+            if matches!(v, Static::Null) {
+                eval_in(&branches[1], scope, fuel)
+            } else {
+                apply(&branches[0], &[v], scope, fuel)
+            }
+        }
 
+        Expr::MethodCall(subject, name, args) if name == "__case" && args.is_empty() => {
+            Some(case_of(&eval_in(subject, scope, fuel)?))
+        }
+        // `s is .case` and the payload where it is: what `match` lowers to.
+        Expr::MethodCall(subject, name, args) if name == "__is" && args.len() == 1 => {
+            let v = eval_in(subject, scope, fuel)?;
+            let case = eval_in(&args[0], scope, fuel)?;
+            Some(Static::Bool(case_of(&v) == case))
+        }
+        Expr::MethodCall(subject, name, args) if name == "__payload" && args.len() == 1 => {
+            let v = eval_in(subject, scope, fuel)?;
+            let case = eval_in(&args[0], scope, fuel)?;
+            Some(payload_of(&v, &case))
+        }
         Expr::MethodCall(base, method, args) => {
             // `Math.max(a, b)` and the like: a global, not a value.
             if let Expr::Identifier(global) = base.as_ref() {
@@ -313,6 +532,9 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 }
             }
             let receiver = eval_in(base, scope, fuel)?;
+            if matches!(receiver, Static::Null) && in_optional_chain(base) {
+                return Some(Static::Null);
+            }
             method_call(&receiver, method, args, scope, fuel)
         }
 
@@ -322,6 +544,30 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 .map(|a| eval_in(a, scope, fuel))
                 .collect::<Option<Vec<_>>>()?;
             match name.as_str() {
+                // `format(value, .style, option)` and `ago(date)`, as the
+                // browser would spell them, in the project's locale.
+                "format" | "ago" if !scope.functions.contains_key(name) => {
+                    let input = |v: &Static| match v {
+                        Static::Num(n) => Some(format::Input::Number(*n)),
+                        Static::Str(s) => Some(format::Input::Text(s.clone())),
+                        _ => None,
+                    };
+                    let value = match args.first()? {
+                        Static::Null => return Some(Static::Str(String::new())),
+                        v => input(v)?,
+                    };
+                    if name == "ago" {
+                        let now = args.get(1).and_then(input);
+                        return format::ago(&value, now.as_ref()).map(Static::Str);
+                    }
+                    let style = match args.get(1) {
+                        Some(Static::Str(s)) => Some(s.clone()),
+                        _ => None,
+                    };
+                    let option = args.get(2).and_then(input);
+                    format::format(&value, style.as_deref(), option.as_ref(), &scope.locale())
+                        .map(Static::Str)
+                }
                 "String" => Some(Static::Str(args.first()?.to_text())),
                 "Number" => match args.first()? {
                     Static::Num(n) => Some(Static::Num(*n)),
@@ -342,9 +588,34 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         // An enum case is its name at run time; a token is its custom
         // property. A request cannot be awaited at build time.
         Expr::EnumCase(case) => Some(Static::Str(case.clone())),
+        // A case with a payload is the case name followed by the payload.
+        Expr::CaseValue(case, args) => {
+            let mut items = vec![Static::Str(case.clone())];
+            for a in args {
+                items.push(eval_in(a, scope, fuel)?);
+            }
+            Some(Static::List(items))
+        }
         Expr::Token(name) => Some(Static::Str(format!("var(--{name})"))),
         Expr::Await(_) => None,
     }
+}
+
+/// Whether `expr` is, or reads through, a `?.`.
+fn in_optional_chain(expr: &Expr) -> bool {
+    match expr {
+        Expr::OptionalProperty(..) | Expr::OptionalMethod(..) | Expr::OptionalIndex(..) => true,
+        Expr::PropertyAccess(base, _)
+        | Expr::IndexAccess(base, _)
+        | Expr::MethodCall(base, _, _) => in_optional_chain(base),
+        _ => false,
+    }
+}
+
+/// A JavaScript replacement string as the regex crate reads it: `$1`
+/// stays `$1`, `$&` is the whole match (`$0`), a literal `$` is `$$`.
+fn js_replacement(to: &str) -> String {
+    to.replace("$&", "${0}")
 }
 
 /// Apply a lambda to `args`, with its parameters bound over `scope`.
@@ -375,6 +646,22 @@ fn method_call(
         _ => None,
     };
     match receiver {
+        Static::Regex(p, f) => {
+            let re = compile_regex(p, f)?;
+            let text = value(0)?.to_text();
+            match method {
+                "test" => Some(Static::Bool(re.is_match(&text))),
+                "exec" => Some(match re.captures(&text) {
+                    Some(caps) => Static::List(
+                        caps.iter()
+                            .map(|c| Static::Str(c.map(|m| m.as_str()).unwrap_or("").into()))
+                            .collect(),
+                    ),
+                    None => Static::Null,
+                }),
+                _ => None,
+            }
+        }
         Static::List(items) => match method {
             "filter" | "map" | "some" | "every" | "find" | "findIndex" => {
                 let f = args.first()?;
@@ -469,6 +756,71 @@ fn method_call(
                 Some(Static::List(out))
             }
             "sort" => Some(Static::List(sorted(items, args.first(), scope, fuel)?)),
+            // The helpers the runtime adds to a list.
+            "sortBy" => {
+                let f = args.first()?;
+                let mut keyed = Vec::new();
+                for item in items {
+                    keyed.push((
+                        apply(f, std::slice::from_ref(item), scope, fuel)?,
+                        item.clone(),
+                    ));
+                }
+                keyed.sort_by(|(a, _), (b, _)| match (a, b) {
+                    (Static::Num(x), Static::Num(y)) => {
+                        x.partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal)
+                    }
+                    _ => a.to_text().cmp(&b.to_text()),
+                });
+                Some(Static::List(keyed.into_iter().map(|(_, v)| v).collect()))
+            }
+            "groupBy" => {
+                let f = args.first()?;
+                let mut groups: Vec<(String, Static)> = Vec::new();
+                for item in items {
+                    let key = apply(f, std::slice::from_ref(item), scope, fuel)?.to_text();
+                    match groups.iter_mut().find(|(k, _)| *k == key) {
+                        Some((_, Static::List(members))) => members.push(item.clone()),
+                        _ => groups.push((key, Static::List(vec![item.clone()]))),
+                    }
+                }
+                Some(Static::Map(groups))
+            }
+            "unique" => {
+                let mut out: Vec<Static> = Vec::new();
+                for item in items {
+                    if !out.contains(item) {
+                        out.push(item.clone());
+                    }
+                }
+                Some(Static::List(out))
+            }
+            "take" => {
+                let n = number(0)?.max(0.0) as usize;
+                Some(Static::List(items.iter().take(n).cloned().collect()))
+            }
+            "first" => Some(items.first().cloned().unwrap_or(Static::Null)),
+            "last" => Some(items.last().cloned().unwrap_or(Static::Null)),
+            "flatMap" => {
+                let f = args.first()?;
+                let mut out = Vec::new();
+                for (i, item) in items.iter().enumerate() {
+                    match apply(f, &[item.clone(), Static::Num(i as f64)], scope, fuel)? {
+                        Static::List(more) => out.extend(more),
+                        other => out.push(other),
+                    }
+                }
+                Some(Static::List(out))
+            }
+            "sum" => Some(Static::Num(
+                items
+                    .iter()
+                    .map(|v| match v {
+                        Static::Num(n) => *n,
+                        _ => 0.0,
+                    })
+                    .sum(),
+            )),
             _ => None,
         },
         Static::Str(s) => match method {
@@ -487,18 +839,97 @@ fn method_call(
             "startsWith" => Some(Static::Bool(s.starts_with(&value(0)?.to_text()))),
             "endsWith" => Some(Static::Bool(s.ends_with(&value(0)?.to_text()))),
             "split" => {
-                let sep = value(0)?.to_text();
-                let parts: Vec<Static> = if sep.is_empty() {
-                    s.chars().map(|c| Static::Str(c.to_string())).collect()
-                } else {
-                    s.split(&sep).map(|p| Static::Str(p.to_string())).collect()
+                let parts: Vec<Static> = match value(0)? {
+                    Static::Regex(p, f) => compile_regex(&p, &f)?
+                        .split(s)
+                        .map(|p| Static::Str(p.to_string()))
+                        .collect(),
+                    sep => {
+                        let sep = sep.to_text();
+                        if sep.is_empty() {
+                            s.chars().map(|c| Static::Str(c.to_string())).collect()
+                        } else {
+                            s.split(&sep).map(|p| Static::Str(p.to_string())).collect()
+                        }
+                    }
                 };
                 Some(Static::List(parts))
             }
-            "replace" => {
-                let from = value(0)?.to_text();
+            "replace" | "replaceAll" => {
                 let to = value(1)?.to_text();
-                Some(Static::Str(s.replacen(&from, &to, 1)))
+                match value(0)? {
+                    Static::Regex(p, f) => {
+                        let re = compile_regex(&p, &f)?;
+                        let to = js_replacement(&to);
+                        let out = if f.contains('g') || method == "replaceAll" {
+                            re.replace_all(s, to.as_str()).to_string()
+                        } else {
+                            re.replacen(s, 1, to.as_str()).to_string()
+                        };
+                        Some(Static::Str(out))
+                    }
+                    from => {
+                        let from = from.to_text();
+                        Some(Static::Str(if method == "replaceAll" {
+                            s.replace(&from, &to)
+                        } else {
+                            s.replacen(&from, &to, 1)
+                        }))
+                    }
+                }
+            }
+            "match" => match value(0)? {
+                Static::Regex(p, f) => {
+                    let re = compile_regex(&p, &f)?;
+                    if f.contains('g') {
+                        let all: Vec<Static> = re
+                            .find_iter(s)
+                            .map(|m| Static::Str(m.as_str().into()))
+                            .collect();
+                        Some(if all.is_empty() {
+                            Static::Null
+                        } else {
+                            Static::List(all)
+                        })
+                    } else {
+                        Some(match re.captures(s) {
+                            Some(caps) => Static::List(
+                                caps.iter()
+                                    .map(|c| {
+                                        Static::Str(c.map(|m| m.as_str()).unwrap_or("").into())
+                                    })
+                                    .collect(),
+                            ),
+                            None => Static::Null,
+                        })
+                    }
+                }
+                _ => None,
+            },
+            "search" => match value(0)? {
+                Static::Regex(p, f) => Some(Static::Num(
+                    compile_regex(&p, &f)?
+                        .find(s)
+                        .map(|m| s[..m.start()].chars().count() as f64)
+                        .unwrap_or(-1.0),
+                )),
+                _ => None,
+            },
+            "capitalize" => {
+                let mut chars = s.chars();
+                Some(Static::Str(match chars.next() {
+                    Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+                    None => String::new(),
+                }))
+            }
+            "truncate" => {
+                let n = number(0)? as usize;
+                let text: String = s.chars().take(n).collect();
+                Some(Static::Str(if s.chars().count() > n {
+                    format!("{text}…")
+                } else {
+                    text
+                }))
             }
             "slice" | "substring" => {
                 let chars: Vec<char> = s.chars().collect();
@@ -580,6 +1011,27 @@ fn sorted(
 }
 
 /// `Math.*` and the other globals a value may go through.
+/// The case of an enum value: a bare case is its name, a case with a payload
+/// the list `["case", …payload]`.
+pub fn case_of(v: &Static) -> Static {
+    match v {
+        Static::List(items) => items.first().cloned().unwrap_or(Static::Null),
+        other => other.clone(),
+    }
+}
+
+/// The payload of `v` where its case is `case`: the one value of a single
+/// payload, the list of a longer one, null otherwise.
+pub fn payload_of(v: &Static, case: &Static) -> Static {
+    match v {
+        Static::List(items) if items.first() == Some(case) => match items.len() {
+            2 => items[1].clone(),
+            _ => Static::List(items[1..].to_vec()),
+        },
+        _ => Static::Null,
+    }
+}
+
 fn global_method(global: &str, method: &str, args: &[Static]) -> Option<Static> {
     let n = |i: usize| match args.get(i)? {
         Static::Num(n) => Some(*n),

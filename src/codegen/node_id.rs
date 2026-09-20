@@ -126,7 +126,11 @@ pub fn visit_nodes<'a>(program: &'a Program, visit: &mut dyn FnMut(&'a UIElement
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => continue,
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => continue,
         };
         let owner = if name_counts.get(name).copied().unwrap_or(0) > 1 {
             format!("{}#{}", name, kind)
@@ -146,7 +150,11 @@ fn decl_owner_name(decl: &Declaration) -> Option<&str> {
         Declaration::Store(_)
         | Declaration::Theme(_)
         | Declaration::Type(_)
-        | Declaration::Enum(_) => None,
+        | Declaration::Enum(_)
+        | Declaration::Const(_)
+        | Declaration::Animation(_)
+        | Declaration::Test(_)
+        | Declaration::Data(_) => None,
     }
 }
 

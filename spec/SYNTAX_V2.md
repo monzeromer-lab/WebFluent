@@ -303,6 +303,9 @@ match posts {
 | Emit | `emit name(args)` |
 | Return | `return`, `return value` |
 | Conditional | `if … { } else { }` |
+| Loop | `for x in list { }`, `for x, i in list { }`, `for n in a..b { }` |
+| Guard | `try { } catch e { }` |
+| Destructuring | `let { a, b } = m`, `let [x, y] = l` |
 
 `await` may appear in any expression of an action or a handler and makes it
 asynchronous: `let r = await fetch(url)`.
@@ -343,16 +346,67 @@ Card {
 
 ## 8. Expressions
 
-Precedence, lowest first: `??` · `||` · `&&` · `== !=` · `< > <= >=` ·
-`+ -` · `* / %` · unary `! -` and `await` · postfix `.member`, `.method(args)`,
-`[index]` · primary.
+Precedence, lowest first: `..`/`..=` · `??` · `||` · `&&` · `== !=` ·
+`< > <= >=` · `+ -` · `* / %` · unary `! -` and `await` · postfix
+`.member`, `.method(args)`, `[index]`, `?.member`, `?.method(args)`,
+`?.[index]` · primary.
 
-Primaries: literals; `null`; a name; `f(args)`; `Record(field: value, …)`;
-`.case`; `$token`; `[a, b]`; `{ key: value }`; `(expr)`; `x => expr` and
-`(a, b) => expr`; `if c { a } else { b }`; `match v { .case { a } else { b } }`.
+Primaries: literals; `/pattern/flags` (a `/` after an operand divides);
+`null`; a name; `f(args)`; `Record(field: value, …)`; `.case`;
+`.case(args)`; `$token`; `[a, ...b]`; `{ key: value, ...m }`; `(expr)`;
+`x => expr` and `(a, b) => expr`; `if c { a } else { b }`; `if let x = v
+{ a } else { b }`; `match v { .case { a } .case(x) { b } else { c } }`.
 
-`a ?? b` is `b` when `a` is null. `if` and `match` are values when written in
-expression position. Strings interpolate with `{expr}` and stay live.
+`a ?? b` is `b` when `a` is null; `a?.b` is null when `a` is, and so is the
+rest of its chain. `if` and `match` are values when written in expression
+position; a match expression's `.case(x)` binds one name. `a..b` is the
+list of numbers from `a` below `b`, `a..=b` up to it. Strings interpolate
+with `{expr}` and stay live.
+
+### 8.1 Declarations of 3.1
+
+```wf
+const API = "/api"                                   // a top-level value, read everywhere
+const LIMIT: Number = 20
+type Admin = User { role: String }                   // User's fields, then role
+enum Status { idle, failed(reason: String) }         // a case with a payload
+```
+
+`env.X` reads the project's `"env"` map from `webfluent.app.json`.
+
+### 8.2 Declarations and statements of 3.2
+
+```wf
+animation Pulse { from { opacity: 1 } 50% { opacity: 0.4 } to { opacity: 1 } }   // keyframes; `animate: .Pulse`
+
+component Rows(items: [Todo]) {
+    slot row(item: Todo, index: Number)      // a scoped slot: what it hands its fill
+    part Header(_ text: String) { … }        // a component of its own, `Rows.Header`
+    row(item: it, index: i)                  // the slot, handed its values by name
+}
+Rows(items: todos) { row(t, i) { … } }       // the fill names them, in order
+
+page P(path: "/") {
+    head { meta(name: "x", content: y)  link(rel: "…", href: "…")  script(src: "…") }
+    persist theme = "light"                   // state kept across visits (also in a store)
+    on key("ctrl+k") { … }                    // the document listens while the page shows
+    every(1000) { … }  after(500) { … }       // timers, disposed of with their scope
+    effect { …  cleanup { … } }               // the cleanup runs before the next run, and on leaving
+    Input(bind: q, ref: search)               // a handle on the element
+    Form(bind: form) { … }                    // a handle on the form: valid, values, reset()
+    Button("x") { on key("Escape", e) { … } } // on an element, the element listens
+}
+```
+
+`data posts[: Type] = "file.json"` is a constant read from a file at build
+time; `paths: expr` on a `:param` page names the values the static build
+renders it for. `test "name"(data: { … }) { elements  expect "text"  expect
+not "text" }` declares a test `wf test` renders and checks; a build ignores
+it.
+
+Built-in values: `viewport` (`width`, `height`, `sm`…`xl`), `query`, `hash`,
+`theme`; `setTheme("dark" | "light" | "system")`; `action.pending` on an
+async action. A name the writer declares shadows a built-in value.
 
 Browser globals compile as written: `window`, `document`, `localStorage`,
 `JSON`, `Math`, `Date`, `fetch`, `setTimeout`, `console`, …

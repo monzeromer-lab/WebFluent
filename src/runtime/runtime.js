@@ -25,19 +25,126 @@ const WF = (() => {
     return get;
   }
 
+  // ─── Ownership ───────────────────────────────────────
+  // What a page, a branch, a list item or a slot creates — effects, timers,
+  // listeners — belongs to the scope it was created in, and is disposed of
+  // when that scope's nodes leave. `scoped(fn)` runs `fn` in a fresh scope
+  // and returns its result with the scope's disposer; `onCleanup(fn)` adds
+  // to the scope at hand.
+  let currentScope = null;
+
+  function onCleanup(fn) {
+    if (currentScope) currentScope.push(fn);
+    return fn;
+  }
+
+  function scoped(fn) {
+    const prev = currentScope;
+    const scope = [];
+    currentScope = scope;
+    try {
+      return [fn(), () => { for (const f of scope.splice(0)) f(); }];
+    } finally {
+      currentScope = prev;
+    }
+  }
+
+  // An effect runs at once and again when a signal it read changes; what
+  // it returns is its cleanup, run before the next run and on disposal.
   function effect(fn) {
+    let cleanup = null;
+    let dead = false;
     const run = () => {
+      if (dead) return;
+      if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
       const prev = currentEffect;
       currentEffect = run;
-      try { fn(); } finally { currentEffect = prev; }
+      try { cleanup = fn(); } finally { currentEffect = prev; }
     };
+    run.dispose = () => {
+      dead = true;
+      if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
+    };
+    onCleanup(run.dispose);
     run();
     return run;
+  }
+
+  // `every(ms) { }` and `after(ms) { }`: timers that stop with their scope.
+  function every(ms, fn) {
+    const id = setInterval(fn, ms);
+    onCleanup(() => clearInterval(id));
+    return id;
+  }
+  function after(ms, fn) {
+    const id = setTimeout(fn, ms);
+    onCleanup(() => clearTimeout(id));
+    return id;
+  }
+
+  // A listener that leaves with its scope.
+  function listen(target, event, fn, options) {
+    target.addEventListener(event, fn, options);
+    onCleanup(() => target.removeEventListener(event, fn, options));
+  }
+
+  // `on key("ctrl+k") { }`: a keydown whose key and modifiers match the
+  // spelling — `ctrl`, `shift`, `alt`, `meta`/`cmd`, then the key name as
+  // `KeyboardEvent.key` spells it (`k`, `Enter`, `Escape`, `ArrowDown`).
+  function keyIs(e, spelling) {
+    const parts = String(spelling).toLowerCase().split("+").map((p) => p.trim());
+    const key = parts.pop();
+    const names = { esc: "escape", return: "enter", space: " ", up: "arrowup", down: "arrowdown", left: "arrowleft", right: "arrowright", plus: "+" };
+    const wanted = names[key] || key;
+    if ((e.key || "").toLowerCase() !== wanted) return false;
+    const want = { ctrl: parts.includes("ctrl"), shift: parts.includes("shift"), alt: parts.includes("alt"), meta: parts.includes("meta") || parts.includes("cmd") };
+    return !!e.ctrlKey === want.ctrl && !!e.shiftKey === want.shift && !!e.altKey === want.alt && !!e.metaKey === want.meta;
+  }
+  function onKey(target, spelling, fn) {
+    listen(target, "keydown", (e) => { if (keyIs(e, spelling)) fn(e); });
+  }
+
+  // `ref: name`: a handle on an element, usable as the element itself —
+  // `name.focus()`, `name.value` — once it is drawn.
+  function ref() {
+    const box = { el: null };
+    return new Proxy(box, {
+      get(t, k) {
+        if (k === "current" || k === "el") return t.el;
+        const v = t.el ? t.el[k] : undefined;
+        return typeof v === "function" ? v.bind(t.el) : v;
+      },
+      set(t, k, v) {
+        if (k === "current" || k === "el") { t.el = v; return true; }
+        if (t.el) { t.el[k] = v; return true; }
+        return false;
+      },
+    });
   }
 
   function computed(fn) {
     const s = signal(undefined);
     effect(() => s.set(fn()));
+    return s;
+  }
+
+  // `persist name = value`: a signal whose value lives in localStorage
+  // under `wf:<key>`, read on creation and written on every change; the
+  // initial value stands where storage is empty or unavailable.
+  function persist(key, initial) {
+    const name = "wf:" + key;
+    let value = initial;
+    try {
+      const stored = window.localStorage.getItem(name);
+      if (stored !== null) value = JSON.parse(stored);
+    } catch (e) { /* storage blocked or unreadable: the initial value */ }
+    const s = signal(value);
+    const set = s.set;
+    s.set = (v) => {
+      set(v);
+      try { window.localStorage.setItem(name, JSON.stringify(s())); } catch (e) { /* full or blocked */ }
+    };
+    s.update = (fn) => s.set(fn(s()));
     return s;
   }
 
@@ -50,7 +157,15 @@ const WF = (() => {
     let iconName;
     if (attrs) {
       for (const [k, v] of Object.entries(attrs)) {
-        if (k === "value" && tag === "select") {
+        if (k === "ref" && v && typeof v === "object") {
+          v.current = el;
+        } else if (k === "markdown") {
+          if (typeof v === "function") {
+            effect(() => { el.innerHTML = markdown(v()); });
+          } else {
+            el.innerHTML = markdown(v);
+          }
+        } else if (k === "value" && tag === "select") {
           selectValue = v;
         } else if (k.startsWith("on:")) {
           el.addEventListener(k.slice(3), v);
@@ -266,6 +381,290 @@ const WF = (() => {
     return play(el, name, duration, delay, easing);
   }
 
+  // ─── Helpers on lists and strings ─────────────────────
+  // `items.sortBy(x => x.name)`, `items.groupBy(x => x.kind)`, `unique`,
+  // `take(n)`, `first`, `last`; `text.capitalize()`, `text.truncate(n)`.
+  function sortBy(list, key) {
+    return Array.from(list).sort((a, b) => {
+      const ka = key(a), kb = key(b);
+      return ka < kb ? -1 : ka > kb ? 1 : 0;
+    });
+  }
+  function groupBy(list, key) {
+    const groups = {};
+    for (const item of list) {
+      const k = String(key(item));
+      (groups[k] || (groups[k] = [])).push(item);
+    }
+    return groups;
+  }
+  function unique(list) {
+    const seen = new Set();
+    const out = [];
+    for (const item of list) {
+      const k = typeof item === "object" && item !== null ? JSON.stringify(item) : item;
+      if (!seen.has(k)) { seen.add(k); out.push(item); }
+    }
+    return out;
+  }
+  function take(list, n) { return Array.from(list).slice(0, Math.max(0, n)); }
+  // `a..b` and `a..=b`: the whole numbers from `a`, up to `b`.
+  function range(a, b, inclusive) {
+    const out = [];
+    const end = inclusive ? b : b - 1;
+    for (let i = a; i <= end; i++) out.push(i);
+    return out;
+  }
+  function first(list) { return list.length ? list[0] : null; }
+  function last(list) { return list.length ? list[list.length - 1] : null; }
+  function capitalize(text) {
+    const s = String(text);
+    return s ? s[0].toUpperCase() + s.slice(1) : s;
+  }
+  function truncate(text, n) {
+    const chars = Array.from(String(text));
+    return chars.length > n ? chars.slice(0, n).join("") + "\u2026" : chars.join("");
+  }
+
+  // ─── Formatting ──────────────────────────────────────
+  // `format(value, style, option)` and `ago(date)` speak the page's locale:
+  // the i18n locale when the project has one — a signal, so a change of
+  // locale redraws every formatted text — else the document's language.
+  // A style is a case: `.number` (the default), `.integer`, `.decimal`
+  // (option: places, 2 by default), `.currency` (option: the code, USD by
+  // default), `.percent` (of a fraction; option: places), `.compact`,
+  // `.date`, `.time`, `.datetime` (option: `short`/`medium`/`long`/`full`)
+  // and `.relative`. A string style is a date pattern: `yyyy-MM-dd HH:mm`.
+  function currentLocale() {
+    if (i18nInstance) return i18nInstance.locale();
+    return document.documentElement.lang || (typeof navigator !== "undefined" && navigator.language) || "en";
+  }
+  const DATE_STYLES = new Set(["date", "time", "datetime"]);
+  function format(value, style, option) {
+    const locale = currentLocale();
+    if (value == null) return "";
+    if (typeof style === "string" && !DATE_STYLES.has(style) && /[yMdEHhmsa]/.test(style) && !/^(number|integer|decimal|currency|percent|compact|relative)$/.test(style)) {
+      return formatPattern(toDate(value), style, locale);
+    }
+    switch (style) {
+      case "integer":
+        return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(value));
+      case "decimal": {
+        const places = option == null ? 2 : Number(option);
+        return new Intl.NumberFormat(locale, { minimumFractionDigits: places, maximumFractionDigits: places }).format(Number(value));
+      }
+      case "currency":
+        return new Intl.NumberFormat(locale, { style: "currency", currency: option || "USD" }).format(Number(value));
+      case "percent":
+        return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: option == null ? 0 : Number(option) }).format(Number(value));
+      case "compact":
+        return new Intl.NumberFormat(locale, { notation: "compact" }).format(Number(value));
+      case "date":
+        return new Intl.DateTimeFormat(locale, { dateStyle: option || "medium" }).format(toDate(value));
+      case "time":
+        return new Intl.DateTimeFormat(locale, { timeStyle: option || "short" }).format(toDate(value));
+      case "datetime":
+        return new Intl.DateTimeFormat(locale, { dateStyle: option || "medium", timeStyle: "short" }).format(toDate(value));
+      case "relative":
+        return ago(value);
+      default:
+        return new Intl.NumberFormat(locale).format(Number(value));
+    }
+  }
+  function toDate(value) {
+    if (value instanceof Date) return value;
+    // A bare date is a day, not midnight UTC shifted into the zone.
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+    return new Date(value);
+  }
+  function formatPattern(date, pattern, locale) {
+    const names = (opts) => new Intl.DateTimeFormat(locale, opts).format(date);
+    const pad = (n, w = 2) => String(n).padStart(w, "0");
+    const h12 = date.getHours() % 12 || 12;
+    return pattern.replace(/yyyy|yy|MMMM|MMM|MM|M|dd|d|EEEE|EEE|HH|H|hh|h|mm|ss|a/g, (t) => {
+      switch (t) {
+        case "yyyy": return String(date.getFullYear());
+        case "yy": return pad(date.getFullYear() % 100);
+        case "MMMM": return names({ month: "long" });
+        case "MMM": return names({ month: "short" });
+        case "MM": return pad(date.getMonth() + 1);
+        case "M": return String(date.getMonth() + 1);
+        case "dd": return pad(date.getDate());
+        case "d": return String(date.getDate());
+        case "EEEE": return names({ weekday: "long" });
+        case "EEE": return names({ weekday: "short" });
+        case "HH": return pad(date.getHours());
+        case "H": return String(date.getHours());
+        case "hh": return pad(h12);
+        case "h": return String(h12);
+        case "mm": return pad(date.getMinutes());
+        case "ss": return pad(date.getSeconds());
+        case "a": return date.getHours() < 12 ? "AM" : "PM";
+        default: return t;
+      }
+    });
+  }
+  // `ago(date)`: "3 minutes ago", "yesterday", "in 2 weeks".
+  const AGO_UNITS = [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]];
+  function ago(value, now) {
+    const locale = currentLocale();
+    const then = toDate(value).getTime();
+    if (then !== then) return ""; // an unreadable date
+    const seconds = Math.round((then - (now == null ? Date.now() : toDate(now).getTime())) / 1000);
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+    for (const [unit, size] of AGO_UNITS) {
+      if (Math.abs(seconds) >= size) return rtf.format(Math.trunc(seconds / size), unit);
+    }
+    if (Math.abs(seconds) < 45) return rtf.format(0, "second");
+    return rtf.format(seconds, "second");
+  }
+
+  // `Form(bind: form)`: a handle on the form — `form.valid` (every control
+  // passes its own checks), `form.values` (by field name), `form.reset()`,
+  // `form.submit()` — kept current as the reader types.
+  function form() {
+    const valid = signal(false);
+    const values = signal({});
+    let el = null;
+    const read = () => {
+      if (!el) return;
+      valid.set(typeof el.checkValidity === "function" ? el.checkValidity() : true);
+      const out = {};
+      const fields = el.elements ? Array.from(el.elements) : Array.from(el.querySelectorAll("input, select, textarea"));
+      for (const f of fields) {
+        const name = f.name || (typeof f.getAttribute === "function" && f.getAttribute("name"));
+        if (!name) continue;
+        const type = f.type || (typeof f.getAttribute === "function" && f.getAttribute("type"));
+        if (type === "checkbox") out[name] = !!f.checked;
+        else if (type === "radio") { if (f.checked) out[name] = f.value; }
+        else out[name] = f.value;
+      }
+      values.set(out);
+    };
+    return {
+      get current() { return el; },
+      set current(node) {
+        el = node;
+        if (!el) return;
+        el.addEventListener("input", read);
+        el.addEventListener("change", read);
+        el.addEventListener("reset", () => setTimeout(read, 0));
+        read();
+      },
+      get element() { return el; },
+      get valid() { return valid(); },
+      get values() { return values(); },
+      reset() { if (el && typeof el.reset === "function") el.reset(); read(); },
+      submit() { if (el && typeof el.requestSubmit === "function") el.requestSubmit(); },
+    };
+  }
+
+  // ─── Markdown ────────────────────────────────────────
+  // The same small Markdown the compiler renders at build time (see
+  // `src/codegen/markdown.rs`): headings, paragraphs, fenced code, quotes,
+  // one-level lists, rules; code spans, strong, emphasis, links, images.
+  // The text is escaped first, so HTML in it is shown, not run.
+  function mdEscape(text) {
+    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\x22/g, "&quot;");
+  }
+  // Written as `RegExp` over strings, so a tool that scans the bundle for
+  // balanced brackets is not misled by a bracket inside a pattern.
+  const MD = {
+    heading: new RegExp("^(#{1,6}) (.*)$"),
+    bullet: new RegExp("^[-*] (.*)$"),
+    numbered: new RegExp("^[0-9]+\\. (.*)$"),
+    code: new RegExp("\\x60([^\\x60]+)\\x60", "g"),
+    image: new RegExp("!\\[([^\\]]*)\\]\\(([^)\\s]+)\\)", "g"),
+    link: new RegExp("\\[([^\\]]+)\\]\\(([^)\\s]+)\\)", "g"),
+    strong: new RegExp("\\*\\*([^*]+)\\*\\*", "g"),
+    em: new RegExp("\\*([^*]+)\\*", "g"),
+    em2: new RegExp("(^|[^A-Za-z0-9])_([^_]+)_($|[^A-Za-z0-9])", "g"),
+  };
+  function mdHeading(line) {
+    const m = MD.heading.exec(line);
+    return m ? [m[1].length, m[2].trim()] : null;
+  }
+  function mdListItem(line) {
+    let m = MD.bullet.exec(line);
+    if (m) return [m[1].trim(), false];
+    m = MD.numbered.exec(line);
+    if (m) return [m[1].trim(), true];
+    return null;
+  }
+  function mdInline(text) {
+    const spans = [];
+    let s = mdEscape(text).replace(MD.code, (_, c) => { spans.push("<code>" + c + "</code>"); return "\u0000" + (spans.length - 1) + "\u0000"; });
+    s = s.replace(MD.image, '<img src="$2" alt="$1">');
+    s = s.replace(MD.link, '<a href="$2">$1</a>');
+    s = s.replace(MD.strong, "<strong>$1</strong>");
+    s = s.replace(MD.em, "<em>$1</em>");
+    s = s.replace(MD.em2, "$1<em>$2</em>$3");
+    spans.forEach((span, i) => { s = s.split("\u0000" + i + "\u0000").join(span); });
+    return s.replace(/\n/g, "<br>\n");
+  }
+  function markdown(text) {
+    const lines = String(text == null ? "" : text).split("\n");
+    let out = "";
+    let i = 0;
+    const isBlock = (t) => t === "" || t.startsWith("```") || t === "---" || t === "***" || mdHeading(t) || t.startsWith(">") || mdListItem(t);
+    while (i < lines.length) {
+      const t = lines[i].trim();
+      if (t === "") { i++; continue; }
+      if (t.startsWith("```")) {
+        const lang = t.slice(3).trim();
+        let code = "";
+        i++;
+        while (i < lines.length && lines[i].trim() !== "```") { code += mdEscape(lines[i]) + "\n"; i++; }
+        i++;
+        out += lang ? '<pre><code class="language-' + mdEscape(lang) + '">' + code + "</code></pre>\n" : "<pre><code>" + code + "</code></pre>\n";
+        continue;
+      }
+      if (t === "---" || t === "***") { out += "<hr>\n"; i++; continue; }
+      const h = mdHeading(t);
+      if (h) { out += "<h" + h[0] + ">" + mdInline(h[1]) + "</h" + h[0] + ">\n"; i++; continue; }
+      if (t.startsWith(">")) {
+        const quoted = [];
+        while (i < lines.length && lines[i].trim().startsWith(">")) { quoted.push(lines[i].trim().slice(1).replace(/^\s+/, "")); i++; }
+        out += "<blockquote>\n" + markdown(quoted.join("\n")) + "</blockquote>\n";
+        continue;
+      }
+      const item = mdListItem(t);
+      if (item) {
+        const ordered = item[1];
+        const tag = ordered ? "ol" : "ul";
+        out += "<" + tag + ">\n";
+        while (i < lines.length) {
+          const it = mdListItem(lines[i].trim());
+          if (!it || it[1] !== ordered) break;
+          out += "<li>" + mdInline(it[0]) + "</li>\n";
+          i++;
+        }
+        out += "</" + tag + ">\n";
+        continue;
+      }
+      const para = [];
+      while (i < lines.length && !isBlock(lines[i].trim())) { para.push(lines[i].trim()); i++; }
+      out += "<p>" + mdInline(para.join("\n")) + "</p>\n";
+    }
+    return out;
+  }
+
+  // ─── Enum cases ──────────────────────────────────────
+  // A bare case is its name; a case with a payload is the name followed by
+  // the payload, `["failed", "boom"]`. `caseOf` reads the name of either,
+  // and `payload` the payload where the case is the one asked for: the one
+  // value of a single payload, the list of a longer one, null otherwise.
+  function caseOf(v) {
+    return Array.isArray(v) ? v[0] : v;
+  }
+  function payload(v, name) {
+    if (!Array.isArray(v) || v[0] !== name) return null;
+    return v.length === 2 ? v[1] : v.slice(1);
+  }
+
   // ─── Leaving ─────────────────────────────────────────
   // Every exit the nodes on their way out asked for: the branch's own, on
   // each root, and the one any element beneath carries as `data-wf-exit`.
@@ -337,12 +736,15 @@ const WF = (() => {
     let currentNodes = [];
     let lastShow = undefined;
     let pendingRemoval = null; // Track in-progress exit animations
+    // What the branch's body created, disposed of when the branch leaves.
+    let dispose = null;
 
     // Only track the condition signal — not signals read during rendering
     effect(() => {
       const show = !!condFn();
       if (show === lastShow) return;
       lastShow = show;
+      if (dispose) { dispose(); dispose = null; }
 
       // A branch that comes back before its exit has played: the old
       // nodes go at once, the new ones take their place.
@@ -364,7 +766,8 @@ const WF = (() => {
         const prev = currentEffect;
         currentEffect = null; // Untrack: don't subscribe to signals during render
         try {
-          const result = renderFn();
+          const [result, disposer] = scoped(renderFn);
+          dispose = disposer;
           // Collect actual child nodes — DocumentFragments lose children when appended
           let nodes;
           if (result instanceof DocumentFragment) {
@@ -397,10 +800,12 @@ const WF = (() => {
     parent.appendChild(marker);
     let currentNodes = [];
     let lastKey;
+    let dispose = null;
     effect(() => {
       const k = key();
       if (k === lastKey) return;
       lastKey = k;
+      if (dispose) { dispose(); dispose = null; }
       leaveThenRemove(currentNodes, null);
       currentNodes = [];
       const arm = Object.prototype.hasOwnProperty.call(arms, k) ? arms[k] : arms.else;
@@ -408,7 +813,9 @@ const WF = (() => {
       const prev = currentEffect;
       currentEffect = null;
       try {
-        const result = arm(arg ? arg() : undefined);
+        const handed = arg ? arg() : undefined;
+        const [result, disposer] = scoped(() => arm(handed));
+        dispose = disposer;
         const nodes = result instanceof DocumentFragment
           ? [...result.childNodes]
           : [].concat(result).flat().filter(n => n instanceof Node);
@@ -419,6 +826,39 @@ const WF = (() => {
       } finally {
         currentEffect = prev;
       }
+    });
+  }
+
+  // A scoped slot: `values()` reads what the component hands over, and
+  // `render(values)` is the fill's nodes. They are drawn again when a
+  // value the handing read changes; the fill itself renders untracked, as
+  // a match arm does, so only the handing decides when to redraw.
+  function slot(parent, values, render) {
+    const marker = document.createComment("wf-slot");
+    parent.appendChild(marker);
+    let currentNodes = [];
+    let dispose = null;
+    effect(() => {
+      const handed = values();
+      if (dispose) { dispose(); dispose = null; }
+      leaveThenRemove(currentNodes, null);
+      currentNodes = [];
+      const prev = currentEffect;
+      currentEffect = null;
+      let result;
+      try {
+        [result, dispose] = scoped(() => render(handed));
+      } finally {
+        currentEffect = prev;
+      }
+      if (result == null) return;
+      const nodes = result instanceof DocumentFragment
+        ? [...result.childNodes]
+        : [].concat(result).flat().filter(n => n instanceof Node);
+      currentNodes = nodes.slice();
+      const frag = document.createDocumentFragment();
+      for (const n of nodes) frag.appendChild(n);
+      if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
     });
   }
 
@@ -438,6 +878,8 @@ const WF = (() => {
     let entries = new Map();
     let currentNodes = [];
     const exiting = new Set();
+    // What each item's body created, disposed of when the item leaves.
+    let disposers = [];
 
     const toNodes = (result) =>
       result instanceof DocumentFragment
@@ -514,12 +956,15 @@ const WF = (() => {
       const items = listFn() || [];
       if (!key) {
         // Rebuilt whole.
+        for (const d of disposers.splice(0)) d();
         depart(currentNodes);
         currentNodes = [];
         untracked(() => {
           const frag = document.createDocumentFragment();
           items.forEach((item, index) => {
-            const nodes = toNodes(itemFn(item, index));
+            const [made, dispose] = scoped(() => itemFn(item, index));
+            disposers.push(dispose);
+            const nodes = toNodes(made);
             for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
             enter(nodes, index);
           });
@@ -550,8 +995,9 @@ const WF = (() => {
             entry = old;
             entry.index = index;
           } else {
-            entry = { item, index, nodes: toNodes(itemFn(item, index)) };
-            if (old) removeNodes(old.nodes);
+            const [made, dispose] = scoped(() => itemFn(item, index));
+            entry = { item, index, nodes: toNodes(made), dispose };
+            if (old) { if (old.dispose) old.dispose(); removeNodes(old.nodes); }
           }
           entries.delete(k);
           cursor = place(host, entry.nodes, cursor);
@@ -559,7 +1005,7 @@ const WF = (() => {
           next.set(k, entry);
         });
         // What is left never came back.
-        for (const gone of entries.values()) depart(gone.nodes);
+        for (const gone of entries.values()) { if (gone.dispose) gone.dispose(); depart(gone.nodes); }
         entries = next;
         slide(before);
       });
@@ -619,6 +1065,61 @@ const WF = (() => {
   function pathSignal() {
     if (!_pathSignal) _pathSignal = signal(_stripBase(window.location.pathname));
     return _pathSignal;
+  }
+
+  // ─── The browser as values ───────────────────────────
+  // `viewport` is the window's size with the breakpoints as booleans
+  // (`viewport.md` from 768px up); `query` the URL's search parameters as
+  // a map; `hash` the fragment without its `#`. Each is a signal read once
+  // and kept current, so a condition on one follows the browser.
+  let _viewport = null;
+  function viewport() {
+    if (!_viewport) {
+      const read = () => {
+        const width = window.innerWidth || 0;
+        const height = window.innerHeight || 0;
+        return { width, height, sm: width >= 640, md: width >= 768, lg: width >= 1024, xl: width >= 1280 };
+      };
+      _viewport = signal(read());
+      window.addEventListener("resize", () => _viewport.set(read()));
+    }
+    return _viewport();
+  }
+  let _query = null;
+  let _hash = null;
+  function _readQuery() {
+    const out = {};
+    for (const [k, v] of new URLSearchParams(window.location.search)) out[k] = v;
+    return out;
+  }
+  function _watchLocation() {
+    const refresh = () => {
+      if (_query) _query.set(_readQuery());
+      if (_hash) _hash.set(window.location.hash.replace(/^#/, ""));
+    };
+    window.addEventListener("popstate", refresh);
+    window.addEventListener("hashchange", refresh);
+    const h = window.history;
+    const push = h.pushState.bind(h);
+    h.pushState = (...args) => { push(...args); refresh(); };
+    const replace = h.replaceState.bind(h);
+    h.replaceState = (...args) => { replace(...args); refresh(); };
+  }
+  function query() {
+    if (!_query) {
+      const first = !_hash;
+      _query = signal(_readQuery());
+      if (first) _watchLocation();
+    }
+    return _query();
+  }
+  function hash() {
+    if (!_hash) {
+      const first = !_query;
+      _hash = signal(window.location.hash.replace(/^#/, ""));
+      if (first) _watchLocation();
+    }
+    return _hash();
   }
 
   // Mark `el` as the current page's link while the route matches `href`:
@@ -690,6 +1191,8 @@ const WF = (() => {
     // scroll position the browser restores itself.
     let fromHistory = false;
     let rendered = false;
+    // What the page on show created, disposed of before the next one.
+    let disposePage = null;
 
     function render() {
       const path = currentPath(); // Only subscribe to path changes
@@ -700,6 +1203,7 @@ const WF = (() => {
       }
 
       const paint = (renderFn) => {
+        if (disposePage) { disposePage(); disposePage = null; }
         container.innerHTML = "";
         _newPage();
         // The tab, the history entry and a screen reader all read the title;
@@ -710,9 +1214,10 @@ const WF = (() => {
         currentEffect = null;
         try {
           // A page that names a layout is rendered inside it.
-          const el = match.route.layout
+          const [el, dispose] = scoped(() => match.route.layout
             ? match.route.layout(renderFn, match.params)
-            : renderFn(match.params);
+            : renderFn(match.params));
+          disposePage = dispose;
           if (el instanceof Node) container.appendChild(el);
         } finally {
           currentEffect = prev;
@@ -741,6 +1246,35 @@ const WF = (() => {
         if (!motion || !rendered || reducedMotion()) {
           paint(renderFn);
           settle();
+          return;
+        }
+        // Where the browser has the View Transitions API, it plays the
+        // change between the two paints itself — a crossfade, or the slide
+        // the sheet defines for `data-wf-transition="slide"` — and the
+        // class-based animation below is the fallback.
+        if (typeof document.startViewTransition === "function") {
+          const root = document.documentElement;
+          root.setAttribute("data-wf-transition", motion.name);
+          if (motion.duration) root.style.setProperty("--animation-duration-normal", motion.duration);
+          let transition;
+          try {
+            transition = document.startViewTransition(() => { paint(renderFn); });
+          } catch (e) {
+            root.removeAttribute("data-wf-transition");
+            paint(renderFn);
+            settle();
+            return;
+          }
+          const done = () => {
+            root.removeAttribute("data-wf-transition");
+            if (motion.duration) root.style.removeProperty("--animation-duration-normal");
+            settle();
+          };
+          if (transition && transition.finished && typeof transition.finished.then === "function") {
+            transition.finished.then(done, done);
+          } else {
+            done();
+          }
           return;
         }
         const leaving = [...container.children];
@@ -884,10 +1418,12 @@ const WF = (() => {
     const store = {};
     const states = {};
 
-    // Create signals for each state
+    // Create signals for each state; a persisted one reads storage first.
+    const kept = definition.persist ? definition.persist.names : [];
     if (definition.state) {
       for (const [key, val] of Object.entries(definition.state)) {
-        const s = signal(typeof val === "function" ? val() : val);
+        const initial = typeof val === "function" ? val() : val;
+        const s = kept.includes(key) ? persist(definition.persist.prefix + "." + key, initial) : signal(initial);
         states[key] = s;
         __reg(key, s); // expose for WF.__debug.state()
         Object.defineProperty(store, key, {
@@ -902,7 +1438,17 @@ const WF = (() => {
     // actions used to find it missing.
     if (definition.actions) {
       for (const [key, fn] of Object.entries(definition.actions)) {
-        store[key] = (...args) => fn(store, ...args);
+        // An async action carries `pending`: true while a call runs.
+        if (fn.constructor && fn.constructor.name === "AsyncFunction") {
+          const pending = signal(false);
+          store[key] = async (...args) => {
+            pending.set(true);
+            try { return await fn(store, ...args); } finally { pending.set(false); }
+          };
+          store[key].pending = pending;
+        } else {
+          store[key] = (...args) => fn(store, ...args);
+        }
       }
     }
 
@@ -1523,8 +2069,67 @@ const WF = (() => {
     return { open: () => set(true, false), close: () => set(false, false) };
   }
 
+  // ─── Theme ───────────────────────────────────────────
+  // `theme` is `"light"`, `"dark"` or `"system"`: what the reader chose,
+  // kept in storage and written to `<html data-theme>`, which the sheet's
+  // dark rules read; `"system"` leaves it to `prefers-color-scheme`.
+  let _theme = null;
+  function themeSignal() {
+    if (!_theme) {
+      let chosen = "system";
+      try { chosen = window.localStorage.getItem("wf:theme") || "system"; } catch (e) { /* no storage */ }
+      _theme = signal(chosen);
+      applyTheme(chosen);
+    }
+    return _theme;
+  }
+  function applyTheme(chosen) {
+    const root = document.documentElement;
+    if (chosen === "light" || chosen === "dark") root.setAttribute("data-theme", chosen);
+    else root.removeAttribute("data-theme");
+  }
+  function theme() {
+    return themeSignal()();
+  }
+  function setTheme(chosen) {
+    chosen = chosen === "light" || chosen === "dark" ? chosen : "system";
+    applyTheme(chosen);
+    try {
+      if (chosen === "system") window.localStorage.removeItem("wf:theme");
+      else window.localStorage.setItem("wf:theme", chosen);
+    } catch (e) { /* no storage */ }
+    themeSignal().set(chosen);
+  }
+
+  // ─── Head ────────────────────────────────────────────
+  // A page's `head { meta(…) link(…) script(…) }`: the tags are written into
+  // the document's head for as long as the page shows, replacing what the
+  // static paint put there; an attribute that reads state follows it.
+  function head(tags) {
+    for (const old of Array.from(document.head.querySelectorAll("[data-wf-head]"))) old.remove();
+    const made = [];
+    for (const [tag, attrs] of tags) {
+      const node = document.createElement(tag);
+      node.setAttribute("data-wf-head", "");
+      for (const [k, v] of Object.entries(attrs || {})) {
+        if (typeof v === "function") {
+          effect(() => {
+            const value = v();
+            if (value === false || value == null) node.removeAttribute(k);
+            else node.setAttribute(k, value === true ? "" : String(value));
+          });
+        } else if (v === true) node.setAttribute(k, "");
+        else if (v !== false && v != null) node.setAttribute(k, String(v));
+      }
+      document.head.appendChild(node);
+      made.push(node);
+    }
+    onCleanup(() => { for (const n of made) n.remove(); });
+  }
+
   // ─── Mount ───────────────────────────────────────────
   function mount(renderFn, container) {
+    themeSignal();
     _newPage();
     const el = renderFn();
     if (el instanceof Node) {
@@ -1559,12 +2164,18 @@ const WF = (() => {
     function t(key, params) {
       const currentLocale = locale();
       const messages = translations[currentLocale] || translations[defaultLocale] || {};
-      let text = messages[key];
-      // Fallback to default locale
-      if (text === undefined && currentLocale !== defaultLocale) {
-        const fallback = translations[defaultLocale] || {};
-        text = fallback[key];
+      const fallback = translations[defaultLocale] || {};
+      const lookup = (k) => (messages[k] !== undefined ? messages[k] : fallback[k]);
+      let text;
+      // A `count` picks the plural form: `key.one`, `key.other`, and the
+      // locale's other categories when the file has them.
+      if (params && typeof params.count === "number" && typeof Intl !== "undefined" && Intl.PluralRules) {
+        let category = "other";
+        try { category = new Intl.PluralRules(currentLocale).select(params.count); } catch (e) { /* unknown locale */ }
+        text = lookup(key + "." + category);
+        if (text === undefined) text = lookup(key + ".other");
       }
+      if (text === undefined) text = lookup(key);
       // Fallback to key itself
       if (text === undefined) return key;
       // Interpolate {placeholder} tokens
@@ -1731,11 +2342,16 @@ const WF = (() => {
     router, navigate, params, activeLink, page, loadPage, loadSheet, mainOf,
     // Data.
     resource, fetch: wfFetch, store, emit,
+    sortBy, groupBy, unique, take, first, last, capitalize, truncate, range,
+    caseOf, payload, format, ago, slot,
+    scoped, onCleanup, every, after, listen, onKey, keyIs, ref, persist,
+    viewport, query, hash, theme, setTheme, form, head, markdown,
     locales,
     // Overlays and widgets.
     toast, dialog, popup, tabs, drawer, announce, carousel, tooltip, menu, field,
-    // Boot.
+    // Boot. The base path is read by every link a static build writes.
     mount, hydrate, setSsgMode, setBasePath,
+    get _basePath() { return _basePath; },
     __debug, __reg,
   };
 })();

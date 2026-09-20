@@ -35,7 +35,19 @@ fn wf_blocks(markdown: &str) -> Vec<(usize, String, bool)> {
     blocks
 }
 
-const DECLARATIONS: &[&str] = &["page", "component", "store", "theme", "app", "type", "enum"];
+const DECLARATIONS: &[&str] = &[
+    "page",
+    "component",
+    "store",
+    "theme",
+    "app",
+    "type",
+    "enum",
+    "const",
+    "animation",
+    "test",
+    "data",
+];
 
 fn starts_declaration(line: &str) -> bool {
     let word = line

@@ -8,6 +8,7 @@
 //! first one in the file.
 
 use tower_lsp::lsp_types::*;
+use webfluent::lexer::Token;
 use webfluent::parser::ast::*;
 
 use crate::analysis::{self, Binding, ElementPart};
@@ -26,7 +27,29 @@ pub fn find_definition(
     if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
         return None;
     }
-    let (word, _) = word_at(source, offset)?;
+    definition_at(project, file_ix, offset, &tokens)
+}
+
+/// The definition of the name at `offset`, a byte offset into the file,
+/// whatever surrounds it: what rename reads, inside interpolations too.
+pub fn definition_at(
+    project: &Project,
+    file_ix: usize,
+    offset: usize,
+    tokens: &[Token],
+) -> Option<GotoDefinitionResponse> {
+    let file = &project.files[file_ix];
+    let source: &str = &file.source;
+    let (word, range) = word_at(source, offset)?;
+    // A key — `{ count: 2 }`, `Foo(count: 1)` — names nothing in scope.
+    let after = source[range.end..].trim_start();
+    let before = source[..range.start].trim_end();
+    if after.starts_with(':')
+        && !after.starts_with("::")
+        && (before.ends_with('{') || before.ends_with(',') || before.ends_with('('))
+    {
+        return None;
+    }
 
     if let Some(decl_ix) = analysis::declaration_at(project, file_ix, offset) {
         let decl = &project.program.declarations[decl_ix];
@@ -63,14 +86,56 @@ pub fn find_definition(
             }
         }
 
-        // `Store.member`
-        if let Some((store_ix, store)) = analysis::member_owner(project, &tokens, offset)
+        // `Store.member` — by the tokens, or by the text inside a string's
+        // `{…}` splice, where there are none.
+        let owner = analysis::member_owner(project, tokens, offset).or_else(|| {
+            let (_, range) = word_at(source, offset)?;
+            let before = source[..range.start].trim_end();
+            let store_name = before.strip_suffix('.').map(|b| {
+                b.trim_end()
+                    .chars()
+                    .rev()
+                    .take_while(|c| c.is_alphanumeric() || *c == '_')
+                    .collect::<String>()
+                    .chars()
+                    .rev()
+                    .collect::<String>()
+            })?;
+            project
+                .program
+                .declarations
+                .iter()
+                .enumerate()
+                .find_map(|(ix, d)| match d {
+                    Declaration::Store(s) if s.name == store_name => Some((ix, s)),
+                    _ => None,
+                })
+        });
+        if let Some((store_ix, store)) = owner
             && let Some(member) = analysis::store_members(store)
                 .into_iter()
                 .find(|m| m.name == word)
         {
             let store_file = project.decl_file[store_ix];
             return Some(location(project, store_file, member.span).into());
+        }
+        // After a dot and not a store's member: a field of some value, or
+        // a part of a component, which is the component `Owner.Part`.
+        if let Some((_, range)) = word_at(source, offset)
+            && source[..range.start].trim_end().ends_with('.')
+        {
+            let before = source[..range.start].trim_end();
+            let owner_name: String = before[..before.len() - 1]
+                .trim_end()
+                .chars()
+                .rev()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect::<String>()
+                .chars()
+                .rev()
+                .collect();
+            let qualified = format!("{owner_name}.{word}");
+            return declaration_location(project, &qualified, Kind::Component);
         }
 
         if let Some(binding) = analysis::scope_at(decl, offset)

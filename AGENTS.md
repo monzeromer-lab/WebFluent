@@ -25,13 +25,47 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ```bash
 wf init <name> -t spa|static|pdf|slides   # Create project
 wf build [-d DIR]                         # Compile
-wf serve [-d DIR]                         # Dev server (localhost:3000)
+wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name>   # Scaffold a file, in the project's layout
+wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
+wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
+wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
 wf migrate [path] [--check] [--wfx]       # WebFluent 2 → 3 (and to .wfx)
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
 wf types [path] [--json]                  # What a project declares: enums, types, components, stores, pages
 ```
+
+`wf serve` builds first, then watches `src/`, `public/` and the config
+(`dev.hot_reload`, on by default): a save rebuilds, and every page it
+serves carries `/__wf/dev.js`, which reloads the page when a build lands
+and draws the error of a build that failed over the page — with the
+diagnostics — until the next build passes. `/__wf/status` is what it
+polls.
+
+`wf test` renders every `test "name" { … }` declared under `tests/` (or in
+`src/`) through the template engine, with the project's components,
+stores, types and constants at hand, and holds the render to what it
+expects and to a snapshot in `tests/__snapshots__/<file>/<name>.html`
+(written when missing, rewritten with `--update`). A build ignores tests.
+
+```wf
+test "greets by name" {
+    Greeting("Sam")
+    expect "Hello, Sam"
+    expect not "Hello, world"
+}
+test "lists the data"(data: { items: ["a", "b"] }) {
+    state open = true
+    for it in items { if open { Text(it) } }
+    expect "b"
+}
+```
+
+`wf docs` writes `docs/index.html`: a self-contained gallery of every
+built-in — props, cases, flags, events, slots, parts — and of the
+project's own components, enums, types, stores and pages, read from the
+same registry the compiler and the editor read.
 
 `wf registry --json` and `wf types --json` are the registry and a project's
 declarations as a tool reads them — the studio's inspector offers a dropdown
@@ -84,6 +118,21 @@ page Post(path: "/blog/slow-roasting", title: "Slow roasting, explained",
 Pages own their routes: `app` places a bare `Router`, and the table is built
 from every page's `path`, ordered by specificity (static segments before
 `:params`, `*` last), so declaration order cannot shadow a route.
+
+A page may add tags of its own to the document's head — painted at build
+time where the value is known, kept current on the live page, and gone
+when the page is:
+
+```wf
+page Post(path: "/p/:slug", title: "Post", slug: String) {
+    head {
+        meta(property: "og:image", content: post.image)
+        link(rel: "canonical", href: "https://example.com/p/{slug}")
+        script(src: "/analytics.js", defer: true)
+    }
+    …
+}
+```
 
 ### Components
 
@@ -146,6 +195,36 @@ Panel("Keys") {
 A page's `layout:` is a component with a default slot, called with the page
 as its block.
 
+A **scoped slot** hands its fill values: the component declares what it
+hands over, uses the slot with those values by name, and the caller's fill
+names them in order.
+
+```wf
+component Rows(items: [Todo]) {
+    slot row(item: Todo, index: Number)
+    for it, i in items by it.id { row(item: it, index: i) }
+}
+
+Rows(items: todos) { row(t, i) { Text("{i}: {t.title}") } }
+```
+
+A component may declare **parts** — components of its own, called under
+its name:
+
+```wf
+component Panel(_ title: String) {
+    part Header(_ text: String) { Heading(text).h3 }
+    part Footer { Divider }
+    Card { Text(title)  children }
+}
+
+Panel("Keys") { Panel.Header("Rotate")  Text("…")  Panel.Footer }
+```
+
+A component's enum props are written to its root element as
+`data-<prop>="<case>"` (`data-tone="loud"`), so a stylesheet can select on
+them.
+
 #### Events
 
 A component declares the events it fires and their arguments; `emit` fires
@@ -184,6 +263,77 @@ lists, store members, lambdas). Anything unresolved is `Any`, which agrees
 with everything, so a program that declares no types checks as it always
 did; every annotation narrows what the checker can say. See
 [Compiler diagnostics](#compiler-diagnostics) for what it reports.
+
+A record may extend another, and a case may carry a payload:
+
+```wf
+type Admin = User { role: String }                       // every field of User, plus role
+enum Status { idle, failed(reason: String), done(count: Number, label: String) }
+
+state s: Status = .idle
+action fail() { s = .failed("timed out") }
+match s {
+    .idle { Text("…") }
+    .failed(r) { Text("Failed: {r}") }                   // one name per part of the payload
+    .done(n, l) { Text("{n} {l}") }
+}
+derived note = match s { .failed(r) { r } else { "" } } // one name in a match expression
+```
+
+A case with a payload is `["failed", "timed out"]` at run time and a bare
+case its name, so `s == .idle` still compares. A map literal has the
+shape it was written with: `state form = { name: "", age: 0 }` lets the
+checker read `form.name` and refuse `form.nam` (`T05`); a field only some
+items of a list have is `T?`; an empty `{}` or a spread says nothing about
+the keys.
+
+### Constants and `env`
+
+```wf
+const API = "/api/v1"
+const PAGE_SIZE: Number = 20
+resource rows = fetch("{API}/rows?limit={PAGE_SIZE}")
+Text(env.APP_NAME)
+```
+
+`const` declares a top-level value read everywhere; `env.X` reads the
+`"env": { "APP_NAME": "…" }` map of `webfluent.app.json`, fixed at build
+time.
+
+`data posts = "posts.json"` (or `data posts: [Post] = "content/posts.json"`)
+is a constant whose value is a JSON file's, read at build time from the
+project directory or its `src/`; it is inlined into the bundle and seeded
+into the static paint. A page on a `:param` route names the values a
+static build renders it for with `paths:`, one value per parameter (a map
+by name for several):
+
+```wf
+data posts = "posts.json"
+page Post(path: "/p/:slug", title: "Post", slug: String, paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    Heading(post?.title ?? "?").h1
+}
+```
+
+The static build writes `p/<slug>/index.html` for each, with `slug` and
+`params.slug` seeded, and lists them in the sitemap.
+
+A `.md` file under `src/` is a page: front matter between `---` lines
+names `path` (default `/<stem>`, `/` for `index`), `title`, `description`,
+`layout`, `image`, `type` and `noindex`; the rest is its Markdown, placed
+as `Markdown(…)` in the page's body (inside the layout's default slot when
+one is named).
+
+```md
+---
+title: About us
+description: Who we are.
+layout: Shell
+---
+# About
+
+We make *things*.
+```
 
 ### Attributes
 
@@ -307,6 +457,21 @@ effect { log(count) }                // Side effect — runs on change
 - A call at the top of a page or component — `Store.load(id)` — is set-up
   code, run once when it renders
 
+```wf
+persist theme = "light"               // kept in the browser across visits (page, component or store)
+every(1000) { tick = tick + 1 }       // a timer; stops when its page, branch or item leaves
+after(3000) { toast = null }          // once
+effect { watch(count)  cleanup { unwatch() } }   // run before the next run, and on leaving
+Input(bind: q, ref: search)           // a handle on the element: search.focus(), search.value
+Text(if viewport.md { "wide" } else { "narrow" })   // viewport.width/height/sm/md/lg/xl, kept current
+Text(query.tab ?? "all")              // the URL's ?tab=…, and `hash` its #fragment
+```
+
+What a page, a branch, a list item, a match arm or a slot creates — effects,
+timers, listeners, handles — is disposed of when it leaves; an async action's
+`name.pending` is true while a call of it runs (`Button("Save",
+disabled: save.pending)`, `Api.sync.pending` on a store).
+
 ### Events
 
 ```wf
@@ -330,6 +495,16 @@ parameter names the DOM event; without one, `event` is in scope. An
 element's block is ordered `style` → `transition` → `on …` → slot fills →
 children.
 
+`on key("ctrl+k") { … }` answers to one key: modifiers `ctrl`, `shift`,
+`alt`, `meta`/`cmd`, then the key as the browser names it (`k`, `Enter`,
+`Escape`/`esc`, `ArrowDown`/`down`, `space`). On an element it listens
+there; at the top of a page it listens on the document for as long as the
+page shows; `on key("Escape", e)` names the event too.
+
+`Form(bind: form)` hands a handle on the form: `form.valid` (every control
+passes its own checks), `form.values` by field `name:`, `form.reset()`,
+`form.submit()`.
+
 ### Actions, `let`, `return` and `await`
 
 ```wf
@@ -350,7 +525,23 @@ store AuthStore {
 ```
 
 `let` declares a local of an action or handler; `await` inside one makes
-it async; `return` leaves it with a value or without.
+it async; `return` leaves it with a value or without. `for` loops (with an
+index, over a range), `try { } catch e { }` and destructuring `let` are
+imperative statements too:
+
+```wf
+action sync() {
+    try {
+        let r = await fetch("/api/sync")
+        let { items, total } = r
+        let [first, second] = items
+        for item, i in items { log("{i}: {item.title}") }
+        for n in 1..=total { count = n }
+    } catch e {
+        error = e.message
+    }
+}
+```
 
 ### Browser Globals
 
@@ -369,7 +560,7 @@ document.title = "New Title"
 console.log("debug info")
 
 // JSON
-data = JSON.parse(responseText)
+payload = JSON.parse(responseText)
 text = JSON.stringify(obj)
 
 // Timers
@@ -384,14 +575,56 @@ setTimeout(callback, 1000)
 
 `x => expr` and `(a, b) => expr` are lambdas with one expression as the
 body, returning a map with `(x) => { key: value }`; `a ?? b` takes `b` when
-`a` is null; `if c { a } else { b }` and `match t { .calm { 1 } else { 2 } }`
-are values; `$token` is a design token; `.case` is a case of an enum.
+`a` is null; `if c { a } else { b }`, `if let x = v { a } else { b }` and
+`match t { .calm { 1 } else { 2 } }` are values; `$token` is a design
+token; `.case` is a case of an enum; `a?.b`, `a?.m()`, `a?.[i]` read
+through null; `/…/flags` is a regular expression; `...x` spreads a list or
+a map; `a..b` and `a..=b` are ranges.
 
 ```wf
 derived open = incidents.filter(i => !i.resolved)
 derived byAge = rows.slice().sort((a, b) => a.age - b.age)
-derived label = if selected != null { selected.title } else { "none" }
+derived label = if let s = selected { s.title } else { "none" }
+derived city = user?.address?.city ?? "—"
+derived valid = /^[\w.]+@[\w.]+$/.test(email)
+derived slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+derived merged = { ...defaults, ...overrides, open: true }
+derived all = [...pinned, ...rest]
+derived pages = 1..=pageCount
+derived byTeam = rows.groupBy(r => r.team)
+derived top = rows.sortBy(r => -r.score).take(3)
+derived names = rows.map(r => r.name).unique().join(", ")
+derived short = truncate(description, 80)
 ```
+
+List helpers: `sortBy(f)`, `groupBy(f)` (a map of lists), `unique()`,
+`take(n)`, `first()`, `last()`, `flatMap(f)`, `sum()`, beside the
+JavaScript methods; string helpers: `capitalize()`, `truncate(n)`, and
+`match`, `replace`, `replaceAll`, `split`, `search` with a regex. Every one
+runs at build time too, so the static paint shows the result.
+
+### Formatting
+
+```wf
+Text(format(price, .currency))                 // $1,234.50 — the page's locale
+Text(format(price, .currency, "EUR"))          // €1,234.50
+Text(format(count, .integer))                  // 1,235
+Text(format(ratio, .percent, 1))               // 25.6%
+Text(format(views, .compact))                  // 1.2K
+Text(format(when, .date, "long"))              // March 5, 2024
+Text(format(when, "yyyy-MM-dd HH:mm"))         // a pattern: yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a
+Text(ago(when))                                // 3 minutes ago · yesterday · in 2 weeks
+```
+
+`format(value, .style, option)` and `ago(date)` speak the i18n locale when
+the project has one (a change of locale redraws them) and the document's
+language otherwise. Styles: `.number` (the default), `.integer`,
+`.decimal` (option: places, 2), `.currency` (option: the code, `USD`),
+`.percent` (of a fraction; option: places, 0), `.compact`, `.date`,
+`.time`, `.datetime` (option: `short`, `medium`, `long`, `full`),
+`.relative`. The static paint formats with a table of the common locales
+and currencies and English names; the browser's `Intl` takes over on
+hydration.
 
 ### Control Flow
 
@@ -515,6 +748,15 @@ already follow its braces rather than change what it says. `wf migrate
 `wf generate` writes `.wfx` in a project that has `.wfx` files and no
 `.wf`.
 
+`wf fmt` (no `--to`) formats a project's sources in place: four spaces a
+level, a line that closes a block one level out, trailing blanks gone,
+tabs made spaces, runs of blank lines folded to one, a brace one space
+from what it opens (`Row{` → `Row {`, `}else` → `} else`). A value carried
+over a line by a trailing comma is left as written; comments stay where
+they are. The result is held to the file's tokens, so formatting never
+changes what a file says; `wf fmt --check` writes nothing and fails when a
+file would change; a `.wfx` file is normalised through its braced spelling.
+
 ## Built-in Components
 
 ### Layout
@@ -609,6 +851,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Heading` | `Heading("Title").h1` — levels: `.h1` … `.h6` (`.h2` is the default) |
 | `Code` | `Code("const x = 1").block` — `.block` for multi-line |
 | `Blockquote` | `Blockquote { Text("Quote text") }` |
+| `Markdown` | `Markdown(text)` — a small Markdown rendered as HTML, at build time and live: `#` headings, paragraphs, fenced code, `>` quotes, one-level `-`/`1.` lists, `---`, `` `code` ``, `**strong**`, `*em*`, `[text](url)`, `![alt](src)`; the text is escaped first, so HTML in it is shown, not run |
 
 Text flags: `.bold`, `.italic`, `.underline`, `.uppercase`, `.lowercase`, `.left`, `.center`, `.right`, `.muted`, `.sm`, `.lg`, `.heading`, `.subtitle`, and the tones `.primary`, `.secondary`, `.danger`, `.success`, `.warning`, `.info`
 
@@ -810,7 +1053,11 @@ Button("Hover") {
 ```
 
 A route change animates too: `Router(transition: .fade | .slide, duration:
-"200ms")` in `app`. A reader who asked for less motion
+"200ms")` in `app`. Where the browser has the View Transitions API the
+change plays through it — the browser's own crossfade, or the slide the
+sheet defines for `[data-wf-transition="slide"]`, which a project's own
+`::view-transition-*` rules may restyle — and the class-based animation is
+the fallback. A reader who asked for less motion
 (`prefers-reduced-motion`) gets none: no class, no wait.
 
 ## Styling
@@ -1011,6 +1258,21 @@ automatically; declare several and pick one with `"theme": { "name":
 Four starting points ship in `examples/themes/` — copy one into `src/` and edit
 it. They are ordinary source files, not engine settings.
 
+**Dark mode.** Declare a second theme with the tokens that change and name
+it in the config: `"theme": { "name": "Brand", "dark": "Night" }`. Its
+tokens apply under `prefers-color-scheme: dark`, and whenever the reader
+chose — `setTheme("dark")`, `setTheme("light")`, `setTheme("system")`,
+kept across visits; `theme` reads the choice.
+
+```wf
+theme Night { color-background: #0B1220  color-text: #E5E7EB  color-surface: #111827 }
+```
+
+**Keyframes.** `animation Name { from { … } 50% { … } to { … } }` declares
+keyframes: play them with `animate: .Name` or `exit: .Name` on any element,
+or write `animation: Name 1s infinite` in a style. `@container (…) { }`
+inside a style block is a container query, passed through as written.
+
 The baseline names system fonts on purpose. A theme that names a web font
 lists where to fetch it, and every page links it ahead of `styles.css` with a
 `preconnect` to its origin:
@@ -1161,9 +1423,18 @@ find it blocked, and that should be a deliberate choice.
 ```wf
 Text(t("nav.home"))                    // Translated text
 Text(t("greeting", { name: user.name }))          // With interpolation
+Text(t("items", { count: n }))                    // A plural form, picked by `count`
 Button("EN") { on click { setLocale("en") } }     // Switch locale
 Button("AR") { on click { setLocale("ar") } }     // Auto-RTL for Arabic
 ```
+
+A message with plural forms is several keys: `"items.one": "{count}
+item"`, `"items.other": "{count} items"` — and `items.zero`, `items.two`,
+`items.few`, `items.many` where the locale's rules call for them
+(`Intl.PluralRules`); `t("items", { count: n })` picks the form, falling
+back to `items.other` and then `items`. The static paint picks by the
+English rule (one for exactly one); the live page by the locale's.
+`format` and `ago` speak the locale too.
 
 RTL locales (automatic `dir="rtl"`): `ar`, `he`, `fa`, `ur`
 
@@ -1397,6 +1668,10 @@ Anything the checker cannot resolve is `Any`, which agrees with everything.
 | `S04` | Two pages claim the same route |
 | `V01` | A bare word in an argument that nothing in scope declares — a name misspelled, or a flag written without its dot (`did you mean `.center`?`) |
 | `V02` | A flag whose class no stylesheet — the engine's or one of the project's `.css` files — defines; the registry keeps this from happening for the built-ins |
+| `U01`–`U02` | A `state` or `derived` value nothing in its page or component reads (an assignment alone does not read it) |
+| `U03` | A component nothing places, names as a layout, or reaches as a part |
+| `U04` | A store member — state, derived, action — nothing reads, inside the store or as `Store.member` |
+| `U05` | An action nothing calls; a name that starts with `_` is understood to be unused on purpose |
 | — | A named argument a built-in does not declare, written to the element as an attribute; a prop a component does not declare, passed anyway |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or

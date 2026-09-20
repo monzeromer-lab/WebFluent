@@ -3,8 +3,11 @@
 mod cli;
 mod codegen;
 mod config;
+mod data;
 mod edit;
 mod error;
+mod fmt;
+mod i18n;
 mod layout;
 mod lexer;
 mod linter;
@@ -94,6 +97,24 @@ enum Commands {
         #[arg(long)]
         wfx: bool,
     },
+    /// Write a component gallery: every built-in, and what the project declares
+    Docs {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// Where to write index.html (default: docs/)
+        #[arg(short, long, default_value = "docs")]
+        out: PathBuf,
+    },
+    /// Run the project's `test "…" { … }` declarations under tests/
+    Test {
+        /// Project directory (default: current directory), or one test file
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Rewrite every snapshot with the current render
+        #[arg(long)]
+        update: bool,
+    },
     /// Describe every built-in component: props, cases, flags, events, slots, parts
     Registry {
         /// Print JSON, for tools
@@ -109,16 +130,19 @@ enum Commands {
         #[arg(long)]
         json: bool,
     },
-    /// Rewrite a project's source files in the other layout: `.wfx` (blocks
-    /// by indentation) or `.wf` (blocks in braces)
+    /// Format a project's source files; with `--to`, rewrite them in the
+    /// other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)
     Fmt {
         /// Project directory (default: current directory), or one file
         #[arg(default_value = ".")]
         path: PathBuf,
-        /// The layout to write: `wfx` or `wf`
+        /// Change the layout instead: `wfx` or `wf`
         #[arg(long)]
-        to: String,
-        /// Print the converted text of one file to stdout instead of writing it
+        to: Option<String>,
+        /// Write nothing; fail when a file is not formatted
+        #[arg(long)]
+        check: bool,
+        /// Print the formatted text to stdout instead of writing it
         #[arg(long)]
         stdout: bool,
     },
@@ -151,7 +175,14 @@ fn main() {
             stdout,
             wfx,
         } => cli::migrate::run_migrate(&path, check, stdout, wfx),
-        Commands::Fmt { path, to, stdout } => cli::fmt::run_fmt(&path, &to, stdout),
+        Commands::Fmt {
+            path,
+            to,
+            check,
+            stdout,
+        } => cli::fmt::run_fmt(&path, to.as_deref(), check, stdout),
+        Commands::Test { path, update } => cli::test::run_test(&path, update),
+        Commands::Docs { dir, out } => cli::docs::run_docs(&dir, &out),
         Commands::Registry { json } => cli::describe::run_registry(json),
         Commands::Types { path, json } => cli::describe::run_types(&path, json),
     };

@@ -502,3 +502,317 @@ page P(path: "/") {
         (block
           (log_statement
             (identifier)))))))
+
+================================================================================
+Loops, try/catch and destructuring in an action; spread, ranges and a constant
+================================================================================
+
+const API = "/api"
+
+store S {
+    state items = [1, 2]
+    action go() {
+        for x, i in items { log(i) }
+        try { log(x) } catch e { log(e.message) }
+        let { a, b } = user
+        let [p, q] = items
+        items = [...items, 3]
+        user = { ...user, name: "x" }
+        for i in 1..=10 { log(i) }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (const_declaration
+    (component_identifier)
+    (string
+      (string_content)))
+  (store_declaration
+    (component_identifier)
+    (block
+      (state_declaration
+        (identifier)
+        (array
+          (number)
+          (number)))
+      (action_declaration
+        (identifier)
+        (parameter_list)
+        (block
+          (for_statement
+            (identifier)
+            (identifier)
+            (identifier)
+            (block
+              (log_statement
+                (identifier))))
+          (try_statement
+            (block
+              (log_statement
+                (identifier)))
+            (identifier)
+            (block
+              (log_statement
+                (member_expression
+                  (identifier)
+                  (identifier)))))
+          (let_declaration
+            (destructuring_pattern
+              (identifier)
+              (identifier))
+            (identifier))
+          (let_declaration
+            (destructuring_pattern
+              (identifier)
+              (identifier))
+            (identifier))
+          (assignment
+            (identifier)
+            (array
+              (spread_element
+                (identifier))
+              (number)))
+          (assignment
+            (identifier)
+            (object
+              (spread_element
+                (identifier))
+              (pair
+                (identifier)
+                (string
+                  (string_content)))))
+          (for_statement
+            (identifier)
+            (range_expression
+              (number)
+              (number))
+            (block
+              (log_statement
+                (identifier)))))))))
+
+================================================================================
+Match over a payload case binds its parts
+================================================================================
+
+page P(path: "/") {
+    state s: Status = .failed("boom")
+    match s {
+        .idle { Text("idle") }
+        .failed(r) { Text(r) }
+        .done(n, l) { Text(l) }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (named_type
+          (component_identifier))
+        (case_value
+          (identifier)
+          (arguments
+            (string
+              (string_content)))))
+      (match_statement
+        (identifier)
+        (match_arm
+          (case_pattern
+            (enum_case
+              (identifier)))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (string
+                  (string_content))))))
+        (match_arm
+          (case_pattern
+            (enum_case
+              (identifier))
+            (identifier))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (identifier)))))
+        (match_arm
+          (case_pattern
+            (enum_case
+              (identifier))
+            (identifier)
+            (identifier))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (identifier)))))))))
+
+================================================================================
+Timers, an effect's cleanup, a key handler and a ref
+================================================================================
+
+page P(path: "/") {
+    state n = 0
+    Input(bind: draft, ref: nameInput)
+    Container { on key("ctrl+k", e) { nameInput.focus() } }
+    on key("Escape") { draft = "" }
+    every(1000) { n = n + 1 }
+    after(5000) { draft = "late" }
+    effect { log(draft)  cleanup { log("bye") } }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (number))
+      (element
+        (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (identifier))
+          (named_argument
+            (attribute_name
+              (identifier))
+            (identifier))))
+      (element
+        (builtin_component)
+        (block
+          (event_handler
+            (identifier)
+            (string
+              (string_content))
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (member_expression
+                    (identifier)
+                    (identifier))
+                  (arguments)))))))
+      (event_handler
+        (identifier)
+        (string
+          (string_content))
+        (block
+          (assignment
+            (identifier)
+            (string))))
+      (timer_statement
+        (number)
+        (block
+          (assignment
+            (identifier)
+            (binary_expression
+              (identifier)
+              (number)))))
+      (timer_statement
+        (number)
+        (block
+          (assignment
+            (identifier)
+            (string
+              (string_content)))))
+      (effect_declaration
+        (block
+          (log_statement
+            (identifier))
+          (cleanup_block
+            (block
+              (log_statement
+                (string
+                  (string_content))))))))))
+
+================================================================================
+A page's head tags
+================================================================================
+
+page P(path: "/") {
+    head {
+        meta(property: "og:image", content: img)
+        link(rel: "canonical", href: "https://x.y/")
+        script(src: "/analytics.js", defer: true)
+    }
+    Text("x")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (head_block
+        (head_tag
+          (identifier)
+          (arguments
+            (named_argument
+              (attribute_name
+                (identifier))
+              (string
+                (string_content)))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (identifier))))
+        (head_tag
+          (identifier)
+          (arguments
+            (named_argument
+              (attribute_name
+                (identifier))
+              (string
+                (string_content)))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (string
+                (string_content)))))
+        (head_tag
+          (identifier)
+          (arguments
+            (named_argument
+              (attribute_name
+                (identifier))
+              (string
+                (string_content)))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (boolean)))))
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))))))

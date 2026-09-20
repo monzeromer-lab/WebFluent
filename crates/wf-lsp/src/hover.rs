@@ -215,6 +215,14 @@ fn hover_text(
     None
 }
 
+/// A `type` by name, for the fields an extending record inherits.
+pub fn find_type<'a>(project: &'a Project, name: &str) -> Option<&'a TypeDecl> {
+    project.program.declarations.iter().find_map(|d| match d {
+        Declaration::Type(t) if t.name == name => Some(t),
+        _ => None,
+    })
+}
+
 fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declaration> {
     project.program.declarations.iter().find(|d| match d {
         Declaration::Page(p) => p.name == name,
@@ -223,7 +231,10 @@ fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declarat
         Declaration::Theme(t) => t.name == name,
         Declaration::Type(t) => t.name == name,
         Declaration::Enum(e) => e.name == name,
-        Declaration::App(_) => false,
+        Declaration::Const(c) => c.name == name,
+        Declaration::Animation(a) => a.name == name,
+        Declaration::Data(d) => d.name == name,
+        Declaration::Test(_) | Declaration::App(_) => false,
     })
 }
 
@@ -438,12 +449,36 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
                     events.join(", ")
                 ));
             }
-            let named: Vec<String> = c.slots.iter().filter_map(|s| s.name.clone()).collect();
+            let named: Vec<String> = c
+                .slots
+                .iter()
+                .filter_map(|s| {
+                    let name = s.name.clone()?;
+                    if s.params.is_empty() {
+                        Some(name)
+                    } else {
+                        let params: Vec<String> = s
+                            .params
+                            .iter()
+                            .map(|p| format!("{}: {}", p.name, type_name(&p.param_type)))
+                            .collect();
+                        Some(format!("{name}({})", params.join(", ")))
+                    }
+                })
+                .collect();
             if !named.is_empty() {
                 out.push_str(&format!(
-                    "\n\nSlots: `{}` — fill one with `name {{ … }}`.",
+                    "\n\nSlots: `{}` — fill one with `name {{ … }}`, a scoped one with `name(value) {{ … }}`.",
                     named.join("`, `")
                 ));
+            }
+            if !c.parts.is_empty() {
+                let parts: Vec<String> = c
+                    .parts
+                    .iter()
+                    .map(|p| format!("`{}.{p}`", c.name))
+                    .collect();
+                out.push_str(&format!("\n\nParts: {}.", parts.join(", ")));
             }
             out.push_str(&declared);
             out
@@ -485,9 +520,13 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
         ),
         Declaration::App(_) => "**app** — the root of the site".to_string(),
         Declaration::Type(t) => format!(
-            "**{}** — type\n\n{}{declared}",
+            "**{}** — type{}\n\n{}{declared}",
             t.name,
-            t.fields
+            t.extends
+                .as_ref()
+                .map(|b| format!(" = {b} …"))
+                .unwrap_or_default(),
+            t.all_fields(&|name| find_type(project, name))
                 .iter()
                 .map(|f| format!("- `{}: {}`", f.name, type_name(&f.ty)))
                 .collect::<Vec<_>>()
@@ -498,9 +537,67 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
             e.name,
             e.cases
                 .iter()
-                .map(|c| format!("`.{c}`"))
+                .map(|c| {
+                    if c.fields.is_empty() {
+                        format!("`.{}`", c.name)
+                    } else {
+                        let fields: Vec<String> = c
+                            .fields
+                            .iter()
+                            .map(|f| format!("{}: {}", f.name, type_name(&f.ty)))
+                            .collect();
+                        format!("`.{}({})`", c.name, fields.join(", "))
+                    }
+                })
                 .collect::<Vec<_>>()
                 .join(", ")
+        ),
+        Declaration::Const(c) => format!(
+            "**{}** — const{}{}{declared}",
+            c.name,
+            c.ty.as_ref()
+                .map(|t| format!(": {}", type_name(t)))
+                .unwrap_or_default(),
+            c.doc
+                .as_ref()
+                .map(|d| format!("\n\n{d}"))
+                .unwrap_or_default()
+        ),
+        Declaration::Animation(a) => format!(
+            "**{}** — animation\n\nKeyframes: {}{}{declared}\n\nPlay it with `animate: .{}`, or in a style as `animation: {} 1s`.",
+            a.name,
+            a.frames
+                .iter()
+                .map(|f| format!("`{}`", f.selector))
+                .collect::<Vec<_>>()
+                .join(", "),
+            a.doc
+                .as_ref()
+                .map(|d| format!("\n\n{d}"))
+                .unwrap_or_default(),
+            a.name,
+            a.name
+        ),
+        Declaration::Data(d) => format!(
+            "**{}** — data from `{}`{}{}{declared}\n\nRead at build time; a constant everywhere.",
+            d.name,
+            d.file,
+            d.ty.as_ref()
+                .map(|t| format!(": {}", type_name(t)))
+                .unwrap_or_default(),
+            d.doc
+                .as_ref()
+                .map(|doc| format!("\n\n{doc}"))
+                .unwrap_or_default()
+        ),
+        Declaration::Test(t) => format!(
+            "**test \"{}\"** — rendered by `wf test`{}{declared}",
+            t.name,
+            if t.expects.is_empty() {
+                String::new()
+            } else {
+                format!(", held to {} expectation(s)", t.expects.len())
+            }
         ),
     }
 }
@@ -623,7 +720,7 @@ fn flag_doc(project: &Project, name: &str, component: &ComponentRef) -> String {
         for prop in &c.props {
             if let TypeRef::Named(enum_name) = &prop.prop_type
                 && let Some(e) = find_enum(project, enum_name)
-                && e.cases.iter().any(|case| case == name)
+                && e.case(name).is_some()
             {
                 return format!(
                     "**.{name}** — `{}: .{name}` on `{}`\n\nA case of `{enum_name}`.",

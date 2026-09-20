@@ -82,9 +82,46 @@ pub fn resolve_tokens(program: &Program, config: &ThemeConfig) -> Result<HashMap
     Ok(tokens)
 }
 
+/// The tokens of the dark theme the config names, as written: what the
+/// sheet overrides when the reader prefers dark, or asked for it.
+pub fn resolve_dark_tokens(
+    program: &Program,
+    config: &ThemeConfig,
+) -> Result<Option<HashMap<String, String>>> {
+    let Some(name) = config.dark.as_deref().filter(|n| !n.is_empty()) else {
+        return Ok(None);
+    };
+    let themes = declared_themes(program);
+    let Some(theme) = themes.iter().find(|t| t.name == name) else {
+        return Err(WebFluentError::ConfigError(format!(
+            "No `theme {name}` is declared for `theme.dark`. Declare one — \
+             `theme {name} {{ color-background: #0B1220 }}` — or remove \
+             `theme.dark` from webfluent.app.json.{}",
+            available(&themes)
+        )));
+    };
+    let mut tokens = HashMap::new();
+    for token in &theme.tokens {
+        let Some(value) = literal_value(&token.value) else {
+            return Err(WebFluentError::CodegenError(format!(
+                "Theme {}: token `{}` must be a literal value, since it becomes a CSS custom \
+                 property at build time",
+                theme.name, token.name
+            )));
+        };
+        tokens.insert(token.name.clone(), value);
+    }
+    Ok(Some(tokens))
+}
+
 /// The `Theme` declaration this build uses, if any.
 fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option<&'a ThemeDecl>> {
-    let themes = declared_themes(program);
+    // The dark theme is the other one: it never stands for the build's own.
+    let dark = config.dark.as_deref().filter(|n| !n.is_empty());
+    let themes: Vec<&ThemeDecl> = declared_themes(program)
+        .into_iter()
+        .filter(|t| Some(t.name.as_str()) != dark)
+        .collect();
     let requested = config.name.as_deref().filter(|n| !n.is_empty());
 
     match requested {
@@ -165,6 +202,7 @@ mod tests {
             name: name.map(str::to_string),
             tokens: HashMap::new(),
             builtin: Default::default(),
+            dark: None,
         }
     }
 

@@ -16,7 +16,7 @@ import { mountSite, sitePage, siteStyles, byClass, byTag, button, click, type } 
 // ─── The page paints at all ─────────────────────────────────────────────
 
 test("every built site paints a non-empty page", () => {
-  for (const site of ["gallery", "marketing", "dashboard", "bespoke"]) {
+  for (const site of ["gallery", "marketing", "dashboard", "bespoke", "docs"]) {
     const { app } = mountSite(site);
     assert.ok(
       app.children.length > 0,
@@ -26,6 +26,12 @@ test("every built site paints a non-empty page", () => {
       app.textContent.trim().length > 50,
       `${site} painted ${app.textContent.trim().length} characters of text — effectively blank`,
     );
+    // A static build writes every link with the base path in front; a
+    // base path the runtime does not expose used to make them "undefined/…".
+    const bad = byTag(app, "a")
+      .map((a) => a.getAttribute("href"))
+      .filter((h) => h != null && h.startsWith("undefined"));
+    assert.deepEqual(bad, [], `${site} wrote links with no base path`);
   }
 });
 

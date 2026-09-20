@@ -310,6 +310,18 @@ fn every_init_template_builds_clean() {
         if !warnings.is_empty() {
             failures.push(format!("{template}:\n    {}", warnings.join("\n    ")));
         }
+        // A scaffold is written the way `wf fmt` writes it.
+        let fmt = Command::new(env!("CARGO_BIN_EXE_wf"))
+            .args(["fmt", "--check"])
+            .current_dir(root.join(&name))
+            .output()
+            .expect("running `wf fmt --check`");
+        if !fmt.status.success() {
+            failures.push(format!(
+                "{template}: not formatted: {}",
+                String::from_utf8_lossy(&fmt.stderr).trim()
+            ));
+        }
     }
     assert!(
         failures.is_empty(),

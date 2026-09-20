@@ -43,7 +43,11 @@ impl Usage {
                 Declaration::Store(_)
                 | Declaration::Theme(_)
                 | Declaration::Type(_)
-                | Declaration::Enum(_) => continue,
+                | Declaration::Enum(_)
+                | Declaration::Const(_)
+                | Declaration::Animation(_)
+                | Declaration::Test(_)
+                | Declaration::Data(_) => continue,
             };
             walk(body, &mut usage);
         }
@@ -117,7 +121,11 @@ fn walk(stmts: &[Statement], usage: &mut Usage) {
             }
             StatementKind::Animate(_) => usage.animation = true,
             StatementKind::Action(a) => walk(&a.body, usage),
-            StatementKind::Effect(e) => walk(&e.body, usage),
+            StatementKind::Effect(e) => {
+                walk(&e.body, usage);
+                walk(&e.cleanup, usage);
+            }
+            StatementKind::Timer(t) => walk(&t.body, usage),
             StatementKind::EventHandler(h) => walk(&h.body, usage),
             _ => {}
         }
@@ -139,6 +147,10 @@ fn element(el: &UIElement, usage: &mut Usage) {
         .iter()
         .any(|m| ANIMATIONS.contains(&m.as_str()))
         || el.transition_block.is_some()
+        || el.args.iter().any(|a| {
+            matches!(a, Arg::Named(k, v) if k == "transition" && !matches!(v, Expr::Null))
+                && matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Router")
+        })
     {
         usage.animation = true;
     }

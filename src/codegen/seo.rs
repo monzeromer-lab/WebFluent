@@ -378,18 +378,28 @@ pub fn sitemap(config: &ProjectConfig, program: &Program) -> Option<String> {
         let Declaration::Page(page) = decl else {
             continue;
         };
-        // A dynamic route has no single URL, a wildcard is not a page, and a
-        // page excluded from search does not belong in a sitemap.
-        if page.path.contains(':') || page.path.contains('*') || page.noindex {
+        // A wildcard is not a page, and a page excluded from search does not
+        // belong in a sitemap. A `:param` route lists the routes its
+        // `paths:` name, and nothing without them.
+        if page.path.contains('*') || page.noindex {
             continue;
         }
-        let Some(url) = absolute_url(config, &page.path) else {
-            continue;
+        let routes: Vec<String> = if page.path.contains(':') {
+            crate::codegen::ssg::static_routes(page, program, &config.env)
+                .map(|rs| rs.into_iter().map(|(r, _)| r).collect())
+                .unwrap_or_default()
+        } else {
+            vec![page.path.clone()]
         };
-        urls.push_str(&format!(
-            "  <url>\n    <loc>{}</loc>\n  </url>\n",
-            attr(&url)
-        ));
+        for route in routes {
+            let Some(url) = absolute_url(config, &route) else {
+                continue;
+            };
+            urls.push_str(&format!(
+                "  <url>\n    <loc>{}</loc>\n  </url>\n",
+                attr(&url)
+            ));
+        }
     }
 
     if urls.is_empty() {

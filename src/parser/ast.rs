@@ -61,8 +61,19 @@ pub struct Program {
 }
 
 /// A top-level declaration in a WebFluent program.
+// A page carries its header, its route parameters and its body; the tree is
+// walked, not moved, so the size difference costs nothing.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone)]
 pub enum Declaration {
+    /// `const NAME = value`.
+    Const(ConstDecl),
+    /// `animation Name { … }`.
+    Animation(AnimationDecl),
+    /// `test "…" { … }`.
+    Test(TestDecl),
+    /// `data posts = "posts.json"`.
+    Data(DataDecl),
     Page(PageDecl),
     Component(ComponentDecl),
     Store(StoreDecl),
@@ -80,11 +91,50 @@ pub enum Declaration {
 #[derive(Debug, Clone)]
 pub struct TypeDecl {
     pub name: String,
+    /// `type Admin = User { role: String }`: the record this one extends;
+    /// its fields come first, and a field of the same name here replaces it.
+    pub extends: Option<String>,
     pub fields: Vec<FieldDecl>,
     /// The `///` comment above it.
     pub doc: Option<String>,
     pub span: Span,
     pub header_span: Span,
+}
+
+impl TypeDecl {
+    /// Every field, the extended record's first, resolved through `lookup`
+    /// (a cycle stops where it started).
+    pub fn all_fields<'a>(
+        &'a self,
+        lookup: &dyn Fn(&str) -> Option<&'a TypeDecl>,
+    ) -> Vec<&'a FieldDecl> {
+        let mut seen = vec![self.name.as_str()];
+        let mut chain: Vec<&'a TypeDecl> = vec![self];
+        let mut base = self.extends.as_deref();
+        while let Some(name) = base {
+            if seen.contains(&name) {
+                break;
+            }
+            seen.push(name);
+            match lookup(name) {
+                Some(decl) => {
+                    chain.push(decl);
+                    base = decl.extends.as_deref();
+                }
+                None => break,
+            }
+        }
+        let mut out: Vec<&'a FieldDecl> = Vec::new();
+        for decl in chain.iter().rev() {
+            for field in &decl.fields {
+                match out.iter().position(|f| f.name == field.name) {
+                    Some(at) => out[at] = field,
+                    None => out.push(field),
+                }
+            }
+        }
+        out
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -100,10 +150,30 @@ pub struct FieldDecl {
 #[derive(Debug, Clone)]
 pub struct EnumDecl {
     pub name: String,
-    pub cases: Vec<String>,
+    pub cases: Vec<EnumCase>,
     pub doc: Option<String>,
     pub span: Span,
     pub header_span: Span,
+}
+
+/// One case of an enum: a bare name, or a name with the payload it
+/// carries (`failed(reason: String)`).
+#[derive(Debug, Clone)]
+pub struct EnumCase {
+    pub name: String,
+    pub fields: Vec<FieldDecl>,
+}
+
+impl EnumDecl {
+    /// The case names, in declaration order.
+    pub fn case_names(&self) -> Vec<String> {
+        self.cases.iter().map(|c| c.name.clone()).collect()
+    }
+
+    /// The case called `name`, if there is one.
+    pub fn case(&self, name: &str) -> Option<&EnumCase> {
+        self.cases.iter().find(|c| c.name == name)
+    }
 }
 
 /// A reference to a type, as written after a colon.
@@ -136,6 +206,68 @@ pub enum TypeRef {
 pub struct ThemeDecl {
     pub name: String,
     pub tokens: Vec<ThemeToken>,
+    pub span: Span,
+}
+
+/// `const API = "/api"`: a value every page, component and store reads.
+#[derive(Debug, Clone)]
+pub struct ConstDecl {
+    pub name: String,
+    pub ty: Option<TypeRef>,
+    pub value: Expr,
+    pub doc: Option<String>,
+    pub span: Span,
+}
+
+/// `data posts = "posts.json"`: a value read from a file at build time —
+/// a constant whose value is the file's JSON. The build resolves it into a
+/// `const` before anything else runs.
+#[derive(Debug, Clone)]
+pub struct DataDecl {
+    pub name: String,
+    pub ty: Option<TypeRef>,
+    /// The file, relative to the project (or its `src/`).
+    pub file: String,
+    pub doc: Option<String>,
+    pub span: Span,
+}
+
+/// `animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }`: keyframes
+/// the project declares, played with `animate: .Pulse` or written into a
+/// style as `animation: Pulse 1s infinite`.
+#[derive(Debug, Clone)]
+pub struct AnimationDecl {
+    pub name: String,
+    pub frames: Vec<KeyFrame>,
+    pub doc: Option<String>,
+    pub span: Span,
+}
+
+/// One keyframe: `from`, `to`, or percentages such as `50%` or `0%, 100%`.
+#[derive(Debug, Clone)]
+pub struct KeyFrame {
+    pub selector: String,
+    pub properties: Vec<StyleProperty>,
+}
+
+/// `test "name"(data: { … }) { elements  expect "text" }`: a render of the
+/// body over the data, held to what it must and must not contain and to a
+/// snapshot. `wf test` runs them; a build ignores them.
+#[derive(Debug, Clone)]
+pub struct TestDecl {
+    pub name: String,
+    /// The data the body renders over, a map literal.
+    pub data: Option<Expr>,
+    pub body: Vec<Statement>,
+    pub expects: Vec<Expect>,
+    pub span: Span,
+}
+
+/// `expect "text"` or `expect not "text"` in a test.
+#[derive(Debug, Clone)]
+pub struct Expect {
+    pub text: Expr,
+    pub negated: bool,
     pub span: Span,
 }
 
@@ -175,6 +307,12 @@ pub struct PageDecl {
     /// The route's parameters as typed props: `page Deploy(path:
     /// "/deploys/:id", id: String)` binds `:id` to `id`.
     pub params: Vec<PropDecl>,
+    /// `head { meta(…) link(…) script(…) }`: tags of the page's own in the
+    /// document's head.
+    pub head: Vec<HeadTag>,
+    /// `paths: posts.map(p => p.slug)` on a page with a `:param` route: the
+    /// values the static build renders a page for.
+    pub paths: Option<Expr>,
 
     pub body: Vec<Statement>,
 
@@ -185,6 +323,14 @@ pub struct PageDecl {
     pub header_span: Span,
     /// Interior of the `{ … }` body, exclusive of the braces.
     pub body_span: Span,
+}
+
+/// One tag of a page's `head { }`: `meta(name: "x", content: y)`.
+#[derive(Debug, Clone)]
+pub struct HeadTag {
+    pub tag: String,
+    pub attrs: Vec<(String, Expr)>,
+    pub span: Span,
 }
 
 /// The layout a page names in its header: a component call whose default
@@ -208,6 +354,9 @@ pub struct ComponentDecl {
     /// The slots it declares (`slot`, `slot trailing`); `None` names the
     /// default slot.
     pub slots: Vec<SlotDecl>,
+    /// The parts it declares (`part Header(…) { … }`): each is a component
+    /// of its own, named `Owner.Part`, declared beside it.
+    pub parts: Vec<String>,
     /// The `///` comment above it.
     pub doc: Option<String>,
     pub body: Vec<Statement>,
@@ -247,6 +396,8 @@ pub struct EventDecl {
 #[derive(Debug, Clone)]
 pub struct SlotDecl {
     pub name: Option<String>,
+    /// What the component hands the fill: `slot row(item: Todo)`.
+    pub params: Vec<ParamDecl>,
     pub span: Span,
 }
 
@@ -301,6 +452,7 @@ pub enum StatementKind {
     State(StateDecl),
     Derived(DerivedDecl),
     Effect(EffectDecl),
+    Timer(TimerStmt),
     Action(ActionDecl),
     UIElement(UIElement),
     If(IfStmt),
@@ -322,6 +474,16 @@ pub enum StatementKind {
     Match(MatchStmt),
     /// `emit toggle(id)`: fire a declared event.
     Emit(EmitStmt),
+    /// `try { … } catch e { … }` in an action or a handler.
+    Try(TryStmt),
+}
+
+#[derive(Debug, Clone)]
+pub struct TryStmt {
+    pub body: Vec<Statement>,
+    /// The name the error is bound to in the catch block, when written.
+    pub param: Option<String>,
+    pub catch_body: Vec<Statement>,
 }
 
 /// An async resource: the request, declared once and rendered anywhere.
@@ -346,6 +508,8 @@ pub struct MatchArm {
     /// The name the arm binds: the error in `error(e)`, the value in
     /// `ready(v)`.
     pub binding: Option<String>,
+    /// The names a `.case(a, b)` arm binds to the case's payload, in order.
+    pub bindings: Vec<String>,
     pub body: Vec<Statement>,
     pub span: Span,
 }
@@ -375,6 +539,8 @@ pub struct StateDecl {
     /// The declared type, when one is written (`state items: [Todo] = []`).
     pub ty: Option<TypeRef>,
     pub value: Expr,
+    /// `persist name = value`: kept in the browser's storage across visits.
+    pub persist: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -385,6 +551,19 @@ pub struct DerivedDecl {
 
 #[derive(Debug, Clone)]
 pub struct EffectDecl {
+    pub body: Vec<Statement>,
+    /// `cleanup { … }` at the end of the body: run before the effect runs
+    /// again, and when what it belongs to leaves.
+    pub cleanup: Vec<Statement>,
+}
+
+/// `every(ms) { … }` or `after(ms) { … }`: a timer that stops with the
+/// page, component, branch or item it is declared in.
+#[derive(Debug, Clone)]
+pub struct TimerStmt {
+    /// `every` repeats; `after` fires once.
+    pub every: bool,
+    pub interval: Expr,
     pub body: Vec<Statement>,
 }
 
@@ -463,6 +642,9 @@ impl UIElement {
 #[derive(Debug, Clone)]
 pub struct SlotFill {
     pub name: String,
+    /// The names the fill gives the slot's values, in the slot's order:
+    /// `row(item) { … }`.
+    pub params: Vec<String>,
     pub body: Vec<Statement>,
     pub span: Span,
     pub body_span: Span,
@@ -532,6 +714,8 @@ pub struct EventHandler {
     /// The handler's named event parameter (`on click(e)`); `None` for the
     /// original grammar, whose handlers read an implicit `event`.
     pub param: Option<String>,
+    /// `on key("ctrl+k")`: the key the handler answers to.
+    pub key: Option<String>,
     pub body: Vec<Statement>,
     /// The whole handler, from `on` to the closing brace.
     pub span: Span,
@@ -656,6 +840,8 @@ pub struct MethodCallStmt {
 pub enum Expr {
     // Literals
     StringLiteral(String),
+    /// `/pattern/flags`.
+    Regex(String, String),
     InterpolatedString(Vec<StringPart>),
     NumberLiteral(f64),
     BoolLiteral(bool),
@@ -665,6 +851,13 @@ pub enum Expr {
     Identifier(String),
     PropertyAccess(Box<Expr>, String),
     IndexAccess(Box<Expr>, Box<Expr>),
+    /// `a?.b`: `null` when `a` is null, else `a.b`. The chain after it
+    /// short-circuits as JavaScript's does.
+    OptionalProperty(Box<Expr>, String),
+    /// `a?.m(args)`.
+    OptionalMethod(Box<Expr>, String, Vec<Expr>),
+    /// `a?.[i]`.
+    OptionalIndex(Box<Expr>, Box<Expr>),
 
     // Operations
     BinaryOp(Box<Expr>, BinOp, Box<Expr>),
@@ -676,7 +869,12 @@ pub enum Expr {
 
     // Collections
     ListLiteral(Vec<Expr>),
+    /// `{ key: value }`; an entry keyed `"..."` is a spread of its value.
     MapLiteral(Vec<(String, Expr)>),
+    /// `...list` inside a list literal: its items, in place.
+    Spread(Box<Expr>),
+    /// `a..b` (exclusive) or `a..=b` (inclusive): the numbers from `a`.
+    Range(Box<Expr>, Box<Expr>, bool),
     /// `Todo(id: 1, title: "x")`: a record of a declared `type`, built
     /// with named fields. Emitted as a map; typed by its name.
     Record(String, Vec<(String, Expr)>),
@@ -686,6 +884,9 @@ pub enum Expr {
 
     /// `.case`: a member of whichever enum the position expects.
     EnumCase(String),
+    /// `.case(a, b)`: a case carrying its payload, `["case", a, b]` on the
+    /// web.
+    CaseValue(String, Vec<Expr>),
     /// `$name`: a design token, `var(--name)` on the web.
     Token(String),
     /// `await expr`, inside an action or a handler.
@@ -703,16 +904,26 @@ impl Expr {
                     StringPart::Literal(_) => None,
                 })
                 .collect(),
-            Expr::PropertyAccess(base, _) => vec![base],
-            Expr::IndexAccess(base, index) => vec![base, index],
+            Expr::PropertyAccess(base, _) | Expr::OptionalProperty(base, _) => vec![base],
+            Expr::IndexAccess(base, index) | Expr::OptionalIndex(base, index) => {
+                vec![base, index]
+            }
             Expr::BinaryOp(l, _, r) => vec![l, r],
-            Expr::UnaryOp(_, e) | Expr::Lambda(_, e) | Expr::Await(e) => vec![e],
-            Expr::MethodCall(obj, _, args) => std::iter::once(&**obj).chain(args).collect(),
-            Expr::FunctionCall(_, args) | Expr::ListLiteral(args) => args.iter().collect(),
+            Expr::UnaryOp(_, e) | Expr::Lambda(_, e) | Expr::Await(e) | Expr::Spread(e) => {
+                vec![e]
+            }
+            Expr::Range(a, b, _) => vec![a, b],
+            Expr::MethodCall(obj, _, args) | Expr::OptionalMethod(obj, _, args) => {
+                std::iter::once(&**obj).chain(args).collect()
+            }
+            Expr::FunctionCall(_, args) | Expr::ListLiteral(args) | Expr::CaseValue(_, args) => {
+                args.iter().collect()
+            }
             Expr::MapLiteral(pairs) | Expr::Record(_, pairs) => {
                 pairs.iter().map(|(_, v)| v).collect()
             }
             Expr::StringLiteral(_)
+            | Expr::Regex(..)
             | Expr::NumberLiteral(_)
             | Expr::BoolLiteral(_)
             | Expr::Null
@@ -731,6 +942,35 @@ impl Expr {
 impl StatementKind {
     /// The expressions this statement holds directly (not those of nested
     /// statements).
+    /// The statement blocks nested in this statement, each a body of its
+    /// own: an element's children are its own affair.
+    pub fn bodies(&self) -> Vec<&[Statement]> {
+        match self {
+            StatementKind::If(i) => {
+                let mut bodies: Vec<&[Statement]> = vec![&i.then_body];
+                bodies.extend(i.else_if_branches.iter().map(|(_, b)| b.as_slice()));
+                bodies.extend(i.else_body.as_deref());
+                bodies
+            }
+            StatementKind::For(f) => vec![&f.body],
+            StatementKind::Show(s) => vec![&s.body],
+            StatementKind::Fetch(f) => {
+                let mut bodies: Vec<&[Statement]> = Vec::new();
+                bodies.extend(f.loading_block.as_deref());
+                bodies.extend(f.error_block.as_ref().map(|(_, b)| b.as_slice()));
+                bodies.extend(f.success_block.as_deref());
+                bodies
+            }
+            StatementKind::Match(m) => m.arms.iter().map(|a| a.body.as_slice()).collect(),
+            StatementKind::Effect(e) => vec![&e.body, &e.cleanup],
+            StatementKind::Timer(t) => vec![&t.body],
+            StatementKind::Action(a) => vec![&a.body],
+            StatementKind::EventHandler(h) => vec![&h.body],
+            StatementKind::Try(t) => vec![&t.body, &t.catch_body],
+            _ => Vec::new(),
+        }
+    }
+
     pub fn exprs(&self) -> Vec<&Expr> {
         match self {
             StatementKind::State(s) => vec![&s.value],
@@ -756,6 +996,8 @@ impl StatementKind {
                 .collect(),
             StatementKind::Match(m) => vec![&m.scrutinee],
             StatementKind::Emit(e) => e.args.iter().collect(),
+            StatementKind::Try(_) => Vec::new(),
+            StatementKind::Timer(t) => vec![&t.interval],
             StatementKind::UIElement(el) => el
                 .args
                 .iter()
@@ -783,6 +1025,7 @@ pub fn awaits(stmts: &[Statement]) -> bool {
                         || i.else_body.as_deref().is_some_and(awaits)
                 }
                 StatementKind::For(f) => awaits(&f.body),
+                StatementKind::Try(t) => awaits(&t.body) || awaits(&t.catch_body),
                 StatementKind::Show(s) => awaits(&s.body),
                 StatementKind::Match(m) => m.arms.iter().any(|a| awaits(&a.body)),
                 _ => false,

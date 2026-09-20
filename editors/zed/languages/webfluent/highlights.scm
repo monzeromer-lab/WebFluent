@@ -38,7 +38,7 @@
 (parameter name: (_) @variable.parameter)
 (parameter "_" @punctuation.special)
 (field_declaration name: (_) @property)
-(enum_case_declaration (identifier) @constant)
+(enum_case_declaration name: (identifier) @constant)
 (route_parameter name: (identifier) @variable.parameter)
 
 (token_declaration name: (property_name) @property)
@@ -56,6 +56,16 @@
   "return"
   "event"
   "slot"
+  "part"
+  "persist"
+  "animation"
+  "every"
+  "after"
+  "cleanup"
+  "head"
+  "test"
+  "data"
+  "expect"
   "emit"
   "await"
 ] @keyword
@@ -114,6 +124,8 @@
 ; `.primary`, `.lg` — a flag; `.info` — a case; `$surface` — a token.
 (flag) @attribute
 (enum_case) @constant
+(case_value name: (identifier) @constant)
+(case_pattern binding: (_) @variable.parameter)
 (design_token) @variable.special
 
 (named_argument name: (attribute_name) @property)
@@ -211,3 +223,4 @@
   ";"
   "?"
 ] @punctuation.delimiter
+(keyframe_selector) @constant

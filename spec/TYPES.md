@@ -30,6 +30,8 @@ checker can say, and every finding comes with a hint.
 | a resource | — | `resource x = fetch(…)` |
 | a store | — | `use Todos` |
 | a token | — | `$surface` |
+| a regex | — | `/…/flags` |
+| a shape | — | `{ name: "" }` — a map literal, with the fields it was written with |
 | `Any` | `Any` | anything; the type of what is not known |
 
 A `Map` is assignable to any record and a record to `Map`: JSON that came
@@ -52,7 +54,24 @@ type Todo {
 A field with a default may be left out of a construction; a field of type
 `T?` defaults to `null`. Records are structural: `Todo(id: "a", title: "b")`
 is a `Todo`, and so is `{ id: "a", title: "b" }` given where a `Todo` is
-wanted (it is a `Map`).
+wanted — its fields are checked against the record's (`T01` on a wrong
+one).
+
+`type Admin = User { role: String }` extends a record: an `Admin` has every
+field of `User` and then its own. `enum Status { idle, failed(reason:
+String) }` gives a case a payload: `.failed("x")` is checked like a call
+(`T10` on the count, `T01` on a part), `.failed` alone is `T02` where a
+`Status` is wanted, and `match s { .failed(r) { } }` binds `r: String`
+(`T10` when the names do not cover the payload).
+
+A map literal is a **shape**: `{ name: "", age: 0 }` is `{ name: String,
+age: Number }`, reading `form.nam` is `T05` with the fields it was written
+with, and where a shape is wanted a literal is checked field by field. Two
+shapes join to every field either has, a field only one has as `T?`, so a
+`for` over `[{ id: 1 }, { id: 2, other: true }]` reads `r.other` as `Bool?`.
+A shape fits a `Map`, a record, and any shape it agrees with on their
+shared fields; `{}` and a literal with a spread are plain `Map`s. `const
+NAME = value` is typed by its value or its annotation; `env` is a `Map`.
 
 ---
 
@@ -113,6 +132,29 @@ context wants when there is one, and its type is read off it otherwise.
 - `x.field` on a record is the field's type; on a `Map` or `Any`, `Any`.
 - `f(args)` on a declared action checks the arity and each argument; the
   result is the action's return type.
+- `a?.b` is `b`'s type made optional, and the rest of the chain with it;
+  `if let x = v { a } else { b }` binds `x` to `v` without its null in `a`.
+- `/…/` is a regex; `re.test(s)` is `Bool`, `re.exec(s)` and `s.match(re)`
+  a `[String]?`, `s.replace(re, …)` a `String`, `s.split(re)` a `[String]`.
+- `[...a, b]` is a list of the join of the parts; `{ ...m, k: v }` is a
+  `Map`; `a..b` is `[Number]`.
+- `let { a, b } = m` and `let [x, y] = l` bind the fields and items.
+- `format(value, .style, option)` and `ago(date)` are `String`; a style
+  the runtime lacks is `T02`, a style that is neither a case nor a pattern
+  `T01`.
+- A scoped slot's values are checked against its declaration (`T01`), and a
+  fill's names take the declared types in order; a part is checked as the
+  component it is.
+- `ref: name` binds `name` as the element (`Any`); `Form(bind: f)` binds
+  `f` as `{ valid: Bool, values: Map, reset: () → null, submit: () → null }`;
+  `action.pending` is `Bool` and any other field of an action is `T05`.
+- `every(ms)` and `after(ms)` take a `Number` (`T01`); `setTheme(x)` a
+  `String` (`T01`, `T10`); `viewport` is `{ width: Number, height: Number,
+  sm: Bool, md: Bool, lg: Bool, xl: Bool }`, `query` a `Map`, `hash` and
+  `theme` `String`s.
+- `list.sortBy(f)`, `unique()`, `take(n)`, `flatMap(f)` keep the item type;
+  `groupBy(f)` is a `Map`; `first()`/`last()` are `T?`; `sum()` a `Number`;
+  `capitalize()` and `truncate(n)` are `String`s.
 
 ### Narrowing
 

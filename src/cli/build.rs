@@ -1,4 +1,6 @@
-use crate::codegen::{JsCodegen, PdfCodegen, SlidesCodegen, generate_css_for, generate_html};
+use crate::codegen::{
+    JsCodegen, PdfCodegen, SlidesCodegen, dark_css, generate_css_for, generate_html,
+};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::error::{Result, WebFluentError};
@@ -19,6 +21,13 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             .cloned()
             .unwrap_or_else(|| "src/".to_string())
     };
+    // The text of each file, read again for the type checker to place its
+    // errors at the expression they name.
+    let source_of = |index: usize| {
+        declaration_files
+            .get(index)
+            .and_then(|f| fs::read_to_string(project_dir.join(f)).ok())
+    };
 
     // A reference to nothing — an undeclared component, a route to a page that
     // does not exist, two pages with one name — is a broken site, not a style
@@ -29,8 +38,13 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             eprintln!("{}", diagnostic);
         }
         return Err(WebFluentError::CodegenError(format!(
-            "{} semantic error(s)",
-            semantic.len()
+            "{} semantic error(s)\n{}",
+            semantic.len(),
+            semantic
+                .iter()
+                .map(|d| d.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
         )));
     }
 
@@ -39,7 +53,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // a broken site, and stops the build like a parse error.
     let mut findings = crate::sema::check(&program, &file_of);
     // Then the types: what every name is, and the values that do not fit.
-    let typed = crate::sema::types::check(&program, &file_of);
+    let typed = crate::sema::types::check_in(&program, &file_of, &source_of);
     findings.errors.extend(typed.findings.errors);
     findings.warnings.extend(typed.findings.warnings);
     for warning in &findings.warnings {
@@ -50,8 +64,14 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
             eprintln!("{}", error);
         }
         return Err(WebFluentError::CodegenError(format!(
-            "{} error(s)",
-            findings.errors.len()
+            "{} error(s)\n{}",
+            findings.errors.len(),
+            findings
+                .errors
+                .iter()
+                .map(|d| d.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
         )));
     }
     // Then lowered onto the vocabulary the code generators — and the
@@ -65,6 +85,8 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     if let Ok(tokens) = crate::themes::resolve_tokens(&program, &config.theme) {
         a11y_warnings.extend(crate::linter::lint_contrast_in(&program, &tokens, &file_of));
     }
+    // What is declared and never read.
+    a11y_warnings.extend(crate::linter::lint_unused_in(&program, &file_of));
     for warning in &a11y_warnings {
         eprintln!("{}", warning);
     }
@@ -174,6 +196,9 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     // for `structural` still received the baseline it was trying to avoid.
     let tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
     let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
+    if let Some(dark) = crate::themes::resolve_dark_tokens(&program, &config.theme)? {
+        css.push_str(&dark_css(&dark));
+    }
     css.push_str(&project_css);
     // What an inline style cannot say — pseudo-states, media queries — is
     // compiled into the sheet under content-named classes. With `build.split`
@@ -194,6 +219,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         js_codegen.set_ssg(true);
     }
     js_codegen.set_split_pages(config.build.split);
+    js_codegen.set_env(config.env.clone());
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
@@ -227,11 +253,6 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
 
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
-                // Skip dynamic routes (contain :param)
-                if page.path.contains(':') {
-                    continue;
-                }
-
                 let site = crate::codegen::ssg::SiteContext {
                     config: &config,
                     app_body: app_stmts,
@@ -239,6 +260,20 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
                     components: &components,
                     program: &program,
                 };
+                // A `:param` route is rendered once per value its `paths:`
+                // names, and not at all without them.
+                if page.path.contains(':') {
+                    for (route, params) in
+                        crate::codegen::ssg::static_routes(page, &program, &config.env)?
+                    {
+                        let page_html =
+                            crate::codegen::ssg::render_page_html_with_params(page, &site, &params);
+                        let dir = output_dir.join(route.trim_start_matches('/'));
+                        fs::create_dir_all(&dir)?;
+                        fs::write(dir.join("index.html"), &page_html)?;
+                    }
+                    continue;
+                }
                 let page_html = crate::codegen::render_page_html(page, &site);
 
                 // Determine output path
@@ -394,16 +429,20 @@ pub fn read_project(project_dir: &Path) -> Result<(Program, Vec<String>)> {
         let source = fs::read_to_string(file_path)?;
         let relative = file_path.strip_prefix(project_dir).unwrap_or(file_path);
         let file_name = relative.to_string_lossy().to_string();
-        let program = crate::syntax::parse_source(&source, &file_name)?;
+        let program = if file_name.ends_with(".md") {
+            crate::data::markdown_page(&source, &file_name)?
+        } else {
+            crate::syntax::parse_source(&source, &file_name)?
+        };
         declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
         all_declarations.extend(program.declarations);
     }
-    Ok((
-        Program {
-            declarations: all_declarations,
-        },
-        declaration_files,
-    ))
+    let mut program = Program {
+        declarations: all_declarations,
+    };
+    // `data x = "file.json"` is a constant once the file is read.
+    crate::data::resolve_data(&mut program, project_dir)?;
+    Ok((program, declaration_files))
 }
 
 fn find_wf_files(dir: &Path) -> Result<Vec<PathBuf>> {
@@ -432,7 +471,9 @@ fn find_wf_files(dir: &Path) -> Result<Vec<PathBuf>> {
     for path in entries {
         if path.is_dir() {
             files.extend(find_wf_files(&path)?);
-        } else if crate::syntax::is_source_file(&path) {
+        } else if crate::syntax::is_source_file(&path)
+            || path.extension().is_some_and(|e| e == "md")
+        {
             // Skip App.wf since we already added it
             if app_file.as_ref() == Some(&path) {
                 continue;

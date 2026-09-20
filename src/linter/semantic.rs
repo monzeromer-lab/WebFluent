@@ -62,7 +62,11 @@ pub fn validate_semantics_in(
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => continue,
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => continue,
         };
         walk_stmts(body, &pages, &components, &file_of(index), &mut diags);
     }
@@ -202,12 +206,12 @@ fn check_element(
         if !components.contains(name.as_str()) {
             diags.push(
                 diag(
-                    format!("unknown component `{name}`: no `Component {name}` is declared"),
+                    format!("unknown component `{name}`: no `component {name}` is declared"),
                     file,
                     ui.span,
                 )
                 .with_hint(format!(
-                    "declare `Component {name} {{ … }}` or check the spelling"
+                    "declare `component {name} {{ … }}` or check the spelling"
                 )),
             );
         }

@@ -64,7 +64,11 @@ pub fn lint_accessibility_in(
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => {}
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => {}
         }
     }
 
@@ -431,6 +435,18 @@ fn lint_ui_element(
                 }
             }
 
+            // Markdown known at build time contributes its headings to the
+            // outline, as the rendered page will have them.
+            "Markdown" => {
+                if let Some(Arg::Positional(Expr::StringLiteral(text))) = ui.args.first() {
+                    for line in text.lines() {
+                        let level = line.chars().take_while(|c| *c == '#').count();
+                        if (1..=6).contains(&level) && line[level..].starts_with(' ') {
+                            heading_tracker.record(level as u8);
+                        }
+                    }
+                }
+            }
             // A07: Heading is empty
             "Heading" => {
                 // Check heading level for A11

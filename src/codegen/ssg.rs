@@ -3,7 +3,7 @@ use crate::codegen::builtin::{
     layout_arg_classes,
 };
 use crate::codegen::node_id::NodeMap;
-use crate::codegen::static_eval::{Scope, Static, eval};
+use crate::codegen::static_eval::{Scope, Static, case_of, eval};
 use crate::config::ProjectConfig;
 use crate::parser::ast::*;
 use std::collections::HashMap;
@@ -15,6 +15,110 @@ use std::collections::HashMap;
 /// empty map to render without them (the pre-expansion behaviour).
 pub fn render_page_html(page: &PageDecl, site: &SiteContext) -> String {
     render_page_html_studio(page, site, false, &NodeMap::default())
+}
+
+/// [`render_page_html`] for one value of a `:param` route: the page's
+/// parameters are seeded, by name and as `params.name`, so the body reads
+/// them as the live page would.
+pub fn render_page_html_with_params(
+    page: &PageDecl,
+    site: &SiteContext,
+    params: &HashMap<String, Static>,
+) -> String {
+    let mut seeded = page.clone();
+    // Seed as declarations at the top of the body: `params` as a map, and
+    // each parameter as a constant of the page.
+    let mut extra: Vec<Statement> = Vec::new();
+    let map = Static::Map(params.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
+    extra.push(Statement::new(
+        StatementKind::State(StateDecl {
+            name: "params".to_string(),
+            ty: None,
+            value: static_expr(&map),
+            persist: false,
+        }),
+        page.span,
+    ));
+    for (k, v) in params {
+        extra.push(Statement::new(
+            StatementKind::State(StateDecl {
+                name: k.clone(),
+                ty: None,
+                value: static_expr(v),
+                persist: false,
+            }),
+            page.span,
+        ));
+    }
+    extra.append(&mut seeded.body);
+    seeded.body = extra;
+    render_page_html_studio(&seeded, site, false, &NodeMap::default())
+}
+
+/// The concrete routes of a `:param` page with `paths:`, each with its
+/// parameters: one value fills a route's one parameter; a map fills
+/// several by name.
+pub fn static_routes(
+    page: &PageDecl,
+    program: &Program,
+    env: &std::collections::BTreeMap<String, serde_json::Value>,
+) -> crate::error::Result<Vec<(String, HashMap<String, Static>)>> {
+    use crate::error::WebFluentError;
+    let Some(paths) = &page.paths else {
+        return Ok(Vec::new());
+    };
+    let scope = Scope::from_program_with_env(program, &[], env);
+    let Some(Static::List(values)) = eval(paths, &scope) else {
+        return Err(WebFluentError::CodegenError(format!(
+            "page {}: `paths:` must be a list known at build time, such as `posts.map(p => p.slug)` over a `data` file",
+            page.name
+        )));
+    };
+    let names: Vec<String> = page
+        .path
+        .split('/')
+        .filter_map(|seg| seg.strip_prefix(':').map(str::to_string))
+        .collect();
+    let mut out = Vec::new();
+    for value in values {
+        let mut params = HashMap::new();
+        match (&value, names.len()) {
+            (Static::Map(fields), _) => {
+                for name in &names {
+                    let Some(v) = fields.iter().find(|(k, _)| k == name).map(|(_, v)| v) else {
+                        return Err(WebFluentError::CodegenError(format!(
+                            "page {}: a value of `paths:` has no `{name}` for the route {}",
+                            page.name, page.path
+                        )));
+                    };
+                    params.insert(name.clone(), v.clone());
+                }
+            }
+            (v, 1) => {
+                params.insert(names[0].clone(), v.clone());
+            }
+            _ => {
+                return Err(WebFluentError::CodegenError(format!(
+                    "page {}: the route {} has {} parameters, so each value of `paths:` must be a map naming them",
+                    page.name,
+                    page.path,
+                    names.len()
+                )));
+            }
+        }
+        let mut route = page.path.clone();
+        for name in &names {
+            let text = params.get(name).map(|v| v.to_text()).unwrap_or_default();
+            route = route.replace(&format!(":{name}"), &text);
+        }
+        out.push((route, params));
+    }
+    Ok(out)
+}
+
+/// A static value as the expression that writes it.
+fn static_expr(value: &Static) -> Expr {
+    crate::data::json_expr(&value.to_json())
 }
 
 /// Everything a page render needs that is a property of the *site* rather than
@@ -107,7 +211,8 @@ pub fn render_page_html_studio(
         studio,
         node_map: node_map.clone(),
         components: components.clone(),
-        scope: Scope::from_program(program, &page.body),
+        scope: Scope::from_program_with_env(program, &page.body, &site.config.env)
+            .with_locale(default_locale),
         depth: 0,
         in_thead: false,
         current_path: page.path.clone(),
@@ -164,7 +269,28 @@ pub fn render_page_html_studio(
 
     // Description, canonical, sharing card, language alternates and JSON-LD, all
     // derived from what the page and the config already say.
-    let description_meta = crate::codegen::seo::head_tags(page, config, program);
+    let mut description_meta = crate::codegen::seo::head_tags(page, config, program);
+    // The page's own `head { }` tags, with what is known at build time; the
+    // runtime replaces them once live, so each is marked as its own.
+    let head_scope = Scope::from_program_with_env(program, &page.body, &site.config.env);
+    for tag in &page.head {
+        let mut attrs = String::new();
+        for (k, v) in &tag.attrs {
+            match eval(v, &head_scope) {
+                Some(Static::Bool(true)) => attrs.push_str(&format!(" {k}")),
+                Some(Static::Bool(false)) | Some(Static::Null) | None => {}
+                Some(value) => {
+                    attrs.push_str(&format!(" {k}=\"{}\"", html_escape(&value.to_text())))
+                }
+            }
+        }
+        // `meta` and `link` are void; a `script` closes.
+        if tag.tag == "script" {
+            description_meta.push_str(&format!("    <script data-wf-head{attrs}></script>\n"));
+        } else {
+            description_meta.push_str(&format!("    <{} data-wf-head{attrs}>\n", tag.tag));
+        }
+    }
 
     // Calculate relative path prefix based on page route depth. The catch-all
     // is served for any path a static host has no file for, at any depth, so
@@ -413,15 +539,43 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
             StatementKind::Fetch(_) => {}
             // A resource is still loading when the static page is painted;
             // a match over one paints its `loading` arm. A match over an
-            // enum is decided at run time, so its `else` arm stands in.
+            // enum paints the arm of the case the value has at build time,
+            // with the payload bound, and its `else` arm when the value is
+            // not known until run time.
             StatementKind::Match(m) => {
-                let arm = m
-                    .arms
-                    .iter()
-                    .find(|a| a.pattern == ArmPattern::Loading)
+                let over_resource = m.arms.iter().any(|a| {
+                    matches!(
+                        a.pattern,
+                        ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
+                    )
+                });
+                let value = if over_resource {
+                    None
+                } else {
+                    eval(&m.scrutinee, &ctx.scope)
+                };
+                let by_case = value.as_ref().and_then(|v| {
+                    let case = case_of(v);
+                    m.arms
+                        .iter()
+                        .find(|a| matches!(&a.pattern, ArmPattern::Case(c) if Static::Str(c.clone()) == case))
+                });
+                let arm = by_case
+                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Loading))
                     .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Else));
                 match arm {
-                    Some(arm) => html.push_str(&render_statements(&arm.body, ctx)),
+                    Some(arm) => {
+                        let outer = ctx.scope.clone();
+                        if let (Some(Static::List(items)), false) =
+                            (&value, arm.bindings.is_empty())
+                        {
+                            for (name, item) in arm.bindings.iter().zip(items.iter().skip(1)) {
+                                ctx.scope = ctx.scope.with(name, item.clone());
+                            }
+                        }
+                        html.push_str(&render_statements(&arm.body, ctx));
+                        ctx.scope = outer;
+                    }
                     None => html.push_str(&format!("{}<!--wf-match-->\n", ctx.indent_str())),
                 }
             }
@@ -443,6 +597,10 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
 ///
 /// Falls back to the placeholder when the component is unknown (a program that
 /// wouldn't pass the semantic gate anyway) or when expansion nests too deeply.
+/// The caller's fills by slot: the names a fill gives the slot's values
+/// paired with what the declaration calls them, and the fill's block.
+type Fills = HashMap<String, (Vec<(String, String)>, Vec<Statement>)>;
+
 fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> String {
     let Some(decl) = ctx.components.get(name).cloned() else {
         return format!("{}<!--wf-component-->\n", ctx.indent_str());
@@ -453,11 +611,29 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
 
     let bindings = bind_props(&decl, call);
     // The call's own children fill the component's default slot, and each
-    // `name { … }` fill in its block a named one.
-    let mut slots: HashMap<String, Vec<Statement>> = HashMap::new();
-    slots.insert("children".to_string(), call.children.clone());
+    // `name { … }` fill in its block a named one. A scoped fill's names
+    // stand for what the slot hands over, in the slot's order.
+    let mut slots: Fills = HashMap::new();
+    slots.insert("children".to_string(), (Vec::new(), call.children.clone()));
     for fill in &call.slot_fills {
-        slots.insert(fill.name.clone(), fill.body.clone());
+        let handed: Vec<String> = decl
+            .slots
+            .iter()
+            .find(|s| s.name.as_deref() == Some(fill.name.as_str()))
+            .map(|s| s.params.iter().map(|p| p.name.clone()).collect())
+            .unwrap_or_default();
+        let params = fill
+            .params
+            .iter()
+            .enumerate()
+            .map(|(i, p)| {
+                (
+                    p.clone(),
+                    handed.get(i).cloned().unwrap_or_else(|| p.clone()),
+                )
+            })
+            .collect();
+        slots.insert(fill.name.clone(), (params, fill.body.clone()));
     }
     let body: Vec<Statement> = decl
         .body
@@ -510,25 +686,100 @@ fn bind_props(decl: &ComponentDecl, call: &UIElement) -> HashMap<String, Expr> {
 fn substitute_statement(
     stmt: &Statement,
     bindings: &HashMap<String, Expr>,
-    slots: &HashMap<String, Vec<Statement>>,
+    slots: &Fills,
 ) -> Vec<Statement> {
     let mut out = stmt.clone();
-    if let StatementKind::UIElement(ui) = &stmt.kind {
-        if let Some(name) = ui.slot_name() {
-            return slots.get(name).cloned().unwrap_or_default();
+    match &stmt.kind {
+        StatementKind::UIElement(ui) => {
+            if let Some(name) = ui.slot_name() {
+                let Some((params, body)) = slots.get(name) else {
+                    return Vec::new();
+                };
+                if params.is_empty() {
+                    return body.clone();
+                }
+                // The fill's names stand for the values the slot use hands
+                // over, which are in the component's scope, so they are
+                // substituted with the props first.
+                let mut handed: HashMap<String, Expr> = HashMap::new();
+                for (param, key) in params {
+                    let value = ui
+                        .args
+                        .iter()
+                        .find_map(|a| match a {
+                            Arg::Named(k, v) if k == key => Some(substitute_expr(v, bindings)),
+                            _ => None,
+                        })
+                        .unwrap_or(Expr::Null);
+                    handed.insert(param.clone(), value);
+                }
+                let none = HashMap::new();
+                return body
+                    .iter()
+                    .flat_map(|st| substitute_statement(st, &handed, &none))
+                    .collect();
+            }
+            out.kind = StatementKind::UIElement(substitute_ui(ui, bindings, slots));
         }
-        out.kind = StatementKind::UIElement(substitute_ui(ui, bindings, slots));
+        // A slot used under a branch or a loop is filled there too.
+        StatementKind::If(i) => {
+            let mut i = i.clone();
+            i.condition = substitute_expr(&i.condition, bindings);
+            i.then_body = substitute_all(&i.then_body, bindings, slots);
+            for (cond, branch) in &mut i.else_if_branches {
+                *cond = substitute_expr(cond, bindings);
+                *branch = substitute_all(branch, bindings, slots);
+            }
+            if let Some(b) = &i.else_body {
+                i.else_body = Some(substitute_all(b, bindings, slots));
+            }
+            out.kind = StatementKind::If(i);
+        }
+        StatementKind::For(f) => {
+            let mut f = f.clone();
+            f.iterable = substitute_expr(&f.iterable, bindings);
+            // The loop's own names shadow a prop of the same name.
+            let mut inner = bindings.clone();
+            inner.remove(&f.item);
+            if let Some(index) = &f.index {
+                inner.remove(index);
+            }
+            f.body = substitute_all(&f.body, &inner, slots);
+            out.kind = StatementKind::For(f);
+        }
+        StatementKind::Show(s) => {
+            let mut s = s.clone();
+            s.condition = substitute_expr(&s.condition, bindings);
+            s.body = substitute_all(&s.body, bindings, slots);
+            out.kind = StatementKind::Show(s);
+        }
+        StatementKind::Match(m) => {
+            let mut m = m.clone();
+            m.scrutinee = substitute_expr(&m.scrutinee, bindings);
+            for arm in &mut m.arms {
+                arm.body = substitute_all(&arm.body, bindings, slots);
+            }
+            out.kind = StatementKind::Match(m);
+        }
+        _ => {}
     }
     vec![out]
 }
 
+fn substitute_all(
+    stmts: &[Statement],
+    bindings: &HashMap<String, Expr>,
+    slots: &Fills,
+) -> Vec<Statement> {
+    stmts
+        .iter()
+        .flat_map(|st| substitute_statement(st, bindings, slots))
+        .collect()
+}
+
 /// Deep-substitute bound props through one element: its arguments, its style
 /// values, and its children.
-fn substitute_ui(
-    ui: &UIElement,
-    bindings: &HashMap<String, Expr>,
-    slots: &HashMap<String, Vec<Statement>>,
-) -> UIElement {
+fn substitute_ui(ui: &UIElement, bindings: &HashMap<String, Expr>, slots: &Fills) -> UIElement {
     let mut out = ui.clone();
     out.args = ui
         .args
@@ -588,6 +839,62 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
             name.clone(),
             args.iter().map(|a| substitute_expr(a, bindings)).collect(),
         ),
+        Expr::MethodCall(obj, method, args) => Expr::MethodCall(
+            Box::new(substitute_expr(obj, bindings)),
+            method.clone(),
+            args.iter().map(|a| substitute_expr(a, bindings)).collect(),
+        ),
+        Expr::OptionalMethod(obj, method, args) => Expr::OptionalMethod(
+            Box::new(substitute_expr(obj, bindings)),
+            method.clone(),
+            args.iter().map(|a| substitute_expr(a, bindings)).collect(),
+        ),
+        Expr::OptionalProperty(obj, prop) => {
+            Expr::OptionalProperty(Box::new(substitute_expr(obj, bindings)), prop.clone())
+        }
+        Expr::IndexAccess(obj, index) => Expr::IndexAccess(
+            Box::new(substitute_expr(obj, bindings)),
+            Box::new(substitute_expr(index, bindings)),
+        ),
+        Expr::OptionalIndex(obj, index) => Expr::OptionalIndex(
+            Box::new(substitute_expr(obj, bindings)),
+            Box::new(substitute_expr(index, bindings)),
+        ),
+        Expr::ListLiteral(items) => {
+            Expr::ListLiteral(items.iter().map(|i| substitute_expr(i, bindings)).collect())
+        }
+        Expr::CaseValue(case, args) => Expr::CaseValue(
+            case.clone(),
+            args.iter().map(|a| substitute_expr(a, bindings)).collect(),
+        ),
+        Expr::MapLiteral(pairs) => Expr::MapLiteral(
+            pairs
+                .iter()
+                .map(|(k, v)| (k.clone(), substitute_expr(v, bindings)))
+                .collect(),
+        ),
+        Expr::Record(name, pairs) => Expr::Record(
+            name.clone(),
+            pairs
+                .iter()
+                .map(|(k, v)| (k.clone(), substitute_expr(v, bindings)))
+                .collect(),
+        ),
+        Expr::Spread(inner) => Expr::Spread(Box::new(substitute_expr(inner, bindings))),
+        Expr::Range(a, b, inclusive) => Expr::Range(
+            Box::new(substitute_expr(a, bindings)),
+            Box::new(substitute_expr(b, bindings)),
+            *inclusive,
+        ),
+        Expr::Await(inner) => Expr::Await(Box::new(substitute_expr(inner, bindings))),
+        // A lambda's own parameters (`a, b` for several) shadow the props.
+        Expr::Lambda(param, body) => {
+            let mut inner = bindings.clone();
+            for p in param.split(',') {
+                inner.remove(p.trim());
+            }
+            Expr::Lambda(param.clone(), Box::new(substitute_expr(body, &inner)))
+        }
         other => other.clone(),
     }
 }
@@ -654,6 +961,27 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 class_str,
                 wf,
                 inline_style
+            );
+        }
+        // Markdown known at build time is painted as HTML; the runtime
+        // repaints it the same way.
+        "Markdown" => {
+            let text = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Positional(e) => resolve_text_scoped(e, &ctx.default_messages, &ctx.scope),
+                    _ => None,
+                })
+                .unwrap_or_default();
+            return format!(
+                "{}<div class=\"{}\"{}{}>\n{}{}</div>\n",
+                ctx.indent_str(),
+                class_str,
+                wf,
+                inline_style,
+                crate::codegen::markdown::render(&text),
+                ctx.indent_str()
             );
         }
         "Divider" => {
@@ -1305,6 +1633,16 @@ fn resolve_text_scoped(
     messages: &HashMap<String, String>,
     scope: &Scope,
 ) -> Option<String> {
+    // `t("key", { count: n, name: x })`: the message, its plural form picked
+    // by `count`, and its `{name}` placeholders filled from the scope.
+    if let Expr::FunctionCall(name, args) = expr
+        && name == "t"
+        && args.len() >= 2
+        && let Some(Expr::StringLiteral(key)) = args.first()
+        && let Some(Static::Map(params)) = eval(&args[1], scope)
+    {
+        return Some(crate::i18n::message(messages, key, &params));
+    }
     resolve_text(expr, messages).or_else(|| match eval(expr, scope)? {
         // A collection has no text form; painting "" would be a lie about what
         // the running page shows.

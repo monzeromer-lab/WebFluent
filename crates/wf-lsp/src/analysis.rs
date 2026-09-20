@@ -53,7 +53,13 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
         Declaration::Component(c) => &c.body,
         Declaration::Store(s) => &s.body,
         Declaration::App(a) => &a.body,
-        Declaration::Theme(_) | Declaration::Type(_) | Declaration::Enum(_) => &[],
+        Declaration::Theme(_)
+        | Declaration::Type(_)
+        | Declaration::Enum(_)
+        | Declaration::Const(_)
+        | Declaration::Animation(_)
+        | Declaration::Test(_)
+        | Declaration::Data(_) => &[],
     }
 }
 
@@ -73,6 +79,7 @@ pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
             bodies
         }
         StatementKind::For(f) => vec![&f.body],
+        StatementKind::Try(t) => vec![&t.body, &t.catch_body],
         StatementKind::Show(s) => vec![&s.body],
         StatementKind::Fetch(f) => {
             let mut bodies: Vec<&[Statement]> = Vec::new();
@@ -82,7 +89,8 @@ pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
             bodies
         }
         StatementKind::Match(m) => m.arms.iter().map(|a| a.body.as_slice()).collect(),
-        StatementKind::Effect(e) => vec![&e.body],
+        StatementKind::Effect(e) => vec![&e.body, &e.cleanup],
+        StatementKind::Timer(t) => vec![&t.body],
         StatementKind::Action(a) => vec![&a.body],
         StatementKind::EventHandler(h) => vec![&h.body],
         _ => Vec::new(),

@@ -79,7 +79,11 @@ pub fn lint_vocabulary_with(
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => continue,
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => continue,
         };
         // Hoisted, order-independent scope for the whole declaration: warning on
         // a name that IS declared somewhere would be a false positive, and a
@@ -130,7 +134,11 @@ fn global_names(program: &Program) -> HashSet<String> {
             Declaration::App(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => {}
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => {}
         }
     }
     names
@@ -155,7 +163,11 @@ fn hoist_names(stmts: &[Statement], names: &mut HashSet<String>) {
                 }
                 hoist_names(&a.body, names);
             }
-            StatementKind::Effect(e) => hoist_names(&e.body, names),
+            StatementKind::Effect(e) => {
+                hoist_names(&e.body, names);
+                hoist_names(&e.cleanup, names);
+            }
+            StatementKind::Timer(t) => hoist_names(&t.body, names),
             StatementKind::Fetch(f) => {
                 names.insert(f.variable.clone());
                 if let Some((err_var, body)) = &f.error_block {

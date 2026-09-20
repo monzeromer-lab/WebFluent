@@ -178,7 +178,7 @@ fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> Do
                 .map(|c| {
                     let r = index.span_to_range(source, e.header_span);
                     symbol(
-                        format!(".{c}"),
+                        format!(".{}", c.name),
                         "case",
                         SymbolKind::ENUM_MEMBER,
                         r,
@@ -194,6 +194,50 @@ fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> Do
                 range,
                 index.span_to_range(source, e.header_span),
                 children,
+            )
+        }
+        Declaration::Const(c) => {
+            let range = index.span_to_range(source, c.span);
+            symbol(
+                c.name.clone(),
+                "Const",
+                SymbolKind::CONSTANT,
+                range,
+                range,
+                Vec::new(),
+            )
+        }
+        Declaration::Animation(a) => {
+            let range = index.span_to_range(source, a.span);
+            symbol(
+                a.name.clone(),
+                "Animation",
+                SymbolKind::OBJECT,
+                range,
+                range,
+                Vec::new(),
+            )
+        }
+        Declaration::Data(d) => {
+            let range = index.span_to_range(source, d.span);
+            symbol(
+                d.name.clone(),
+                "Data",
+                SymbolKind::CONSTANT,
+                range,
+                range,
+                Vec::new(),
+            )
+        }
+        Declaration::Test(t) => {
+            let range = index.span_to_range(source, t.span);
+            symbol(
+                format!("test \"{}\"", t.name),
+                "Test",
+                SymbolKind::EVENT,
+                range,
+                range,
+                Vec::new(),
             )
         }
     }
@@ -336,6 +380,15 @@ pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformatio
             Declaration::Theme(t) => (t.name.clone(), SymbolKind::NAMESPACE, t.span, "Theme"),
             Declaration::Type(t) => (t.name.clone(), SymbolKind::STRUCT, t.header_span, "Type"),
             Declaration::Enum(e) => (e.name.clone(), SymbolKind::ENUM, e.header_span, "Enum"),
+            Declaration::Const(c) => (c.name.clone(), SymbolKind::CONSTANT, c.span, "Const"),
+            Declaration::Animation(a) => (a.name.clone(), SymbolKind::OBJECT, a.span, "Animation"),
+            Declaration::Test(t) => (
+                format!("test \"{}\"", t.name),
+                SymbolKind::EVENT,
+                t.span,
+                "Test",
+            ),
+            Declaration::Data(d) => (d.name.clone(), SymbolKind::CONSTANT, d.span, "Data"),
             Declaration::App(_) => continue,
         };
         if query.is_empty() || name.to_lowercase().contains(&query) {

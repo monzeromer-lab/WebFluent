@@ -128,6 +128,9 @@ pub mod migrate;
 
 /// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
 /// indentation.
+pub mod data;
+pub mod fmt;
+pub mod i18n;
 pub mod layout;
 
 /// Code generation — compiles the AST to various output formats.

@@ -31,12 +31,16 @@ pub struct Findings {
 struct Decls<'a> {
     components: HashMap<&'a str, &'a ComponentDecl>,
     enums: HashMap<&'a str, &'a EnumDecl>,
+    /// The animations the program declares: cases `animate:` and `exit:`
+    /// take beside the built-in ones.
+    animations: Vec<&'a str>,
 }
 
 impl<'a> Decls<'a> {
     fn of(program: &'a Program) -> Self {
         let mut components = HashMap::new();
         let mut enums = HashMap::new();
+        let mut animations = Vec::new();
         for decl in &program.declarations {
             match decl {
                 Declaration::Component(c) => {
@@ -45,16 +49,21 @@ impl<'a> Decls<'a> {
                 Declaration::Enum(e) => {
                     enums.insert(e.name.as_str(), e);
                 }
+                Declaration::Animation(a) => animations.push(a.name.as_str()),
                 _ => {}
             }
         }
-        Self { components, enums }
+        Self {
+            components,
+            enums,
+            animations,
+        }
     }
 
     /// The cases of the enum a prop of type `ty` accepts, when it is one.
-    fn cases_of(&self, ty: &TypeRef) -> Option<&'a [String]> {
+    fn cases_of(&self, ty: &TypeRef) -> Option<Vec<String>> {
         match ty {
-            TypeRef::Named(name) => self.enums.get(name.as_str()).map(|e| e.cases.as_slice()),
+            TypeRef::Named(name) => self.enums.get(name.as_str()).map(|e| e.case_names()),
             TypeRef::Optional(inner) => self.cases_of(inner),
             _ => None,
         }
@@ -101,7 +110,13 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             Declaration::Component(c) => (&c.body, Some(c)),
             Declaration::App(a) => (&a.body, None),
             Declaration::Store(s) => (&s.body, None),
-            Declaration::Theme(_) | Declaration::Type(_) | Declaration::Enum(_) => continue,
+            Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => continue,
         };
         let mut cx = Checker {
             decls: &decls,
@@ -191,7 +206,12 @@ impl Checker<'_, '_> {
                     }
                 }
                 StatementKind::Action(a) => self.imperative(&a.body),
-                StatementKind::Effect(e) => self.imperative(&e.body),
+                StatementKind::Effect(e) => {
+                    self.imperative(&e.body);
+                    self.imperative(&e.cleanup);
+                }
+                StatementKind::Timer(t) => self.imperative(&t.body),
+                StatementKind::EventHandler(h) => self.imperative(&h.body),
                 _ => {}
             }
         }
@@ -226,6 +246,11 @@ impl Checker<'_, '_> {
                         self.imperative(b);
                     }
                 }
+                StatementKind::For(f) => self.imperative(&f.body),
+                StatementKind::Try(t) => {
+                    self.imperative(&t.body);
+                    self.imperative(&t.catch_body);
+                }
                 _ => {}
             }
         }
@@ -234,16 +259,34 @@ impl Checker<'_, '_> {
     fn element(&mut self, el: &UIElement, span: Span) {
         match &el.component {
             ComponentRef::BuiltIn(name) => {
+                if let Some(slot) = el.slot_name() {
+                    self.slot_use(el, slot, span);
+                }
                 if let Some(sig) = registry::component(name) {
                     self.builtin(el, sig, span);
+                }
+            }
+            // A part of the project's own component is a component itself.
+            ComponentRef::SubComponent(owner, part)
+                if self
+                    .decls
+                    .components
+                    .contains_key(format!("{owner}.{part}").as_str()) =>
+            {
+                let qualified = format!("{owner}.{part}");
+                if let Some(decl) = self.decls.components.get(qualified.as_str()) {
+                    self.user_component(el, decl, span);
                 }
             }
             ComponentRef::SubComponent(owner, part) => match registry::part(owner, part) {
                 Some(sig) => self.builtin(el, sig, span),
                 None => {
-                    let known: Vec<String> = registry::parts_of(owner)
+                    let mut known: Vec<String> = registry::parts_of(owner)
                         .map(|p| format!("`{owner}.{}`", p.name))
                         .collect();
+                    if let Some(decl) = self.decls.components.get(owner.as_str()) {
+                        known.extend(decl.parts.iter().map(|p| format!("`{owner}.{p}`")));
+                    }
                     let hint = if known.is_empty() {
                         format!("`{owner}` has no parts")
                     } else {
@@ -268,6 +311,72 @@ impl Checker<'_, '_> {
         self.statements(&el.children);
         for fill in &el.slot_fills {
             self.statements(&fill.body);
+        }
+    }
+
+    /// A slot used in a component's body: one it declares, handed the
+    /// values its declaration names.
+    fn slot_use(&mut self, el: &UIElement, slot: &str, span: Span) {
+        let Some(component) = self.component else {
+            return;
+        };
+        let declared = component
+            .slots
+            .iter()
+            .find(|s| s.name.as_deref().unwrap_or("children") == slot);
+        let Some(decl) = declared else {
+            if slot != "children" {
+                let names: Vec<String> = component
+                    .slots
+                    .iter()
+                    .map(|s| format!("`{}`", s.name.as_deref().unwrap_or("children")))
+                    .collect();
+                self.error(
+                    span,
+                    format!("`{}` declares no slot `{slot}`", component.name),
+                    &if names.is_empty() {
+                        format!("Declare it first: `slot {slot}`")
+                    } else {
+                        format!("It declares {}", names.join(", "))
+                    },
+                );
+            }
+            return;
+        };
+        let handed: Vec<&str> = el
+            .args
+            .iter()
+            .filter_map(|a| match a {
+                Arg::Named(k, _) if k != "slot" => Some(k.as_str()),
+                _ => None,
+            })
+            .collect();
+        for name in &handed {
+            if !decl.params.iter().any(|p| p.name == *name) {
+                let params: Vec<String> = decl
+                    .params
+                    .iter()
+                    .map(|p| format!("`{}`", p.name))
+                    .collect();
+                self.error(
+                    span,
+                    format!("`{slot}` hands no `{name}`"),
+                    &if params.is_empty() {
+                        format!("Declare what it hands over: `slot {slot}({name}: Type)`")
+                    } else {
+                        format!("It hands {}", params.join(", "))
+                    },
+                );
+            }
+        }
+        for p in &decl.params {
+            if !handed.contains(&p.name.as_str()) {
+                self.error(
+                    span,
+                    format!("`{slot}` is used without `{}`", p.name),
+                    &format!("Write `{slot}({}: value)`", p.name),
+                );
+            }
         }
     }
 
@@ -324,11 +433,20 @@ impl Checker<'_, '_> {
                         continue;
                     };
                     if let Expr::EnumCase(case) = value {
+                        // A declared animation is a case of `animate:` and `exit:`.
+                        let own_animation = matches!(key.as_str(), "animate" | "exit")
+                            && self.decls.animations.contains(&case.as_str());
                         match prop.ty {
+                            _ if own_animation => {}
                             PropType::Enum(cases) if cases.iter().any(|c| c.name == *case) => {}
                             PropType::Enum(cases) => {
-                                let names: Vec<String> =
+                                let mut names: Vec<String> =
                                     cases.iter().map(|c| format!(".{}", c.name)).collect();
+                                if matches!(key.as_str(), "animate" | "exit") {
+                                    names.extend(
+                                        self.decls.animations.iter().map(|a| format!(".{a}")),
+                                    );
+                                }
                                 self.error(
                                     at,
                                     format!("`{key}` on {name} has no case `.{case}`"),
@@ -513,11 +631,41 @@ impl Checker<'_, '_> {
             }
         }
         for fill in &el.slot_fills {
-            if !decl
+            let declared = decl
                 .slots
                 .iter()
-                .any(|s| s.name.as_deref() == Some(fill.name.as_str()))
-            {
+                .find(|s| s.name.as_deref() == Some(fill.name.as_str()));
+            if let Some(slot) = declared {
+                if fill.params.len() > slot.params.len() {
+                    let hint = if slot.params.is_empty() {
+                        format!(
+                            "`{}` hands nothing over: write `{} {{ … }}`",
+                            fill.name, fill.name
+                        )
+                    } else {
+                        format!(
+                            "It hands {}",
+                            slot.params
+                                .iter()
+                                .map(|p| format!("`{}`", p.name))
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        )
+                    };
+                    self.error(
+                        fill.span,
+                        format!(
+                            "`{}` names {} value{}, but `{}` hands {} over",
+                            fill.name,
+                            fill.params.len(),
+                            if fill.params.len() == 1 { "" } else { "s" },
+                            fill.name,
+                            slot.params.len()
+                        ),
+                        &hint,
+                    );
+                }
+            } else {
                 let slots: Vec<String> = decl
                     .slots
                     .iter()
@@ -565,13 +713,23 @@ pub fn lower(mut program: Program) -> Program {
                         .filter_map(|p| {
                             owned
                                 .cases_of(&p.prop_type)
-                                .map(|cases| (p.name.clone(), cases.to_vec()))
+                                .map(|cases| (p.name.clone(), cases))
                         })
                         .collect(),
                 },
             )
         })
         .collect();
+    // Which enums carry a payload on some case: their name on a root is
+    // the case's, not the whole value.
+    let payload_enums: std::collections::HashSet<String> = owned
+        .enums
+        .values()
+        .filter(|e| e.cases.iter().any(|c| !c.fields.is_empty()))
+        .map(|e| e.name.clone())
+        .collect();
+    let enum_names: std::collections::HashSet<String> =
+        owned.enums.keys().map(|k| k.to_string()).collect();
     drop(owned);
     let theme_tokens: std::collections::HashSet<String> = program
         .declarations
@@ -583,17 +741,95 @@ pub fn lower(mut program: Program) -> Program {
         .flatten()
         .collect();
     for decl in &mut program.declarations {
+        if let Declaration::Component(c) = decl {
+            mark_enum_props(c, &enum_names, &payload_enums);
+        }
         let body = match decl {
             Declaration::Page(p) => &mut p.body,
             Declaration::Component(c) => &mut c.body,
             Declaration::App(a) => &mut a.body,
             Declaration::Store(s) => &mut s.body,
-            Declaration::Theme(_) | Declaration::Type(_) | Declaration::Enum(_) => continue,
+            Declaration::Theme(_)
+            | Declaration::Type(_)
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => continue,
         };
         lower_statements(body, &user);
         resolve_short_tokens(body, &theme_tokens);
     }
     program
+}
+
+/// A component's enum props are written to its root element as
+/// `data-<prop>="<case>"`, so a stylesheet can select on them
+/// (`.wf-card[data-tone="loud"]`), when the root is an element.
+fn mark_enum_props(
+    c: &mut ComponentDecl,
+    enums: &std::collections::HashSet<String>,
+    payload_enums: &std::collections::HashSet<String>,
+) {
+    let marks: Vec<(String, Expr)> = c
+        .props
+        .iter()
+        .filter_map(|p| {
+            let named = match &p.prop_type {
+                TypeRef::Named(n) => n,
+                TypeRef::Optional(inner) => match inner.as_ref() {
+                    TypeRef::Named(n) => n,
+                    _ => return None,
+                },
+                _ => return None,
+            };
+            if !enums.contains(named) {
+                return None;
+            }
+            let value = if payload_enums.contains(named) {
+                Expr::MethodCall(
+                    Box::new(Expr::Identifier(p.name.clone())),
+                    "__case".to_string(),
+                    Vec::new(),
+                )
+            } else {
+                Expr::Identifier(p.name.clone())
+            };
+            Some((format!("data-{}", p.name), value))
+        })
+        .collect();
+    if marks.is_empty() {
+        return;
+    }
+    let Some(first) = c.body.iter_mut().find(|s| {
+        !matches!(
+            s.kind,
+            StatementKind::State(_)
+                | StatementKind::Derived(_)
+                | StatementKind::Action(_)
+                | StatementKind::Effect(_)
+                | StatementKind::Use(_)
+                | StatementKind::Resource(_)
+                | StatementKind::Timer(_)
+                | StatementKind::EventHandler(_)
+        )
+    }) else {
+        return;
+    };
+    if let StatementKind::UIElement(el) = &mut first.kind
+        && !matches!(el.component, ComponentRef::UserDefined(_))
+        && el.slot_name().is_none()
+    {
+        for (key, value) in marks {
+            if !el
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if *k == key))
+            {
+                el.args.push(Arg::Named(key, value));
+            }
+        }
+    }
 }
 
 /// `$xl` on a padding is the spacing token `$spacing-xl`: a short name in a
@@ -689,6 +925,36 @@ struct UserSig {
     props: Vec<String>,
     bool_props: Vec<String>,
     enum_props: Vec<(String, Vec<String>)>,
+}
+
+/// `on key("ctrl+k") { body }` → `on keydown(e) { if WF.keyIs(e, "ctrl+k") { body } }`:
+/// one spelling of a key, matched by the runtime.
+fn lower_key_handler(handler: &mut EventHandler) {
+    let Some(key) = handler.key.take() else {
+        return;
+    };
+    if handler.event != "key" {
+        return;
+    }
+    let param = handler.param.clone().unwrap_or_else(|| "_ke".to_string());
+    let body = std::mem::take(&mut handler.body);
+    handler.event = "keydown".to_string();
+    handler.param = Some(param.clone());
+    handler.body = vec![Statement {
+        kind: StatementKind::If(IfStmt {
+            condition: Expr::FunctionCall(
+                "WF.keyIs".to_string(),
+                vec![Expr::Identifier(param), Expr::StringLiteral(key)],
+            ),
+            binding: None,
+            animate: None,
+            animate_span: None,
+            then_body: body,
+            else_if_branches: Vec::new(),
+            else_body: None,
+        }),
+        span: handler.span,
+    }];
 }
 
 /// The names of the props `el`'s component declares, when it is the
@@ -859,6 +1125,16 @@ fn retain_by<T>(items: &mut Vec<T>, keep: &[bool]) {
 }
 
 fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
+    // `on key("ctrl+k") { … }` is a keydown that runs when the key matches.
+    for handler in &mut el.events {
+        lower_key_handler(handler);
+    }
+    // A part of the project's own component is the component `Owner.Part`.
+    if let ComponentRef::SubComponent(owner, part) = &el.component
+        && user.contains_key(&format!("{owner}.{part}"))
+    {
+        el.component = ComponentRef::UserDefined(format!("{owner}.{part}"));
+    }
     // Parts spelled the new way resolve to the names the generators know.
     if let ComponentRef::SubComponent(owner, part) = &el.component
         && let Some(sig) = registry::part(owner, part)
@@ -974,6 +1250,7 @@ fn lower_action_shorthand(el: &mut UIElement) {
     el.events.push(EventHandler {
         event: "click".to_string(),
         param: None,
+        key: None,
         body: actions,
         span,
     });
@@ -1262,6 +1539,67 @@ mod tests {
             "{messages:?}"
         );
         assert_eq!(f.errors.len(), 4, "{messages:?}");
+    }
+
+    #[test]
+    fn a_declared_animation_is_a_case_of_animate_and_exit() {
+        let src = "animation Pulse { from { opacity: 1 } to { opacity: 0 } }\npage P(path: \"/\") { Card(animate: .Pulse, exit: .Pulse) { Text(\"x\") }  Card(animate: .Wobble) { Text(\"y\") } }";
+        let f = checked(src);
+        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        assert_eq!(messages.len(), 1, "{messages:?}");
+        assert!(
+            messages[0].contains("`animate` on Card has no case `.Wobble`")
+                && messages[0].contains(".Pulse"),
+            "{messages:?}"
+        );
+    }
+
+    #[test]
+    fn a_part_is_a_component_of_its_owner() {
+        let src = "component Panel(_ title: String) { part Header(_ text: String) { Text(text) }  Text(title)  children }\npage P(path: \"/\") { Panel(\"p\") { Panel.Header(\"h\")  Panel.Header(\"h\", extra: 1)  Panel.Nope } }";
+        let f = checked(src);
+        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        assert!(
+            messages
+                .iter()
+                .any(|m| m.contains("`Panel.Nope` is not a part of `Panel`")
+                    && m.contains("`Panel.Header`")),
+            "{messages:?}"
+        );
+        assert_eq!(f.errors.len(), 1, "{messages:?}");
+        let warnings: Vec<String> = f.warnings.iter().map(|d| d.to_string()).collect();
+        assert!(
+            warnings
+                .iter()
+                .any(|m| m.contains("`Panel.Header` declares no prop `extra`")),
+            "{warnings:?}"
+        );
+        let src = "component Panel { part Header { part Deep { Text(\"x\") } } }";
+        let err = parse_v2(src, "<t>")
+            .err()
+            .map(|e| e.to_string())
+            .unwrap_or_default();
+        assert!(err.contains("a part declares no parts of its own"), "{err}");
+    }
+
+    #[test]
+    fn a_scoped_slot_hands_over_what_it_declares() {
+        let src = "component Rows(items: [Any]) { slot row(item: Any, index: Number)  slot empty  for it, i in items { row(item: it, index: i) }  row(item: 1)  row(item: 1, index: 2, extra: 3)  gone(item: 1) }\npage P(path: \"/\") {  Rows(items: [1]) { row(n, i) { Text(\"{i}: {n}\") } }   Rows(items: [1]) { row(a, b, c) { Text(a) }  empty(x) { Text(x) } } }";
+        let f = checked(src);
+        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        for expected in [
+            "`row` is used without `index`",
+            "`row` hands no `extra`",
+            "`Rows` declares no slot `gone`",
+            "`row` names 3 values, but `row` hands 2 over",
+            "`empty` names 1 value, but `empty` hands 0 over",
+        ] {
+            assert!(
+                messages.iter().any(|m| m.contains(expected)),
+                "{expected} in {messages:?}"
+            );
+        }
+        assert_eq!(f.errors.len(), 5, "{messages:?}");
     }
 
     #[test]

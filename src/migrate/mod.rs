@@ -421,7 +421,12 @@ impl<'a> Rewriter<'a> {
                     self.spell_app(&a.body);
                 }
                 Declaration::Theme(t) => self.spell_theme(t),
-                Declaration::Type(_) | Declaration::Enum(_) => {}
+                Declaration::Type(_)
+                | Declaration::Enum(_)
+                | Declaration::Const(_)
+                | Declaration::Animation(_)
+                | Declaration::Test(_)
+                | Declaration::Data(_) => {}
             }
         }
     }

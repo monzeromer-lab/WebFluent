@@ -16,7 +16,7 @@ fn repo_root() -> PathBuf {
 }
 
 /// Sites the rendered-behaviour suite mounts.
-const NEEDED: &[&str] = &["gallery", "marketing", "dashboard", "bespoke"];
+const NEEDED: &[&str] = &["gallery", "marketing", "dashboard", "bespoke", "docs"];
 
 fn copy_tree(from: &std::path::Path, to: &std::path::Path) {
     std::fs::create_dir_all(to).expect("create dir");

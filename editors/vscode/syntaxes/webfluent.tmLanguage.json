@@ -360,7 +360,7 @@
       "patterns": [
         {
           "name": "support.class.component.webfluent",
-          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Link|Tabs|TabPage|Breadcrumb|Menu|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Icon|Carousel|Text|Heading|Code|Blockquote|Document|Section|Paragraph|Header|Footer|PageBreak)\\b"
+          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Link|Tabs|TabPage|Breadcrumb|Menu|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Icon|Carousel|Text|Heading|Code|Blockquote|Markdown|Document|Section|Paragraph|Header|Footer|PageBreak)\\b"
         }
       ]
     },

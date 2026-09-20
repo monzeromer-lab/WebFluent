@@ -354,3 +354,254 @@ page Home(path: "/") { // trailing
           (string
             (string_content))))
       (doc_comment))))
+
+================================================================================
+Enum whose cases carry a payload
+================================================================================
+
+enum Status { idle, failed(reason: String), done(count: Number, label: String) }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (enum_declaration
+    (component_identifier)
+    (enum_case_declaration
+      (identifier))
+    (enum_case_declaration
+      (identifier)
+      (field_declaration
+        (identifier)
+        (builtin_type)))
+    (enum_case_declaration
+      (identifier)
+      (field_declaration
+        (identifier)
+        (builtin_type))
+      (field_declaration
+        (identifier)
+        (builtin_type)))))
+
+================================================================================
+A component declares parts of its own
+================================================================================
+
+component Panel(_ title: String) {
+    part Header(_ text: String) { Heading(text) }
+    part Footer { Text("end") }
+    Card { Text(title)  children }
+}
+page P(path: "/") {
+    Panel("p") { Panel.Header("h")  Panel.Footer }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (component_declaration
+    (component_identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (builtin_type)))
+    (block
+      (part_declaration
+        (builtin_component)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type)))
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (identifier)))))
+      (part_declaration
+        (builtin_component)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content))))))
+      (element
+        (builtin_component)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (identifier)))
+          (children)))))
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (component_identifier)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (element
+            (part
+              (component_identifier)
+              (builtin_component))
+            (argument_list
+              (string
+                (string_content))))
+          (element
+            (part
+              (component_identifier)
+              (builtin_component))))))))
+
+================================================================================
+An animation declares keyframes
+================================================================================
+
+animation Pulse {
+    from { opacity: 1 }
+    50% { opacity: 0.4; transform: scale(0.98) }
+    0%, 100% { opacity: 1 }
+    to { opacity: 1 }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (animation_declaration
+    (component_identifier)
+    (keyframe
+      (keyframe_selector)
+      (style_property
+        (property_name
+          (identifier))
+        (style_value
+          (style_text))))
+    (keyframe
+      (keyframe_selector)
+      (style_property
+        (property_name
+          (identifier))
+        (style_value
+          (style_text)))
+      (style_property
+        (property_name
+          (identifier))
+        (style_value
+          (style_text))))
+    (keyframe
+      (keyframe_selector)
+      (style_property
+        (property_name
+          (identifier))
+        (style_value
+          (style_text))))
+    (keyframe
+      (keyframe_selector)
+      (style_property
+        (property_name
+          (identifier))
+        (style_value
+          (style_text))))))
+
+================================================================================
+A test renders a body and expects text
+================================================================================
+
+test "greets by name"(data: { items: ["a"] }) {
+    Greeting("Sam")
+    for it in items { Text(it) }
+    expect "Hello, Sam"
+    expect not "world"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (test_declaration
+    (string
+      (string_content))
+    (argument_list
+      (named_argument
+        (attribute_name
+          (identifier))
+        (object
+          (pair
+            (identifier)
+            (array
+              (string
+                (string_content)))))))
+    (block
+      (element
+        (component_identifier)
+        (argument_list
+          (string
+            (string_content))))
+      (for_statement
+        (identifier)
+        (identifier)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (identifier)))))
+      (expect_statement
+        (string
+          (string_content)))
+      (expect_statement
+        (string
+          (string_content))))))
+
+================================================================================
+A data file and a page rendered once per path
+================================================================================
+
+data posts: [Post] = "posts.json"
+page Post(path: "/p/:slug", slug: String, paths: posts.map(p => p.slug)) {
+    Text(slug)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (data_declaration
+    (identifier)
+    (list_type
+      (named_type
+        (component_identifier)))
+    (string
+      (string_content)))
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content)))
+      (route_parameter
+        (identifier)
+        (builtin_type))
+      (named_argument
+        (attribute_name
+          (identifier))
+        (call_expression
+          (member_expression
+            (identifier)
+            (identifier))
+          (arguments
+            (lambda
+              (identifier)
+              (member_expression
+                (identifier)
+                (identifier)))))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (identifier))))))

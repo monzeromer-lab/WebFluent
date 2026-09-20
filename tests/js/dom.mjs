@@ -136,8 +136,9 @@ class Element extends Node_ {
   focus() { this.ownerDocument_ = true; focused = this; }
   get textContent() { return this.childNodes.map((n) => n.textContent).join(""); }
   set textContent(v) { this.childNodes = []; this.appendChild(new TextNode(v)); }
-  get innerHTML() { return this.textContent; }
-  set innerHTML(v) { if (v === "") this.childNodes = []; }
+  // Markup set as text is kept as it was set; the shim does not parse it.
+  get innerHTML() { return this._html !== undefined ? this._html : this.textContent; }
+  set innerHTML(v) { this.childNodes = []; this._html = v === "" ? undefined : v; }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) {
     // A list of simple selectors: `tag`, `.class`, `#id`, `[attr]`,

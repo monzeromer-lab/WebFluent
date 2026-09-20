@@ -524,3 +524,102 @@ fn an_indented_file_is_read_by_its_layout() {
         "{hover:?}"
     );
 }
+
+// ─── Rename and extract ──────────────────────────────────
+
+fn apply(src: &str, edit: &WorkspaceEdit) -> String {
+    let project = project(src);
+    let file = &project.files[0];
+    let mut edits: Vec<&TextEdit> = edit.changes.as_ref().unwrap().values().flatten().collect();
+    edits.sort_by_key(|e| (e.range.start.line, e.range.start.character));
+    let mut out = src.to_string();
+    for e in edits.into_iter().rev() {
+        let s = file.index.position_to_offset(src, e.range.start).unwrap();
+        let t = file.index.position_to_offset(src, e.range.end).unwrap();
+        out.replace_range(s..t, &e.new_text);
+    }
+    out
+}
+
+#[test]
+fn rename_changes_a_component_everywhere_it_is_named() {
+    let src = "component Shell { children }\ncomponent Row2 { Shell { Text(\"x\") } }\npage P(path: \"/\", layout: Shell) { Shell { Text(\"y\") }  Text(\"Shell\") }";
+    let project = project(src);
+    let edit =
+        wf_lsp::rename::rename(&project, 0, at(src, "Shell { Text(\"x\")"), "Frame").unwrap();
+    assert_eq!(
+        apply(src, &edit),
+        "component Frame { children }\ncomponent Row2 { Frame { Text(\"x\") } }\npage P(path: \"/\", layout: Frame) { Frame { Text(\"y\") }  Text(\"Shell\") }",
+    );
+}
+
+#[test]
+fn rename_changes_a_state_and_its_reads_inside_interpolations_but_not_another_declarations() {
+    let src = "page P(path: \"/\") { state count = 0\n state row = { count: 2 }\n Button(\"+\") { on click { count = count + 1 } }\n Text(\"{count} items {row.count}\")\n Text(row.count)\n Text(\"count\") }\ncomponent C { state count = 5\n Text(\"{count}\") }";
+    let project = project(src);
+    let edit = wf_lsp::rename::rename(&project, 0, at(src, "count = count + 1"), "total").unwrap();
+    assert_eq!(
+        apply(src, &edit),
+        "page P(path: \"/\") { state total = 0\n state row = { count: 2 }\n Button(\"+\") { on click { total = total + 1 } }\n Text(\"{total} items {row.count}\")\n Text(row.count)\n Text(\"count\") }\ncomponent C { state count = 5\n Text(\"{count}\") }",
+    );
+}
+
+#[test]
+fn rename_changes_a_store_member_at_its_declaration_and_every_dotted_read() {
+    let src = "store Cart { state items = []\n derived total = items.length\n action add(x: Any) { items.push(x) } }\npage P(path: \"/\") { use Cart\n Text(\"{Cart.total}\")\n Button(\"a\") { on click { Cart.add(1) } } }";
+    let project = project(src);
+    let edit = wf_lsp::rename::rename(&project, 0, at(src, "total}"), "count").unwrap();
+    let out = apply(src, &edit);
+    assert!(
+        out.contains("derived count = items.length") && out.contains("{Cart.count}"),
+        "{out}"
+    );
+    let refused = wf_lsp::rename::rename(&project, 0, at(src, "Button(\"a\")"), "X");
+    assert!(refused.is_err(), "a built-in is not renamed");
+    assert!(
+        wf_lsp::rename::rename(&project, 0, at(src, "total}"), "Total").is_err(),
+        "a value keeps its case"
+    );
+    assert!(wf_lsp::rename::prepare_rename(&project, 0, at(src, "total}")).is_some());
+    assert!(wf_lsp::rename::prepare_rename(&project, 0, at(src, "Button(\"a\")")).is_none());
+}
+
+#[test]
+fn extract_component_lifts_the_selection_with_what_it_reads_as_props() {
+    let src = "type Todo { id: String, title: String }\npage P(path: \"/\") {\n    state todos: [Todo] = []\n    state open = true\n    action save() { log(1) }\n    use Cart\n    Card {\n        Text(\"head\")\n    }\n    for t in todos {\n        Row(gap: .sm) {\n            Text(t.title)\n            if open { Badge(\"{Cart.total}\") }\n        }\n    }\n}\nstore Cart { state total = 0 }\n";
+    let project = project(src);
+    let file = &project.files[0];
+    let start = src.find("for t in todos").unwrap();
+    let end = src.find("\n}\nstore").unwrap();
+    let range = Range {
+        start: file.index.offset_to_position(src, start),
+        end: file.index.offset_to_position(src, end),
+    };
+    let actions = wf_lsp::code_actions::extract_component_action(&project, 0, range);
+    assert_eq!(actions.len(), 1);
+    let CodeActionOrCommand::CodeAction(action) = &actions[0] else {
+        panic!()
+    };
+    let out = apply(src, action.edit.as_ref().unwrap());
+    assert!(
+        out.contains("    Extracted(open: open, todos: todos)\n}"),
+        "{out}"
+    );
+    assert!(out.contains("\n\ncomponent Extracted(open: Bool, todos: [Todo]) {\n    use Cart\n    for t in todos {\n        Row(gap: .sm) {\n            Text(t.title)\n            if open { Badge(\"{Cart.total}\") }\n        }\n    }\n}\n"), "{out}");
+    // A selection that writes outer state, or calls an action, is not offered.
+    let src2 = "page P(path: \"/\") {\n    state n = 0\n    action save() { log(1) }\n    Button(\"x\") { on click { n = n + 1 } }\n    Button(\"y\") { on click { save() } }\n}\n";
+    let project2 = Project::single(Url::parse("file:///test.wf").unwrap(), src2);
+    let file2 = &project2.files[0];
+    for needle in ["Button(\"x\")", "Button(\"y\")"] {
+        let s = src2.find(needle).unwrap();
+        let e = s + src2[s..].find('\n').unwrap();
+        let range = Range {
+            start: file2.index.offset_to_position(src2, s),
+            end: file2.index.offset_to_position(src2, e),
+        };
+        assert!(
+            wf_lsp::code_actions::extract_component_action(&project2, 0, range).is_empty(),
+            "{needle}"
+        );
+    }
+}

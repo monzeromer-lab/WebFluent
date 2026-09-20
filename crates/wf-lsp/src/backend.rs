@@ -17,12 +17,13 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 use webfluent::parser::Program;
 
-use crate::code_actions::provide_code_actions;
+use crate::code_actions::{extract_component_action, provide_code_actions};
 use crate::completion::provide_completions;
 use crate::definition::find_definition;
 use crate::diagnostics::project_diagnostics;
 use crate::hover::provide_hover;
 use crate::project::{FileCache, OpenText, Project};
+use crate::rename::{prepare_rename, rename};
 use crate::symbols::{document_symbols, workspace_symbols};
 
 /// An open editor buffer.
@@ -155,9 +156,16 @@ impl LanguageServer for Backend {
                 document_symbol_provider: Some(OneOf::Left(true)),
                 workspace_symbol_provider: Some(OneOf::Left(true)),
                 definition_provider: Some(OneOf::Left(true)),
+                rename_provider: Some(OneOf::Right(RenameOptions {
+                    prepare_provider: Some(true),
+                    work_done_progress_options: Default::default(),
+                })),
                 code_action_provider: Some(CodeActionProviderCapability::Options(
                     CodeActionOptions {
-                        code_action_kinds: Some(vec![CodeActionKind::QUICKFIX]),
+                        code_action_kinds: Some(vec![
+                            CodeActionKind::QUICKFIX,
+                            CodeActionKind::REFACTOR_EXTRACT,
+                        ]),
                         ..Default::default()
                     },
                 )),
@@ -263,8 +271,37 @@ impl LanguageServer for Backend {
         }))
     }
 
+    async fn prepare_rename(
+        &self,
+        params: TextDocumentPositionParams,
+    ) -> Result<Option<PrepareRenameResponse>> {
+        Ok(self
+            .locate(&params.text_document.uri)
+            .and_then(|(project, ix)| prepare_rename(&project, ix, params.position)))
+    }
+
+    async fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {
+        let position = params.text_document_position.position;
+        let Some((project, ix)) = self.locate(&params.text_document_position.text_document.uri)
+        else {
+            return Ok(None);
+        };
+        match rename(&project, ix, position, &params.new_name) {
+            Ok(edit) => Ok(Some(edit)),
+            Err(message) => Err(tower_lsp::jsonrpc::Error {
+                code: tower_lsp::jsonrpc::ErrorCode::InvalidRequest,
+                message: message.into(),
+                data: None,
+            }),
+        }
+    }
+
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = params.text_document.uri.clone();
-        Ok(Some(provide_code_actions(&uri, params)))
+        let mut actions = provide_code_actions(&uri, params.clone());
+        if let Some((project, ix)) = self.locate(&uri) {
+            actions.extend(extract_component_action(&project, ix, params.range));
+        }
+        Ok(Some(actions))
     }
 }

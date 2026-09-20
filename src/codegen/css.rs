@@ -39,6 +39,23 @@ pub fn generate_css_with(tokens: &HashMap<String, String>, builtin: BuiltinCss) 
     format!("{}\n{}", root_block, component_styles)
 }
 
+/// The dark theme's tokens: under `prefers-color-scheme: dark` unless the
+/// reader chose light, and whenever the reader chose dark.
+pub fn dark_css(tokens: &HashMap<String, String>) -> String {
+    if tokens.is_empty() {
+        return String::new();
+    }
+    let mut vars: Vec<String> = tokens
+        .iter()
+        .map(|(k, v)| format!("  --{}: {};", k, v))
+        .collect();
+    vars.sort();
+    let body = vars.join("\n");
+    format!(
+        "@media (prefers-color-scheme: dark) {{\n:root:not([data-theme=\"light\"]) {{\n{body}\n}}\n}}\n:root[data-theme=\"dark\"] {{\n{body}\n}}\n"
+    )
+}
+
 /// [`generate_css_with`], cut down to the components `program` uses.
 ///
 /// The whole sheet described every component the engine has, whichever the

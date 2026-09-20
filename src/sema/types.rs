@@ -36,9 +36,14 @@ pub enum Type {
     Null,
     /// A design token, `$name`.
     Token,
+    /// A regular expression, `/…/`.
+    Regex,
     List(Box<Type>),
-    /// A map with unknown keys (an object literal).
+    /// A map with unknown keys.
     Map,
+    /// A map literal's own shape: the fields it was written with. Reads of
+    /// a field it lacks are faults; extra fields at an assignment are not.
+    Shape(Vec<(String, Type)>),
     /// A record of a declared `type`.
     Record(String),
     /// A value of a declared `enum`.
@@ -103,6 +108,14 @@ impl Type {
             (from, Type::Optional(b)) => from.assignable_to(b),
             (Type::List(a), Type::List(b)) => a.assignable_to(b),
             (Type::Map, Type::Record(_)) | (Type::Record(_), Type::Map) => true,
+            (Type::Shape(_), Type::Map | Type::Record(_))
+            | (Type::Map | Type::Record(_), Type::Shape(_)) => true,
+            // A shape fits another when the fields they share agree.
+            (Type::Shape(from), Type::Shape(to)) => from.iter().all(|(name, ty)| {
+                to.iter()
+                    .find(|(n, _)| n == name)
+                    .is_none_or(|(_, wanted)| ty.assignable_to(wanted))
+            }),
             (Type::Func(..), Type::Func(..)) => true,
             (Type::Resource(a), Type::Resource(b)) => a.assignable_to(b),
             (a, b) => a == b,
@@ -117,6 +130,26 @@ impl Type {
             (Type::Null, other) | (other, Type::Null) => Type::optional(other),
             (Type::Optional(a), b) | (b, Type::Optional(a)) => Type::optional(Type::join(*a, b)),
             (Type::List(a), Type::List(b)) => Type::list(Type::join(*a, *b)),
+            // Two shapes join to every field either has; a field only one
+            // of them has may be missing.
+            (Type::Shape(a), Type::Shape(b)) => {
+                let mut fields: Vec<(String, Type)> = Vec::new();
+                for (name, ty) in a.iter().chain(b.iter()) {
+                    if fields.iter().any(|(n, _)| n == name) {
+                        continue;
+                    }
+                    let in_a = a.iter().find(|(n, _)| n == name).map(|(_, t)| t);
+                    let in_b = b.iter().find(|(n, _)| n == name).map(|(_, t)| t);
+                    let joined = match (in_a, in_b) {
+                        (Some(x), Some(y)) => Type::join(x.clone(), y.clone()),
+                        _ => Type::optional(ty.clone()),
+                    };
+                    fields.push((name.clone(), joined));
+                }
+                Type::Shape(fields)
+            }
+            (Type::Shape(_), Type::Map | Type::Record(_))
+            | (Type::Map | Type::Record(_), Type::Shape(_)) => Type::Map,
             (Type::Case(_), Type::Enum(e)) | (Type::Enum(e), Type::Case(_)) => Type::Enum(e),
             (Type::Case(_), Type::Case(_)) => Type::Any,
             _ => Type::Any,
@@ -133,8 +166,13 @@ impl std::fmt::Display for Type {
             Type::Bool => write!(f, "Bool"),
             Type::Null => write!(f, "null"),
             Type::Token => write!(f, "$token"),
+            Type::Regex => write!(f, "Regex"),
             Type::List(inner) => write!(f, "[{inner}]"),
             Type::Map => write!(f, "Map"),
+            Type::Shape(fields) => {
+                let inner: Vec<String> = fields.iter().map(|(n, t)| format!("{n}: {t}")).collect();
+                write!(f, "{{ {} }}", inner.join(", "))
+            }
             Type::Record(name) | Type::Enum(name) | Type::Store(name) => write!(f, "{name}"),
             Type::Case(name) => write!(f, ".{name}"),
             Type::Optional(inner) => write!(f, "{inner}?"),
@@ -158,15 +196,22 @@ struct World<'p> {
     components: HashMap<&'p str, &'p ComponentDecl>,
     /// Each store's members, typed.
     stores: HashMap<&'p str, HashMap<String, Type>>,
+    /// The program's constants, typed.
+    consts: HashMap<String, Type>,
 }
 
 impl<'p> World<'p> {
     fn record_field(&self, record: &str, field: &str) -> Option<Type> {
-        let decl = self.types.get(record)?;
-        decl.fields
-            .iter()
+        self.record_fields(record)?
+            .into_iter()
             .find(|f| f.name == field)
             .map(|f| Type::from_ref(&f.ty))
+    }
+
+    /// Every field of a record, the extended record's included.
+    fn record_fields(&self, record: &str) -> Option<Vec<&'p FieldDecl>> {
+        let decl = self.types.get(record)?;
+        Some(decl.all_fields(&|name| self.types.get(name).copied()))
     }
 
     /// A `TypeRef::Named` may name an enum rather than a record.
@@ -219,11 +264,23 @@ impl TypeInfo {
 
 /// Check every declaration of the program.
 pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> TypeInfo {
+    check_in(program, file_of, &|_| None)
+}
+
+/// [`check`], with the source text of each declaration's file at hand:
+/// an error is then placed at the expression it names inside its
+/// statement, not at the statement's start.
+pub fn check_in(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    source_of: &dyn Fn(usize) -> Option<String>,
+) -> TypeInfo {
     let mut world = World {
         types: HashMap::new(),
         enums: HashMap::new(),
         components: HashMap::new(),
         stores: HashMap::new(),
+        consts: HashMap::new(),
     };
     for decl in &program.declarations {
         match decl {
@@ -241,13 +298,52 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> TypeInfo {
     }
     let mut info = TypeInfo::default();
 
-    // Stores first: their members are read everywhere else. A store's
+    // Constants first: plain values, read everywhere. A `data` declaration
+    // the build has not resolved yet is what it declares, or `Any`.
+    for (index, decl) in program.declarations.iter().enumerate() {
+        if let Declaration::Data(d) = decl {
+            let ty =
+                d.ty.as_ref()
+                    .map(|t| world.resolve(Type::from_ref(t)))
+                    .unwrap_or(Type::Any);
+            info.bindings.push(Typed {
+                decl: index,
+                name: d.name.clone(),
+                span: d.span,
+                ty: ty.clone(),
+            });
+            world.consts.insert(d.name.clone(), ty);
+        }
+        if let Declaration::Const(c) = decl {
+            let file = file_of(index);
+            let source = source_of(index);
+            let mut cx = Checker::new(&world, &file, index, &mut info, source);
+            cx.current_span = c.span;
+            let declared = c.ty.as_ref().map(|t| cx.world.resolve(Type::from_ref(t)));
+            let given = cx.infer(&c.value, declared.as_ref());
+            if let Some(declared) = &declared {
+                let what = format!("`const {}`", c.name);
+                cx.expect(&given, declared, c.span, &what);
+            }
+            let ty = declared.unwrap_or(given);
+            cx.info.bindings.push(Typed {
+                decl: index,
+                name: c.name.clone(),
+                span: c.span,
+                ty: ty.clone(),
+            });
+            world.consts.insert(c.name.clone(), ty);
+        }
+    }
+
+    // Stores next: their members are read everywhere else. A store's
     // derived values and actions may read other stores, which are `Any`
     // until met.
     for (index, decl) in program.declarations.iter().enumerate() {
         if let Declaration::Store(s) = decl {
             let file = file_of(index);
-            let mut cx = Checker::new(&world, &file, index, &mut info);
+            let source = source_of(index);
+            let mut cx = Checker::new(&world, &file, index, &mut info, source);
             cx.push_scope();
             cx.declare_hoisted(&s.body);
             let members = cx.scopes.last().cloned().unwrap_or_default();
@@ -259,7 +355,8 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> TypeInfo {
 
     for (index, decl) in program.declarations.iter().enumerate() {
         let file = file_of(index);
-        let mut cx = Checker::new(&world, &file, index, &mut info);
+        let source = source_of(index);
+        let mut cx = Checker::new(&world, &file, index, &mut info, source);
         match decl {
             Declaration::Page(p) => {
                 cx.push_scope();
@@ -320,7 +417,13 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> TypeInfo {
                     }
                 }
             }
-            Declaration::Store(_) | Declaration::Theme(_) | Declaration::Enum(_) => {}
+            Declaration::Store(_)
+            | Declaration::Theme(_)
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => {}
         }
     }
     info
@@ -349,13 +452,22 @@ struct Checker<'a, 'p> {
     /// The span of the statement or argument being checked: where an
     /// expression's error lands, since expressions carry no span.
     current_span: Span,
+    /// The file's text, when the caller has it: where an error is placed
+    /// at the expression it names.
+    source: Option<String>,
     /// Whether an element's arguments are being checked, where the
     /// resolver already reports a case the prop's enum lacks.
     in_args: bool,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
-    fn new(world: &'a World<'p>, file: &'a str, decl: usize, info: &'a mut TypeInfo) -> Self {
+    fn new(
+        world: &'a World<'p>,
+        file: &'a str,
+        decl: usize,
+        info: &'a mut TypeInfo,
+        source: Option<String>,
+    ) -> Self {
         Self {
             world,
             file,
@@ -366,6 +478,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             returns: Vec::new(),
             current_span: Span::dummy(),
             in_args: false,
+            source,
         }
     }
 
@@ -428,7 +541,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             (_, Type::Enum(e)) => match self.world.enums.get(e.as_str()) {
                 Some(decl) => format!(
                     "`{e}` takes {}",
-                    decl.cases
+                    decl.case_names()
                         .iter()
                         .map(|c| format!(".{c}"))
                         .collect::<Vec<_>>()
@@ -481,6 +594,15 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.bind(&u.store_name, Type::Store(u.store_name.clone()), stmt.span);
                 }
                 _ => {}
+            }
+            // `ref: name` anywhere in the body declares `name`: a handle on
+            // the element, read like the element itself.
+            for name in ref_names(std::slice::from_ref(stmt)) {
+                self.bind(&name, Type::Any, stmt.span);
+            }
+            // `Form(bind: form)` declares `form`: its validity and values.
+            for name in form_names(std::slice::from_ref(stmt)) {
+                self.bind(&name, form_type(), stmt.span);
             }
         }
         for stmt in stmts {
@@ -571,6 +693,24 @@ impl<'a, 'p> Checker<'a, 'p> {
             StatementKind::Effect(e) => {
                 self.push_scope();
                 self.statements(&e.body, Body::Imperative);
+                self.statements(&e.cleanup, Body::Imperative);
+                self.pop_scope();
+            }
+            StatementKind::Timer(t) => {
+                let ty = self.infer(&t.interval, Some(&Type::Number));
+                if !ty.assignable_to(&Type::Number) {
+                    self.error_at_current(
+                        "T01",
+                        format!(
+                            "`{}` takes milliseconds, but `{}` is `{ty}`",
+                            if t.every { "every" } else { "after" },
+                            expr_text(&t.interval)
+                        ),
+                        "",
+                    );
+                }
+                self.push_scope();
+                self.statements(&t.body, Body::Imperative);
                 self.pop_scope();
             }
             StatementKind::EventHandler(h) => {
@@ -583,6 +723,17 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             StatementKind::UIElement(el) => self.element(el, span),
             StatementKind::If(i) => self.if_statement(i, span, body),
+            StatementKind::Try(t) => {
+                self.push_scope();
+                self.statements(&t.body, body);
+                self.pop_scope();
+                self.push_scope();
+                if let Some(param) = &t.param {
+                    self.bind(param, Type::Any, span);
+                }
+                self.statements(&t.catch_body, body);
+                self.pop_scope();
+            }
             StatementKind::For(f) => {
                 let iterable = self.infer(&f.iterable, None);
                 let item = match &iterable {
@@ -787,7 +938,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                     .world
                     .enums
                     .get(name.as_str())
-                    .map(|e| e.cases.clone())
+                    .map(|e| e.case_names())
                     .unwrap_or_default();
                 for arm in &m.arms {
                     match &arm.pattern {
@@ -800,6 +951,29 @@ impl<'a, 'p> Checker<'a, 'p> {
                                 cases.iter().map(|c| format!(".{c}")).collect::<Vec<_>>().join(", ")
                             ),
                         ),
+                        // `.failed(r)` binds the payload, one name per part.
+                        ArmPattern::Case(case) => {
+                            let fields = self.payload_of(name, case).unwrap_or_default();
+                            if !arm.bindings.is_empty() && arm.bindings.len() != fields.len() {
+                                let hint = if fields.is_empty() {
+                                    format!("`.{case}` carries nothing: write `.{case} {{ … }}`")
+                                } else {
+                                    format!("Bind every part: `{}`", case_signature(case, &fields))
+                                };
+                                self.error(
+                                    arm.span,
+                                    "T10",
+                                    format!(
+                                        "`.{case}` carries {} value{}, but {} {} bound",
+                                        fields.len(),
+                                        if fields.len() == 1 { "" } else { "s" },
+                                        arm.bindings.len(),
+                                        if arm.bindings.len() == 1 { "is" } else { "are" }
+                                    ),
+                                    &hint,
+                                );
+                            }
+                        }
                         ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready => self.error(
                             arm.span,
                             "T11",
@@ -815,6 +989,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                     if let Some(name) = &arm.binding {
                         self.bind(name, Type::Any, arm.span);
                     }
+                    if let ArmPattern::Case(case) = &arm.pattern {
+                        let fields = self.payload_of(name, case).unwrap_or_default();
+                        for (i, bound) in arm.bindings.iter().enumerate() {
+                            let ty = fields.get(i).map(|(_, t)| t.clone()).unwrap_or(Type::Any);
+                            self.bind(bound, ty, arm.span);
+                        }
+                    }
                     self.statements(&arm.body, body);
                     self.pop_scope();
                 }
@@ -824,6 +1005,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.push_scope();
                     if let Some(name) = &arm.binding {
                         self.bind(name, Type::Any, arm.span);
+                    }
+                    for bound in &arm.bindings {
+                        self.bind(bound, Type::Any, arm.span);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
@@ -913,13 +1097,63 @@ impl<'a, 'p> Checker<'a, 'p> {
                     }
                 }
             }
+            // A scoped slot's values, against what its declaration names.
+            ComponentRef::BuiltIn(_) if el.slot_name().is_some() => {
+                let slot = el.slot_name().unwrap_or("children").to_string();
+                let params: Vec<(String, Type)> = self
+                    .component
+                    .and_then(|c| {
+                        c.slots
+                            .iter()
+                            .find(|s| s.name.as_deref().unwrap_or("children") == slot)
+                    })
+                    .map(|s| {
+                        s.params
+                            .iter()
+                            .map(|p| {
+                                (
+                                    p.name.clone(),
+                                    self.world.resolve(Type::from_ref(&p.param_type)),
+                                )
+                            })
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                for arg in &el.args {
+                    let Arg::Named(key, value) = arg else {
+                        continue;
+                    };
+                    if key == "slot" {
+                        continue;
+                    }
+                    let wanted = params
+                        .iter()
+                        .find(|(n, _)| n == key)
+                        .map(|(_, t)| t.clone());
+                    let given = self.infer(value, wanted.as_ref());
+                    if let Some(wanted) = wanted
+                        && !given.assignable_to(&wanted)
+                    {
+                        self.error_at_current(
+                            "T01",
+                            format!("`{key}` of `{slot}` is `{given}`, but `{wanted}` is wanted"),
+                            "",
+                        );
+                    }
+                }
+            }
             ComponentRef::BuiltIn(name) => {
                 let sig = registry::component(name);
                 self.builtin_args(el, sig, span);
             }
             ComponentRef::SubComponent(owner, part) => {
-                let sig = registry::part(owner, part);
-                self.builtin_args(el, sig, span);
+                let qualified = format!("{owner}.{part}");
+                if let Some(component) = self.world.components.get(qualified.as_str()) {
+                    self.component_args(&el.args, &el.arg_spans, component, span);
+                } else {
+                    let sig = registry::part(owner, part);
+                    self.builtin_args(el, sig, span);
+                }
             }
         }
         if let Some(style) = &el.style_block {
@@ -951,7 +1185,34 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.pop_scope();
         }
         for fill in &el.slot_fills {
+            // A fill's names take the types the slot's declaration gives
+            // its values, in order.
+            let params: Vec<Type> = match &el.component {
+                ComponentRef::UserDefined(name) => self
+                    .world
+                    .components
+                    .get(name.as_str())
+                    .and_then(|c| {
+                        c.slots
+                            .iter()
+                            .find(|s| s.name.as_deref() == Some(fill.name.as_str()))
+                    })
+                    .map(|s| {
+                        s.params
+                            .iter()
+                            .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+                _ => Vec::new(),
+            };
+            self.push_scope();
+            for (i, name) in fill.params.iter().enumerate() {
+                let ty = params.get(i).cloned().unwrap_or(Type::Any);
+                self.bind(name, ty, fill.span);
+            }
             self.statements(&fill.body, Body::Page);
+            self.pop_scope();
         }
         self.statements(&el.children, Body::Page);
     }
@@ -1024,6 +1285,19 @@ impl<'a, 'p> Checker<'a, 'p> {
             };
             match (prop.ty, prop.name) {
                 // `bind:` — the control's value type.
+                (PropType::State, "ref") => {
+                    if !matches!(value, Expr::Identifier(_)) {
+                        self.error(
+                            at,
+                            "T01",
+                            format!(
+                                "`ref:` on `{name}` names the handle, but `{}` is given",
+                                expr_text(value)
+                            ),
+                            "Write `ref: nameInput`, then read `nameInput` as the element",
+                        );
+                    }
+                }
                 (PropType::State, "bind") => {
                     let wanted = bound_type(&name);
                     let given = self.infer(value, wanted.as_ref());
@@ -1092,9 +1366,10 @@ impl<'a, 'p> Checker<'a, 'p> {
             Expr::BoolLiteral(_) => Type::Bool,
             Expr::Null => Type::Null,
             Expr::Token(_) => Type::Token,
+            Expr::Regex(..) => Type::Regex,
             Expr::EnumCase(case) => match expected.map(|t| t.unwrapped()) {
                 Some(Type::Enum(name)) => {
-                    let known = self.world.enums.get(name.as_str()).map(|e| e.cases.clone());
+                    let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
                     if let Some(cases) = known
                         && !cases.contains(case)
                         && !self.in_args
@@ -1111,24 +1386,123 @@ impl<'a, 'p> Checker<'a, 'p> {
                                     .join(", ")
                             ),
                         );
+                    } else if let Some(fields) = self.payload_of(&name, case)
+                        && !fields.is_empty()
+                    {
+                        self.error_at_current(
+                            "T02",
+                            format!(
+                                "`.{case}` carries a payload; `.{case}` alone is not a `{name}`"
+                            ),
+                            &format!("Give it: `{}`", case_signature(case, &fields)),
+                        );
                     }
                     Type::Enum(name)
                 }
                 _ => Type::Case(case.clone()),
             },
-            Expr::Identifier(name) => self.lookup(name).unwrap_or_else(|| global_type(name)),
+            // `.failed("x")`: the case with its payload, checked against the
+            // enum's declaration when the position names one.
+            Expr::CaseValue(case, args) => match expected.map(|t| t.unwrapped()) {
+                Some(Type::Enum(name)) => {
+                    let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
+                    match self.payload_of(&name, case) {
+                        Some(fields) if !fields.is_empty() => {
+                            let params: Vec<Type> = fields.iter().map(|(_, t)| t.clone()).collect();
+                            self.call_args(&params, args, &format!("`.{case}`"));
+                        }
+                        Some(_) => {
+                            for a in args {
+                                self.infer(a, None);
+                            }
+                            self.error_at_current(
+                                "T02",
+                                format!(
+                                    "`.{case}` carries nothing; `.{case}(…)` is not a `{name}`"
+                                ),
+                                &format!("Write `.{case}`"),
+                            );
+                        }
+                        None => {
+                            for a in args {
+                                self.infer(a, None);
+                            }
+                            if let Some(cases) = known
+                                && !self.in_args
+                            {
+                                self.error_at_current(
+                                    "T02",
+                                    format!("`{name}` has no case `.{case}`"),
+                                    &format!(
+                                        "`{name}` takes {}",
+                                        cases
+                                            .iter()
+                                            .map(|c| format!(".{c}"))
+                                            .collect::<Vec<_>>()
+                                            .join(", ")
+                                    ),
+                                );
+                            }
+                        }
+                    }
+                    Type::Enum(name)
+                }
+                _ => {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                    Type::Case(case.clone())
+                }
+            },
+            Expr::Identifier(name) => self
+                .lookup(name)
+                .or_else(|| self.world.consts.get(name).cloned())
+                .unwrap_or_else(|| global_type(name)),
+            // A plain access after a `?.` in the same chain is short-circuited
+            // with it: `a?.b.c` is null when `a` is, never a fault.
+            Expr::PropertyAccess(base, field) if in_optional_chain(base) => {
+                let base_ty = self.infer(base, None).unwrapped();
+                Type::optional(self.property(&base_ty, base, field))
+            }
             Expr::PropertyAccess(base, field) => {
                 let base_ty = self.infer(base, None);
                 self.property(&base_ty, base, field)
             }
             Expr::IndexAccess(base, index) => {
+                let optional = in_optional_chain(base);
                 let base_ty = self.infer(base, None);
+                let base_ty = if optional {
+                    base_ty.unwrapped()
+                } else {
+                    base_ty
+                };
                 self.infer(index, None);
-                match base_ty.unwrapped() {
+                let ty = match base_ty.unwrapped() {
                     Type::List(inner) => *inner,
                     Type::String => Type::String,
                     _ => Type::Any,
-                }
+                };
+                if optional { Type::optional(ty) } else { ty }
+            }
+            // `?.`: the base may be null, and the result may be too.
+            Expr::OptionalProperty(base, field) => {
+                let base_ty = self.infer(base, None).unwrapped();
+                Type::optional(self.property(&base_ty, base, field))
+            }
+            Expr::OptionalIndex(base, index) => {
+                let base_ty = self.infer(base, None).unwrapped();
+                self.infer(index, None);
+                Type::optional(match base_ty {
+                    Type::List(inner) => *inner,
+                    Type::String => Type::String,
+                    _ => Type::Any,
+                })
+            }
+            Expr::OptionalMethod(obj, method, args) => {
+                // Checked as the plain call on the unwrapped base: the same
+                // methods, the same arguments, a result that may be null.
+                let ty = self.method_call_on(obj, method, args, true);
+                Type::optional(ty)
             }
             Expr::BinaryOp(l, op, r) => {
                 let lt = self.infer(l, None);
@@ -1158,6 +1532,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                     UnaryOp::Neg => Type::Number,
                 }
             }
+            Expr::MethodCall(obj, method, args) if in_optional_chain(obj) => {
+                Type::optional(self.method_call_on(obj, method, args, true))
+            }
             Expr::MethodCall(obj, method, args) => self.method_call(obj, method, args),
             Expr::FunctionCall(name, args) => self.function_call(name, args),
             Expr::ListLiteral(items) => {
@@ -1175,16 +1552,89 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
                 Type::list(item.unwrap_or(Type::Any))
             }
+            // A map literal has the shape it was written with; a spread inside
+            // it makes the keys unknown.
             Expr::MapLiteral(pairs) => {
-                for (_, v) in pairs {
-                    self.infer(v, None);
+                let wanted = match expected {
+                    Some(Type::Record(name)) => self.world.record_fields(name).map(|fields| {
+                        fields
+                            .into_iter()
+                            .map(|f| (f.name.clone(), self.world.resolve(Type::from_ref(&f.ty))))
+                            .collect::<Vec<_>>()
+                    }),
+                    Some(Type::Shape(fields)) => Some(fields.clone()),
+                    _ => None,
+                };
+                let mut shape: Vec<(String, Type)> = Vec::new();
+                let mut spread = false;
+                for (k, v) in pairs {
+                    if k == "..." {
+                        self.infer(v, None);
+                        spread = true;
+                        continue;
+                    }
+                    let key = k.trim_matches('"').to_string();
+                    let want = wanted
+                        .as_ref()
+                        .and_then(|w| w.iter().find(|(n, _)| *n == key).map(|(_, t)| t.clone()));
+                    let ty = self.infer(v, want.as_ref());
+                    if let Some(want) = &want
+                        && !ty.assignable_to(want)
+                    {
+                        self.error_at_current(
+                            "T01",
+                            format!("`{key}` is `{ty}`, but `{want}` is wanted"),
+                            "",
+                        );
+                    }
+                    match shape.iter().position(|(n, _)| *n == key) {
+                        Some(at) => shape[at].1 = ty,
+                        None => shape.push((key, ty)),
+                    }
                 }
-                Type::Map
+                // An empty literal says nothing about its keys.
+                if spread || shape.is_empty() {
+                    Type::Map
+                } else {
+                    Type::Shape(shape)
+                }
+            }
+            // `...items` in a list: its items; the list's own type is theirs.
+            Expr::Spread(inner) => match self.infer(inner, None).unwrapped() {
+                Type::List(item) => *item,
+                Type::Any => Type::Any,
+                other => {
+                    self.error_at_current(
+                        "T08",
+                        format!(
+                            "`...` spreads a list, but `{}` is `{other}`",
+                            expr_text(inner)
+                        ),
+                        "",
+                    );
+                    Type::Any
+                }
+            },
+            Expr::Range(a, b, _) => {
+                for e in [a, b] {
+                    let ty = self.infer(e, Some(&Type::Number));
+                    if !ty.assignable_to(&Type::Number) {
+                        self.error_at_current(
+                            "T01",
+                            format!(
+                                "a range's end `{}` is `{ty}`, but `Number` is wanted",
+                                expr_text(e)
+                            ),
+                            "",
+                        );
+                    }
+                }
+                Type::list(Type::Number)
             }
             Expr::Record(name, fields) => {
-                if let Some(decl) = self.world.types.get(name.as_str()) {
+                if let Some(all) = self.world.record_fields(name) {
                     for (key, value) in fields {
-                        match decl.fields.iter().find(|f| &f.name == key) {
+                        match all.iter().find(|f| &f.name == key) {
                             Some(field) => {
                                 let wanted = self.world.resolve(Type::from_ref(&field.ty));
                                 self.infer(value, Some(&wanted));
@@ -1234,14 +1684,25 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     fn property(&mut self, base_ty: &Type, base: &Expr, field: &str) -> Type {
         match base_ty {
+            Type::Shape(fields) => match fields.iter().find(|(n, _)| n == field) {
+                Some((_, ty)) => ty.clone(),
+                None => {
+                    let names: Vec<String> = fields.iter().map(|(n, _)| format!("`{n}`")).collect();
+                    self.error_at_current(
+                        "T05",
+                        format!("`{}` has no field `{field}`", expr_text(base)),
+                        &format!("It was written with {}", names.join(", ")),
+                    );
+                    Type::Any
+                }
+            },
             Type::Record(name) => match self.world.record_field(name, field) {
                 Some(ty) => self.world.resolve(ty),
                 None => {
                     let fields: Vec<String> = self
                         .world
-                        .types
-                        .get(name.as_str())
-                        .map(|t| t.fields.iter().map(|f| format!("`{}`", f.name)).collect())
+                        .record_fields(name)
+                        .map(|all| all.iter().map(|f| format!("`{}`", f.name)).collect())
                         .unwrap_or_default();
                     self.error_at_current(
                         "T05",
@@ -1281,7 +1742,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                         "`{}` may be null, so `.{field}` may fail",
                         expr_text(base)
                     ),
-                    "Unwrap it first: `if let x = value { … }`, `value ?? fallback`, or a check for `!= null`",
+                    "Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.field`, or a check for `!= null`",
                 );
                 self.property(inner, base, field)
             }
@@ -1299,11 +1760,91 @@ impl<'a, 'p> Checker<'a, 'p> {
                 "error" => Type::optional(Type::Any),
                 _ => Type::Any,
             },
+            // `save.pending`: whether a call of the action is under way.
+            Type::Func(..) => match field {
+                "pending" => Type::Bool,
+                _ => {
+                    self.error_at_current(
+                        "T05",
+                        format!(
+                            "`{}` is an action; it has no field `{field}`",
+                            expr_text(base)
+                        ),
+                        "An action has `pending`, true while a call of it runs",
+                    );
+                    Type::Any
+                }
+            },
             _ => Type::Any,
         }
     }
 
     fn method_call(&mut self, obj: &Expr, method: &str, args: &[Expr]) -> Type {
+        self.method_call_on(obj, method, args, false)
+    }
+
+    /// A method call; `optional` when written `?.`, so a base that may be
+    /// null is what the operator is for, not a fault.
+    fn method_call_on(&mut self, obj: &Expr, method: &str, args: &[Expr], optional: bool) -> Type {
+        // `if let x = e { a } else { b }` as a value: `x` is the non-null
+        // value in `a`.
+        if method == "__iflet"
+            && args.len() == 2
+            && let Expr::Lambda(name, then_expr) = &args[0]
+        {
+            let value_ty = self.infer(obj, None);
+            self.push_scope();
+            self.narrow(name, value_ty.unwrapped());
+            let then_ty = self.infer(then_expr, None);
+            self.pop_scope();
+            let else_ty = self.infer(&args[1], None);
+            return Type::join(then_ty, else_ty);
+        }
+        // `match` over an enum as a value: `__is` asks for a case, `__payload`
+        // for the payload where the case is the one asked for.
+        if method == "__case" && args.is_empty() {
+            self.infer(obj, None);
+            return Type::String;
+        }
+        if (method == "__is" || method == "__payload")
+            && args.len() == 1
+            && let Expr::StringLiteral(case) = &args[0]
+        {
+            let subject = self.infer(obj, None);
+            let fields = match subject.unwrapped() {
+                Type::Enum(name) => {
+                    let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
+                    let fields = self.payload_of(&name, case);
+                    if fields.is_none()
+                        && let Some(cases) = known
+                    {
+                        self.error_at_current(
+                            "T02",
+                            format!("`{name}` has no case `.{case}`"),
+                            &format!(
+                                "`{name}` takes {}",
+                                cases
+                                    .iter()
+                                    .map(|c| format!(".{c}"))
+                                    .collect::<Vec<_>>()
+                                    .join(", ")
+                            ),
+                        );
+                    }
+                    fields
+                }
+                _ => None,
+            };
+            return if method == "__is" {
+                Type::Bool
+            } else {
+                match fields {
+                    Some(fields) if fields.len() == 1 => Type::optional(fields[0].1.clone()),
+                    Some(fields) if fields.len() > 1 => Type::optional(Type::Map),
+                    _ => Type::Any,
+                }
+            };
+        }
         // `if c { a } else { b }` as a value: `c` narrows `a`, as it does a
         // branch; the value is what both arms fit.
         if method == "__if" && args.len() == 2 {
@@ -1321,15 +1862,32 @@ impl<'a, 'p> Checker<'a, 'p> {
             return Type::join(then_ty, else_ty);
         }
         let obj_ty = self.infer(obj, None);
-        if let Type::Optional(_) = obj_ty {
+        if let Type::Optional(_) = obj_ty
+            && !optional
+        {
             self.error_at_current(
                 "T04",
                 format!("`{}` may be null, so `.{method}()` may fail", expr_text(obj)),
-                "Unwrap it first: `if let x = value { … }`, `value ?? fallback`, or a check for `!= null`",
+                "Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`",
             );
         }
         let obj_ty = obj_ty.unwrapped();
         match &obj_ty {
+            // A shape's field that is a function: `form.reset()`.
+            Type::Shape(fields)
+                if matches!(
+                    fields.iter().find(|(n, _)| n == method),
+                    Some((_, Type::Func(..)))
+                ) =>
+            {
+                let Some((_, Type::Func(params, ret))) =
+                    fields.iter().find(|(n, _)| n == method).cloned()
+                else {
+                    unreachable!("matched a function field")
+                };
+                self.call_args(&params, args, &format!("`{}`", expr_text(obj)));
+                *ret
+            }
             Type::Store(name) => {
                 let member = self
                     .world
@@ -1389,7 +1947,24 @@ impl<'a, 'p> Checker<'a, 'p> {
                         self.infer_arg(args, 0, Some(&lambda(Type::Bool)));
                         Type::Bool
                     }
-                    "findIndex" | "indexOf" | "push" | "sum" => {
+                    // What is pushed must fit the list.
+                    "push" => {
+                        for (i, arg) in args.iter().enumerate() {
+                            let ty = self.infer_arg(args, i, Some(&item));
+                            if !ty.assignable_to(&item) {
+                                self.error_at_current(
+                                    "T01",
+                                    format!(
+                                        "`{}` is `{ty}`, but `{item}` is wanted",
+                                        expr_text(arg)
+                                    ),
+                                    "",
+                                );
+                            }
+                        }
+                        Type::Number
+                    }
+                    "findIndex" | "indexOf" | "sum" => {
                         for (i, _) in args.iter().enumerate() {
                             self.infer_arg(args, i, Some(&lambda(Type::Bool)));
                         }
@@ -1412,6 +1987,31 @@ impl<'a, 'p> Checker<'a, 'p> {
                         init
                     }
                     "toString" => Type::String,
+                    "sortBy" => {
+                        self.infer_arg(args, 0, Some(&lambda(Type::Any)));
+                        Type::list(item)
+                    }
+                    "groupBy" => {
+                        self.infer_arg(args, 0, Some(&lambda(Type::Any)));
+                        Type::Map
+                    }
+                    "unique" | "take" => {
+                        for (i, _) in args.iter().enumerate() {
+                            self.infer_arg(args, i, None);
+                        }
+                        Type::list(item)
+                    }
+                    "first" | "last" => Type::optional(item),
+                    "flatMap" => {
+                        let f = self.infer_arg(args, 0, Some(&lambda(Type::Any)));
+                        match f {
+                            Type::Func(_, ret) => match *ret {
+                                Type::List(inner) => Type::list(*inner),
+                                _ => Type::list(Type::Any),
+                            },
+                            _ => Type::list(Type::Any),
+                        }
+                    }
                     _ => {
                         for a in args {
                             self.infer(a, None);
@@ -1425,12 +2025,32 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.infer(a, None);
                 }
                 match method {
-                    "toLowerCase" | "toUpperCase" | "trim" | "replace" | "slice" | "substring"
-                    | "charAt" | "toString" | "padStart" | "padEnd" | "repeat" => Type::String,
-                    "indexOf" | "length" | "charCodeAt" => Type::Number,
+                    "toLowerCase" | "toUpperCase" | "trim" | "replace" | "replaceAll" | "slice"
+                    | "substring" | "charAt" | "toString" | "padStart" | "padEnd" | "repeat"
+                    | "capitalize" | "truncate" => Type::String,
+                    "indexOf" | "length" | "charCodeAt" | "search" => Type::Number,
                     "includes" | "startsWith" | "endsWith" => Type::Bool,
                     "split" => Type::list(Type::String),
+                    // `"x".match(/…/)`: the matches, or null.
+                    "match" => Type::optional(Type::list(Type::String)),
                     _ => Type::Any,
+                }
+            }
+            Type::Regex => {
+                for a in args {
+                    self.infer(a, None);
+                }
+                match method {
+                    "test" => Type::Bool,
+                    "exec" => Type::optional(Type::list(Type::String)),
+                    _ => {
+                        self.error_at_current(
+                            "T05",
+                            format!("a regular expression has no method `{method}`"),
+                            "It has `test(text)` and `exec(text)`; a string has `match`, `replace`, `split` and `search`",
+                        );
+                        Type::Any
+                    }
                 }
             }
             Type::Number => {
@@ -1462,6 +2082,19 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
     }
 
+    /// The payload of `case` on the enum `name`: its fields and their types,
+    /// empty for a bare case, `None` for a case the enum lacks.
+    fn payload_of(&self, name: &str, case: &str) -> Option<Vec<(String, Type)>> {
+        let decl = self.world.enums.get(name)?;
+        let case = decl.case(case)?;
+        Some(
+            case.fields
+                .iter()
+                .map(|f| (f.name.clone(), self.world.resolve(Type::from_ref(&f.ty))))
+                .collect(),
+        )
+    }
+
     fn infer_arg(&mut self, args: &[Expr], i: usize, expected: Option<&Type>) -> Type {
         match args.get(i) {
             Some(e) => self.infer(e, expected),
@@ -1481,6 +2114,43 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
                 Type::Any
             }
+            None if name == "format" => self.format_call(args),
+            None if name == "setTheme" => {
+                if args.len() != 1 {
+                    self.error_at_current(
+                        "T10",
+                        format!("`setTheme` takes one of `\"light\"`, `\"dark\"` or `\"system\"`, but {} arguments are given", args.len()),
+                        "",
+                    );
+                }
+                for a in args {
+                    let ty = self.infer(a, Some(&Type::String));
+                    if !ty.assignable_to(&Type::String) {
+                        self.error_at_current(
+                            "T01",
+                            format!(
+                                "`setTheme` takes a `String`, but `{}` is `{ty}`",
+                                expr_text(a)
+                            ),
+                            "One of `\"light\"`, `\"dark\"` or `\"system\"`",
+                        );
+                    }
+                }
+                Type::Null
+            }
+            None if name == "ago" => {
+                if args.is_empty() || args.len() > 2 {
+                    self.error_at_current(
+                        "T10",
+                        format!("`ago` takes a date, but {} arguments are given", args.len()),
+                        "`ago(date)`, or `ago(date, now)` against a moment of your own",
+                    );
+                }
+                for a in args {
+                    self.infer(a, None);
+                }
+                Type::String
+            }
             None => {
                 for a in args {
                     self.infer(a, None);
@@ -1493,6 +2163,59 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             }
         }
+    }
+
+    /// `format(value, .style, option)`: the style is one the runtime knows,
+    /// or a date pattern.
+    fn format_call(&mut self, args: &[Expr]) -> Type {
+        const STYLES: [&str; 10] = [
+            "number", "integer", "decimal", "currency", "percent", "compact", "date", "time",
+            "datetime", "relative",
+        ];
+        if args.is_empty() || args.len() > 3 {
+            self.error_at_current(
+                "T10",
+                format!(
+                    "`format` takes 1 to 3 arguments, but {} are given",
+                    args.len()
+                ),
+                "`format(value)`, `format(value, .style)` or `format(value, .style, option)`",
+            );
+        }
+        for (i, a) in args.iter().enumerate() {
+            if i == 1 {
+                match a {
+                    Expr::EnumCase(style) if !STYLES.contains(&style.as_str()) => {
+                        self.error_at_current(
+                            "T02",
+                            format!("`format` has no style `.{style}`"),
+                            &format!(
+                                "It takes {}, or a date pattern such as \"yyyy-MM-dd\"",
+                                STYLES
+                                    .iter()
+                                    .map(|s| format!(".{s}"))
+                                    .collect::<Vec<_>>()
+                                    .join(", ")
+                            ),
+                        );
+                    }
+                    Expr::EnumCase(_) | Expr::StringLiteral(_) => {}
+                    other => {
+                        let ty = self.infer(other, None);
+                        if !ty.assignable_to(&Type::String) && !matches!(ty, Type::Case(_)) {
+                            self.error_at_current(
+                                "T01",
+                                format!("the style of `format` is `{ty}`, but a `.style` or a date pattern is wanted"),
+                                "",
+                            );
+                        }
+                    }
+                }
+                continue;
+            }
+            self.infer(a, None);
+        }
+        Type::String
     }
 
     fn call_args(&mut self, params: &[Type], args: &[Expr], what: &str) {
@@ -1528,8 +2251,53 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// An error at the statement or argument being checked. Expressions
     /// carry no span of their own; the nearest enclosing one is used.
     fn error_at_current(&mut self, code: &str, message: String, hint: &str) {
-        let span = self.current_span;
+        let span = self.located(self.current_span, &message);
         self.error(span, code, message, hint);
+    }
+
+    /// `span`, moved to the first thing the message names in backticks
+    /// that the statement's text holds — `sel?.title`, `.angry`, `nam` —
+    /// when the source is at hand.
+    fn located(&self, span: Span, message: &str) -> Span {
+        let Some(source) = &self.source else {
+            return span;
+        };
+        let (start, end) = (span.start as usize, span.end as usize);
+        if end <= start
+            || end > source.len()
+            || !source.is_char_boundary(start)
+            || !source.is_char_boundary(end)
+        {
+            return span;
+        }
+        let text = &source[start..end];
+        let mut rest = message;
+        while let Some(open) = rest.find('`') {
+            let after = &rest[open + 1..];
+            let Some(close) = after.find('`') else {
+                break;
+            };
+            let needle = &after[..close];
+            rest = &after[close + 1..];
+            if needle.is_empty() {
+                continue;
+            }
+            if let Some(at) = text.find(needle) {
+                let before = &text[..at];
+                let line = span.line as usize + before.matches('\n').count();
+                let col = match before.rfind('\n') {
+                    Some(nl) => before[nl + 1..].chars().count() + 1,
+                    None => span.col as usize + before.chars().count(),
+                };
+                let mut located = span;
+                located.line = line as u32;
+                located.col = col as u32;
+                located.start = (start + at) as u32;
+                located.end = (start + at + needle.len()) as u32;
+                return located;
+            }
+        }
+        span
     }
 }
 
@@ -1570,6 +2338,18 @@ fn narrowed_names(cond: &Expr) -> Vec<String> {
     }
 }
 
+/// Whether `expr` is, or reads through, a `?.` — so the rest of its chain
+/// short-circuits with it.
+fn in_optional_chain(expr: &Expr) -> bool {
+    match expr {
+        Expr::OptionalProperty(..) | Expr::OptionalMethod(..) | Expr::OptionalIndex(..) => true,
+        Expr::PropertyAccess(base, _)
+        | Expr::IndexAccess(base, _)
+        | Expr::MethodCall(base, _, _) => in_optional_chain(base),
+        _ => false,
+    }
+}
+
 /// The types of the names every program can read.
 fn global_type(name: &str) -> Type {
     match name {
@@ -1577,14 +2357,112 @@ fn global_type(name: &str) -> Type {
         | "sessionStorage" | "JSON" | "Math" | "Date" | "navigator" | "location" | "fetch"
         | "setTimeout" | "clearTimeout" | "setInterval" | "clearInterval" | "Object" | "Array"
         | "Promise" | "locale" | "dir" => Type::Any,
+        // The project's `env`: a map of what the config set.
+        "env" => Type::Map,
+        // The browser as values.
+        "viewport" => Type::Shape(vec![
+            ("width".to_string(), Type::Number),
+            ("height".to_string(), Type::Number),
+            ("sm".to_string(), Type::Bool),
+            ("md".to_string(), Type::Bool),
+            ("lg".to_string(), Type::Bool),
+            ("xl".to_string(), Type::Bool),
+        ]),
+        "query" => Type::Map,
+        "hash" => Type::String,
+        // What the reader chose: `light`, `dark` or `system`.
+        "theme" => Type::String,
         _ => Type::Any,
     }
+}
+
+/// What `Form(bind: form)` binds: whether every control is valid, the
+/// values by field name, and `reset()`.
+pub fn form_type() -> Type {
+    Type::Shape(vec![
+        ("valid".to_string(), Type::Bool),
+        ("values".to_string(), Type::Map),
+        ("element".to_string(), Type::Any),
+        (
+            "reset".to_string(),
+            Type::Func(Vec::new(), Box::new(Type::Null)),
+        ),
+        (
+            "submit".to_string(),
+            Type::Func(Vec::new(), Box::new(Type::Null)),
+        ),
+    ])
+}
+
+/// The names every `Form(bind: name)` in `stmts` declares, at any depth.
+pub fn form_names(stmts: &[Statement]) -> Vec<String> {
+    fn walk(stmts: &[Statement], out: &mut Vec<String>) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(el) = &stmt.kind {
+                if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form") {
+                    for arg in &el.args {
+                        if let Arg::Named(k, Expr::Identifier(name)) = arg
+                            && k == "bind"
+                            && !out.contains(name)
+                        {
+                            out.push(name.clone());
+                        }
+                    }
+                }
+                walk(&el.children, out);
+                for fill in &el.slot_fills {
+                    walk(&fill.body, out);
+                }
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(stmts, &mut out);
+    out
+}
+
+/// The names every `ref: name` in `stmts` declares, at any depth.
+pub fn ref_names(stmts: &[Statement]) -> Vec<String> {
+    fn walk(stmts: &[Statement], out: &mut Vec<String>) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(el) = &stmt.kind {
+                for arg in &el.args {
+                    if let Arg::Named(k, Expr::Identifier(name)) = arg
+                        && k == "ref"
+                        && !out.contains(name)
+                    {
+                        out.push(name.clone());
+                    }
+                }
+                walk(&el.children, out);
+                for fill in &el.slot_fills {
+                    walk(&fill.body, out);
+                }
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(stmts, &mut out);
+    out
+}
+
+/// `.failed(reason: String)`: a case with its payload, for a hint.
+fn case_signature(case: &str, fields: &[(String, Type)]) -> String {
+    let parts: Vec<String> = fields.iter().map(|(n, t)| format!("{n}: {t}")).collect();
+    format!(".{case}({})", parts.join(", "))
 }
 
 /// A short rendering of an expression, for a message.
 pub fn expr_text(expr: &Expr) -> String {
     match expr {
         Expr::StringLiteral(s) => format!("\"{s}\""),
+        Expr::Regex(p, f) => format!("/{p}/{f}"),
         Expr::InterpolatedString(_) => "\"…\"".to_string(),
         Expr::NumberLiteral(n) => format!("{n}"),
         Expr::BoolLiteral(b) => b.to_string(),
@@ -1592,15 +2470,24 @@ pub fn expr_text(expr: &Expr) -> String {
         Expr::Identifier(n) => n.clone(),
         Expr::PropertyAccess(b, f) => format!("{}.{f}", expr_text(b)),
         Expr::IndexAccess(b, i) => format!("{}[{}]", expr_text(b), expr_text(i)),
+        Expr::OptionalProperty(b, f) => format!("{}?.{f}", expr_text(b)),
+        Expr::OptionalIndex(b, i) => format!("{}?.[{}]", expr_text(b), expr_text(i)),
+        Expr::OptionalMethod(o, m, _) => format!("{}?.{m}(…)", expr_text(o)),
         Expr::BinaryOp(l, _, r) => format!("{} … {}", expr_text(l), expr_text(r)),
         Expr::UnaryOp(_, e) => format!("!{}", expr_text(e)),
         Expr::MethodCall(o, m, _) => format!("{}.{m}(…)", expr_text(o)),
         Expr::FunctionCall(n, _) => format!("{n}(…)"),
         Expr::ListLiteral(_) => "[…]".to_string(),
+        Expr::Spread(e) => format!("...{}", expr_text(e)),
+        Expr::Range(a, b, _) => format!("{}..{}", expr_text(a), expr_text(b)),
         Expr::MapLiteral(_) => "{…}".to_string(),
         Expr::Record(n, _) => format!("{n}(…)"),
         Expr::Lambda(p, _) => format!("{p} => …"),
         Expr::EnumCase(c) => format!(".{c}"),
+        Expr::CaseValue(c, args) => format!(
+            ".{c}({})",
+            args.iter().map(expr_text).collect::<Vec<_>>().join(", ")
+        ),
         Expr::Token(t) => format!("${t}"),
         Expr::Await(e) => format!("await {}", expr_text(e)),
     }
@@ -1856,5 +2743,259 @@ mod tests {
         clean(
             "store S { state items = [] state q = \"\" action add(item: Map) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
         );
+    }
+
+    #[test]
+    fn a_loop_in_an_action_binds_the_item_and_the_index() {
+        clean(&format!(
+            "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n state n = 0\n action all() {{ for t in items {{ n = n + t.title.length }}\n for t, i in items {{ n = n + i }} }} }}"
+        ));
+        has(
+            &format!(
+                "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n action all() {{ for t in items {{ t.nam = 1 }} }} }}"
+            ),
+            "[T05] `Todo` has no field `nam`",
+        );
+        has(
+            "page P(path: \"/\") { state s = \"x\"\n action all() { for c in s { log(c) } } }",
+            "[T08] `for` loops over a list, but `s` is `String`",
+        );
+    }
+
+    #[test]
+    fn optional_chaining_reads_through_null_and_its_result_may_be_null() {
+        clean(&format!(
+            "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived t = sel?.title\n derived n = sel?.title?.length ?? 0\n Text(t ?? \"none\") }}"
+        ));
+        has(
+            &format!(
+                "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived t = sel?.nam\n Text(t ?? \"\") }}"
+            ),
+            "[T05] `Todo` has no field `nam`",
+        );
+        // The rest of the chain short-circuits with the `?.`: no fault, a
+        // value that may be null.
+        clean(&format!(
+            "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived n = sel?.title.length\n Text(\"{{n}}\") }}"
+        ));
+        assert_eq!(
+            type_of(
+                &format!(
+                    "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived n = sel?.title.length\n Text(\"x\") }}"
+                ),
+                "n"
+            ),
+            "Number?"
+        );
+        // Off the chain, the result is a value that may be null.
+        has(
+            &format!(
+                "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived t = sel?.title\n derived n = t.length\n Text(\"{{n}}\") }}"
+            ),
+            "[T04] `t` may be null",
+        );
+        assert_eq!(
+            type_of(
+                &format!(
+                    "{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n derived t = sel?.title\n Text(\"x\") }}"
+                ),
+                "t"
+            ),
+            "String?"
+        );
+    }
+
+    #[test]
+    fn a_map_literal_has_the_shape_it_was_written_with() {
+        clean(
+            "page P(path: \"/\") { state user = { name: \"\", age: 0 }\n derived n = user.name.length + user.age\n Text(\"{n}\") }",
+        );
+        has(
+            "page P(path: \"/\") { state user = { name: \"\", age: 0 }\n Text(user.nam) }",
+            "[T05] `user` has no field `nam`\n  It was written with `name`, `age`",
+        );
+        has(
+            "page P(path: \"/\") { derived rows = [{ id: 1, label: \"a\" }]\n for r in rows { Text(r.lable) } }",
+            "[T05] `r` has no field `lable`",
+        );
+        assert_eq!(
+            type_of(
+                "page P(path: \"/\") { state user = { name: \"\", age: 0 }\n Text(\"x\") }",
+                "user"
+            ),
+            "{ name: String, age: Number }"
+        );
+        // A shape fits a record, a map or another shape that agrees on the
+        // shared fields; an empty literal or a spread says nothing about the keys.
+        clean(&format!(
+            "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n state form = {{}}\n state opts = {{ ...form, x: 1 }}\n action add() {{ items.push({{ id: \"1\", title: \"t\" }})  form.anything = 1  opts.other = 2 }} }}"
+        ));
+        has(
+            &format!(
+                "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n action add() {{ items.push({{ id: 1, title: \"t\" }}) }} }}"
+            ),
+            "`id` is `Number`, but `String` is wanted",
+        );
+        // Two shapes join on the fields they share.
+        assert_eq!(
+            type_of(
+                "page P(path: \"/\") { state on = true\n derived v = if on { { a: 1, b: \"\" } } else { { a: 2, c: true } }\n Text(\"x\") }",
+                "v"
+            ),
+            "{ a: Number, b: String?, c: Bool? }"
+        );
+        clean(
+            "page P(path: \"/\") { state rows = [{ id: 1 }, { id: 2, other: true }]\n derived n = rows.filter(r => r.other).length\n Text(\"{n}\") }",
+        );
+    }
+
+    const STATUS: &str =
+        "enum Status { idle, failed(reason: String), done(count: Number, label: String) }\n";
+
+    #[test]
+    fn a_case_carries_the_payload_it_was_declared_with() {
+        clean(&format!(
+            "{STATUS}page P(path: \"/\") {{ state s: Status = .idle\n action go() {{ s = .failed(\"boom\")  s = .done(1, \"one\") }}\n match s {{ .idle {{ Text(\"idle\") }} .failed(r) {{ Text(r.toUpperCase()) }} .done(n, l) {{ Text(\"{{n}} {{l}}\") }} }}\n Text(match s {{ .failed(r) {{ r }} .done {{ \"done\" }} else {{ \"-\" }} }}) }}"
+        ));
+        assert_eq!(
+            type_of(
+                &format!(
+                    "{STATUS}page P(path: \"/\") {{ state s: Status = .idle\n derived r = match s {{ .failed(r) {{ r }} else {{ \"\" }} }}\n Text(r) }}"
+                ),
+                "r"
+            ),
+            "String"
+        );
+        has(
+            &format!("{STATUS}page P(path: \"/\") {{ state s: Status = .failed  Text(\"x\") }}"),
+            "[T02] `.failed` carries a payload; `.failed` alone is not a `Status`\n  Give it: `.failed(reason: String)`",
+        );
+        has(
+            &format!("{STATUS}page P(path: \"/\") {{ state s: Status = .idle(1)  Text(\"x\") }}"),
+            "[T02] `.idle` carries nothing; `.idle(…)` is not a `Status`",
+        );
+        has(
+            &format!("{STATUS}page P(path: \"/\") {{ state s: Status = .failed(1)  Text(\"x\") }}"),
+            "[T01] argument 1 of `.failed` is `Number`, but `String` is wanted",
+        );
+        has(
+            &format!("{STATUS}page P(path: \"/\") {{ state s: Status = .done(1)  Text(\"x\") }}"),
+            "[T10] `.done` takes 2 arguments, but 1 is given",
+        );
+        has(
+            &format!(
+                "{STATUS}page P(path: \"/\") {{ state s: Status = .idle\n match s {{ .done(n) {{ Text(\"{{n}}\") }} else {{ }} }} }}"
+            ),
+            "[T10] `.done` carries 2 values, but 1 is bound\n  Bind every part: `.done(count: Number, label: String)`",
+        );
+        has(
+            &format!(
+                "{STATUS}page P(path: \"/\") {{ state s: Status = .idle\n match s {{ .idle(x) {{ Text(x) }} else {{ }} }} }}"
+            ),
+            "[T10] `.idle` carries 0 values, but 1 is bound",
+        );
+        has(
+            &format!(
+                "{STATUS}page P(path: \"/\") {{ state s: Status = .idle\n match s {{ .done(n, l) {{ for x in n {{ Text(\"{{x}}\") }} }} else {{ }} }} }}"
+            ),
+            "[T08] `for` loops over a list, but `n` is `Number`",
+        );
+        has(
+            &format!(
+                "{STATUS}page P(path: \"/\") {{ state s: Status = .idle\n derived r = match s {{ .gone {{ 1 }} else {{ 0 }} }}\n Text(\"{{r}}\") }}"
+            ),
+            "[T02] `Status` has no case `.gone`",
+        );
+    }
+
+    #[test]
+    fn format_and_ago_are_strings_with_a_known_style() {
+        clean(
+            "page P(path: \"/\") { state n = 1234.5\n state d = \"2024-03-05\"\n derived a = format(n, .currency) + format(n, .currency, \"EUR\") + format(n) + format(d, \"yyyy-MM-dd\") + format(d, .date, \"long\") + ago(d)\n Text(a.toUpperCase()) }",
+        );
+        has(
+            "page P(path: \"/\") { state n = 1\n Text(format(n, .money)) }",
+            "[T02] `format` has no style `.money`",
+        );
+        has(
+            "page P(path: \"/\") { state n = 1\n Text(format(n, 2)) }",
+            "[T01] the style of `format` is `Number`, but a `.style` or a date pattern is wanted",
+        );
+        has(
+            "page P(path: \"/\") { state n = 1\n Text(format()) }",
+            "[T10] `format` takes 1 to 3 arguments, but 0 are given",
+        );
+        // A page's own `format` action is its own.
+        clean(
+            "page P(path: \"/\") { state n = 1\n action format(x: Number) { return \"{x}!\" }\n Text(format(n)) }",
+        );
+    }
+
+    #[test]
+    fn a_form_handle_and_an_actions_pending_are_typed() {
+        clean(
+            "page P(path: \"/\") { state ok = false\n action save() { let r = await fetch(\"/x\")  ok = true }\n Form(bind: f) { Input(name: \"a\")  Button(\"s\", disabled: !f.valid || save.pending) { on click { f.reset()  log(f.values.a) } } } }",
+        );
+        has(
+            "page P(path: \"/\") { action save() { log(1) }\n Text(\"{save.nope}\") }",
+            "[T05] `save` is an action; it has no field `nope`",
+        );
+        has(
+            "page P(path: \"/\") { Form(bind: f) { Input(name: \"a\") }\n Text(f.vald) }",
+            "[T05] `f` has no field `vald`",
+        );
+    }
+
+    #[test]
+    fn refs_and_timers_are_typed() {
+        clean(
+            "page P(path: \"/\") { state n = 0\n Input(bind: q, ref: box)\n state q = \"\"\n Button(\"x\") { on click { box.focus()  box.value = \"\" } }\n every(1000) { n = n + 1 }\n effect { log(n)  cleanup { log(n) } } }",
+        );
+        has(
+            "page P(path: \"/\") { state n = 0\n every(\"soon\") { n = n + 1 } }",
+            "[T01] `every` takes milliseconds, but `\"soon\"` is `String`",
+        );
+        has(
+            "page P(path: \"/\") { state q = \"\"\n Input(bind: q, ref: \"box\") }",
+            "[T01] `ref:` on `Input` names the handle, but `\"box\"` is given",
+        );
+    }
+
+    #[test]
+    fn a_scoped_slot_types_its_values_and_a_fills_names() {
+        clean(&format!(
+            "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo, index: Number)  for it, i in items {{ row(item: it, index: i) }} }}\npage P(path: \"/\") {{ state todos: [Todo] = []\n  Rows(items: todos) {{ row(t, i) {{ Text(\"{{i}}: {{t.title}}\") }} }} }}"
+        ));
+        has(
+            &format!(
+                "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo, index: Number)  for it, i in items {{ row(item: it, index: \"x\") }} }}\npage P(path: \"/\") {{ Text(\"x\") }}"
+            ),
+            "[T01] `index` of `row` is `String`, but `Number` is wanted",
+        );
+        has(
+            &format!(
+                "{TODOS}component Rows(items: [Todo]) {{ slot row(item: Todo)  for it in items {{ row(item: it) }} }}\npage P(path: \"/\") {{ state todos: [Todo] = []\n  Rows(items: todos) {{ row(t) {{ Text(t.nam) }} }} }}"
+            ),
+            "[T05] `Todo` has no field `nam`",
+        );
+    }
+
+    #[test]
+    fn an_error_is_placed_at_the_expression_it_names_when_the_source_is_at_hand() {
+        let src = format!(
+            "{TODOS}page P(path: \"/\") {{\n    state sel: Todo? = null\n    derived n = 1 + sel.title.length\n    Text(\"x\")\n}}"
+        );
+        let program = crate::syntax::parse_source(&src, "t.wf").unwrap();
+        let info = check_in(&program, &|_| "t.wf".to_string(), &|_| Some(src.clone()));
+        let error = info
+            .findings
+            .errors
+            .iter()
+            .find(|e| e.message.contains("T04"))
+            .unwrap();
+        // `sel` sits on the derived line, after `derived n = 1 + `.
+        let line = src.lines().position(|l| l.contains("derived n")).unwrap() + 1;
+        assert_eq!(error.line, line, "{error:?}");
+        assert_eq!(error.column, "    derived n = 1 + ".len() + 1, "{error:?}");
     }
 }

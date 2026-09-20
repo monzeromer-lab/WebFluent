@@ -63,6 +63,8 @@ enum Body {
     Component,
     Store,
     App,
+    /// A `test` body: elements and `expect` lines.
+    Test,
     /// The children of an element, a branch, a loop, an arm.
     Nested,
 }
@@ -74,18 +76,31 @@ struct ComponentBody {
     span: Span,
     events: Vec<EventDecl>,
     slots: Vec<SlotDecl>,
+    /// The `part` declarations, parsed as components of their own.
+    parts: Vec<ComponentDecl>,
 }
 
 pub struct ParserV2 {
     tokens: Vec<Token>,
     pos: usize,
     file: String,
+    /// Destructuring `let`s seen, for the name of each one's temporary.
+    destructures: usize,
+    /// Components a `part` declares, to land beside their owner.
+    hoisted: Vec<Declaration>,
+    /// The `cleanup { … }` block an effect's body ended with.
+    pending_cleanup: Option<Vec<Statement>>,
+    /// The depth of the imperative block that is an effect's own body,
+    /// where `cleanup` may close it.
+    effect_body: Option<usize>,
+    /// How many imperative blocks are open.
+    block_depth: usize,
 }
 
 const CLAUSE_WORDS: &[&str] = &["style", "transition", "on"];
 const STATEMENT_WORDS: &[&str] = &[
-    "state", "derived", "effect", "action", "use", "resource", "event", "slot", "if", "for",
-    "show", "match", "children", "let", "return", "navigate", "log", "emit", "else",
+    "state", "persist", "derived", "effect", "action", "use", "resource", "event", "slot", "part",
+    "if", "for", "show", "match", "children", "let", "return", "navigate", "log", "emit", "else",
 ];
 
 impl ParserV2 {
@@ -94,6 +109,11 @@ impl ParserV2 {
             tokens,
             pos: 0,
             file: file.to_string(),
+            destructures: 0,
+            hoisted: Vec::new(),
+            pending_cleanup: None,
+            effect_body: None,
+            block_depth: 0,
         }
     }
 
@@ -276,6 +296,14 @@ impl ParserV2 {
                 "app" => self.parse_app()?,
                 "type" => self.parse_type_decl(doc)?,
                 "enum" => self.parse_enum_decl(doc)?,
+                "const" => self.parse_const_decl(doc)?,
+                "animation" => self.parse_animation_decl(doc)?,
+                "test" if matches!(self.kind_at(1), TokenType::StringLiteral(_)) => {
+                    self.parse_test_decl()?
+                }
+                "data" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
+                    self.parse_data_decl(doc)?
+                }
                 "Page" | "Component" | "Store" | "App" | "Theme" => {
                     return Err(self.error_with_hint(
                         format!("`{word}` is a WebFluent 2 declaration"),
@@ -288,7 +316,7 @@ impl ParserV2 {
                 _ => {
                     return Err(self.error_with_hint(
                         format!(
-                            "Expected a declaration — page, component, store, theme, app, type or enum — got {}",
+                            "Expected a declaration — page, component, store, theme, app, type, enum, const, animation, data or test — got {}",
                             self.describe()
                         ),
                         "Every file is a list of declarations; elements live inside a page or component",
@@ -296,6 +324,7 @@ impl ParserV2 {
                 }
             };
             declarations.push(decl);
+            declarations.append(&mut self.hoisted);
         }
         Ok(Program { declarations })
     }
@@ -316,6 +345,8 @@ impl ParserV2 {
             noindex: false,
             layout: None,
             params: Vec::new(),
+            head: Vec::new(),
+            paths: None,
             body: Vec::new(),
             span: Span::dummy(),
             header_span: Span::dummy(),
@@ -346,6 +377,8 @@ impl ParserV2 {
                         }
                     }
                     "guard" => page.guard = Some(self.parse_expression()?),
+                    // The values a static build renders a `:param` page for.
+                    "paths" => page.paths = Some(self.parse_expression()?),
                     "layout" => {
                         let layout_mark = self.mark();
                         let layout = self.expect_ident("the layout component's name")?;
@@ -386,7 +419,37 @@ impl ParserV2 {
             self.expect(&TokenType::CloseParen, "`)`")?;
         }
         page.header_span = self.span_since(mark);
-        let (body, body_span) = self.parse_render_block(Body::Page)?;
+        let (mut body, body_span) = self.parse_render_block(Body::Page)?;
+        // `head { … }` was parsed as a statement of the body; it is the
+        // page's own.
+        body.retain(|stmt| match &stmt.kind {
+            StatementKind::UIElement(el)
+                if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "__Head") =>
+            {
+                page.head.extend(el.children.iter().filter_map(|c| match &c.kind {
+                    StatementKind::UIElement(tag) => Some(HeadTag {
+                        tag: match &tag.component {
+                            ComponentRef::BuiltIn(t) | ComponentRef::UserDefined(t) => {
+                                t.to_lowercase()
+                            }
+                            ComponentRef::SubComponent(a, b) => format!("{a}.{b}"),
+                        },
+                        attrs: tag
+                            .args
+                            .iter()
+                            .filter_map(|a| match a {
+                                Arg::Named(k, v) => Some((k.clone(), v.clone())),
+                                Arg::Positional(_) => None,
+                            })
+                            .collect(),
+                        span: c.span,
+                    }),
+                    _ => None,
+                }));
+                false
+            }
+            _ => true,
+        });
         page.body = body;
         page.body_span = body_span;
         page.span = self.span_since(mark);
@@ -408,9 +471,23 @@ impl ParserV2 {
     }
 
     fn parse_component(&mut self, doc: Option<String>) -> Result<Declaration> {
+        self.parse_component_like("component", None, doc)
+    }
+
+    /// `component Name(props) { … }`, or a `part Name(props) { … }` of
+    /// `owner`, which is the component `Owner.Name`.
+    fn parse_component_like(
+        &mut self,
+        keyword: &str,
+        owner: Option<&str>,
+        doc: Option<String>,
+    ) -> Result<Declaration> {
         let mark = self.mark();
-        self.expect_word("component")?;
-        let name = self.expect_ident("the component's name")?;
+        self.expect_word(keyword)?;
+        let mut name = self.expect_ident(&format!("the {keyword}'s name"))?;
+        if let Some(owner) = owner {
+            name = format!("{owner}.{name}");
+        }
         let mut props = Vec::new();
         if self.eat(&TokenType::OpenParen) {
             while !self.check(&TokenType::CloseParen) && !self.at_end() {
@@ -430,12 +507,20 @@ impl ParserV2 {
             span: body_span,
             events,
             slots,
-        } = self.parse_component_body()?;
+            parts,
+        } = self.parse_component_body(&name)?;
+        let part_names = parts
+            .iter()
+            .map(|p| p.name.rsplit('.').next().unwrap_or(&p.name).to_string())
+            .collect();
+        self.hoisted
+            .extend(parts.into_iter().map(Declaration::Component));
         Ok(Declaration::Component(ComponentDecl {
             name,
             props,
             events,
             slots,
+            parts: part_names,
             doc,
             body,
             span: self.span_since(mark),
@@ -556,10 +641,31 @@ impl ParserV2 {
         let mark = self.mark();
         self.expect_word("type")?;
         let name = self.expect_ident("the type's name")?;
+        // `type Admin = User { … }` extends `User`.
+        let extends = if self.eat(&TokenType::Equals) {
+            Some(self.expect_ident("the record to extend")?)
+        } else {
+            None
+        };
         let header_span = self.span_since(mark);
         self.expect(&TokenType::OpenBrace, "`{`")?;
+        let fields = self.parse_field_list(&TokenType::CloseBrace)?;
+        self.expect(&TokenType::CloseBrace, "`}`")?;
+        Ok(Declaration::Type(TypeDecl {
+            name,
+            extends,
+            fields,
+            doc,
+            span: self.span_since(mark),
+            header_span,
+        }))
+    }
+
+    /// `name: Type = default, …` up to `close`, which is left in place: a
+    /// record's fields, or an enum case's payload.
+    fn parse_field_list(&mut self, close: &TokenType) -> Result<Vec<FieldDecl>> {
         let mut fields = Vec::new();
-        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+        while !self.check(close) && !self.at_end() {
             let field_doc = self.take_docs();
             let field_mark = self.mark();
             let field_name = self.expect_ident("a field name")?;
@@ -577,17 +683,183 @@ impl ParserV2 {
                 doc: field_doc,
                 span: self.span_since(field_mark),
             });
-            if !self.check(&TokenType::CloseBrace) {
+            if !self.check(close) {
                 self.eat(&TokenType::Comma);
             }
         }
+        Ok(fields)
+    }
+
+    /// `animation Pulse { from { opacity: 1 } 50% { opacity: 0.4 } to { opacity: 1 } }`.
+    fn parse_animation_decl(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("animation")?;
+        let name = self.expect_ident("the animation's name")?;
+        if !name.starts_with(char::is_uppercase) {
+            return Err(self.error_with_hint(
+                format!("`{name}` is not an animation name"),
+                "An animation's name is capitalised, like a component's: `animation Pulse`",
+            ));
+        }
+        self.expect(&TokenType::OpenBrace, "`{`")?;
+        let mut frames = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            let TokenType::RawSelector(selector) = self.kind().clone() else {
+                return Err(self.error_with_hint(
+                    format!("Expected a keyframe, got {}", self.describe()),
+                    "A keyframe is `from { … }`, `to { … }` or a percentage: `50% { … }`",
+                ));
+            };
+            self.advance();
+            self.expect(&TokenType::OpenBrace, "`{`")?;
+            let mut properties = Vec::new();
+            while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                properties.push(self.parse_style_property()?);
+            }
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+            frames.push(KeyFrame {
+                selector,
+                properties,
+            });
+        }
         self.expect(&TokenType::CloseBrace, "`}`")?;
-        Ok(Declaration::Type(TypeDecl {
+        if frames.is_empty() {
+            return Err(self.error(format!("`animation {name}` has no keyframes")));
+        }
+        Ok(Declaration::Animation(AnimationDecl {
             name,
-            fields,
+            frames,
             doc,
             span: self.span_since(mark),
-            header_span,
+        }))
+    }
+
+    /// `data posts = "posts.json"`, `data posts: [Post] = "content/posts.json"`.
+    fn parse_data_decl(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("data")?;
+        let name = self.expect_ident("the data's name")?;
+        let ty = if self.eat(&TokenType::Colon) {
+            Some(self.parse_type_ref()?)
+        } else {
+            None
+        };
+        self.expect(&TokenType::Equals, "`=` and the file's name")?;
+        let file = match self.kind().clone() {
+            TokenType::StringLiteral(f) => {
+                self.advance();
+                f
+            }
+            _ => {
+                return Err(self.error_with_hint(
+                    "Expected the file's name, in quotes".into(),
+                    "Write `data posts = \"posts.json\"`; the file is read at build time",
+                ));
+            }
+        };
+        if !file.ends_with(".json") {
+            return Err(self.error_with_hint(
+                format!("`{file}` is not a JSON file"),
+                "A data file is JSON: a list, a map, or a value",
+            ));
+        }
+        Ok(Declaration::Data(DataDecl {
+            name,
+            ty,
+            file,
+            doc,
+            span: self.span_since(mark),
+        }))
+    }
+
+    /// `test "name"(data: { … }) { elements  expect "text"  expect not "x" }`.
+    fn parse_test_decl(&mut self) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("test")?;
+        let name = match self.kind().clone() {
+            TokenType::StringLiteral(s) => {
+                self.advance();
+                s
+            }
+            _ => return Err(self.error("Expected the test's name, in quotes".into())),
+        };
+        let mut data = None;
+        if self.eat(&TokenType::OpenParen) {
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                let key = self.expect_ident("`data`")?;
+                self.expect(&TokenType::Colon, "`:`")?;
+                let value = self.parse_expression()?;
+                if key == "data" {
+                    data = Some(value);
+                } else {
+                    return Err(self.error_with_hint(
+                        format!("`{key}` is not something a test takes"),
+                        "A test takes `data: { … }`, the values its body renders over",
+                    ));
+                }
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+        let (statements, _) = self.parse_render_block(Body::Test)?;
+        let mut body = Vec::new();
+        let mut expects = Vec::new();
+        for stmt in statements {
+            match &stmt.kind {
+                StatementKind::UIElement(el) if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "__Expect") =>
+                {
+                    let text = el
+                        .args
+                        .iter()
+                        .find_map(|a| match a {
+                            Arg::Positional(e) => Some(e.clone()),
+                            Arg::Named(..) => None,
+                        })
+                        .unwrap_or(Expr::StringLiteral(String::new()));
+                    expects.push(Expect {
+                        text,
+                        negated: el.modifiers.iter().any(|m| m == "not"),
+                        span: stmt.span,
+                    });
+                }
+                _ => body.push(stmt),
+            }
+        }
+        if expects.is_empty() {
+            return Err(self.error_with_hint(
+                format!("test \"{name}\" expects nothing"),
+                "End it with what the render must show: `expect \"text\"`, or `expect not \"text\"`",
+            ));
+        }
+        Ok(Declaration::Test(TestDecl {
+            name,
+            data,
+            body,
+            expects,
+            span: self.span_since(mark),
+        }))
+    }
+
+    /// `const API = "/api"`, `const LIMIT: Number = 10`.
+    fn parse_const_decl(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("const")?;
+        let name = self.expect_ident("the constant's name")?;
+        let ty = if self.eat(&TokenType::Colon) {
+            Some(self.parse_type_ref()?)
+        } else {
+            None
+        };
+        self.expect(&TokenType::Equals, "`=`")?;
+        let value = self.parse_expression()?;
+        Ok(Declaration::Const(ConstDecl {
+            name,
+            ty,
+            value,
+            doc,
+            span: self.span_since(mark),
         }))
     }
 
@@ -597,10 +869,32 @@ impl ParserV2 {
         let name = self.expect_ident("the enum's name")?;
         let header_span = self.span_since(mark);
         self.expect(&TokenType::OpenBrace, "`{`")?;
-        let mut cases = Vec::new();
+        let mut cases: Vec<EnumCase> = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            self.take_docs();
             self.eat(&TokenType::Dot);
-            cases.push(self.expect_ident("a case name")?);
+            let case_name = self.expect_ident("a case name")?;
+            // `failed(reason: String)`: the payload the case carries.
+            let fields = if self.eat(&TokenType::OpenParen) {
+                let fields = self.parse_field_list(&TokenType::CloseParen)?;
+                self.expect(&TokenType::CloseParen, "`)`")?;
+                if fields.is_empty() {
+                    return Err(self.error_with_hint(
+                        format!("`{case_name}()` carries nothing"),
+                        "Name what the case carries, `failed(reason: String)`, or drop the parentheses",
+                    ));
+                }
+                fields
+            } else {
+                Vec::new()
+            };
+            if cases.iter().any(|c| c.name == case_name) {
+                return Err(self.error(format!("`enum {name}` has `{case_name}` twice")));
+            }
+            cases.push(EnumCase {
+                name: case_name,
+                fields,
+            });
             if !self.check(&TokenType::CloseBrace) {
                 self.eat(&TokenType::Comma);
             }
@@ -637,14 +931,48 @@ impl ParserV2 {
         Ok((statements, span))
     }
 
-    /// A component's body: `event` and `slot` declarations are lifted out.
-    fn parse_component_body(&mut self) -> Result<ComponentBody> {
+    /// A component's body: `event`, `slot` and `part` declarations are
+    /// lifted out.
+    fn parse_component_body(&mut self, owner: &str) -> Result<ComponentBody> {
         let open = self.expect(&TokenType::OpenBrace, "`{`")?;
         let mut statements = Vec::new();
         let mut events = Vec::new();
         let mut slots = Vec::new();
+        let mut parts: Vec<ComponentDecl> = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let doc = self.take_docs();
+            // `part Header(_ text: String) { … }`: a component of the
+            // owner's, called `Owner.Header`.
+            if self.is_word("part") && matches!(self.kind_at(1), TokenType::Identifier(_)) {
+                if owner.contains('.') {
+                    return Err(self.error_with_hint(
+                        format!("`{owner}` is a part; a part declares no parts of its own"),
+                        "Declare it on the owning component",
+                    ));
+                }
+                let Declaration::Component(part) =
+                    self.parse_component_like("part", Some(owner), doc)?
+                else {
+                    unreachable!("a part parses as a component")
+                };
+                if !part
+                    .name
+                    .rsplit('.')
+                    .next()
+                    .unwrap_or("")
+                    .starts_with(char::is_uppercase)
+                {
+                    return Err(self.error_with_hint(
+                        format!("`{}` is not a part name", part.name),
+                        "A part's name is capitalised, like a component's: `part Header`",
+                    ));
+                }
+                if parts.iter().any(|p| p.name == part.name) {
+                    return Err(self.error(format!("`{}` is declared twice", part.name)));
+                }
+                parts.push(part);
+                continue;
+            }
             if self.is_word("event") {
                 let mark = self.mark();
                 self.advance();
@@ -677,8 +1005,15 @@ impl ParserV2 {
                     }
                     _ => None,
                 };
+                // `slot row(item: Todo)`: a scoped slot hands its fill values.
+                let params = if name.is_some() && self.check(&TokenType::OpenParen) {
+                    self.parse_params()?
+                } else {
+                    Vec::new()
+                };
                 slots.push(SlotDecl {
                     name,
+                    params,
                     span: self.span_since(mark),
                 });
                 continue;
@@ -697,6 +1032,7 @@ impl ParserV2 {
             span,
             events,
             slots,
+            parts,
         })
     }
 
@@ -728,12 +1064,102 @@ impl ParserV2 {
             return self.parse_imperative_kind();
         }
         match word.as_str() {
-            "state" => self.parse_state(),
+            // `head { meta(…) link(…) script(…) }`: the page's own head tags,
+            // gathered by the page parser.
+            "head" if body == Body::Page && matches!(self.kind_at(1), TokenType::OpenBrace) => {
+                self.advance();
+                self.expect(&TokenType::OpenBrace, "`{`")?;
+                let mut tags = Vec::new();
+                while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                    let mark = self.mark();
+                    let tag = self.expect_ident("a head tag: `meta`, `link` or `script`")?;
+                    if !matches!(tag.as_str(), "meta" | "link" | "script") {
+                        return Err(self.error_with_hint(
+                            format!("`{tag}` is not a head tag"),
+                            "A page's head holds `meta(…)`, `link(…)` and `script(…)`; its title and description are page attributes",
+                        ));
+                    }
+                    let (args, _) = self.parse_call_args()?;
+                    if args.iter().any(|a| matches!(a, Arg::Positional(_))) {
+                        return Err(self.error_with_hint(
+                            format!("`{tag}` takes named attributes"),
+                            &format!("Write `{tag}(name: \"…\", content: \"…\")`"),
+                        ));
+                    }
+                    let mut el = self.blank_element(ComponentRef::BuiltIn(tag));
+                    el.args = args;
+                    tags.push(Statement::new(
+                        StatementKind::UIElement(el),
+                        self.span_since(mark),
+                    ));
+                }
+                self.expect(&TokenType::CloseBrace, "`}`")?;
+                let mut holder = self.blank_element(ComponentRef::BuiltIn("__Head".to_string()));
+                holder.children = tags;
+                Ok(StatementKind::UIElement(holder))
+            }
+            // `expect "text"` / `expect not "text"` in a test.
+            "expect" if body == Body::Test => {
+                self.advance();
+                let negated = self.eat_word("not");
+                let text = self.parse_expression()?;
+                let mut el = self.blank_element(ComponentRef::BuiltIn("__Expect".to_string()));
+                el.args.push(Arg::Positional(text));
+                if negated {
+                    el.modifiers.push("not".to_string());
+                }
+                Ok(StatementKind::UIElement(el))
+            }
+            "state" => self.parse_state(false),
+            // `persist theme = "light"`: state kept across visits.
+            "persist" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
+                if !matches!(body, Body::Page | Body::Component | Body::Store) {
+                    return Err(self.error_with_hint(
+                        "`persist` is declared at the top of a page, a component or a store".into(),
+                        "Move it beside the `state` declarations",
+                    ));
+                }
+                self.parse_state(true)
+            }
             "derived" => self.parse_derived(),
             "effect" => {
                 self.advance();
-                let (stmts, _) = self.parse_imperative_block()?;
-                Ok(StatementKind::Effect(EffectDecl { body: stmts }))
+                let outer = self.effect_body.replace(self.block_depth + 1);
+                let parsed = self.parse_imperative_block();
+                self.effect_body = outer;
+                let (mut stmts, _) = parsed?;
+                // `cleanup { … }` closes the effect's body.
+                let mut cleanup = Vec::new();
+                if let Some(last) = stmts.last()
+                    && let StatementKind::ExprStatement(Expr::Identifier(w)) = &last.kind
+                    && w == "__cleanup"
+                {
+                    stmts.pop();
+                    cleanup = self.pending_cleanup.take().unwrap_or_default();
+                }
+                Ok(StatementKind::Effect(EffectDecl {
+                    body: stmts,
+                    cleanup,
+                }))
+            }
+            // `every(1000) { tick() }`, `after(500) { hide() }`.
+            "every" | "after" if matches!(self.kind_at(1), TokenType::OpenParen) => {
+                let every = word == "every";
+                self.advance();
+                self.expect(&TokenType::OpenParen, "`(`")?;
+                let interval = self.parse_expression()?;
+                self.expect(&TokenType::CloseParen, "`)`")?;
+                let (body, _) = self.parse_imperative_block()?;
+                Ok(StatementKind::Timer(TimerStmt {
+                    every,
+                    interval,
+                    body,
+                }))
+            }
+            // `on key("ctrl+k") { … }` on the page itself: the document
+            // listens.
+            "on" if matches!(self.kind_at(1), TokenType::Identifier(w) if w == "key") => {
+                Ok(StatementKind::EventHandler(self.parse_handler()?))
             }
             "action" => self.parse_action(),
             "use" => {
@@ -743,7 +1169,7 @@ impl ParserV2 {
             }
             "resource" => self.parse_resource(),
             "if" => self.parse_if(false),
-            "for" => self.parse_for(),
+            "for" => self.parse_for(false),
             "show" => {
                 self.advance();
                 let condition = self.parse_expression()?;
@@ -774,7 +1200,8 @@ impl ParserV2 {
                 "Write `Button(\"x\") { on click { … } }`",
             )),
             _ => {
-                // A slot use: a bare lowercase word in a component's body.
+                // A slot use: a bare lowercase word in a component's body, or
+                // one with named values for a scoped slot, `row(item: t)`.
                 let next = self.kind_at(1).clone();
                 let bare = !matches!(
                     next,
@@ -785,14 +1212,51 @@ impl ParserV2 {
                         | TokenType::OpenBrace
                         | TokenType::OpenBracket
                 );
-                if bare && body == Body::Component || bare && body == Body::Nested {
+                let scoped = matches!(next, TokenType::OpenParen)
+                    && matches!(self.kind_at(2), TokenType::Identifier(_))
+                    && matches!(self.kind_at(3), TokenType::Colon);
+                if (bare || scoped) && matches!(body, Body::Component | Body::Nested) {
                     self.advance();
-                    return Ok(StatementKind::UIElement(self.slot_use(&word)));
+                    let mut el = self.slot_use(&word);
+                    if scoped {
+                        let (args, _) = self.parse_call_args()?;
+                        for arg in args {
+                            match arg {
+                                Arg::Named(k, v) => el.args.push(Arg::Named(k, v)),
+                                Arg::Positional(_) => {
+                                    return Err(self.error_with_hint(
+                                        format!("`{word}` hands its values by name"),
+                                        &format!("Write `{word}(name: value)`"),
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                    return Ok(StatementKind::UIElement(el));
                 }
                 Err(self.error_with_hint(
                     format!("`{word}` is not an element or a statement a render block can hold"),
                     "Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised",
                 ))
+            }
+        }
+    }
+
+    /// Whether a fill with parameters — `row(item) {` — starts at the
+    /// current word: a parenthesised list of names and then a block.
+    fn fill_with_params_ahead(&self) -> bool {
+        if !matches!(self.kind_at(1), TokenType::OpenParen) {
+            return false;
+        }
+        let mut i = 2;
+        loop {
+            match self.kind_at(i) {
+                TokenType::Identifier(_) => i += 1,
+                TokenType::Comma => i += 1,
+                TokenType::CloseParen => {
+                    return matches!(self.kind_at(i + 1), TokenType::OpenBrace);
+                }
+                _ => return false,
             }
         }
     }
@@ -825,9 +1289,14 @@ impl ParserV2 {
             "style",
             "transition",
         ];
+        // `row(item: t)` hands a scoped slot its values: not a call.
+        let scoped = matches!(self.kind_at(1), TokenType::OpenParen)
+            && matches!(self.kind_at(2), TokenType::Identifier(_))
+            && matches!(self.kind_at(3), TokenType::Colon);
         let open = match self.kind_at(1) {
             TokenType::OpenParen
                 if !self.is_capitalized()
+                    && !scoped
                     && !self.ident().is_some_and(|w| KEYWORDS.contains(&w)) =>
             {
                 1
@@ -892,8 +1361,8 @@ impl ParserV2 {
         }
     }
 
-    fn parse_state(&mut self) -> Result<StatementKind> {
-        self.expect_word("state")?;
+    fn parse_state(&mut self, persist: bool) -> Result<StatementKind> {
+        self.expect_word(if persist { "persist" } else { "state" })?;
         let name = self.expect_ident("the state's name")?;
         let ty = if self.eat(&TokenType::Colon) {
             Some(self.parse_type_ref()?)
@@ -902,7 +1371,12 @@ impl ParserV2 {
         };
         self.expect(&TokenType::Equals, "`=` and an initial value")?;
         let value = self.parse_expression()?;
-        Ok(StatementKind::State(StateDecl { name, ty, value }))
+        Ok(StatementKind::State(StateDecl {
+            name,
+            ty,
+            value,
+            persist,
+        }))
     }
 
     fn parse_derived(&mut self) -> Result<StatementKind> {
@@ -1037,8 +1511,9 @@ impl ParserV2 {
         })
     }
 
-    /// `for item[, index] in iterable [by key] { … }`.
-    fn parse_for(&mut self) -> Result<StatementKind> {
+    /// `for item[, index] in iterable [by key] { … }`. In an imperative block
+    /// the body is statements and the loop runs once, in order.
+    fn parse_for(&mut self, imperative: bool) -> Result<StatementKind> {
         self.expect_word("for")?;
         let item = self.expect_ident("the loop variable")?;
         let index = if self.eat(&TokenType::Comma) {
@@ -1053,7 +1528,11 @@ impl ParserV2 {
         } else {
             None
         };
-        let (stmts, _) = self.parse_render_block(Body::Nested)?;
+        let (stmts, _) = if imperative {
+            self.parse_imperative_block()?
+        } else {
+            self.parse_render_block(Body::Nested)?
+        };
         Ok(StatementKind::For(ForStmt {
             item,
             index,
@@ -1073,11 +1552,12 @@ impl ParserV2 {
         let mut arms = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let mark = self.mark();
-            let (pattern, binding) = self.parse_arm_head()?;
+            let (pattern, binding, bindings) = self.parse_arm_head()?;
             let (body, _) = self.parse_render_block(Body::Nested)?;
             arms.push(MatchArm {
                 pattern,
                 binding,
+                bindings,
                 body,
                 span: self.span_since(mark),
             });
@@ -1089,10 +1569,25 @@ impl ParserV2 {
         Ok(StatementKind::Match(MatchStmt { scrutinee, arms }))
     }
 
-    fn parse_arm_head(&mut self) -> Result<(ArmPattern, Option<String>)> {
+    /// `(a, b)` after a `.case` arm: the names its payload is bound to.
+    fn parse_arm_bindings(&mut self) -> Result<Vec<String>> {
+        let mut names = Vec::new();
+        if self.eat(&TokenType::OpenParen) {
+            loop {
+                names.push(self.expect_ident("a name for the case's payload")?);
+                if !self.eat(&TokenType::Comma) {
+                    break;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+        Ok(names)
+    }
+
+    fn parse_arm_head(&mut self) -> Result<(ArmPattern, Option<String>, Vec<String>)> {
         if self.eat(&TokenType::Dot) {
             let case = self.expect_ident("a case name after `.`")?;
-            return Ok((ArmPattern::Case(case), None));
+            return Ok((ArmPattern::Case(case), None, self.parse_arm_bindings()?));
         }
         let word =
             self.expect_ident("a match arm: `loading`, `error(e)`, `ready(v)`, `.case` or `else`")?;
@@ -1118,7 +1613,7 @@ impl ParserV2 {
         } else {
             None
         };
-        Ok((pattern, binding))
+        Ok((pattern, binding, Vec::new()))
     }
 
     // ─── Elements ────────────────────────────────────────
@@ -1265,15 +1760,27 @@ impl ParserV2 {
                 }
                 _ if !word.is_empty()
                     && !self.is_capitalized()
-                    && next_is_brace
+                    && (next_is_brace || self.fill_with_params_ahead())
                     && !STATEMENT_WORDS.contains(&word.as_str()) =>
                 {
                     at(self, Stage::Fills)?;
                     let mark = self.mark();
                     self.advance();
+                    // `row(item, index) { … }` names what a scoped slot hands over.
+                    let mut params = Vec::new();
+                    if self.eat(&TokenType::OpenParen) {
+                        while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                            params.push(self.expect_ident("a name for the slot's value")?);
+                            if !self.check(&TokenType::CloseParen) {
+                                self.expect(&TokenType::Comma, "`,`")?;
+                            }
+                        }
+                        self.expect(&TokenType::CloseParen, "`)`")?;
+                    }
                     let (body, body_span) = self.parse_render_block(Body::Nested)?;
                     el.slot_fills.push(SlotFill {
                         name: word,
+                        params,
                         body,
                         span: self.span_since(mark),
                         body_span,
@@ -1291,8 +1798,14 @@ impl ParserV2 {
                             | TokenType::Colon
                             | TokenType::OpenBracket
                     );
-                    let known =
-                        self.is_capitalized() || STATEMENT_WORDS.contains(&word.as_str()) || bare;
+                    // `row(item: t)` hands a scoped slot its values.
+                    let scoped = matches!(self.kind_at(1), TokenType::OpenParen)
+                        && matches!(self.kind_at(2), TokenType::Identifier(_))
+                        && matches!(self.kind_at(3), TokenType::Colon);
+                    let known = self.is_capitalized()
+                        || STATEMENT_WORDS.contains(&word.as_str())
+                        || bare
+                        || scoped;
                     if word.is_empty() || !known {
                         return Err(self.error_with_hint(
                             format!("Loose code in an element's block: {}", self.describe()),
@@ -1319,17 +1832,42 @@ impl ParserV2 {
         let mark = self.mark();
         self.expect_word("on")?;
         let event = self.expect_ident("the event's name")?;
-        let param = if self.eat(&TokenType::OpenParen) {
-            let name = self.expect_ident("the event parameter's name")?;
+        let mut key = None;
+        let mut param = None;
+        if self.eat(&TokenType::OpenParen) {
+            // `on key("ctrl+k")`, or `on key("Escape", e)`.
+            if event == "key" {
+                match self.kind().clone() {
+                    TokenType::StringLiteral(spelling) => {
+                        self.advance();
+                        key = Some(spelling);
+                    }
+                    _ => {
+                        return Err(self.error_with_hint(
+                            "`on key` names the key it answers to".into(),
+                            "Write `on key(\"ctrl+k\") { … }`; `on keydown(e) { … }` handles every key",
+                        ));
+                    }
+                }
+                if self.eat(&TokenType::Comma) {
+                    param = Some(self.expect_ident("the event parameter's name")?);
+                }
+            } else {
+                param = Some(self.expect_ident("the event parameter's name")?);
+            }
             self.expect(&TokenType::CloseParen, "`)`")?;
-            Some(name)
-        } else {
-            None
-        };
+        }
+        if event == "key" && key.is_none() {
+            return Err(self.error_with_hint(
+                "`on key` names the key it answers to".into(),
+                "Write `on key(\"ctrl+k\") { … }`",
+            ));
+        }
         let (body, _) = self.parse_imperative_block()?;
         Ok(EventHandler {
             event,
             param,
+            key,
             body,
             span: self.span_since(mark),
         })
@@ -1339,23 +1877,99 @@ impl ParserV2 {
 
     fn parse_imperative_block(&mut self) -> Result<(Vec<Statement>, Span)> {
         let open = self.expect(&TokenType::OpenBrace, "`{`")?;
+        self.block_depth += 1;
+        let parsed = self.parse_imperative_statements();
+        self.block_depth -= 1;
+        let statements = parsed?;
+        let close = self.expect(&TokenType::CloseBrace, "`}`")?;
+        let span = Span::new(
+            open.end as u32,
+            close.offset as u32,
+            open.line as u32,
+            open.column as u32,
+        );
+        Ok((statements, span))
+    }
+
+    /// The statements of an imperative block, up to its `}`.
+    fn parse_imperative_statements(&mut self) -> Result<Vec<Statement>> {
         let mut statements = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             if self.eat(&TokenType::Semicolon) {
                 continue;
             }
+            // `let { a, b } = m` and `let [x, y] = l` are several locals:
+            // the value once, then one per name.
+            if self.is_word("let")
+                && matches!(
+                    self.kind_at(1),
+                    TokenType::OpenBrace | TokenType::OpenBracket
+                )
+            {
+                statements.extend(self.parse_destructuring_let()?);
+                continue;
+            }
             statements.push(self.parse_imperative_statement()?);
         }
-        let close = self.expect(&TokenType::CloseBrace, "`}`")?;
-        Ok((
-            statements,
-            Span::new(
-                open.end as u32,
-                close.offset as u32,
-                open.line as u32,
-                open.column as u32,
-            ),
-        ))
+        Ok(statements)
+    }
+
+    /// `let { a, b } = m` → `let __d = m; let a = __d.a; let b = __d.b`;
+    /// `let [x, y] = l` → `let x = __d[0]; let y = __d[1]`.
+    fn parse_destructuring_let(&mut self) -> Result<Vec<Statement>> {
+        let mark = self.mark();
+        self.expect_word("let")?;
+        let by_index = self.check(&TokenType::OpenBracket);
+        self.advance();
+        let close = if by_index {
+            TokenType::CloseBracket
+        } else {
+            TokenType::CloseBrace
+        };
+        let mut names = Vec::new();
+        while !self.check(&close) && !self.at_end() {
+            names.push(self.expect_ident("a name to bind")?);
+            if !self.check(&close) {
+                self.expect(&TokenType::Comma, "`,`")?;
+            }
+        }
+        self.expect(&close, "the closing bracket")?;
+        self.expect(&TokenType::Equals, "`=`")?;
+        let value = self.parse_expression()?;
+        let span = self.span_since(mark);
+        self.destructures += 1;
+        // A name a page could not write, without a leading `_`, which the
+        // emitters read as a plain (not a state) name.
+        let temp = format!("d__{}", self.destructures);
+        let mut out = vec![Statement::new(
+            StatementKind::State(StateDecl {
+                name: temp.clone(),
+                ty: None,
+                value,
+                persist: false,
+            }),
+            span,
+        )];
+        for (i, name) in names.into_iter().enumerate() {
+            let read = if by_index {
+                Expr::IndexAccess(
+                    Box::new(Expr::Identifier(temp.clone())),
+                    Box::new(Expr::NumberLiteral(i as f64)),
+                )
+            } else {
+                Expr::PropertyAccess(Box::new(Expr::Identifier(temp.clone())), name.clone())
+            };
+            out.push(Statement::new(
+                StatementKind::State(StateDecl {
+                    name,
+                    ty: None,
+                    value: read,
+                    persist: false,
+                }),
+                span,
+            ));
+        }
+        Ok(out)
     }
 
     fn parse_imperative_statement(&mut self) -> Result<Statement> {
@@ -1378,9 +1992,56 @@ impl ParserV2 {
                 self.expect(&TokenType::Equals, "`=`")?;
                 let value = self.parse_expression()?;
                 // A local is a local signal, as `state` in an action always was.
-                Ok(StatementKind::State(StateDecl { name, ty, value }))
+                Ok(StatementKind::State(StateDecl {
+                    name,
+                    ty,
+                    value,
+                    persist: false,
+                }))
             }
             "if" => self.parse_if(true),
+            "for" if matches!(self.kind_at(1), TokenType::Identifier(_)) => self.parse_for(true),
+            // `cleanup { … }` closes an effect's body: kept aside for the
+            // effect, and a marker left in its place.
+            "cleanup" if matches!(self.kind_at(1), TokenType::OpenBrace) => {
+                if self.effect_body != Some(self.block_depth) {
+                    return Err(self.error_with_hint(
+                        "`cleanup` belongs at the end of an `effect`".into(),
+                        "Write `effect { … cleanup { … } }`",
+                    ));
+                }
+                self.advance();
+                let (body, _) = self.parse_imperative_block()?;
+                if !self.check(&TokenType::CloseBrace) {
+                    return Err(self.error_with_hint(
+                        "`cleanup` closes an effect's body".into(),
+                        "Nothing follows it inside the effect",
+                    ));
+                }
+                self.pending_cleanup = Some(body);
+                Ok(StatementKind::ExprStatement(Expr::Identifier(
+                    "__cleanup".to_string(),
+                )))
+            }
+            "try" if matches!(self.kind_at(1), TokenType::OpenBrace) => {
+                self.advance();
+                let (body, _) = self.parse_imperative_block()?;
+                self.expect_word("catch")?;
+                let param = match self.kind() {
+                    TokenType::Identifier(name) if !self.check(&TokenType::OpenBrace) => {
+                        let name = name.clone();
+                        self.advance();
+                        Some(name)
+                    }
+                    _ => None,
+                };
+                let (catch_body, _) = self.parse_imperative_block()?;
+                Ok(StatementKind::Try(TryStmt {
+                    body,
+                    param,
+                    catch_body,
+                }))
+            }
             "return" => {
                 self.advance();
                 if self.check(&TokenType::CloseBrace) || self.check(&TokenType::Semicolon) {
@@ -1420,7 +2081,7 @@ impl ParserV2 {
             }
             // A keyword that renders — unless it is a name being assigned
             // or read: `on = !on`, `show.x`.
-            "for" | "show" | "match" | "on" | "style"
+            "show" | "match" | "on" | "style"
                 if matches!(
                     self.kind_at(1),
                     TokenType::Identifier(_) | TokenType::OpenBrace | TokenType::Dot
@@ -1697,7 +2358,21 @@ impl ParserV2 {
     // ─── Expressions ─────────────────────────────────────
 
     pub fn parse_expression(&mut self) -> Result<Expr> {
-        self.parse_coalesce()
+        self.parse_range()
+    }
+
+    /// `a..b` and `a..=b`, the loosest binding: `1..n + 1` is `1..(n + 1)`.
+    fn parse_range(&mut self) -> Result<Expr> {
+        let start = self.parse_coalesce()?;
+        if self.eat(&TokenType::DotDot) {
+            let end = self.parse_coalesce()?;
+            return Ok(Expr::Range(Box::new(start), Box::new(end), false));
+        }
+        if self.eat(&TokenType::DotDotEq) {
+            let end = self.parse_coalesce()?;
+            return Ok(Expr::Range(Box::new(start), Box::new(end), true));
+        }
+        Ok(start)
     }
 
     fn parse_coalesce(&mut self) -> Result<Expr> {
@@ -1821,6 +2496,21 @@ impl ParserV2 {
                 let index = self.parse_expression()?;
                 self.expect(&TokenType::CloseBracket, "`]`")?;
                 expr = Expr::IndexAccess(Box::new(expr), Box::new(index));
+            } else if self.eat(&TokenType::OptionalChain) {
+                // `a?.b`, `a?.m()`, `a?.[i]`.
+                if self.eat(&TokenType::OpenBracket) {
+                    let index = self.parse_expression()?;
+                    self.expect(&TokenType::CloseBracket, "`]`")?;
+                    expr = Expr::OptionalIndex(Box::new(expr), Box::new(index));
+                } else {
+                    let name = self.expect_ident("a property or method name after `?.`")?;
+                    if self.eat(&TokenType::OpenParen) {
+                        let args = self.parse_expr_list(&TokenType::CloseParen)?;
+                        expr = Expr::OptionalMethod(Box::new(expr), name, args);
+                    } else {
+                        expr = Expr::OptionalProperty(Box::new(expr), name);
+                    }
+                }
             } else {
                 break;
             }
@@ -1832,7 +2522,12 @@ impl ParserV2 {
     fn parse_expr_list(&mut self, close: &TokenType) -> Result<Vec<Expr>> {
         let mut items = Vec::new();
         while !self.check(close) && !self.at_end() {
-            items.push(self.parse_expression()?);
+            // `...items` in a list: the items, in place.
+            if self.eat(&TokenType::Ellipsis) {
+                items.push(Expr::Spread(Box::new(self.parse_expression()?)));
+            } else {
+                items.push(self.parse_expression()?);
+            }
             if !self.check(close) {
                 self.expect(&TokenType::Comma, "`,`")?;
             }
@@ -1855,6 +2550,10 @@ impl ParserV2 {
                 self.advance();
                 Ok(Expr::NumberLiteral(n))
             }
+            TokenType::RegexLiteral(pattern, flags) => {
+                self.advance();
+                Ok(Expr::Regex(pattern, flags))
+            }
             TokenType::BoolLiteral(b) => {
                 self.advance();
                 Ok(Expr::BoolLiteral(b))
@@ -1870,6 +2569,11 @@ impl ParserV2 {
             TokenType::Dot => {
                 self.advance();
                 let case = self.expect_ident("a case name after `.`")?;
+                // `.failed("x")`: the case with its payload.
+                if self.eat(&TokenType::OpenParen) {
+                    let args = self.parse_expr_list(&TokenType::CloseParen)?;
+                    return Ok(Expr::CaseValue(case, args));
+                }
                 Ok(Expr::EnumCase(case))
             }
             TokenType::Identifier(word) => match word.as_str() {
@@ -1957,8 +2661,34 @@ impl ParserV2 {
         }
     }
 
+    /// `if c { a } else { b }`, or `if let x = e { a } else { b }`, which
+    /// binds `x` to `e` in `a` when `e` is not null. The binding form is
+    /// encoded as `e.__iflet(x => a, b)`, so every reader of the tree sees a
+    /// lambda whose parameter is the name.
     fn parse_if_expression(&mut self) -> Result<Expr> {
         self.expect_word("if")?;
+        if self.eat_word("let") {
+            let name = self.expect_ident("the name to bind")?;
+            self.expect(&TokenType::Equals, "`=`")?;
+            let value = self.parse_expression()?;
+            self.expect(&TokenType::OpenBrace, "`{`")?;
+            let then_expr = self.parse_expression()?;
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+            self.expect_word("else")?;
+            let else_expr = if self.is_word("if") {
+                self.parse_if_expression()?
+            } else {
+                self.expect(&TokenType::OpenBrace, "`{`")?;
+                let e = self.parse_expression()?;
+                self.expect(&TokenType::CloseBrace, "`}`")?;
+                e
+            };
+            return Ok(Expr::MethodCall(
+                Box::new(value),
+                "__iflet".to_string(),
+                vec![Expr::Lambda(name, Box::new(then_expr)), else_expr],
+            ));
+        }
         let condition = self.parse_expression()?;
         self.expect(&TokenType::OpenBrace, "`{`")?;
         let then_expr = self.parse_expression()?;
@@ -1985,10 +2715,20 @@ impl ParserV2 {
         self.expect_word("match")?;
         let subject = self.parse_expression()?;
         self.expect(&TokenType::OpenBrace, "`{`")?;
-        let mut arms: Vec<(Option<String>, Expr)> = Vec::new();
+        // An arm: its case and the name it binds, or neither for `else`.
+        type Arm = (Option<(String, Option<String>)>, Expr);
+        let mut arms: Vec<Arm> = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let case = if self.eat(&TokenType::Dot) {
-                Some(self.expect_ident("a case name")?)
+                let case = self.expect_ident("a case name")?;
+                let bindings = self.parse_arm_bindings()?;
+                if bindings.len() > 1 {
+                    return Err(self.error_with_hint(
+                        format!("`.{case}` binds one name in a match expression"),
+                        "A match statement binds every part of a payload: `.case(a, b) { … }`",
+                    ));
+                }
+                Some((case, bindings.into_iter().next()))
             } else if self.eat_word("else") {
                 None
             } else {
@@ -2015,14 +2755,30 @@ impl ParserV2 {
         };
         let mut expr = fallback;
         for (case, value) in arms.into_iter().rev() {
-            if let Some(case) = case {
-                let cond = Expr::BinaryOp(
-                    Box::new(subject.clone()),
-                    BinOp::Eq,
-                    Box::new(Expr::EnumCase(case)),
-                );
-                expr = Expr::MethodCall(Box::new(cond), "__if".to_string(), vec![value, expr]);
-            }
+            let Some((case, binding)) = case else {
+                continue;
+            };
+            expr = match binding {
+                // `.failed(r) { … }`: the payload is bound where the case
+                // matches, as an `if let` over it.
+                Some(name) => Expr::MethodCall(
+                    Box::new(Expr::MethodCall(
+                        Box::new(subject.clone()),
+                        "__payload".to_string(),
+                        vec![Expr::StringLiteral(case)],
+                    )),
+                    "__iflet".to_string(),
+                    vec![Expr::Lambda(name, Box::new(value)), expr],
+                ),
+                None => {
+                    let cond = Expr::MethodCall(
+                        Box::new(subject.clone()),
+                        "__is".to_string(),
+                        vec![Expr::StringLiteral(case)],
+                    );
+                    Expr::MethodCall(Box::new(cond), "__if".to_string(), vec![value, expr])
+                }
+            };
         }
         Ok(expr)
     }
@@ -2031,6 +2787,15 @@ impl ParserV2 {
         self.expect(&TokenType::OpenBrace, "`{`")?;
         let mut pairs = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            // `...other`: the entries of another map, in place.
+            if self.eat(&TokenType::Ellipsis) {
+                let value = self.parse_expression()?;
+                pairs.push(("...".to_string(), value));
+                if !self.check(&TokenType::CloseBrace) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+                continue;
+            }
             let key = match self.kind().clone() {
                 TokenType::Identifier(w) => {
                     self.advance();

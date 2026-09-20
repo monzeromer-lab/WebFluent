@@ -49,14 +49,51 @@ pub fn scoped_rules(program: &Program) -> String {
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => continue,
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => continue,
         };
         let mut uses = Uses::default();
         collect(body, &mut rules, &mut uses);
     }
-    let mut out = String::new();
+    let mut out = animations_css(program);
     for css in rules.values() {
         out.push_str(css);
+    }
+    out
+}
+
+/// The keyframes the program declares, each under its own name and as a
+/// `.wf-animate-Name` class the runtime plays like a built-in animation.
+pub fn animations_css(program: &Program) -> String {
+    let mut out = String::new();
+    for decl in &program.declarations {
+        let Declaration::Animation(a) = decl else {
+            continue;
+        };
+        let frames: Vec<String> = a
+            .frames
+            .iter()
+            .map(|f| {
+                let decls: Vec<String> = f
+                    .properties
+                    .iter()
+                    .filter_map(|p| static_declaration(p).map(|(n, v)| format!("{n}: {v};")))
+                    .collect();
+                format!("{} {{ {} }}", f.selector, decls.join(" "))
+            })
+            .collect();
+        out.push_str(&format!(
+            "@keyframes {} {{ {} }}\n",
+            a.name,
+            frames.join(" ")
+        ));
+        out.push_str(&format!(
+            ".wf-animate-{n} {{ animation: {n} var(--animation-duration-normal) var(--animation-easing-default) both; }}\n",
+            n = a.name
+        ));
     }
     out
 }
@@ -108,7 +145,11 @@ pub fn split_rules(program: &Program) -> SplitRules {
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
-            | Declaration::Enum(_) => {}
+            | Declaration::Enum(_)
+            | Declaration::Const(_)
+            | Declaration::Animation(_)
+            | Declaration::Test(_)
+            | Declaration::Data(_) => {}
         }
     }
 
@@ -148,6 +189,7 @@ pub fn split_rules(program: &Program) -> SplitRules {
     }
 
     let mut split = SplitRules::default();
+    split.shared.push_str(&animations_css(program));
     for (class, css) in &rules {
         match owner.get(class) {
             Some(Some(page)) => split.pages.entry(page.clone()).or_default().push_str(css),

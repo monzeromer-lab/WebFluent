@@ -162,17 +162,29 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
         match decl {
             Declaration::Enum(e) => enums.push(json!({
                 "name": e.name,
-                "cases": e.cases,
+                "cases": e.case_names(),
+                "payloads": e.cases.iter().filter(|c| !c.fields.is_empty()).map(|c| json!({
+                    "case": c.name,
+                    "fields": c.fields.iter().map(|f| json!({
+                        "name": f.name,
+                        "type": type_ref_json(&f.ty),
+                        "doc": f.doc,
+                    })).collect::<Vec<_>>(),
+                })).collect::<Vec<_>>(),
                 "doc": e.doc,
                 "file": file,
                 "line": e.span.line,
             })),
             Declaration::Type(t) => types.push(json!({
                 "name": t.name,
+                "extends": t.extends,
                 "doc": t.doc,
                 "file": file,
                 "line": t.span.line,
-                "fields": t.fields.iter().map(|f| json!({
+                "fields": t.all_fields(&|name| program.declarations.iter().find_map(|d| match d {
+                    Declaration::Type(other) if other.name == name => Some(other),
+                    _ => None,
+                })).iter().map(|f| json!({
                     "name": f.name,
                     "type": type_ref_json(&f.ty),
                     "default": f.default.as_ref().map(crate::sema::types::expr_text),
@@ -210,6 +222,14 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
                         })).collect::<Vec<_>>(),
                     })).collect::<Vec<_>>(),
                     "slots": slots,
+                    "scoped": c.slots.iter().filter(|s| !s.params.is_empty()).map(|s| json!({
+                        "name": s.name.clone().unwrap_or_else(|| "children".to_string()),
+                        "params": s.params.iter().map(|p| json!({
+                            "name": p.name,
+                            "type": type_ref_json(&p.param_type),
+                        })).collect::<Vec<_>>(),
+                    })).collect::<Vec<_>>(),
+                    "parts": c.parts,
                 }));
             }
             Declaration::Store(s) => stores.push(json!({

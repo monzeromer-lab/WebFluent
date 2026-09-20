@@ -9,7 +9,8 @@
 use tower_lsp::lsp_types::*;
 use webfluent::error::{Diagnostic as WfDiagnostic, WebFluentError};
 use webfluent::linter::{
-    lint_accessibility_in, lint_contrast_in, lint_vocabulary_with, validate_semantics_in,
+    lint_accessibility_in, lint_contrast_in, lint_unused_in, lint_vocabulary_with,
+    validate_semantics_in,
 };
 use webfluent::themes::resolve_tokens;
 
@@ -53,7 +54,13 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
     }
 
     let mut findings = webfluent::sema::check(&project.program, &file_of);
-    let typed = webfluent::sema::types::check(&project.program, &file_of);
+    let source_of = |decl_ix: usize| {
+        project
+            .files
+            .get(project.decl_file[decl_ix])
+            .map(|f| f.source.to_string())
+    };
+    let typed = webfluent::sema::types::check_in(&project.program, &file_of, &source_of);
     findings.errors.extend(typed.findings.errors);
     findings.warnings.extend(typed.findings.warnings);
     for (finding, severity) in findings
@@ -105,6 +112,7 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
     if let Ok(tokens) = resolve_tokens(&lowered, &project.theme) {
         a11y.extend(lint_contrast_in(&lowered, &tokens, &file_of));
     }
+    a11y.extend(lint_unused_in(&project.program, &file_of));
     for warning in a11y {
         if let Some(ix) = route(&warning.file) {
             let file = &project.files[ix];

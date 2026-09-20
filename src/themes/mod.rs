@@ -17,7 +17,7 @@ pub mod tokens;
 
 pub use components::component_css;
 pub use prune::{Usage, prune_css};
-pub use resolve::resolve_tokens;
+pub use resolve::{resolve_dark_tokens, resolve_tokens};
 pub use structural::structural_css;
 
 /// How much of the engine's built-in stylesheet a build emits.

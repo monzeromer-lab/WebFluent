@@ -486,8 +486,8 @@ fn value_members(
                 _ => None,
             })
             .map(|t| {
-                t.fields
-                    .iter()
+                t.all_fields(&|name| crate::hover::find_type(project, name))
+                    .into_iter()
                     .map(|f| CompletionItem {
                         label: f.name.clone(),
                         kind: Some(CompletionItemKind::FIELD),
@@ -660,7 +660,7 @@ fn flags(project: &Project, name: &str) -> Vec<CompletionItem> {
                 }),
                 TypeRef::Named(enum_name) => {
                     if let Some(e) = find_enum(project, enum_name) {
-                        for case in &e.cases {
+                        for case in e.case_names() {
                             items.push(CompletionItem {
                                 label: case.clone(),
                                 kind: Some(CompletionItemKind::ENUM_MEMBER),
@@ -728,8 +728,8 @@ fn cases_of(project: &Project, element: &str, key: &str) -> Vec<CompletionItem> 
         && let Some(e) = find_enum(project, enum_name)
     {
         return e
-            .cases
-            .iter()
+            .case_names()
+            .into_iter()
             .map(|c| CompletionItem {
                 label: c.clone(),
                 kind: Some(CompletionItemKind::ENUM_MEMBER),

@@ -2,6 +2,16 @@ use crate::error::Result;
 use std::fs;
 use std::path::Path;
 
+/// A source file, ending with a newline as `wf fmt` writes it.
+fn write_source(path: impl AsRef<std::path::Path>, text: impl AsRef<str>) -> std::io::Result<()> {
+    let text = text.as_ref();
+    if text.ends_with('\n') {
+        fs::write(path, text)
+    } else {
+        fs::write(path, format!("{text}\n"))
+    }
+}
+
 pub fn run_init(name: &str, template: &str) -> Result<()> {
     let project_dir = Path::new(name);
 
@@ -76,7 +86,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── App.wf ──
-    fs::write(
+    write_source(
         dir.join("src/App.wf"),
         format!(
             r#"app {{
@@ -92,6 +102,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
             Link(to: "/settings") {{ Text("Settings") }}
         }}
         Navbar.Actions {{
+            ThemeToggle
             if AuthStore.isLoggedIn {{
                 Avatar(initials: "U").primary
                 Link(to: "/profile") {{ Text("Profile") }}
@@ -109,7 +120,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Home.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Home.wf"),
         r#"page Home(path: "/", description: "An overview of what needs your attention today.", title: "Dashboard") {
     use AuthStore
@@ -178,7 +189,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Tasks.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Tasks.wf"),
         r#"page Tasks(path: "/tasks", description: "Everything on the list, and what is left of it.", title: "Tasks") {
     use TaskStore
@@ -234,7 +245,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
                         done: task.done,
                         priority: task.priority,
                         exit: .fadeOut, stagger: "50ms"
-                    ).slideUp
+                    ).slideUp { on toggle { TaskStore.toggle(task.id) } }
                 }
             }
         }
@@ -256,7 +267,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Settings.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Settings.wf"),
         r#"page Settings(path: "/settings", description: "Preferences, appearance and account options.", title: "Settings") {
     state username = "demo_user"
@@ -353,7 +364,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Profile.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Profile.wf"),
         r#"page Profile(path: "/profile", description: "Your details and how they appear to others.", title: "Profile") {
     use AuthStore
@@ -437,13 +448,14 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Components ──
-    fs::write(
+    write_source(
         dir.join("src/components/TaskItem.wf"),
         r#"component TaskItem(title: String, done: Bool, priority: String) {
+    event toggle
     Card.outlined {
         Row(align: .center, justify: .between) {
             Row(align: .center, gap: .md) {
-                Checkbox(checked: done, label: title)
+                Checkbox(checked: done, label: title) { on change { emit toggle } }
             }
             Row(gap: .sm) {
                 Badge(priority).primary
@@ -454,7 +466,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 }"#,
     )?;
 
-    fs::write(
+    write_source(
         dir.join("src/components/StatCard.wf"),
         r#"component StatCard(title: String, value: Number, color: String) {
     Card.elevated.fadeIn {
@@ -469,17 +481,19 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 }"#,
     )?;
 
-    fs::write(
+    write_source(
         dir.join("src/components/ThemeToggle.wf"),
         r#"component ThemeToggle {
-    state isDark = false
+    state isDark = theme == "dark"
 
-    Switch(bind: isDark, label: "Dark Mode")
+    Switch(bind: isDark, label: "Dark Mode") {
+        on change { setTheme(if isDark { "dark" } else { "light" }) }
+    }
 }"#,
     )?;
 
     // ── Stores ──
-    fs::write(
+    write_source(
         dir.join("src/stores/tasks.wf"),
         r#"store TaskStore {
     state tasks = [
@@ -518,13 +532,13 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
 }"#,
     )?;
 
-    fs::write(
+    write_source(
         dir.join("src/stores/auth.wf"),
         r#"store AuthStore {
     state user = null
     state authToken = ""
 
-    derived isLoggedIn = user != null
+    derived isLoggedIn = user != null && authToken != ""
 
     action login(email: String, password: String) {
         user = { name: "Demo User", email: email, role: "admin" }
@@ -695,7 +709,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── App.wf ──
-    fs::write(
+    write_source(
         dir.join("src/App.wf"),
         format!(
             r#"app {{
@@ -717,14 +731,14 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 
     Router
 
-    Footer
+    SiteFooter
 }}"#,
             name
         ),
     )?;
 
     // ── Home.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Home.wf"),
         r#"page Home(path: "/", description: "An overview of what needs your attention today.", title: "Home") {
     Container {
@@ -762,7 +776,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── About.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/About.wf"),
         r#"page About(path: "/about", description: "Who we are and what we do.", title: "About") {
     Container.fadeIn {
@@ -803,7 +817,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Blog.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Blog.wf"),
         r#"page Blog(path: "/blog", description: "Writing from the team.", title: "Blog") {
     Container.fadeIn {
@@ -860,7 +874,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Contact.wf ──
-    fs::write(
+    write_source(
         dir.join("src/pages/Contact.wf"),
         r#"page Contact(path: "/contact", description: "How to reach us.", title: "Contact") {
     state name = ""
@@ -869,7 +883,6 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     state message = ""
     state agreed = false
     state submitted = false
-    state errorMsg = ""
 
     Container.fadeIn {
         Heading(t("contact.title")).h1
@@ -933,7 +946,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     )?;
 
     // ── Components ──
-    fs::write(
+    write_source(
         dir.join("src/components/FeatureCard.wf"),
         r#"component FeatureCard(title: String, description: String, icon: String) {
     Card.elevated.scaleIn {
@@ -947,7 +960,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 }"#,
     )?;
 
-    fs::write(
+    write_source(
         dir.join("src/components/TeamMember.wf"),
         r#"component TeamMember(name: String, role: String, initials: String) {
     Row(align: .center, gap: .md) {
@@ -960,9 +973,9 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
 }"#,
     )?;
 
-    fs::write(
-        dir.join("src/components/Footer.wf"),
-        r#"component Footer {
+    write_source(
+        dir.join("src/components/SiteFooter.wf"),
+        r#"component SiteFooter {
     Divider
     Container {
         Spacer

@@ -8,4 +8,5 @@ pub mod hover;
 pub mod line_index;
 pub mod project;
 pub mod reference;
+pub mod rename;
 pub mod symbols;

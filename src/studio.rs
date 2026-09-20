@@ -111,6 +111,9 @@ pub fn compile_studio(
         Err(e) => (crate::themes::tokens::default_tokens(), Some(e.to_string())),
     };
     let mut css = generate_css_with(&tokens, config.theme.builtin);
+    if let Ok(Some(dark)) = crate::themes::resolve_dark_tokens(program, &config.theme) {
+        css.push_str(&crate::codegen::dark_css(&dark));
+    }
     css.push_str(&crate::codegen::scoped_css::scoped_rules(program));
 
     let themes: Vec<ThemeInfo> = program
@@ -145,6 +148,7 @@ pub fn compile_studio(
         js_gen.set_i18n(i18n.default_locale.clone(), translations.clone());
     }
     js_gen.set_ssg(true); // preview boots from the SSG paint, then hydrates
+    js_gen.set_env(config.env.clone());
     if !config.build.base_path.is_empty() {
         js_gen.set_base_path(config.build.base_path.clone());
     }

@@ -48,6 +48,8 @@ pub enum TokenType {
 
     // Literals
     StringLiteral(String),
+    /// `/pattern/flags`: a regular expression, pattern and flags.
+    RegexLiteral(String, String),
     NumberLiteral(f64),
     BoolLiteral(bool),
     Null,
@@ -121,6 +123,7 @@ pub enum TokenType {
     Heading,
     Code,
     Blockquote,
+    Markdown,
 
     // Document components (PDF)
     Document,
@@ -179,6 +182,14 @@ pub enum TokenType {
     Colon,
     Comma,
     QuestionMark,
+    /// `?.`: a member read that is `null` when its base is.
+    OptionalChain,
+    /// `...`: a spread into a list or a map.
+    Ellipsis,
+    /// `..`: a range, exclusive of its end.
+    DotDot,
+    /// `..=`: a range, inclusive of its end.
+    DotDotEq,
 
     // Events
     Event(String), // on:click, on:submit, etc.
@@ -349,6 +360,7 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Heading",
     "Code",
     "Blockquote",
+    "Markdown",
     // Document
     "Document",
     "Section",
@@ -436,6 +448,7 @@ pub fn component_name(token: &TokenType) -> Option<&'static str> {
         TokenType::Heading => "Heading",
         TokenType::Code => "Code",
         TokenType::Blockquote => "Blockquote",
+        TokenType::Markdown => "Markdown",
         // Document / slides
         TokenType::Document => "Document",
         TokenType::Section => "Section",
@@ -572,6 +585,7 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "Heading" => TokenType::Heading,
         "Code" => TokenType::Code,
         "Blockquote" => TokenType::Blockquote,
+        "Markdown" => TokenType::Markdown,
 
         // Document components (PDF)
         "Document" => TokenType::Document,

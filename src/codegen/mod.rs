@@ -15,9 +15,11 @@
 
 pub mod builtin;
 pub mod css;
+pub mod format;
 pub mod gzip;
 pub mod html;
 pub mod js;
+pub mod markdown;
 pub mod minify;
 pub mod node_id;
 pub mod pdf;
@@ -31,7 +33,7 @@ pub mod style;
 pub mod style_tokens;
 
 #[allow(unused_imports)]
-pub use css::{generate_css, generate_css_for, generate_css_with};
+pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};
 pub use html::generate_html;
 pub use js::JsCodegen;
 pub use pdf::PdfCodegen;

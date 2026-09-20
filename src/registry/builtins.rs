@@ -328,6 +328,11 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         PropType::Str,
         "Classes added beside the engine's, from the project's own stylesheets",
     ),
+    special(
+        "ref",
+        PropType::State,
+        "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`",
+    ),
 ];
 
 /// The DOM events any element accepts in an `on` handler.
@@ -339,6 +344,7 @@ pub const UNIVERSAL_EVENTS: &[(&str, &str)] = &[
     ("focus", "The element received focus"),
     ("blur", "The element lost focus"),
     ("keydown", "A key went down; `e.key` names it"),
+    ("key", "One key, named: `on key(\"ctrl+k\") { }`"),
     ("keyup", "A key came up"),
     ("keypress", "A character key was pressed"),
     ("mouseenter", "The pointer entered the element"),
@@ -1088,7 +1094,11 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Form",
         "Groups controls; `on submit` runs when it is submitted, and the page never navigates away.",
         None,
-        &[],
+        &[special(
+            "bind",
+            PropType::State,
+            "A handle on the form: `form.valid`, `form.values` by field name, `form.reset()`",
+        )],
         &[],
         G_FORM,
         Children::Elements,
@@ -1418,6 +1428,16 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Inline code, or a code block with `block`.",
         Some(special("content", PropType::Any, "The code")),
         &[flag("block", "block", "A multi-line block")],
+        &[],
+        G,
+        Children::None,
+    ),
+    comp(
+        "Markdown",
+        "Typography",
+        "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
+        Some(special("text", PropType::Str, "The Markdown text")),
+        &[],
         &[],
         G,
         Children::None,

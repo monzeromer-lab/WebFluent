@@ -1,8 +1,10 @@
 pub mod build;
 pub mod describe;
+pub mod docs;
 pub mod fmt;
 pub mod generate;
 pub mod init;
 pub mod migrate;
 pub mod render;
 pub mod serve;
+pub mod test;

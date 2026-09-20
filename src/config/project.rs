@@ -41,6 +41,10 @@ pub struct ProjectConfig {
     pub meta: MetaConfig,
     #[serde(default)]
     pub i18n: Option<I18nConfig>,
+    /// Values the program reads as `env.NAME`: an API base, a public key,
+    /// a feature switch — set per build, never hard-coded in a page.
+    #[serde(default)]
+    pub env: std::collections::BTreeMap<String, serde_json::Value>,
 }
 
 /// Theme configuration — name, mode, custom design tokens, and how much of the
@@ -64,6 +68,11 @@ pub struct ThemeConfig {
     /// Absent from existing `wf.json` files, so they keep building as before.
     #[serde(default)]
     pub builtin: BuiltinCss,
+    /// The `theme` declaration that stands in under `prefers-color-scheme:
+    /// dark`, and whenever `setTheme("dark")` was called: its tokens
+    /// override the build's theme.
+    #[serde(default)]
+    pub dark: Option<String>,
 }
 
 /// Build pipeline configuration — output directory, minification, SSG, and PDF settings.
@@ -478,6 +487,7 @@ impl ProjectConfig {
                 title: name.to_string(),
                 ..Default::default()
             },
+            env: Default::default(),
         }
     }
 }

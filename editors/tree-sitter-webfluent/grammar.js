@@ -26,6 +26,7 @@
 //   lexer does (`src/lexer/v2.rs`, `Layout`).
 
 const PREC = {
+  range: -1,
   coalesce: 0,
   lambda: -1,
   or: 1,
@@ -59,7 +60,7 @@ const BUILTIN_COMPONENTS = [
   // Media
   "Image", "Video", "Icon", "Carousel",
   // Typography
-  "Text", "Heading", "Code", "Blockquote",
+  "Text", "Heading", "Code", "Blockquote", "Markdown",
   // Document (PDF)
   "Document", "Section", "Paragraph", "PageBreak", "Header", "Footer",
   // Slides
@@ -157,6 +158,30 @@ module.exports = grammar({
         $.app_declaration,
         $.type_declaration,
         $.enum_declaration,
+        $.const_declaration,
+        $.data_declaration,
+        $.animation_declaration,
+        $.test_declaration,
+      ),
+
+    // `const API = "/api"`
+    const_declaration: ($) =>
+      seq(
+        "const",
+        field("name", $._name),
+        optional(seq(":", field("type", $._type))),
+        "=",
+        field("value", $._expression),
+      ),
+
+    // `data posts = "posts.json"` — a file's JSON, a constant at build time.
+    data_declaration: ($) =>
+      seq(
+        "data",
+        field("name", $._name),
+        optional(seq(":", field("type", $._type))),
+        "=",
+        field("file", $.string),
       ),
 
     // `page Home(path: "/", title: "Home", id: String, layout: Shell) { }`
@@ -185,6 +210,16 @@ module.exports = grammar({
         field("body", $.block),
       ),
 
+    // `part Header(_ text: String) { … }` — a component of its owner's,
+    // called `Owner.Header`.
+    part_declaration: ($) =>
+      seq(
+        "part",
+        field("name", $._declaration_name),
+        optional(field("parameters", $.parameter_list)),
+        field("body", $.block),
+      ),
+
     store_declaration: ($) =>
       seq("store", field("name", $._name), field("body", $.block)),
 
@@ -192,6 +227,27 @@ module.exports = grammar({
       seq("theme", field("name", $._name), field("body", $.theme_body)),
 
     theme_body: ($) => braced($, repeat($.token_declaration)),
+
+    // `animation Pulse { from { opacity: 1 } 50% { opacity: 0.4 } to { opacity: 1 } }`
+    animation_declaration: ($) =>
+      seq("animation", field("name", $._declaration_name), braced($, repeat($.keyframe))),
+
+    keyframe: ($) =>
+      seq(field("selector", $.keyframe_selector), braced($, repeat($.style_property))),
+
+    keyframe_selector: (_) => token(prec(1, /(from|to|[0-9]+(\.[0-9]+)?%(\s*,\s*[0-9]+(\.[0-9]+)?%)*)/)),
+
+    // `test "name"(data: { … }) { elements  expect "text" }`
+    test_declaration: ($) =>
+      seq(
+        "test",
+        field("name", $.string),
+        optional(field("arguments", $.argument_list)),
+        field("body", $.block),
+      ),
+
+    // `expect "text"`, `expect not "text"` — inside a test.
+    expect_statement: ($) => seq("expect", optional("not"), field("text", $._expression)),
 
     // `color-primary: #6366F1` — a raw CSS value.
     token_declaration: ($) =>
@@ -215,7 +271,8 @@ module.exports = grammar({
         optional(seq("=", field("default", $._expression))),
       ),
 
-    // `enum Tone { calm, loud }`
+    // `enum Tone { calm, loud }`; a case may carry a payload:
+    // `enum Status { idle, failed(reason: String) }`.
     enum_declaration: ($) =>
       seq(
         "enum",
@@ -223,7 +280,11 @@ module.exports = grammar({
         braced($, seq(sepBy($.enum_case_declaration, optional(",")), optional(","))),
       ),
 
-    enum_case_declaration: ($) => $.identifier,
+    enum_case_declaration: ($) =>
+      seq(
+        field("name", $.identifier),
+        optional(seq("(", sepBy1($.field_declaration, ","), optional(","), ")")),
+      ),
 
     // A page or component may be named after a built-in (`page Menu`).
     _declaration_name: ($) => choice($._name, $.builtin_component),
@@ -268,7 +329,13 @@ module.exports = grammar({
         $.resource_declaration,
         $.event_declaration,
         $.slot_declaration,
+        $.part_declaration,
+        $.timer_statement,
+        $.cleanup_block,
+        $.head_block,
+        $.expect_statement,
         $.let_declaration,
+        $.try_statement,
         $.if_statement,
         $.for_statement,
         $.show_statement,
@@ -288,9 +355,10 @@ module.exports = grammar({
         $.expression_statement,
       ),
 
+    // `state n = 0`; `persist theme = "light"` is kept across visits.
     state_declaration: ($) =>
       seq(
-        "state",
+        choice("state", "persist"),
         field("name", $._name),
         optional(seq(":", field("type", $._type))),
         "=",
@@ -326,16 +394,42 @@ module.exports = grammar({
     event_declaration: ($) =>
       prec.right(seq("event", field("name", $._name), optional(field("parameters", $.parameter_list)))),
 
-    // `slot trailing`, or a bare `slot` for the default one.
-    slot_declaration: ($) => prec.right(seq("slot", optional(field("name", $.identifier)))),
+    // `slot trailing`, or a bare `slot` for the default one; a scoped slot
+    // names what it hands its fill: `slot row(item: Todo)`.
+    slot_declaration: ($) =>
+      prec.right(
+        seq(
+          "slot",
+          optional(seq(field("name", $.identifier), optional(field("parameters", $.parameter_list)))),
+        ),
+      ),
 
     let_declaration: ($) =>
       seq(
         "let",
-        field("name", $._name),
-        optional(seq(":", field("type", $._type))),
+        choice(
+          seq(field("name", $._name), optional(seq(":", field("type", $._type)))),
+          // `let { a, b } = m`, `let [x, y] = l`
+          field("pattern", $.destructuring_pattern),
+        ),
         "=",
         field("value", $._expression),
+      ),
+
+    destructuring_pattern: ($) =>
+      choice(
+        seq("{", sepBy($._name, ","), optional(","), "}"),
+        seq("[", sepBy($._name, ","), optional(","), "]"),
+      ),
+
+    // `try { … } catch e { … }`
+    try_statement: ($) =>
+      seq(
+        "try",
+        field("body", $.block),
+        "catch",
+        optional(field("error", $.identifier)),
+        field("handler", $.block),
       ),
 
     navigate_statement: ($) => seq("navigate", "(", $._expression, ")"),
@@ -402,7 +496,9 @@ module.exports = grammar({
 
     ready_pattern: ($) => seq("ready", optional(seq("(", field("name", $._name), ")"))),
 
-    case_pattern: ($) => $.enum_case,
+    // `.failed(reason)` binds the case's payload, one name per part.
+    case_pattern: ($) =>
+      seq($.enum_case, optional(seq("(", sepBy1(field("binding", $._name), ","), ")"))),
 
     else_pattern: (_) => "else",
 
@@ -423,12 +519,13 @@ module.exports = grammar({
 
     _element_name: ($) => choice($.part, $.builtin_component, $.component_identifier),
 
-    // `Table.Row`, `Card.Header`: a part of a built-in, capitalised after the dot.
+    // `Table.Row`, `Card.Header`: a part of a built-in, or `Panel.Header`,
+    // a part a component of the project declares — capitalised after the dot.
     part: ($) =>
       prec(
         PREC.element,
         seq(
-          field("owner", $.builtin_component),
+          field("owner", choice($.builtin_component, $.component_identifier)),
           ".",
           field("name", choice($.builtin_component, $.component_identifier)),
         ),
@@ -469,16 +566,53 @@ module.exports = grammar({
     // ─── Events and slots ───────────────────────────────────────────────
 
     // `on click { }`, `on keydown(event) { }`, `on toggle(id) { }`.
+    // `on click(e) { }`; `on key("ctrl+k") { }` names the key it answers to.
     event_handler: ($) =>
       seq(
         "on",
         field("event", $.identifier),
-        optional(seq("(", field("parameter", $._name), ")")),
+        optional(
+          seq(
+            "(",
+            choice(
+              seq(field("key", $.string), optional(seq(",", field("parameter", $._name)))),
+              field("parameter", $._name),
+            ),
+            ")",
+          ),
+        ),
         field("body", $.block),
       ),
 
-    // `trailing { Icon("x") }` — a fill of a named slot.
-    slot_fill: ($) => prec(1, seq(field("name", $.identifier), field("body", $.block))),
+    // `every(1000) { tick() }`, `after(500) { hide() }`.
+    timer_statement: ($) =>
+      seq(
+        field("kind", choice("every", "after")),
+        "(",
+        field("interval", $._expression),
+        ")",
+        field("body", $.block),
+      ),
+
+    // `cleanup { … }` closes an effect's body.
+    cleanup_block: ($) => seq("cleanup", field("body", $.block)),
+
+    // `head { meta(name: "x", content: y) link(…) script(…) }` — a page's own head tags.
+    head_block: ($) => seq("head", braced($, repeat($.head_tag))),
+
+    head_tag: ($) =>
+      seq(field("tag", alias(choice("meta", "link", "script"), $.identifier)), field("arguments", $.arguments)),
+
+    // `trailing { … }`; a scoped slot's fill names its values: `row(item) { … }`.
+    slot_fill: ($) =>
+      prec(
+        1,
+        seq(
+          field("name", $.identifier),
+          optional(seq("(", sepBy1(field("parameter", $.identifier), ","), ")")),
+          field("body", $.block),
+        ),
+      ),
 
     // ─── Style ──────────────────────────────────────────────────────────
 
@@ -567,6 +701,7 @@ module.exports = grammar({
 
     _expression: ($) =>
       choice(
+        $.range_expression,
         $.binary_expression,
         $.unary_expression,
         $.lambda,
@@ -582,11 +717,13 @@ module.exports = grammar({
         $.call_expression,
         $.parenthesized_expression,
         $.string,
+        $.regex,
         $.number,
         $.boolean,
         $.null,
         $.array,
         $.object,
+        $.case_value,
         $.enum_case,
         $.design_token,
         $.identifier,
@@ -635,7 +772,8 @@ module.exports = grammar({
         PREC.postfix,
         seq(
           field("object", choice($._expression, alias("event", $.identifier))),
-          ".",
+          // `?.` reads null through null.
+          choice(".", "?."),
           // Any word may follow a dot — `item.action`, `Array.from`.
           field("property", $._name),
         ),
@@ -644,7 +782,13 @@ module.exports = grammar({
     index_expression: ($) =>
       prec.left(
         PREC.postfix,
-        seq(field("object", $._expression), "[", field("index", $._expression), "]"),
+        seq(
+          field("object", $._expression),
+          optional("?."),
+          "[",
+          field("index", $._expression),
+          "]",
+        ),
       ),
 
     // Only a name, a member, an index or another call is callable.
@@ -690,7 +834,11 @@ module.exports = grammar({
         -2,
         seq(
           "if",
-          field("condition", $._expression),
+          choice(
+            // `if let x = e { … }` binds the non-null value.
+            seq("let", field("binding", $.identifier), "=", field("value", $._expression)),
+            field("condition", $._expression),
+          ),
           "{",
           field("consequence", $._expression),
           "}",
@@ -711,6 +859,10 @@ module.exports = grammar({
 
     // `.primary`, `.calm` — a case of an enum, named by the prop or type.
     enum_case: ($) => seq(".", field("name", $.identifier)),
+
+    // `.failed("boom")` — a case with its payload.
+    case_value: ($) =>
+      prec(PREC.postfix, seq(".", field("name", $.identifier), field("arguments", $.arguments))),
 
     // `$surface`, `$spacing-xl` — a design token.
     design_token: (_) => token(seq("$", /[a-zA-Z_][a-zA-Z0-9_-]*/)),
@@ -742,13 +894,31 @@ module.exports = grammar({
 
     number: (_) => /\d+(\.\d+)?/,
 
+    // `/pattern/flags`, where a value may start; a `/` after a value is the
+    // operator, which the contextual lexer tells apart.
+    regex: (_) =>
+      token(
+        seq(
+          "/",
+          // The first character is never `*` or `/`: those start a comment.
+          /[^/\\\n\[*]|\\.|\[[^\]\n]*\]/,
+          /([^/\\\n\[]|\\.|\[[^\]\n]*\])*/,
+          "/",
+          /[a-z]*/,
+        ),
+      ),
+
     boolean: (_) => choice("true", "false"),
 
     null: (_) => "null",
 
-    array: ($) => seq("[", sepBy($._expression, ","), optional(","), "]"),
+    array: ($) =>
+      seq("[", sepBy(choice($._expression, $.spread_element), ","), optional(","), "]"),
 
-    object: ($) => seq("{", sepBy($.pair, ","), optional(","), "}"),
+    object: ($) => seq("{", sepBy(choice($.pair, $.spread_element), ","), optional(","), "}"),
+
+    // `...items` inside a list or a map.
+    spread_element: ($) => seq("...", $._expression),
 
     pair: ($) =>
       seq(
@@ -756,6 +926,10 @@ module.exports = grammar({
         ":",
         field("value", $._expression),
       ),
+
+    // `a..b`, `a..=b`
+    range_expression: ($) =>
+      prec.left(PREC.range, seq($._expression, choice("..", "..="), $._expression)),
 
     // ─── Names ──────────────────────────────────────────────────────────
 

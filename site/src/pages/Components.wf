@@ -1,13 +1,11 @@
 page Components(path: "/components", description: "Every built-in component, with the modifiers each accepts.", title: "Components Reference") {
     state activeModal = false
-    state alertVisible = true
     state switchVal = false
     state sliderVal = 50
     state selectVal = "opt1"
     state inputVal = ""
     state checkVal = false
     state radioVal = "a"
-    state tabActive = "preview"
     state dateVal = ""
 
     Container.fadeIn {

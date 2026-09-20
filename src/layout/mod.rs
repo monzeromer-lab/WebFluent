@@ -182,6 +182,7 @@ fn expression_position(kind: &TokenType) -> bool {
             | TokenType::OpenBracket
             | TokenType::Arrow
             | TokenType::NullCoalesce
+            | TokenType::OptionalChain
             | TokenType::Or
             | TokenType::And
             | TokenType::DoubleEquals

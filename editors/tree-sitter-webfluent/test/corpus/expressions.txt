@@ -449,3 +449,138 @@ store S {
             (binary_expression
               (identifier)
               (number))))))))
+
+================================================================================
+Optional chaining and if-let as a value
+================================================================================
+
+store S {
+    derived a = user?.profile?.name ?? "anon"
+    derived b = user?.tags?.[0]
+    derived c = user?.name?.toUpperCase()
+    derived d = if let u = user { u.name } else { "anon" }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (derived_declaration
+        (identifier)
+        (binary_expression
+          (member_expression
+            (member_expression
+              (identifier)
+              (identifier))
+            (identifier))
+          (string
+            (string_content))))
+      (derived_declaration
+        (identifier)
+        (index_expression
+          (member_expression
+            (identifier)
+            (identifier))
+          (number)))
+      (derived_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (member_expression
+              (identifier)
+              (identifier))
+            (identifier))
+          (arguments)))
+      (derived_declaration
+        (identifier)
+        (if_expression
+          (identifier)
+          (identifier)
+          (member_expression
+            (identifier)
+            (identifier))
+          (string
+            (string_content)))))))
+
+================================================================================
+Regex literals beside division
+================================================================================
+
+store S {
+    derived ok = /^[a-z]+@[a-z.]+$/i.test(email)
+    derived half = ratio / 2
+    derived clean = name.replace(/\s+/g, " ")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (store_declaration
+    (component_identifier)
+    (block
+      (derived_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (regex)
+            (identifier))
+          (arguments
+            (identifier))))
+      (derived_declaration
+        (identifier)
+        (binary_expression
+          (identifier)
+          (number)))
+      (derived_declaration
+        (identifier)
+        (call_expression
+          (member_expression
+            (identifier)
+            (identifier))
+          (arguments
+            (regex)
+            (string
+              (string_content))))))))
+
+================================================================================
+Match expression over a payload case
+================================================================================
+
+page P(path: "/") {
+    derived r = match s { .failed(r) { r } .done { "done" } else { "-" } }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (derived_declaration
+        (identifier)
+        (match_expression
+          (identifier)
+          (match_expression_arm
+            (case_pattern
+              (enum_case
+                (identifier))
+              (identifier))
+            (identifier))
+          (match_expression_arm
+            (case_pattern
+              (enum_case
+                (identifier)))
+            (string
+              (string_content)))
+          (match_expression_arm
+            (else_pattern)
+            (string
+              (string_content))))))))

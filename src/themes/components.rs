@@ -407,6 +407,14 @@ h6.wf-heading { font-size: var(--font-size-sm); }
 .wf-code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-surface); padding: 0.125rem var(--spacing-xs); border-radius: var(--radius-sm); }
 pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overflow-x: auto; background: #1e293b; color: #e2e8f0; border: none; border-radius: var(--radius-md); font-size: var(--font-size-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
 .wf-blockquote { border-inline-start: 4px solid var(--color-primary); padding: var(--spacing-sm) var(--spacing-md); margin: 0; color: var(--color-text-muted); font-style: italic; }
+.wf-markdown { line-height: 1.65; }
+.wf-markdown > * + * { margin-top: var(--spacing-md); }
+.wf-markdown h1, .wf-markdown h2, .wf-markdown h3, .wf-markdown h4 { line-height: 1.25; }
+.wf-markdown pre { padding: var(--spacing-md); overflow-x: auto; background: #1e293b; color: #e2e8f0; border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+.wf-markdown code { font-family: var(--font-family-mono); font-size: 0.925em; }
+.wf-markdown blockquote { border-inline-start: 4px solid var(--color-primary); padding: var(--spacing-sm) var(--spacing-md); margin: 0; color: var(--color-text-muted); }
+.wf-markdown ul, .wf-markdown ol { padding-inline-start: 1.5em; }
+.wf-markdown img { max-width: 100%; }
 
 /* ─── Variant Colors (shared) ───────────────────────── */
 .wf-primary { color: var(--color-primary); }
@@ -477,6 +485,7 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 @keyframes wf-slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 @keyframes wf-slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
 @keyframes wf-slideLeft { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+@keyframes wf-slideOutLeft { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-20px); } }
 @keyframes wf-slideRight { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: none; } }
 @keyframes wf-scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
 @keyframes wf-scaleOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(0.9); } }
@@ -490,6 +499,11 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-animate-slideUp { animation: wf-slideUp var(--animation-duration-normal) var(--animation-easing-default) both; }
 .wf-animate-slideDown { animation: wf-slideDown var(--animation-duration-normal) var(--animation-easing-default) both; }
 .wf-animate-slideLeft { animation: wf-slideLeft var(--animation-duration-normal) var(--animation-easing-default) both; }
+/* A route change through the View Transitions API: the browser crossfades
+   the old page into the new by default; `Router(transition: .slide)` slides. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--animation-duration-normal); animation-timing-function: var(--animation-easing-default); }
+[data-wf-transition="slide"]::view-transition-old(root) { animation-name: wf-slideOutLeft; }
+[data-wf-transition="slide"]::view-transition-new(root) { animation-name: wf-slideLeft; }
 .wf-animate-slideRight { animation: wf-slideRight var(--animation-duration-normal) var(--animation-easing-default) both; }
 .wf-animate-scaleIn { animation: wf-scaleIn var(--animation-duration-normal) var(--animation-easing-default) both; }
 .wf-animate-scaleOut { animation: wf-scaleOut var(--animation-duration-normal) var(--animation-easing-default) both; }

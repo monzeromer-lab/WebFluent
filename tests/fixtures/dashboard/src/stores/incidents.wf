@@ -4,7 +4,6 @@ store IncidentStore {
         { id: 2, title: "Stale cache on the pricing page", severity: "low", resolved: false },
         { id: 3, title: "Duplicate signup emails", severity: "medium", resolved: true }
     ]
-    state filter = "all"
 
     derived open = incidents.filter(i => !i.resolved).length
     derived closed = incidents.filter(i => i.resolved).length
@@ -16,9 +15,5 @@ store IncidentStore {
 
     action report(title: String) {
         incidents = incidents.concat([{ id: incidents.length + 1, title: title, severity: "medium", resolved: false }])
-    }
-
-    action setFilter(value: String) {
-        filter = value
     }
 }

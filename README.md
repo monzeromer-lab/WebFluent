@@ -96,7 +96,7 @@ page Home(path: "/") {
 - Dev server with SPA route fallback
 - Scaffolding: `generate page|component|store`
 - Clear error messages with file:line:column, and a type checker that says what fits where
-- A language server (hover, completion, go to definition) for Zed and VS Code
+- A language server (hover, completion, go to definition, rename, extract component) for Zed and VS Code
 - `wf migrate` rewrites a WebFluent 2 project into the current grammar
 - Three starter templates: SPA, static site, and PDF document
 - Cross-platform packaging: `.deb`, `.msi`, `.tar.gz`, `.zip`
@@ -386,6 +386,9 @@ wf init <name> [-t spa|static|pdf]      Create a new project
 wf build [--dir DIR]                    Compile to HTML/CSS/JS or PDF
 wf serve [--dir DIR]                    Start dev server
 wf generate page|component|store <name> Scaffold a new file
+wf fmt [path] [--check]                 Format the sources; --check fails when one would change
+wf test [path] [--update]               Run the test "…" { } declarations under tests/
+wf docs [-d DIR] [-o OUT]               Write a component gallery for the built-ins and the project
 wf fmt --to wfx|wf [path]               Switch between braces (.wf) and indentation (.wfx)
 wf migrate [path] [--check] [--wfx]     Rewrite a WebFluent 2 project as WebFluent 3
 ```
@@ -421,8 +424,8 @@ The compiler is written in Rust. The generated JavaScript uses a minimal signal-
 | [VS Code](editors/vscode) | `editors/vscode` | TextMate highlighting and `wf-lsp` |
 
 Both editors talk to the same language server, `crates/wf-lsp`, for
-diagnostics, completions, hover documentation, go to definition, document
-symbols and quick fixes. `cargo install --path crates/wf-lsp` puts it on your
+diagnostics, completions, hover documentation, go to definition, rename
+across the project, document symbols, quick fixes and `Extract component`. `cargo install --path crates/wf-lsp` puts it on your
 `PATH`. The Tree-sitter grammars the Zed extension uses live in
 `editors/tree-sitter-webfluent` (`.wf`) and `editors/tree-sitter-webfluentx`
 (`.wfx`, generated from the same `grammar.js`).

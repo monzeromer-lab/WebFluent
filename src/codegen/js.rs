@@ -7,6 +7,64 @@ use crate::parser::ast::*;
 use crate::runtime;
 use std::collections::HashMap;
 
+/// A component's JavaScript name: a part's `Owner.Part` is `Owner_Part`.
+fn js_component(name: &str) -> String {
+    name.replace('.', "_")
+}
+
+/// Every name `body` declares at any depth: state, derived values,
+/// resources, actions and the locals of their bodies.
+fn declared_names(body: &[Statement]) -> Vec<String> {
+    fn walk(stmts: &[Statement], out: &mut Vec<String>) {
+        for stmt in stmts {
+            let name = match &stmt.kind {
+                StatementKind::State(s) => Some(&s.name),
+                StatementKind::Derived(d) => Some(&d.name),
+                StatementKind::Resource(r) => Some(&r.name),
+                StatementKind::Action(a) => Some(&a.name),
+                _ => None,
+            };
+            if let Some(name) = name
+                && !out.contains(name)
+            {
+                out.push(name.clone());
+            }
+            if let StatementKind::Action(a) = &stmt.kind {
+                for p in &a.params {
+                    if !out.contains(&p.name) {
+                        out.push(p.name.clone());
+                    }
+                }
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, out);
+            }
+            if let StatementKind::UIElement(el) = &stmt.kind {
+                walk(&el.children, out);
+                for h in &el.events {
+                    walk(&h.body, out);
+                }
+                for f in &el.slot_fills {
+                    walk(&f.body, out);
+                }
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(body, &mut out);
+    out
+}
+
+/// The names of the actions declared directly in `body`.
+fn action_names(body: &[Statement]) -> Vec<String> {
+    body.iter()
+        .filter_map(|s| match &s.kind {
+            StatementKind::Action(a) => Some(a.name.clone()),
+            _ => None,
+        })
+        .collect()
+}
+
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
@@ -15,8 +73,21 @@ pub struct JsCodegen {
     components: Vec<String>,
     /// Track store names
     stores: Vec<String>,
+    /// The program's `const` names: plain values, read as written.
+    consts: Vec<String>,
+    /// `env.NAME` values from the project's config, emitted once.
+    env: std::collections::BTreeMap<String, serde_json::Value>,
     /// Track current component/page prop names (not signals)
     current_props: Vec<String>,
+    /// The actions the page or component being emitted declares: a call to
+    /// one is its own, even where a built-in has the same name.
+    own_actions: Vec<String>,
+    /// The element handles the page or component declares with `ref:`,
+    /// and the form handles it declares with `Form(bind: name)`.
+    refs: Vec<String>,
+    /// Every name the page, component or store being emitted declares, at
+    /// any depth: a declared `query` is its own, not the browser's.
+    own_names: Vec<String>,
     /// Names bound by an enclosing `for` loop, innermost last.
     ///
     /// `WF.each` calls the body with the item as a plain parameter, so a
@@ -73,6 +144,9 @@ pub struct JsCodegen {
     /// Each user component's declared events, which a call passes handlers
     /// for as `on: { name: fn }`.
     component_events: HashMap<String, Vec<String>>,
+    /// The names of what each component's scoped slots hand over, by
+    /// component and slot: what a fill's own names stand for.
+    component_slot_params: HashMap<String, HashMap<String, Vec<String>>>,
     /// The route parameters of the page being emitted, read as
     /// `params.<name>`.
     page_params: Vec<String>,
@@ -93,11 +167,16 @@ impl Default for JsCodegen {
 impl JsCodegen {
     pub fn new() -> Self {
         Self {
+            consts: Vec::new(),
+            env: Default::default(),
             output: String::new(),
             indent: 0,
             components: Vec::new(),
             stores: Vec::new(),
             current_props: Vec::new(),
+            own_actions: Vec::new(),
+            refs: Vec::new(),
+            own_names: Vec::new(),
             loop_bindings: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
             store_locals: std::cell::RefCell::new(Vec::new()),
@@ -116,6 +195,7 @@ impl JsCodegen {
             resources: Vec::new(),
             component_positional: HashMap::new(),
             component_events: HashMap::new(),
+            component_slot_params: HashMap::new(),
             page_params: Vec::new(),
             page_layouts: HashMap::new(),
             page_paths: Vec::new(),
@@ -149,6 +229,11 @@ impl JsCodegen {
         self.base_path = path;
     }
 
+    /// The values `env.NAME` reads, from the project's config.
+    pub fn set_env(&mut self, env: std::collections::BTreeMap<String, serde_json::Value>) {
+        self.env = env;
+    }
+
     /// Enable studio mode and supply the node-identity map. When enabled, each
     /// element's root gets `data-wf-node="<id>"`.
     pub fn set_studio(&mut self, node_ids: NodeMap) {
@@ -163,6 +248,22 @@ impl JsCodegen {
             format!("WF.__reg(\"{}\", WF.signal({}))", name, value)
         } else {
             format!("WF.signal({})", value)
+        }
+    }
+
+    /// A `WF.signal` or, for `persist`, a `WF.persist` keyed by the owner
+    /// and the name, so a page and a store may each have a `theme`.
+    fn state_init(&self, owner: &str, s: &StateDecl, value: &str) -> String {
+        if s.persist {
+            let key = format!("{owner}.{}", s.name);
+            let init = format!("WF.persist(\"{key}\", {value})");
+            if self.studio {
+                format!("WF.__reg(\"{}\", {init})", s.name)
+            } else {
+                init
+            }
+        } else {
+            self.signal_init(&s.name, value)
         }
     }
 
@@ -211,7 +312,8 @@ impl JsCodegen {
         let layout = match self.page_layouts.get(page) {
             Some((name, args)) => format!(
                 "layout: (page, params) => Component_{}({}, {{ children: () => page(params) }}), ",
-                name, args
+                js_component(name),
+                args
             ),
             None => String::new(),
         };
@@ -263,8 +365,22 @@ impl JsCodegen {
                         c.name.clone(),
                         c.events.iter().map(|e| e.name.clone()).collect(),
                     );
+                    self.component_slot_params.insert(
+                        c.name.clone(),
+                        c.slots
+                            .iter()
+                            .filter(|s| !s.params.is_empty())
+                            .map(|s| {
+                                (
+                                    s.name.clone().unwrap_or_else(|| "children".to_string()),
+                                    s.params.iter().map(|p| p.name.clone()).collect(),
+                                )
+                            })
+                            .collect(),
+                    );
                 }
                 Declaration::Store(s) => self.stores.push(s.name.clone()),
+                Declaration::Const(c) => self.consts.push(c.name.clone()),
                 Declaration::Page(p) => {
                     if let Some(title) = &p.title {
                         self.page_titles.insert(p.name.clone(), title.clone());
@@ -297,6 +413,18 @@ impl JsCodegen {
 
         // Emit i18n setup if configured
         self.emit_i18n_setup();
+
+        // The project's `env` and its constants, before anything reads them.
+        self.emit_line(&format!(
+            "const env = {};",
+            serde_json::to_string(&self.env).unwrap_or_else(|_| "{}".to_string())
+        ));
+        for decl in &program.declarations {
+            if let Declaration::Const(c) = decl {
+                let value = self.emit_expr(&c.value);
+                self.emit_line(&format!("const {} = {};", c.name, value));
+            }
+        }
 
         // Emit stores
         for decl in &program.declarations {
@@ -395,6 +523,7 @@ impl JsCodegen {
     // ─── Store ───────────────────────────────────────
 
     fn emit_store(&mut self, store: &StoreDecl) {
+        self.own_names = declared_names(&store.body);
         self.emit_line(&format!("const {} = WF.store({{", store.name));
         self.indent += 1;
 
@@ -435,6 +564,19 @@ impl JsCodegen {
             }
             self.indent -= 1;
             self.emit_line("},");
+            // What is kept across visits, keyed by the store.
+            let persisted: Vec<String> = states
+                .iter()
+                .filter(|s| s.persist)
+                .map(|s| format!("\"{}\"", s.name))
+                .collect();
+            if !persisted.is_empty() {
+                self.emit_line(&format!(
+                    "persist: {{ prefix: \"{}\", names: [{}] }},",
+                    store.name,
+                    persisted.join(", ")
+                ));
+            }
         }
 
         // Collect derived
@@ -526,9 +668,16 @@ impl JsCodegen {
             Expr::Identifier(name) => {
                 if store_states.contains(name) {
                     format!("store.{}", name)
+                } else if matches!(name.as_str(), "viewport" | "query" | "hash" | "theme")
+                    && !self.own_names.contains(name)
+                {
+                    format!("WF.{name}()")
                 } else {
                     name.to_string()
                 }
+            }
+            Expr::PropertyAccess(base, prop) if prop == "pending" && self.is_action_ref(base) => {
+                format!("{}.pending()", self.emit_store_expr(base, store_states))
             }
             Expr::PropertyAccess(base, prop) => {
                 let base_str = self.emit_store_expr(base, store_states);
@@ -538,6 +687,33 @@ impl JsCodegen {
                 let base_str = self.emit_store_expr(base, store_states);
                 let idx_str = self.emit_store_expr(index, store_states);
                 format!("{}[{}]", base_str, idx_str)
+            }
+            Expr::Spread(inner) => format!("...{}", self.emit_store_expr(inner, store_states)),
+            Expr::Range(a, b, inclusive) => format!(
+                "WF.range({}, {}, {})",
+                self.emit_store_expr(a, store_states),
+                self.emit_store_expr(b, store_states),
+                inclusive
+            ),
+            Expr::OptionalProperty(base, prop) => {
+                format!("{}?.{}", self.emit_store_expr(base, store_states), prop)
+            }
+            Expr::OptionalIndex(base, index) => format!(
+                "{}?.[{}]",
+                self.emit_store_expr(base, store_states),
+                self.emit_store_expr(index, store_states)
+            ),
+            Expr::OptionalMethod(obj, method, args) => {
+                let args: Vec<String> = args
+                    .iter()
+                    .map(|a| self.emit_store_expr(a, store_states))
+                    .collect();
+                format!(
+                    "{}?.{}({})",
+                    self.emit_store_expr(obj, store_states),
+                    method,
+                    args.join(", ")
+                )
             }
             Expr::BinaryOp(left, op, right) => {
                 let l = self.emit_store_expr(left, store_states);
@@ -568,6 +744,18 @@ impl JsCodegen {
                 }
             }
             Expr::MethodCall(obj, method, args) => {
+                if method == "__case" && args.is_empty() {
+                    return format!("WF.caseOf({})", self.emit_store_expr(obj, store_states));
+                }
+                if (method == "__is" || method == "__payload") && args.len() == 1 {
+                    let subject = self.emit_store_expr(obj, store_states);
+                    let case = self.emit_store_expr(&args[0], store_states);
+                    return if method == "__is" {
+                        format!("(WF.caseOf({subject}) === {case})")
+                    } else {
+                        format!("WF.payload({subject}, {case})")
+                    };
+                }
                 if method == "__if" && args.len() == 2 {
                     // An if-expression inside a store used to fall through to
                     // the page emitter, whose operands read `_x()` signals.
@@ -575,6 +763,17 @@ impl JsCodegen {
                     let then_val = self.emit_store_expr(&args[0], store_states);
                     let else_val = self.emit_store_expr(&args[1], store_states);
                     return format!("({} ? {} : {})", cond, then_val, else_val);
+                }
+                if method == "__iflet"
+                    && args.len() == 2
+                    && let Expr::Lambda(name, then_expr) = &args[0]
+                {
+                    let value = self.emit_store_expr(obj, store_states);
+                    let then_val = self.emit_store_expr(then_expr, store_states);
+                    let else_val = self.emit_store_expr(&args[1], store_states);
+                    return format!(
+                        "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
+                    );
                 }
                 let obj_str = self.emit_store_expr(obj, store_states);
                 let args_str: Vec<String> = args
@@ -586,6 +785,15 @@ impl JsCodegen {
                     "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
                     "map" => format!("{}.map({})", obj_str, args_str.join(", ")),
                     "sum" => format!("{}.reduce((a,b) => a+b, 0)", obj_str),
+                    "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize"
+                    | "truncate" => {
+                        let rest = if args_str.is_empty() {
+                            String::new()
+                        } else {
+                            format!(", {}", args_str.join(", "))
+                        };
+                        format!("WF.{}({}{})", method, obj_str, rest)
+                    }
                     _ => format!("{}.{}({})", obj_str, method, args_str.join(", ")),
                 }
             }
@@ -594,6 +802,11 @@ impl JsCodegen {
                 format!("(({}) => {})", param, body_str)
             }
             Expr::EnumCase(case) => format!("\"{}\"", case),
+            Expr::CaseValue(case, args) => {
+                let mut items = vec![format!("\"{case}\"")];
+                items.extend(args.iter().map(|a| self.emit_store_expr(a, store_states)));
+                format!("[{}]", items.join(", "))
+            }
             Expr::Token(name) => format!("\"var(--{})\"", name),
             Expr::Await(inner) => format!("(await {})", self.emit_store_expr(inner, store_states)),
             Expr::FunctionCall(name, args) => {
@@ -606,6 +819,8 @@ impl JsCodegen {
                 // call, but `parseInt` is a plain function).
                 if store_states.contains(name) {
                     format!("store.{}({})", name, args_str.join(", "))
+                } else if matches!(name.as_str(), "format" | "ago" | "setTheme") {
+                    format!("WF.{}({})", name, args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -635,7 +850,10 @@ impl JsCodegen {
             Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
                 let entries_str: Vec<String> = entries
                     .iter()
-                    .map(|(k, v)| format!("{}: {}", k, self.emit_store_expr(v, store_states)))
+                    .map(|(k, v)| match k.as_str() {
+                        "..." => format!("...{}", self.emit_store_expr(v, store_states)),
+                        _ => format!("{}: {}", k, self.emit_store_expr(v, store_states)),
+                    })
                     .collect();
                 // Parenthesised, so a map literal is an object wherever it
                 // lands — as an arrow function's body a bare `{` is a block.
@@ -789,6 +1007,14 @@ impl JsCodegen {
         let params: Vec<String> = comp.props.iter().map(|p| p.name.clone()).collect();
         // Set current props so emit_expr treats them as plain variables, not signals
         self.current_props = params.clone();
+        self.own_actions = action_names(&comp.body);
+        self.refs = crate::sema::types::ref_names(&comp.body);
+        self.own_names = declared_names(&comp.body);
+        self.emit_pending_signals(&comp.body);
+        for name in crate::sema::types::form_names(&comp.body) {
+            self.emit_line(&format!("const {name} = WF.form();"));
+            self.refs.push(name);
+        }
         // Props are read through `_p.name`, never copied out: a caller passes
         // a value that reads state as a getter, so every read inside the
         // component — a derived, a style value, a condition — tracks the
@@ -808,13 +1034,19 @@ impl JsCodegen {
         // that builds its content, so `children` (and a named slot) can be
         // placed anywhere in the body — including inside a conditional or a
         // loop, whose closures see the parameter.
-        self.emit_line(&format!("function Component_{}(_p, _slots) {{", comp.name));
+        self.emit_line(&format!(
+            "function Component_{}(_p, _slots) {{",
+            js_component(&comp.name)
+        ));
         self.indent += 1;
         self.emit_line("_slots = _slots || {};");
         self.emit_line(&format!(
             "_p = WF.props(_p, {{ {} }});",
             defaults.join(", ")
         ));
+        for name in self.refs.clone() {
+            self.emit_line(&format!("const {name} = WF.ref();"));
+        }
 
         // Emit state declarations first
         self.resources = resource_names(&comp.body);
@@ -824,7 +1056,7 @@ impl JsCodegen {
                 self.emit_line(&format!(
                     "const _{} = {};",
                     s.name,
-                    self.signal_init(&s.name, &val)
+                    self.state_init(&comp.name, s, &val)
                 ));
             }
         }
@@ -851,6 +1083,40 @@ impl JsCodegen {
         self.emit_line(&format!("function Page_{}(params) {{", page.name));
         self.indent += 1;
         self.page_params = page.params.iter().map(|p| p.name.clone()).collect();
+        self.own_actions = action_names(&page.body);
+        self.refs = crate::sema::types::ref_names(&page.body);
+        self.own_names = declared_names(&page.body);
+        self.emit_pending_signals(&page.body);
+        for name in crate::sema::types::form_names(&page.body) {
+            self.emit_line(&format!("const {name} = WF.form();"));
+            self.refs.push(name);
+        }
+        if !page.head.is_empty() {
+            let tags: Vec<String> = page
+                .head
+                .iter()
+                .map(|t| {
+                    let attrs: Vec<String> = t
+                        .attrs
+                        .iter()
+                        .map(|(k, v)| {
+                            let value = self.emit_expr(v);
+                            let value = if self.is_reactive(&value) {
+                                format!("() => {value}")
+                            } else {
+                                value
+                            };
+                            format!("\"{k}\": {value}")
+                        })
+                        .collect();
+                    format!("[\"{}\", {{ {} }}]", t.tag, attrs.join(", "))
+                })
+                .collect();
+            self.emit_line(&format!("WF.head([{}]);", tags.join(", ")));
+        }
+        for name in self.refs.clone() {
+            self.emit_line(&format!("const {name} = WF.ref();"));
+        }
 
         // Emit state declarations
         self.resources = resource_names(&page.body);
@@ -860,7 +1126,7 @@ impl JsCodegen {
                 self.emit_line(&format!(
                     "const _{} = {};",
                     s.name,
-                    self.signal_init(&s.name, &val)
+                    self.state_init(&page.name, s, &val)
                 ));
             }
         }
@@ -1118,24 +1384,75 @@ impl JsCodegen {
                 for s in &e.body {
                     self.emit_statement(s);
                 }
+                // What the effect returns runs before its next run and when
+                // its owner leaves.
+                if !e.cleanup.is_empty() {
+                    self.emit_line("return () => {");
+                    self.indent += 1;
+                    for s in &e.cleanup {
+                        self.emit_statement(s);
+                    }
+                    self.indent -= 1;
+                    self.emit_line("};");
+                }
+                self.indent -= 1;
+                self.emit_line("});");
+            }
+            // A timer stops with the scope it was declared in.
+            StatementKind::Timer(t) => {
+                let interval = self.emit_expr(&t.interval);
+                let kind = if t.every { "every" } else { "after" };
+                let head = if crate::parser::ast::awaits(&t.body) {
+                    "async () =>"
+                } else {
+                    "() =>"
+                };
+                self.emit_line(&format!("WF.{kind}({interval}, {head} {{"));
+                self.indent += 1;
+                for s in &t.body {
+                    self.emit_statement(s);
+                }
                 self.indent -= 1;
                 self.emit_line("});");
             }
             StatementKind::Action(a) => {
                 let params: Vec<String> = a.params.iter().map(|p| p.name.clone()).collect();
-                // An action that awaits is an async function.
-                let kind = if crate::parser::ast::awaits(&a.body) {
+                // An action that awaits is an async function, and `name.pending`
+                // is true while a call of it runs.
+                let is_async = crate::parser::ast::awaits(&a.body);
+                let kind = if is_async {
                     "async function"
                 } else {
                     "function"
                 };
                 self.emit_line(&format!("{} {}({}) {{", kind, a.name, params.join(", ")));
                 self.indent += 1;
+                if is_async {
+                    self.emit_line(&format!("_{}_pending.set(true);", a.name));
+                    self.emit_line("try {");
+                    self.indent += 1;
+                }
                 for s in &a.body {
                     self.emit_statement(s);
                 }
+                if is_async {
+                    self.indent -= 1;
+                    self.emit_line(&format!("}} finally {{ _{}_pending.set(false); }}", a.name));
+                }
                 self.indent -= 1;
                 self.emit_line("}");
+            }
+            // `on key("ctrl+k") { … }` on the page itself: the document
+            // listens for as long as the page is shown.
+            StatementKind::EventHandler(handler) if handler.event == "key" => {
+                let body = self.emit_event_body(handler);
+                let key = handler.key.clone().unwrap_or_default();
+                self.emit_line(&format!(
+                    "WF.onKey(document, \"{}\", {} => {{ {} }});",
+                    key.replace('"', "\\\""),
+                    Self::handler_head(handler, "event"),
+                    body
+                ));
             }
             StatementKind::EventHandler(handler) => {
                 // Standalone event handlers at component level — unusual but handle it
@@ -1157,10 +1474,29 @@ impl JsCodegen {
                 match name.as_str() {
                     "Children" => {
                         let slot = ui.slot_name().unwrap_or("children");
-                        self.emit_line(&format!(
-                            "if (typeof _slots.{slot} === 'function') {}.appendChild(_slots.{slot}());",
-                            parent
-                        ));
+                        // A scoped slot is handed its values, and rendered
+                        // again when a value it reads changes.
+                        let handed: Vec<String> = ui
+                            .args
+                            .iter()
+                            .filter_map(|a| match a {
+                                Arg::Named(k, v) if k != "slot" => {
+                                    Some(format!("{k}: {}", self.emit_expr(v)))
+                                }
+                                _ => None,
+                            })
+                            .collect();
+                        if handed.is_empty() {
+                            self.emit_line(&format!(
+                                "if (typeof _slots.{slot} === 'function') {}.appendChild(_slots.{slot}());",
+                                parent
+                            ));
+                        } else {
+                            self.emit_line(&format!(
+                                "WF.slot({parent}, () => ({{ {} }}), (_s) => typeof _slots.{slot} === 'function' ? _slots.{slot}(_s) : null);",
+                                handed.join(", ")
+                            ));
+                        }
                         return;
                     }
                     "_StyleBlock" => return, // Style blocks handled via attrs
@@ -1201,6 +1537,18 @@ impl JsCodegen {
                     match arg {
                         Arg::Named(key, val) => {
                             match key.as_str() {
+                                // The handle takes the element once drawn.
+                                "ref" => {
+                                    if let Expr::Identifier(handle) = val {
+                                        attrs.push(format!("ref: {handle}"));
+                                    }
+                                }
+                                // `Form(bind: form)`: the handle takes the form.
+                                "bind" if name == "Form" => {
+                                    if let Expr::Identifier(handle) = val {
+                                        attrs.push(format!("ref: {handle}"));
+                                    }
+                                }
                                 "bind" => {
                                     if let Expr::Identifier(state_name) = val {
                                         attrs.push(format!("value: () => _{}()", state_name));
@@ -1342,6 +1690,18 @@ impl JsCodegen {
                                     let v = self.emit_expr(expr);
                                     attrs.push(format!("\"data-icon\": {}", v));
                                 }
+                                continue;
+                            }
+                            // Markdown is rendered to HTML by the runtime, and
+                            // again when its text changes.
+                            if name == "Markdown" {
+                                let v = self.emit_expr(expr);
+                                let getter = if self.is_reactive(&v) {
+                                    format!("() => {v}")
+                                } else {
+                                    v
+                                };
+                                attrs.push(format!("markdown: {getter}"));
                                 continue;
                             }
                             // `Option("value", "Label")`: the first positional
@@ -1804,7 +2164,9 @@ impl JsCodegen {
                 if !has_default_slot && ui.slot_fills.is_empty() {
                     self.emit_line(&format!(
                         "const {} = Component_{}({});",
-                        var, name, args_obj
+                        var,
+                        js_component(name),
+                        args_obj
                     ));
                 } else {
                     // Each fill is compiled here, in the caller's scope, so it
@@ -1812,24 +2174,46 @@ impl JsCodegen {
                     // only decides where it lands.
                     self.emit_line(&format!(
                         "const {} = Component_{}({}, {{",
-                        var, name, args_obj
+                        var,
+                        js_component(name),
+                        args_obj
                     ));
                     self.indent += 1;
-                    let mut fills: Vec<(&str, &[Statement])> = Vec::new();
+                    let mut fills: Vec<(&str, &[String], &[Statement])> = Vec::new();
                     if has_default_slot {
-                        fills.push(("children", &ui.children));
+                        fills.push(("children", &[], &ui.children));
                     }
                     for fill in &ui.slot_fills {
-                        fills.push((fill.name.as_str(), &fill.body));
+                        fills.push((fill.name.as_str(), &fill.params, &fill.body));
                     }
-                    for (slot, body) in fills {
-                        self.emit_line(&format!("{}: () => {{", slot));
+                    let handed = self
+                        .component_slot_params
+                        .get(name)
+                        .cloned()
+                        .unwrap_or_default();
+                    for (slot, params, body) in fills {
+                        if params.is_empty() {
+                            self.emit_line(&format!("{}: () => {{", slot));
+                        } else {
+                            self.emit_line(&format!("{}: (_s) => {{", slot));
+                        }
                         self.indent += 1;
+                        // A fill's names stand for what the slot hands over,
+                        // in the slot's order, as plain values.
+                        let declared = handed.get(slot).cloned().unwrap_or_default();
+                        for (i, param) in params.iter().enumerate() {
+                            let key = declared.get(i).cloned().unwrap_or_else(|| param.clone());
+                            self.emit_line(&format!("const {param} = _s.{key};"));
+                            self.loop_bindings.push(param.clone());
+                        }
                         self.emit_line("const _cf = document.createDocumentFragment();");
                         for child in body {
                             self.emit_statement_dom(child, "_cf");
                         }
                         self.emit_line("return _cf;");
+                        for _ in params {
+                            self.loop_bindings.pop();
+                        }
                         self.indent -= 1;
                         self.emit_line("},");
                     }
@@ -3531,7 +3915,11 @@ impl JsCodegen {
                 ),
             )
         } else {
-            (format!("() => {}", subject), "null".to_string())
+            // An enum: the arm is chosen by the case, and handed the payload.
+            (
+                format!("() => WF.caseOf({})", subject),
+                format!("() => {}", subject),
+            )
         };
         self.emit_line(&format!("WF.match({}, {}, {}, {{", parent, key, arg));
         self.indent += 1;
@@ -3546,8 +3934,14 @@ impl JsCodegen {
             let param = arm.binding.clone().unwrap_or_else(|| "_v".to_string());
             self.emit_line(&format!("{}: ({}) => {{", name, param));
             self.indent += 1;
-            // The bound name is a plain parameter inside the arm.
+            // The bound name is a plain parameter inside the arm, as is each
+            // name a `.case(a, b)` arm binds to the payload.
             self.loop_bindings.push(param.clone());
+            let bound = arm.bindings.len();
+            for (i, bound_name) in arm.bindings.iter().enumerate() {
+                self.emit_line(&format!("const {} = {}[{}];", bound_name, param, i + 1));
+                self.loop_bindings.push(bound_name.clone());
+            }
             let var = self.fresh_var();
             self.emit_line(&format!(
                 "const {} = document.createDocumentFragment();",
@@ -3557,6 +3951,9 @@ impl JsCodegen {
                 self.emit_statement_dom(stmt, &var);
             }
             self.emit_line(&format!("return {};", var));
+            for _ in 0..bound {
+                self.loop_bindings.pop();
+            }
             self.loop_bindings.pop();
             self.indent -= 1;
             self.emit_line("},");
@@ -3652,6 +4049,32 @@ impl JsCodegen {
                 self.emit_line("}");
             }
             StatementKind::Fetch(_) => {}
+            // `for x in xs { … }` in an action: the loop runs once, in order;
+            // the item and the index are plain names inside it.
+            StatementKind::For(f) => {
+                let list = self.emit_expr(&f.iterable);
+                match &f.index {
+                    Some(index) => self.emit_line(&format!(
+                        "for (const [{index}, {}] of Array.from({list}).entries()) {{",
+                        f.item
+                    )),
+                    None => self.emit_line(&format!("for (const {} of {list}) {{", f.item)),
+                }
+                self.loop_bindings.push(f.item.clone());
+                if let Some(index) = &f.index {
+                    self.loop_bindings.push(index.clone());
+                }
+                self.indent += 1;
+                for s in &f.body {
+                    self.emit_statement(s);
+                }
+                self.indent -= 1;
+                if f.index.is_some() {
+                    self.loop_bindings.pop();
+                }
+                self.loop_bindings.pop();
+                self.emit_line("}");
+            }
             StatementKind::Return(expr) => {
                 if let Some(e) = expr {
                     let val = self.emit_expr(e);
@@ -3659,6 +4082,24 @@ impl JsCodegen {
                 } else {
                     self.emit_line("return;");
                 }
+            }
+            StatementKind::Try(t) => {
+                self.emit_line("try {");
+                self.indent += 1;
+                for s in &t.body {
+                    self.emit_statement(s);
+                }
+                self.indent -= 1;
+                let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
+                self.emit_line(&format!("}} catch ({param}) {{"));
+                self.loop_bindings.push(param);
+                self.indent += 1;
+                for s in &t.catch_body {
+                    self.emit_statement(s);
+                }
+                self.indent -= 1;
+                self.loop_bindings.pop();
+                self.emit_line("}");
             }
             // `emit toggle(id)`: the handler the caller passed for the
             // event, when it passed one.
@@ -3767,6 +4208,14 @@ impl JsCodegen {
                 out.push('`');
                 out
             }
+            Expr::Regex(pattern, flags) => format!("/{pattern}/{flags}"),
+            Expr::Spread(inner) => format!("...{}", self.emit_expr(inner)),
+            Expr::Range(a, b, inclusive) => format!(
+                "WF.range({}, {}, {})",
+                self.emit_expr(a),
+                self.emit_expr(b),
+                inclusive
+            ),
             Expr::NumberLiteral(n) => {
                 if *n == (*n as i64) as f64 {
                     format!("{}", *n as i64)
@@ -3826,6 +4275,17 @@ impl JsCodegen {
                 if BROWSER_GLOBALS.contains(&name.as_str()) {
                     return name.to_string();
                 }
+                // The browser as values, kept current by the runtime, unless
+                // the name is the writer's own.
+                if matches!(name.as_str(), "viewport" | "query" | "hash" | "theme")
+                    && !self.own_names.contains(name)
+                    && !self.current_props.contains(name)
+                    && !self.page_params.contains(name)
+                    && !self.loop_bindings.contains(name)
+                    && !self.lambda_params.borrow().contains(name)
+                {
+                    return format!("WF.{name}()");
+                }
                 // Store references, component props, and built-in names stay as-is
                 if self.current_props.contains(name) {
                     return format!("_p.{}", name);
@@ -3837,6 +4297,9 @@ impl JsCodegen {
                     return format!("params.{}", name);
                 }
                 if self.stores.contains(name)
+                    || self.consts.contains(name)
+                    || self.refs.contains(name)
+                    || name == "env"
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
                     || name == "params"
@@ -3852,6 +4315,14 @@ impl JsCodegen {
                     format!("_{}()", name)
                 }
             }
+            // `save.pending` and `Store.save.pending`: whether a call of an
+            // async action is under way, a signal.
+            Expr::PropertyAccess(base, prop) if prop == "pending" && self.is_action_ref(base) => {
+                match base.as_ref() {
+                    Expr::Identifier(name) => format!("_{name}_pending()"),
+                    other => format!("{}.pending()", self.emit_expr(other)),
+                }
+            }
             Expr::PropertyAccess(base, prop) => {
                 let base_str = self.emit_expr(base);
                 format!("{}.{}", base_str, prop)
@@ -3860,6 +4331,15 @@ impl JsCodegen {
                 let base_str = self.emit_expr(base);
                 let idx_str = self.emit_expr(index);
                 format!("{}[{}]", base_str, idx_str)
+            }
+            // `?.` is JavaScript's own.
+            Expr::OptionalProperty(base, prop) => format!("{}?.{}", self.emit_expr(base), prop),
+            Expr::OptionalIndex(base, index) => {
+                format!("{}?.[{}]", self.emit_expr(base), self.emit_expr(index))
+            }
+            Expr::OptionalMethod(obj, method, args) => {
+                let args: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                format!("{}?.{}({})", self.emit_expr(obj), method, args.join(", "))
             }
             Expr::BinaryOp(left, op, right) => {
                 let l = self.emit_expr(left);
@@ -3890,12 +4370,42 @@ impl JsCodegen {
                 }
             }
             Expr::MethodCall(obj, method, args) => {
+                // The case of an enum value, its payload aside.
+                if method == "__case" && args.is_empty() {
+                    return format!("WF.caseOf({})", self.emit_expr(obj));
+                }
+                // `match` over an enum as a value: the case, and the payload
+                // where the case is the one asked for.
+                if (method == "__is" || method == "__payload") && args.len() == 1 {
+                    let subject = self.emit_expr(obj);
+                    let case = self.emit_expr(&args[0]);
+                    return if method == "__is" {
+                        format!("(WF.caseOf({subject}) === {case})")
+                    } else {
+                        format!("WF.payload({subject}, {case})")
+                    };
+                }
                 if method == "__if" && args.len() == 2 {
                     // Conditional expression
                     let cond = self.emit_expr(obj);
                     let then_val = self.emit_expr(&args[0]);
                     let else_val = self.emit_expr(&args[1]);
                     return format!("({} ? {} : {})", cond, then_val, else_val);
+                }
+                // `if let x = e { a } else { b }`: the value is bound once,
+                // and read as a plain name in `a`.
+                if method == "__iflet"
+                    && args.len() == 2
+                    && let Expr::Lambda(name, then_expr) = &args[0]
+                {
+                    let value = self.emit_expr(obj);
+                    self.lambda_params.borrow_mut().push(name.clone());
+                    let then_val = self.emit_expr(then_expr);
+                    self.lambda_params.borrow_mut().pop();
+                    let else_val = self.emit_expr(&args[1]);
+                    return format!(
+                        "(({name}) => {name} != null ? {then_val} : {else_val})({value})"
+                    );
                 }
 
                 let obj_str = self.emit_expr(obj);
@@ -3914,6 +4424,16 @@ impl JsCodegen {
                     "contains" => format!("{}.includes({})", obj_str, args_str.join(", ")),
                     "trim" => format!("{}.trim()", obj_str),
                     "split" => format!("{}.split({})", obj_str, args_str.join(", ")),
+                    // The helpers the runtime adds to lists and strings.
+                    "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize"
+                    | "truncate" => {
+                        let rest = if args_str.is_empty() {
+                            String::new()
+                        } else {
+                            format!(", {}", args_str.join(", "))
+                        };
+                        format!("WF.{}({}{})", method, obj_str, rest)
+                    }
                     _ => format!("{}.{}({})", obj_str, method, args_str.join(", ")),
                 }
             }
@@ -3946,6 +4466,14 @@ impl JsCodegen {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                     return format!("WF.replay({})", args_str.join(", "));
                 }
+                // `format(n, .currency)`, `ago(date)`: the runtime's, unless
+                // the page declares an action of the name.
+                if matches!(name.as_str(), "format" | "ago" | "setTheme")
+                    && !self.own_actions.contains(name)
+                {
+                    let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("WF.{name}({})", args_str.join(", "));
+                }
 
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                 // Check if it's a store function
@@ -3967,7 +4495,10 @@ impl JsCodegen {
             Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
                 let entries_str: Vec<String> = entries
                     .iter()
-                    .map(|(k, v)| format!("{}: {}", k, self.emit_expr(v)))
+                    .map(|(k, v)| match k.as_str() {
+                        "..." => format!("...{}", self.emit_expr(v)),
+                        _ => format!("{}: {}", k, self.emit_expr(v)),
+                    })
                     .collect();
                 // Parenthesised, so a map literal is an object wherever it
                 // lands — as an arrow function's body a bare `{` is a block.
@@ -3988,6 +4519,11 @@ impl JsCodegen {
             // the words they always were (`"primary"`), and a user enum's
             // case is a string at run time.
             Expr::EnumCase(case) => format!("\"{}\"", case),
+            Expr::CaseValue(case, args) => {
+                let mut items = vec![format!("\"{case}\"")];
+                items.extend(args.iter().map(|a| self.emit_expr(a)));
+                format!("[{}]", items.join(", "))
+            }
             // A design token is its custom property.
             Expr::Token(name) => format!("\"var(--{})\"", name),
             Expr::Await(inner) => format!("(await {})", self.emit_expr(inner)),
@@ -4116,6 +4652,29 @@ impl JsCodegen {
     /// field compiles to `Store.field`, a getter over a signal, which that
     /// textual check cannot see. Anything deciding between a one-shot value
     /// and an effect asks here.
+    /// A `pending` signal for each async action of the body, declared
+    /// before anything reads it.
+    fn emit_pending_signals(&mut self, body: &[Statement]) {
+        for stmt in body {
+            if let StatementKind::Action(a) = &stmt.kind
+                && crate::parser::ast::awaits(&a.body)
+            {
+                self.emit_line(&format!("const _{}_pending = WF.signal(false);", a.name));
+            }
+        }
+    }
+
+    /// Whether `expr` names an action: one of the page's own, or a store's.
+    fn is_action_ref(&self, expr: &Expr) -> bool {
+        match expr {
+            Expr::Identifier(name) => self.own_actions.contains(name),
+            Expr::PropertyAccess(base, _) => {
+                matches!(base.as_ref(), Expr::Identifier(store) if self.stores.contains(store))
+            }
+            _ => false,
+        }
+    }
+
     fn is_reactive(&self, expr_str: &str) -> bool {
         is_reactive_expr(expr_str)
             || expr_str.contains("_p.")
@@ -4233,6 +4792,8 @@ mod tests {
             noindex: false,
             layout: None,
             params: Vec::new(),
+            head: Vec::new(),
+            paths: None,
             body,
             span: Span::dummy(),
             header_span: Span::dummy(),
@@ -4250,6 +4811,7 @@ mod tests {
         let arm = |pattern, binding: Option<&str>, body| MatchArm {
             pattern,
             binding: binding.map(str::to_string),
+            bindings: Vec::new(),
             body,
             span: Span::dummy(),
         };
@@ -4327,6 +4889,7 @@ mod tests {
                     name: "tone".to_string(),
                     ty: None,
                     value: Expr::EnumCase("danger".to_string()),
+                    persist: false,
                 })),
                 stmt(StatementKind::Match(MatchStmt {
                     scrutinee: Expr::Identifier("tone".to_string()),
@@ -4334,12 +4897,14 @@ mod tests {
                         MatchArm {
                             pattern: ArmPattern::Case("danger".to_string()),
                             binding: None,
+                            bindings: Vec::new(),
                             body: vec![text(Expr::StringLiteral("red".into()))],
                             span: Span::dummy(),
                         },
                         MatchArm {
                             pattern: ArmPattern::Else,
                             binding: None,
+                            bindings: Vec::new(),
                             body: vec![text(Expr::StringLiteral("calm".into()))],
                             span: Span::dummy(),
                         },
@@ -4352,7 +4917,7 @@ mod tests {
             "an enum case is its name: {out}"
         );
         assert!(
-            out.contains("WF.match(_root, () => _tone(), null, {"),
+            out.contains("WF.match(_root, () => WF.caseOf(_tone()), () => _tone(), {"),
             "{out}"
         );
         assert!(
@@ -4381,9 +4946,11 @@ mod tests {
                 span: Span::dummy(),
             }],
             slots: vec![SlotDecl {
+                params: Vec::new(),
                 name: Some("trailing".to_string()),
                 span: Span::dummy(),
             }],
+            parts: Vec::new(),
             doc: None,
             body: vec![
                 stmt(StatementKind::UIElement({
@@ -4395,6 +4962,7 @@ mod tests {
                     b.events.push(EventHandler {
                         event: "click".to_string(),
                         param: Some("ev".to_string()),
+                        key: None,
                         body: vec![stmt(StatementKind::Emit(EmitStmt {
                             event: "pick".to_string(),
                             args: vec![Expr::Identifier("label".to_string())],
@@ -4427,6 +4995,7 @@ mod tests {
         call.events.push(EventHandler {
             event: "pick".to_string(),
             param: Some("which".to_string()),
+            key: None,
             body: vec![stmt(StatementKind::Log(Expr::Identifier(
                 "which".to_string(),
             )))],
@@ -4435,10 +5004,12 @@ mod tests {
         call.events.push(EventHandler {
             event: "mouseenter".to_string(),
             param: None,
+            key: None,
             body: vec![stmt(StatementKind::Log(Expr::StringLiteral("in".into())))],
             span: Span::dummy(),
         });
         call.slot_fills.push(SlotFill {
+            params: Vec::new(),
             name: "trailing".to_string(),
             body: vec![text(Expr::StringLiteral("→".into()))],
             span: Span::dummy(),
@@ -4511,11 +5082,13 @@ mod tests {
                     name: "hint".to_string(),
                     ty: None,
                     value: Expr::Null,
+                    persist: false,
                 })),
                 stmt(StatementKind::State(StateDecl {
                     name: "items".to_string(),
                     ty: None,
                     value: Expr::ListLiteral(Vec::new()),
+                    persist: false,
                 })),
                 stmt(StatementKind::If(IfStmt {
                     condition: Expr::Identifier("hint".to_string()),
@@ -5190,5 +5763,31 @@ mod tests {
             js.contains("_count()"),
             "state stopped being reactive:\n{js}"
         );
+    }
+
+    #[test]
+    fn a_for_loop_in_an_action_runs_once_in_order() {
+        let out = compile(
+            "page P(path: \"/\") { state items = [1, 2]\n state n = 0\n action all() { for x in items { n = n + x }\n for x, i in items { log(i) } }\n Text(\"{n}\") }",
+        );
+        assert!(out.contains("for (const x of _items()) {"), "{out}");
+        assert!(
+            out.contains("_n.set((_n() + x));"),
+            "the item is a plain name: {out}"
+        );
+        assert!(
+            out.contains("for (const [i, x] of Array.from(_items()).entries()) {"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn optional_chaining_is_javascripts_own() {
+        let out = compile(
+            "page P(path: \"/\") { state user = null\n derived name = user?.profile?.name ?? \"anon\"\n derived first = user?.tags?.[0]\n derived up = user?.name?.toUpperCase()\n Text(name) }",
+        );
+        assert!(out.contains("_user()?.profile?.name ?? \"anon\""), "{out}");
+        assert!(out.contains("_user()?.tags?.[0]"), "{out}");
+        assert!(out.contains("_user()?.name?.toUpperCase()"), "{out}");
     }
 }

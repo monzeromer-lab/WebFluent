@@ -7,7 +7,7 @@ use crate::codegen::pdf::PdfCodegen;
 use crate::codegen::slides::SlidesCodegen;
 use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::error::{Result, WebFluentError};
-use crate::parser::ast::{ArmPattern, ForStmt, IfStmt};
+use crate::parser::ast::{ArmPattern, ForStmt, IfStmt, PropDecl};
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
@@ -59,6 +59,9 @@ pub struct Template {
     source: String,
     theme: Option<String>,
     custom_tokens: HashMap<String, String>,
+    /// Where a `data` declaration's file is looked for: the template file's
+    /// own directory. A template from a string has none.
+    root: Option<std::path::PathBuf>,
 }
 
 // `Template::from_str` is documented public API used throughout the README and
@@ -83,6 +86,7 @@ impl Template {
             source: source.to_string(),
             theme: None,
             custom_tokens: HashMap::new(),
+            root: None,
         })
     }
 
@@ -103,7 +107,9 @@ impl Template {
         } else {
             source
         };
-        Self::from_str(&source)
+        let mut template = Self::from_str(&source)?;
+        template.root = std::path::Path::new(path).parent().map(|p| p.to_path_buf());
+        Ok(template)
     }
 
     /// Select which `Theme` declared in the template to render with.
@@ -136,6 +142,7 @@ impl Template {
             name: self.theme.clone(),
             tokens: self.custom_tokens.clone(),
             builtin: Default::default(),
+            dark: None,
         };
         crate::themes::resolve_tokens(&program, &config)
     }
@@ -212,24 +219,52 @@ impl Template {
     /// separately.
     pub fn render_html_fragment(&self, data: &Value) -> Result<String> {
         let program = self.parse()?;
+        render_program_fragment(&program, data)
+    }
+}
+
+/// The HTML fragment of every page of a lowered program, over `data`:
+/// what a template renders, and what `wf test` holds a test to.
+pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
+    {
         let mut ctx = RenderContext::new(data);
 
         let mut html = String::new();
+        // Every component first, wherever it is declared, so a page may
+        // use one declared after it.
         for decl in &program.declarations {
-            match decl {
-                Declaration::Page(page) => {
-                    html.push_str(&render_statements(&page.body, &mut ctx));
-                }
-                Declaration::Component(comp) => {
-                    // Register component for later use
-                    ctx.components.insert(comp.name.clone(), comp.body.clone());
-                }
-                _ => {} // Skip App, Store in template mode
+            if let Declaration::Component(comp) = decl {
+                let handed = comp
+                    .slots
+                    .iter()
+                    .map(|s| {
+                        (
+                            s.name.clone().unwrap_or_else(|| "children".to_string()),
+                            s.params.iter().map(|p| p.name.clone()).collect(),
+                        )
+                    })
+                    .collect();
+                ctx.components.insert(
+                    comp.name.clone(),
+                    TemplateComponent {
+                        body: comp.body.clone(),
+                        handed,
+                        props: comp.props.clone(),
+                    },
+                );
+            }
+        }
+        for decl in &program.declarations {
+            if let Declaration::Page(page) = decl {
+                html.push_str(&render_statements(&page.body, &mut ctx));
             }
         }
         Ok(html)
     }
+}
 
+#[allow(clippy::should_implement_trait)]
+impl Template {
     /// Render to PDF as raw bytes.
     ///
     /// Returns a valid PDF file as `Vec<u8>`. Write the result to a file
@@ -266,7 +301,20 @@ impl Template {
     }
 
     fn parse(&self) -> Result<Program> {
-        crate::syntax::parse_source(&self.source, "<template>").map(crate::sema::lower)
+        let mut program = crate::syntax::parse_source(&self.source, "<template>")?;
+        if let Some(root) = &self.root {
+            crate::data::resolve_data(&mut program, root)?;
+        } else if let Some(Declaration::Data(d)) = program
+            .declarations
+            .iter()
+            .find(|d| matches!(d, Declaration::Data(_)))
+        {
+            return Err(WebFluentError::IoError(format!(
+                "`data {}` reads a file, which a template from a string has no place to read from; use `Template::from_file`",
+                d.name
+            )));
+        }
+        Ok(crate::sema::lower(program))
     }
 
     /// Resolve all data references in the program for PDF rendering.
@@ -293,16 +341,34 @@ impl Template {
 
 // ─── Render Context ──────────────────────────────────────────────────
 
+/// The block a caller wrote for a slot: the names it gives the slot's
+/// values, what the slot's declaration calls them, and the block.
+#[derive(Debug, Clone)]
+struct Fill {
+    params: Vec<String>,
+    handed: Vec<String>,
+    body: Vec<Statement>,
+}
+
+/// A component as the template engine expands it: its body, its props,
+/// and per slot the names of what it hands over.
+#[derive(Debug, Clone)]
+struct TemplateComponent {
+    body: Vec<Statement>,
+    handed: HashMap<String, Vec<String>>,
+    props: Vec<PropDecl>,
+}
+
 struct RenderContext<'a> {
     data: &'a Value,
     locals: HashMap<String, Value>,
-    components: HashMap<String, Vec<Statement>>,
+    components: HashMap<String, TemplateComponent>,
     indent: usize,
     /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
     in_thead: bool,
     /// The caller's block for each user component being expanded, innermost
     /// last; `children` renders the top one.
-    slots: Vec<HashMap<String, Vec<Statement>>>,
+    slots: Vec<HashMap<String, Fill>>,
     /// Fields rendered so far, for their ids.
     fields: usize,
 }
@@ -322,6 +388,20 @@ impl<'a> RenderContext<'a> {
 
     fn indent_str(&self) -> String {
         "    ".repeat(self.indent)
+    }
+
+    /// A context for an expression that binds a name: the same data and
+    /// locals, to add to without touching this one.
+    fn child(&self) -> RenderContext<'a> {
+        RenderContext {
+            data: self.data,
+            locals: self.locals.clone(),
+            components: self.components.clone(),
+            indent: self.indent,
+            in_thead: self.in_thead,
+            slots: self.slots.clone(),
+            fields: self.fields,
+        }
     }
 
     /// Look up a variable: first in locals (loop vars), then in data context.
@@ -368,17 +448,28 @@ impl<'a> RenderContext<'a> {
                     _ => Value::Null,
                 }
             }
+            // `?.` in a template: null is null, and a null base reads as null.
+            Expr::OptionalProperty(obj, prop) => match self.eval_expr(obj) {
+                Value::Null => Value::Null,
+                _ => self.eval_expr(&Expr::PropertyAccess(obj.clone(), prop.clone())),
+            },
+            Expr::OptionalIndex(obj, idx) => match self.eval_expr(obj) {
+                Value::Null => Value::Null,
+                _ => self.eval_expr(&Expr::IndexAccess(obj.clone(), idx.clone())),
+            },
+            Expr::OptionalMethod(obj, method, args) => match self.eval_expr(obj) {
+                Value::Null => Value::Null,
+                _ => self.eval_expr(&Expr::MethodCall(obj.clone(), method.clone(), args.clone())),
+            },
             Expr::IndexAccess(arr_expr, idx_expr) => {
                 let arr = self.eval_expr(arr_expr);
                 let idx = self.eval_expr(idx_expr);
                 match (&arr, &idx) {
-                    (Value::Array(a), Value::Number(n)) => {
-                        if let Some(i) = n.as_u64() {
-                            a.get(i as usize).cloned().unwrap_or(Value::Null)
-                        } else {
-                            Value::Null
-                        }
-                    }
+                    // A literal index is a float here (`0` lexes as `0.0`).
+                    (Value::Array(a), Value::Number(n)) => match n.as_f64() {
+                        Some(i) if i >= 0.0 => a.get(i as usize).cloned().unwrap_or(Value::Null),
+                        _ => Value::Null,
+                    },
                     (Value::Object(map), Value::String(key)) => {
                         map.get(key).cloned().unwrap_or(Value::Null)
                     }
@@ -405,6 +496,39 @@ impl<'a> RenderContext<'a> {
                         }
                     }
                 }
+            }
+            // `if c { a } else { b }` and `if let x = e { a } else { b }` as
+            // values.
+            Expr::MethodCall(cond, method, args) if method == "__if" && args.len() == 2 => {
+                if is_truthy(&self.eval_expr(cond)) {
+                    self.eval_expr(&args[0])
+                } else {
+                    self.eval_expr(&args[1])
+                }
+            }
+            Expr::MethodCall(value, method, args) if method == "__iflet" && args.len() == 2 => {
+                let v = self.eval_expr(value);
+                match (&v, &args[0]) {
+                    (Value::Null, _) => self.eval_expr(&args[1]),
+                    (_, Expr::Lambda(name, body)) => {
+                        let mut inner = self.child();
+                        inner.locals.insert(name.clone(), v.clone());
+                        inner.eval_expr(body)
+                    }
+                    _ => Value::Null,
+                }
+            }
+            Expr::MethodCall(subject, method, args) if method == "__case" && args.is_empty() => {
+                case_of(&self.eval_expr(subject))
+            }
+            Expr::MethodCall(subject, method, args) if method == "__is" && args.len() == 1 => {
+                let v = self.eval_expr(subject);
+                Value::Bool(case_of(&v) == self.eval_expr(&args[0]))
+            }
+            Expr::MethodCall(subject, method, args) if method == "__payload" && args.len() == 1 => {
+                let v = self.eval_expr(subject);
+                let case = self.eval_expr(&args[0]);
+                payload_of(&v, &case)
             }
             Expr::MethodCall(obj, method, args) => {
                 let parent = self.eval_expr(obj);
@@ -450,9 +574,12 @@ impl<'a> RenderContext<'a> {
                             _ => Value::Null,
                         }
                     }
-                    _ => Value::Null,
+                    // Every other method the language has, the build-time
+                    // evaluator knows: the data is its scope.
+                    _ => self.eval_static(expr),
                 }
             }
+            Expr::Regex(..) => self.eval_static(expr),
             Expr::FunctionCall(name, _args) => {
                 // t() in template mode — not supported, return key
                 if name == "t" {
@@ -461,24 +588,68 @@ impl<'a> RenderContext<'a> {
                     } else {
                         Value::Null
                     }
+                } else if name == "format" || name == "ago" {
+                    // Formatting speaks the data's `locale`, or English.
+                    self.eval_static(expr)
                 } else {
                     Value::Null
                 }
             }
             Expr::ListLiteral(items) => {
-                Value::Array(items.iter().map(|e| self.eval_expr(e)).collect())
+                let mut out = Vec::new();
+                for e in items {
+                    match e {
+                        Expr::Spread(inner) => {
+                            if let Value::Array(more) = self.eval_expr(inner) {
+                                out.extend(more);
+                            }
+                        }
+                        _ => out.push(self.eval_expr(e)),
+                    }
+                }
+                Value::Array(out)
             }
             Expr::MapLiteral(pairs) | Expr::Record(_, pairs) => {
-                let map: serde_json::Map<String, Value> = pairs
-                    .iter()
-                    .map(|(k, v)| (k.clone(), self.eval_expr(v)))
-                    .collect();
+                let mut map = serde_json::Map::new();
+                for (k, v) in pairs {
+                    if k == "..." {
+                        if let Value::Object(more) = self.eval_expr(v) {
+                            map.extend(more);
+                        }
+                    } else {
+                        map.insert(k.trim_matches('"').to_string(), self.eval_expr(v));
+                    }
+                }
                 Value::Object(map)
             }
+            Expr::Range(..) => self.eval_static(expr),
             Expr::EnumCase(case) => Value::String(case.clone()),
+            Expr::CaseValue(case, args) => {
+                let mut items = vec![Value::String(case.clone())];
+                items.extend(args.iter().map(|a| self.eval_expr(a)));
+                Value::Array(items)
+            }
             Expr::Token(name) => Value::String(format!("var(--{name})")),
             _ => Value::Null,
         }
+    }
+
+    /// Evaluate `expr` with the static evaluator, over this context's data
+    /// and locals; `Null` when it cannot.
+    fn eval_static(&self, expr: &Expr) -> Value {
+        use crate::codegen::static_eval::{Scope, Static, eval};
+        let mut names: Vec<(String, Static)> = Vec::new();
+        if let Value::Object(map) = self.data {
+            for (k, v) in map {
+                names.push((k.clone(), Static::from_json(v)));
+            }
+        }
+        for (k, v) in &self.locals {
+            names.push((k.clone(), Static::from_json(v)));
+        }
+        eval(expr, &Scope::of(names))
+            .map(|v| v.to_json())
+            .unwrap_or(Value::Null)
     }
 
     /// Interpolate `{var}` references in a plain string.
@@ -537,15 +708,44 @@ fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
             StatementKind::If(if_stmt) => html.push_str(&render_if(if_stmt, ctx)),
             StatementKind::For(for_stmt) => html.push_str(&render_for(for_stmt, ctx)),
             // A resource has no data at render time: the `loading` arm, or
-            // `else`, is what a document can show.
+            // `else`, is what a document can show. An enum's value is at
+            // hand, so its arm is the case's, with the payload bound.
             StatementKind::Match(m) => {
+                let over_resource = m.arms.iter().any(|a| {
+                    matches!(
+                        a.pattern,
+                        ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
+                    )
+                });
+                let value = if over_resource {
+                    Value::Null
+                } else {
+                    ctx.eval_expr(&m.scrutinee)
+                };
+                let case = case_of(&value);
                 let arm = m
                     .arms
                     .iter()
-                    .find(|a| a.pattern == ArmPattern::Loading)
+                    .find(|a| matches!(&a.pattern, ArmPattern::Case(c) if Value::String(c.clone()) == case))
+                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Loading))
                     .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Else));
                 if let Some(arm) = arm {
+                    let mut saved = Vec::new();
+                    if let Value::Array(items) = &value {
+                        for (name, item) in arm.bindings.iter().zip(items.iter().skip(1)) {
+                            saved.push((
+                                name.clone(),
+                                ctx.locals.insert(name.clone(), item.clone()),
+                            ));
+                        }
+                    }
                     html.push_str(&render_statements(&arm.body, ctx));
+                    for (name, old) in saved.into_iter().rev() {
+                        match old {
+                            Some(v) => ctx.locals.insert(name, v),
+                            None => ctx.locals.remove(&name),
+                        };
+                    }
                 }
             }
             // Skip state, derived, effect, action, use, events, navigate, etc.
@@ -642,23 +842,62 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
         }
         ComponentRef::UserDefined(name) => {
             // Expand user component if registered
-            if let Some(body) = ctx.components.get(name).cloned() {
-                // Push props as locals
+            if let Some(TemplateComponent {
+                body,
+                handed,
+                props,
+            }) = ctx.components.get(name).cloned()
+            {
+                // The props as locals: a positional argument binds the
+                // positional prop (or the first), a named one its name, and
+                // a prop left out takes its default.
                 let mut old_locals = Vec::new();
+                let mut given: Vec<(String, Value)> = Vec::new();
                 for arg in &ui.args {
-                    if let Arg::Named(key, val) = arg {
-                        let resolved = ctx.eval_expr(val);
-                        let old = ctx.locals.insert(key.clone(), resolved);
-                        old_locals.push((key.clone(), old));
+                    match arg {
+                        Arg::Named(key, val) => given.push((key.clone(), ctx.eval_expr(val))),
+                        Arg::Positional(val) => {
+                            let target = props
+                                .iter()
+                                .find(|p| p.positional)
+                                .or_else(|| props.first())
+                                .map(|p| p.name.clone());
+                            if let Some(key) = target {
+                                given.push((key, ctx.eval_expr(val)));
+                            }
+                        }
                     }
                 }
-                // Also handle positional args mapped to prop names
-                // (simplified: just render the body)
+                for prop in &props {
+                    if !given.iter().any(|(k, _)| *k == prop.name)
+                        && let Some(default) = &prop.default
+                    {
+                        given.push((prop.name.clone(), ctx.eval_expr(default)));
+                    }
+                }
+                for (key, resolved) in given {
+                    let old = ctx.locals.insert(key.clone(), resolved);
+                    old_locals.push((key, old));
+                }
 
-                let mut slots: HashMap<String, Vec<Statement>> = HashMap::new();
-                slots.insert("children".to_string(), ui.children.clone());
+                let mut slots: HashMap<String, Fill> = HashMap::new();
+                slots.insert(
+                    "children".to_string(),
+                    Fill {
+                        params: Vec::new(),
+                        handed: Vec::new(),
+                        body: ui.children.clone(),
+                    },
+                );
                 for fill in &ui.slot_fills {
-                    slots.insert(fill.name.clone(), fill.body.clone());
+                    slots.insert(
+                        fill.name.clone(),
+                        Fill {
+                            params: fill.params.clone(),
+                            handed: handed.get(&fill.name).cloned().unwrap_or_default(),
+                            body: fill.body.clone(),
+                        },
+                    );
                 }
                 ctx.slots.push(slots);
                 let html = render_statements(&body, ctx);
@@ -686,7 +925,30 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     // wrote, rendered in its place. Outside a component there is none.
     if let Some(slot) = ui.slot_name() {
         return match ctx.slots.last().and_then(|s| s.get(slot)).cloned() {
-            Some(slot) => render_statements(&slot, ctx),
+            Some(fill) => {
+                // A scoped slot's values, under the names the fill gave them.
+                let mut saved = Vec::new();
+                for (i, param) in fill.params.iter().enumerate() {
+                    let key = fill.handed.get(i).cloned().unwrap_or_else(|| param.clone());
+                    let value = ui
+                        .args
+                        .iter()
+                        .find_map(|a| match a {
+                            Arg::Named(k, v) if *k == key => Some(ctx.eval_expr(v)),
+                            _ => None,
+                        })
+                        .unwrap_or(Value::Null);
+                    saved.push((param.clone(), ctx.locals.insert(param.clone(), value)));
+                }
+                let html = render_statements(&fill.body, ctx);
+                for (name, old) in saved.into_iter().rev() {
+                    match old {
+                        Some(v) => ctx.locals.insert(name, v),
+                        None => ctx.locals.remove(&name),
+                    };
+                }
+                html
+            }
             None => String::new(),
         };
     }
@@ -706,6 +968,24 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 ctx.indent_str(),
                 class_str,
                 style_attr
+            );
+        }
+        "Markdown" => {
+            let text = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Positional(e) => Some(value_to_string(&ctx.eval_expr(e))),
+                    _ => None,
+                })
+                .unwrap_or_default();
+            return format!(
+                "{}<div class=\"{}\"{}>\n{}{}</div>\n",
+                ctx.indent_str(),
+                class_str,
+                style_attr,
+                crate::codegen::markdown::render(&text),
+                ctx.indent_str()
             );
         }
         "Divider" => {
@@ -1192,7 +1472,11 @@ fn resolve_ui_element(ui: &UIElement, ctx: &RenderContext) -> UIElement {
 
 fn resolve_expr(expr: &Expr, ctx: &RenderContext) -> Expr {
     match expr {
-        Expr::Identifier(_) | Expr::PropertyAccess(_, _) | Expr::IndexAccess(_, _) => {
+        Expr::Identifier(_)
+        | Expr::PropertyAccess(_, _)
+        | Expr::IndexAccess(_, _)
+        | Expr::OptionalProperty(_, _)
+        | Expr::OptionalIndex(_, _) => {
             let val = ctx.eval_expr(expr);
             value_to_expr(&val)
         }
@@ -1241,16 +1525,37 @@ fn value_to_expr(val: &Value) -> Expr {
 fn value_to_string(val: &Value) -> String {
     match val {
         Value::String(s) => s.clone(),
-        Value::Number(n) => {
-            if let Some(i) = n.as_i64() {
-                format!("{}", i)
-            } else {
-                format!("{}", n)
-            }
-        }
+        // A whole number prints without a fraction, as the browser prints it:
+        // `8 / 2` is `4`, not `4.0`.
+        Value::Number(n) => match (n.as_i64(), n.as_f64()) {
+            (Some(i), _) => format!("{}", i),
+            (None, Some(f)) if f == f.trunc() && f.abs() < 1e15 => format!("{}", f as i64),
+            _ => format!("{}", n),
+        },
         Value::Bool(b) => format!("{}", b),
         Value::Null => String::new(),
         Value::Array(_) | Value::Object(_) => serde_json::to_string(val).unwrap_or_default(),
+    }
+}
+
+/// The case of an enum value: a bare case is its name, a case with a payload
+/// the list `["case", …payload]`.
+fn case_of(v: &Value) -> Value {
+    match v {
+        Value::Array(items) => items.first().cloned().unwrap_or(Value::Null),
+        other => other.clone(),
+    }
+}
+
+/// The payload of `v` where its case is `case`: the one value of a single
+/// payload, the list of a longer one, null otherwise.
+fn payload_of(v: &Value, case: &Value) -> Value {
+    match v {
+        Value::Array(items) if items.first() == Some(case) => match items.len() {
+            2 => items[1].clone(),
+            _ => Value::Array(items[1..].to_vec()),
+        },
+        _ => Value::Null,
     }
 }
 
@@ -1268,9 +1573,14 @@ fn is_truthy(val: &Value) -> bool {
 fn eval_binary_op(left: &Value, op: &crate::parser::ast::BinOp, right: &Value) -> Value {
     use crate::parser::ast::BinOp;
 
+    // `2` from the data and `2.0` from a literal are the same number.
+    let same = |l: &Value, r: &Value| match (l, r) {
+        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
+        _ => l == r,
+    };
     match op {
-        BinOp::Eq => Value::Bool(left == right),
-        BinOp::Neq => Value::Bool(left != right),
+        BinOp::Eq => Value::Bool(same(left, right)),
+        BinOp::Neq => Value::Bool(!same(left, right)),
         BinOp::Lt => Value::Bool(as_f64(left) < as_f64(right)),
         BinOp::Gt => Value::Bool(as_f64(left) > as_f64(right)),
         BinOp::Lte => Value::Bool(as_f64(left) <= as_f64(right)),

@@ -400,3 +400,84 @@ component Panel(_ title: String) {
           (expression_statement
             (identifier))
           (children))))))
+
+================================================================================
+A scoped slot hands its fill values
+================================================================================
+
+component Rows(items: [Any]) {
+    slot row(item: Any, index: Number)
+    for it, i in items { row(item: it, index: i) }
+}
+page P(path: "/") {
+    Rows(items: names) { row(n, i) { Text("{i}: {n}") } }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (component_declaration
+    (component_identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (list_type
+          (builtin_type))))
+    (block
+      (slot_declaration
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type))
+          (parameter
+            (identifier)
+            (builtin_type))))
+      (for_statement
+        (identifier)
+        (identifier)
+        (identifier)
+        (block
+          (expression_statement
+            (call_expression
+              (identifier)
+              (arguments
+                (named_argument
+                  (attribute_name
+                    (identifier))
+                  (identifier))
+                (named_argument
+                  (attribute_name
+                    (identifier))
+                  (identifier)))))))))
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (component_identifier)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (identifier)))
+        (block
+          (slot_fill
+            (identifier)
+            (identifier)
+            (identifier)
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (string
+                    (interpolation
+                      (identifier))
+                    (string_content)
+                    (interpolation
+                      (identifier))))))))))))

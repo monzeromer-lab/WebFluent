@@ -276,6 +276,8 @@ impl Parser {
             redirect,
             layout: None,
             params: Vec::new(),
+            head: Vec::new(),
+            paths: None,
             body,
             span: self.span_since(decl_mark),
             header_span,
@@ -311,6 +313,7 @@ impl Parser {
             props,
             events: Vec::new(),
             slots: Vec::new(),
+            parts: Vec::new(),
             doc: None,
             body,
             span: self.span_since(decl_mark),
@@ -495,6 +498,7 @@ impl Parser {
             name,
             ty: None,
             value,
+            persist: false,
         }))
     }
 
@@ -510,7 +514,10 @@ impl Parser {
     fn parse_effect_decl(&mut self) -> Result<StatementKind> {
         self.expect(&TokenType::Effect)?;
         let body = self.parse_block()?;
-        Ok(StatementKind::Effect(EffectDecl { body }))
+        Ok(StatementKind::Effect(EffectDecl {
+            body,
+            cleanup: Vec::new(),
+        }))
     }
 
     fn parse_action_decl(&mut self) -> Result<StatementKind> {
@@ -1762,6 +1769,7 @@ impl Parser {
         Ok(EventHandler {
             event,
             param: None,
+            key: None,
             body,
             span: self.span_since(mark),
         })
@@ -2785,7 +2793,11 @@ mod span_tests {
                 Declaration::Store(_)
                 | Declaration::Theme(_)
                 | Declaration::Type(_)
-                | Declaration::Enum(_) => {}
+                | Declaration::Enum(_)
+                | Declaration::Const(_)
+                | Declaration::Animation(_)
+                | Declaration::Test(_)
+                | Declaration::Data(_) => {}
             }
         }
         out

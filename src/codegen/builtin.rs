@@ -98,6 +98,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Heading" => ("h2", "wf-heading"),
         "Code" => ("code", "wf-code"),
         "Blockquote" => ("blockquote", "wf-blockquote"),
+        "Markdown" => ("div", "wf-markdown"),
 
         // ─── Document structure ──────────────────────────
         // These come from the PDF vocabulary but are ordinary HTML on the web,

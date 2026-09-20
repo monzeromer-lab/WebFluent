@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "halyard",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /home/monzer-omer/Code/halyard && exec \"/run/media/monzer-omer/the good stuff/Work/WebFluent/target/debug/wf\" serve"],
+      "port": 3000
+    }
+  ]
+}

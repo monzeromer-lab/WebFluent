@@ -2,6 +2,109 @@
 
 ## Added
 
+### The language core
+
+- `for` in actions, handlers and effects — with an index, over a range
+  (`1..10`, `1..=10`), or a keyed list; `try { } catch e { }`;
+  destructuring `let { a, b } = m` and `let [x, y] = l`.
+- Optional chaining `a?.b`, `a?.m()`, `a?.[i]`: null when the base is,
+  the rest of the chain with it, typed as `T?`.
+- `if let x = v { a } else { b }` as a value.
+- Regular expressions `/pattern/flags`, with `test`, `exec`, and a string's
+  `match`, `replace`, `replaceAll`, `split`, `search`; a `/` after an
+  operand still divides.
+- Spread `[...a, b]`, `{ ...m, k: v }`.
+- `const NAME = value` at the top level, and `env.X` from the config's
+  `"env"` map, fixed at build time.
+- Record composition `type Admin = User { role: String }`; enums whose
+  cases carry a payload, `enum Status { idle, failed(reason: String) }`,
+  written `.failed("x")` and matched `.failed(r) { … }` (a match
+  expression binds one name); `["failed", "x"]` at run time, a bare case
+  its name.
+- Structural shapes: a map literal is typed by the fields it was written
+  with, so `form.nam` is a `T05` and a literal given where a record is
+  wanted is checked field by field; a field only some items of a list have
+  is `T?`.
+- Helpers `sortBy`, `groupBy`, `unique`, `take`, `first`, `last`,
+  `flatMap`, `sum` on lists and `capitalize`, `truncate` on strings —
+  in the browser and at build time.
+- `format(value, .style, option)` — `.number`, `.integer`, `.decimal`,
+  `.currency`, `.percent`, `.compact`, `.date`, `.time`, `.datetime`,
+  `.relative`, or a date pattern such as `"yyyy-MM-dd HH:mm"` — and
+  `ago(date)`, in the i18n locale when the project has one and the
+  document's language otherwise; the static paint and the template engine
+  format from a table of the common locales and currencies.
+- The type checker places an error at the expression it names when the
+  source is at hand; hover shows a record's inherited fields and an enum's
+  payloads; the tree-sitter grammar and the Zed extension know every new
+  form.
+
+### Tooling
+
+- `wf fmt` formats a project's sources: indentation by block depth,
+  spacing around braces, trailing blanks and blank-line runs — held to the
+  file's tokens, comments kept; `wf fmt --check` for CI. `--to wfx|wf`
+  still changes the layout.
+- `wf serve` rebuilds on save, reloads the page, and shows a failed build's
+  diagnostics over the page until the next build passes.
+- Plural forms: `t("items", { count: n })` picks `items.one`, `items.other`
+  and the locale's other categories from the translation file.
+- A route change with `Router(transition:)` plays through the View
+  Transitions API where the browser has it, the class-based animation
+  standing in elsewhere.
+- `wf docs`: a self-contained component gallery of every built-in and of
+  the project's own declarations.
+- `Markdown(text)`: a small Markdown rendered the same way at build time
+  and by the runtime, the text escaped first; a `.md` file under `src/` is
+  a page, its front matter the page's attributes.
+- `data posts = "posts.json"`: a JSON file as a constant, read at build
+  time; `paths:` on a `:param` page renders the static page once per value
+  and lists each in the sitemap.
+- `wf test`: `test "name"(data: { … }) { elements  expect "text"  expect
+  not "text" }` declarations under `tests/`, rendered through the template
+  engine with the project's declarations at hand, held to their
+  expectations and to snapshots (`--update` accepts a new render).
+- The language server renames — a component, a store, a store member, a
+  local — across the project, inside interpolations too, and offers
+  `Extract component` on a selection of elements, with what they read as
+  typed props and the stores they use `use`d again.
+- Unused warnings `U01`–`U05`: state, derived values, actions, components
+  and store members the program declares and never reads, in the build's
+  output and the editor.
+
+### Components and reactivity
+
+- Scoped slots: `slot row(item: Todo, index: Number)`, used as
+  `row(item: it, index: i)`, filled as `row(t, i) { … }`; the fill is drawn
+  again when a value it is handed changes.
+- Parts of a component: `part Header(_ text: String) { … }` inside
+  `component Panel`, called as `Panel.Header("…")`.
+- A component's enum props are written to its root element as
+  `data-<prop>="<case>"`.
+- `ref: name` on an element: a handle read as the element itself
+  (`name.focus()`).
+- `every(ms) { }`, `after(ms) { }` and `effect { … cleanup { … } }`; what a
+  page, a branch, a list item, a match arm or a slot creates is disposed of
+  when it leaves.
+- `persist name = value` in a page, a component or a store: kept in the
+  browser's storage across visits.
+- `viewport`, `query`, `hash` and `theme`: the browser as values, kept
+  current; a declared name shadows them.
+- `on key("ctrl+k") { }` on an element or at the top of a page.
+- `animation Name { from { } to { } }` keyframes, played with `animate:
+  .Name` or written into a style; container queries pass through.
+- Dark mode: `"theme": { "dark": "Night" }` applies a second theme under
+  `prefers-color-scheme: dark` and on `setTheme("dark")`, kept across
+  visits.
+- `Form(bind: form)`: `form.valid`, `form.values`, `form.reset()`; an async
+  action's `name.pending`.
+- A page's `head { meta(…) link(…) script(…) }`, painted at build time and
+  kept current on the live page.
+- The template engine binds a component's positional props and defaults,
+  and every component is registered before a page renders; the static
+  paint substitutes props through every expression and into branches,
+  loops and matches.
+
 ### The indented layout: `.wfx`
 
 The one grammar, written by indentation. A `.wfx` file opens a block with
