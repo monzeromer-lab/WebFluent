@@ -358,7 +358,7 @@ Card(elevated, fadeIn) { Text("Hello") }
 Compiles to:
 
 ```javascript
-const _e0 = WF.h("div", { className: "wf-card wf-card--elevated wf-animate-fadeIn" });
+const _e0 = WF.el("div", { className: "wf-card wf-card--elevated wf-animate-fadeIn" });
 ```
 
 ### Control flow animations → runtime config
@@ -372,7 +372,7 @@ if isVisible, animate(fadeIn, fadeOut) {
 Compiles to:
 
 ```javascript
-WF.condRender(_root,
+WF.when(_root,
   () => _isVisible(),
   () => { /* then branch */ },
   null,
@@ -394,7 +394,7 @@ Button("Click") {
 Compiles to:
 
 ```javascript
-const _e0 = WF.h("button", {
+const _e0 = WF.el("button", {
   className: "wf-btn",
   style: { transition: "background 200ms ease, transform 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275)" }
 });

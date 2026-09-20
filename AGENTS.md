@@ -922,6 +922,23 @@ Images are given `decoding="async"`; the first on a page is eager with
 `fetchpriority="high"` and every later one `loading="lazy"`, unless the
 element sets `loading:` itself.
 
+## Runtime
+
+`app.js` opens with the runtime, reachable as `window.WF` from the console,
+a `script`, or the studio. The compiled pages call it; a hand-written script
+may too. Its surface:
+
+| Group | Functions |
+|---|---|
+| State | `signal(v)` → getter with `.set`/`.update`/`.subscribe`; `effect(fn)`; `computed(fn)` |
+| Elements | `el(tag, attrs, …children)` — a thunk attribute or child follows state; `text(v)`; `props(given, defaults)`; `onRoot(node, event, fn)`; `classes(node, fn)` |
+| Bodies | `when(parent, cond, then, else, anim)`; `each(parent, list, item, {key, index, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` |
+| Motion | `animate(target, name, duration)`; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay)` |
+| Routing | `router(routes, container)`; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
+| Data | `resource(url, options)` → `{state, data, error, reload}`; `fetch(url, options)`; `store(def)`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
+| Widgets | `toast(message, tone, ms)`; `dialog`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
+| Boot | `mount(fn, container)`; `hydrate(fn, container)`; `setBasePath`; `setSsgMode`; `__debug` (studio) |
+
 ## Search and Sharing
 
 Set `meta.site_url` and the compiler writes everything a search engine and a link

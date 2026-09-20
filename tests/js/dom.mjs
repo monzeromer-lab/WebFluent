@@ -18,9 +18,44 @@ class ClassList {
 class Node_ {
   constructor() { this.childNodes = []; this.parentNode = null; }
   get children() { return this.childNodes.filter((n) => n.nodeType === 1); }
+  get firstChild() { return this.childNodes[0] || null; }
+  get lastChild() { return this.childNodes[this.childNodes.length - 1] || null; }
+  get nextSibling() {
+    if (!this.parentNode) return null;
+    const i = this.parentNode.childNodes.indexOf(this);
+    return this.parentNode.childNodes[i + 1] || null;
+  }
+  get previousSibling() {
+    if (!this.parentNode) return null;
+    const i = this.parentNode.childNodes.indexOf(this);
+    return i > 0 ? this.parentNode.childNodes[i - 1] : null;
+  }
   contains(node) {
     if (node === this) return true;
     return this.childNodes.some((c) => c === node || (c.contains && c.contains(node)));
+  }
+  // A node lives in one place: inserting it elsewhere moves it, and a
+  // fragment hands over its children and empties itself, as the DOM does.
+  _adopt(n) {
+    if (n instanceof DocumentFragment) {
+      const moved = n.childNodes.splice(0);
+      for (const c of moved) c.parentNode = this;
+      return moved;
+    }
+    if (n.parentNode) n.parentNode.removeChild(n);
+    n.parentNode = this;
+    return [n];
+  }
+  removeChild(n) {
+    this.childNodes = this.childNodes.filter((c) => c !== n);
+    if (n.parentNode === this) n.parentNode = null;
+    return n;
+  }
+  insertBefore(n, ref) {
+    const nodes = this._adopt(n);
+    const i = ref ? this.childNodes.indexOf(ref) : -1;
+    if (i < 0) this.childNodes.push(...nodes); else this.childNodes.splice(i, 0, ...nodes);
+    return n;
   }
 }
 
@@ -46,18 +81,10 @@ class Element extends Node_ {
     this._listeners = new Map();
   }
   appendChild(n) {
-    n.parentNode = this;
-    this.childNodes.push(n);
+    this.childNodes.push(...this._adopt(n));
     // A stylesheet linked here arrives at once, as a cached one would; a
     // test that wants to see the wait between link and load overrides this.
     if (n.tagName === "LINK" && typeof n.onload === "function") n.onload();
-    return n;
-  }
-  removeChild(n) { this.childNodes = this.childNodes.filter((c) => c !== n); return n; }
-  insertBefore(n, ref) {
-    const i = this.childNodes.indexOf(ref);
-    n.parentNode = this;
-    if (i < 0) this.childNodes.push(n); else this.childNodes.splice(i, 0, n);
     return n;
   }
   get className() { return this.classList.toString(); }

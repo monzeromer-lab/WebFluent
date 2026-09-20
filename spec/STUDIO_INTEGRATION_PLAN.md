@@ -91,7 +91,7 @@ foundation (M1), then build the house (M2+).
 - Full compiler: `lexer → parser → codegen(html/css/js/ssg/pdf/slides) → runtime`.
 - Library API (`src/lib.rs` `Template`): `from_str/from_file`, `render_html`,
   `render_html_fragment`, `render_pdf`, `with_theme`. Studio can compile in-process.
-- Runtime (`src/runtime/runtime.js`, ~700 LOC): `WF.h(tag, attrs, …children)`
+- Runtime (`src/runtime/runtime.js`, ~700 LOC): `WF.el(tag, attrs, …children)`
   builds the DOM; signal reactivity; SPA router; `mount`/`hydrate` (SSG).
 - 50+ components, design tokens + 4 themes, i18n + automatic RTL, animations,
   stores, control flow, data fetching — ~1:1 with the studio mock's surface.
@@ -106,7 +106,7 @@ foundation (M1), then build the house (M2+).
 
 **The two load-bearing gaps**
 1. **AST has no source spans** — the parser discards the lexer's positions.
-2. **Codegen emits no node identity** — `WF.h(...)` output has no `data-wf-node`,
+2. **Codegen emits no node identity** — `WF.el(...)` output has no `data-wf-node`,
    so a DOM click can't resolve to a code node.
 
 ---
@@ -147,7 +147,7 @@ exactly the `{ … }` interior.
   path like `Home:2.0.3` (page/component name → statement-index chain). Stable for a
   given source; recomputed each compile.
 - Codegen (`src/codegen/js.rs`) stamps `data-wf-node="<id>"` on the **root element**
-  of every UIElement's `WF.h(...)` output (one attribute; components that expand to
+  of every UIElement's `WF.el(...)` output (one attribute; components that expand to
   wrapper+children get it on the wrapper). SSG (`ssg.rs`) stamps the same in
   pre-rendered HTML so it survives before hydration.
 - Emit a **sidecar map** from the compile: `node_id → { span, path, component }`.

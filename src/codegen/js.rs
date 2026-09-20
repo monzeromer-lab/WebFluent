@@ -19,7 +19,7 @@ pub struct JsCodegen {
     current_props: Vec<String>,
     /// Names bound by an enclosing `for` loop, innermost last.
     ///
-    /// `WF.listRender` calls the body with the item as a plain parameter, so a
+    /// `WF.each` calls the body with the item as a plain parameter, so a
     /// reference to it must stay plain. Treating it as state instead emitted
     /// `_item()` against a binding named `item` — a `ReferenceError` the moment
     /// a non-empty list rendered.
@@ -53,7 +53,7 @@ pub struct JsCodegen {
     /// Deterministic node ids keyed by element span (empty unless in studio mode).
     node_ids: NodeMap,
     /// Whether each page is written as its own chunk (`pages/<Name>.js`),
-    /// registered with `WF.definePage`, rather than into the main bundle.
+    /// registered with `WF.page`, rather than into the main bundle.
     split_pages: bool,
     /// The page chunks, `(name, source)`, when `split_pages` is on.
     chunks: Vec<(String, String)>,
@@ -320,7 +320,7 @@ impl JsCodegen {
                     let saved = std::mem::take(&mut self.output);
                     let indent = std::mem::replace(&mut self.indent, 0);
                     self.emit_page(p);
-                    self.emit_line(&format!("WF.definePage(\"{}\", Page_{});", p.name, p.name));
+                    self.emit_line(&format!("WF.page(\"{}\", Page_{});", p.name, p.name));
                     let chunk = std::mem::replace(&mut self.output, saved);
                     self.indent = indent;
                     self.chunks.push((p.name.clone(), chunk));
@@ -383,7 +383,7 @@ impl JsCodegen {
                 self.indent -= 1;
                 self.emit_line("];");
                 self.emit_line("const container = WF.mainOf(document.getElementById('app'));");
-                self.emit_line("WF.createRouter(routes, container);");
+                self.emit_line("WF.router(routes, container);");
                 self.indent -= 1;
                 self.emit_line("})();");
             }
@@ -395,7 +395,7 @@ impl JsCodegen {
     // ─── Store ───────────────────────────────────────
 
     fn emit_store(&mut self, store: &StoreDecl) {
-        self.emit_line(&format!("const {} = WF.createStore({{", store.name));
+        self.emit_line(&format!("const {} = WF.store({{", store.name));
         self.indent += 1;
 
         // Every name the store exposes on itself: state, derived and actions.
@@ -745,7 +745,7 @@ impl JsCodegen {
             .unwrap_or_else(|| "en".to_string());
         let translations = self.i18n_translations.clone();
 
-        self.emit_line("WF.i18n = WF.createI18n(");
+        self.emit_line("WF.i18n = WF.locales(");
         self.indent += 1;
         self.emit_line(&format!("\"{}\",", default_locale));
         self.emit_line("{");
@@ -931,7 +931,7 @@ impl JsCodegen {
             }
             self.indent -= 1;
             self.emit_line("];");
-            self.emit_line("WF.createRouter(_routes, _routerEl);");
+            self.emit_line("WF.router(_routes, _routerEl);");
         }
 
         self.indent -= 1;
@@ -972,7 +972,7 @@ impl JsCodegen {
                     }
                     classes.extend(layout_arg_classes(&ui.args));
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"{}\", {{ className: \"{}\"{} }});",
+                        "const {} = WF.el(\"{}\", {{ className: \"{}\"{} }});",
                         var,
                         tag,
                         classes.join(" "),
@@ -1395,7 +1395,7 @@ impl JsCodegen {
                     }
                 }
 
-                // A void element cannot hold text. `WF.h("hr", {}, "label")` asks
+                // A void element cannot hold text. `WF.el("hr", {}, "label")` asks
                 // the runtime to append into a node that takes no children, and
                 // the text is simply lost; carry it as the accessible name.
                 if is_void(tag) {
@@ -1458,13 +1458,13 @@ impl JsCodegen {
                         if let Some(text) = &inner_text {
                             let variant =
                                 ui.modifiers.first().map(|m| m.as_str()).unwrap_or("info");
-                            self.emit_line(&format!("WF.showToast({}, \"{}\");", text, variant));
+                            self.emit_line(&format!("WF.toast({}, \"{}\");", text, variant));
                         }
                         return;
                     }
                     "Spacer" => {
                         self.emit_line(&format!(
-                            "const {} = WF.h(\"{}\", {});",
+                            "const {} = WF.el(\"{}\", {});",
                             var, tag, attrs_str
                         ));
                         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -1532,7 +1532,7 @@ impl JsCodegen {
                     {
                         let v = self.emit_expr(cap);
                         children_arr.push(format!(
-                            "WF.h(\"caption\", {{ className: \"wf-visually-hidden\" }}, {})",
+                            "WF.el(\"caption\", {{ className: \"wf-visually-hidden\" }}, {})",
                             v
                         ));
                     }
@@ -1564,12 +1564,12 @@ impl JsCodegen {
 
                 if children_arr.is_empty() && ui.children.is_empty() {
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"{}\", {});",
+                        "const {} = WF.el(\"{}\", {});",
                         var, tag, attrs_str
                     ));
                 } else if !children_arr.is_empty() && ui.children.is_empty() {
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"{}\", {}, {});",
+                        "const {} = WF.el(\"{}\", {}, {});",
                         var,
                         tag,
                         attrs_str,
@@ -1582,7 +1582,7 @@ impl JsCodegen {
                         format!(", {}", children_arr.join(", "))
                     };
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"{}\", {}{});",
+                        "const {} = WF.el(\"{}\", {}{});",
                         var, tag, attrs_str, extra
                     ));
                 }
@@ -1615,11 +1615,11 @@ impl JsCodegen {
                 if name == "Navbar" && has_subcomponent(ui, "Navbar", "Links") {
                     let toggle_var = self.fresh_var();
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"button\", {{ className: \"wf-navbar__toggle\",                          type: \"button\", \"aria-label\": \"Menu\", \"aria-expanded\": \"false\" }}, \"\\u2630\");",
+                        "const {} = WF.el(\"button\", {{ className: \"wf-navbar__toggle\",                          type: \"button\", \"aria-label\": \"Menu\", \"aria-expanded\": \"false\" }}, \"\\u2630\");",
                         toggle_var
                     ));
                     self.emit_line(&format!("{}.appendChild({});", var, toggle_var));
-                    self.emit_line(&format!("WF.offCanvas({}, {}, null);", var, toggle_var));
+                    self.emit_line(&format!("WF.drawer({}, {}, null);", var, toggle_var));
                 }
 
                 for handler in &ui.events {
@@ -1704,7 +1704,7 @@ impl JsCodegen {
                     attrs.push(entry);
                 }
                 self.emit_line(&format!(
-                    "const {} = WF.h(\"{}\", {{ {} }});",
+                    "const {} = WF.el(\"{}\", {{ {} }});",
                     var,
                     tag,
                     attrs.join(", ")
@@ -1967,7 +1967,7 @@ impl JsCodegen {
             String::new()
         };
         self.emit_line(&format!(
-            "const {} = WF.h(\"dialog\", {{ className: \"{}\"{}{} }});",
+            "const {} = WF.el(\"dialog\", {{ className: \"{}\"{}{} }});",
             var,
             root_classes,
             labelled,
@@ -1977,14 +1977,14 @@ impl JsCodegen {
         let content_var = self.fresh_var();
         let content_class = format!("{}__content", class);
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\" }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\" }});",
             content_var, content_class
         ));
 
         if let Some(t) = title {
             let header_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}__header\" }}, WF.h(\"h3\", {{ id: \"{}\" }}, {}));",
+                "const {} = WF.el(\"div\", {{ className: \"{}__header\" }}, WF.el(\"h3\", {{ id: \"{}\" }}, {}));",
                 header_var, class, title_id, t
             ));
             self.emit_line(&format!("{}.appendChild({});", content_var, header_var));
@@ -1992,7 +1992,7 @@ impl JsCodegen {
 
         let body_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}__body\" }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}__body\" }});",
             body_var, class
         ));
 
@@ -2020,7 +2020,7 @@ impl JsCodegen {
         if !footer_stmts.is_empty() {
             let footer_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}__footer\"{} }});",
+                "const {} = WF.el(\"div\", {{ className: \"{}__footer\"{} }});",
                 footer_var, class, footer_wf
             ));
             for child in &footer_stmts {
@@ -2031,12 +2031,12 @@ impl JsCodegen {
 
         self.emit_line(&format!("{}.appendChild({});", var, content_var));
 
-        // Visibility binding. `WF.bindDialog` drives `showModal()`/`close()` and
+        // Visibility binding. `WF.dialog` drives `showModal()`/`close()` and
         // writes the signal back when the browser closes the dialog itself — via
         // Escape or the backdrop — so the state cannot drift out of sync with
         // what is on screen.
         if let Some(state_name) = visible_state {
-            self.emit_line(&format!("WF.bindDialog({}, _{});", var, state_name));
+            self.emit_line(&format!("WF.dialog({}, _{});", var, state_name));
         }
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -2044,7 +2044,7 @@ impl JsCodegen {
 
     fn emit_tabs(&mut self, var: &str, ui: &UIElement, parent: &str) {
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr("Tabs", ui),
             self.wf_node_inline(ui)
@@ -2054,7 +2054,7 @@ impl JsCodegen {
         // of unrelated buttons next to unrelated divs.
         let nav_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\" }});",
+            "const {} = WF.el(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\" }});",
             nav_var
         ));
         let group = var.trim_start_matches("_e").to_string();
@@ -2092,10 +2092,10 @@ impl JsCodegen {
                 .unwrap_or_else(|| format!("\"Tab {}\"", i));
 
             // Roving tabindex: only the selected tab is in the tab order, and
-            // the arrow keys move between them (see `WF.tablist`).
+            // the arrow keys move between them (see `WF.tabs`).
             let btn_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"button\", {{ className: () => {}() === {} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\",                  role: \"tab\", type: \"button\", id: \"wf-tab-{}-{}\",                  \"aria-controls\": \"wf-tabpanel-{}-{}\",                  \"aria-selected\": () => {}() === {} ? \"true\" : \"false\",                  tabindex: () => {}() === {} ? 0 : -1,                  \"on:click\": () => {}.set({}) }}, {});",
+                "const {} = WF.el(\"button\", {{ className: () => {}() === {} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\",                  role: \"tab\", type: \"button\", id: \"wf-tab-{}-{}\",                  \"aria-controls\": \"wf-tabpanel-{}-{}\",                  \"aria-selected\": () => {}() === {} ? \"true\" : \"false\",                  tabindex: () => {}() === {} ? 0 : -1,                  \"on:click\": () => {}.set({}) }}, {});",
                 btn_var, active_var, i, group, i, group, i, active_var, i, active_var, i, active_var, i, label
             ));
             self.emit_line(&format!("{}.appendChild({});", nav_var, btn_var));
@@ -2107,7 +2107,7 @@ impl JsCodegen {
         for (i, (tab, _)) in tab_pages.iter().enumerate() {
             let page_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"wf-tab-page\", role: \"tabpanel\",                  id: \"wf-tabpanel-{}-{}\", \"aria-labelledby\": \"wf-tab-{}-{}\", tabindex: 0{} }});",
+                "const {} = WF.el(\"div\", {{ className: \"wf-tab-page\", role: \"tabpanel\",                  id: \"wf-tabpanel-{}-{}\", \"aria-labelledby\": \"wf-tab-{}-{}\", tabindex: 0{} }});",
                 page_var, group, i, group, i, self.wf_node_inline(tab)
             ));
             for child in &tab.children {
@@ -2122,7 +2122,7 @@ impl JsCodegen {
 
         // Arrow keys, Home and End move between tabs, which is what the WAI-ARIA
         // pattern requires and what a keyboard user will try.
-        self.emit_line(&format!("WF.tablist({}, {});", nav_var, active_var));
+        self.emit_line(&format!("WF.tabs({}, {});", nav_var, active_var));
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
@@ -2149,7 +2149,7 @@ impl JsCodegen {
         });
 
         self.emit_line(&format!(
-            "const {} = WF.h(\"label\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"label\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr("Switch", ui),
             self.wf_node_inline(ui)
@@ -2158,7 +2158,7 @@ impl JsCodegen {
         if let Some(state) = &bind_var {
             let input_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => _{}(), \"aria-checked\": () => _{}() ? \"true\" : \"false\",                  \"on:change\": () => _{}.set(!_{}()) }});",
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => _{}(), \"aria-checked\": () => _{}() ? \"true\" : \"false\",                  \"on:change\": () => _{}.set(!_{}()) }});",
                 input_var, state, state, state, state
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
@@ -2166,7 +2166,7 @@ impl JsCodegen {
 
         let track_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"span\", {{ className: \"wf-switch__track\" }}, WF.h(\"span\", {{ className: \"wf-switch__thumb\" }}));",
+            "const {} = WF.el(\"span\", {{ className: \"wf-switch__track\" }}, WF.el(\"span\", {{ className: \"wf-switch__thumb\" }}));",
             track_var
         ));
         self.emit_line(&format!("{}.appendChild({});", var, track_var));
@@ -2231,7 +2231,7 @@ impl JsCodegen {
         });
 
         self.emit_line(&format!(
-            "const {} = WF.h(\"label\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"label\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr(name, ui),
             wf
@@ -2288,7 +2288,7 @@ impl JsCodegen {
         }
 
         self.emit_line(&format!(
-            "const {} = WF.h(\"input\", {{ {} }});",
+            "const {} = WF.el(\"input\", {{ {} }});",
             input_var, input_attrs
         ));
         self.emit_line(&format!("{}.appendChild({});", var, input_var));
@@ -2327,7 +2327,7 @@ impl JsCodegen {
         let open_var = self.fresh_var();
         self.emit_line(&format!("const {} = WF.signal(false);", open_var));
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: () => {}() ? \"{} open\" : \"{}\"{} }});",
             var,
             open_var,
             root_classes,
@@ -2340,7 +2340,7 @@ impl JsCodegen {
         let items_id = format!("wf-menu-{}", var.trim_start_matches("_e"));
         let trigger_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"button\", {{ className: \"wf-btn\", type: \"button\",              \"aria-haspopup\": \"true\", \"aria-controls\": \"{}\",              \"aria-expanded\": () => {}() ? \"true\" : \"false\",              \"on:click\": () => {}.set(!{}()) }}, {});",
+            "const {} = WF.el(\"button\", {{ className: \"wf-btn\", type: \"button\",              \"aria-haspopup\": \"true\", \"aria-controls\": \"{}\",              \"aria-expanded\": () => {}() ? \"true\" : \"false\",              \"on:click\": () => {}.set(!{}()) }}, {});",
             trigger_var, items_id, open_var, open_var, open_var, label
         ));
         self.emit_line(&format!("{}.appendChild({});", var, trigger_var));
@@ -2350,7 +2350,7 @@ impl JsCodegen {
         let items_var = self.fresh_var();
         let items_class = format!("{}__items", class);
         self.emit_line(&format!(
-            "const {} = WF.h(\"ul\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
+            "const {} = WF.el(\"ul\", {{ className: \"{}\", id: \"{}\", role: \"menu\" }});",
             items_var, items_class, items_id
         ));
 
@@ -2373,7 +2373,7 @@ impl JsCodegen {
     fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
         let sidebar_id = var.trim_start_matches("_e").to_string();
         self.emit_line(&format!(
-            "const {} = WF.h(\"aside\", {{ className: \"{}\", id: \"wf-sidebar-{}\"{} }});",
+            "const {} = WF.el(\"aside\", {{ className: \"{}\", id: \"wf-sidebar-{}\"{} }});",
             var,
             self.class_attr("Sidebar", ui),
             sidebar_id,
@@ -2387,7 +2387,7 @@ impl JsCodegen {
                         "Header" => {
                             let h_var = self.fresh_var();
                             self.emit_line(&format!(
-                                    "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__header\"{} }});",
+                                    "const {} = WF.el(\"div\", {{ className: \"wf-sidebar__header\"{} }});",
                                     h_var, self.wf_node_inline(ui_child)
                                 ));
                             for c in &ui_child.children {
@@ -2437,7 +2437,7 @@ impl JsCodegen {
                                     )
                                 };
                                 self.emit_line(&format!(
-                                        "const {} = WF.h(\"a\", {{ className: \"wf-sidebar__item\", href: {} {}{}{} }});",
+                                        "const {} = WF.el(\"a\", {{ className: \"wf-sidebar__item\", href: {} {}{}{} }});",
                                         item_var, bp, href, click, self.wf_node_inline(ui_child)
                                     ));
                                 let prefix = ui_child.args.iter().any(|a| {
@@ -2449,13 +2449,13 @@ impl JsCodegen {
                                 ));
                             } else {
                                 self.emit_line(&format!(
-                                        "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__item\"{} }});",
+                                        "const {} = WF.el(\"div\", {{ className: \"wf-sidebar__item\"{} }});",
                                         item_var, self.wf_node_inline(ui_child)
                                     ));
                             }
                             if let Some(ic) = icon {
                                 self.emit_line(&format!(
-                                        "{}.appendChild(WF.h(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
+                                        "{}.appendChild(WF.el(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
                                         item_var, ic
                                     ));
                             }
@@ -2466,7 +2466,7 @@ impl JsCodegen {
                         }
                         "Divider" => {
                             self.emit_line(&format!(
-                                    "{}.appendChild(WF.h(\"div\", {{ className: \"wf-sidebar__divider\"{} }}));",
+                                    "{}.appendChild(WF.el(\"div\", {{ className: \"wf-sidebar__divider\"{} }}));",
                                     var, self.wf_node_inline(ui_child)
                                 ));
                         }
@@ -2493,24 +2493,24 @@ impl JsCodegen {
         let scrim_var = self.fresh_var();
         let toggle_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"wf-sidebar__scrim\", hidden: true }});",
+            "const {} = WF.el(\"div\", {{ className: \"wf-sidebar__scrim\", hidden: true }});",
             scrim_var
         ));
         self.emit_line(&format!(
-            "const {} = WF.h(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": \"wf-sidebar-{}\" }}, \"\\u2630\");",
+            "const {} = WF.el(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": \"wf-sidebar-{}\" }}, \"\\u2630\");",
             toggle_var, sidebar_id
         ));
         self.emit_line(&format!("{}.appendChild({});", parent, scrim_var));
         self.emit_line(&format!("{}.appendChild({});", parent, toggle_var));
         self.emit_line(&format!(
-            "WF.offCanvas({}, {}, {});",
+            "WF.drawer({}, {}, {});",
             var, toggle_var, scrim_var
         ));
     }
 
     fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
         self.emit_line(&format!(
-            "const {} = WF.h(\"nav\", {{ className: \"{}\", \"aria-label\": \"breadcrumb\"{} }});",
+            "const {} = WF.el(\"nav\", {{ className: \"{}\", \"aria-label\": \"breadcrumb\"{} }});",
             var,
             self.class_attr("Breadcrumb", ui),
             self.wf_node_inline(ui)
@@ -2539,12 +2539,12 @@ impl JsCodegen {
                             "WF._basePath + ".to_string()
                         };
                         self.emit_line(&format!(
-                            "const {} = WF.h(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{}{} }});",
+                            "const {} = WF.el(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{}{} }});",
                             item_var, bp, href, self.wf_node_inline(ui_child)
                         ));
                     } else {
                         self.emit_line(&format!(
-                            "const {} = WF.h(\"span\", {{ className: \"wf-breadcrumb__item\"{} }});",
+                            "const {} = WF.el(\"span\", {{ className: \"wf-breadcrumb__item\"{} }});",
                             item_var, self.wf_node_inline(ui_child)
                         ));
                     }
@@ -2582,7 +2582,7 @@ impl JsCodegen {
 
         let tip_id = format!("wf-tip-{}", var.trim_start_matches("_e"));
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr("Tooltip", ui),
             self.wf_node_inline(ui)
@@ -2595,7 +2595,7 @@ impl JsCodegen {
 
         let tip_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: \"{}\" }}, {});",
+            "const {} = WF.el(\"span\", {{ className: \"wf-tooltip__text\", role: \"tooltip\", id: \"{}\" }}, {});",
             tip_var, tip_id, text
         ));
         self.emit_line(&format!("{}.appendChild({});", var, tip_var));
@@ -2654,17 +2654,17 @@ impl JsCodegen {
         if let Some(img_src) = src {
             let alt_val = alt.unwrap_or_else(|| "\"\"".to_string());
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}\"{} }}, WF.h(\"img\", {{ src: {}, alt: {} }}));",
+                "const {} = WF.el(\"div\", {{ className: \"{}\"{} }}, WF.el(\"img\", {{ src: {}, alt: {} }}));",
                 var, cls, wf, img_src, alt_val
             ));
         } else if let Some(init) = initials {
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}\"{} }}, {});",
+                "const {} = WF.el(\"div\", {{ className: \"{}\"{} }}, {});",
                 var, cls, wf, init
             ));
         } else {
             self.emit_line(&format!(
-                "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+                "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
                 var, cls, wf
             ));
         }
@@ -2715,7 +2715,7 @@ impl JsCodegen {
         };
 
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             var,
             cls,
             self.wf_node_inline(ui)
@@ -2741,7 +2741,7 @@ impl JsCodegen {
 
     fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr("Carousel", ui),
             self.wf_node_inline(ui)
@@ -2749,7 +2749,7 @@ impl JsCodegen {
 
         let track_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"wf-carousel__track\" }});",
+            "const {} = WF.el(\"div\", {{ className: \"wf-carousel__track\" }});",
             track_var
         ));
 
@@ -2771,7 +2771,7 @@ impl JsCodegen {
                         .map(|l| format!(", \"aria-label\": {l}"))
                         .unwrap_or_default();
                     self.emit_line(&format!(
-                        "const {} = WF.h(\"div\", {{ className: \"wf-carousel__slide\"{}{} }});",
+                        "const {} = WF.el(\"div\", {{ className: \"wf-carousel__slide\"{}{} }});",
                         slide_var,
                         label_attr,
                         self.wf_node_inline(ui_child)
@@ -2898,7 +2898,7 @@ impl JsCodegen {
         }
 
         self.emit_line(&format!(
-            "const {} = WF.h(\"button\", {{ {} }}, WF.h(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
+            "const {} = WF.el(\"button\", {{ {} }}, WF.el(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
             var, btn_attrs, icon
         ));
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -2975,7 +2975,7 @@ impl JsCodegen {
         });
 
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             var,
             self.class_attr("Slider", ui),
             self.wf_node_inline(ui)
@@ -2984,7 +2984,7 @@ impl JsCodegen {
         if let Some(l) = &label {
             let label_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"label\", {{ className: \"wf-form-label\" }}, {});",
+                "const {} = WF.el(\"label\", {{ className: \"wf-form-label\" }}, {});",
                 label_var, l
             ));
             self.emit_line(&format!("{}.appendChild({});", var, label_var));
@@ -3043,7 +3043,7 @@ impl JsCodegen {
             ));
         }
         self.emit_line(&format!(
-            "const {} = WF.h(\"input\", {{ {} }});",
+            "const {} = WF.el(\"input\", {{ {} }});",
             input_var, input_attrs
         ));
         self.emit_line(&format!("{}.appendChild({});", var, input_var));
@@ -3054,7 +3054,7 @@ impl JsCodegen {
         } else if let Some(state) = &bind_var {
             let val_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"span\", {{ className: \"wf-slider__value\" }}, () => String(_{}()));",
+                "const {} = WF.el(\"span\", {{ className: \"wf-slider__value\" }}, () => String(_{}()));",
                 val_var, state
             ));
             self.emit_line(&format!("{}.appendChild({});", var, val_var));
@@ -3115,7 +3115,7 @@ impl JsCodegen {
         // same root they painted.
         let wrapper_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             wrapper_var,
             self.class_attr("DatePicker", ui),
             self.wf_node_inline(ui)
@@ -3124,7 +3124,7 @@ impl JsCodegen {
         if let Some(l) = &label {
             let label_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"label\", {{ className: \"wf-form-label\" }}, {});",
+                "const {} = WF.el(\"label\", {{ className: \"wf-form-label\" }}, {});",
                 label_var, l
             ));
             self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
@@ -3154,7 +3154,7 @@ impl JsCodegen {
             ));
         }
         self.emit_line(&format!(
-            "const {} = WF.h(\"input\", {{ {} }});",
+            "const {} = WF.el(\"input\", {{ {} }});",
             input_var, input_attrs
         ));
         self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
@@ -3190,7 +3190,7 @@ impl JsCodegen {
 
         let wrapper_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.h(\"div\", {{ className: \"{}\"{} }});",
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
             wrapper_var,
             self.class_attr("FileUpload", ui),
             self.wf_node_inline(ui)
@@ -3199,7 +3199,7 @@ impl JsCodegen {
         if let Some(l) = &label {
             let label_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.h(\"label\", {{ className: \"wf-form-label\" }}, {});",
+                "const {} = WF.el(\"label\", {{ className: \"wf-form-label\" }}, {});",
                 label_var, l
             ));
             self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
@@ -3223,7 +3223,7 @@ impl JsCodegen {
             ));
         }
         self.emit_line(&format!(
-            "const {} = WF.h(\"input\", {{ {} }});",
+            "const {} = WF.el(\"input\", {{ {} }});",
             input_var, input_attrs
         ));
         self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
@@ -3243,7 +3243,7 @@ impl JsCodegen {
             None => value.clone(),
         };
 
-        self.emit_line(&format!("WF.condRender({},", parent));
+        self.emit_line(&format!("WF.when({},", parent));
         self.indent += 1;
         self.emit_line(&format!("() => {},", cond));
 
@@ -3321,7 +3321,7 @@ impl JsCodegen {
     fn emit_for_dom(&mut self, for_stmt: &ForStmt, parent: &str) {
         let list = self.emit_expr(&for_stmt.iterable);
 
-        self.emit_line(&format!("WF.listRender({},", parent));
+        self.emit_line(&format!("WF.each({},", parent));
         self.indent += 1;
         self.emit_line(&format!("() => {},", list));
 
@@ -3357,15 +3357,23 @@ impl JsCodegen {
         self.indent -= 1;
         self.emit_line("},");
 
-        // Animation config (4th argument)
-        self.emit_animate_config(&for_stmt.animate);
-
-        // `by key`: the identity of an item across renders (5th argument).
+        // The options: the animation, `by key` — the identity of an item
+        // across renders — and whether the body reads its index, in which
+        // case an item is rebuilt when its position changes.
+        let mut parts = Self::animate_config_parts(&for_stmt.animate);
         if let Some(key) = &for_stmt.key {
             self.loop_bindings.push(for_stmt.item.clone());
             let key_js = self.emit_expr(key);
             self.loop_bindings.pop();
-            self.emit_line(&format!(", ({}) => {}", for_stmt.item, key_js));
+            parts.push(format!("key: ({}) => {}", for_stmt.item, key_js));
+            if for_stmt.index.is_some() {
+                parts.push("index: true".to_string());
+            }
+        }
+        if parts.is_empty() {
+            self.emit_line("null");
+        } else {
+            self.emit_line(&format!("{{ {} }}", parts.join(", ")));
         }
 
         self.indent -= 1;
@@ -3375,7 +3383,7 @@ impl JsCodegen {
     fn emit_show_dom(&mut self, show_stmt: &ShowStmt, parent: &str) {
         let cond = self.emit_expr(&show_stmt.condition);
 
-        self.emit_line(&format!("WF.showRender({},", parent));
+        self.emit_line(&format!("WF.show({},", parent));
         self.indent += 1;
         self.emit_line(&format!("() => {},", cond));
         self.emit_line("() => {");
@@ -3400,8 +3408,18 @@ impl JsCodegen {
     }
 
     fn emit_animate_config(&mut self, config: &Option<AnimateConfig>) {
+        let parts = Self::animate_config_parts(config);
+        if parts.is_empty() {
+            self.emit_line("null");
+        } else {
+            self.emit_line(&format!("{{ {} }}", parts.join(", ")));
+        }
+    }
+
+    /// The fields of an animation config object, none for no animation.
+    fn animate_config_parts(config: &Option<AnimateConfig>) -> Vec<String> {
+        let mut parts = Vec::new();
         if let Some(anim) = config {
-            let mut parts = Vec::new();
             parts.push(format!("enter: \"{}\"", anim.enter));
             if let Some(exit) = &anim.exit {
                 parts.push(format!("exit: \"{}\"", exit));
@@ -3418,10 +3436,8 @@ impl JsCodegen {
             if let Some(easing) = &anim.easing {
                 parts.push(format!("easing: \"{}\"", easing));
             }
-            self.emit_line(&format!("{{ {} }}", parts.join(", ")));
-        } else {
-            self.emit_line("null");
         }
+        parts
     }
 
     /// `resource rows = fetch(url, opts)`: the request, made once here and
@@ -3519,7 +3535,7 @@ impl JsCodegen {
         };
 
         self.emit_line(&format!(
-            "const {} = WF.wfFetch({}, {}, {{",
+            "const {} = WF.fetch({}, {}, {{",
             var, url, opts_str
         ));
         self.indent += 1;
@@ -3621,7 +3637,7 @@ impl JsCodegen {
                     .map(|d| format!(", \"{}\"", d))
                     .unwrap_or_default();
                 self.emit_line(&format!(
-                    "WF.animateEl(\"{}\", \"{}\"{});",
+                    "WF.animate(\"{}\", \"{}\"{});",
                     anim.target, anim.animation, dur
                 ));
             }
@@ -4026,7 +4042,7 @@ impl JsCodegen {
                 // WF runtime functions
                 if name == "replayAnimation" {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
-                    return format!("WF.replayAnimation({})", args_str.join(", "));
+                    return format!("WF.replay({})", args_str.join(", "));
                 }
 
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
@@ -4636,8 +4652,8 @@ mod tests {
             "{out}"
         );
         assert!(
-            out.contains(", (it) => it.id"),
-            "the key function is the fifth argument: {out}"
+            out.contains("{ key: (it) => it.id }"),
+            "the key function is in the list's options: {out}"
         );
         assert!(
             out.contains("async function load()") && out.contains("(await fetch(\"/x\"))"),
@@ -4645,7 +4661,7 @@ mod tests {
         );
     }
 
-    /// `WF.listRender` hands the body its item as a plain callback parameter, so
+    /// `WF.each` hands the body its item as a plain callback parameter, so
     /// every reference to it must stay plain.
     ///
     /// The identifier path treated anything that was not a prop or a store as
@@ -4789,7 +4805,7 @@ mod tests {
             }
             "#,
         );
-        assert!(out.contains("WF.h(\"li\", { className: \"wf-list__item\", id: \"first\", \"aria-current\": \"true\" })"), "{out}");
+        assert!(out.contains("WF.el(\"li\", { className: \"wf-list__item\", id: \"first\", \"aria-current\": \"true\" })"), "{out}");
         // `padding: "0"` is a literal: hoisted into the scoped class, not inline.
         assert!(!out.contains(".style.padding"), "{out}");
         assert!(out.contains(".classList.add(\"wf-s"), "{out}");
@@ -4887,7 +4903,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("WF.h(\"select\", { className: \"wf-select\", value: () => _p.value }, (typeof _slots.children === 'function' ? _slots.children() : null))"),
+            out.contains("WF.el(\"select\", { className: \"wf-select\", value: () => _p.value }, (typeof _slots.children === 'function' ? _slots.children() : null))"),
             "{out}"
         );
         assert!(!out.contains("appendChild(_slots.children())"), "{out}");

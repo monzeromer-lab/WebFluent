@@ -8,13 +8,13 @@ import { makeDom } from "./dom.mjs";
 
 /// Load runtime.js against a fake DOM and hand back its public surface.
 function loadRuntime() {
-  const { window, document, Node, DocumentFragment } = makeDom();
+  const { window, document, Node, Element, DocumentFragment } = makeDom();
   const src = readFileSync(new URL("../../src/runtime/runtime.js", import.meta.url), "utf8");
   // Timers run inline: the runtime defers by a tick, and a test wants the
   // settled state.
   const setTimeout = (fn) => { fn(); return 0; };
-  const fn = new Function("window", "document", "Node", "DocumentFragment", "setTimeout", `${src}\nreturn WF;`);
-  return { WF: fn(window, document, Node, DocumentFragment, setTimeout), document, window };
+  const fn = new Function("window", "document", "Node", "Element", "DocumentFragment", "setTimeout", `${src}\nreturn WF;`);
+  return { WF: fn(window, document, Node, Element, DocumentFragment, setTimeout), document, window };
 }
 
 test("hydrate leaves a live page: the click handler on the server paint works", () => {
@@ -29,9 +29,9 @@ test("hydrate leaves a live page: the click handler on the server paint works", 
 
   let clicks = 0;
   WF.hydrate(() => {
-    const b = WF.h("button", {}, ["Add"]);
+    const b = WF.el("button", {}, ["Add"]);
     b.addEventListener("click", () => clicks++);
-    const root = WF.h("div", {}, [b]);
+    const root = WF.el("div", {}, [b]);
     return root;
   }, container);
 
@@ -49,7 +49,7 @@ test("hydrate shows reactive text, and updates it when the signal changes", () =
   container.appendChild(stale);
 
   const count = WF.signal(0);
-  WF.hydrate(() => WF.h("div", {}, [() => String(count())]), container);
+  WF.hydrate(() => WF.el("div", {}, [() => String(count())]), container);
   count.set(5);
   assert.match(container.textContent, /5/, "the visible DOM must follow the signal");
 });
@@ -58,16 +58,16 @@ test("mount replaces whatever was there", () => {
   const { WF, document } = loadRuntime();
   const container = document.createElement("div");
   container.appendChild(document.createElement("span"));
-  WF.mount(() => WF.h("p", {}, ["fresh"]), container);
+  WF.mount(() => WF.el("p", {}, ["fresh"]), container);
   assert.equal(container.textContent, "fresh");
 });
 
 test("activeLink marks the link to the current route, and follows navigation", () => {
   const { WF, document } = loadRuntime();
   const container = document.createElement("div");
-  const home = WF.h("a", { href: "/" }, ["Home"]);
-  const docs = WF.h("a", { href: "/docs" }, ["Docs"]);
-  const guide = WF.h("a", { href: "/docs/guide" }, ["Guide"]);
+  const home = WF.el("a", { href: "/" }, ["Home"]);
+  const docs = WF.el("a", { href: "/docs" }, ["Docs"]);
+  const guide = WF.el("a", { href: "/docs/guide" }, ["Guide"]);
   // Links are built before the router exists, as an app shell's navbar is.
   WF.activeLink(home, "/", false);
   WF.activeLink(docs, "/docs", true);
@@ -77,7 +77,7 @@ test("activeLink marks the link to the current route, and follows navigation", (
   assert.ok(home.classList.contains("active"));
   assert.equal(docs.getAttribute("aria-current"), null);
 
-  WF.createRouter([{ path: "*", render: () => WF.h("p", {}, ["page"]) }], container);
+  WF.router([{ path: "*", render: () => WF.el("p", {}, ["page"]) }], container);
   WF.navigate("/docs/guide");
 
   assert.equal(home.getAttribute("aria-current"), null, "home is no longer current");
@@ -89,7 +89,7 @@ test("activeLink marks the link to the current route, and follows navigation", (
 test("an aria-* attribute keeps a false value, and follows a reactive one", () => {
   const { WF } = loadRuntime();
   const pressed = WF.signal(false);
-  const chip = WF.h("button", { "aria-pressed": () => pressed(), "data-tone": "info", hidden: false });
+  const chip = WF.el("button", { "aria-pressed": () => pressed(), "data-tone": "info", hidden: false });
   assert.equal(chip.getAttribute("aria-pressed"), "false", "false is a real ARIA state");
   assert.equal(chip.getAttribute("data-tone"), "info");
   assert.equal(chip.getAttribute("hidden"), null, "a false plain attribute is absent");
@@ -100,10 +100,10 @@ test("an aria-* attribute keeps a false value, and follows a reactive one", () =
 test("the router sets the document title to the page it shows", () => {
   const { WF, document } = loadRuntime();
   const container = document.createElement("div");
-  WF.createRouter(
+  WF.router(
     [
-      { path: "/", title: "Home", render: () => WF.h("p", {}, ["home"]) },
-      { path: "/docs", title: "Routing rules", render: () => WF.h("p", {}, ["docs"]) },
+      { path: "/", title: "Home", render: () => WF.el("p", {}, ["home"]) },
+      { path: "/docs", title: "Routing rules", render: () => WF.el("p", {}, ["docs"]) },
     ],
     container,
   );
@@ -114,7 +114,7 @@ test("the router sets the document title to the page it shows", () => {
 
 test("a store's derived value may call one of its actions", () => {
   const { WF } = loadRuntime();
-  const S = WF.createStore({
+  const S = WF.store({
     state: { total: 50 },
     derived: { half: (store) => store.pctOf(25) },
     actions: { pctOf: (store, part) => Math.round((part / store.total) * 100) },
@@ -144,11 +144,11 @@ test("a select's value is applied once its options exist, and follows a signal",
     return el;
   };
   const field = WF.signal("status");
-  const select = WF.h(
+  const select = WF.el(
     "select",
     { value: () => field() },
-    WF.h("option", { value: "region" }, "region"),
-    WF.h("option", { value: "status" }, "status"),
+    WF.el("option", { value: "region" }, "region"),
+    WF.el("option", { value: "status" }, "status"),
   );
   assert.equal(select.value, "status", "set after the options were appended");
   field.set("region");
@@ -168,13 +168,13 @@ test("an icon button draws its glyph once", () => {
     });
     return el;
   };
-  WF.h(
+  WF.el(
     "button",
     { className: "wf-icon-btn", "data-icon": "close", "aria-label": "Close" },
-    WF.h("span", { className: "wf-icon", "data-icon": "close" }),
+    WF.el("span", { className: "wf-icon", "data-icon": "close" }),
   );
   assert.equal(draws, 1, "one glyph for the button and its icon span");
-  WF.h("span", { className: "wf-icon", "data-icon": "close" });
+  WF.el("span", { className: "wf-icon", "data-icon": "close" });
   assert.equal(draws, 2, "a lone icon still draws");
 });
 
@@ -182,11 +182,11 @@ test("a route change moves focus to the new page's heading, resets the scroll an
   const { WF, document, window } = loadRuntime();
   const container = document.createElement("main");
   document.body.appendChild(container);
-  WF.createRouter(
+  WF.router(
     [
-      { path: "/", title: "Home", render: () => WF.h("div", {}, [WF.h("h1", {}, ["Home"])]) },
-      { path: "/docs", title: "Docs", render: () => WF.h("div", {}, [WF.h("h1", {}, ["Docs"])]) },
-      { path: "/bare", title: "Bare", render: () => WF.h("p", {}, ["no heading"]) },
+      { path: "/", title: "Home", render: () => WF.el("div", {}, [WF.el("h1", {}, ["Home"])]) },
+      { path: "/docs", title: "Docs", render: () => WF.el("div", {}, [WF.el("h1", {}, ["Docs"])]) },
+      { path: "/bare", title: "Bare", render: () => WF.el("p", {}, ["no heading"]) },
     ],
     container,
   );
@@ -211,10 +211,10 @@ test("a page with a sheet of its own is drawn once the sheet has loaded, and onl
   const { WF, document } = loadRuntime();
   const container = document.createElement("main");
   document.body.appendChild(container);
-  WF.createRouter(
+  WF.router(
     [
-      { path: "/", title: "Home", render: () => WF.h("h1", {}, ["Home"]) },
-      { path: "/pricing", title: "Pricing", css: "Pricing", render: () => WF.h("h1", {}, ["Pricing"]) },
+      { path: "/", title: "Home", render: () => WF.el("h1", {}, ["Home"]) },
+      { path: "/pricing", title: "Pricing", css: "Pricing", render: () => WF.el("h1", {}, ["Pricing"]) },
     ],
     container,
   );
@@ -244,12 +244,12 @@ test("a carousel is a labelled region whose slides are groups, with named contro
   globalThis.setInterval = (fn, ms) => { intervals.push({ fn, ms }); return intervals.length; };
   globalThis.clearInterval = (id) => { intervals[id - 1].cleared = true; };
   try {
-  const track = WF.h("div", { className: "wf-carousel__track" }, [
-    WF.h("div", { className: "wf-carousel__slide" }, ["one"]),
-    WF.h("div", { className: "wf-carousel__slide" }, ["two"]),
-    WF.h("div", { className: "wf-carousel__slide", "aria-label": "Team photo" }, ["three"]),
+  const track = WF.el("div", { className: "wf-carousel__track" }, [
+    WF.el("div", { className: "wf-carousel__slide" }, ["one"]),
+    WF.el("div", { className: "wf-carousel__slide" }, ["two"]),
+    WF.el("div", { className: "wf-carousel__slide", "aria-label": "Team photo" }, ["three"]),
   ]);
-  const root = WF.h("div", { className: "wf-carousel" }, [track]);
+  const root = WF.el("div", { className: "wf-carousel" }, [track]);
   document.body.appendChild(root);
   const api = WF.carousel(root, { autoplay: true, interval: 4000, label: "Product tour" });
 
@@ -295,10 +295,10 @@ test("a carousel does not rotate for a reader who asked for reduced motion", () 
   const realSetInterval = setInterval;
   globalThis.setInterval = (fn, ms) => { intervals.push(fn); return 1; };
   try {
-  const root = WF.h("div", { className: "wf-carousel" }, [
-    WF.h("div", { className: "wf-carousel__track" }, [
-      WF.h("div", { className: "wf-carousel__slide" }, ["a"]),
-      WF.h("div", { className: "wf-carousel__slide" }, ["b"]),
+  const root = WF.el("div", { className: "wf-carousel" }, [
+    WF.el("div", { className: "wf-carousel__track" }, [
+      WF.el("div", { className: "wf-carousel__slide" }, ["a"]),
+      WF.el("div", { className: "wf-carousel__slide" }, ["b"]),
     ]),
   ]);
   document.body.appendChild(root);
@@ -312,9 +312,9 @@ test("a carousel does not rotate for a reader who asked for reduced motion", () 
 
 test("a tooltip describes its trigger, is reachable by keyboard and dismissed by Escape", () => {
   const { WF, document } = loadRuntime();
-  const button = WF.h("button", {}, ["Save"]);
-  const tip = WF.h("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-1" }, ["Saves the draft"]);
-  const root = WF.h("div", { className: "wf-tooltip" }, [button, tip]);
+  const button = WF.el("button", {}, ["Save"]);
+  const tip = WF.el("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-1" }, ["Saves the draft"]);
+  const root = WF.el("div", { className: "wf-tooltip" }, [button, tip]);
   WF.tooltip(root, tip);
   assert.equal(button.getAttribute("aria-describedby"), "wf-tip-1", "the focusable child is described by the tip");
   assert.equal(root.getAttribute("tabindex"), null, "the wrapper stays out of the tab order");
@@ -324,8 +324,8 @@ test("a tooltip describes its trigger, is reachable by keyboard and dismissed by
   assert.equal(root.getAttribute("data-dismissed"), null, "and leaving resets it");
 
   // With nothing focusable inside, the wrapper itself becomes the trigger.
-  const tip2 = WF.h("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-2" }, ["Hint"]);
-  const plain = WF.h("div", { className: "wf-tooltip" }, [WF.h("span", {}, ["term"]), tip2]);
+  const tip2 = WF.el("span", { className: "wf-tooltip__text", role: "tooltip", id: "wf-tip-2" }, ["Hint"]);
+  const plain = WF.el("div", { className: "wf-tooltip" }, [WF.el("span", {}, ["term"]), tip2]);
   WF.tooltip(plain, tip2);
   assert.equal(plain.getAttribute("tabindex"), "0");
   assert.equal(plain.getAttribute("aria-describedby"), "wf-tip-2");
@@ -334,11 +334,11 @@ test("a tooltip describes its trigger, is reachable by keyboard and dismissed by
 test("a menu's items are menuitems the arrow keys move between, and choosing one closes it", () => {
   const { WF, document } = loadRuntime();
   const open = WF.signal(false);
-  const trigger = WF.h("button", { "aria-expanded": () => (open() ? "true" : "false") }, ["Actions"]);
-  const edit = WF.h("li", { className: "wf-menu__item" }, ["Edit"]);
-  const remove = WF.h("li", { className: "wf-menu__item" }, ["Delete"]);
-  const list = WF.h("ul", { role: "menu" }, [edit, WF.h("li", { className: "wf-menu__divider" }), remove]);
-  const root = WF.h("div", { className: "wf-menu" }, [trigger, list]);
+  const trigger = WF.el("button", { "aria-expanded": () => (open() ? "true" : "false") }, ["Actions"]);
+  const edit = WF.el("li", { className: "wf-menu__item" }, ["Edit"]);
+  const remove = WF.el("li", { className: "wf-menu__item" }, ["Delete"]);
+  const list = WF.el("ul", { role: "menu" }, [edit, WF.el("li", { className: "wf-menu__divider" }), remove]);
+  const root = WF.el("div", { className: "wf-menu" }, [trigger, list]);
   document.body.appendChild(root);
   WF.menu(root, trigger, list, open);
 
@@ -369,7 +369,7 @@ test("a menu's items are menuitems the arrow keys move between, and choosing one
 test("a field labels its control, describes it, and announces its error", () => {
   const { WF, document } = loadRuntime();
   const error = WF.signal("");
-  const input = WF.h("input", { className: "wf-input", type: "text" });
+  const input = WF.el("input", { className: "wf-input", type: "text" });
   const field = WF.field(input, { label: "Name", hint: "As on your passport", error: () => error() });
   document.body.appendChild(field);
 
@@ -392,7 +392,7 @@ test("a field labels its control, describes it, and announces its error", () => 
 test("classes an expression names follow it, and leave the element's other classes alone", () => {
   const { WF } = loadRuntime();
   const tone = WF.signal("calm wide");
-  const el = WF.h("div", { className: "wf-card wf-s0123abcd" });
+  const el = WF.el("div", { className: "wf-card wf-s0123abcd" });
   WF.classes(el, () => tone());
   assert.equal(el.className, "wf-card wf-s0123abcd calm wide");
 
@@ -409,9 +409,9 @@ test("a match shows the arm its key names and swaps it when the key changes", ()
   const data = WF.signal(null);
   let rendered = 0;
   WF.match(parent, () => state(), () => data(), {
-    loading: () => WF.h("p", {}, ["…"]),
-    ready: (rows) => { rendered++; return WF.h("p", {}, [`${rows.length} rows`]); },
-    else: () => WF.h("p", {}, ["?"]),
+    loading: () => WF.el("p", {}, ["…"]),
+    ready: (rows) => { rendered++; return WF.el("p", {}, [`${rows.length} rows`]); },
+    else: () => WF.el("p", {}, ["?"]),
   });
   assert.equal(parent.querySelector("p").textContent, "…");
 
@@ -472,11 +472,11 @@ test("a route with a layout renders the page inside it, with the page's params",
   const { WF, document } = loadRuntime();
   const container = document.createElement("main");
   document.body.appendChild(container);
-  const shell = (page, params) => WF.h("section", { className: "shell" }, [WF.h("h1", {}, ["Shell"]), page(params)]);
-  WF.createRouter(
+  const shell = (page, params) => WF.el("section", { className: "shell" }, [WF.el("h1", {}, ["Shell"]), page(params)]);
+  WF.router(
     [
-      { path: "/d/:id", layout: shell, render: (params) => WF.h("p", {}, [`deploy ${params.id}`]) },
-      { path: "/", render: () => WF.h("p", {}, ["home"]) },
+      { path: "/d/:id", layout: shell, render: (params) => WF.el("p", {}, [`deploy ${params.id}`]) },
+      { path: "/", render: () => WF.el("p", {}, ["home"]) },
     ],
     container,
   );
@@ -487,4 +487,82 @@ test("a route with a layout renders the page inside it, with the page's params",
   WF.navigate("/");
   assert.equal(container.querySelector("section"), null, "a page without a layout has none");
   assert.equal(container.querySelector("p").textContent, "home");
+});
+
+test("a keyed list inserts, removes and moves items without rebuilding the others", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("ul");
+  const items = WF.signal([{ id: 1, t: "a" }, { id: 2, t: "b" }, { id: 3, t: "c" }]);
+  let built = 0;
+  WF.each(parent, () => items(), (item) => { built++; return WF.el("li", {}, [item.t]); }, { key: (item) => item.id });
+  const texts = () => parent.children.map((li) => li.textContent);
+  const nodes = () => Object.fromEntries(parent.children.map((li) => [li.textContent, li]));
+  assert.deepEqual(texts(), ["a", "b", "c"]);
+  assert.equal(built, 3);
+  const before = nodes();
+
+  // Insert in the middle: the rest keep their nodes.
+  items.set([items()[0], { id: 4, t: "d" }, items()[1], items()[2]]);
+  assert.deepEqual(texts(), ["a", "d", "b", "c"]);
+  assert.equal(built, 4, "only the new item is built");
+  assert.equal(nodes().a, before.a);
+  assert.equal(nodes().c, before.c);
+
+  // Move: same objects, new order.
+  const [a, d, b, c] = items();
+  items.set([c, a, b, d]);
+  assert.deepEqual(texts(), ["c", "a", "b", "d"]);
+  assert.equal(built, 4, "a move builds nothing");
+  assert.equal(nodes().c, before.c, "the moved node is the same node");
+
+  // Remove.
+  items.set([c, b]);
+  assert.deepEqual(texts(), ["c", "b"]);
+  assert.equal(built, 4);
+
+  // A changed value under the same key is rebuilt in place.
+  items.set([c, { id: 2, t: "B" }]);
+  assert.deepEqual(texts(), ["c", "B"]);
+  assert.equal(built, 5);
+  assert.equal(nodes().c, before.c);
+});
+
+test("a keyed list rebuilds an item whose index it reads when its position changes, and tells duplicate keys apart", () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("ul");
+  const items = WF.signal(["x", "y"]);
+  let built = 0;
+  WF.each(parent, () => items(), (item, i) => { built++; return WF.el("li", {}, [`${i}:${item}`]); }, { key: (item) => item, index: true });
+  const texts = () => parent.children.map((li) => li.textContent);
+  assert.deepEqual(texts(), ["0:x", "1:y"]);
+  items.set(["y", "x"]);
+  assert.deepEqual(texts(), ["0:y", "1:x"], "the index shown follows the position");
+  assert.equal(built, 4);
+
+  const warnings = [];
+  const warn = console.warn;
+  console.warn = (m) => warnings.push(m);
+  try {
+    items.set(["x", "x", "y"]);
+  } finally {
+    console.warn = warn;
+  }
+  assert.deepEqual(texts(), ["0:x", "1:x", "2:y"], "duplicates render, told apart by position");
+  assert.equal(warnings.length, 1, "one warning names the shared key");
+  assert.match(warnings[0], /"x"/);
+});
+
+test("a keyed list plays the exit animation on what leaves and the enter animation only on what arrives", async () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("ul");
+  const items = WF.signal([{ id: 1 }, { id: 2 }]);
+  WF.each(parent, () => items(), (item) => WF.el("li", {}, [String(item.id)]), { enter: "fadeIn", exit: "fadeOut", key: (item) => item.id });
+  const classes = () => parent.children.map((li) => `${li.textContent}:${li.className}`);
+  // The fallback timer runs inline in this harness: the enter class has come and gone.
+  assert.deepEqual(classes(), ["1:", "2:"]);
+  items.set([{ id: 2 }, { id: 3 }]);
+  // Item 1 is on its way out; item 2 keeps its node and plays nothing.
+  assert.deepEqual(parent.children.map((li) => li.textContent), ["2", "3", "1"]);
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(parent.children.map((li) => li.textContent), ["2", "3"], "the leaver is removed once its animation ends");
 });

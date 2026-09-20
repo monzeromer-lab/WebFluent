@@ -351,7 +351,7 @@ mod tests {
 
         // Export must stamp no element. (The runtime's WF.__debug helpers mention
         // `data-wf-node` as a selector string, so check the exact stamp form — a
-        // `"data-wf-node": "<id>"` WF.h attrs entry — rather than the bare name.)
+        // `"data-wf-node": "<id>"` WF.el attrs entry — rather than the bare name.)
         let export_js = JsCodegen::new().generate(&p);
         assert!(!export_js.contains("\"data-wf-node\":"));
     }

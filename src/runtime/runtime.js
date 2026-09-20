@@ -42,7 +42,7 @@ const WF = (() => {
   }
 
   // ─── DOM Helpers ─────────────────────────────────────
-  function h(tag, attrs, ...children) {
+  function el(tag, attrs, ...children) {
     const el = document.createElement(tag);
     // A select's value only takes once its options exist, so it is applied
     // after the children; set before them it was silently ignored.
@@ -238,13 +238,13 @@ const WF = (() => {
     });
   }
 
-  function animateEl(target, name, duration) {
+  function animate(target, name, duration) {
     const el = typeof target === "string" ? document.querySelector(`[data-ref="${target}"]`) : target;
     if (!el) return;
     return animateIn(el, name, duration);
   }
 
-  function replayAnimation(el, name, duration) {
+  function replay(el, name, duration) {
     // Remove then re-add the animation class to restart it
     const cls = "wf-animate-" + name;
     el.classList.remove(cls);
@@ -261,7 +261,7 @@ const WF = (() => {
     }
   }
 
-  function condRender(parent, condFn, thenFn, elseFn, animConfig) {
+  function when(parent, condFn, thenFn, elseFn, animConfig) {
     const marker = document.createComment("wf-if");
     parent.appendChild(marker);
     let currentNodes = [];
@@ -366,62 +366,121 @@ const WF = (() => {
   }
 
   // ─── List rendering ─────────────────────────────────
-  function listRender(parent, listFn, itemFn, animConfig) {
+  // ─── Lists ───────────────────────────────────────────
+  // Every item renders to its nodes after the marker. With a `key`, an item
+  // keeps its nodes for as long as it is the same value under the same key:
+  // items are inserted, removed and moved rather than rebuilt, so the focus,
+  // scroll and animation state of the others survive a change. An item whose
+  // value changed is rebuilt in place; one whose body reads its index is
+  // rebuilt when its position changes. Without a key the list is rebuilt.
+  function each(parent, listFn, itemFn, config, keyFn) {
     const marker = document.createComment("wf-for");
     parent.appendChild(marker);
+    const key = (config && config.key) || keyFn || null;
+    const byIndex = !!(config && config.index);
+    let entries = new Map();
     let currentNodes = [];
+    const exiting = new Set();
 
-    effect(() => {
-      const items = listFn(); // Track the list signal
-
-      // Remove old
-      if (animConfig && animConfig.exit && currentNodes.length) {
-        const toRemove = [...currentNodes];
-        toRemove.forEach((n, i) => {
-          if (n instanceof Element) {
-            animateOut(n, animConfig.exit, animConfig.duration).then(() => { if (n.parentNode) n.parentNode.removeChild(n); });
-          } else {
-            if (n.parentNode) n.parentNode.removeChild(n);
-          }
-        });
-      } else {
-        removeNodes(currentNodes);
+    const toNodes = (result) =>
+      result instanceof DocumentFragment
+        ? [...result.childNodes]
+        : [].concat(result).flat().filter(n => n instanceof Node);
+    const enter = (nodes, index) => {
+      if (!(config && config.enter)) return;
+      for (const n of nodes) {
+        if (!(n instanceof Element)) continue;
+        const delay = config.stagger ? (parseInt(config.stagger) * index) + "ms" : config.delay;
+        animateIn(n, config.enter, config.duration, delay);
       }
-      currentNodes = [];
-
-      // Render items untracked
+    };
+    const leave = (nodes) => {
+      if (!(config && config.exit)) { removeNodes(nodes); return; }
+      for (const n of nodes) {
+        if (n instanceof Element) {
+          exiting.add(n);
+          animateOut(n, config.exit, config.duration).then(() => {
+            exiting.delete(n);
+            if (n.parentNode) n.parentNode.removeChild(n);
+          });
+        } else if (n.parentNode) {
+          n.parentNode.removeChild(n);
+        }
+      }
+    };
+    // Put `nodes` right after `after`, moving only what is out of place; a
+    // node on its way out does not count as a neighbour.
+    const place = (host, nodes, after) => {
+      for (const n of nodes) {
+        let next = after.nextSibling;
+        while (next && exiting.has(next)) next = next.nextSibling;
+        if (next !== n) host.insertBefore(n, next);
+        after = n;
+      }
+      return after;
+    };
+    const untracked = (fn) => {
       const prev = currentEffect;
       currentEffect = null;
-      try {
-        const frag = document.createDocumentFragment();
-        if (items && items.length) {
+      try { return fn(); } finally { currentEffect = prev; }
+    };
+
+    effect(() => {
+      const items = listFn() || [];
+      if (!key) {
+        // Rebuilt whole.
+        leave(currentNodes);
+        currentNodes = [];
+        untracked(() => {
+          const frag = document.createDocumentFragment();
           items.forEach((item, index) => {
-            const result = itemFn(item, index);
-            let nodes;
-            if (result instanceof DocumentFragment) {
-              nodes = [...result.childNodes];
-            } else {
-              nodes = [].concat(result).flat().filter(n => n instanceof Node);
-            }
-            for (const n of nodes) {
-              frag.appendChild(n);
-              currentNodes.push(n);
-              if (animConfig && animConfig.enter && n instanceof Element) {
-                const delay = animConfig.stagger ? (parseInt(animConfig.stagger) * index) + "ms" : animConfig.delay;
-                animateIn(n, animConfig.enter, animConfig.duration, delay);
-              }
-            }
+            const nodes = toNodes(itemFn(item, index));
+            for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
+            enter(nodes, index);
           });
-        }
-        if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
-      } finally {
-        currentEffect = prev;
+          if (marker.parentNode) marker.parentNode.insertBefore(frag, marker.nextSibling);
+        });
+        return;
       }
+      untracked(() => {
+        const host = marker.parentNode;
+        if (!host) return;
+        const next = new Map();
+        const seen = new Map();
+        let cursor = marker;
+        items.forEach((item, index) => {
+          let k = key(item, index);
+          if (next.has(k)) {
+            // Two items under one key: the later ones are told apart by
+            // how many came before, and the author is told once.
+            const n = (seen.get(k) || 1) + 1;
+            seen.set(k, n);
+            if (n === 2) console.warn("WF: two items of a list share the key " + JSON.stringify(k) + "; add a `by` that tells them apart");
+            k = String(k) + "#" + n;
+          }
+          const old = entries.get(k);
+          let entry;
+          if (old && old.item === item && (!byIndex || old.index === index)) {
+            entry = old;
+            entry.index = index;
+          } else {
+            entry = { item, index, nodes: toNodes(itemFn(item, index)) };
+            if (old) removeNodes(old.nodes);
+          }
+          entries.delete(k);
+          cursor = place(host, entry.nodes, cursor);
+          if (!old) enter(entry.nodes, index);
+          next.set(k, entry);
+        });
+        // What is left never came back.
+        for (const gone of entries.values()) leave(gone.nodes);
+        entries = next;
+      });
     });
   }
 
   // ─── Show/Hide ───────────────────────────────────────
-  function showRender(parent, condFn, contentFn, animConfig) {
+  function show(parent, condFn, contentFn, animConfig) {
     const wrapper = document.createElement("div");
     wrapper.style.display = "contents";
     const nodes = [].concat(contentFn()).flat();
@@ -497,7 +556,7 @@ const WF = (() => {
     });
   }
 
-  function createRouter(routes, container) {
+  function router(routes, container) {
     // Check for SPA redirect from 404.html (?p=/path)
     const urlParams = new URLSearchParams(window.location.search);
     const redirectPath = urlParams.get("p");
@@ -643,7 +702,7 @@ const WF = (() => {
   const pages = {};
   const waiting = {};
 
-  function definePage(name, renderFn) {
+  function page(name, renderFn) {
     pages[name] = renderFn;
     const callbacks = waiting[name];
     delete waiting[name];
@@ -707,12 +766,12 @@ const WF = (() => {
     });
   }
 
-  function getParams() {
+  function params() {
     return routerInstance ? routerInstance._currentParams || {} : {};
   }
 
   // ─── Store ───────────────────────────────────────────
-  function createStore(definition) {
+  function store(definition) {
     const store = {};
     const states = {};
 
@@ -906,7 +965,7 @@ const WF = (() => {
     return toastContainer;
   }
 
-  function showToast(message, variant, duration) {
+  function toast(message, variant, duration) {
     const container = _toastContainer();
     const toast = document.createElement("div");
     toast.className = `wf-toast wf-toast--${variant || "info"}`;
@@ -924,7 +983,7 @@ const WF = (() => {
   /// Escape or the backdrop — so the `close` event writes back to the signal;
   /// without that the state says "open" while the screen says otherwise, and the
   /// next toggle appears to do nothing.
-  function bindDialog(el, openSignal) {
+  function dialog(el, openSignal) {
     effect(() => {
       const shouldBeOpen = openSignal();
       if (shouldBeOpen && !el.open) {
@@ -944,7 +1003,7 @@ const WF = (() => {
   ///
   /// A keyboard user who opens a menu must be able to leave it without tabbing
   /// through every item, and must land back where they were.
-  function bindPopup(root, trigger, openSignal) {
+  function popup(root, trigger, openSignal) {
     document.addEventListener("click", (e) => {
       if (!root.contains(e.target)) openSignal.set(false);
     });
@@ -963,9 +1022,9 @@ const WF = (() => {
   /// jump to the ends), Enter and Space activate, Escape closes with focus
   /// back on the button, and Tab leaves and closes. Opening from the
   /// keyboard puts focus on the first item; a pointer keeps focus on the
-  /// button. `bindPopup` supplies the outside click and Escape.
+  /// button. `popup` supplies the outside click and Escape.
   function menu(root, trigger, list, openSignal) {
-    bindPopup(root, trigger, openSignal);
+    popup(root, trigger, openSignal);
     const items = () =>
       Array.from(list.children).filter((el) => {
         const cls = el.className || "";
@@ -1013,12 +1072,12 @@ const WF = (() => {
     items();
   }
 
-  /// Arrow-key navigation for a `role="tablist"`.
+  /// Arrow-key navigation for a `role="tabs"`.
   ///
   /// The WAI-ARIA pattern puts only the selected tab in the tab order and moves
   /// between tabs with the arrow keys, so Tab leaves the widget rather than
   /// walking through every tab in it.
-  function tablist(nav, activeSignal) {
+  function tabs(nav, activeSignal) {
     nav.addEventListener("keydown", (e) => {
       const tabs = nav.querySelectorAll("button");
       if (!tabs.length) return;
@@ -1083,7 +1142,7 @@ const WF = (() => {
   let fieldSeq = 0;
 
   function field(control, opts) {
-    const wrapper = h("div", { className: "wf-field" });
+    const wrapper = el("div", { className: "wf-field" });
     if (!control.id) control.id = "wf-field-" + (++fieldSeq);
     const described = [];
     const existing = control.getAttribute("aria-describedby");
@@ -1091,19 +1150,19 @@ const WF = (() => {
 
     if (opts.label != null) {
       wrapper.appendChild(
-        h("label", { className: "wf-label", for: control.id }, opts.label),
+        el("label", { className: "wf-label", for: control.id }, opts.label),
       );
     }
     wrapper.appendChild(control);
 
     if (opts.hint != null) {
       const id = control.id + "-hint";
-      wrapper.appendChild(h("p", { className: "wf-field__hint", id }, opts.hint));
+      wrapper.appendChild(el("p", { className: "wf-field__hint", id }, opts.hint));
       described.push(id);
     }
     if (opts.error !== undefined) {
       const id = control.id + "-error";
-      const message = h("p", { className: "wf-field__error", id, role: "alert" });
+      const message = el("p", { className: "wf-field__error", id, role: "alert" });
       wrapper.appendChild(message);
       described.push(id);
       const apply = (value) => {
@@ -1218,7 +1277,7 @@ const WF = (() => {
     let pointerOver = false;
     let focused = false;
 
-    const nav = h("div", { className: "wf-carousel__nav" });
+    const nav = el("div", { className: "wf-carousel__nav" });
     let playButton = null;
 
     const running = () =>
@@ -1250,7 +1309,7 @@ const WF = (() => {
     }
 
     if (autoplay) {
-      playButton = h("button", {
+      playButton = el("button", {
         className: "wf-carousel__control wf-carousel__play",
         type: "button",
         "on:click": () => {
@@ -1269,17 +1328,17 @@ const WF = (() => {
     }
 
     nav.appendChild(
-      h("button", {
+      el("button", {
         className: "wf-carousel__control wf-carousel__prev",
         type: "button",
         "aria-label": _label("wf.carousel.previous", "Previous slide"),
         "on:click": () => show(index() - 1),
       }, ["\u2039"]),
     );
-    const dots = h("div", { className: "wf-carousel__dots" });
+    const dots = el("div", { className: "wf-carousel__dots" });
     slides.forEach((_, i) => {
       dots.appendChild(
-        h("button", {
+        el("button", {
           className: () => (index() === i ? "wf-carousel__dot active" : "wf-carousel__dot"),
           type: "button",
           "aria-label": `${_label("wf.carousel.goto", "Go to slide")} ${i + 1}`,
@@ -1290,7 +1349,7 @@ const WF = (() => {
     });
     nav.appendChild(dots);
     nav.appendChild(
-      h("button", {
+      el("button", {
         className: "wf-carousel__control wf-carousel__next",
         type: "button",
         "aria-label": _label("wf.carousel.next", "Next slide"),
@@ -1326,7 +1385,7 @@ const WF = (() => {
   /// it, focus returns to the button, and a scrim catches the click outside.
   /// Above the breakpoint the CSS ignores all of it and the panel is just a
   /// column.
-  function offCanvas(panel, toggle, scrim) {
+  function drawer(panel, toggle, scrim) {
     if (!panel || !toggle) return;
     let open = false;
 
@@ -1384,7 +1443,7 @@ const WF = (() => {
   const RTL_LOCALES = new Set(["ar", "he", "fa", "ur"]);
   let i18nInstance = null;
 
-  function createI18n(defaultLocale, translations) {
+  function locales(defaultLocale, translations) {
     const locale = signal(defaultLocale);
     const dir = signal(RTL_LOCALES.has(defaultLocale) ? "rtl" : "ltr");
 
@@ -1552,19 +1611,22 @@ const WF = (() => {
   };
 
   return {
+    // State.
     signal, effect, computed,
-    h, text, reactiveText, appendChildren, onRoot, props,
-    condRender, listRender, showRender,
-    animateIn, animateOut, animateEl, replayAnimation,
-    createRouter, navigate, getParams, activeLink, definePage, loadPage, loadSheet, classes,
-    resource, match, emit,
-    createStore,
-    createI18n,
-    wfFetch, showToast,
+    // Elements, and what a body puts inside them.
+    el, text, props, onRoot, classes,
+    when, each, show, match,
+    // Motion.
+    animate, replay, animateIn, animateOut,
+    // Routing and pages.
+    router, navigate, params, activeLink, page, loadPage, loadSheet, mainOf,
+    // Data.
+    resource, fetch: wfFetch, store, emit,
+    locales,
+    // Overlays and widgets.
+    toast, dialog, popup, tabs, drawer, announce, carousel, tooltip, menu, field,
+    // Boot.
     mount, hydrate, setSsgMode, setBasePath,
-    bindDialog, bindPopup, tablist, mainOf, offCanvas, announce, carousel, tooltip, menu, field,
     __debug, __reg,
-    get _basePath() { return _basePath; },
-    i18n: null,
   };
 })();

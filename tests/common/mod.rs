@@ -225,13 +225,13 @@ fn strip_document(html: &str) -> String {
 
 // ─── Output parsing ─────────────────────────────────────────────────────
 
-/// Pull `WF.h("tag", { … })` calls out of generated JS.
+/// Pull `WF.el("tag", { … })` calls out of generated JS.
 ///
 /// The codegen emits one call per element, so scanning for the constructor is
 /// enough to recover the element list without running the bundle.
 fn parse_spa(js: &str) -> Vec<Elem> {
     let mut out = Vec::new();
-    // Only look past the embedded runtime, which contains its own `WF.h` uses.
+    // Only look past the embedded runtime, which contains its own `WF.el` uses.
     let body = js.split("function Page_").nth(1).unwrap_or(js);
     let body = match body.find("function Component_") {
         Some(_) => body,
@@ -239,8 +239,8 @@ fn parse_spa(js: &str) -> Vec<Elem> {
     };
 
     let mut rest = body;
-    while let Some(i) = rest.find("WF.h(\"") {
-        let after = &rest[i + 6..];
+    while let Some(i) = rest.find("WF.el(\"") {
+        let after = &rest[i + "WF.el(\"".len()..];
         let Some(q) = after.find('"') else { break };
         let tag = after[..q].to_string();
         let args = &after[q + 1..];

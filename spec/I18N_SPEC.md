@@ -270,13 +270,13 @@ Page Home (path: "/") {
 
 ```javascript
 // i18n setup with baked-in translations
-WF.i18n = WF.createI18n("en", {
+WF.i18n = WF.locales("en", {
     "en": { "nav.home": "Home", "greeting": "Hello, {name}!", ... },
     "ar": { "nav.home": "الرئيسية", "greeting": "!أهلاً، {name}", ... }
 });
 
 // Usage in generated page function
-const _e0 = WF.h("p", { className: "wf-text" }, () => WF.i18n.t("greeting", { name: _name() }));
+const _e0 = WF.el("p", { className: "wf-text" }, () => WF.i18n.t("greeting", { name: _name() }));
 ```
 
 ### Why `t()` is reactive

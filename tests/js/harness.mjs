@@ -48,7 +48,7 @@ export function sitePage(name, rel = "index.html") {
 /// `path` seeds `window.location.pathname` before the bundle runs, so a router
 /// build can be asked for any of its routes.
 export function mountSite(name, { path = "/" } = {}) {
-  const { window, document, Node, DocumentFragment } = makeDom();
+  const { window, document, Node, Element, DocumentFragment } = makeDom();
 
   const app = document.createElement("div");
   app.id = "app";
@@ -64,13 +64,13 @@ export function mountSite(name, { path = "/" } = {}) {
 
   const src = siteBundle(name);
   const run = new Function(
-    "window", "document", "Node", "DocumentFragment", "setTimeout",
+    "window", "document", "Node", "Element", "DocumentFragment", "setTimeout",
     "clearTimeout", "URLSearchParams", "console",
     `${src}\nreturn typeof WF !== "undefined" ? WF : null;`,
   );
 
   const WF = run(
-    window, document, Node, DocumentFragment,
+    window, document, Node, Element, DocumentFragment,
     window.setTimeout, window.clearTimeout, URLSearchParams, console,
   );
 

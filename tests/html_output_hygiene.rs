@@ -120,7 +120,7 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
                     ));
                 }
             }
-            // The SPA path expresses children as extra `WF.h` arguments after the
+            // The SPA path expresses children as extra `WF.el` arguments after the
             // attribute object; a void element handed one is asking the runtime to
             // append into a node that cannot hold children.
             if backend == Backend::Spa {
