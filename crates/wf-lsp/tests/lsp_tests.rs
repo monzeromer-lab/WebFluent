@@ -69,45 +69,51 @@ fn labels_mid_edit(valid: &str, broken: &str, needle: &str) -> Vec<String> {
 // ─── Hover ────────────────────────────────────────────────────────────────
 
 #[test]
-fn hover_on_a_builtin_says_what_the_reference_says() {
+fn hover_on_a_builtin_says_what_the_registry_says() {
     let src =
-        "Page Home (path: \"/\") {\n    Column(span: 6) { Stack(gap: md) { Spacer(sm) } }\n}\n";
+        "page Home(path: \"/\") {\n    Column(span: 6) { Stack(gap: .md) { Spacer.sm } }\n}\n";
     let column = hover_text(src, "Column").unwrap();
     assert!(column.contains("12-column grid"), "{column}");
-    assert!(column.contains("`span:`"), "{column}");
+    assert!(column.contains("`span: …`"), "{column}");
     let stack = hover_text(src, "Stack").unwrap();
     assert!(stack.contains("Vertical flex"), "{stack}");
     let spacer = hover_text(src, "Spacer").unwrap();
     assert!(spacer.contains("Vertical space"), "{spacer}");
     assert!(spacer.contains("<div>"), "{spacer}");
+    assert!(spacer.contains("`.sm`"), "{spacer}");
 }
 
 #[test]
-fn hover_on_a_modifier_names_the_element_it_modifies() {
-    let src = "Page Home (path: \"/\") {\n    Button(\"Save\", primary, large)\n}\n";
+fn hover_on_a_flag_names_the_prop_it_sets() {
+    let src = "page Home(path: \"/\") {\n    Button(\"Save\").primary.lg\n}\n";
     let primary = hover_text(src, "primary").unwrap();
-    assert!(primary.contains("Color modifier on `Button`"), "{primary}");
-    assert!(primary.contains("`Button` lists it"), "{primary}");
+    assert!(
+        primary.contains("`tone: .primary` on `Button`"),
+        "{primary}"
+    );
+    let lg = hover_text(src, "lg\n").unwrap();
+    assert!(lg.contains("`size: .lg` on `Button`"), "{lg}");
+    assert!(lg.contains("`.sm`"), "the other cases are listed: {lg}");
 }
 
 #[test]
-fn hover_on_a_prop_that_shadows_a_modifier_word_is_the_prop() {
-    let src = "Component Chip (text: String) {\n    Text(text, bold)\n}\n";
-    let text = hover_text(src, "text, bold").unwrap();
+fn hover_on_a_prop_that_shares_a_flag_word_is_the_prop() {
+    let src = "component Chip(text: String) {\n    Text(text).bold\n}\n";
+    let text = hover_text(src, "text).bold").unwrap();
     assert!(text.contains("prop"), "{text}");
-    assert!(!text.contains("Input type"), "{text}");
+    assert!(!text.contains("Input"), "{text}");
 }
 
 #[test]
 fn hover_inside_a_string_or_comment_is_nothing() {
-    let src = "Page Home (path: \"/\") {\n    // a Button in a comment\n    Text(\"Button\")\n}\n";
+    let src = "page Home(path: \"/\") {\n    // a Button in a comment\n    Text(\"Button\")\n}\n";
     assert!(hover_text(src, "Button in a").is_none());
     assert!(hover_text(src, "Button\")").is_none());
 }
 
 #[test]
 fn hover_on_a_name_resolves_in_the_enclosing_declaration_not_the_first() {
-    let src = "Page A (path: \"/a\") {\n    state count = 1\n}\nPage B (path: \"/b\") {\n    derived count = total * 2\n    Text(\"{count}\")\n}\n";
+    let src = "page A(path: \"/a\") {\n    state count = 1\n}\npage B(path: \"/b\") {\n    derived count = total * 2\n    Text(\"{count}\")\n}\n";
     let b_count = hover_text(src, "count = total").unwrap();
     assert!(b_count.contains("derived"), "{b_count}");
     assert!(b_count.contains("derived count = total * 2"), "{b_count}");
@@ -115,7 +121,7 @@ fn hover_on_a_name_resolves_in_the_enclosing_declaration_not_the_first() {
 
 #[test]
 fn hover_on_a_store_member_finds_the_store() {
-    let src = "Store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\nPage Shop (path: \"/\") {\n    use CartStore\n    Button(\"Clear\") { CartStore.clear() }\n}\n";
+    let src = "store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\npage Shop(path: \"/\") {\n    use CartStore\n    Button(\"Clear\") { on click { CartStore.clear() } }\n}\n";
     let clear = hover_text(src, "clear() }").unwrap();
     assert!(clear.contains("action"), "{clear}");
     assert!(clear.contains("Member of store `CartStore`"), "{clear}");
@@ -125,41 +131,57 @@ fn hover_on_a_store_member_finds_the_store() {
 }
 
 #[test]
-fn hover_on_a_named_argument_explains_it_for_that_component() {
-    let src = "Page Home (path: \"/\") {\n    Input(text, bind: name, aria-label: \"Name\")\n}\n";
+fn hover_on_a_prop_explains_it_for_that_component() {
+    let src = "page Home(path: \"/\") {\n    Input(bind: name, aria-label: \"Name\", tone: .primary).text\n}\n";
     let bind = hover_text(src, "bind:").unwrap();
-    assert!(bind.contains("argument of `Input`"), "{bind}");
+    assert!(bind.contains("of `Input`"), "{bind}");
+    assert!(bind.contains("state variable"), "{bind}");
     let aria = hover_text(src, "aria-label").unwrap();
     assert!(aria.contains("attribute on `Input`"), "{aria}");
+    let tone = hover_text(src, "tone:").unwrap();
+    assert!(tone.contains("no prop called `tone`"), "{tone}");
 }
 
 #[test]
-fn hover_on_an_event_and_a_pseudo_state() {
-    let src = "Page Home (path: \"/\") {\n    Button(\"x\") {\n        on:click { go() }\n        style { hover { background: \"red\" } }\n    }\n}\n";
-    let click = hover_text(src, "on:click").unwrap();
+fn hover_on_a_case_a_token_an_event_and_a_selector() {
+    let src = "theme T { line: #ccc }\npage Home(path: \"/\") {\n    Badge(\"x\", tone: .success)\n    Button(\"x\") {\n        style { border: 1px solid $line; padding: $md; &:hover { background: red } }\n        on click { go() }\n    }\n}\n";
+    let case = hover_text(src, "success)").unwrap();
+    assert!(case.contains("`tone` of `Badge`"), "{case}");
+    assert!(case.contains("Green"), "{case}");
+    let token = hover_text(src, "line; padding").unwrap();
+    assert!(token.contains("design token of theme `T`"), "{token}");
+    let short = hover_text(src, "md; &").unwrap();
+    assert!(short.contains("short token name"), "{short}");
+    assert!(short.contains("`$spacing-md`"), "{short}");
+    let click = hover_text(src, "click {").unwrap();
     assert!(click.contains("event handler"), "{click}");
     let hover = hover_text(src, "hover {").unwrap();
-    assert!(hover.contains("pseudo-state"), "{hover}");
+    assert!(hover.contains("nested rule"), "{hover}");
+    assert!(hover.contains("pointer"), "{hover}");
 }
 
 #[test]
-fn hover_on_a_user_component_shows_its_props_and_a_route_target_its_page() {
-    let src = "Component UserCard (name: String, active?: Bool) {\n    Text(name)\n}\nPage Home (path: \"/\", title: \"Home\") {\n    UserCard(name: \"x\")\n}\nApp {\n    Router { Route(path: \"/\", page: Home) }\n}\n";
-    let card = hover_text(src, "UserCard(name").unwrap();
+fn hover_on_a_user_component_shows_its_props_events_and_slots() {
+    let src = "component UserCard(_ name: String, active: Bool = true) {\n    event pick(id: String)\n    slot trailing\n    Text(name)\n    trailing\n}\npage Home(path: \"/\", title: \"Home\", layout: Shell) {\n    UserCard(\"x\") { on pick(id) { } }\n}\ncomponent Shell { slot  children }\n";
+    let card = hover_text(src, "UserCard(\"x\")").unwrap();
     assert!(
-        card.contains("Component UserCard (name: String, active?: Bool)"),
+        card.contains("component UserCard(_ name: String, active: Bool = …)"),
         "{card}"
     );
-    let page = hover_text(src, "page: Home").map(|_| ()).is_some();
-    let home = hover_text(src, "Home)").unwrap();
-    assert!(page && home.contains("page at `/`"), "{home}");
+    assert!(card.contains("Events: `pick`"), "{card}");
+    assert!(card.contains("Slots: `trailing`"), "{card}");
+    let pick = hover_text(src, "pick(id) {").unwrap();
+    assert!(pick.contains("event of `UserCard`"), "{pick}");
+    assert!(pick.contains("event pick(id: String)"), "{pick}");
+    let layout = hover_text(src, "Shell) {").unwrap();
+    assert!(layout.contains("component Shell"), "{layout}");
 }
 
 #[test]
 fn hover_with_arabic_text_on_the_line_lands_on_the_right_word() {
-    let src = "Page Welcome (path: \"/\") {\n    Text(\"مرحباً بك في WebFluent! 🚀\", muted)\n    Button(\"ابدأ الآن\", primary)\n}\n";
+    let src = "page Welcome(path: \"/\") {\n    Text(\"مرحباً بك في WebFluent! 🚀\").muted\n    Button(\"ابدأ الآن\").primary\n}\n";
     let muted = hover_text(src, "muted").unwrap();
-    assert!(muted.contains("Typography modifier on `Text`"), "{muted}");
+    assert!(muted.contains("`muted: true` on `Text`"), "{muted}");
     let primary = hover_text(src, "primary").unwrap();
     assert!(primary.contains("on `Button`"), "{primary}");
     // The hover's own range covers exactly the word.
@@ -172,8 +194,8 @@ fn hover_with_arabic_text_on_the_line_lands_on_the_right_word() {
 // ─── Completion ───────────────────────────────────────────────────────────
 
 #[test]
-fn completion_inside_an_element_offers_its_own_arguments_first() {
-    let src = "Page Home (path: \"/\") {\n    Slider(bind: v, )\n}\n";
+fn completion_inside_an_element_offers_its_own_props_first() {
+    let src = "page Home(path: \"/\") {\n    Slider(bind: v, )\n}\n";
     let items = labels_after(src, "bind: v, ");
     assert!(items.contains(&"min:".to_string()), "{items:?}");
     assert!(items.contains(&"step:".to_string()), "{items:?}");
@@ -181,89 +203,127 @@ fn completion_inside_an_element_offers_its_own_arguments_first() {
         !items.contains(&"src:".to_string()),
         "Slider takes no src: {items:?}"
     );
+    assert!(
+        !items.contains(&"bind:".to_string()),
+        "a prop already written is not offered again: {items:?}"
+    );
     assert!(items.contains(&"v".to_string()) || !items.contains(&"Card".to_string()));
 }
 
 #[test]
 fn completion_inside_a_user_component_call_offers_its_props() {
-    let src = "Component UserCard (name: String, role: String) {\n    Text(name)\n}\nPage Home (path: \"/\") {\n    UserCard()\n}\n";
-    let items = labels_after(src, "UserCard(");
+    let src = "component UserCard(name: String, role: String) {\n    Text(name)\n}\npage Home(path: \"/\") {\n    UserCard()\n}\n";
+    let items = labels_after(src, "    UserCard(");
     assert_eq!(items, vec!["name:", "role:"]);
 }
 
 #[test]
-fn completion_after_a_dot_offers_sub_components_or_store_members() {
-    let valid = "Store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\nPage Home (path: \"/\") {\n    use CartStore\n    Card { }\n    Button(\"x\") { }\n}\n";
+fn completion_after_a_dot_offers_parts_flags_cases_or_store_members() {
+    let valid = "store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\npage Home(path: \"/\") {\n    use CartStore\n    Card { }\n    Button(\"x\") { }\n    Badge(\"x\", tone: .info)\n}\n";
     let broken = valid
-        .replace("Card { }", "Card { Card. }")
-        .replace("Button(\"x\") { }", "Button(\"x\") { CartStore. }");
+        .replace("Card { }", "Card. { }")
+        .replace("Button(\"x\") { }", "Button(\"x\"). { CartStore. }")
+        .replace("tone: .info", "tone: .");
     let card = labels_mid_edit(valid, &broken, "Card. ");
-    assert_eq!(card, vec!["Header", "Body", "Footer"]);
+    assert!(
+        card.starts_with(
+            &[
+                "Header".to_string(),
+                "Body".to_string(),
+                "Footer".to_string()
+            ][..]
+        ),
+        "{card:?}"
+    );
+    assert!(card.contains(&"elevated".to_string()), "{card:?}");
+    let button = labels_mid_edit(valid, &broken, "Button(\"x\").");
+    assert!(button.contains(&"primary".to_string()), "{button:?}");
+    assert!(button.contains(&"lg".to_string()), "{button:?}");
+    assert!(
+        button.contains(&"fadeIn".to_string()),
+        "the universal flags too: {button:?}"
+    );
     let store = labels_mid_edit(valid, &broken, "CartStore. ");
     assert_eq!(store, vec!["items", "clear"]);
+    let cases = labels_mid_edit(valid, &broken, "tone: .");
+    assert_eq!(
+        cases,
+        vec![
+            "primary",
+            "secondary",
+            "success",
+            "danger",
+            "warning",
+            "info"
+        ]
+    );
 }
 
 #[test]
 fn completion_in_a_body_offers_components_keywords_and_scope() {
     let src =
-        "Page Home (path: \"/\") {\n    state count = 0\n    Container {\n        \n    }\n}\n";
+        "page Home(path: \"/\") {\n    state count = 0\n    Container {\n        \n    }\n}\n";
     let items = labels_after(src, "Container {\n        ");
     assert!(items.contains(&"Button".to_string()));
     assert!(items.contains(&"if".to_string()));
+    assert!(items.contains(&"match".to_string()));
     assert!(items.contains(&"count".to_string()));
     assert!(
-        !items.contains(&"Page".to_string()),
+        !items.contains(&"page".to_string()),
         "declarations are not statements: {items:?}"
     );
 }
 
 #[test]
-fn completion_in_a_style_block_offers_css_and_tokens() {
-    let src = "Page Home (path: \"/\") {\n    Card {\n        style {\n            \n            color: \n        }\n    }\n}\n";
+fn completion_in_a_style_block_offers_css_selectors_and_tokens() {
+    let src = "theme T { line: #ccc }\npage Home(path: \"/\") {\n    Card {\n        style {\n            \n            color: \n        }\n    }\n}\n";
     let props = labels_after(src, "style {\n            ");
     assert!(props.contains(&"border-radius".to_string()), "{props:?}");
-    assert!(props.contains(&"hover".to_string()), "{props:?}");
+    assert!(props.contains(&"&:hover".to_string()), "{props:?}");
     assert!(props.contains(&"@media".to_string()), "{props:?}");
     assert!(!props.contains(&"Button".to_string()), "{props:?}");
     let values = labels_after(src, "color: ");
+    assert!(values.contains(&"$color-primary".to_string()), "{values:?}");
     assert!(
-        values.contains(&"var(--color-primary)".to_string()),
-        "{values:?}"
+        values.contains(&"$line".to_string()),
+        "the theme's own: {values:?}"
+    );
+    assert!(
+        values.contains(&"$primary".to_string()),
+        "the group's short name: {values:?}"
     );
 }
 
 #[test]
-fn completion_in_a_fetch_body_offers_the_missing_blocks() {
-    let src = "Page Home (path: \"/\") {\n    fetch users from \"/api\" {\n        loading { Spinner() }\n        \n    }\n}\n";
-    let items = labels_after(src, "Spinner() }\n        ");
-    assert_eq!(items, vec!["error", "success"]);
+fn completion_in_a_match_body_offers_the_missing_arms() {
+    let src = "page Home(path: \"/\") {\n    resource users = fetch(\"/api\")\n    match users {\n        loading { Spinner }\n        \n    }\n}\n";
+    let items = labels_after(src, "Spinner }\n        ");
+    assert_eq!(items, vec!["error", "ready", "else"]);
 }
 
 #[test]
 fn completion_offers_nothing_inside_strings_and_comments() {
-    let src = "Page Home (path: \"/\") {\n    // \n    Text(\"\")\n}\n";
+    let src = "page Home(path: \"/\") {\n    // \n    Text(\"\")\n}\n";
     assert!(labels_after(src, "// ").is_empty());
     assert!(labels_after(src, "Text(\"").is_empty());
 }
 
 #[test]
 fn completion_at_top_level_and_in_a_theme() {
-    let src = "Theme Brand {\n    \n}\n\n";
+    let src = "theme Brand {\n    \n}\n\n";
     let top = labels_after(src, "}\n\n");
-    assert!(top.contains(&"Page".to_string()));
+    assert!(top.contains(&"page".to_string()), "{top:?}");
+    assert!(top.contains(&"enum".to_string()), "{top:?}");
     let theme = labels_after(src, "Brand {\n    ");
-    assert!(
-        theme.contains(&"token color-primary".to_string()),
-        "{theme:?}"
-    );
+    assert!(theme.contains(&"color-primary".to_string()), "{theme:?}");
 }
 
 #[test]
 fn completion_keeps_working_while_the_file_does_not_parse() {
     // The unclosed parenthesis means the file does not parse; the last good
-    // parse still supplies the scope, and the element's arguments come from
+    // parse still supplies the scope, and the element's props come from
     // the text.
-    let src = "Page Home (path: \"/\") {\n    state count = 0\n    Button(\"x\", \n}\n";
+    let src = "page Home(path: \"/\") {\n    state count = 0\n    Button(\"x\", \n}\n";
     let project = project(src);
     assert!(project.files[0].parsed.is_err());
     let pos = project.files[0]
@@ -273,22 +333,41 @@ fn completion_keeps_working_while_the_file_does_not_parse() {
         .into_iter()
         .map(|c| c.label)
         .collect();
-    assert!(items.contains(&"primary".to_string()), "{items:?}");
+    assert!(items.contains(&"to:".to_string()), "{items:?}");
 }
 
 #[test]
-fn completion_after_on_colon_offers_events() {
-    let src = "Page Home (path: \"/\") {\n    Button(\"x\") { on: }\n}\n";
-    let items = labels_after(src, "on:");
+fn completion_after_on_offers_events_and_after_emit_the_declared_ones() {
+    let valid = "component PickRow(_ label: String) {\n    event pick(id: String)\n    Button(label) { on click { emit pick(1) } }\n}\npage Home(path: \"/\") {\n    PickRow(\"x\") { on pick(id) { } }\n}\n";
+    let broken = valid.replace(
+        "PickRow(\"x\") { on pick(id) { } }",
+        "PickRow(\"x\") { on  }",
+    );
+    let items = labels_mid_edit(valid, &broken, "PickRow(\"x\") { on ");
     assert!(items.contains(&"click".to_string()), "{items:?}");
     assert!(items.contains(&"submit".to_string()), "{items:?}");
+    assert_eq!(
+        items[0], "pick",
+        "the component's own event comes first: {items:?}"
+    );
+    let broken = valid.replace("emit pick(1)", "emit ");
+    let emitted = labels_mid_edit(valid, &broken, "emit ");
+    assert_eq!(emitted, vec!["pick"]);
+}
+
+#[test]
+fn completion_after_layout_offers_components_with_a_default_slot() {
+    let valid = "component Shell { slot  children }\ncomponent Chip { Text(\"x\") }\npage Home(path: \"/\", layout: Shell) { }\n";
+    let broken = valid.replace("layout: Shell", "layout: ");
+    let items = labels_mid_edit(valid, &broken, "layout: ");
+    assert_eq!(items, vec!["Shell"]);
 }
 
 // ─── Definition ───────────────────────────────────────────────────────────
 
 #[test]
 fn definition_of_a_name_is_the_one_in_scope() {
-    let src = "Page A (path: \"/a\") {\n    state count = 1\n}\nPage B (path: \"/b\") {\n    state count = 2\n    Text(\"{count}\")\n    Button(\"+\") { count = count + 1 }\n}\n";
+    let src = "page A(path: \"/a\") {\n    state count = 1\n}\npage B(path: \"/b\") {\n    state count = 2\n    Text(\"{count}\")\n    Button(\"+\") { on click { count = count + 1 } }\n}\n";
     let project = project(src);
     let def = find_definition(&project, 0, at(src, "count + 1")).unwrap();
     let GotoDefinitionResponse::Scalar(loc) = def else {
@@ -298,8 +377,8 @@ fn definition_of_a_name_is_the_one_in_scope() {
 }
 
 #[test]
-fn definition_of_a_component_call_and_a_store_member() {
-    let src = "Component Nudge (label: String) {\n    Text(label)\n}\nStore S {\n    state n = 0\n    action bump() { n = n + 1 }\n}\nPage Home (path: \"/\") {\n    use S\n    Nudge(label: \"x\")\n    Button(\"b\") { S.bump() }\n}\n";
+fn definition_of_a_component_call_a_store_member_and_a_layout() {
+    let src = "component Nudge(label: String) {\n    Text(label)\n}\nstore S {\n    state n = 0\n    action bump() { n = n + 1 }\n}\npage Home(path: \"/\", layout: Nudge) {\n    use S\n    Nudge(label: \"x\")\n    Button(\"b\") { on click { S.bump() } }\n}\n";
     let project = project(src);
     let GotoDefinitionResponse::Scalar(component) =
         find_definition(&project, 0, at(src, "Nudge(label")).unwrap()
@@ -319,29 +398,35 @@ fn definition_of_a_component_call_and_a_store_member() {
         panic!()
     };
     assert_eq!(store.range.start.line, 3);
+    let GotoDefinitionResponse::Scalar(layout) =
+        find_definition(&project, 0, at(src, "Nudge) {")).unwrap()
+    else {
+        panic!()
+    };
+    assert_eq!(layout.range.start.line, 0);
 }
 
 // ─── Diagnostics ──────────────────────────────────────────────────────────
 
 #[test]
 fn diagnostics_point_at_the_word_even_after_non_ascii_text() {
-    let src = "Page Home (path: \"/\", title: \"x\", description: \"y\") {\n    Heading(\"أهلاً\", h1)\n    Text(\"مرحباً بك\", centred)\n}\n";
+    let src = "page Home(path: \"/\", title: \"x\", description: \"y\") {\n    Heading(\"أهلاً\").h1\n    Text(\"مرحباً بك\").centred\n}\n";
     let project = project(src);
     let diagnostics = project_diagnostics(&project).remove(0);
-    let v01 = diagnostics
+    let unknown = diagnostics
         .iter()
         .find(|d| d.message.contains("centred"))
-        .expect("V01 for `centred`");
+        .expect("an error for `centred`");
     let start = project.files[0]
         .index
-        .offset_to_position(src, src.find("centred").unwrap());
-    assert_eq!(v01.range.start, start, "{v01:?}");
-    assert_eq!(v01.range.end.character, start.character + 7);
+        .offset_to_position(src, src.find(".centred").unwrap());
+    assert_eq!(unknown.range.start, start, "{unknown:?}");
+    assert_eq!(unknown.severity, Some(DiagnosticSeverity::ERROR));
 }
 
 #[test]
 fn a_parse_error_is_one_error_at_its_position() {
-    let src = "Page Home (path: \"/\") {\n    Text(\"x\"\n}\n";
+    let src = "page Home(path: \"/\") {\n    Text(\"x\"\n}\n";
     let project = project(src);
     let diagnostics = project_diagnostics(&project).remove(0);
     assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
@@ -353,7 +438,7 @@ fn a_parse_error_is_one_error_at_its_position() {
 
 #[test]
 fn document_symbols_are_nested_under_declarations() {
-    let src = "Store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\n";
+    let src = "store CartStore {\n    state items = []\n    action clear() { items = [] }\n}\n";
     let project = project(src);
     let DocumentSymbolResponse::Nested(symbols) = document_symbols(&project, 0, true) else {
         panic!()

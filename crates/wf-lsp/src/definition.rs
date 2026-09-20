@@ -1,10 +1,11 @@
 //! Go to definition, across the files of the project.
 //!
-//! A component call jumps to the `Component` in whichever file declares it;
-//! `Route(page: Home)` to the page; `use CartStore` and `CartStore.total` to
-//! the store and its member; a name to the state, derived value, action,
-//! prop, parameter, loop variable or fetch binding that declares it in the
-//! enclosing declaration — the nearest one, not the first one in the file.
+//! A component call jumps to the `component` in whichever file declares it;
+//! a page's `layout:` to that component; `use CartStore` and
+//! `CartStore.total` to the store and its member; a name to the state,
+//! derived value, action, prop, parameter, loop variable or arm binding that
+//! declares it in the enclosing declaration — the nearest one, not the
+//! first one in the file.
 
 use tower_lsp::lsp_types::*;
 use webfluent::parser::ast::*;
@@ -29,6 +30,15 @@ pub fn find_definition(
 
     if let Some(decl_ix) = analysis::declaration_at(project, file_ix, offset) {
         let decl = &project.program.declarations[decl_ix];
+
+        // `layout: Shell` in a page header: the component.
+        if let Declaration::Page(page) = decl
+            && let Some(layout) = &page.layout
+            && analysis::contains(layout.span, offset)
+            && layout.name == word
+        {
+            return declaration_location(project, word, Kind::Component);
+        }
 
         if let Some(el) = analysis::element_at(analysis::body_of(decl), offset) {
             if let Some(ElementPart::Name) = analysis::element_part_at(el, source, offset) {
