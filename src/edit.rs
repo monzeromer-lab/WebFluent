@@ -18,8 +18,6 @@
 
 use crate::codegen::node_id;
 use crate::error::{Result, WebFluentError};
-use crate::lexer::Lexer;
-use crate::parser::Parser;
 use crate::parser::ast::{Arg, Expr, Program, Span, UIElement};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -500,8 +498,7 @@ fn removal_range(source: &str, span: Span) -> (usize, usize) {
 // ─── Parsing ─────────────────────────────────────────────
 
 fn parse_program(source: &str) -> Result<Program> {
-    let tokens = Lexer::new(source, "<edit>").tokenize()?;
-    Parser::new(tokens, "<edit>").parse()
+    crate::syntax::parse_source(source, "<edit>")
 }
 
 /// Validate a `.wf` child snippet by parsing it inside a throwaway page. A bad

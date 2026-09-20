@@ -3994,12 +3994,9 @@ fn camel_to_kebab(s: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn compile(src: &str) -> String {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         JsCodegen::new().generate(&program)
     }
 

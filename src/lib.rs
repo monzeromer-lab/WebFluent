@@ -104,6 +104,10 @@ pub mod lexer;
 /// containing pages, components, stores, and an optional app declaration.
 pub mod parser;
 
+/// The front end's one entry point: [`syntax::parse_source`] reads a file in
+/// whichever grammar it is written in.
+pub mod syntax;
+
 /// Code generation — compiles the AST to various output formats.
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),
@@ -169,4 +173,5 @@ pub use linter::validate_semantics;
 pub use studio::{
     CompiledPage, CompiledSite, Diagnostic as StudioDiagnostic, ThemeInfo, compile_studio,
 };
+pub use syntax::{Dialect, detect_dialect, parse_source};
 pub use template::Template;

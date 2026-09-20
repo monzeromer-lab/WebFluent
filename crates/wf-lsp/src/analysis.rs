@@ -6,7 +6,7 @@
 //! modifier from a named argument from a string that happens to contain the
 //! word `Button`, and can tell which page or component a `count` belongs to.
 
-use webfluent::lexer::{Lexer, Token, TokenType};
+use webfluent::lexer::{Token, TokenType};
 use webfluent::parser::ast::*;
 
 use crate::project::{Project, SourceFile};
@@ -326,7 +326,7 @@ pub fn store_members(store: &StoreDecl) -> Vec<Binding> {
 
 /// The lexer's view of a file: `None` when it does not tokenize.
 pub fn tokens_of(file: &SourceFile) -> Option<Vec<Token>> {
-    Lexer::new(&file.source, "").tokenize().ok()
+    webfluent::syntax::tokens(&file.source, "").ok()
 }
 
 /// The index of the token whose extent contains `offset`, or that ends

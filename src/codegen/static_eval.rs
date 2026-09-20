@@ -789,12 +789,9 @@ fn binary(l: &Static, op: &BinOp, r: &Static) -> Option<Static> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn program(src: &str) -> Program {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        Parser::new(tokens, "<t>").parse().expect("parse")
+        crate::syntax::parse_source(src, "<t>").expect("parse")
     }
 
     fn page_scope(src: &str) -> (Program, Scope) {
@@ -930,12 +927,9 @@ mod tests {
 mod interpreter_tests {
     //! Derived values, lambdas and actions the compiler can run at build time.
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn store_scope(src: &str) -> Scope {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         Scope::from_program(&program, &[])
     }
 

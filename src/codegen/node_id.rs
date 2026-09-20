@@ -219,13 +219,10 @@ mod tests {
     use crate::codegen::ssg::SiteContext;
     use crate::codegen::ssg::{render_page_html, render_page_html_studio};
     use crate::config::ProjectConfig;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
     use crate::parser::ast::PageDecl;
 
     fn program(src: &str) -> Program {
-        let toks = Lexer::new(src, "<test>").tokenize().expect("lex");
-        Parser::new(toks, "<test>").parse().expect("parse")
+        crate::syntax::parse_source(src, "<test>").expect("parse")
     }
 
     fn config() -> ProjectConfig {

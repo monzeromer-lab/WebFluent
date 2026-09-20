@@ -2,8 +2,7 @@ use crate::codegen::{JsCodegen, PdfCodegen, SlidesCodegen, generate_css_for, gen
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
 use crate::error::{Result, WebFluentError};
-use crate::lexer::Lexer;
-use crate::parser::{Declaration, Parser, Program, Statement};
+use crate::parser::{Declaration, Program, Statement};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -39,11 +38,7 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
         let relative = file_path.strip_prefix(project_dir).unwrap_or(file_path);
         let file_name = relative.to_string_lossy().to_string();
 
-        let mut lexer = Lexer::new(&source, &file_name);
-        let tokens = lexer.tokenize()?;
-
-        let mut parser = Parser::new(tokens, &file_name);
-        let program = parser.parse()?;
+        let program = crate::syntax::parse_source(&source, &file_name)?;
 
         declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
         all_declarations.extend(program.declarations);

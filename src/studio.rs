@@ -204,12 +204,9 @@ pub fn compile_studio(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn program(src: &str) -> Program {
-        let toks = Lexer::new(src, "<test>").tokenize().expect("lex");
-        Parser::new(toks, "<test>").parse().expect("parse")
+        crate::syntax::parse_source(src, "<test>").expect("parse")
     }
 
     fn config() -> ProjectConfig {

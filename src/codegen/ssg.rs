@@ -1320,12 +1320,9 @@ mod component_expansion_tests {
     //! empty, "genuine static site" was false of it, and an `h1` inside a component
     //! never reached the served HTML.
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn render(src: &str) -> String {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         let components: HashMap<String, ComponentDecl> = program
             .declarations
             .iter()
@@ -1457,10 +1454,8 @@ mod component_expansion_tests {
     /// such a program fails the semantic gate anyway.
     #[test]
     fn an_unknown_component_still_renders_a_placeholder() {
-        let tokens = Lexer::new("Page Home (path: \"/\") { Ghost() }", "<t>")
-            .tokenize()
-            .unwrap();
-        let program = Parser::new(tokens, "<t>").parse().unwrap();
+        let program =
+            crate::syntax::parse_source("Page Home (path: \"/\") { Ghost() }", "<t>").unwrap();
         let page = program
             .declarations
             .iter()

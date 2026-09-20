@@ -18,8 +18,6 @@ use webfluent::Template;
 use webfluent::codegen::ssg::SiteContext;
 use webfluent::codegen::{JsCodegen, render_page_html};
 use webfluent::config::ProjectConfig;
-use webfluent::lexer::Lexer;
-use webfluent::parser::Parser;
 use webfluent::parser::ast::*;
 
 /// Which renderer produced an element. Reported in assertion messages so a
@@ -74,12 +72,7 @@ pub fn page(body: &str) -> String {
 }
 
 pub fn parse_program(src: &str) -> Result<Program, String> {
-    let tokens = Lexer::new(src, "<test>")
-        .tokenize()
-        .map_err(|e| format!("lex error: {e:?}"))?;
-    Parser::new(tokens, "<test>")
-        .parse()
-        .map_err(|e| format!("parse error: {e:?}"))
+    webfluent::parse_source(src, "<test>").map_err(|e| format!("parse error: {e:?}"))
 }
 
 fn test_config() -> ProjectConfig {

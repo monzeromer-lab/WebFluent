@@ -102,10 +102,7 @@ fn an_open_buffer_overrides_the_disk_and_keeps_its_last_good_parse() {
     let path = root.join("src/components/Nudge.wf");
     let uri = Url::from_file_path(&path).unwrap();
     let disk = std::fs::read_to_string(&path).unwrap();
-    let parsed = {
-        let tokens = webfluent::lexer::Lexer::new(&disk, "").tokenize().unwrap();
-        webfluent::parser::Parser::new(tokens, "").parse().unwrap()
-    };
+    let parsed = webfluent::parse_source(&disk, "").unwrap();
 
     // The buffer renames the component; the parse of the buffer fails half
     // way through an edit.

@@ -8,6 +8,7 @@ mod lexer;
 mod linter;
 mod parser;
 mod runtime;
+mod syntax;
 mod template;
 mod themes;
 

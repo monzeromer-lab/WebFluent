@@ -370,12 +370,9 @@ fn levenshtein(a: &str, b: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn lint(source: &str) -> Vec<VocabWarning> {
-        let tokens = Lexer::new(source, "<test>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<test>").parse().expect("parse");
+        let program = crate::syntax::parse_source(source, "<test>").expect("parse");
         lint_vocabulary(&program, "<test>")
     }
 
@@ -485,12 +482,9 @@ mod dead_variant_tests {
     //! half: a word from the real vocabulary, on a component whose stylesheet
     //! section has no rule for it.
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn warnings(src: &str) -> Vec<VocabWarning> {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_vocabulary(&program, "<t>")
             .into_iter()
             .filter(|w| w.rule_id == "V02")

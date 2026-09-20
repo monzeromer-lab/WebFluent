@@ -155,12 +155,9 @@ fn literal_value(expr: &Expr) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn parse(src: &str) -> Program {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        Parser::new(tokens, "<t>").parse().expect("parse")
+        crate::syntax::parse_source(src, "<t>").expect("parse")
     }
 
     fn config(name: Option<&str>) -> ThemeConfig {

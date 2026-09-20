@@ -7,11 +7,9 @@ use crate::codegen::pdf::PdfCodegen;
 use crate::codegen::slides::SlidesCodegen;
 use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::error::{Result, WebFluentError};
-use crate::lexer::Lexer;
 use crate::parser::ast::{ForStmt, IfStmt};
 use crate::parser::{
-    Arg, ComponentRef, Declaration, Expr, Parser, Program, Statement, StatementKind, StringPart,
-    UIElement,
+    Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
 use serde_json::Value;
 use std::collections::HashMap;
@@ -79,10 +77,7 @@ impl Template {
     /// if the source is invalid.
     pub fn from_str(source: &str) -> Result<Self> {
         // Validate that it parses
-        let mut lexer = Lexer::new(source, "<template>");
-        let tokens = lexer.tokenize()?;
-        let mut parser = Parser::new(tokens, "<template>");
-        let _program = parser.parse()?;
+        let _program = crate::syntax::parse_source(source, "<template>")?;
 
         Ok(Self {
             source: source.to_string(),
@@ -264,10 +259,7 @@ impl Template {
     }
 
     fn parse(&self) -> Result<Program> {
-        let mut lexer = Lexer::new(&self.source, "<template>");
-        let tokens = lexer.tokenize()?;
-        let mut parser = Parser::new(tokens, "<template>");
-        parser.parse()
+        crate::syntax::parse_source(&self.source, "<template>")
     }
 
     /// Resolve all data references in the program for PDF rendering.

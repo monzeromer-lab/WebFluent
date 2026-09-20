@@ -879,12 +879,9 @@ mod naming_tests {
     //! separate element says so with `aria-labelledby`, and used to draw A03
     //! anyway, which taught authors to add a bogus `label` attribute.
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn rules(src: &str) -> Vec<String> {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_accessibility(&program)
             .into_iter()
             .map(|w| w.rule_id)
@@ -942,12 +939,9 @@ mod naming_tests {
 mod structure_tests {
     //! A14 and A15, and the positions every element rule now carries.
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn warnings(src: &str) -> Vec<A11yWarning> {
-        let tokens = Lexer::new(src, "<t>").tokenize().expect("lex");
-        let program = Parser::new(tokens, "<t>").parse().expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_accessibility(&program)
     }
 

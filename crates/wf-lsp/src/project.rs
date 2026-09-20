@@ -22,8 +22,7 @@ use dashmap::DashMap;
 use tower_lsp::lsp_types::Url;
 use webfluent::config::project::{ProjectConfig, ThemeConfig};
 use webfluent::error::WebFluentError;
-use webfluent::lexer::Lexer;
-use webfluent::parser::{Declaration, Parser, Program};
+use webfluent::parser::{Declaration, Program};
 
 use crate::line_index::LineIndex;
 
@@ -268,8 +267,7 @@ impl Project {
 }
 
 fn parse(source: &str, label: &str) -> Result<Program, WebFluentError> {
-    let tokens = Lexer::new(source, label).tokenize()?;
-    Parser::new(tokens, label).parse()
+    webfluent::parse_source(source, label)
 }
 
 /// The nearest ancestor of `path` that holds a `webfluent.app.json`.
