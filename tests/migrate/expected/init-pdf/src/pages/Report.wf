@@ -1,0 +1,101 @@
+page Report(path: "/", description: "A generated report.", title: "pdf Report") {
+    Document(page_size: "A4") {
+        Header {
+            Text("pdf").muted.sm.right
+        }
+
+        Footer {
+            Text("Confidential").muted.sm.center
+        }
+
+        Section {
+            Heading("pdf").h1
+
+            Spacer.sm
+
+            Text("This document was generated with WebFluent's PDF output.")
+
+            Spacer
+
+            Heading("Summary").h2
+
+            Paragraph {
+                Text("WebFluent generates PDF documents directly from .wf source files. The same declarative syntax used for web UIs works for documents.")
+            }
+
+            Divider
+
+            Heading("Data Table").h2
+
+            Table {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("Item")
+                        Table.Cell("Category")
+                        Table.Cell("Status")
+                        Table.Cell("Value")
+                    }
+                }
+                Table.Body {
+                    Table.Row {
+                        Table.Cell("Widget A")
+                        Table.Cell("Hardware")
+                        Table.Cell("Active")
+                        Table.Cell("$1,200")
+                    }
+                    Table.Row {
+                        Table.Cell("Service B")
+                        Table.Cell("Software")
+                        Table.Cell("Pending")
+                        Table.Cell("$3,400")
+                    }
+                    Table.Row {
+                        Table.Cell("License C")
+                        Table.Cell("Legal")
+                        Table.Cell("Complete")
+                        Table.Cell("$800")
+                    }
+                }
+            }
+
+            Spacer
+
+            Heading("Key Points").h3
+
+            List {
+                Text("PDF output uses raw PDF 1.7 — no external dependencies")
+                Text("Tables, headings, text, lists, and code blocks are supported")
+                Text("Automatic page breaks with headers and footers on every page")
+                Text("Font support for all 14 PDF base fonts")
+            }
+
+            Spacer
+
+            Alert("Interactive elements like Button and Input are rejected at compile time in PDF mode.").info
+
+            Spacer
+
+            Code("Document(page_size: \"A4\") \{\n    Heading(\"Hello!\", h1)\n    Text(\"Generated with WebFluent.\")\n\}").block
+
+            Spacer
+
+            Blockquote {
+                Text("WebFluent — build for the web, print for the world.")
+            }
+
+            PageBreak
+
+            Heading("Page Two").h1
+
+            Paragraph {
+                Text("Content continues after PageBreak. Headers and footers repeat on every page.")
+            }
+
+            Progress(value: 75, max: 100)
+
+            Spacer
+
+            Badge("Complete").success
+        }
+    }
+}

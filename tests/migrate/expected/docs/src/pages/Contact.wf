@@ -1,0 +1,13 @@
+page Contact(path: "/contact", description: "How to reach the team.", title: "Reach us") {
+    state message = ""
+
+    Container {
+        Heading(t("contact.title")).h1
+
+        Form {
+            Input(placeholder: "you@example.com").email
+            Input(bind: message, placeholder: "What is on your mind?").text
+            Button("Send").primary.submit
+        }
+    }
+}

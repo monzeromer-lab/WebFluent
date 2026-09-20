@@ -1,0 +1,35 @@
+page Incidents(path: "/incidents", description: "Open and resolved incidents.", title: "Incidents") {
+    use IncidentStore
+
+    state draft = ""
+
+    Container {
+        Heading("Incidents").h1
+
+        Form {
+            Input(bind: draft, placeholder: "What broke?").text
+            Button("Report").primary { on click { IncidentStore.report(draft) } }
+        }
+
+        Table {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Incident")
+                    Table.Cell("Severity")
+                    Table.Cell("Action")
+                }
+            }
+            Table.Body {
+                for incident in IncidentStore.incidents {
+                    Table.Row {
+                        Table.Cell(incident.title)
+                        Table.Cell(incident.severity)
+                        Table.Cell("") {
+                            Button("Resolve").sm { on click { IncidentStore.resolve(incident.id) } }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

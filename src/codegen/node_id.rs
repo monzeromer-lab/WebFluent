@@ -246,7 +246,9 @@ mod tests {
     use crate::parser::ast::PageDecl;
 
     fn program(src: &str) -> Program {
-        crate::syntax::parse_source(src, "<test>").expect("parse")
+        crate::syntax::parse_source(src, "<test>")
+            .map(crate::sema::lower)
+            .expect("parse")
     }
 
     fn config() -> ProjectConfig {
@@ -263,12 +265,7 @@ mod tests {
             .expect("a page")
     }
 
-    const SRC: &str = "Page Home (path: \"/\") {\n\
-                       \x20 Container {\n\
-                       \x20   Heading(\"Hi\", h1)\n\
-                       \x20   Button(\"Go\", primary)\n\
-                       \x20 }\n\
-                       }\n";
+    const SRC: &str = "page Home(path: \"/\") {\n  Container {\n    Heading(\"Hi\").h1\n    Button(\"Go\").primary\n  }\n}\n";
 
     #[test]
     fn ids_resolve_to_spans_and_paths() {
@@ -281,10 +278,10 @@ mod tests {
         assert_eq!(container.component, "Home");
 
         let heading = map.info("Home:0.0").expect("Home:0.0");
-        assert_eq!(heading.span.slice(SRC), "Heading(\"Hi\", h1)");
+        assert_eq!(heading.span.slice(SRC), "Heading(\"Hi\").h1");
 
         let button = map.info("Home:0.1").expect("Home:0.1");
-        assert_eq!(button.span.slice(SRC), "Button(\"Go\", primary)");
+        assert_eq!(button.span.slice(SRC), "Button(\"Go\").primary");
 
         // Reverse lookup by span matches.
         assert_eq!(map.id_for(heading.span), Some("Home:0.0"));
@@ -310,16 +307,7 @@ mod tests {
 
     #[test]
     fn control_flow_uses_branch_tags() {
-        let src = "Page P (path: \"/\") {\n\
-                   \x20 if (x) {\n\
-                   \x20   Text(\"then\")\n\
-                   \x20 } else {\n\
-                   \x20   Text(\"else\")\n\
-                   \x20 }\n\
-                   \x20 for item in items {\n\
-                   \x20   Text(\"row\")\n\
-                   \x20 }\n\
-                   }\n";
+        let src = "page P(path: \"/\") {\n  if (x) {\n    Text(\"then\")\n  } else {\n    Text(\"else\")\n  }\n  for item in items {\n    Text(\"row\")\n  }\n}\n";
         let p = program(src);
         let map = build_node_map(&p);
         // if is statement 0: then -> P:0.t.0, else -> P:0.e.0 (no collision).
@@ -375,14 +363,7 @@ mod tests {
     fn special_component_roots_are_stamped() {
         // These emitters build their own root and ignore the attrs choke point,
         // so each must be stamped explicitly. Regression guard for that gap.
-        let src = "Page S (path: \"/\") {\n\
-                   \x20 state on = false\n\
-                   \x20 Switch(bind: on, label: \"T\")\n\
-                   \x20 Checkbox(bind: on, label: \"A\")\n\
-                   \x20 Modal(title: \"H\", visible: on) { Text(\"b\") }\n\
-                   \x20 Dropdown(label: \"M\") { Text(\"i\") }\n\
-                   \x20 Tabs { TabPage(\"One\") { Text(\"a\") } }\n\
-                   }\n";
+        let src = "page S(path: \"/\") {\n  state on = false\n  Switch(bind: on, label: \"T\")\n  Checkbox(bind: on, label: \"A\")\n  Modal(title: \"H\", visible: on) { Text(\"b\") }\n  Dropdown(label: \"M\") { Text(\"i\") }\n  Tabs { Tabs.Page(\"One\") { Text(\"a\") } }\n}\n";
         let p = program(src);
         let map = build_node_map(&p);
         let mut jsgen = JsCodegen::new();
@@ -433,8 +414,7 @@ mod tests {
     #[test]
     fn duplicate_names_across_kinds_get_distinct_ids() {
         // A Page and a Component may legally share a name; their ids must not collapse.
-        let src = "Component Profile (name: String) { Text(name, bold) }\n\
-                   Page Profile (path: \"/me\") { Container { Heading(\"Me\", h1) } }\n";
+        let src = "component Profile(name: String) { Text(name).bold }\npage Profile(path: \"/me\") { Container { Heading(\"Me\").h1 } }\n";
         let p = program(src);
         let map = build_node_map(&p);
         assert!(
@@ -452,13 +432,7 @@ mod tests {
     fn app_shell_router_wrapper_is_stamped() {
         // Regression: the layout element wrapping Router is a real DOM root and
         // was previously left unstamped in both generators.
-        let src = "Page Home (path: \"/\") { Text(\"hi\") }\n\
-                   App {\n\
-                   \x20 Row {\n\
-                   \x20   Container { Text(\"nav\") }\n\
-                   \x20   Router { Route(path: \"/\", page: Home) }\n\
-                   \x20 }\n\
-                   }\n";
+        let src = "page Home(path: \"/\") { Text(\"hi\") }\napp {\n  Row {\n    Container { Text(\"nav\") }\n    Router\n  }\n}\n";
         let p = program(src);
         let map = build_node_map(&p);
         let row_id = map
@@ -509,14 +483,7 @@ mod tests {
     fn compound_widget_children_are_stamped_in_js() {
         // Regression: special emitters hand-build sub-element DOM; each of these
         // user-written source elements must still carry its node id in JS.
-        let src = "Page P (path: \"/\") {\n\
-                   \x20 state on = false\n\
-                   \x20 Sidebar { Sidebar.Header { Text(\"B\") } Sidebar.Item(to: \"/a\") { Text(\"A\") } }\n\
-                   \x20 Tabs { TabPage(\"One\") { Text(\"a\") } }\n\
-                   \x20 Breadcrumb { Breadcrumb.Item(to: \"/x\") { Text(\"X\") } }\n\
-                   \x20 Carousel { Carousel.Slide { Text(\"s\") } }\n\
-                   \x20 Modal(title: \"H\", visible: on) { Text(\"b\") Modal.Footer { Button(\"OK\") } }\n\
-                   }\n";
+        let src = "page P(path: \"/\") {\n  state on = false\n  Sidebar { Sidebar.Header { Text(\"B\") } Sidebar.Item(to: \"/a\") { Text(\"A\") } }\n  Tabs { Tabs.Page(\"One\") { Text(\"a\") } }\n  Breadcrumb { Breadcrumb.Item(to: \"/x\") { Text(\"X\") } }\n  Carousel { Carousel.Slide { Text(\"s\") } }\n  Modal(title: \"H\", visible: on) { Text(\"b\") Modal.Footer { Button(\"OK\") } }\n}\n";
         let p = program(src);
         let map = build_node_map(&p);
         let mut jsgen = JsCodegen::new();
@@ -526,7 +493,7 @@ mod tests {
         for needle in [
             "Sidebar.Header",
             "Sidebar.Item",
-            "TabPage",
+            "Tabs.Page",
             "Breadcrumb.Item",
             "Carousel.Slide",
             "Modal.Footer",

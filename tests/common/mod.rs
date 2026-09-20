@@ -68,7 +68,7 @@ impl Elem {
 
 /// Wrap a body snippet in a minimal page.
 pub fn page(body: &str) -> String {
-    format!("Page P (path: \"/\", title: \"T\") {{\n{}\n}}\n", body)
+    format!("page P(path: \"/\", title: \"T\") {{\n{}\n}}\n", body)
 }
 
 /// The same source in the new grammar, as `wf migrate` writes it. A source
@@ -496,8 +496,36 @@ pub const VOID_ELEMENTS: &[&str] = &[
 ];
 
 /// Every modifier the parser accepts, from the single-source vocabulary table.
+/// Every class word a flag or case of the registry can produce: what the
+/// stylesheet's `.wf-x--word` rules must be keyed on to be reachable.
 pub fn all_modifiers() -> Vec<&'static str> {
-    webfluent::parser::MODIFIER_KEYWORDS.to_vec()
+    use webfluent::registry::{self, Legacy, PropType};
+    let mut words = Vec::new();
+    for sig in registry::COMPONENTS {
+        for prop in sig.all_props() {
+            match prop.ty {
+                PropType::Enum(cases) => {
+                    words.extend(
+                        cases
+                            .iter()
+                            .filter(|c| !c.legacy.is_empty())
+                            .map(|c| c.legacy),
+                    );
+                }
+                _ => {
+                    if let Legacy::Modifier(w) = prop.legacy {
+                        words.push(w);
+                    }
+                }
+            }
+        }
+    }
+    // Words the original grammar had that the registry retired, whose
+    // rules the stylesheet still carries for a project's own `class:`.
+    words.extend(registry::RETIRED_MODIFIERS.iter().copied());
+    words.sort();
+    words.dedup();
+    words
 }
 
 /// The full stylesheet a default build ships.

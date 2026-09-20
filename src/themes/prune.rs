@@ -262,7 +262,7 @@ mod tests {
 
     #[test]
     fn a_page_of_text_keeps_the_frame_and_drops_the_widgets() {
-        let p = program(r#"Page P (path: "/") { Container { Text("hi") } }"#);
+        let p = program(r#"page P(path: "/") { Container { Text("hi") } }"#);
         let css = prune_css(crate::themes::component_css(), &Usage::of(&p));
         assert!(css.contains(".wf-container"), "layout stays");
         assert!(css.contains(".wf-text"), "typography stays");
@@ -287,7 +287,7 @@ mod tests {
     #[test]
     fn a_used_component_keeps_its_section_and_what_it_borrows() {
         let p = program(
-            r#"Page P (path: "/") { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } } }"#,
+            r#"page P(path: "/") { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } } }"#,
         );
         let css = prune_css(crate::themes::component_css(), &Usage::of(&p));
         assert!(css.contains(".wf-sidebar"));
@@ -298,7 +298,7 @@ mod tests {
 
     #[test]
     fn an_animation_modifier_keeps_the_keyframes() {
-        let p = program(r#"Page P (path: "/") { Card(fadeIn) { Text("x") } }"#);
+        let p = program(r#"page P(path: "/") { Card.fadeIn { Text("x") } }"#);
         let css = prune_css(crate::themes::component_css(), &Usage::of(&p));
         assert!(css.contains("@keyframes"), "{css}");
         assert!(css.contains(".wf-card"));
@@ -306,7 +306,7 @@ mod tests {
 
     #[test]
     fn the_structural_sheet_prunes_the_same_way() {
-        let p = program(r#"Page P (path: "/") { Button("x") }"#);
+        let p = program(r#"page P(path: "/") { Button("x") }"#);
         let css = prune_css(crate::themes::structural_css(), &Usage::of(&p));
         assert!(css.contains(".wf-btn"));
         assert!(!css.contains(".wf-tabs"), "{css}");

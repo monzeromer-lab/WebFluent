@@ -12,38 +12,38 @@ use common::*;
 /// document-level checks below run against realistic output rather than a single
 /// element.
 const KITCHEN_SINK: &str = r#"
-Page P (path: "/", title: "T") {
+page P(path: "/", title: "T") {
     Container {
         Navbar {
             Text("Brand")
             Link("Home", to: "/")
         }
-        Heading("Title", h1)
-        Text("Body copy", muted)
+        Heading("Title").h1
+        Text("Body copy").muted
         Row {
-            Card(elevated) {
-                Heading("Card", h3)
+            Card.elevated {
+                Heading("Card").h3
                 Text("Inside")
-                Button("Go", primary)
+                Button("Go").primary
             }
-            Card(outlined) {
+            Card.outlined {
                 Image(src: "/a.png", alt: "a")
                 Divider
-                Badge("New", success)
+                Badge("New").success
             }
         }
         Table {
-            Thead { Trow { Tcell("H") } }
-            Tbody { Trow { Tcell("C") } }
+            Table.Head { Table.Row { Table.Cell("H") } }
+            Table.Body { Table.Row { Table.Cell("C") } }
         }
         List { Text("one") }
         Form {
-            Input(email, placeholder: "you@example.com")
-            Select { Option("a") Option("b") }
+            Input(placeholder: "you@example.com").email
+            Select { Select.Option("a") Select.Option("b") }
             Checkbox(label: "Agree")
-            Button("Submit", primary)
+            Button("Submit").primary
         }
-        Alert("Careful", warning)
+        Alert("Careful").warning
         Spacer
         Blockquote("Quoted")
         Code("let x = 1")

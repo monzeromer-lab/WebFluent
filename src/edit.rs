@@ -236,10 +236,19 @@ fn compute_patches(
             }
         }
         EditOp::RemoveModifier { modifier, .. } => {
+            // In the new grammar a word of the original one names the same flag.
+            let wanted = if v2 {
+                match flag_spelling(ui, modifier) {
+                    Spelling::Flag(f) => f,
+                    Spelling::Named(_) => modifier.clone(),
+                }
+            } else {
+                modifier.clone()
+            };
             let i = ui
                 .modifiers
                 .iter()
-                .position(|m| m == modifier)
+                .position(|m| *m == wanted)
                 .ok_or_else(|| {
                     edit_err(format!(
                         "remove_modifier: node has no modifier '{}'",
@@ -639,9 +648,9 @@ mod tests {
             .unwrap_or_else(|| panic!("no node starting with {:?}", needle))
     }
 
-    const SRC: &str = "Page Home (path: \"/\") {\n\
+    const SRC: &str = "page Home(path: \"/\") {\n\
                        \x20 Container {\n\
-                       \x20   Heading(\"Welcome\", h1)\n\
+                       \x20   Heading(\"Welcome\").h1\n\
                        \x20   Image(src: \"/a.png\", alt: \"a\")\n\
                        \x20   Text(\"Body\")\n\
                        \x20 }\n\
@@ -658,7 +667,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Heading(\"Goodbye\", h1)"));
+        assert!(out.contains("Heading(\"Goodbye\").h1"), "{out}");
         assert!(!out.contains("Welcome"));
         // Everything except the one replaced token is byte-identical.
         assert_eq!(out.replace("Goodbye", "Welcome"), SRC);
@@ -694,7 +703,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Heading(\"Hi\", h1)"));
+        assert!(out.contains("Heading(\"Hi\").h1"), "{out}");
     }
 
     #[test]
@@ -704,11 +713,11 @@ mod tests {
             SRC,
             &[EditOp::ReplaceNode {
                 node: id,
-                wf: "Button(\"Click\", primary)".into(),
+                wf: "Button(\"Click\").primary".into(),
             }],
         )
         .unwrap();
-        assert!(out.contains("Button(\"Click\", primary)"));
+        assert!(out.contains("Button(\"Click\").primary"));
         assert!(!out.contains("Text(\"Body\")"));
         parse_program(&out).unwrap();
     }
@@ -779,14 +788,14 @@ mod tests {
             ],
         )
         .unwrap();
-        assert!(out.contains("Heading(\"Hi\", h1)"));
+        assert!(out.contains("Heading(\"Hi\").h1"), "{out}");
         assert!(!out.contains("Text(\"Body\")"));
         parse_program(&out).unwrap();
     }
 
     #[test]
     fn add_modifier_appends_into_parens() {
-        let src = "Page P (path: \"/\") {\n  Button(\"Go\", primary)\n}\n";
+        let src = "page P(path: \"/\") {\n  Button(\"Go\").primary\n}\n";
         let id = id_of(src, "Button");
         let out = apply_edits(
             src,
@@ -796,13 +805,13 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Button(\"Go\", primary, large)"));
+        assert!(out.contains("Button(\"Go\").primary.lg"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
     #[test]
     fn add_modifier_is_idempotent() {
-        let src = "Page P (path: \"/\") {\n  Button(\"Go\", primary)\n}\n";
+        let src = "page P(path: \"/\") {\n  Button(\"Go\").primary\n}\n";
         let id = id_of(src, "Button");
         let out = apply_edits(
             src,
@@ -817,23 +826,23 @@ mod tests {
 
     #[test]
     fn add_modifier_creates_parens_when_none() {
-        let src = "Page P (path: \"/\") {\n  Divider\n}\n";
-        let id = id_of(src, "Divider");
+        let src = "page P(path: \"/\") {\n  Spacer\n}\n";
+        let id = id_of(src, "Spacer");
         let out = apply_edits(
             src,
             &[EditOp::AddModifier {
                 node: id,
-                modifier: "large".into(),
+                modifier: "lg".into(),
             }],
         )
         .unwrap();
-        assert!(out.contains("Divider(large)"));
+        assert!(out.contains("Spacer.lg"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
     #[test]
     fn remove_modifier_handles_comma_middle_and_last() {
-        let src = "Page P (path: \"/\") {\n  Button(\"Go\", primary, large)\n}\n";
+        let src = "page P(path: \"/\") {\n  Button(\"Go\").primary.lg\n}\n";
         // middle/first modifier
         let out = apply_edits(
             src,
@@ -843,7 +852,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Button(\"Go\", large)"), "got: {}", out);
+        assert!(out.contains("Button(\"Go\").lg"), "got: {}", out);
         parse_program(&out).unwrap();
         // last modifier
         let out2 = apply_edits(
@@ -854,17 +863,12 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out2.contains("Button(\"Go\", primary)"), "got: {}", out2);
+        assert!(out2.contains("Button(\"Go\").primary"), "got: {}", out2);
         parse_program(&out2).unwrap();
     }
 
-    const STYLE_SRC: &str = "Page P (path: \"/\") {\n\
-                             \x20 Card {\n\
-                             \x20   style {\n\
-                             \x20     color: red\n\
-                             \x20   }\n\
-                             \x20 }\n\
-                             }\n";
+    const STYLE_SRC: &str =
+        "page P(path: \"/\") {\n  Card {\n    style {\n      color: red\n    }\n  }\n}\n";
 
     #[test]
     fn set_style_changes_existing_value() {
@@ -896,14 +900,14 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("color: red"));
-        assert!(out.contains("padding: \"10px\""));
+        assert!(out.contains("color: red"), "got: {out}");
+        assert!(out.contains("padding: 10px"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
     #[test]
     fn set_style_creates_block_when_none() {
-        let src = "Page P (path: \"/\") {\n  Text(\"Hi\")\n}\n";
+        let src = "page P(path: \"/\") {\n  Text(\"Hi\")\n}\n";
         let id = id_of(src, "Text");
         let out = apply_edits(
             src,
@@ -921,14 +925,7 @@ mod tests {
 
     #[test]
     fn remove_style_deletes_property() {
-        let src = "Page P (path: \"/\") {\n\
-                   \x20 Card {\n\
-                   \x20   style {\n\
-                   \x20     color: red\n\
-                   \x20     padding: \"10px\"\n\
-                   \x20   }\n\
-                   \x20 }\n\
-                   }\n";
+        let src = "page P(path: \"/\") {\n  Card {\n    style {\n      color: red\n      padding: 10px\n    }\n  }\n}\n";
         let id = id_of(src, "Card");
         let out = apply_edits(
             src,
@@ -939,14 +936,14 @@ mod tests {
         )
         .unwrap();
         assert!(!out.contains("color: red"));
-        assert!(out.contains("padding: \"10px\""));
+        assert!(out.contains("padding: 10px"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
     #[test]
     fn insert_child_at_index() {
         let src =
-            "Page P (path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n  }\n}\n";
+            "page P(path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n  }\n}\n";
         let id = id_of(src, "Container");
         let out = apply_edits(
             src,
@@ -966,13 +963,7 @@ mod tests {
 
     #[test]
     fn move_node_relocates_element() {
-        let src = "Page P (path: \"/\") {\n\
-                   \x20 Row {\n\
-                   \x20   Text(\"item\")\n\
-                   \x20 }\n\
-                   \x20 Column {\n\
-                   \x20 }\n\
-                   }\n";
+        let src = "page P(path: \"/\") {\n  Row {\n    Text(\"item\")\n  }\n  Column {\n  }\n}\n";
         let text_id = id_of(src, "Text(\"item\")");
         let col_id = id_of(src, "Column");
         let out = apply_edits(
@@ -1012,7 +1003,7 @@ mod tests {
 
     #[test]
     fn multibyte_set_text_no_panic() {
-        let src = "Page P (path: \"/\") {\n  Text(\"café ☕\")\n}\n";
+        let src = "page P(path: \"/\") {\n  Text(\"café ☕\")\n}\n";
         let id = id_of(src, "Text");
         let out = apply_edits(
             src,
@@ -1028,7 +1019,7 @@ mod tests {
 
     #[test]
     fn multibyte_remove_sibling_no_panic() {
-        let src = "Page P (path: \"/\") {\n  Text(\"café ☕ 日本語\")\n  Button(\"x\")\n}\n";
+        let src = "page P(path: \"/\") {\n  Text(\"café ☕ 日本語\")\n  Button(\"x\")\n}\n";
         let id = id_of(src, "Button");
         let out = apply_edits(src, &[EditOp::RemoveNode { node: id }]).unwrap();
         assert!(out.contains("café ☕ 日本語"));
@@ -1038,7 +1029,7 @@ mod tests {
 
     #[test]
     fn multibyte_add_modifier_positions_correctly() {
-        let src = "Page P (path: \"/\") {\n  Button(\"héllo café 🎉\", primary)\n}\n";
+        let src = "page P(path: \"/\") {\n  Button(\"héllo café 🎉\").primary\n}\n";
         let id = id_of(src, "Button");
         let out = apply_edits(
             src,
@@ -1049,7 +1040,7 @@ mod tests {
         )
         .unwrap();
         assert!(
-            out.contains("Button(\"héllo café 🎉\", primary, large)"),
+            out.contains("Button(\"héllo café 🎉\").primary.lg"),
             "got: {}",
             out
         );
@@ -1058,7 +1049,7 @@ mod tests {
 
     #[test]
     fn add_modifier_into_empty_parens() {
-        let src = "Page P (path: \"/\") {\n  Button()\n}\n";
+        let src = "page P(path: \"/\") {\n  Button\n}\n";
         let id = id_of(src, "Button");
         let out = apply_edits(
             src,
@@ -1068,13 +1059,13 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Button(large)"), "got: {}", out);
+        assert!(out.contains("Button.lg"), "got: {}", out);
         parse_program(&out).unwrap();
     }
 
     #[test]
     fn add_modifier_after_named_arg() {
-        let src = "Page P (path: \"/\") {\n  Image(src: \"/a.png\")\n}\n";
+        let src = "page P(path: \"/\") {\n  Image(src: \"/a.png\")\n}\n";
         let id = id_of(src, "Image");
         let out = apply_edits(
             src,
@@ -1085,7 +1076,7 @@ mod tests {
         )
         .unwrap();
         assert!(
-            out.contains("Image(src: \"/a.png\", rounded)"),
+            out.contains("Image(src: \"/a.png\").rounded"),
             "got: {}",
             out
         );
@@ -1094,7 +1085,7 @@ mod tests {
 
     #[test]
     fn remove_only_modifier_stays_valid() {
-        let src = "Page P (path: \"/\") {\n  Button(primary)\n}\n";
+        let src = "page P(path: \"/\") {\n  Button.primary\n}\n";
         let id = id_of(src, "Button");
         let out = apply_edits(
             src,
@@ -1111,8 +1102,8 @@ mod tests {
     #[test]
     fn append_child_into_single_line_and_empty_body() {
         for src in [
-            "Page P (path: \"/\") {\n  Container { Text(\"a\") }\n}\n",
-            "Page P (path: \"/\") {\n  Container {}\n}\n",
+            "page P(path: \"/\") {\n  Container { Text(\"a\") }\n}\n",
+            "page P(path: \"/\") {\n  Container {}\n}\n",
         ] {
             let id = id_of(src, "Container");
             let out = apply_edits(
@@ -1130,7 +1121,7 @@ mod tests {
 
     #[test]
     fn insert_child_index_zero_into_empty() {
-        let src = "Page P (path: \"/\") {\n  Container {}\n}\n";
+        let src = "page P(path: \"/\") {\n  Container {}\n}\n";
         let id = id_of(src, "Container");
         let out = apply_edits(
             src,
@@ -1147,7 +1138,7 @@ mod tests {
 
     #[test]
     fn set_arg_positional_skips_named() {
-        let src = "Page P (path: \"/\") {\n  Text(\"hi\", weight: bold)\n}\n";
+        let src = "page P(path: \"/\") {\n  Text(\"hi\", weight: bold)\n}\n";
         let id = id_of(src, "Text");
         let out = apply_edits(
             src,
@@ -1164,7 +1155,7 @@ mod tests {
 
     #[test]
     fn overlapping_edits_on_same_node_rejected() {
-        let src = "Page P (path: \"/\") {\n  Heading(\"Hello\", h1)\n}\n";
+        let src = "page P(path: \"/\") {\n  Heading(\"Hello\").h1\n}\n";
         let id = id_of(src, "Heading");
         // Both target the first positional arg → overlap → must reject (not corrupt).
         let res = apply_edits(
@@ -1186,7 +1177,7 @@ mod tests {
 
     #[test]
     fn move_node_within_same_parent_no_duplication_or_loss() {
-        let src = "Page P (path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n    Text(\"c\")\n  }\n}\n";
+        let src = "page P(path: \"/\") {\n  Container {\n    Text(\"a\")\n    Text(\"b\")\n    Text(\"c\")\n  }\n}\n";
         let a = id_of(src, "Text(\"a\")");
         let container = id_of(src, "Container");
         let out = apply_edits(
@@ -1212,7 +1203,7 @@ mod tests {
 
     #[test]
     fn move_node_into_own_subtree_never_corrupts() {
-        let src = "Page P (path: \"/\") {\n  Container {\n    Text(\"a\")\n  }\n}\n";
+        let src = "page P(path: \"/\") {\n  Container {\n    Text(\"a\")\n  }\n}\n";
         let container = id_of(src, "Container");
         let text = id_of(src, "Text");
         // Moving a node into its own descendant must never produce invalid output:

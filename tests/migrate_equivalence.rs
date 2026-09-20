@@ -1,12 +1,11 @@
-//! `wf migrate` is a change of spelling and nothing else: every project of
-//! the corpus under `tests/migrate/corpus` — the fixtures, the documentation
-//! site and each `wf init` template as they were written in the original
-//! grammar — must build to byte-identical output before and after it.
-//!
-//! This is the gate for the new parser, the resolver and the migrator at
-//! once: a difference in any of them shows up here as a diff in a built
-//! file. The corpus is frozen: the live projects have moved to the new
-//! grammar, and these copies are what the migrator is still measured on.
+//! `wf migrate` is a change of spelling and nothing else. The corpus under
+//! `tests/migrate/corpus` holds every project of the repository — the
+//! fixtures, the documentation site, each `wf init` template — as it was
+//! written in the grammar of WebFluent 2; `tests/migrate/expected` holds
+//! what the migration writes for each, reviewed, and proven while both
+//! grammars still built to have built byte for byte what the original
+//! did. The migration must still write exactly that, every result must
+//! build, and a second migration must have nothing to say.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -103,17 +102,39 @@ fn first_word_is_lowercase(path: &Path) {
     );
 }
 
-fn assert_same_build(name: &str, project: &Path) {
+fn assert_migrates_as_expected(name: &str, project: &Path) {
     let root = repo_root().join("target/migrate").join(name);
     let _ = std::fs::remove_dir_all(&root);
     copy_tree(project, &root);
-    let before = build(&root);
     let notes = migrate(&root);
-    for entry in walkdir(&root.join("src")) {
-        if entry.extension().is_some_and(|e| e == "wf") {
-            first_word_is_lowercase(&entry);
+    let expected = repo_root()
+        .join("tests/migrate/expected")
+        .join(name)
+        .join("src");
+    let mut diffs = Vec::new();
+    for path in walkdir(&root.join("src")) {
+        if !path.extension().is_some_and(|e| e == "wf") {
+            continue;
+        }
+        first_word_is_lowercase(&path);
+        let rel = path.strip_prefix(root.join("src")).unwrap();
+        let got = std::fs::read(&path).unwrap();
+        match std::fs::read(expected.join(rel)) {
+            Ok(want) if want == got => {}
+            Ok(want) => diffs.push(format!(
+                "{} differs from the expected migration\n--- expected ---\n{}\n--- got ---\n{}",
+                rel.display(),
+                excerpt(&want, &got),
+                excerpt(&got, &want)
+            )),
+            Err(_) => diffs.push(format!("{} has no expected migration", rel.display())),
         }
     }
+    assert!(
+        diffs.is_empty(),
+        "{name}: the migration changed\n{}\nmigration output:\n{notes}",
+        diffs.join("\n")
+    );
     // A migrated project is done: a second pass has nothing to say.
     let again = wf()
         .arg("migrate")
@@ -126,33 +147,8 @@ fn assert_same_build(name: &str, project: &Path) {
         again.contains("0 file(s) would change"),
         "{name}: a second migration would change the project again:\n{again}"
     );
-    let after = build(&root);
-    let mut diffs = Vec::new();
-    for (file, bytes) in &before {
-        // A compressed copy differs exactly when its source does.
-        if file.ends_with(".gz") {
-            continue;
-        }
-        match after.get(file) {
-            Some(b) if b == bytes => {}
-            Some(b) => diffs.push(format!(
-                "{file} differs\n--- before ---\n{}\n--- after ---\n{}",
-                excerpt(bytes, b),
-                excerpt(b, bytes)
-            )),
-            None => diffs.push(format!("{file} is missing after migration")),
-        }
-    }
-    for file in after.keys() {
-        if !before.contains_key(file) && !file.ends_with(".gz") {
-            diffs.push(format!("{file} appeared after migration"));
-        }
-    }
-    assert!(
-        diffs.is_empty(),
-        "{name}: the migrated project builds differently\n{}\nmigration output:\n{notes}",
-        diffs.join("\n")
-    );
+    // And it builds.
+    build(&root);
 }
 
 fn walkdir(dir: &Path) -> Vec<PathBuf> {
@@ -198,6 +194,6 @@ fn every_project_of_the_corpus_builds_the_same_after_migration() {
     names.sort();
     assert!(names.len() >= 12, "{names:?}");
     for name in names {
-        assert_same_build(&name, &corpus.join(&name));
+        assert_migrates_as_expected(&name, &corpus.join(&name));
     }
 }

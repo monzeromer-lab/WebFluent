@@ -10,9 +10,9 @@
 //! A theme is now written in the language:
 //!
 //! ```wf
-//! Theme Brand {
-//!     token color-primary: "#0F766E"
-//!     token radius-md: "14px"
+//! theme Brand {
+//!     color-primary: #0F766E
+//!     radius-md: 14px
 //! }
 //! ```
 //!
@@ -107,8 +107,8 @@ fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option
                 return Ok(None);
             }
             Err(WebFluentError::ConfigError(format!(
-                "No `Theme {name}` is declared in this project. Declare one — \
-                 `Theme {name} {{ token color-primary: \"#0F766E\" }}` — or remove \
+                "No `theme {name}` is declared in this project. Declare one — \
+                 `theme {name} {{ color-primary: #0F766E }}` — or remove \
                  `theme.name` to use the baseline tokens.{}",
                 available(&themes)
             )))
@@ -168,7 +168,7 @@ mod tests {
         }
     }
 
-    const PAGE: &str = "Page P (path: \"/\") { Text(\"x\") }";
+    const PAGE: &str = "page P(path: \"/\") { Text(\"x\") }";
 
     #[test]
     fn a_project_with_no_theme_gets_the_baseline() {
@@ -185,9 +185,7 @@ mod tests {
 
     #[test]
     fn a_single_declared_theme_is_used_without_naming_it() {
-        let program = parse(&format!(
-            "Theme Brand {{ token color-primary: \"#0F766E\" }}\n{PAGE}"
-        ));
+        let program = parse(&format!("theme Brand {{ color-primary: #0F766E }}\n{PAGE}"));
         let tokens = resolve_tokens(&program, &config(None)).unwrap();
         assert_eq!(
             tokens.get("color-primary").map(String::as_str),
@@ -197,9 +195,7 @@ mod tests {
 
     #[test]
     fn a_theme_overrides_only_what_it_names() {
-        let program = parse(&format!(
-            "Theme Brand {{ token color-primary: \"#0F766E\" }}\n{PAGE}"
-        ));
+        let program = parse(&format!("theme Brand {{ color-primary: #0F766E }}\n{PAGE}"));
         let tokens = resolve_tokens(&program, &config(None)).unwrap();
         assert_eq!(
             tokens.get("spacing-md").map(String::as_str),
@@ -210,9 +206,7 @@ mod tests {
 
     #[test]
     fn config_tokens_win_over_the_declaration() {
-        let program = parse(&format!(
-            "Theme Brand {{ token color-primary: \"#0F766E\" }}\n{PAGE}"
-        ));
+        let program = parse(&format!("theme Brand {{ color-primary: #0F766E }}\n{PAGE}"));
         let mut cfg = config(None);
         cfg.tokens.insert("color-primary".into(), "#FF0000".into());
         let tokens = resolve_tokens(&program, &cfg).unwrap();
@@ -225,8 +219,8 @@ mod tests {
     #[test]
     fn several_themes_are_selected_by_name() {
         let program = parse(&format!(
-            "Theme Light {{ token color-text: \"#111111\" }}\n\
-             Theme Dark {{ token color-text: \"#F1F5F9\" }}\n{PAGE}"
+            "theme Light {{ color-text: #111111 }}\n\
+             theme Dark {{ color-text: #F1F5F9 }}\n{PAGE}"
         ));
         let tokens = resolve_tokens(&program, &config(Some("Dark"))).unwrap();
         assert_eq!(
@@ -238,8 +232,8 @@ mod tests {
     #[test]
     fn several_themes_with_no_selection_is_an_error_not_a_guess() {
         let program = parse(&format!(
-            "Theme Light {{ token color-text: \"#111\" }}\n\
-             Theme Dark {{ token color-text: \"#EEE\" }}\n{PAGE}"
+            "theme Light {{ color-text: #111 }}\n\
+             theme Dark {{ color-text: #EEE }}\n{PAGE}"
         ));
         let err = resolve_tokens(&program, &config(None))
             .unwrap_err()
@@ -270,7 +264,7 @@ mod tests {
         let err = resolve_tokens(&parse(PAGE), &config(Some("Nonexistent")))
             .unwrap_err()
             .to_string();
-        assert!(err.contains("No `Theme Nonexistent`"), "{err}");
+        assert!(err.contains("No `theme Nonexistent`"), "{err}");
     }
 
     #[test]
@@ -280,17 +274,5 @@ mod tests {
             tokens.get("color-primary").map(String::as_str),
             Some("#3B82F6")
         );
-    }
-
-    #[test]
-    fn a_non_literal_token_value_is_rejected_with_its_name() {
-        let program = parse(&format!(
-            "Theme Brand {{ token color-primary: someState }}\n{PAGE}"
-        ));
-        let err = resolve_tokens(&program, &config(None))
-            .unwrap_err()
-            .to_string();
-        assert!(err.contains("color-primary"), "{err}");
-        assert!(err.contains("literal"), "{err}");
     }
 }

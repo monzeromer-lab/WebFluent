@@ -1,0 +1,25 @@
+app {
+    use AuthStore
+
+    Navbar {
+        Navbar.Brand {
+            Text("spa").heading
+        }
+        Navbar.Links {
+            Link(to: "/") { Text("Dashboard") }
+            Link(to: "/tasks") { Text("Tasks") }
+            Link(to: "/settings") { Text("Settings") }
+        }
+        Navbar.Actions {
+            if AuthStore.isLoggedIn {
+                Avatar(initials: "U").primary
+                Link(to: "/profile") { Text("Profile") }
+                Button("Logout").sm { on click { AuthStore.logout() } }
+            } else {
+                Button("Login").primary.sm { on click { AuthStore.login("user@demo.com", "demo") } }
+            }
+        }
+    }
+
+    Router
+}

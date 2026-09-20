@@ -1,0 +1,75 @@
+page Invoice(path: "/", description: "Invoice INV-0042.", title: "Invoice INV-0042") {
+    Document(page_size: "A4") {
+        Header {
+            Text("Ledger Ltd — 14 Wharf Road, London").muted.sm.right
+        }
+
+        Footer {
+            Text("Payable within 30 days. Late payment attracts statutory interest.").muted.sm.center
+        }
+
+        Section {
+            Heading("Invoice INV-0042").h1
+
+            Row {
+                Column(span: 6) {
+                    Text("Billed to").bold
+                    Text("Beit Qahwa Roasters")
+                    Text("3 Mill Lane, Bristol")
+                }
+                Column(span: 6) {
+                    Text("Issued").bold
+                    Text("4 August 2026")
+                    Text("Due 3 September 2026")
+                }
+            }
+
+            Divider
+
+            Heading("Work performed").h2
+
+            Table {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("Description")
+                        Table.Cell("Hours")
+                        Table.Cell("Rate")
+                        Table.Cell("Amount")
+                    }
+                }
+                Table.Body {
+                    Table.Row {
+                        Table.Cell("Storefront rebuild")
+                        Table.Cell("32")
+                        Table.Cell("£85")
+                        Table.Cell("£2,720")
+                    }
+                    Table.Row {
+                        Table.Cell("Payment integration")
+                        Table.Cell("12")
+                        Table.Cell("£85")
+                        Table.Cell("£1,020")
+                    }
+                    Table.Row {
+                        Table.Cell("Handover and training")
+                        Table.Cell("4")
+                        Table.Cell("£85")
+                        Table.Cell("£340")
+                    }
+                }
+            }
+
+            Spacer
+
+            Text("Total due: £4,080").bold.right
+
+            PageBreak
+
+            Heading("Terms").h2
+            Paragraph {
+                Text("Payment by bank transfer to the account named on the covering email. Reference the invoice number so it reconciles without a phone call.")
+            }
+            Blockquote("Thank you for the work — it was a good one.")
+        }
+    }
+}

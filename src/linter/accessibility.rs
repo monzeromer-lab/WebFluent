@@ -898,9 +898,9 @@ mod naming_tests {
 
     #[test]
     fn aria_labelledby_names_an_input_and_a_switch() {
-        let src = r#"Page P (path: "/", title: "t", description: "d") {
-            Heading("h", h1)
-            Input(text, id: "n", aria-labelledby: "n-label")
+        let src = r#"page P(path: "/", title: "t", description: "d") {
+            Heading("h").h1
+            Input(id: "n", aria-labelledby: "n-label").text
             Switch(bind: on, aria-label: "Reuse the build cache")
         }"#;
         let r = rules(src);
@@ -911,11 +911,11 @@ mod naming_tests {
     #[test]
     fn a_pages_outline_reads_through_the_components_it_calls() {
         let src = r#"
-            Component Opener (title: String) { Heading(title, h2) }
-            Page P (path: "/", title: "t", description: "d") {
-                Heading("Page", h1)
+            component Opener(title: String) { Heading(title).h2 }
+            page P(path: "/", title: "t", description: "d") {
+                Heading("Page").h1
                 Opener(title: "Section")
-                Heading("Card", h3)
+                Heading("Card").h3
             }"#;
         let r = rules(src);
         assert!(
@@ -927,9 +927,9 @@ mod naming_tests {
     #[test]
     fn a_skipped_level_inside_a_called_component_is_the_pages_problem() {
         let src = r#"
-            Component Tile (title: String) { Heading(title, h4) }
-            Page P (path: "/", title: "t", description: "d") {
-                Heading("Page", h1)
+            component Tile(title: String) { Heading(title).h4 }
+            page P(path: "/", title: "t", description: "d") {
+                Heading("Page").h1
                 Tile(title: "x")
             }"#;
         let r = rules(src);
@@ -938,7 +938,7 @@ mod naming_tests {
 
     #[test]
     fn an_unnamed_input_still_warns() {
-        let src = r#"Page P (path: "/", title: "t", description: "d") { Heading("h", h1) Input(text, id: "n") }"#;
+        let src = r#"page P(path: "/", title: "t", description: "d") { Heading("h").h1 Input(id: "n").text }"#;
         assert!(rules(src).contains(&"A03".to_string()));
     }
 }
@@ -955,7 +955,7 @@ mod structure_tests {
 
     #[test]
     fn a_tablist_of_plain_buttons_is_reported_once_on_its_line() {
-        let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Row(role: \"tablist\") {\n        Button(\"One\")\n        Button(\"Two\")\n    }\n}\n";
+        let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Row(role: \"tablist\") {\n        Button(\"One\")\n        Button(\"Two\")\n    }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
             .filter(|w| w.rule_id == "A14")
@@ -973,9 +973,9 @@ mod structure_tests {
 
     #[test]
     fn a_tablist_of_tabs_is_fine_and_a_component_is_judged_by_its_root() {
-        let src = "Component Tab (label: String) {\n    Button(label, role: \"tab\")\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Row(role: \"tablist\") {\n        Button(\"One\", role: \"tab\")\n        Tab(label: \"Two\")\n    }\n}\n";
+        let src = "component Tab(label: String) {\n    Button(label, role: \"tab\")\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Row(role: \"tablist\") {\n        Button(\"One\", role: \"tab\")\n        Tab(label: \"Two\")\n    }\n}\n";
         assert!(warnings(src).iter().all(|w| w.rule_id != "A14"));
-        let bare = "Component Chip (label: String) {\n    Button(label)\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Row(role: \"tablist\") {\n        Chip(label: \"Two\")\n    }\n}\n";
+        let bare = "component Chip(label: String) {\n    Button(label)\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Row(role: \"tablist\") {\n        Chip(label: \"Two\")\n    }\n}\n";
         assert!(
             warnings(bare).iter().any(|w| w.rule_id == "A14"),
             "a component whose root is a plain button is a plain button"
@@ -984,7 +984,7 @@ mod structure_tests {
 
     #[test]
     fn a_component_root_whose_role_is_a_prop_has_the_role_the_call_gives_it() {
-        let src = "Component Entry (label: String, role: String = \"menuitem\") {\n    Button(label, role: role)\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Stack(role: \"menu\") {\n        Entry(label: \"Open\")\n        Entry(label: \"Pick\", role: \"menuitemradio\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Wrong\", role: \"tab\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Unknown\", role: someRole)\n    }\n}\n";
+        let src = "component Entry(label: String, role: String = \"menuitem\") {\n    Button(label, role: role)\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Stack(role: \"menu\") {\n        Entry(label: \"Open\")\n        Entry(label: \"Pick\", role: \"menuitemradio\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Wrong\", role: \"tab\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Unknown\", role: someRole)\n    }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
             .filter(|w| w.rule_id == "A14")
@@ -1000,7 +1000,7 @@ mod structure_tests {
 
     #[test]
     fn an_aria_label_that_hides_the_visible_text_is_reported() {
-        let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Button(\"Save\", aria-label: \"Submit the form\")\n    Button(\"Delete\", aria-label: \"Delete the draft\")\n    Link(to: \"/\", aria-label: \"Go home\") { Text(\"Home\") }\n}\n";
+        let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Button(\"Save\", aria-label: \"Submit the form\")\n    Button(\"Delete\", aria-label: \"Delete the draft\")\n    Link(to: \"/\", aria-label: \"Go home\") { Text(\"Home\") }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
             .filter(|w| w.rule_id == "A15")
@@ -1018,7 +1018,7 @@ mod structure_tests {
     fn text_a_child_or_a_component_paints_counts_as_visible() {
         // The keyboard hint a Kbd component renders from its prop is text the
         // reader sees, and an icon's name is not.
-        let src = "Component Kbd (text: String) {\n    Text(text)\n}\nPage P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Button(\"\", aria-label: \"Search, command palette\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Search, command palette, ⌘K\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Notifications\") {\n        Icon(\"bell\")\n        Kbd(text: count)\n    }\n}\n";
+        let src = "component Kbd(text: String) {\n    Text(text)\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Button(\"\", aria-label: \"Search, command palette\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Search, command palette, ⌘K\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Notifications\") {\n        Icon(\"bell\")\n        Kbd(text: count)\n    }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
             .filter(|w| w.rule_id == "A15")
@@ -1030,7 +1030,7 @@ mod structure_tests {
 
     #[test]
     fn element_rules_carry_the_element_position() {
-        let src = "Page P (path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\", h1)\n    Container {\n        Image(src: \"/a.png\")\n    }\n}\n";
+        let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Container {\n        Image(src: \"/a.png\")\n    }\n}\n";
         let a01 = warnings(src)
             .into_iter()
             .find(|w| w.rule_id == "A01")

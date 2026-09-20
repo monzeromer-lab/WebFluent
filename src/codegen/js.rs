@@ -1097,7 +1097,9 @@ impl JsCodegen {
             StatementKind::If(if_stmt) => self.emit_if_dom(if_stmt, parent),
             StatementKind::For(for_stmt) => self.emit_for_dom(for_stmt, parent),
             StatementKind::Show(show_stmt) => self.emit_show_dom(show_stmt, parent),
-            StatementKind::Fetch(fetch) => self.emit_fetch_dom(fetch, parent),
+            // The `fetch` block of the original grammar reaches only the
+            // migrator, which rewrites it as a resource and a match.
+            StatementKind::Fetch(_) => {}
             StatementKind::Resource(r) => self.emit_resource(r),
             StatementKind::Match(m) => self.emit_match_dom(m, parent),
             StatementKind::Use(_) => {} // Stores are global, no DOM output
@@ -3573,88 +3575,6 @@ impl JsCodegen {
         self.emit_line("});");
     }
 
-    fn emit_fetch_dom(&mut self, fetch: &FetchDecl, parent: &str) {
-        let url = self.emit_expr(&fetch.url);
-        let var = self.fresh_var();
-
-        // Build options
-        let mut opts = Vec::new();
-        for opt in &fetch.options {
-            let val = self.emit_expr(&opt.value);
-            opts.push(format!("{}: {}", opt.key, val));
-        }
-        let opts_str = if opts.is_empty() {
-            "null".to_string()
-        } else {
-            format!("{{ {} }}", opts.join(", "))
-        };
-
-        self.emit_line(&format!(
-            "const {} = WF.fetch({}, {}, {{",
-            var, url, opts_str
-        ));
-        self.indent += 1;
-
-        if let Some(loading) = &fetch.loading_block {
-            self.emit_line("loading: () => {");
-            self.indent += 1;
-            let l_var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                l_var
-            ));
-            for stmt in loading {
-                self.emit_statement_dom(stmt, &l_var);
-            }
-            self.emit_line(&format!("return {};", l_var));
-            self.indent -= 1;
-            self.emit_line("},");
-        }
-
-        if let Some((err_var, error_body)) = &fetch.error_block {
-            self.emit_line(&format!("error: ({}) => {{", err_var));
-            self.indent += 1;
-            // Create signal alias so _{err_var}() resolves inside the callback body
-            self.emit_line(&format!("const _{} = () => {};", err_var, err_var));
-            let e_var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                e_var
-            ));
-            for stmt in error_body {
-                self.emit_statement_dom(stmt, &e_var);
-            }
-            self.emit_line(&format!("return {};", e_var));
-            self.indent -= 1;
-            self.emit_line("},");
-        }
-
-        if let Some(success_body) = &fetch.success_block {
-            self.emit_line(&format!("success: ({}) => {{", fetch.variable));
-            self.indent += 1;
-            // Create signal alias so _{variable}() resolves inside the callback body
-            self.emit_line(&format!(
-                "const _{} = () => {};",
-                fetch.variable, fetch.variable
-            ));
-            let s_var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                s_var
-            ));
-            for stmt in success_body {
-                self.emit_statement_dom(stmt, &s_var);
-            }
-            self.emit_line(&format!("return {};", s_var));
-            self.indent -= 1;
-            self.emit_line("},");
-        }
-
-        self.indent -= 1;
-        self.emit_line("});");
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
-    }
-
     // ─── Statement (imperative, non-DOM) ─────────────
 
     fn emit_statement(&mut self, stmt: &Statement) {
@@ -3741,9 +3661,7 @@ impl JsCodegen {
                 }
                 self.emit_line("}");
             }
-            StatementKind::Fetch(fetch) => {
-                self.emit_imperative_fetch(fetch);
-            }
+            StatementKind::Fetch(_) => {}
             StatementKind::Return(expr) => {
                 if let Some(e) = expr {
                     let val = self.emit_expr(e);
@@ -3809,67 +3727,6 @@ impl JsCodegen {
             format!("async ({})", param)
         } else {
             format!("({})", param)
-        }
-    }
-
-    fn emit_imperative_fetch(&mut self, fetch: &FetchDecl) {
-        let url = self.emit_expr(&fetch.url);
-        let mut opts = Vec::new();
-        for opt in &fetch.options {
-            let val = self.emit_expr(&opt.value);
-            opts.push(format!("{}: {}", opt.key, val));
-        }
-
-        let method = fetch
-            .options
-            .iter()
-            .find_map(|o| {
-                if o.key == "method" {
-                    Some(self.emit_expr(&o.value))
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_else(|| "\"GET\"".to_string());
-
-        let body = fetch.options.iter().find_map(|o| {
-            if o.key == "body" {
-                Some(self.emit_expr(&o.value))
-            } else {
-                None
-            }
-        });
-
-        self.emit_line(&format!("fetch({}, {{", url));
-        self.indent += 1;
-        self.emit_line(&format!("method: {},", method));
-        if let Some(b) = body {
-            self.emit_line("headers: { \"Content-Type\": \"application/json\" },");
-            self.emit_line(&format!("body: JSON.stringify({}),", b));
-        }
-        self.indent -= 1;
-        self.emit_line("})");
-        self.emit_line(".then(r => r.json())");
-        self.emit_line(&format!(".then({} => {{", fetch.variable));
-        self.indent += 1;
-        if let Some(success_body) = &fetch.success_block {
-            for s in success_body {
-                self.emit_statement(s);
-            }
-        }
-        self.indent -= 1;
-        self.emit_line("})");
-
-        if let Some((err_var, error_body)) = &fetch.error_block {
-            self.emit_line(&format!(".catch({} => {{", err_var));
-            self.indent += 1;
-            for s in error_body {
-                self.emit_statement(s);
-            }
-            self.indent -= 1;
-            self.emit_line("});");
-        } else {
-            self.emit_line(".catch(e => console.error(e));");
         }
     }
 
@@ -4749,14 +4606,15 @@ mod tests {
     fn a_component_receives_its_callers_block_as_children() {
         let out = compile(
             r#"
-            Component Panel (title: String) {
-                Card { Heading(title, h3) children }
+            component Panel(title: String) {
+                Card { Heading(title).h3 children }
             }
-            Page P (path: "/") {
+            page P(path: "/") {
                 state n = 1
                 Panel(title: "Keys") { Text("count {n}") }
                 Panel(title: "Empty")
             }
+            
             "#,
         );
         assert!(
@@ -4780,7 +4638,7 @@ mod tests {
     fn a_store_derived_may_build_on_derived_values_actions_and_if_expressions() {
         let out = compile(
             r#"
-            Store Pricing {
+            store Pricing {
                 state seats = 6
                 state annual = true
                 derived rate = if annual { 14 } else { 18 }
@@ -4793,7 +4651,8 @@ mod tests {
                 }
                 action bump() { seats = seats + 1  log(share) }
             }
-            Page P (path: "/") { use Pricing  Text("{Pricing.label}") }
+            page P(path: "/") { use Pricing  Text("{Pricing.label}") }
+            
             "#,
         );
         assert!(
@@ -4823,13 +4682,14 @@ mod tests {
     fn an_input_keeps_its_binding_beside_the_authors_input_handler() {
         let out = compile(
             r#"
-            Store S { state q = ""  action set(v: String) { q = v } }
-            Page P (path: "/") {
+            store S { state q = ""  action set(v: String) { q = v } }
+            page P(path: "/") {
                 use S
                 state email = ""
-                Input(email, bind: email, placeholder: "e") { on:input { S.set(email) } }
-                Form { Text("f")  on:submit { S.set("sent") } }
+                Input(email, bind: email, placeholder: "e") { on input { S.set(email) } }
+                Form { on submit { S.set("sent") } Text("f")  }
             }
+            
             "#,
         );
         assert!(
@@ -4854,14 +4714,17 @@ mod tests {
     fn a_buttons_block_may_mix_content_and_actions() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state open = false
                 Button("", aria-expanded: open) {
+                    on click {
+                        open = !open
+                    }
                     Text("Details")
                     Icon("chevron-down")
-                    open = !open
                 }
             }
+            
             "#,
         );
         assert!(
@@ -4877,10 +4740,11 @@ mod tests {
     fn a_sub_component_keeps_its_style_block_attributes_and_handlers() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state n = 0
-                List { List.Item(id: "first", aria-current: "true") { style { padding: "0" hover { color: "red" } } on:click { n = n + 1 } Text("a") } }
+                List { List.Item(id: "first", aria-current: "true") { style { padding: 0; &:hover { color: red } } on click { n = n + 1 } Text("a") } }
             }
+            
             "#,
         );
         assert!(out.contains("WF.el(\"li\", { className: \"wf-list__item\", id: \"first\", \"aria-current\": \"true\" })"), "{out}");
@@ -4897,12 +4761,13 @@ mod tests {
     fn a_map_literal_returned_from_a_lambda_is_an_object_not_a_block() {
         let out = compile(
             r#"
-            Store S {
+            store S {
                 state items = [1, 2]
                 derived pairs = items.map(i => { n: i, twice: i * 2 })
                 derived counts = { all: items.length }
             }
-            Page P (path: "/") { use S  Text("x") }
+            page P(path: "/") { use S  Text("x") }
+            
             "#,
         );
         assert!(
@@ -4919,7 +4784,7 @@ mod tests {
     fn a_store_action_declares_its_locals() {
         let out = compile(
             r#"
-            Store S {
+            store S {
                 state secret = ""
                 action headers() {
                     h = {}
@@ -4928,7 +4793,8 @@ mod tests {
                     return h
                 }
             }
-            Page P (path: "/") { use S  Text("x") }
+            page P(path: "/") { use S  Text("x") }
+            
             "#,
         );
         assert!(out.contains("let h = ({  });"), "{out}");
@@ -4943,12 +4809,13 @@ mod tests {
     fn an_action_parameter_shadows_a_store_member_of_the_same_name() {
         let out = compile(
             r#"
-            Store S {
+            store S {
                 state at = 0
                 action step(n: Number) { return n + 1 }
                 action move(step: Number) { at = at + step }
             }
-            Page P (path: "/") { use S  Text("x") }
+            page P(path: "/") { use S  Text("x") }
+            
             "#,
         );
         assert!(out.contains("store.at = (store.at + step);"), "{out}");
@@ -4959,12 +4826,13 @@ mod tests {
     fn a_known_attribute_that_reads_state_follows_it() {
         let out = compile(
             r#"
-            Store S { state busy = false  derived hint = if busy { "wait" } else { "type" } }
-            Page P (path: "/") {
+            store S { state busy = false  derived hint = if busy { "wait" } else { "type" } }
+            page P(path: "/") {
                 use S
                 Input(placeholder: S.hint, disabled: S.busy)
                 Input(placeholder: "fixed")
             }
+            
             "#,
         );
         assert!(out.contains("placeholder: () => S.hint"), "{out}");
@@ -4976,8 +4844,9 @@ mod tests {
     fn a_slot_inside_a_select_is_passed_with_the_element() {
         let out = compile(
             r#"
-            Component Picker (value: String) { Select(value: value) { children } }
-            Page P (path: "/") { Picker(value: "b") { Option("a", "A")  Option("b", "B") } }
+            component Picker(value: String) { Select(value: value) { children } }
+            page P(path: "/") { Picker(value: "b") { Select.Option("A", value: "a")  Select.Option("B", value: "b") } }
+            
             "#,
         );
         assert!(
@@ -4991,10 +4860,11 @@ mod tests {
     fn an_else_if_chain_with_a_final_else_keeps_every_branch() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state v = "no"
                 if v == "yes" { Text("Y") } else if v == "no" { Text("N") } else { Text("other") }
             }
+            
             "#,
         );
         assert!(out.contains("(_v() === \"yes\")"), "{out}");
@@ -5006,12 +4876,13 @@ mod tests {
     fn a_sliders_own_input_handler_runs_after_the_binding() {
         let out = compile(
             r#"
-            Store S { state n = 0  action set(v: Number) { n = v } }
-            Page P (path: "/") {
+            store S { state n = 0  action set(v: Number) { n = v } }
+            page P(path: "/") {
                 use S
                 state req = 4
-                Slider(bind: req, min: 0, max: 8, step: 1, aria-label: "Requests") { on:input { S.set(req) } }
+                Slider(bind: req, min: 0, max: 8, step: 1, aria-label: "Requests") { on input { S.set(req) } }
             }
+            
             "#,
         );
         assert_eq!(out.matches("\"on:input\"").count(), 1, "{out}");
@@ -5025,12 +4896,13 @@ mod tests {
     fn a_slider_carries_aria_attributes_and_defers_to_aria_valuetext() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state req = 4
                 derived shown = "5M"
                 Slider(bind: req, min: 0, max: 8, step: 1, aria-labelledby: "d-req", aria-valuetext: shown)
                 Slider(bind: req, min: 0, max: 8, step: 1, aria-label: "Seats")
             }
+            
             "#,
         );
         assert!(out.contains("\"aria-labelledby\": \"d-req\""), "{out}");
@@ -5042,13 +4914,13 @@ mod tests {
     fn a_prop_that_reads_state_is_passed_as_a_getter_and_read_live() {
         let out = compile(
             r#"
-            Component Chip (label: String, pressed: Bool = false) {
+            component Chip(label: String, pressed: Bool = false) {
                 derived bg = if pressed { "a" } else { "b" }
-                Button(label, aria-pressed: pressed) { style { background: bg } }
+                Button(label, aria-pressed: pressed) { style { background: {bg} } }
             }
-            Page P (path: "/") {
+            page P(path: "/") {
                 state on = true
-                Chip(label: "Errors", pressed: on) { on = !on }
+                Chip(label: "Errors", pressed: on) { on click { on = !on } }
             }
             "#,
         );
@@ -5067,8 +4939,9 @@ mod tests {
     fn a_declared_prop_default_reaches_the_spa() {
         let out = compile(
             r#"
-            Component Badge (label: String, tone: String = "neutral", dot: Bool = true) { Text(label) }
-            Page P (path: "/") { Badge(label: "x") }
+            component Badge(label: String, tone: String = "neutral", dot: Bool = true) { Text(label) }
+            page P(path: "/") { Badge(label: "x") }
+            
             "#,
         );
         assert!(
@@ -5081,10 +4954,11 @@ mod tests {
     fn a_custom_property_is_set_by_name_and_follows_state() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state tone = "red"
-                Card { style { --hover-bg: tone  --edge: "1px"  hover { background: "var(--hover-bg)" } } }
+                Card { style { --hover-bg: {tone}; --edge: 1px; &:hover { background: var(--hover-bg) } } }
             }
+            
             "#,
         );
         assert!(
@@ -5100,12 +4974,13 @@ mod tests {
     fn handlers_on_a_component_call_attach_to_its_root() {
         let out = compile(
             r#"
-            Component Save (label: String) { Button(label) }
-            Page P (path: "/") {
+            component Save(label: String) { Button(label) }
+            page P(path: "/") {
                 state n = 0
-                Save(label: "Go") { n = n + 1 }
-                Save(label: "Hover") { on:mouseenter { n = 9 } }
+                Save(label: "Go") { on click { n = n + 1 } }
+                Save(label: "Hover") { on mouseenter { n = 9 } }
             }
+            
             "#,
         );
         assert!(out.contains("WF.onRoot(_e"), "{out}");
@@ -5128,9 +5003,10 @@ mod tests {
     fn every_route_carries_its_pages_title() {
         let out = compile(
             r#"
-            Page Home (path: "/", title: "Home") { Text("h") }
-            Page Docs (path: "/docs", title: "Routing \"rules\"") { Text("d") }
-            App { Router { Route(path: "/", page: Home) Route(path: "/docs", page: Docs) } }
+            page Home(path: "/", title: "Home") { Text("h") }
+            page Docs(path: "/docs", title: "Routing \"rules\"") { Text("d") }
+            app { Router }
+            
             "#,
         );
         assert!(
@@ -5149,11 +5025,12 @@ mod tests {
     fn hyphenated_named_arguments_become_attributes_reactive_when_they_read_state() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state on = true
                 Button("Errors", aria-pressed: on, data-tone: "danger")
                 Text(a - b)
             }
+            
             "#,
         );
         assert!(out.contains("\"aria-pressed\": () => _on()"), "{out}");
@@ -5166,18 +5043,19 @@ mod tests {
     fn a_style_value_that_reads_state_follows_it() {
         let out = compile(
             r##"
-            Store S { state tone = "#fff" }
-            Page P (path: "/") {
+            store S { state tone = "#fff" }
+            page P(path: "/") {
                 use S
                 state pct = 40
                 Card {
                     style {
-                        width: "{pct}%"
-                        background: S.tone
-                        padding: "1rem"
+                        width: {pct}%
+                        background: {S.tone}
+                        padding: 1rem
                     }
                 }
             }
+            
             "##,
         );
         // Element numbering is process-wide, so match on the tail of each line.
@@ -5193,14 +5071,15 @@ mod tests {
     fn a_value_that_reads_state_is_reactive() {
         let out = compile(
             r#"
-            Store S { state pct = 5 }
-            Page P (path: "/") {
+            store S { state pct = 5 }
+            page P(path: "/") {
                 use S
                 state done = 40
                 Progress(value: done, max: 100)
                 Progress(value: S.pct, max: 100)
                 Progress(value: 75, max: 100)
             }
+            
             "#,
         );
         assert!(out.contains("value: () => _done()"), "{out}");
@@ -5212,11 +5091,12 @@ mod tests {
     fn a_lambda_parameter_is_a_plain_binding_not_a_signal() {
         let out = compile(
             r#"
-            Page P (path: "/") {
+            page P(path: "/") {
                 state items = []
                 state limit = 3
                 Text("{items.filter(x => x.done && x.n < limit).length}")
             }
+            
             "#,
         );
         assert!(
@@ -5230,12 +5110,13 @@ mod tests {
     fn the_app_wrapper_around_the_router_gets_layout_classes() {
         let out = compile(
             r#"
-            Page Home (path: "/") { Text("hi") }
-            App {
-                Row(gap: lg, align: center) {
-                    Router { Route(path: "/", page: Home) }
+            page Home(path: "/") { Text("hi") }
+            app {
+                Row(gap: .lg, align: .center) {
+                    Router
                 }
             }
+            
             "#,
         );
         assert!(out.contains("wf-row wf-gap--lg wf-align--center"), "{out}");
@@ -5245,10 +5126,7 @@ mod tests {
     #[test]
     fn a_loop_variable_is_a_plain_binding_not_a_signal() {
         let js = compile(
-            "Page P (path: \"/\") {\n\
-             \x20   state items = []\n\
-             \x20   for item in items { Text(item.title) }\n\
-             }",
+            "page P(path: \"/\") {\n    state items = []\n    for item in items { Text(item.title) }\n}",
         );
         assert!(
             js.contains("item.title"),
@@ -5265,11 +5143,7 @@ mod tests {
     #[test]
     fn a_loop_variable_survives_into_a_nested_event_handler() {
         let js = compile(
-            "Store S { state rows = []\n action pick(id: Number) { } }\n\
-             Page P (path: \"/\") {\n\
-             \x20   use S\n\
-             \x20   for row in S.rows { Button(\"Pick\") { S.pick(row.id) } }\n\
-             }",
+            "store S { state rows = []\n action pick(id: Number) { } }\npage P(path: \"/\") {\n    use S\n    for row in S.rows { Button(\"Pick\") { on click { S.pick(row.id) } } }\n}",
         );
         assert!(
             js.contains("S.pick(row.id)"),
@@ -5285,10 +5159,7 @@ mod tests {
     #[test]
     fn a_loop_index_is_a_plain_binding() {
         let js = compile(
-            "Page P (path: \"/\") {\n\
-             \x20   state items = []\n\
-             \x20   for item, i in items { Text(\"{i}: {item.name}\") }\n\
-             }",
+            "page P(path: \"/\") {\n    state items = []\n    for item, i in items { Text(\"{i}: {item.name}\") }\n}",
         );
         assert!(
             !js.contains("_i()"),
@@ -5304,13 +5175,7 @@ mod tests {
     #[test]
     fn nested_loops_each_keep_their_own_binding() {
         let js = compile(
-            "Page P (path: \"/\") {\n\
-             \x20   state groups = []\n\
-             \x20   for group in groups {\n\
-             \x20       for member in group.members { Text(member.name) }\n\
-             \x20       Text(group.title)\n\
-             \x20   }\n\
-             }",
+            "page P(path: \"/\") {\n    state groups = []\n    for group in groups {\n        for member in group.members { Text(member.name) }\n        Text(group.title)\n    }\n}",
         );
         assert!(
             !js.contains("_member()"),
@@ -5330,12 +5195,7 @@ mod tests {
     /// above must not make everything plain.
     #[test]
     fn state_outside_a_loop_is_still_a_signal() {
-        let js = compile(
-            "Page P (path: \"/\") {\n\
-             \x20   state count = 0\n\
-             \x20   Text(\"{count}\")\n\
-             }",
-        );
+        let js = compile("page P(path: \"/\") {\n    state count = 0\n    Text(\"{count}\")\n}");
         assert!(
             js.contains("_count()"),
             "state stopped being reactive:\n{js}"

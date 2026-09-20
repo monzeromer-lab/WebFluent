@@ -1,0 +1,19 @@
+// The `minimal` palette the engine used to ship in Rust: monochrome, square
+// corners, no shadows. Copy into your `src/` and edit.
+theme minimal {
+    color-primary: #000000
+    color-secondary: #666666
+    color-background: #FFFFFF
+    color-surface: #FAFAFA
+    color-text: #111111
+    color-text-muted: #6B6B6B
+    color-border: #EEEEEE
+
+    radius-sm: 0
+    radius-md: 0
+    radius-lg: 0
+
+    shadow-sm: none
+    shadow-md: none
+    shadow-lg: none
+}

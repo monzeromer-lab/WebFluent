@@ -3,19 +3,19 @@ const { Template } = require("./index");
 // Test 1: HTML rendering from string
 console.log("Test 1: HTML fragment rendering...");
 const tpl = Template.fromString(`
-Page Test (path: "/", title: "Test") {
+page Test(path: "/", title: "Test") {
     Container {
-        Heading("Hello, {name}!", h1)
+        Heading("Hello, {name}!").h1
         for item in items {
-            Card(elevated) {
+            Card.elevated {
                 Card.Body {
-                    Text(item.name, bold)
+                    Text(item.name).bold
                     Text("Price: $" + "{item.price}")
                 }
             }
         }
         if showBadge {
-            Badge("Active", success)
+            Badge("Active").success
         }
     }
 }

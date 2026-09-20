@@ -331,6 +331,7 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Spinner ───────────────────────────────────────── */
 .wf-spinner { width: 24px; height: 24px; border: 3px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; animation: wf-spin 0.6s linear infinite; display: inline-block; }
 .wf-spinner--large { width: 40px; height: 40px; border-width: 4px; }
+.wf-spinner--small { width: 16px; height: 16px; border-width: 2px; }
 @keyframes wf-spin { to { transform: rotate(360deg); } }
 
 /* ─── Progress ──────────────────────────────────────── */
@@ -357,6 +358,9 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-icon--primary { color: var(--color-primary); }
 .wf-icon--danger { color: var(--color-danger); }
 .wf-icon--success { color: var(--color-success); }
+.wf-icon--secondary { color: var(--color-secondary); }
+.wf-icon--warning { color: var(--color-warning); }
+.wf-icon--info { color: var(--color-info); }
 
 /* ─── Carousel ──────────────────────────────────────── */
 .wf-carousel { position: relative; overflow: hidden; border-radius: var(--radius-md); }
@@ -389,6 +393,8 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-text--danger { color: var(--color-danger); }
 .wf-text--success { color: var(--color-success); }
 .wf-text--warning { color: var(--color-warning); }
+.wf-text--secondary { color: var(--color-secondary); }
+.wf-text--info { color: var(--color-info); }
 
 .wf-heading { font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); margin: 0; letter-spacing: -0.02em; }
 h1.wf-heading { font-size: var(--font-size-3xl); letter-spacing: -0.03em; }

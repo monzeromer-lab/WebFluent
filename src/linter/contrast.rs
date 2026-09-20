@@ -299,7 +299,7 @@ mod tests {
 
     fn check(theme_src: &str) -> Vec<A11yWarning> {
         let program = parse(&format!(
-            "{theme_src}\nPage P (path: \"/\") {{ Text(\"x\") }}"
+            "{theme_src}\npage P(path: \"/\") {{ Text(\"x\") }}"
         ));
         let resolved =
             crate::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
@@ -331,17 +331,14 @@ mod tests {
 
     #[test]
     fn a_readable_theme_draws_no_warning() {
-        let warnings = check(
-            "Theme T {\n  token color-text: \"#111111\"\n  token color-background: \"#FFFFFF\"\n}",
-        );
+        let warnings = check("theme T {\n  color-text: #111111\n  color-background: #FFFFFF\n}");
         assert!(warnings.is_empty(), "{warnings:?}");
     }
 
     #[test]
     fn grey_on_white_below_the_minimum_is_reported() {
-        let warnings = check(
-            "Theme T {\n  token color-text-muted: \"#AAAAAA\"\n  token color-background: \"#FFFFFF\"\n}",
-        );
+        let warnings =
+            check("theme T {\n  color-text-muted: #AAAAAA\n  color-background: #FFFFFF\n}");
         // Both pairings the token appears in are genuinely below the minimum.
         assert_eq!(warnings.len(), 2, "{warnings:?}");
         let joined = warnings
@@ -365,7 +362,7 @@ mod tests {
         // The stylesheet puts white text on `--color-primary`, so a pale primary
         // is unreadable however good it looks against the page.
         let program = parse(
-            "Theme T {\n  token color-primary: \"#FFE066\"\n}\nPage P (path: \"/\") { Button(\"Go\", primary) }",
+            "theme T {\n  color-primary: #FFE066\n}\npage P(path: \"/\") { Button(\"Go\").primary }",
         );
         let resolved =
             crate::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
@@ -382,7 +379,7 @@ mod tests {
     fn a_pale_primary_is_not_reported_when_nothing_is_painted_primary() {
         // No `primary` modifier anywhere: the token paints no white label, so
         // there is nothing for the author to fix.
-        let warnings = check("Theme T {\n  token color-primary: \"#FFE066\"\n}");
+        let warnings = check("theme T {\n  color-primary: #FFE066\n}");
         assert!(
             warnings
                 .iter()
@@ -393,7 +390,7 @@ mod tests {
 
     #[test]
     fn a_project_with_no_theme_is_not_lectured_about_the_baseline() {
-        let program = parse("Page P (path: \"/\") { Text(\"x\") }");
+        let program = parse("page P(path: \"/\") { Text(\"x\") }");
         let resolved = crate::themes::resolve_tokens(&program, &Default::default()).unwrap();
         assert!(lint_contrast(&program, &resolved).is_empty());
     }
@@ -402,7 +399,7 @@ mod tests {
     fn only_pairings_the_theme_touches_are_reported() {
         // The theme sets a readable text colour and nothing else; the baseline's
         // own muted grey is not this author's problem.
-        let warnings = check("Theme T {\n  token color-text: \"#000000\"\n}");
+        let warnings = check("theme T {\n  color-text: #000000\n}");
         assert!(
             warnings.iter().all(|w| !w.to_string().contains("muted")),
             "{warnings:?}"

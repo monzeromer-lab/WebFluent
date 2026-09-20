@@ -377,7 +377,9 @@ mod tests {
     use super::*;
 
     fn program(src: &str) -> Program {
-        crate::syntax::parse_source(src, "<t>").expect("parse")
+        crate::syntax::parse_source(src, "<t>")
+            .map(crate::sema::lower)
+            .expect("parse")
     }
 
     fn first_block(src: &str) -> StyleBlock {
@@ -394,15 +396,15 @@ mod tests {
 
     #[test]
     fn a_block_with_only_reactive_declarations_needs_no_class() {
-        let b = first_block(r#"Page P (path: "/") { Card { style { width: w } } }"#);
+        let b = first_block(r#"page P(path: "/") { Card { style { width: {w} } } }"#);
         assert_eq!(scoped_class(&b), None);
     }
 
     #[test]
     fn literal_declarations_are_hoisted_into_a_tripled_class_rule() {
-        let src = r#"Page P (path: "/") {
-            Card { style { padding: "1rem"  radius: md  --gap: 4 } }
-            Card { style { padding: "1rem"  radius: md  --gap: 4 } }
+        let src = r#"page P(path: "/") {
+            Card { style { padding: 1rem; radius: $md; --gap: 4 } }
+            Card { style { padding: 1rem; radius: $md; --gap: 4 } }
         }"#;
         let p = program(src);
         let css = scoped_rules(&p);
@@ -418,9 +420,9 @@ mod tests {
 
     #[test]
     fn a_reactive_declaration_stays_out_of_the_rule() {
-        let src = r#"Page P (path: "/") {
+        let src = r#"page P(path: "/") {
             state pct = 50
-            Card { style { padding: "1rem"  width: "{pct}%" } }
+            Card { style { padding: 1rem; width: {pct}% } }
         }"#;
         let p = program(src);
         let css = scoped_rules(&p);
@@ -430,10 +432,10 @@ mod tests {
 
     #[test]
     fn identical_blocks_share_one_class_and_one_rule() {
-        let src = r#"Page P (path: "/") {
-            Button("a") { style { color: "red" hover { color: "blue" } } }
-            Button("b") { style { color: "red" hover { color: "blue" } } }
-            Button("c") { style { hover { color: "green" } } }
+        let src = r#"page P(path: "/") {
+            Button("a") { style { color: red; &:hover { color: blue } } }
+            Button("b") { style { color: red; &:hover { color: blue } } }
+            Button("c") { style { &:hover { color: green } } }
         }"#;
         let p = program(src);
         let css = scoped_rules(&p);
@@ -449,14 +451,14 @@ mod tests {
 
     #[test]
     fn states_map_to_their_selectors_and_tokens_resolve() {
-        let src = r##"Page P (path: "/") {
-            Input(text, placeholder: "p") {
+        let src = r##"page P(path: "/") {
+            Input(placeholder: "p").text {
                 style {
-                    focus { border-color: primary }
-                    placeholder { color: "#999" }
-                    focus-within { outline: "none" }
-                    disabled { opacity: 0.5 }
-                    active { transform: "translateY(1px)" }
+                    &:focus-visible { border-color: $primary }
+                    &::placeholder { color: #999 }
+                    &:focus-within { outline: none }
+                    &:disabled { opacity: 0.5 }
+                    &:active { transform: translateY(1px) }
                 }
             }
         }"##;
@@ -485,9 +487,9 @@ mod tests {
 
     #[test]
     fn aria_states_are_attribute_selectors() {
-        let src = r##"Page P (path: "/") {
-            Link("Home", to: "/") { style { current { background: "#222" } } }
-            Button("x", aria-pressed: "true") { style { pressed { color: "red" }  invalid { color: "blue" } } }
+        let src = r##"page P(path: "/") {
+            Link("Home", to: "/") { style { &[aria-current="page"] { background: #222 } } }
+            Button("x", aria-pressed: "true") { style { &[aria-pressed="true"] { color: red }  &[aria-invalid="true"] { color: blue } } }
         }"##;
         let css = scoped_rules(&program(src));
         assert!(
@@ -506,8 +508,8 @@ mod tests {
 
     #[test]
     fn media_queries_are_compiled_too_with_tokens_resolved() {
-        let src = r#"Page P (path: "/") {
-            Card { style { padding: xl  @media (max-width: 768px) { padding: sm } } }
+        let src = r#"page P(path: "/") {
+            Card { style { padding: $xl; @media (max-width: 768px) { padding: $sm } } }
         }"#;
         let css = scoped_rules(&program(src));
         assert!(css.contains("@media (max-width: 768px) { .wf-s"), "{css}");
@@ -519,9 +521,9 @@ mod tests {
 
     #[test]
     fn a_runtime_value_is_left_out_of_the_stylesheet() {
-        let src = r##"Page P (path: "/") {
+        let src = r##"page P(path: "/") {
             state c = "red"
-            Card { style { hover { color: c  background: "#fff" } } }
+            Card { style { &:hover { color: {c}; background: #fff } } }
         }"##;
         let css = scoped_rules(&program(src));
         assert!(css.contains("background: #fff !important"), "{css}");
@@ -531,8 +533,8 @@ mod tests {
     #[test]
     fn rules_are_found_inside_control_flow_and_components() {
         let src = r#"
-            Component Chip (label: String) { Badge(label) { style { hover { color: "red" } } } }
-            Page P (path: "/") {
+            component Chip(label: String) { Badge(label) { style { &:hover { color: red } } } }
+            page P(path: "/") {
                 state items = []
                 for item in items { if item.on { Chip(label: "x") } }
             }"#;
@@ -543,13 +545,14 @@ mod tests {
     #[test]
     fn rules_are_split_by_the_pages_that_reach_them() {
         let src = r#"
-            Component Hero () { Container { style { padding: "9rem" } Text("h") } }
-            Component Shell () { Container { style { padding: "7rem" } children } }
-            Component Orphan () { Text("o") { style { padding: "5rem" } } }
-            Page Home (path: "/") { Hero() Text("a") { style { padding: "1rem" } } }
-            Page About (path: "/about") { Text("b") { style { padding: "2rem" } } Text("c") { style { padding: "3rem" } } }
-            Page Team (path: "/team") { Text("d") { style { padding: "3rem" } } }
-            App { Shell { Router { Route(path: "/", page: Home) } } }
+            component Hero { Container { style { padding: 9rem } Text("h") } }
+            component Shell { Container { style { padding: 7rem } children } }
+            component Orphan { Text("o") { style { padding: 5rem } } }
+            page Home(path: "/") { Hero Text("a") { style { padding: 1rem } } }
+            page About(path: "/about") { Text("b") { style { padding: 2rem } } Text("c") { style { padding: 3rem } } }
+            page Team(path: "/team") { Text("d") { style { padding: 3rem } } }
+            app { Shell { Router } }
+        
         "#;
         let split = split_rules(&program(src));
         let home = &split.pages["Home"];

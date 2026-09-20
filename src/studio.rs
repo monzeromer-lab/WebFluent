@@ -219,12 +219,7 @@ mod tests {
 
     #[test]
     fn compiles_a_page_to_a_site_with_node_map() {
-        let src = "Page Home (path: \"/\") {\n\
-                   \x20 Container {\n\
-                   \x20   Heading(\"Hi\", h1)\n\
-                   \x20   Button(\"Go\", primary)\n\
-                   \x20 }\n\
-                   }\n";
+        let src = "page Home(path: \"/\") {\n  Container {\n    Heading(\"Hi\").h1\n    Button(\"Go\").primary\n  }\n}\n";
         let prog = program(src);
         let site = compile_studio(&prog, &config(), &HashMap::new());
 
@@ -244,8 +239,7 @@ mod tests {
 
     #[test]
     fn skips_dynamic_routes_from_prerender() {
-        let src = "Page Home (path: \"/\") { Text(\"home\") }\n\
-                   Page User (path: \"/users/:id\") { Text(\"user\") }\n";
+        let src = "page Home(path: \"/\") { Text(\"home\") }\npage User(path: \"/users/:id\") { Text(\"user\") }\n";
         let prog = program(src);
         let site = compile_studio(&prog, &config(), &HashMap::new());
         // Only the static "/" page is pre-rendered; the :id route is skipped.

@@ -1,0 +1,36 @@
+page About(path: "/about", description: "Who we are and what we do.", title: "About") {
+    Container.fadeIn {
+        Heading(t("about.title")).h1
+
+        Spacer
+
+        Row(gap: .lg) {
+            Column(span: 6) {
+                Card.elevated {
+                    Card.Body {
+                        Heading(t("about.mission.title")).h2
+                        Spacer.sm
+                        Text(t("about.mission.text"))
+                        Spacer
+                        Blockquote(t("about.quote"))
+                    }
+                }
+            }
+            Column(span: 6) {
+                Card {
+                    Card.Body {
+                        Heading(t("about.team.title")).h2
+                        Spacer.sm
+                        Stack(gap: .md) {
+                            TeamMember(name: "Monzer Omer", role: "Creator", initials: "MO")
+                            Divider
+                            TeamMember(name: "Sara Ali", role: "Designer", initials: "SA")
+                            Divider
+                            TeamMember(name: "Omar Hassan", role: "Developer", initials: "OH")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

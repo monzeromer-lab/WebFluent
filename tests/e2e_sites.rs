@@ -354,9 +354,8 @@ fn build_scratch(name: &str, app: &str, page: &str) -> (bool, String) {
 fn the_catch_all_page_is_written_as_404_html() {
     let (ok, out) = build_scratch(
         "_ssg_404",
-        "App { Router { Route(path: \"/\", page: Home) Route(path: \"*\", page: Lost) } }\n",
-        "Page Home (path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\", h1) }\n\
-         Page Lost (path: \"*\", title: \"Not found\", description: \"d\", noindex) { Heading(\"Lost\", h1) }\n",
+        "app { Router }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\").h1 }\npage Lost(path: \"*\", title: \"Not found\", description: \"d\", noindex: true) { Heading(\"Lost\").h1 }\n",
     );
     assert!(ok, "{out}");
     let root = repo_root().join("target/e2e/_ssg_404/build");
@@ -449,8 +448,8 @@ fn project_stylesheets_are_bundled_and_class_names_reach_the_element() {
     // class that reads state is followed by the runtime.
     let (ok, _) = build_scratch(
         "_class_ssg",
-        "App { Router { Route(path: \"/\", page: Home) } }\n",
-        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  state tone = \"calm\"\n  Heading(\"Hi\", h1)\n  Card(class: \"feature wide\") { Text(\"x\") }\n  Card(class: tone) { Text(\"y\") }\n}\n",
+        "app { Router }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") {\n  state tone = \"calm\"\n  Heading(\"Hi\").h1\n  Card(class: \"feature wide\") { Text(\"x\") }\n  Card(class: tone) { Text(\"y\") }\n}\n",
     );
     assert!(ok);
     let html = std::fs::read_to_string(repo_root().join("target/e2e/_class_ssg/build/index.html"))
@@ -480,8 +479,8 @@ fn project_stylesheets_are_bundled_and_class_names_reach_the_element() {
 fn rules_only_one_page_reaches_ship_in_that_pages_sheet() {
     let (ok, out) = build_scratch(
         "_split_css_ssg",
-        "Component Shell () { Container { style { padding: \"7rem\" } children } }\nApp { Shell { Router { Route(path: \"/\", page: Home) Route(path: \"/about\", page: About) } } }\n",
-        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\", h1)\n  Text(\"a\") { style { padding: \"1rem\" } }\n  Text(\"s\") { style { padding: \"3rem\" } }\n}\nPage About (path: \"/about\", title: \"About\", description: \"d\") {\n  Heading(\"About\", h1)\n  Text(\"b\") { style { padding: \"2rem\" } }\n  Text(\"s\") { style { padding: \"3rem\" } }\n}\n",
+        "component Shell { Container { style { padding: 7rem } children } }\napp { Shell { Router } }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\").h1\n  Text(\"a\") { style { padding: 1rem } }\n  Text(\"s\") { style { padding: 3rem } }\n}\npage About(path: \"/about\", title: \"About\", description: \"d\") {\n  Heading(\"About\").h1\n  Text(\"b\") { style { padding: 2rem } }\n  Text(\"s\") { style { padding: 3rem } }\n}\n",
     );
     assert!(ok, "{out}");
     let root = repo_root().join("target/e2e/_split_css_ssg/build");
@@ -584,14 +583,10 @@ fn a_modifier_class_the_project_stylesheet_defines_is_not_dead() {
         r#"{ "name": "scratch", "build": { "output": "./build" } }"#,
     )
     .unwrap();
-    std::fs::write(
-        root.join("src/App.wf"),
-        "App { Router { Route(path: \"/\", page: Home) } }\n",
-    )
-    .unwrap();
+    std::fs::write(root.join("src/App.wf"), "app { Router }\n").unwrap();
     std::fs::write(
         root.join("src/pages/Home.wf"),
-        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\", h1)\n  Alert(\"Note\", elevated)\n}\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\").h1\n  Alert(\"Note\")\n}\n",
     )
     .unwrap();
     std::fs::write(
@@ -649,8 +644,8 @@ fn declared_fonts_are_linked_on_every_page() {
 fn the_build_reports_dead_modifier_words_and_names_the_file() {
     let (ok, out) = build_scratch(
         "_lint_vocab",
-        "App { Router { Route(path: \"/\", page: Home) } }\n",
-        "Page Home (path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\", h1)\n  Button(\"Go\", huge)\n}\n",
+        "app { Router }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\").h1\n  Button(huge)\n}\n",
     );
     assert!(ok, "a dead word is a warning, not an error:\n{out}");
     assert!(out.contains("Warning [V01]"), "no V01 reported:\n{out}");
@@ -663,19 +658,19 @@ fn the_build_reports_dead_modifier_words_and_names_the_file() {
 /// A route to a page that does not exist is a broken site, not a style
 /// question; it fails the build the way a parse error does.
 #[test]
-fn the_build_fails_on_a_route_to_an_undeclared_page() {
+fn the_build_fails_on_a_layout_that_is_not_declared() {
     let (ok, out) = build_scratch(
         "_lint_semantic",
-        "App { Router { Route(path: \"/\", page: Home) Route(path: \"/x\", page: Missing) } }\n",
-        "Page Home (path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\", h1) }\n",
+        "app { Router }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\", layout: Missing) { Heading(\"Hi\").h1 }\n",
     );
-    assert!(!ok, "an unknown route target must fail the build:\n{out}");
+    assert!(!ok, "an unknown layout must fail the build:\n{out}");
     assert!(
-        out.contains("Missing"),
-        "the diagnostic names the page:\n{out}"
+        out.contains("`Missing` is not a declared component"),
+        "the diagnostic names the component:\n{out}"
     );
     assert!(
-        out.contains("src/App.wf"),
+        out.contains("src/pages/Home.wf"),
         "the diagnostic names the file:\n{out}"
     );
 }
@@ -1225,19 +1220,12 @@ fn seeded_lists_and_conditionals_paint_statically() {
     .unwrap();
     std::fs::write(
         root.join("src/stores/posts.wf"),
-        "Store PostStore {\n  state posts = [\n    { title: \"Slow roasting\", tag: \"coffee\" },\n    { title: \"Closed Mondays\", tag: \"shop\" }\n  ]\n  state featured = true\n}\n",
+        "store PostStore {\n  state posts = [\n    { title: \"Slow roasting\", tag: \"coffee\" },\n    { title: \"Closed Mondays\", tag: \"shop\" }\n  ]\n  state featured = true\n}\n",
     )
     .unwrap();
     std::fs::write(
         root.join("src/pages/Home.wf"),
-        "Page Home (path: \"/\", title: \"Journal\") {\n\
-         \x20 use PostStore\n\
-         \x20 Container {\n\
-         \x20   Heading(\"Journal\", h1)\n\
-         \x20   if PostStore.featured { Text(\"Featured\") } else { Text(\"Nothing\") }\n\
-         \x20   List { for post in PostStore.posts { Card { Heading(post.title, h2) Badge(post.tag) } } }\n\
-         \x20 }\n\
-         }\n",
+        "page Home(path: \"/\", title: \"Journal\") {\n  use PostStore\n  Container {\n    Heading(\"Journal\").h1\n    if PostStore.featured { Text(\"Featured\") } else { Text(\"Nothing\") }\n    List { for post in PostStore.posts { Card { Heading(post.title).h2 Badge(post.tag) } } }\n  }\n}\n",
     )
     .unwrap();
 
@@ -1289,13 +1277,7 @@ fn unresolvable_lists_still_defer_to_the_client() {
     .unwrap();
     std::fs::write(
         root.join("src/pages/Home.wf"),
-        "Page Home (path: \"/\", title: \"D\") {\n\
-         \x20 state rows = []\n\
-         \x20 Container {\n\
-         \x20   Heading(\"D\", h1)\n\
-         \x20   for row in loadRows(rows) { Text(row.name) }\n\
-         \x20 }\n\
-         }\n",
+        "page Home(path: \"/\", title: \"D\") {\n  state rows = []\n  Container {\n    Heading(\"D\").h1\n    for row in loadRows(rows) { Text(row.name) }\n  }\n}\n",
     )
     .unwrap();
 

@@ -287,18 +287,13 @@ impl Checker<'_, '_> {
                     );
                 }
                 Flag::Unknown => {
-                    // The original grammar's modifier words are accepted as
-                    // they were; a new-grammar flag that resolves to nothing
-                    // is an error.
-                    if !crate::parser::vocabulary::is_modifier_keyword(word)
-                        || registry::RETIRED_MODIFIERS.contains(&word.as_str())
-                    {
-                        self.error(
-                            at,
-                            format!("{name} has no flag or enum case `{word}`"),
-                            &self.flag_hint(sig),
-                        );
-                    }
+                    // The universal flags are lowered before this runs; a
+                    // word that reaches here resolves to nothing.
+                    self.error(
+                        at,
+                        format!("{name} has no flag or enum case `{word}`"),
+                        &self.flag_hint(sig),
+                    );
                 }
             }
         }
@@ -1270,12 +1265,13 @@ mod tests {
     }
 
     #[test]
-    fn a_program_of_the_original_grammar_is_left_alone() {
-        let src = "Page P (path: \"/\") { Button(\"x\", primary, large) Row(gap: md) { Tcell(\"h\", header) } }";
-        let before = crate::syntax::parse_source(src, "<t>").unwrap();
-        let after = lower(before.clone());
-        assert_eq!(format!("{before:?}"), format!("{after:?}"));
-        let f = check(&before, &|_| "<t>".to_string());
+    fn lowering_is_idempotent() {
+        let src = "page P(path: \"/\") { Button(\"x\").primary.lg Row(gap: .md) { Table.Cell(\"h\").header } }";
+        let parsed = crate::syntax::parse_source(src, "<t>").unwrap();
+        let once = lower(parsed.clone());
+        let twice = lower(once.clone());
+        assert_eq!(format!("{once:?}"), format!("{twice:?}"));
+        let f = check(&parsed, &|_| "<t>".to_string());
         assert!(f.errors.is_empty(), "{:?}", f.errors);
     }
 }

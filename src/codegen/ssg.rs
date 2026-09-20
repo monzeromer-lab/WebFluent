@@ -408,14 +408,9 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
                     ctx.indent_str()
                 ));
             }
-            StatementKind::Fetch(fetch) => {
-                // Render loading block if present
-                if let Some(loading) = &fetch.loading_block {
-                    html.push_str(&render_statements(loading, ctx));
-                } else {
-                    html.push_str(&format!("{}<!--wf-fetch-->\n", ctx.indent_str()));
-                }
-            }
+            // The `fetch` block of the original grammar reaches only the
+            // migrator, which rewrites it as a resource and a match.
+            StatementKind::Fetch(_) => {}
             // A resource is still loading when the static page is painted;
             // a match over one paints its `loading` arm. A match over an
             // enum is decided at run time, so its `else` arm stands in.
@@ -1377,7 +1372,9 @@ mod component_expansion_tests {
     use super::*;
 
     fn render(src: &str) -> String {
-        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>")
+            .map(crate::sema::lower)
+            .expect("parse");
         let components: HashMap<String, ComponentDecl> = program
             .declarations
             .iter()
@@ -1413,8 +1410,8 @@ mod component_expansion_tests {
     #[test]
     fn a_component_call_is_expanded_with_its_props_bound() {
         let html = render(
-            "Component Hero (title: String, tagline: String) {\n  Container { Heading(title, h1) Text(tagline) }\n}\n\
-             Page Home (path: \"/\") { Hero(\"Beit Qahwa\", \"Slow roasted\") }\n",
+            "component Hero(_ title: String, tagline: String) {\n  Container { Heading(title).h1 Text(tagline) }\n}\n\
+             page Home(path: \"/\") { Hero(\"Beit Qahwa\", tagline: \"Slow roasted\") }\n",
         );
         assert!(
             !html.contains("wf-component"),
@@ -1434,7 +1431,7 @@ mod component_expansion_tests {
     #[test]
     fn a_link_to_the_page_being_painted_is_marked_current() {
         let html = render(
-            "Page Guide (path: \"/docs/guide\") { Link(\"Home\", to: \"/\") Link(\"Docs\", to: \"/docs\", active: \"prefix\") Link(\"Here\", to: \"/docs/guide\") }\n",
+            "page Guide(path: \"/docs/guide\") { Link(\"Home\", to: \"/\") Link(\"Docs\", to: \"/docs\").prefix Link(\"Here\", to: \"/docs/guide\") }\n",
         );
         assert!(
             html.contains("href=\"/docs/guide\" aria-current=\"page\""),
@@ -1454,8 +1451,7 @@ mod component_expansion_tests {
     #[test]
     fn the_children_slot_renders_every_statement_of_the_callers_block() {
         let html = render(
-            "Component Panel (title: String) {\n  Card { Heading(title, h3) children Text(\"after\") }\n}\n\
-             Page Home (path: \"/\") { Panel(title: \"Keys\") { Text(\"first slot\") Text(\"second slot\") } }\n",
+            "component Panel(title: String) {\n  Card { Heading(title).h3 children Text(\"after\") }\n}\npage Home(path: \"/\") { Panel(title: \"Keys\") { Text(\"first slot\") Text(\"second slot\") } }\n",
         );
         let first = html.find("first slot").expect(&html);
         let second = html.find("second slot").expect(&html);
@@ -1467,8 +1463,7 @@ mod component_expansion_tests {
     #[test]
     fn named_arguments_and_defaults_both_bind() {
         let html = render(
-            "Component Item (name: String, note: String = \"none\") {\n  Text(name) Text(note)\n}\n\
-             Page Home (path: \"/\") { Item(name: \"Latte\") }\n",
+            "component Item(name: String, note: String = \"none\") {\n  Text(name) Text(note)\n}\npage Home(path: \"/\") { Item(name: \"Latte\") }\n",
         );
         assert!(html.contains("Latte"), "named arg: {html}");
         assert!(
@@ -1480,9 +1475,7 @@ mod component_expansion_tests {
     #[test]
     fn a_component_calling_a_component_expands_both() {
         let html = render(
-            "Component Inner (t: String) { Text(t) }\n\
-             Component Outer (t: String) { Container { Inner(t) } }\n\
-             Page Home (path: \"/\") { Outer(\"nested\") }\n",
+            "component Inner(_ t: String) { Text(t) }\ncomponent Outer(_ t: String) { Container { Inner(t) } }\npage Home(path: \"/\") { Outer(\"nested\") }\n",
         );
         assert!(
             html.contains("nested"),
@@ -1496,8 +1489,7 @@ mod component_expansion_tests {
     #[test]
     fn self_recursion_stops_at_the_depth_limit() {
         let html = render(
-            "Component Loop (t: String) { Container { Loop(t) } }\n\
-             Page Home (path: \"/\") { Loop(\"x\") }\n",
+            "component Loop(_ t: String) { Container { Loop(t) } }\npage Home(path: \"/\") { Loop(\"x\") }\n",
         );
         assert!(
             html.contains("wf-component"),
@@ -1510,7 +1502,7 @@ mod component_expansion_tests {
     #[test]
     fn an_unknown_component_still_renders_a_placeholder() {
         let program =
-            crate::syntax::parse_source("Page Home (path: \"/\") { Ghost() }", "<t>").unwrap();
+            crate::syntax::parse_source("page Home(path: \"/\") { Ghost }", "<t>").unwrap();
         let page = program
             .declarations
             .iter()

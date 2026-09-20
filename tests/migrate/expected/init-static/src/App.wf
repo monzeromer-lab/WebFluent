@@ -1,0 +1,21 @@
+app {
+    Navbar {
+        Navbar.Brand {
+            Text("static").heading
+        }
+        Navbar.Links {
+            Link(to: "/") { Text(t("nav.home")) }
+            Link(to: "/about") { Text(t("nav.about")) }
+            Link(to: "/blog") { Text(t("nav.blog")) }
+            Link(to: "/contact") { Text(t("nav.contact")) }
+        }
+        Navbar.Actions {
+            Button("EN").sm { on click { setLocale("en") } }
+            Button("AR").sm { on click { setLocale("ar") } }
+        }
+    }
+
+    Router
+
+    Footer
+}

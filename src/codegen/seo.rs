@@ -448,7 +448,7 @@ mod tests {
     #[test]
     fn a_page_gets_a_self_referencing_absolute_canonical() {
         let out = head(
-            r#"Page About (path: "/about", title: "About") { Text("x") }"#,
+            r#"page About(path: "/about", title: "About") { Text("x") }"#,
             SITE,
         );
         assert!(
@@ -462,7 +462,7 @@ mod tests {
     #[test]
     fn no_site_url_means_no_canonical_rather_than_a_relative_one() {
         let out = head(
-            r#"Page About (path: "/about", title: "About") { Text("x") }"#,
+            r#"page About(path: "/about", title: "About") { Text("x") }"#,
             r#"{"name":"L"}"#,
         );
         assert!(!out.contains("canonical"), "{out}");
@@ -472,7 +472,7 @@ mod tests {
     #[test]
     fn a_noindex_page_says_so_and_gets_no_canonical() {
         let out = head(
-            r#"Page Draft (path: "/draft", title: "Draft", noindex) { Text("x") }"#,
+            r#"page Draft(path: "/draft", title: "Draft", noindex: true) { Text("x") }"#,
             SITE,
         );
         assert!(
@@ -487,7 +487,7 @@ mod tests {
 
     #[test]
     fn an_indexable_page_does_not_state_the_default() {
-        let out = head(r#"Page P (path: "/", title: "P") { Text("x") }"#, SITE);
+        let out = head(r#"page P(path: "/", title: "P") { Text("x") }"#, SITE);
         assert!(
             !out.contains("name=\"robots\""),
             "index,follow is the default: {out}"
@@ -497,7 +497,7 @@ mod tests {
     #[test]
     fn the_sharing_card_carries_the_page_title_and_description() {
         let out = head(
-            r#"Page P (path: "/", title: "Invoicing", description: "Nine seconds") { Text("x") }"#,
+            r#"page P(path: "/", title: "Invoicing", description: "Nine seconds") { Text("x") }"#,
             SITE,
         );
         assert!(
@@ -521,7 +521,7 @@ mod tests {
     #[test]
     fn a_page_image_upgrades_the_card_and_is_made_absolute() {
         let out = head(
-            r#"Page P (path: "/", title: "P", image: "/card.png") { Text("x") }"#,
+            r#"page P(path: "/", title: "P", image: "/card.png") { Text("x") }"#,
             SITE,
         );
         assert!(
@@ -534,7 +534,7 @@ mod tests {
     #[test]
     fn the_page_description_wins_over_the_project_one() {
         let out = head(
-            r#"Page P (path: "/", title: "P", description: "Page desc") { Text("x") }"#,
+            r#"page P(path: "/", title: "P", description: "Page desc") { Text("x") }"#,
             SITE,
         );
         assert!(out.contains(r#"content="Page desc""#), "{out}");
@@ -543,7 +543,7 @@ mod tests {
 
     #[test]
     fn structured_data_is_json_ld_and_describes_the_page() {
-        let out = head(r#"Page P (path: "/", title: "Home") { Text("x") }"#, SITE);
+        let out = head(r#"page P(path: "/", title: "Home") { Text("x") }"#, SITE);
         assert!(
             out.contains(r#"<script type="application/ld+json">"#),
             "{out}"
@@ -564,7 +564,7 @@ mod tests {
     #[test]
     fn an_article_page_is_typed_as_one() {
         let out = head(
-            r#"Page Post (path: "/post", title: "Post", type: "article") { Text("x") }"#,
+            r#"page Post(path: "/post", title: "Post", type: "article") { Text("x") }"#,
             SITE,
         );
         assert!(
@@ -577,7 +577,7 @@ mod tests {
     #[test]
     fn a_nested_route_gets_a_breadcrumb_trail_and_the_home_page_does_not() {
         let nested = head(
-            r#"Page Guide (path: "/docs/getting-started", title: "Getting Started") { Text("x") }"#,
+            r#"page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") }"#,
             SITE,
         );
         assert!(nested.contains(r#""@type":"BreadcrumbList""#), "{nested}");
@@ -587,7 +587,7 @@ mod tests {
             "a URL segment becomes a readable name: {nested}"
         );
 
-        let home = head(r#"Page P (path: "/", title: "Home") { Text("x") }"#, SITE);
+        let home = head(r#"page P(path: "/", title: "Home") { Text("x") }"#, SITE);
         assert!(
             !home.contains("BreadcrumbList"),
             "a one-item trail says nothing: {home}"
@@ -597,7 +597,7 @@ mod tests {
     #[test]
     fn a_multilingual_site_lists_every_variant_including_itself() {
         let out = head(
-            r#"Page P (path: "/", title: "P") { Text("x") }"#,
+            r#"page P(path: "/", title: "P") { Text("x") }"#,
             r#"{"name":"L","meta":{"site_url":"https://l.example"},
                 "i18n":{"default_locale":"en","locales":["en","ar"]}}"#,
         );
@@ -612,7 +612,7 @@ mod tests {
     #[test]
     fn a_single_language_site_emits_no_alternates() {
         let out = head(
-            r#"Page P (path: "/", title: "P") { Text("x") }"#,
+            r#"page P(path: "/", title: "P") { Text("x") }"#,
             r#"{"name":"L","meta":{"site_url":"https://l.example"},
                 "i18n":{"default_locale":"en","locales":["en"]}}"#,
         );
@@ -625,7 +625,7 @@ mod tests {
     #[test]
     fn text_is_escaped_everywhere_it_lands() {
         let out = head(
-            r#"Page P (path: "/", title: "Say \"hi\" & <b>bye</b>") { Text("x") }"#,
+            r#"page P(path: "/", title: "Say \"hi\" & <b>bye</b>") { Text("x") }"#,
             SITE,
         );
         assert!(
@@ -646,11 +646,11 @@ mod tests {
     #[test]
     fn the_sitemap_lists_static_routes_only() {
         let program = parse(
-            r#"Page Home (path: "/", title: "H") { Text("x") }
-               Page About (path: "/about", title: "A") { Text("x") }
-               Page User (path: "/user/:id", title: "U") { Text("x") }
-               Page Missing (path: "*", title: "M") { Text("x") }
-               Page Draft (path: "/draft", title: "D", noindex) { Text("x") }"#,
+            r#"page Home(path: "/", title: "H") { Text("x") }
+               page About(path: "/about", title: "A") { Text("x") }
+               page User(path: "/user/:id", title: "U") { Text("x") }
+               page Missing(path: "*", title: "M") { Text("x") }
+               page Draft(path: "/draft", title: "D", noindex: true) { Text("x") }"#,
         );
         let xml = sitemap(&config(SITE), &program).expect("a sitemap");
 
@@ -675,7 +675,7 @@ mod tests {
 
     #[test]
     fn no_site_url_means_no_sitemap() {
-        let program = parse(r#"Page P (path: "/", title: "P") { Text("x") }"#);
+        let program = parse(r#"page P(path: "/", title: "P") { Text("x") }"#);
         assert!(sitemap(&config(r#"{"name":"L"}"#), &program).is_none());
     }
 

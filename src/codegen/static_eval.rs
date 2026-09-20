@@ -824,7 +824,7 @@ mod tests {
 
     fn expr_of(src: &str) -> Expr {
         // Borrow a page's first Text argument as a way to parse an expression.
-        let p = program(&format!("Page P (path: \"/\") {{ Text({src}) }}"));
+        let p = program(&format!("page P(path: \"/\") {{ Text({src}) }}"));
         let Declaration::Page(page) = &p.declarations[0] else {
             unreachable!()
         };
@@ -848,7 +848,7 @@ mod tests {
     #[test]
     fn a_store_s_seeded_state_is_in_scope() {
         let (_, scope) =
-            page_scope("Store S { state rows = [1, 2, 3] }\nPage P (path: \"/\") { Text(\"x\") }");
+            page_scope("store S { state rows = [1, 2, 3] }\npage P(path: \"/\") { Text(\"x\") }");
         let value = eval(&expr_of("S.rows"), &scope).expect("S.rows should resolve");
         assert_eq!(
             value,
@@ -859,7 +859,7 @@ mod tests {
     #[test]
     fn length_resolves_so_a_count_can_be_painted() {
         let (_, scope) =
-            page_scope("Store S { state rows = [1, 2] }\nPage P (path: \"/\") { Text(\"x\") }");
+            page_scope("store S { state rows = [1, 2] }\npage P(path: \"/\") { Text(\"x\") }");
         assert_eq!(
             eval(&expr_of("S.rows.length"), &scope),
             Some(Static::Num(2.0))
@@ -868,14 +868,14 @@ mod tests {
 
     #[test]
     fn a_page_s_own_state_is_in_scope() {
-        let (_, scope) = page_scope("Page P (path: \"/\") { state n = 7\n Text(\"x\") }");
+        let (_, scope) = page_scope("page P(path: \"/\") { state n = 7\n Text(\"x\") }");
         assert_eq!(eval(&expr_of("n"), &scope), Some(Static::Num(7.0)));
     }
 
     #[test]
     fn map_fields_resolve_through_property_access() {
         let (_, scope) = page_scope(
-            "Store S { state user = { name: \"Monzer\", age: 30 } }\nPage P (path: \"/\") { Text(\"x\") }",
+            "store S { state user = { name: \"Monzer\", age: 30 } }\npage P(path: \"/\") { Text(\"x\") }",
         );
         assert_eq!(
             eval(&expr_of("S.user.name"), &scope),
@@ -910,7 +910,7 @@ mod tests {
 
     #[test]
     fn a_loop_binding_shadows_the_outer_scope() {
-        let (_, scope) = page_scope("Page P (path: \"/\") { state x = 1\n Text(\"y\") }");
+        let (_, scope) = page_scope("page P(path: \"/\") { state x = 1\n Text(\"y\") }");
         let inner = scope.with("x", Static::Str("bound".into()));
         assert_eq!(
             eval(&expr_of("x"), &inner),
@@ -957,7 +957,7 @@ mod interpreter_tests {
     #[test]
     fn derived_values_over_lambdas_resolve_in_order() {
         let s = store_scope(
-            r#"Store S {
+            r#"store S {
                 state all = [{ n: "b", age: 2, done: false }, { n: "a", age: 1, done: true }, { n: "c", age: 3, done: false }]
                 state query = "C"
                 derived q = query.toLowerCase()
@@ -978,7 +978,7 @@ mod interpreter_tests {
     #[test]
     fn an_action_of_locals_ifs_and_returns_runs_at_build_time() {
         let s = store_scope(
-            r#"Store S {
+            r#"store S {
                 state all = [{ h: "x", dur: 0, st: "ready" }, { h: "y", dur: 12.345, st: "failed" }]
                 state sortDir = "desc"
                 derived rows = sortRows(all).map(r => shape(r))
@@ -990,7 +990,7 @@ mod interpreter_tests {
                     if st == "failed" { return "Failed" }
                     return st
                 }
-                action sortRows(list: List) {
+                action sortRows(list: [Any]) {
                     copy = list.slice()
                     dir = if sortDir == "asc" { 1 } else { -1 }
                     copy.sort((a, b) => (a.dur - b.dur) * dir)
@@ -1019,7 +1019,7 @@ mod interpreter_tests {
     #[test]
     fn a_store_mutation_or_an_unknown_call_stops_the_evaluation() {
         let s = store_scope(
-            r#"Store S {
+            r#"store S {
                 state n = 1
                 state items = [1, 2]
                 derived bumped = bump()
@@ -1047,7 +1047,7 @@ mod interpreter_tests {
     #[test]
     fn runaway_recursion_runs_out_of_fuel_rather_than_hanging() {
         let s = store_scope(
-            r#"Store S {
+            r#"store S {
                 derived forever = again(0)
                 action again(i: Number) { return again(i + 1) }
             }"#,

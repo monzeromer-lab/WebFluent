@@ -27,8 +27,8 @@ use std::fs;
 /// use serde_json::json;
 ///
 /// let tpl = Template::from_str(r##"
-///     Page Home (path: "/", title: "Hello") {
-///         Container { Heading("Hello, {name}!", h1) }
+///     page Home(path: "/", title: "Hello") {
+///         Container { Heading("Hello, {name}!").h1 }
 ///     }
 /// "##).unwrap();
 ///
@@ -46,8 +46,8 @@ use std::fs;
 /// # use webfluent::Template;
 /// # use serde_json::json;
 /// let html = Template::from_str(r##"
-///     Theme Brand { token color-primary: "#0F766E" }
-///     Page P (path: "/") { Text("Hi") }
+///     theme Brand { color-primary: #0F766E }
+///     page P(path: "/") { Text("Hi") }
 /// "##)
 ///     .unwrap()
 ///     .with_tokens(&[("color-secondary", "#8B5CF6")])
@@ -187,7 +187,7 @@ impl Template {
     /// ```rust
     /// # use webfluent::Template;
     /// # use serde_json::json;
-    /// let tpl = Template::from_str("Page P (path: \"/\") { Text(\"Hi\") }").unwrap();
+    /// let tpl = Template::from_str("page P(path: \"/\") { Text(\"Hi\") }").unwrap();
     /// let (css, body) = tpl.render_html_parts(&json!({})).unwrap();
     /// // Serve `css` at /styles.css, and link it from your own shell.
     /// assert!(css.contains(":root"));

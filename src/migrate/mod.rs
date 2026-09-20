@@ -1031,6 +1031,7 @@ impl<'a> Rewriter<'a> {
         };
         let close = text.rfind('}').unwrap_or(text.len());
         let inner = &text[open + 1..close];
+        let one_line = !inner.contains('\n');
         let mut out = String::new();
         for line in inner.split('\n') {
             let trimmed = line.trim();
@@ -1042,10 +1043,17 @@ impl<'a> Rewriter<'a> {
             let indent = &line[..line.len() - line.trim_start().len()];
             let mut words = trimmed.split_whitespace();
             let prop = words.next().unwrap_or("");
-            let rest: Vec<&str> = words.collect();
+            // A quoted duration or easing loses its quotes; `var(--x)` is `$x`.
+            let rest: Vec<String> = words
+                .map(|w| self.tokens_spelled(w.trim_matches('"')))
+                .collect();
             out.push_str(&format!("{indent}{prop}: {}\n", rest.join(" ")));
         }
-        let out = out.trim_end_matches('\n').to_string();
+        let out = if one_line {
+            format!(" {} ", out.trim())
+        } else {
+            out.trim_end_matches('\n').to_string()
+        };
         self.patch(base + open + 1, base + close, out);
     }
 

@@ -1,21 +1,24 @@
-//! The two grammars, one program: every pair here is the same site written
-//! in the original grammar and in WebFluent 3, and every backend — the
-//! bundle, the static paint, the template renderer — must produce the same
-//! output for both. The pairs double as a corpus of what the new grammar
-//! spells and how.
+//! Two spellings, one program: every pair here is the same site written
+//! in the grammar of WebFluent 2 and, by hand, in WebFluent 3. `wf migrate`
+//! must turn the first into a program that every backend — the bundle, the
+//! static paint, the template renderer — compiles to exactly what the
+//! second does. The pairs double as a corpus of what the new grammar
+//! spells and how, and hold the migrator to the idiomatic spelling.
 
 mod common;
 
-use common::{Backend, raw_output};
+use common::{Backend, migrated, raw_output};
 
-/// Assert that `v1` and `v2` compile to identical output on every backend.
+/// Assert that `v1`, migrated, and `v2` compile to identical output on
+/// every backend.
 fn same(v1: &str, v2: &str) {
+    let from_v1 = migrated(v1);
     for backend in [Backend::Spa, Backend::Ssg, Backend::Template] {
-        let a = raw_output(backend, v1);
+        let a = raw_output(backend, &from_v1);
         let b = raw_output(backend, v2);
         assert_eq!(
             a, b,
-            "{backend:?} output differs between the grammars\n--- v1 ---\n{v1}\n--- v2 ---\n{v2}"
+            "{backend:?} output differs between the migrated and the hand-written spelling\n--- migrated ---\n{from_v1}\n--- v2 ---\n{v2}"
         );
     }
 }

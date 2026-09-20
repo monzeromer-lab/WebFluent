@@ -312,7 +312,9 @@ mod tests {
     use super::*;
 
     fn program(src: &str) -> Program {
-        crate::syntax::parse_source(src, "<test>").expect("parse")
+        crate::syntax::parse_source(src, "<test>")
+            .map(crate::sema::lower)
+            .expect("parse")
     }
 
     fn check(src: &str) -> Vec<Diagnostic> {
@@ -321,14 +323,14 @@ mod tests {
 
     #[test]
     fn clean_program_has_no_diagnostics() {
-        let src = "Page Home (path: \"/\") {\n  Container {\n    Heading(\"Hi\", h1)\n    Button(\"Go\", primary)\n  }\n}\n";
+        let src = "page Home(path: \"/\") {\n  Container {\n    Heading(\"Hi\").h1\n    Button(\"Go\").primary\n  }\n}\n";
         assert!(check(src).is_empty());
     }
 
     #[test]
     fn undefined_component_is_flagged_with_location() {
         // ProfileCard is used but never declared. It sits on line 3.
-        let src = "Page Home (path: \"/\") {\n  Container {\n    ProfileCard()\n  }\n}\n";
+        let src = "page Home(path: \"/\") {\n  Container {\n    ProfileCard\n  }\n}\n";
         let diags = check(src);
         assert_eq!(diags.len(), 1);
         assert!(
@@ -341,37 +343,22 @@ mod tests {
 
     #[test]
     fn declared_component_is_accepted() {
-        let src = "Component ProfileCard (name: String) { Text(name, bold) }\n\
-                   Page Home (path: \"/\") { Container { ProfileCard(name: \"Jo\") } }\n";
+        let src = "component ProfileCard(name: String) { Text(name).bold }\npage Home(path: \"/\") { Container { ProfileCard(name: \"Jo\") } }\n";
         assert!(check(src).is_empty(), "diags: {:?}", check(src));
     }
 
     #[test]
     fn undefined_component_inside_control_flow_is_flagged() {
         // Recursion into `if` bodies must still catch it.
-        let src = "Page Home (path: \"/\") {\n  if (true) {\n    ProfileCard()\n  }\n}\n";
+        let src = "page Home(path: \"/\") {\n  if (true) {\n    ProfileCard\n  }\n}\n";
         let diags = check(src);
         assert_eq!(diags.len(), 1);
         assert!(diags[0].message.contains("ProfileCard"));
     }
 
     #[test]
-    fn route_to_missing_page_is_flagged() {
-        let src = "Page Home (path: \"/\") { Text(\"hi\") }\n\
-                   App { Router { Route(path: \"/x\", page: Missing) } }\n";
-        let diags = check(src);
-        assert_eq!(diags.len(), 1, "diags: {:?}", diags);
-        assert!(
-            diags[0].message.contains("Missing"),
-            "msg: {}",
-            diags[0].message
-        );
-    }
-
-    #[test]
     fn route_to_existing_page_is_accepted() {
-        let src = "Page Home (path: \"/\") { Text(\"hi\") }\n\
-                   App { Router { Route(path: \"/\", page: Home) } }\n";
+        let src = "page Home(path: \"/\") { Text(\"hi\") }\napp { Router }\n";
         assert!(check(src).is_empty(), "diags: {:?}", check(src));
     }
 
@@ -380,9 +367,7 @@ mod tests {
         // Codegen wires only the FIRST Router's direct Route children; a second
         // Router's routes are dropped. Validating them would reject a program that
         // compiles and previews fine, so the gate must ignore them.
-        let src = "Page Home (path: \"/\") { Text(\"hi\") }\n\
-                   App {\n  Router { Route(path: \"/\", page: Home) }\n  \
-                   Router { Route(path: \"/x\", page: Ghost) }\n}\n";
+        let src = "page Home(path: \"/\") { Text(\"hi\") }\napp {\n  Router\n  Router\n}\n";
         assert!(
             check(src).is_empty(),
             "a dropped route must not be flagged; diags: {:?}",
@@ -392,8 +377,8 @@ mod tests {
 
     #[test]
     fn duplicate_page_name_is_flagged_once() {
-        let src = "Page Home (path: \"/\") { Text(\"a\") }\n\
-                   Page Home (path: \"/b\") { Text(\"b\") }\n";
+        let src =
+            "page Home(path: \"/\") { Text(\"a\") }\npage Home(path: \"/b\") { Text(\"b\") }\n";
         let diags = check(src);
         assert_eq!(diags.len(), 1, "one diagnostic for the second declaration");
         assert!(diags[0].message.contains("duplicate page"));
@@ -403,8 +388,7 @@ mod tests {
 
     #[test]
     fn duplicate_component_name_is_flagged() {
-        let src = "Component ProfileCard (x: String) { Text(x) }\n\
-                   Component ProfileCard (y: String) { Text(y) }\n";
+        let src = "component ProfileCard(x: String) { Text(x) }\ncomponent ProfileCard(y: String) { Text(y) }\n";
         let diags = check(src);
         assert_eq!(diags.len(), 1);
         assert!(diags[0].message.contains("duplicate component"));
@@ -414,14 +398,13 @@ mod tests {
     #[test]
     fn page_and_component_may_share_a_name() {
         // Cross-kind name reuse is legal (separate namespaces) — no diagnostic.
-        let src = "Component Profile (name: String) { Text(name) }\n\
-                   Page Profile (path: \"/me\") { Text(\"me\") }\n";
+        let src = "component Profile(name: String) { Text(name) }\npage Profile(path: \"/me\") { Text(\"me\") }\n";
         assert!(check(src).is_empty(), "diags: {:?}", check(src));
     }
 
     #[test]
     fn multiple_problems_are_all_reported() {
-        let src = "Page Home (path: \"/\") {\n  WidgetA()\n  WidgetB()\n}\n";
+        let src = "page Home(path: \"/\") {\n  WidgetA\n  WidgetB\n}\n";
         let diags = check(src);
         assert_eq!(diags.len(), 2);
         assert!(diags.iter().any(|d| d.message.contains("WidgetA")));

@@ -209,7 +209,7 @@ fn a_file_outside_any_project_is_a_project_of_one() {
     let uri = Url::from_file_path(path.with_file_name("scratch.wf")).unwrap();
     let open = |_: &Path| {
         Some(wf_lsp::project::OpenText {
-            text: Arc::from("Page P (path: \"/\") { Nudge(label: \"x\") }\n"),
+            text: Arc::from("page P(path: \"/\") { Nudge(label: \"x\") }\n"),
             last_valid: None,
         })
     };

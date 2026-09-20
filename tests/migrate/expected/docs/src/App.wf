@@ -1,0 +1,14 @@
+app {
+    Navbar {
+        Text("Handbook").bold
+        Link(t("nav.home"), to: "/")
+        Link(t("nav.handbook"), to: "/handbook")
+        Link(t("nav.contact"), to: "/contact")
+    }
+
+    Router
+
+    Footer {
+        Text("Written by people who work here.").sm.muted.center
+    }
+}

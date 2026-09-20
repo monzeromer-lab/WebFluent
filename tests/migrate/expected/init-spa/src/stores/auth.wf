@@ -1,0 +1,17 @@
+store AuthStore {
+    state user = null
+    state authToken = ""
+
+    derived isLoggedIn = user != null
+
+    action login(email: String, password: String) {
+        user = { name: "Demo User", email: email, role: "admin" }
+        authToken = "demo-token-123"
+    }
+
+    action logout() {
+        user = null
+        authToken = ""
+        navigate("/")
+    }
+}

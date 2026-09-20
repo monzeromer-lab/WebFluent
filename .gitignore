@@ -4,3 +4,4 @@
 RELEASE_NOTES.md
 .idea/
 /tests/fixtures/*/build/
+/tests/migrate/corpus/*/build/

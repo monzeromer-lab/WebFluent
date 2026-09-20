@@ -1417,10 +1417,19 @@ impl ParserV2 {
                 }
                 Ok(StatementKind::Emit(EmitStmt { event, args }))
             }
-            "for" | "show" | "match" | "on" | "style" => Err(self.error_with_hint(
-                format!("`{word}` renders; it cannot appear inside an action or a handler"),
-                "Keep what the page shows in the page's body and change state here",
-            )),
+            // A keyword that renders — unless it is a name being assigned
+            // or read: `on = !on`, `show.x`.
+            "for" | "show" | "match" | "on" | "style"
+                if matches!(
+                    self.kind_at(1),
+                    TokenType::Identifier(_) | TokenType::OpenBrace | TokenType::Dot
+                ) && !(word == "on" && matches!(self.kind_at(1), TokenType::Dot)) =>
+            {
+                Err(self.error_with_hint(
+                    format!("`{word}` renders; it cannot appear inside an action or a handler"),
+                    "Keep what the page shows in the page's body and change state here",
+                ))
+            }
             _ if crate::lexer::token::ALL_COMPONENT_NAMES.contains(&word.as_str()) => Err(self
                 .error_with_hint(
                     format!(

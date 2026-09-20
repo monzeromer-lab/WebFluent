@@ -1,0 +1,11 @@
+app {
+    NavBar
+
+    Row {
+        DocSidebar
+
+        Router
+    }
+
+    SiteFooter
+}

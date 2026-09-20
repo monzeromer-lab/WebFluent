@@ -1,0 +1,13 @@
+component NavBar {
+    Navbar {
+        Navbar.Brand {
+            Link(to: "/") { Text("WebFluent").heading }
+        }
+        Navbar.Links {
+        }
+        Navbar.Actions {
+            Button("EN").sm { on click { setLocale("en") } }
+            Button("AR").sm { on click { setLocale("ar") } }
+        }
+    }
+}

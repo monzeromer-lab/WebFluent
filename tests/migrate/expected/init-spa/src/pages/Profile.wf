@@ -1,0 +1,79 @@
+page Profile(path: "/profile", description: "Your details and how they appear to others.", title: "Profile") {
+    use AuthStore
+
+    state editing = false
+
+    Container.fadeIn {
+        Heading("Profile").h1
+
+        Spacer
+
+        Row(gap: .md) {
+            Column(span: 4) {
+                Card.elevated.scaleIn {
+                    Card.Body {
+                        Stack(gap: .md) {
+                            Avatar(initials: "U").primary.lg
+                            Heading("Demo User").h2.center
+                            Text("user@demo.com").muted.center
+                            Divider
+                            Badge("Active").success
+                            Spacer.sm
+                            Progress(value: 75, max: 100)
+                            Text("Profile 75% complete").muted.sm
+                        }
+                    }
+                }
+            }
+            Column(span: 8) {
+                Card {
+                    Card.Header {
+                        Row(align: .center, justify: .between) {
+                            Heading("Details").h2
+                            Button("Edit").primary.sm { on click { editing = !editing } }
+                        }
+                    }
+                    Card.Body {
+                        if editing {
+                            Form {
+                                on submit {
+                                    editing = false
+                                }
+                                Input(placeholder: "Full Name", label: "Name").text
+                                Spacer.sm
+                                Input(placeholder: "Email", label: "Email").email
+                                Spacer.sm
+                                Input(placeholder: "Bio", label: "Bio").text
+                                Spacer
+                                Row(gap: .sm) {
+                                    Button("Save").primary { on click { editing = false } }
+                                    Button("Cancel") { on click { editing = false } }
+                                }
+
+                            }
+                        } else {
+                            Stack(gap: .md) {
+                                Row {
+                                    Text("Name:").bold
+                                    Text("Demo User")
+                                }
+                                Row {
+                                    Text("Email:").bold
+                                    Text("user@demo.com")
+                                }
+                                Row {
+                                    Text("Bio:").bold
+                                    Text("WebFluent developer")
+                                }
+                                Row {
+                                    Text("Joined:").bold
+                                    Text("March 2026")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

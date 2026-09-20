@@ -1,0 +1,9 @@
+component TeamMember(name: String, role: String, initials: String) {
+    Row(align: .center, gap: .md) {
+        Avatar(initials: initials).primary
+        Stack {
+            Text(name).bold
+            Text(role).muted.sm
+        }
+    }
+}

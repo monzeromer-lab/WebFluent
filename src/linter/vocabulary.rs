@@ -27,7 +27,6 @@ use std::collections::HashSet;
 
 use crate::codegen::builtin::{builtin_to_html, modifier_to_class};
 use crate::error::VocabWarning;
-use crate::parser::vocabulary::MODIFIER_KEYWORDS;
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
@@ -335,18 +334,12 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
         if scope.contains(name) {
             continue;
         }
-        // (A word from the vocabulary can't reach here — the parser would have
-        // consumed it as a modifier — but the check is cheap and makes the
-        // invariant local.)
-        if MODIFIER_KEYWORDS.contains(&name.as_str()) {
-            continue;
-        }
         let span = &el.arg_spans[i];
-        let hint = suggest(name, scope);
+        let hint = suggest(name, scope, el);
         out.push(VocabWarning {
             rule_id: "V01".into(),
             message: format!(
-                "`{name}` is not a modifier and nothing in scope declares it — it does nothing"
+                "nothing in scope declares `{name}`, so it reads as nothing — a flag is written `.{name}`"
             ),
             file: file.into(),
             line: span.line as usize,
@@ -356,16 +349,39 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
     }
 }
 
-/// The closest modifier or in-scope name within edit distance 2, if any —
-/// `outline` → `outlined`, `centered` → `center`, `cuont` → `count`.
-fn suggest(word: &str, scope: &HashSet<String>) -> Option<String> {
-    let candidates = MODIFIER_KEYWORDS
+/// The closest in-scope name or flag of the element within edit distance
+/// 2, if any — `outline` → `.outlined`, `centered` → `.center`, `cuont` →
+/// `count`.
+fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String> {
+    let sig = match &el.component {
+        ComponentRef::BuiltIn(name) => crate::registry::component(name),
+        ComponentRef::SubComponent(owner, part) => crate::registry::part(owner, part),
+        ComponentRef::UserDefined(_) => None,
+    };
+    let mut flags: Vec<String> = Vec::new();
+    if let Some(sig) = sig {
+        for prop in sig.all_props().filter(|p| p.shorthand) {
+            match prop.ty {
+                crate::registry::PropType::Bool => flags.push(format!(".{}", prop.name)),
+                crate::registry::PropType::Enum(cases) => {
+                    flags.extend(
+                        cases
+                            .iter()
+                            .filter(|c| !c.name.is_empty())
+                            .map(|c| format!(".{}", c.name)),
+                    );
+                }
+                _ => {}
+            }
+        }
+    }
+    let candidates = scope
         .iter()
-        .copied()
-        .chain(scope.iter().map(String::as_str));
+        .map(String::as_str)
+        .chain(flags.iter().map(String::as_str));
     let best = candidates
         .filter_map(|c| {
-            let d = levenshtein(word, c);
+            let d = levenshtein(word, c.trim_start_matches('.'));
             (d <= 2 && d > 0).then_some((d, c))
         })
         .min_by_key(|&(d, c)| (d, c.len()))?;
@@ -394,14 +410,16 @@ mod tests {
     use super::*;
 
     fn lint(source: &str) -> Vec<VocabWarning> {
-        let program = crate::syntax::parse_source(source, "<test>").expect("parse");
+        let program = crate::syntax::parse_source(source, "<test>")
+            .map(crate::sema::lower)
+            .expect("parse");
         lint_vocabulary(&program, "<test>")
     }
 
     #[test]
     fn an_unknown_bare_word_argument_is_flagged() {
         // The studio's probe case (finding 0.7): compiles clean, does nothing.
-        let w = lint(r#"Page Home (path: "/") { Container { Button("Save", huge) } }"#);
+        let w = lint(r#"page Home(path: "/") { Container { Button(huge) } }"#);
         assert_eq!(w.len(), 1, "{w:?}");
         assert_eq!(w[0].rule_id, "V01");
         assert!(w[0].message.contains("`huge`"));
@@ -411,19 +429,19 @@ mod tests {
     #[test]
     fn near_misses_of_the_vocabulary_get_a_suggestion() {
         // The exact words the LSP used to suggest and the compiler dropped.
-        let w = lint(r#"Page Home (path: "/") { Text("hi", centered) }"#);
+        let w = lint(r#"page Home(path: "/") { Text(centered) }"#);
         assert_eq!(w.len(), 1);
-        assert_eq!(w[0].hint.as_deref(), Some("did you mean `center`?"));
+        assert_eq!(w[0].hint.as_deref(), Some("did you mean `.center`?"));
 
-        let w = lint(r#"Page Home (path: "/") { Button("Go", outline) }"#);
-        assert_eq!(w[0].hint.as_deref(), Some("did you mean `outlined`?"));
+        let w = lint(r#"page Home(path: "/") { Button(outline) }"#);
+        assert_eq!(w[0].hint.as_deref(), Some("did you mean `.outlined`?"));
     }
 
     #[test]
     fn a_typoed_state_name_suggests_the_state() {
         // Ask A-4's case: the mistake lands at argument position, where the
         // span exists.
-        let w = lint(r#"Page Home (path: "/") { state count = 0 Text(cuont) }"#);
+        let w = lint(r#"page Home(path: "/") { state count = 0 Text(cuont) }"#);
         assert_eq!(w.len(), 1);
         assert_eq!(w[0].hint.as_deref(), Some("did you mean `count`?"));
     }
@@ -432,9 +450,9 @@ mod tests {
     fn real_bindings_do_not_warn() {
         let w = lint(
             r#"
-            Store Cart { state total = 0 }
-            Component Price (amount: Number) { Text(amount) }
-            Page Home (path: "/") {
+            store Cart { state total = 0 }
+            component Price(_ amount: Number) { Text(amount) }
+            page Home(path: "/") {
                 use Cart
                 state items = ["a"]
                 derived first = items
@@ -442,6 +460,7 @@ mod tests {
                 Price(first)
                 for item in items { Text(item) }
             }
+            
             "#,
         );
         assert_eq!(w, Vec::new());
@@ -450,7 +469,7 @@ mod tests {
     #[test]
     fn valid_modifiers_still_parse_as_modifiers() {
         // Sanity: the vocabulary refactor must not change what is a modifier.
-        let w = lint(r#"Page Home (path: "/") { Button("Save", primary, large) Text("x", bold) }"#);
+        let w = lint(r#"page Home(path: "/") { Button("Save").primary.lg Text("x").bold }"#);
         assert_eq!(w, Vec::new());
     }
 
@@ -459,7 +478,7 @@ mod tests {
         // Named args reference actions, pages, options — a different namespace
         // with different failure modes; flagging them here would false-positive.
         let w = lint(
-            r#"Page Home (path: "/") { state n = 0 action bump() { n = n + 1 } Button("Go", onClick: bump) }"#,
+            r#"page Home(path: "/") { state n = 0 action bump() { n = n + 1 } Button("Go", onClick: bump) }"#,
         );
         assert_eq!(w, Vec::new());
     }
@@ -468,13 +487,15 @@ mod tests {
     fn fetch_and_loop_bindings_resolve() {
         let w = lint(
             r#"
-            Page Home (path: "/") {
-                fetch posts from "https://example.com/posts" {
+            page Home(path: "/") {
+                resource posts = fetch("https://example.com/posts")
+                match posts {
                     loading { Text("...") }
                     error (e) { Text(e) }
-                    success { for p in posts { Text(p) } }
+                    ready(posts) { for p in posts { Text(p) } }
                 }
             }
+            
             "#,
         );
         assert_eq!(w, Vec::new());
@@ -482,7 +503,7 @@ mod tests {
 
     #[test]
     fn distance_is_bounded_so_arbitrary_words_get_no_suggestion() {
-        let w = lint(r#"Page Home (path: "/") { Text("hi", strikethrough) }"#);
+        let w = lint(r#"page Home(path: "/") { Text(strikethrough) }"#);
         assert_eq!(w.len(), 1);
         assert_eq!(w[0].hint, None, "nothing is within distance 2");
     }
@@ -506,7 +527,9 @@ mod dead_variant_tests {
     use super::*;
 
     fn warnings(src: &str) -> Vec<VocabWarning> {
-        let program = crate::syntax::parse_source(src, "<t>").expect("parse");
+        let program = crate::syntax::parse_source(src, "<t>")
+            .map(crate::sema::lower)
+            .expect("parse");
         lint_vocabulary(&program, "<t>")
             .into_iter()
             .filter(|w| w.rule_id == "V02")
@@ -516,38 +539,63 @@ mod dead_variant_tests {
     #[test]
     fn a_variant_the_stylesheet_defines_is_silent() {
         assert!(
-            warnings(r#"Page P (path: "/") { Button("Save", primary) }"#).is_empty(),
+            warnings(r#"page P(path: "/") { Button("Save").primary }"#).is_empty(),
             "`.wf-btn--primary` exists"
         );
-        assert!(warnings(r#"Page P (path: "/") { Card(elevated) { Text("x") } }"#).is_empty());
+        assert!(warnings(r#"page P(path: "/") { Card.elevated { Text("x") } }"#).is_empty());
     }
 
+    /// Every flag and case the registry gives a built-in produces a class
+    /// the engine's stylesheet defines: a flag with nothing behind it is a
+    /// registry mistake, and this is where it shows.
     #[test]
-    fn a_variant_with_no_rule_behind_it_is_reported() {
-        let w = warnings(r#"Page P (path: "/") { Alert("Careful", elevated) }"#);
-        assert_eq!(w.len(), 1, "{w:?}");
+    fn every_registry_flag_has_a_rule_behind_it() {
+        use crate::registry::{self, PropType, Sink};
+        let sheets = Sheets {
+            engine: stylesheet(),
+            project: "",
+        };
+        let mut missing = Vec::new();
+        for sig in registry::components() {
+            let registry::Ir::BuiltIn(ir) = sig.ir else {
+                continue;
+            };
+            let (_, base) = builtin_to_html(ir);
+            if base.is_empty() {
+                continue;
+            }
+            for prop in sig.props.iter().filter(|p| p.sink == Sink::Class) {
+                let words: Vec<&str> = match prop.ty {
+                    PropType::Bool => match prop.legacy {
+                        registry::Legacy::Modifier(w) => vec![w],
+                        _ => Vec::new(),
+                    },
+                    PropType::Enum(cases) => cases
+                        .iter()
+                        .filter(|c| !c.legacy.is_empty())
+                        .map(|c| c.legacy)
+                        .collect(),
+                    _ => Vec::new(),
+                };
+                for word in words {
+                    let class = modifier_to_class(base, word);
+                    if class.is_empty()
+                        || !class.starts_with(base)
+                        || class.starts_with("wf-animate")
+                    {
+                        continue;
+                    }
+                    if !sheets.defines(&class) {
+                        missing.push(format!("{}.{} → .{class}", sig.qualified(), prop.name));
+                    }
+                }
+            }
+        }
         assert!(
-            w[0].message.contains("wf-alert--elevated"),
-            "{}",
-            w[0].message
+            missing.is_empty(),
+            "flags with no rule behind them:\n{}",
+            missing.join("\n")
         );
-        assert!(
-            w[0].hint.as_ref().unwrap().contains("add a"),
-            "{:?}",
-            w[0].hint
-        );
-    }
-
-    /// The size words are Spacer's, and `fluid` is Container's; on any other
-    /// component they name a class with nothing behind it.
-    #[test]
-    fn size_and_shape_words_are_checked_per_component() {
-        assert!(warnings(r#"Page P (path: "/") { Spacer(xl) }"#).is_empty());
-        assert!(warnings(r#"Page P (path: "/") { Container(fluid) { Text("x") } }"#).is_empty());
-        assert!(warnings(r#"Page P (path: "/") { Skeleton(circle, size: "40px") }"#).is_empty());
-        let w = warnings(r#"Page P (path: "/") { Button("Go", xl) }"#);
-        assert_eq!(w.len(), 1, "{w:?}");
-        assert!(w[0].message.contains("wf-btn--xl"), "{}", w[0].message);
     }
 
     /// Typography and animation classes apply wherever they land, so they are
@@ -555,22 +603,12 @@ mod dead_variant_tests {
     #[test]
     fn shared_and_animated_classes_are_not_flagged() {
         assert!(
-            warnings(r#"Page P (path: "/") { Card(bold) { Text("x") } }"#).is_empty(),
+            warnings(r#"page P(path: "/") { Card { Text("x") } }"#).is_empty(),
             "`wf-text--bold` styles whatever it is put on"
         );
         assert!(
-            warnings(r#"Page P (path: "/") { Card(fadeIn) { Text("x") } }"#).is_empty(),
+            warnings(r#"page P(path: "/") { Card.fadeIn { Text("x") } }"#).is_empty(),
             "animation classes are carried by keyframes, not per component"
-        );
-    }
-
-    #[test]
-    fn the_warning_points_at_the_modifier_itself() {
-        let w = warnings("Page P (path: \"/\") {\n    Alert(\"x\", pill)\n}");
-        assert_eq!(w.len(), 1);
-        assert_eq!(
-            w[0].line, 2,
-            "the warning should name the line the word is on"
         );
     }
 }

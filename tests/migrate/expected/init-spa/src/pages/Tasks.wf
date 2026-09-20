@@ -1,0 +1,72 @@
+page Tasks(path: "/tasks", description: "Everything on the list, and what is left of it.", title: "Tasks") {
+    use TaskStore
+
+    state newTask = ""
+    state showDeleteModal = false
+    state deleteId = 0
+
+    Container.fadeIn {
+        Heading("My Tasks").h1
+        Text("{TaskStore.remaining} tasks remaining").muted
+
+        Spacer
+
+        Row(gap: .md) {
+            Input(bind: newTask, placeholder: "What needs to be done?").text.full {
+                on keydown {
+                    if key == "Enter" && newTask != "" {
+                        TaskStore.add(newTask)
+                        newTask = ""
+                    }
+                }
+            }
+            Button("Add").primary {
+                on click {
+                    if newTask != "" {
+                        TaskStore.add(newTask)
+                        newTask = ""
+                    }
+                }
+            }
+        }
+
+        Spacer
+
+        ButtonGroup {
+            Button("All") { on click { TaskStore.setFilter("all") } }
+            Button("Active") { on click { TaskStore.setFilter("active") } }
+            Button("Done") { on click { TaskStore.setFilter("done") } }
+        }
+
+        Spacer
+
+        if TaskStore.filtered.length == 0 {
+            Card.outlined.scaleIn {
+                Text("No tasks found.").muted.center
+            }
+        } else {
+            Stack(gap: .sm) {
+                for task in TaskStore.filtered {
+                    TaskItem(
+                        title: task.title,
+                        done: task.done,
+                        priority: task.priority
+                    , exit: .fadeOut, stagger: "50ms").slideUp
+                }
+            }
+        }
+
+        Modal(visible: showDeleteModal, title: "Delete Task") {
+            Text("Are you sure you want to delete this task?")
+            Modal.Footer {
+                Button("Cancel") { on click { showDeleteModal = false } }
+                Button("Delete").danger {
+                    on click {
+                        TaskStore.remove(deleteId)
+                        showDeleteModal = false
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,33 @@
+page Home(path: "/", description: "An overview of what needs your attention today.", title: "Home") {
+    Container {
+        Spacer.xl
+
+        Stack(gap: .md) {
+            Heading(t("hero.title")).h1.center.slideUp
+            Text(t("hero.subtitle")).muted.center.fadeIn
+            Spacer.sm
+            Row(gap: .md, justify: .center) {
+                Button(t("hero.cta")).primary.lg { on click { navigate("/contact") } }
+                Button(t("hero.secondary")).lg { on click { navigate("/about") } }
+            }
+        }
+
+        Spacer.xl
+        Divider
+        Spacer
+
+        Heading(t("features.title")).h2.center
+        Text(t("features.subtitle")).muted.center
+
+        Spacer
+
+        Grid(columns: 2, gap: .lg) {
+            FeatureCard(title: t("features.speed.title"), description: t("features.speed.desc"), icon: "zap")
+            FeatureCard(title: t("features.design.title"), description: t("features.design.desc"), icon: "palette")
+            FeatureCard(title: t("features.i18n.title"), description: t("features.i18n.desc"), icon: "globe")
+            FeatureCard(title: t("features.a11y.title"), description: t("features.a11y.desc"), icon: "shield")
+        }
+
+        Spacer.xl
+    }
+}
