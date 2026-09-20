@@ -1,24 +1,32 @@
 ; The outline panel and breadcrumbs: declarations, and the state, derived
-; values and actions inside them.
+; values, resources, actions, events and slots inside them.
 
 (page_declaration
-  "Page" @context
+  "page" @context
   name: (_) @name) @item
 
 (component_declaration
-  "Component" @context
+  "component" @context
   name: (_) @name) @item
 
 (store_declaration
-  "Store" @context
+  "store" @context
   name: (_) @name) @item
 
 (theme_declaration
-  "Theme" @context
+  "theme" @context
+  name: (_) @name) @item
+
+(type_declaration
+  "type" @context
+  name: (_) @name) @item
+
+(enum_declaration
+  "enum" @context
   name: (_) @name) @item
 
 (app_declaration
-  "App" @context) @item
+  "app" @context) @item
 
 (state_declaration
   "state" @context
@@ -28,18 +36,25 @@
   "derived" @context
   name: (_) @name) @item
 
+(resource_declaration
+  "resource" @context
+  name: (_) @name) @item
+
 (action_declaration
   "action" @context
   name: (_) @name
   parameters: (parameter_list) @context.extra) @item
 
+(event_declaration
+  "event" @context
+  name: (_) @name) @item
+
+(slot_declaration
+  "slot" @context
+  name: (identifier) @name) @item
+
 (effect_declaration
   "effect" @context) @item
 
-(fetch_statement
-  "fetch" @context
-  name: (_) @name) @item
-
 (token_declaration
-  "token" @context
   name: (property_name) @name) @item

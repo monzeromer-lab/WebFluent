@@ -1,9 +1,9 @@
 ================================================================================
-Page with attributes and a bare flag
+Page with attributes, a route parameter and a layout
 ================================================================================
 
-Page Draft (path: "/draft", title: "Draft", noindex) {
-    Text("hello")
+page Post(path: "/blog/:slug", title: "Post", slug: String, noindex: true, layout: Shell(crumb: "Blog")) {
+    Text(slug)
 }
 
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ Page Draft (path: "/draft", title: "Draft", noindex) {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -22,20 +22,36 @@ Page Draft (path: "/draft", title: "Draft", noindex) {
           (identifier))
         (string
           (string_content)))
-      (identifier))
+      (route_parameter
+        (identifier)
+        (builtin_type))
+      (named_argument
+        (attribute_name
+          (identifier))
+        (boolean))
+      (named_argument
+        (attribute_name
+          (identifier))
+        (call_expression
+          (component_identifier)
+          (arguments
+            (named_argument
+              (attribute_name
+                (identifier))
+              (string
+                (string_content)))))))
     (block
       (element
         (builtin_component)
         (argument_list
-          (string
-            (string_content)))))))
+          (identifier))))))
 
 ================================================================================
 Page named after a built-in
 ================================================================================
 
-Page Menu (path: "/menu") {
-    Route(path: "/menu", page: Menu)
+page Menu(path: "/menu") {
+    Text("m")
 }
 
 --------------------------------------------------------------------------------
@@ -43,7 +59,7 @@ Page Menu (path: "/menu") {
 (source_file
   (page_declaration
     (builtin_component)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -53,27 +69,27 @@ Page Menu (path: "/menu") {
       (element
         (builtin_component)
         (argument_list
-          (named_argument
-            (attribute_name
-              (identifier))
-            (string
-              (string_content)))
-          (named_argument
-            (attribute_name
-              (identifier))
-            (builtin_component)))))))
+          (string
+            (string_content)))))))
 
 ================================================================================
-Component with typed, optional and defaulted props
+Component with positional, typed, optional and defaulted props, events and slots
 ================================================================================
 
-Component UserCard (name: String, avatar?: String, active: Bool = true, tags: List) {
-    Card { children }
+/// A row.
+component TodoRow(_ label: String, todo: Todo, tags: [String], hint: String? = null, compact: Bool = false) {
+    event toggle(id: String)
+    slot trailing
+    slot
+    Text(label)
+    trailing
+    children
 }
 
 --------------------------------------------------------------------------------
 
 (source_file
+  (doc_comment)
   (component_declaration
     (component_identifier)
     (parameter_list
@@ -82,35 +98,67 @@ Component UserCard (name: String, avatar?: String, active: Bool = true, tags: Li
         (builtin_type))
       (parameter
         (identifier)
-        (builtin_type))
+        (named_type
+          (component_identifier)))
+      (parameter
+        (identifier)
+        (list_type
+          (builtin_type)))
+      (parameter
+        (identifier)
+        (optional_type
+          (builtin_type))
+        (null))
       (parameter
         (identifier)
         (builtin_type)
-        (boolean))
-      (parameter
-        (identifier)
-        (builtin_type)))
+        (boolean)))
     (block
+      (event_declaration
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type))))
+      (slot_declaration
+        (identifier))
+      (slot_declaration)
       (element
         (builtin_component)
-        (block
-          (children))))))
+        (argument_list
+          (identifier)))
+      (expression_statement
+        (identifier))
+      (children))))
+
+================================================================================
+Component without parameters
+================================================================================
+
+component Rule {
+    Divider
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (component_declaration
+    (component_identifier)
+    (block
+      (element
+        (builtin_component)))))
 
 ================================================================================
 Store with state, derived, actions and return
 ================================================================================
 
-Store CartStore {
+store CartStore {
     state items = []
+    state total: Number = 0
     derived count = items.length
-
-    action add(product: Map) {
-        items = items.concat([product])
-        return items
-    }
-
-    action clear() {
-        return
+    action add(item: Map) {
+        items = items.concat([item])
+        return items.length
     }
 }
 
@@ -123,6 +171,10 @@ Store CartStore {
       (state_declaration
         (identifier)
         (array))
+      (state_declaration
+        (identifier)
+        (builtin_type)
+        (number))
       (derived_declaration
         (identifier)
         (member_expression
@@ -145,21 +197,19 @@ Store CartStore {
                 (array
                   (identifier)))))
           (return_statement
-            (identifier))))
-      (action_declaration
-        (identifier)
-        (parameter_list)
-        (block
-          (return_statement))))))
+            (member_expression
+              (identifier)
+              (identifier))))))))
 
 ================================================================================
-Theme with hyphenated and digit-led token segments
+Theme with raw values, hyphenated and digit-led names
 ================================================================================
 
-Theme Brand {
-    token color-primary: "#3B82F6"
-    token radius-2xl: "1rem"
-    token viz-1: "#f00"
+theme Brand {
+    color-primary: #8B5CF6
+    radius-2xl: 24px
+    font-sans: "Manrope", sans-serif
+    shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12)
 }
 
 --------------------------------------------------------------------------------
@@ -172,31 +222,72 @@ Theme Brand {
         (property_name
           (identifier)
           (identifier))
-        (string
-          (string_content)))
+        (style_value
+          (style_text)))
       (token_declaration
         (property_name
           (identifier)
           (number)
           (identifier))
-        (string
-          (string_content)))
+        (style_value
+          (style_text)))
       (token_declaration
         (property_name
           (identifier)
-          (number))
-        (string
-          (string_content))))))
+          (identifier))
+        (style_value
+          (style_text)))
+      (token_declaration
+        (property_name
+          (identifier)
+          (identifier))
+        (style_value
+          (style_text))))))
 
 ================================================================================
-App with bare user components and a router
+Type and enum declarations
 ================================================================================
 
-App {
-    NavBar
-    Router {
-        Route(path: "/", page: Home)
-    }
+type Todo { id: String, title: String, done: Bool = false, tone: Tone = .neutral }
+enum Tone { neutral, info, danger }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (type_declaration
+    (component_identifier)
+    (field_declaration
+      (identifier)
+      (builtin_type))
+    (field_declaration
+      (identifier)
+      (builtin_type))
+    (field_declaration
+      (identifier)
+      (builtin_type)
+      (boolean))
+    (field_declaration
+      (identifier)
+      (named_type
+        (component_identifier))
+      (enum_case
+        (identifier))))
+  (enum_declaration
+    (component_identifier)
+    (enum_case_declaration
+      (identifier))
+    (enum_case_declaration
+      (identifier))
+    (enum_case_declaration
+      (identifier))))
+
+================================================================================
+App with user components and a bare router
+================================================================================
+
+app {
+    Navbar(brand: "Ledger") { Navbar.Links { Link("Home", to: "/") } }
+    Router
     SiteFooter
 }
 
@@ -206,44 +297,49 @@ App {
   (app_declaration
     (block
       (element
-        (component_identifier))
-      (element
         (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (string
+              (string_content))))
         (block
           (element
-            (builtin_component)
-            (argument_list
-              (named_argument
-                (attribute_name
-                  (identifier))
-                (string
-                  (string_content)))
-              (named_argument
-                (attribute_name
-                  (identifier))
-                (component_identifier))))))
+            (part
+              (builtin_component)
+              (component_identifier))
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (string
+                    (string_content))
+                  (named_argument
+                    (attribute_name
+                      (identifier))
+                    (string
+                      (string_content)))))))))
+      (element
+        (builtin_component))
       (element
         (component_identifier)))))
 
 ================================================================================
-Comments are extras
+Comments and doc comments are extras
 ================================================================================
 
-// A line comment
-/* a block
-   comment */
-Page Home (path: "/") { // trailing
-    Text("x") /* inline */
+page Home(path: "/") { // trailing
+    /* block */
+    Text("a") /// not a doc
 }
 
 --------------------------------------------------------------------------------
 
 (source_file
-  (comment)
-  (comment)
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -251,9 +347,10 @@ Page Home (path: "/") { // trailing
           (string_content))))
     (block
       (comment)
+      (comment)
       (element
         (builtin_component)
         (argument_list
           (string
             (string_content))))
-      (comment))))
+      (doc_comment))))

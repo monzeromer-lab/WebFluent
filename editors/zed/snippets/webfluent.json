@@ -1,27 +1,27 @@
 {
-  "Page": {
+  "page": {
     "prefix": "page",
     "description": "A routed page",
     "body": [
-      "Page ${1:Name} (path: \"${2:/}\", title: \"${3:$1}\") {",
+      "page ${1:Name}(path: \"${2:/}\", title: \"${3:$1}\") {",
       "    $0",
       "}"
     ]
   },
-  "Component": {
+  "component": {
     "prefix": "component",
     "description": "A reusable component with props",
     "body": [
-      "Component ${1:Name} (${2:label}: ${3:String}) {",
+      "component ${1:Name}(_ ${2:label}: ${3:String}) {",
       "    $0",
       "}"
     ]
   },
-  "Store": {
+  "store": {
     "prefix": "store",
     "description": "A shared state store",
     "body": [
-      "Store ${1:Name}Store {",
+      "store ${1:Name}Store {",
       "    state ${2:items} = ${3:[]}",
       "",
       "    action ${4:add}(${5:item}: ${6:Map}) {",
@@ -30,27 +30,39 @@
       "}"
     ]
   },
-  "Theme": {
+  "theme": {
     "prefix": "theme",
     "description": "A theme overriding design tokens",
     "body": [
-      "Theme ${1:Brand} {",
-      "    token color-primary: \"${2:#3B82F6}\"",
+      "theme ${1:Brand} {",
+      "    color-primary: ${2:#3B82F6}",
       "    $0",
       "}"
     ]
   },
-  "App": {
+  "app": {
     "prefix": "app",
-    "description": "The root App with a router",
+    "description": "The root of the site, with the router",
     "body": [
-      "App {",
-      "    Router {",
-      "        Route(path: \"/\", page: ${1:Home})",
-      "        Route(path: \"*\", page: ${2:NotFound})",
-      "    }",
+      "app {",
+      "    $0",
+      "    Router",
       "}"
     ]
+  },
+  "type": {
+    "prefix": "type",
+    "description": "A record type",
+    "body": [
+      "type ${1:Name} {",
+      "    ${2:id}: ${3:String}",
+      "}"
+    ]
+  },
+  "enum": {
+    "prefix": "enum",
+    "description": "A set of cases",
+    "body": "enum ${1:Name} { ${2:a}, ${3:b} }"
   },
   "state": {
     "prefix": "state",
@@ -59,12 +71,12 @@
   },
   "derived": {
     "prefix": "derived",
-    "description": "A computed value",
+    "description": "A value computed from state",
     "body": "derived ${1:name} = ${2:expression}"
   },
   "effect": {
     "prefix": "effect",
-    "description": "A side effect that re-runs when its state changes",
+    "description": "Runs when the state it reads changes",
     "body": [
       "effect {",
       "    $0",
@@ -73,16 +85,26 @@
   },
   "action": {
     "prefix": "action",
-    "description": "A store action",
+    "description": "An action that changes state",
     "body": [
       "action ${1:name}(${2}) {",
       "    $0",
       "}"
     ]
   },
+  "event": {
+    "prefix": "event",
+    "description": "An event the component fires with emit",
+    "body": "event ${1:name}(${2:id}: ${3:String})"
+  },
+  "slot": {
+    "prefix": "slot",
+    "description": "A named slot the caller fills",
+    "body": "slot ${1:name}"
+  },
   "if / else": {
     "prefix": "ifelse",
-    "description": "Conditional rendering with an else branch",
+    "description": "Conditional rendering",
     "body": [
       "if ${1:condition} {",
       "    $2",
@@ -91,70 +113,95 @@
       "}"
     ]
   },
+  "if let": {
+    "prefix": "iflet",
+    "description": "Render when a value is not null",
+    "body": [
+      "if let ${1:name} = ${2:value} {",
+      "    $0",
+      "}"
+    ]
+  },
   "for": {
     "prefix": "for",
-    "description": "Render a list",
+    "description": "Render each item, keyed",
     "body": [
-      "for ${1:item} in ${2:items} {",
+      "for ${1:item} in ${2:items} by $1.${3:id} {",
       "    $0",
       "}"
     ]
   },
   "for with index": {
     "prefix": "fori",
-    "description": "Render a list with the index",
+    "description": "Render each item with its index",
     "body": [
-      "for ${1:item}, ${2:index} in ${3:items} {",
+      "for ${1:item}, ${2:i} in ${3:items} {",
       "    $0",
       "}"
     ]
   },
   "show": {
     "prefix": "show",
-    "description": "Toggle visibility without unmounting",
+    "description": "Show or hide without unmounting",
     "body": [
       "show ${1:visible} {",
       "    $0",
       "}"
     ]
   },
-  "fetch": {
-    "prefix": "fetch",
-    "description": "Fetch data with loading, error and success states",
+  "resource": {
+    "prefix": "resource",
+    "description": "Fetch data and render its states",
     "body": [
-      "fetch ${1:data} from \"${2:/api/}\" {",
-      "    loading { Spinner() }",
-      "    error (err) { Alert(\"{err.message}\", danger) }",
-      "    success {",
+      "resource ${1:data} = fetch(\"${2:/api/}\")",
+      "match $1 {",
+      "    loading { Spinner }",
+      "    error(e) { Alert(e.message).danger }",
+      "    ready(${3:value}) {",
       "        $0",
       "    }",
       "}"
     ]
   },
-  "on:click": {
+  "match": {
+    "prefix": "match",
+    "description": "Render one arm by a value",
+    "body": [
+      "match ${1:value} {",
+      "    .${2:case} { $3 }",
+      "    else { $0 }",
+      "}"
+    ]
+  },
+  "on click": {
     "prefix": "onclick",
     "description": "A click handler",
     "body": [
-      "on:click {",
+      "on click {",
       "    $0",
       "}"
     ]
   },
-  "on:submit": {
+  "on submit": {
     "prefix": "onsubmit",
-    "description": "A form submit handler",
+    "description": "A submit handler that reads the event",
     "body": [
-      "on:submit {",
+      "on submit(event) {",
       "    $0",
       "}"
     ]
+  },
+  "emit": {
+    "prefix": "emit",
+    "description": "Fire a declared event",
+    "body": "emit ${1:name}($0)"
   },
   "style": {
     "prefix": "style",
-    "description": "An inline style block",
+    "description": "A style block",
     "body": [
       "style {",
-      "    ${1:padding}: \"${2:1rem}\"",
+      "    ${1:padding}: ${2:1rem}",
       "    $0",
       "}"
     ]
@@ -163,98 +210,103 @@
     "prefix": "hover",
     "description": "A hover rule inside a style block",
     "body": [
-      "hover {",
-      "    ${1:background}: \"${2:var(--brand-hover)}\"",
+      "&:hover {",
+      "    ${1:background}: ${2:\\$surface-hover}",
       "}"
     ]
   },
-  "@media": {
+  "media": {
     "prefix": "media",
     "description": "A responsive rule inside a style block",
     "body": [
       "@media (max-width: ${1:768px}) {",
-      "    ${2:display}: \"${3:none}\"",
+      "    ${2:padding}: ${3:\\$sm}",
       "}"
     ]
   },
   "transition": {
     "prefix": "transition",
-    "description": "A per-property transition block",
+    "description": "A transition block",
     "body": [
       "transition {",
-      "    ${1:background} ${2:200ms} ${3:ease}",
+      "    ${1:background}: ${2:200ms} ${3:ease}",
       "}"
     ]
   },
-  "Card": {
+  "card": {
     "prefix": "card",
-    "description": "A card with header and body",
+    "description": "A card with a heading and text",
     "body": [
-      "Card(${1:elevated}) {",
-      "    Card.Header { Heading(\"${2:Title}\", h3) }",
-      "    Card.Body {",
-      "        $0",
-      "    }",
+      "Card.elevated {",
+      "    Heading(\"${1:Title}\").h3",
+      "    Text(\"${2:Body}\")",
+      "    $0",
       "}"
     ]
   },
-  "Button": {
+  "button": {
     "prefix": "button",
-    "description": "A button with a click handler",
-    "body": "Button(\"${1:Label}\", ${2:primary}) { ${3:action()} }"
-  },
-  "Input": {
-    "prefix": "input",
-    "description": "A bound text input",
-    "body": "Input(${1:text}, bind: ${2:value}, label: \"${3:Label}\", placeholder: \"${4}\")"
-  },
-  "Table": {
-    "prefix": "table",
-    "description": "A table with a header row",
+    "description": "A primary button with a click handler",
     "body": [
-      "Table(caption: \"${1:Caption}\") {",
-      "    Thead { Trow { Tcell(\"${2:Column}\") } }",
-      "    Tbody {",
-      "        for ${3:row} in ${4:rows} {",
-      "            Trow { Tcell(${3}.${5:name}) }",
+      "Button(\"${1:Label}\").primary {",
+      "    on click { $0 }",
+      "}"
+    ]
+  },
+  "input": {
+    "prefix": "input",
+    "description": "A labelled, bound input",
+    "body": "Input(bind: ${1:value}, label: \"${2:Label}\", placeholder: \"${3:}\").${4:text}"
+  },
+  "table": {
+    "prefix": "table",
+    "description": "A table with a header row and a keyed body",
+    "body": [
+      "Table {",
+      "    Table.Head {",
+      "        Table.Row { Table.Cell(\"${1:Name}\") }",
+      "    }",
+      "    Table.Body {",
+      "        for ${2:row} in ${3:rows} by $2.${4:id} {",
+      "            Table.Row { Table.Cell($2.${5:name}) }",
       "        }",
       "    }",
       "}"
     ]
   },
-  "Modal": {
+  "modal": {
     "prefix": "modal",
     "description": "A modal bound to a state flag",
     "body": [
-      "Modal(visible: ${1:showModal}, title: \"${2:Title}\") {",
+      "Modal(title: \"${1:Title}\", visible: ${2:open}) {",
       "    $0",
-      "    Modal.Footer { Button(\"Close\") { $1 = false } }",
+      "    Modal.Footer {",
+      "        Button(\"Close\") { on click { $2 = false } }",
+      "    }",
       "}"
     ]
   },
-  "Presentation": {
+  "presentation": {
     "prefix": "presentation",
     "description": "A slide deck",
     "body": [
       "Presentation {",
-      "    TitleSlide(\"${1:Title}\", \"${2:Subtitle}\")",
+      "    TitleSlide(\"${1:Title}\", subtitle: \"${2:Subtitle}\")",
       "    Slide {",
-      "        Heading(\"${3:Heading}\", h1)",
+      "        Heading(\"${3:First}\").h2",
       "        $0",
       "    }",
       "}"
     ]
   },
-  "Document": {
+  "document": {
     "prefix": "document",
-    "description": "A PDF document with header and footer",
+    "description": "A PDF document",
     "body": [
-      "Document(page_size: \"${1:A4}\") {",
-      "    Header { Text(\"${2:Company}\", muted, small, right) }",
-      "    Footer { Text(\"${3:Confidential}\", muted, small, center) }",
-      "    Section {",
-      "        $0",
-      "    }",
+      "Document(page_size: \"A4\") {",
+      "    Header { Text(\"${1:Report}\").muted.sm.right }",
+      "    Heading(\"${2:Title}\").h1",
+      "    $0",
       "}"
     ]
   }

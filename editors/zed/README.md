@@ -8,8 +8,8 @@ Language support for [WebFluent](https://github.com/monzeromer-lab/WebFluent)
   Tree-sitter grammar in `../tree-sitter-webfluent`.
 - Diagnostics, completions, hover documentation, go to definition, document
   symbols and quick fixes from `wf-lsp`, the WebFluent language server.
-- Snippets for pages, components, stores, fetch blocks, style rules and the
-  common built-ins. Type `page`, `fetch`, `card`, … and accept the completion.
+- Snippets for pages, components, stores, resources, style rules and the
+  common built-ins. Type `page`, `resource`, `card`, … and accept the completion.
 - ```` ```wf ```` fences in Markdown are highlighted as WebFluent.
 
 ## Layout

@@ -138,7 +138,7 @@ grammar-generate:
 grammar-test: grammar-generate
     cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter test
     cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q \
-        $(find ../../site ../../tests ../../examples -name '*.wf' 2>/dev/null) \
+        $(find ../../site ../../tests ../../examples -name '*.wf' -not -path '*/tests/migrate/corpus/*' 2>/dev/null) \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
 
 # Build the Zed extension's Rust crate for the target Zed uses

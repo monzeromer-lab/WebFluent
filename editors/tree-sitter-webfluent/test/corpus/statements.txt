@@ -1,15 +1,11 @@
 ================================================================================
-If, else if, else with animate clause
+If, else if, else and if let
 ================================================================================
 
-Page P (path: "/") {
-    if a, animate(scaleIn, fadeOut) {
-        Text("a")
-    } else if b {
-        Text("b")
-    } else {
-        Text("c")
-    }
+page P(path: "/") {
+    if open { Text("a") } else if busy { Text("b") } else { Text("c") }
+    if let hint = todo.hint { Kbd(hint) }
+    if let hint { Kbd(hint) }
 }
 
 --------------------------------------------------------------------------------
@@ -17,7 +13,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -26,10 +22,6 @@ Page P (path: "/") {
     (block
       (if_statement
         (identifier)
-        (animate_clause
-          (argument_list
-            (identifier)
-            (identifier)))
         (block
           (element
             (builtin_component)
@@ -51,16 +43,33 @@ Page P (path: "/") {
                   (builtin_component)
                   (argument_list
                     (string
-                      (string_content))))))))))))
+                      (string_content)))))))))
+      (if_statement
+        (if_let
+          (identifier)
+          (member_expression
+            (identifier)
+            (identifier)))
+        (block
+          (element
+            (component_identifier)
+            (argument_list
+              (identifier)))))
+      (if_statement
+        (if_let
+          (identifier))
+        (block
+          (element
+            (component_identifier)
+            (argument_list
+              (identifier))))))))
 
 ================================================================================
-For with index and animate clause
+If with a single call in a handler stays a statement
 ================================================================================
 
-Page P (path: "/") {
-    for item, index in items, animate(slideUp, fadeOut, stagger: "50ms") {
-        Text("{index}. {item.name}")
-    }
+page P(path: "/") {
+    Button("x") { on click { if ok { go() } else { stop() } } }
 }
 
 --------------------------------------------------------------------------------
@@ -68,7 +77,51 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (event_handler
+            (identifier)
+            (block
+              (if_statement
+                (identifier)
+                (block
+                  (expression_statement
+                    (call_expression
+                      (identifier)
+                      (arguments))))
+                (else_clause
+                  (block
+                    (expression_statement
+                      (call_expression
+                        (identifier)
+                        (arguments)))))))))))))
+
+================================================================================
+For with an index and a key
+================================================================================
+
+page P(path: "/") {
+    for item, i in items by item.id { Text("{i}: {item.name}") }
+    for t in todos { Text(t) }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -79,15 +132,9 @@ Page P (path: "/") {
         (identifier)
         (identifier)
         (identifier)
-        (animate_clause
-          (argument_list
-            (identifier)
-            (identifier)
-            (named_argument
-              (attribute_name
-                (identifier))
-              (string
-                (string_content)))))
+        (member_expression
+          (identifier)
+          (identifier))
         (block
           (element
             (builtin_component)
@@ -99,14 +146,22 @@ Page P (path: "/") {
                 (interpolation
                   (member_expression
                     (identifier)
-                    (identifier)))))))))))
+                    (identifier))))))))
+      (for_statement
+        (identifier)
+        (identifier)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (identifier))))))))
 
 ================================================================================
 Show
 ================================================================================
 
-Page P (path: "/") {
-    show visible { Modal { Text("x") } }
+page P(path: "/") {
+    show expanded { Card { Text("Details") } }
 }
 
 --------------------------------------------------------------------------------
@@ -114,7 +169,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -134,14 +189,20 @@ Page P (path: "/") {
                     (string_content)))))))))))
 
 ================================================================================
-Fetch with loading, error and success
+Resource and match with every arm
 ================================================================================
 
-Page P (path: "/") {
-    fetch users from "/api/users" {
-        loading { Spinner() }
-        error (err) { Alert("Failed: {err.message}", danger) }
-        success { for user in users { Text(user.name) } }
+page P(path: "/") {
+    resource users: [User] = fetch("/api/users", method: "POST", body: { q: q })
+    match users {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(list) { for u in list by u.id { Text(u.name) } }
+        else { Text("?") }
+    }
+    match tone {
+        .calm { Text("calm") }
+        else { Text("loud") }
     }
 }
 
@@ -150,161 +211,163 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
         (string
           (string_content))))
     (block
-      (fetch_statement
+      (resource_declaration
         (identifier)
-        (string
-          (string_content))
-        (fetch_body
-          (loading_block
-            (block
-              (element
-                (builtin_component)
-                (argument_list))))
-          (error_block
-            (identifier)
-            (block
-              (element
-                (builtin_component)
-                (argument_list
-                  (string
-                    (string_content)
-                    (interpolation
-                      (member_expression
-                        (identifier)
-                        (identifier))))
-                  (identifier)))))
-          (success_block
-            (block
-              (for_statement
-                (identifier)
-                (identifier)
-                (block
-                  (element
-                    (builtin_component)
-                    (argument_list
-                      (member_expression
-                        (identifier)
-                        (identifier)))))))))))))
-
-================================================================================
-Fetch options after a concatenated URL, and a call as the URL
-================================================================================
-
-Page P (path: "/") {
-    fetch data from base + "/api" (method: "POST", body: { action: "create" }) {
-        success { Text("Done") }
-    }
-    fetch users from build(1) { success { Text("ok") } }
-}
-
---------------------------------------------------------------------------------
-
-(source_file
-  (page_declaration
-    (component_identifier)
-    (argument_list
-      (named_argument
-        (attribute_name
-          (identifier))
-        (string
-          (string_content))))
-    (block
-      (fetch_statement
-        (identifier)
-        (binary_expression
-          (identifier)
-          (string
-            (string_content)))
-        (fetch_options
-          (named_argument
-            (attribute_name
-              (identifier))
-            (string
-              (string_content)))
-          (named_argument
-            (attribute_name
-              (identifier))
-            (object
-              (pair
-                (identifier)
-                (string
-                  (string_content))))))
-        (fetch_body
-          (success_block
-            (block
-              (element
-                (builtin_component)
-                (argument_list
-                  (string
-                    (string_content))))))))
-      (fetch_statement
-        (identifier)
+        (list_type
+          (named_type
+            (component_identifier)))
         (call_expression
           (identifier)
           (arguments
-            (number)))
-        (fetch_body
-          (success_block
-            (block
-              (element
-                (builtin_component)
-                (argument_list
-                  (string
-                    (string_content)))))))))))
+            (string
+              (string_content))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (string
+                (string_content)))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (object
+                (pair
+                  (identifier)
+                  (identifier)))))))
+      (match_statement
+        (identifier)
+        (match_arm
+          (loading_pattern)
+          (block
+            (element
+              (builtin_component))))
+        (match_arm
+          (error_pattern
+            (identifier))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (member_expression
+                  (identifier)
+                  (identifier)))
+              (flag))))
+        (match_arm
+          (ready_pattern
+            (identifier))
+          (block
+            (for_statement
+              (identifier)
+              (identifier)
+              (member_expression
+                (identifier)
+                (identifier))
+              (block
+                (element
+                  (builtin_component)
+                  (argument_list
+                    (member_expression
+                      (identifier)
+                      (identifier))))))))
+        (match_arm
+          (else_pattern)
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (string
+                  (string_content)))))))
+      (match_statement
+        (identifier)
+        (match_arm
+          (case_pattern
+            (enum_case
+              (identifier)))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (string
+                  (string_content))))))
+        (match_arm
+          (else_pattern)
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (string
+                  (string_content))))))))))
 
 ================================================================================
-Navigate, log, animate and return
+Navigate, log, emit, let, await and return
 ================================================================================
 
-Store S {
+component C {
+    event pick(id: String)
     action go() {
-        navigate("/x")
-        log(count)
-        animate(target, fadeIn, "300ms")
-        return count
+        let r = await fetch("/x")
+        navigate("/")
+        log(r)
+        emit pick(r.id)
+        emit done
+        return
     }
 }
 
 --------------------------------------------------------------------------------
 
 (source_file
-  (store_declaration
+  (component_declaration
     (component_identifier)
     (block
+      (event_declaration
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type))))
       (action_declaration
         (identifier)
         (parameter_list)
         (block
+          (let_declaration
+            (identifier)
+            (unary_expression
+              (call_expression
+                (identifier)
+                (arguments
+                  (string
+                    (string_content))))))
           (navigate_statement
             (string
               (string_content)))
           (log_statement
             (identifier))
-          (animate_statement
+          (emit_statement
             (identifier)
-            (identifier)
-            (string
-              (string_content)))
-          (return_statement
-            (identifier)))))))
+            (arguments
+              (member_expression
+                (identifier)
+                (identifier))))
+          (emit_statement
+            (identifier))
+          (return_statement))))))
 
 ================================================================================
 Assignments to names, members and indexes
 ================================================================================
 
-Store S {
-    action run() {
-        count = count + 1
-        document.title = "New"
-        h["Authorization"] = "Bearer " + token
-        CartStore.total = 0
+store S {
+    action f() {
+        n = n + 1
+        item.done = true
+        rows[0] = row
     }
 }
 
@@ -327,33 +390,25 @@ Store S {
             (member_expression
               (identifier)
               (identifier))
-            (string
-              (string_content)))
+            (boolean))
           (assignment
             (index_expression
               (identifier)
-              (string
-                (string_content)))
-            (binary_expression
-              (string
-                (string_content))
-              (identifier)))
-          (assignment
-            (member_expression
-              (component_identifier)
-              (identifier))
-            (number)))))))
+              (number))
+            (identifier)))))))
 
 ================================================================================
-Expression statements: calls, member calls and browser globals
+Expression statements: calls, member calls, event and browser globals
 ================================================================================
 
-Store S {
-    action run() {
+store S {
+    action f() {
         save()
-        CartStore.clear()
-        localStorage.setItem("token", tok)
+        Store.sync(1)
+        list.push(1)
+        event.preventDefault()
         console.log("x")
+        localStorage.setItem("k", v)
     }
 }
 
@@ -371,10 +426,22 @@ Store S {
             (call_expression
               (identifier)
               (arguments)))
+          (call_statement
+            (component_identifier)
+            (method)
+            (arguments
+              (number)))
           (expression_statement
             (call_expression
               (member_expression
-                (component_identifier)
+                (identifier)
+                (identifier))
+              (arguments
+                (number))))
+          (expression_statement
+            (call_expression
+              (member_expression
+                (identifier)
                 (identifier))
               (arguments)))
           (expression_statement
@@ -384,8 +451,7 @@ Store S {
                 (identifier))
               (arguments
                 (string
-                  (string_content))
-                (identifier))))
+                  (string_content)))))
           (expression_statement
             (call_expression
               (member_expression
@@ -393,16 +459,17 @@ Store S {
                 (identifier))
               (arguments
                 (string
-                  (string_content))))))))))
+                  (string_content))
+                (identifier)))))))))
 
 ================================================================================
-Use, state and derived
+Use, state with a type, derived and effect
 ================================================================================
 
-Page P (path: "/") {
+page P(path: "/") {
     use CartStore
-    state count = 0
-    derived double = count * 2
+    state draft: String = ""
+    derived count = CartStore.items.length
     effect { log(count) }
 }
 
@@ -411,7 +478,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -422,12 +489,15 @@ Page P (path: "/") {
         (component_identifier))
       (state_declaration
         (identifier)
-        (number))
+        (builtin_type)
+        (string))
       (derived_declaration
         (identifier)
-        (binary_expression
-          (identifier)
-          (number)))
+        (member_expression
+          (member_expression
+            (component_identifier)
+            (identifier))
+          (identifier)))
       (effect_declaration
         (block
           (log_statement

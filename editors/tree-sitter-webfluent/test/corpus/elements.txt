@@ -1,9 +1,9 @@
 ================================================================================
-Built-in with positional argument and modifiers
+Built-in with a positional argument, flags and a handler block
 ================================================================================
 
-Page P (path: "/") {
-    Button("Save", primary, large) { save() }
+page P(path: "/") {
+    Button("Save").primary.lg { on click { save() } }
 }
 
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -22,22 +22,26 @@ Page P (path: "/") {
         (builtin_component)
         (argument_list
           (string
-            (string_content))
-          (identifier)
-          (identifier))
+            (string_content)))
+        (flag)
+        (flag)
         (block
-          (expression_statement
-            (call_expression
-              (identifier)
-              (arguments))))))))
+          (event_handler
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (identifier)
+                  (arguments))))))))))
 
 ================================================================================
-Element with no arguments and no body
+Element with no arguments and no body, and flags on a bare name
 ================================================================================
 
-Page P (path: "/") {
+page P(path: "/") {
     Footer
-    Spacer()
+    Spacer.lg
+    Card.elevated { Text("x") }
 }
 
 --------------------------------------------------------------------------------
@@ -45,7 +49,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -56,18 +60,27 @@ Page P (path: "/") {
         (builtin_component))
       (element
         (builtin_component)
-        (argument_list)))))
+        (flag))
+      (element
+        (builtin_component)
+        (flag)
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content)))))))))
 
 ================================================================================
-Sub-components
+Parts
 ================================================================================
 
-Page P (path: "/") {
-    Card {
-        Card.Header { Text("t") }
-        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
-        Carousel.Slide { Image(src: "/a.png", alt: "a") }
+page P(path: "/") {
+    Table {
+        Table.Head { Table.Row { Table.Cell("Name").header } }
+        Table.Body { Table.Row { Table.Cell(name) } }
     }
+    Select(bind: role) { Select.Option("Admin", value: "a") }
 }
 
 --------------------------------------------------------------------------------
@@ -75,7 +88,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -86,62 +99,69 @@ Page P (path: "/") {
         (builtin_component)
         (block
           (element
-            (sub_component
-              (builtin_component)
-              (builtin_component))
-            (block
-              (element
-                (builtin_component)
-                (argument_list
-                  (string
-                    (string_content))))))
-          (element
-            (sub_component
+            (part
               (builtin_component)
               (component_identifier))
-            (argument_list
-              (named_argument
-                (attribute_name
-                  (identifier))
-                (string
-                  (string_content)))
-              (named_argument
-                (attribute_name
-                  (identifier))
-                (string
-                  (string_content))))
             (block
               (element
-                (builtin_component)
-                (argument_list
-                  (string
-                    (string_content))))))
+                (part
+                  (builtin_component)
+                  (builtin_component))
+                (block
+                  (element
+                    (part
+                      (builtin_component)
+                      (component_identifier))
+                    (argument_list
+                      (string
+                        (string_content)))
+                    (flag))))))
           (element
-            (sub_component
+            (part
+              (builtin_component)
+              (component_identifier))
+            (block
+              (element
+                (part
+                  (builtin_component)
+                  (builtin_component))
+                (block
+                  (element
+                    (part
+                      (builtin_component)
+                      (component_identifier))
+                    (argument_list
+                      (identifier)))))))))
+      (element
+        (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (identifier)))
+        (block
+          (element
+            (part
               (builtin_component)
               (builtin_component))
-            (block
-              (element
-                (builtin_component)
-                (argument_list
-                  (named_argument
-                    (attribute_name
-                      (identifier))
-                    (string
-                      (string_content)))
-                  (named_argument
-                    (attribute_name
-                      (identifier))
-                    (string
-                      (string_content))))))))))))
+            (argument_list
+              (string
+                (string_content))
+              (named_argument
+                (attribute_name
+                  (identifier))
+                (string
+                  (string_content))))))))))
 
 ================================================================================
-User component with named arguments and a slot body
+User component with a positional, named arguments, cases, a slot fill and a block
 ================================================================================
 
-Page P (path: "/") {
-    Panel(title: "Keys") {
-        Text("Rotate every 90 days.")
+page P(path: "/") {
+    TodoRow("x", todo: t, tone: .info).compact {
+        on toggle(id) { Todos.toggle(id) }
+        trailing { Icon("x") }
+        Text("more")
     }
 }
 
@@ -150,7 +170,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -160,12 +180,36 @@ Page P (path: "/") {
       (element
         (component_identifier)
         (argument_list
+          (string
+            (string_content))
           (named_argument
             (attribute_name
               (identifier))
-            (string
-              (string_content))))
+            (identifier))
+          (named_argument
+            (attribute_name
+              (identifier))
+            (enum_case
+              (identifier))))
+        (flag)
         (block
+          (event_handler
+            (identifier)
+            (identifier)
+            (block
+              (call_statement
+                (component_identifier)
+                (method)
+                (arguments
+                  (identifier)))))
+          (slot_fill
+            (identifier)
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (string
+                    (string_content))))))
           (element
             (builtin_component)
             (argument_list
@@ -176,9 +220,8 @@ Page P (path: "/") {
 Hyphenated attribute names versus subtraction
 ================================================================================
 
-Page P (path: "/") {
-    Button("Errors", aria-pressed: showErrors, data-tone: "danger")
-    Text(a - b)
+page P(path: "/") {
+    Button("x", aria-pressed: on, data-count: a - b)
 }
 
 --------------------------------------------------------------------------------
@@ -186,7 +229,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -207,38 +250,118 @@ Page P (path: "/") {
             (attribute_name
               (identifier)
               (identifier))
-            (string
-              (string_content)))))
-      (element
-        (builtin_component)
-        (argument_list
-          (binary_expression
-            (identifier)
-            (identifier)))))))
+            (binary_expression
+              (identifier)
+              (identifier))))))))
 
 ================================================================================
-List is a component in element position and a type in a parameter
+Set-up call at the top of a page versus an element with a flag
 ================================================================================
 
-Component Items (rows: List) {
-    List(ordered) { Text("a") }
+page P(path: "/") {
+    Store.load(id)
+    Card.elevated
 }
 
 --------------------------------------------------------------------------------
 
 (source_file
-  (component_declaration
+  (page_declaration
     (component_identifier)
-    (parameter_list
-      (parameter
-        (identifier)
-        (builtin_type)))
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (call_statement
+        (component_identifier)
+        (method)
+        (arguments
+          (identifier)))
+      (element
+        (builtin_component)
+        (flag)))))
+
+================================================================================
+Handlers with and without a named event, style and transition inside an element body
+================================================================================
+
+page P(path: "/") {
+    Button("x") {
+        style { color: red }
+        transition { background: 200ms ease-out }
+        on click { save() }
+        on keydown(event) { if event.key == "Escape" { close() } }
+        on submit(e) { e.preventDefault() }
+        Text("child")
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
     (block
       (element
         (builtin_component)
         (argument_list
-          (identifier))
+          (string
+            (string_content)))
         (block
+          (style_block
+            (style_property
+              (property_name
+                (identifier))
+              (style_value
+                (style_text))))
+          (transition_block
+            (style_property
+              (property_name
+                (identifier))
+              (style_value
+                (style_text))))
+          (event_handler
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (identifier)
+                  (arguments)))))
+          (event_handler
+            (identifier)
+            (identifier)
+            (block
+              (if_statement
+                (binary_expression
+                  (member_expression
+                    (identifier)
+                    (identifier))
+                  (string
+                    (string_content)))
+                (block
+                  (expression_statement
+                    (call_expression
+                      (identifier)
+                      (arguments)))))))
+          (event_handler
+            (identifier)
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (member_expression
+                    (identifier)
+                    (identifier))
+                  (arguments)))))
           (element
             (builtin_component)
             (argument_list
@@ -246,106 +369,12 @@ Component Items (rows: List) {
                 (string_content)))))))))
 
 ================================================================================
-Fetch keywords are plain names in argument position
+Children and a named slot use
 ================================================================================
 
-Page P (path: "/") {
-    Alert("Failed", error)
-    Badge("Ready", success)
-    Spinner(loading)
-}
-
---------------------------------------------------------------------------------
-
-(source_file
-  (page_declaration
-    (component_identifier)
-    (argument_list
-      (named_argument
-        (attribute_name
-          (identifier))
-        (string
-          (string_content))))
-    (block
-      (element
-        (builtin_component)
-        (argument_list
-          (string
-            (string_content))
-          (identifier)))
-      (element
-        (builtin_component)
-        (argument_list
-          (string
-            (string_content))
-          (identifier)))
-      (element
-        (builtin_component)
-        (argument_list
-          (identifier))))))
-
-================================================================================
-Event handlers, style and transition inside an element body
-================================================================================
-
-Page P (path: "/") {
-    Input(text, bind: query) {
-        on:input { search(query) }
-        style { width: "100%" }
-        transition { opacity 150ms }
-    }
-}
-
---------------------------------------------------------------------------------
-
-(source_file
-  (page_declaration
-    (component_identifier)
-    (argument_list
-      (named_argument
-        (attribute_name
-          (identifier))
-        (string
-          (string_content))))
-    (block
-      (element
-        (builtin_component)
-        (argument_list
-          (identifier)
-          (named_argument
-            (attribute_name
-              (identifier))
-            (identifier)))
-        (block
-          (event_handler
-            (event_name)
-            (block
-              (expression_statement
-                (call_expression
-                  (identifier)
-                  (arguments
-                    (identifier))))))
-          (style_block
-            (style_property
-              (property_name
-                (identifier))
-              (string
-                (string_content))))
-          (transition_block
-            (transition_property
-              (property_name
-                (identifier))
-              (duration))))))))
-
-================================================================================
-Children keyword
-================================================================================
-
-Component Panel (title: String) {
-    Card {
-        Heading(title, h3)
-        children
-    }
+component Panel(_ title: String) {
+    slot trailing
+    Card { Heading(title).h3  trailing  children }
 }
 
 --------------------------------------------------------------------------------
@@ -358,12 +387,16 @@ Component Panel (title: String) {
         (identifier)
         (builtin_type)))
     (block
+      (slot_declaration
+        (identifier))
       (element
         (builtin_component)
         (block
           (element
             (builtin_component)
             (argument_list
-              (identifier)
-              (identifier)))
+              (identifier))
+            (flag))
+          (expression_statement
+            (identifier))
           (children))))))

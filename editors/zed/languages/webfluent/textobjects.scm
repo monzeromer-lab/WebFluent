@@ -54,4 +54,14 @@
     (_)* @class.inside
     "}")) @class.around
 
+(type_declaration
+  "{"
+  (_)* @class.inside
+  "}") @class.around
+
+(enum_declaration
+  "{"
+  (_)* @class.inside
+  "}") @class.around
+
 (comment)+ @comment.around

@@ -1,26 +1,28 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
-// Tree-sitter grammar for WebFluent.
+// Tree-sitter grammar for WebFluent 3.
 //
-// This mirrors the hand-written parser in `src/parser/parser.rs`; when the
+// This mirrors the hand-written parser in `src/parser/v2.rs`; when the
 // language grows, that file is the reference and this one follows it. A few
-// things the compiler decides with look-ahead or a vocabulary are decided here
-// by token shape or left to the editor queries:
+// things the compiler decides with look-ahead are decided here by token
+// shape or left to the editor queries:
 //
 // - A capitalised word is a `component_identifier`, a lower-case one an
 //   `identifier`. The compiler treats `Foo(…)` in statement position as an
 //   element and `foo(…)` as a call by looking at the first letter; splitting
 //   the token does the same without ambiguity.
-// - Modifiers (`primary`, `bold`, `h1`, …) are ordinary identifiers in
-//   argument position. The compiler consults a vocabulary and the names in
-//   scope; the highlight query consults the same vocabulary with `#any-of?`.
-// - Keywords are extracted from the `word` token, so `success`, `error`,
-//   `action`, `token`, `from` and the rest are keywords only where the
-//   parser expects them and plain names everywhere else — a prop called
-//   `error`, a map key called `action`, `Array.from`.
+// - Keywords are extracted from the `word` token, so `type`, `error`,
+//   `action`, `on` and the rest are keywords only where the parser expects
+//   them and plain names everywhere else — a prop called `type`, a map key
+//   called `action`, `Array.from`.
+// - A style value is raw CSS to the end of its line or a `;`, with
+//   `$token` and `{expr}` splices inside it. The end of a line means
+//   something there and nowhere else, so an external scanner
+//   (`src/scanner.c`) reads those chunks; everything else is regular.
 
 const PREC = {
+  coalesce: 0,
   lambda: -1,
   or: 1,
   and: 2,
@@ -33,9 +35,7 @@ const PREC = {
   element: 2,
 };
 
-// Every built-in the compiler lexes as a component keyword
-// (`lexer::token::component_name`). `List` doubles as a type, and `Map` is a
-// type only, so those live in `builtin_type` as well / instead.
+// Every built-in the compiler knows (`lexer::token::ALL_COMPONENT_NAMES`).
 const BUILTIN_COMPONENTS = [
   // Layout
   "Container", "Row", "Column", "Grid", "Stack", "Spacer", "Divider",
@@ -84,7 +84,9 @@ module.exports = grammar({
 
   word: ($) => $.identifier,
 
-  extras: ($) => [/\s/, $.comment],
+  extras: ($) => [/\s/, $.doc_comment, $.comment],
+
+  externals: ($) => [$.style_text],
 
   conflicts: ($) => [
     // `Button("x", aria-pressed: on)` versus `Text(a - b)`: after the first
@@ -93,12 +95,21 @@ module.exports = grammar({
     // `(a, b) => a - b` versus `(a)`: a parenthesised lambda parameter list
     // and a parenthesised expression look the same until the `=>`.
     [$.lambda_parameters, $._primary_expression],
+    // `path: "/"` versus `id: String` in a page header: an attribute or a
+    // route parameter, until what follows the colon.
+    [$.route_parameter, $.attribute_name],
+    // `if a { go() }`: the call is the statement of the block, or the value
+    // of an `if` expression on which a member or call could follow;
+    // `a.b()`: `a` is a statement or the object of a member. Both readings
+    // run until the next token settles it, and the statement wins a tie.
+    [$.expression_statement, $._primary_expression],
+    [$.expression_statement, $._expression],
   ],
 
   // Inlined so that `element`'s precedence applies to the name itself: a
   // capitalised word at the start of a statement is an element, not an
   // expression, and the choice is made on that token.
-  inline: ($) => [$._component_name, $._name, $._declaration_name],
+  inline: ($) => [$._element_name, $._name, $._declaration_name],
 
   supertypes: ($) => [$._declaration, $._statement, $._expression],
 
@@ -114,65 +125,110 @@ module.exports = grammar({
         $.store_declaration,
         $.theme_declaration,
         $.app_declaration,
+        $.type_declaration,
+        $.enum_declaration,
       ),
 
+    // `page Home(path: "/", title: "Home", id: String, layout: Shell) { }`
     page_declaration: ($) =>
       seq(
-        "Page",
+        "page",
         field("name", $._declaration_name),
-        field("attributes", $.argument_list),
+        optional(field("attributes", $.page_attributes)),
         field("body", $.block),
       ),
 
+    page_attributes: ($) => seq("(", sepBy(choice($.route_parameter, $.named_argument), ","), ")"),
+
+    // `id: String` — a route parameter, told from an attribute by its type;
+    // `String` is also a name an expression may be, so the parameter wins
+    // where both readings survive.
+    route_parameter: ($) =>
+      prec.dynamic(1, seq(field("name", $.identifier), ":", field("type", $._type))),
+
+    // `component Name(_ label: String, tone: Tone = .calm) { }`
     component_declaration: ($) =>
       seq(
-        "Component",
+        "component",
         field("name", $._declaration_name),
-        field("parameters", $.parameter_list),
+        optional(field("parameters", $.parameter_list)),
         field("body", $.block),
       ),
 
     store_declaration: ($) =>
-      seq("Store", field("name", $._name), field("body", $.block)),
+      seq("store", field("name", $._name), field("body", $.block)),
 
     theme_declaration: ($) =>
-      seq(
-        "Theme",
-        field("name", $._name),
-        field("body", $.theme_body),
-      ),
+      seq("theme", field("name", $._name), field("body", $.theme_body)),
 
     theme_body: ($) => seq("{", repeat($.token_declaration), "}"),
 
+    // `color-primary: #6366F1` — a raw CSS value.
     token_declaration: ($) =>
+      seq(field("name", $.property_name), ":", field("value", $.style_value), optional(";")),
+
+    app_declaration: ($) => seq("app", field("body", $.block)),
+
+    // `type Todo { id: String, done: Bool = false }`
+    type_declaration: ($) =>
       seq(
-        "token",
-        field("name", $.property_name),
-        ":",
-        field("value", $._expression),
+        "type",
+        field("name", $._name),
+        "{",
+        sepBy($.field_declaration, optional(",")),
+        optional(","),
+        "}",
       ),
 
-    app_declaration: ($) => seq("App", field("body", $.block)),
+    field_declaration: ($) =>
+      seq(
+        field("name", $._name),
+        ":",
+        field("type", $._type),
+        optional(seq("=", field("default", $._expression))),
+      ),
 
-    // A page or component may be named after a built-in (`Page Menu`).
+    // `enum Tone { calm, loud }`
+    enum_declaration: ($) =>
+      seq(
+        "enum",
+        field("name", $._name),
+        "{",
+        sepBy($.enum_case_declaration, ","),
+        optional(","),
+        "}",
+      ),
+
+    enum_case_declaration: ($) => $.identifier,
+
+    // A page or component may be named after a built-in (`page Menu`).
     _declaration_name: ($) => choice($._name, $.builtin_component),
 
     _name: ($) => choice($.identifier, $.component_identifier),
 
-    // ─── Parameters ─────────────────────────────────────────────────────
+    // ─── Parameters and types ───────────────────────────────────────────
 
     parameter_list: ($) => seq("(", sepBy($.parameter, ","), ")"),
 
+    // `_ label: String` marks the one positional prop.
     parameter: ($) =>
       seq(
+        optional(field("positional", "_")),
         field("name", $._name),
-        optional(field("optional", "?")),
         ":",
-        field("type", $.builtin_type),
+        field("type", $._type),
         optional(seq("=", field("default", $._expression))),
       ),
 
-    builtin_type: (_) => choice("String", "Number", "Bool", "List", "Map"),
+    _type: ($) => choice($.builtin_type, $.list_type, $.optional_type, $.named_type),
+
+    builtin_type: (_) => choice("String", "Number", "Bool", "Map", "Any"),
+
+    list_type: ($) => seq("[", $._type, "]"),
+
+    optional_type: ($) => prec.left(seq($._type, "?")),
+
+    named_type: ($) => $.component_identifier,
 
     // ─── Statements ─────────────────────────────────────────────────────
 
@@ -185,25 +241,37 @@ module.exports = grammar({
         $.effect_declaration,
         $.action_declaration,
         $.use_declaration,
+        $.resource_declaration,
+        $.event_declaration,
+        $.slot_declaration,
+        $.let_declaration,
         $.if_statement,
         $.for_statement,
         $.show_statement,
-        $.fetch_statement,
+        $.match_statement,
         $.navigate_statement,
         $.log_statement,
         $.return_statement,
-        $.animate_statement,
+        $.emit_statement,
         $.children,
         $.event_handler,
         $.style_block,
         $.transition_block,
+        $.slot_fill,
+        $.call_statement,
         $.element,
         $.assignment,
         $.expression_statement,
       ),
 
     state_declaration: ($) =>
-      seq("state", field("name", $._name), "=", field("value", $._expression)),
+      seq(
+        "state",
+        field("name", $._name),
+        optional(seq(":", field("type", $._type))),
+        "=",
+        field("value", $._expression),
+      ),
 
     derived_declaration: ($) =>
       seq("derived", field("name", $._name), "=", field("value", $._expression)),
@@ -220,6 +288,32 @@ module.exports = grammar({
 
     use_declaration: ($) => seq("use", field("store", $._name)),
 
+    // `resource rows = fetch(url, method: "POST")`
+    resource_declaration: ($) =>
+      seq(
+        "resource",
+        field("name", $._name),
+        optional(seq(":", field("type", $._type))),
+        "=",
+        field("value", $._expression),
+      ),
+
+    // `event toggle(id: String)`
+    event_declaration: ($) =>
+      prec.right(seq("event", field("name", $._name), optional(field("parameters", $.parameter_list)))),
+
+    // `slot trailing`, or a bare `slot` for the default one.
+    slot_declaration: ($) => prec.right(seq("slot", optional(field("name", $.identifier)))),
+
+    let_declaration: ($) =>
+      seq(
+        "let",
+        field("name", $._name),
+        optional(seq(":", field("type", $._type))),
+        "=",
+        field("value", $._expression),
+      ),
+
     navigate_statement: ($) => seq("navigate", "(", $._expression, ")"),
 
     log_statement: ($) => seq("log", "(", $._expression, ")"),
@@ -227,17 +321,9 @@ module.exports = grammar({
     // `return` alone at the end of a block, or `return expr`.
     return_statement: ($) => prec.right(seq("return", optional($._expression))),
 
-    // `animate(target, fadeIn, "300ms")` — replay an animation on an element.
-    animate_statement: ($) =>
-      seq(
-        "animate",
-        "(",
-        field("target", $._expression),
-        ",",
-        field("animation", $.identifier),
-        optional(seq(",", field("duration", $.string))),
-        ")",
-      ),
+    // `emit toggle(todo.id)`
+    emit_statement: ($) =>
+      prec.right(seq("emit", field("event", $._name), optional(field("arguments", $.arguments)))),
 
     children: (_) => "children",
 
@@ -247,15 +333,22 @@ module.exports = grammar({
       prec.right(
         seq(
           "if",
-          field("condition", $._expression),
-          optional(seq(",", $.animate_clause)),
+          choice(
+            field("condition", $._expression),
+            field("binding", $.if_let),
+          ),
           field("consequence", $.block),
           optional(field("alternative", $.else_clause)),
         ),
       ),
 
+    // `if let hint = expr { }`, or `if let hint { }` for a name in scope.
+    if_let: ($) =>
+      prec.right(seq("let", field("name", $._name), optional(seq("=", field("value", $._expression))))),
+
     else_clause: ($) => seq("else", choice($.if_statement, $.block)),
 
+    // `for item, i in items by item.id { }`
     for_statement: ($) =>
       seq(
         "for",
@@ -263,86 +356,66 @@ module.exports = grammar({
         optional(seq(",", field("index", $._name))),
         "in",
         field("iterable", $._expression),
-        optional(seq(",", $.animate_clause)),
+        optional(seq("by", field("key", $._expression))),
         field("body", $.block),
       ),
 
     show_statement: ($) =>
-      seq(
-        "show",
-        field("condition", $._expression),
-        optional(seq(",", $.animate_clause)),
-        field("body", $.block),
-      ),
+      seq("show", field("condition", $._expression), field("body", $.block)),
 
-    // `animate(enter, exit, duration: "300ms", stagger: "50ms")`
-    animate_clause: ($) => seq("animate", $.argument_list),
+    // `match users { loading { } error(e) { } ready(list) { } else { } }`
+    match_statement: ($) =>
+      seq("match", field("value", $._expression), "{", repeat($.match_arm), "}"),
 
-    // ─── Fetch ──────────────────────────────────────────────────────────
+    match_arm: ($) => seq(field("pattern", $._arm_pattern), field("body", $.block)),
 
-    fetch_statement: ($) =>
-      seq(
-        "fetch",
-        field("name", $._name),
-        "from",
-        field("url", $._expression),
-        optional(field("options", $.fetch_options)),
-        field("body", $.fetch_body),
-      ),
+    _arm_pattern: ($) =>
+      choice($.loading_pattern, $.error_pattern, $.ready_pattern, $.case_pattern, $.else_pattern),
 
-    // Options open with a named argument, which is how the compiler tells
-    // `from url (method: "POST")` apart from a call `from build(1)`.
-    fetch_options: ($) =>
-      seq("(", $.named_argument, repeat(seq(",", $._argument)), ")"),
+    loading_pattern: (_) => "loading",
 
-    fetch_body: ($) =>
-      seq(
-        "{",
-        repeat(choice($.loading_block, $.error_block, $.success_block)),
-        "}",
-      ),
+    error_pattern: ($) => seq("error", optional(seq("(", field("name", $._name), ")"))),
 
-    loading_block: ($) => seq("loading", field("body", $.block)),
+    ready_pattern: ($) => seq("ready", optional(seq("(", field("name", $._name), ")"))),
 
-    error_block: ($) =>
-      seq(
-        "error",
-        optional(seq("(", field("name", $._name), ")")),
-        field("body", $.block),
-      ),
+    case_pattern: ($) => $.enum_case,
 
-    success_block: ($) => seq("success", field("body", $.block)),
+    else_pattern: (_) => "else",
 
     // ─── Elements ───────────────────────────────────────────────────────
 
-    // `Card(elevated) { … }`, `UserCard(name: "x")`, `Footer`, `Card.Header { }`.
-    // The precedence makes `Text("a")` an element with arguments rather than
-    // a bare element followed by a parenthesised expression, and a bare
-    // capitalised word an element rather than an expression statement.
+    // `Card.elevated { … }`, `Button("Save").primary.lg { on click { } }`,
+    // `Table.Row { }`, `UserCard(name: "x")`, `Router`.
     element: ($) =>
       prec.right(
         PREC.element,
         seq(
-          field("name", $._component_name),
+          field("name", $._element_name),
           optional(field("arguments", $.argument_list)),
+          repeat(field("flag", $.flag)),
           optional(field("body", $.block)),
         ),
       ),
 
-    _component_name: ($) =>
-      choice($.sub_component, $.builtin_component, $.component_identifier),
+    _element_name: ($) => choice($.part, $.builtin_component, $.component_identifier),
 
-    // Only built-ins have sub-components: `Card.Header`, `Sidebar.Item`.
-    // `CartStore.clear()` is a member expression.
-    sub_component: ($) =>
+    // `Table.Row`, `Card.Header`: a part of a built-in, capitalised after the dot.
+    part: ($) =>
       prec(
         PREC.element,
         seq(
-        field("parent", $.builtin_component),
-        ".",
-        field("child", choice($.builtin_component, $.component_identifier, $.identifier)),
+          field("owner", $.builtin_component),
+          ".",
+          field("name", choice($.builtin_component, $.component_identifier)),
         ),
       ),
+
+    // `.primary`, `.lg`, `.required` — a boolean prop or an enum case,
+    // written tight against the element: `Button("x").primary.lg`. The
+    // absence of a space is what tells it from a case on the next line.
+    flag: ($) => $._dot_word,
+
+    _dot_word: (_) => token.immediate(seq(".", /[a-z_][a-zA-Z0-9_]*/)),
 
     // `List` is also a type; in element and expression position it is the
     // component, and a type is only ever read where one is expected.
@@ -350,9 +423,9 @@ module.exports = grammar({
 
     // ─── Arguments ──────────────────────────────────────────────────────
 
-    // Element arguments: positional values, modifiers (bare identifiers) and
-    // `name: value` pairs, in any order. The precedence settles `Foo(x)` at
-    // the start of a statement as an element rather than a call.
+    // Element arguments: one positional value first, then `name: value`
+    // pairs. The precedence settles `Foo(x)` at the start of a statement as
+    // an element rather than a call.
     argument_list: ($) => prec(1, seq("(", sepBy($._argument, ","), ")")),
 
     _argument: ($) => choice($.named_argument, $._expression),
@@ -364,58 +437,52 @@ module.exports = grammar({
     // attribute may be.
     attribute_name: ($) => seq($.identifier, repeat(seq("-", $.identifier))),
 
-    // Call arguments. The compiler takes positional values only; `name: value`
-    // is accepted here so `t("greeting", name: user.name)` and
-    // `fetch x from url (method: "POST")` still read as one call each.
+    // Call arguments; `name: value` is accepted so `t("greeting", name:
+    // user.name)`, `fetch(url, method: "POST")` and `Todo(id: 1)` read as
+    // one call each.
     arguments: ($) => seq("(", sepBy($._argument, ","), ")"),
 
-    // ─── Events ─────────────────────────────────────────────────────────
+    // ─── Events and slots ───────────────────────────────────────────────
 
-    event_handler: ($) => seq(field("event", $.event_name), field("body", $.block)),
+    // `on click { }`, `on keydown(event) { }`, `on toggle(id) { }`.
+    event_handler: ($) =>
+      seq(
+        "on",
+        field("event", $.identifier),
+        optional(seq("(", field("parameter", $._name), ")")),
+        field("body", $.block),
+      ),
 
-    event_name: (_) => token(seq("on:", /[a-zA-Z_][a-zA-Z0-9_]*/)),
+    // `trailing { Icon("x") }` — a fill of a named slot.
+    slot_fill: ($) => prec(1, seq(field("name", $.identifier), field("body", $.block))),
 
     // ─── Style ──────────────────────────────────────────────────────────
 
     style_block: ($) =>
-      seq(
-        "style",
-        "{",
-        repeat(choice($.style_property, $.pseudo_block, $.at_rule)),
-        "}",
-      ),
+      seq("style", "{", repeat(choice($.style_property, $.nested_rule)), "}"),
 
+    // `padding: 6px 0`, `--accent: {color}`, `background: $surface;`
     style_property: ($) =>
       seq(
         field("name", choice($.property_name, $.custom_property_name)),
         ":",
-        field("value", $._expression),
+        field("value", $.style_value),
+        optional(";"),
       ),
 
-    // `hover { … }`, `focus-within { … }`, `placeholder { … }`.
-    pseudo_block: ($) =>
+    // Raw CSS to the end of the line or a `;`, with tokens and splices.
+    style_value: ($) => repeat1(choice($.style_text, $.design_token, $.interpolation)),
+
+    // `&:hover { }`, `&[aria-current="page"] { }`, `@media (max-width: 768px) { }`.
+    nested_rule: ($) =>
       seq(
-        field("state", $.pseudo_state),
+        field("selector", $.selector),
         "{",
-        repeat($.style_property),
+        repeat(choice($.style_property, $.nested_rule)),
         "}",
       ),
 
-    pseudo_state: ($) => seq($.identifier, optional(seq("-", $.identifier))),
-
-    // `@media (max-width: 768px) { … }` — the condition runs to the brace.
-    at_rule: ($) =>
-      seq(
-        field("name", $.at_keyword),
-        field("condition", $.at_rule_condition),
-        "{",
-        repeat($.style_property),
-        "}",
-      ),
-
-    at_keyword: (_) => /@[a-zA-Z_][a-zA-Z0-9_-]*/,
-
-    at_rule_condition: (_) => /[^{}\s][^{}\n]*/,
+    selector: (_) => /[&@.:\[>*+~][^{}\n]*/,
 
     // `border-radius`, `color-text-muted`, `viz-1`, `radius-2xl`.
     property_name: ($) =>
@@ -424,30 +491,29 @@ module.exports = grammar({
         repeat(seq("-", choice($.identifier, seq($.number, optional($.identifier))))),
       ),
 
-    // `--hover-bg: hoverColor` — a custom property a static rule can read.
+    // `--hover-bg: hoverColor` — a custom property a nested rule can read.
     custom_property_name: (_) => token(seq("--", /[a-zA-Z_][a-zA-Z0-9_-]*/)),
 
     // ─── Transition ─────────────────────────────────────────────────────
 
+    // `transition { background: 200ms ease-out }` — raw values, like a style.
     transition_block: ($) =>
-      seq("transition", "{", repeat($.transition_property), "}"),
-
-    // `background 200ms ease`, `transform fast spring`, `opacity "150ms"`.
-    transition_property: ($) =>
-      seq(
-        field("property", $.property_name),
-        field("duration", choice($.duration, $.string, $.number, $.duration_keyword)),
-        optional(field("easing", $.easing)),
-      ),
-
-    duration: (_) => /\d+(\.\d+)?(ms|s)/,
-
-    duration_keyword: (_) => choice("fast", "normal", "slow"),
-
-    easing: (_) =>
-      choice("ease", "linear", "easeIn", "easeOut", "easeInOut", "spring", "bouncy", "smooth"),
+      seq("transition", "{", repeat($.style_property), "}"),
 
     // ─── Assignment & expression statements ─────────────────────────────
+
+    // `Store.load(id)` — a call on a store or component name, which at the
+    // top of a page is set-up code. It outranks the element `Store` with a
+    // flag `.load`, which could not take the parenthesis.
+    call_statement: ($) =>
+      prec(
+        PREC.element + 1,
+        seq(
+          field("object", $.component_identifier),
+          field("method", alias($._dot_word, $.method)),
+          field("arguments", $.arguments),
+        ),
+      ),
 
     assignment: ($) =>
       seq(
@@ -456,14 +522,23 @@ module.exports = grammar({
         field("value", $._expression),
       ),
 
-    // An `if` at the start of a statement is always the statement, never
-    // the value form; the value form still nests inside larger expressions.
-    // The low precedence keeps `foo(x)` one call rather than a name followed
-    // by a parenthesised statement.
+    // A statement that is an expression does something: a call, a member
+    // call, an `await`, or a bare name (a slot's content). A value — a
+    // literal, an `if` or `match` value — is never a statement on its own,
+    // which is what keeps `if a { go() }` the statement and `.lg { }`
+    // after an element its flag and block.
     expression_statement: ($) =>
-      prec(
-        -1,
-        choice($.binary_expression, $.unary_expression, $.lambda, $._primary_expression),
+      prec.dynamic(
+        1,
+        choice(
+          $.call_expression,
+          $.member_expression,
+          $.index_expression,
+          $.unary_expression,
+          $.identifier,
+          $.component_identifier,
+          $.builtin_component,
+        ),
       ),
 
     // ─── Expressions ────────────────────────────────────────────────────
@@ -474,6 +549,7 @@ module.exports = grammar({
         $.unary_expression,
         $.lambda,
         $.if_expression,
+        $.match_expression,
         $._primary_expression,
       ),
 
@@ -489,6 +565,8 @@ module.exports = grammar({
         $.null,
         $.array,
         $.object,
+        $.enum_case,
+        $.design_token,
         $.identifier,
         $.component_identifier,
         $.builtin_type,
@@ -497,6 +575,7 @@ module.exports = grammar({
 
     binary_expression: ($) => {
       const table = [
+        [PREC.coalesce, "??"],
         [PREC.or, "||"],
         [PREC.and, "&&"],
         [PREC.equality, choice("==", "!=", "!==")],
@@ -521,13 +600,19 @@ module.exports = grammar({
     },
 
     unary_expression: ($) =>
-      prec(PREC.unary, seq(field("operator", choice("!", "-")), field("operand", $._expression))),
+      prec(
+        PREC.unary,
+        seq(field("operator", choice("!", "-", "await")), field("operand", $._expression)),
+      ),
 
+    // `event` is a keyword where a statement starts, so a handler's
+    // `event.preventDefault()` names it by its keyword; everywhere else the
+    // word lexes as a plain name.
     member_expression: ($) =>
       prec.left(
         PREC.postfix,
         seq(
-          field("object", $._expression),
+          field("object", choice($._expression, alias("event", $.identifier))),
           ".",
           // Any word may follow a dot — `item.action`, `Array.from`.
           field("property", $._name),
@@ -540,9 +625,7 @@ module.exports = grammar({
         seq(field("object", $._expression), "[", field("index", $._expression), "]"),
       ),
 
-    // Only a name, a member, an index or another call is callable. A string
-    // never is, which is what lets `fetch x from base + "/api" (method: …)`
-    // read the parenthesised group as fetch options.
+    // Only a name, a member, an index or another call is callable.
     call_expression: ($) =>
       prec.left(
         PREC.postfix,
@@ -577,17 +660,38 @@ module.exports = grammar({
 
     lambda_parameters: ($) => seq("(", sepBy($.identifier, ","), ")"),
 
-    // `if cond { a } else { b }` as a value, chained with `else if`.
+    // `if cond { a } else { b }` as a value, chained with `else if`. The
+    // low precedence keeps `if a { go() }` at the start of a statement the
+    // statement, whose block holds statements, not a value.
     if_expression: ($) =>
-      seq(
-        "if",
-        field("condition", $._expression),
-        "{",
-        field("consequence", $._expression),
-        "}",
-        "else",
-        choice($.if_expression, seq("{", field("alternative", $._expression), "}")),
+      prec(
+        -2,
+        seq(
+          "if",
+          field("condition", $._expression),
+          "{",
+          field("consequence", $._expression),
+          "}",
+          "else",
+          choice($.if_expression, seq("{", field("alternative", $._expression), "}")),
+        ),
       ),
+
+    // `match tone { .calm { 1 } else { 2 } }` as a value.
+    match_expression: ($) =>
+      prec(
+        -2,
+        seq("match", field("value", $._expression), "{", repeat($.match_expression_arm), "}"),
+      ),
+
+    match_expression_arm: ($) =>
+      seq(field("pattern", $._arm_pattern), "{", field("value", $._expression), "}"),
+
+    // `.primary`, `.calm` — a case of an enum, named by the prop or type.
+    enum_case: ($) => seq(".", field("name", $.identifier)),
+
+    // `$surface`, `$spacing-xl` — a design token.
+    design_token: (_) => token(seq("$", /[a-zA-Z_][a-zA-Z0-9_-]*/)),
 
     // ─── Literals ───────────────────────────────────────────────────────
 
@@ -595,11 +699,12 @@ module.exports = grammar({
       seq(
         '"',
         repeat(choice($.string_content, $.escape_sequence, $.interpolation)),
-        '"',
+        choice('"', alias(token.immediate(/\{"/), '"')),
       ),
 
     // A `{` opens an interpolation only when a name follows it; `"{ a: 1 }"`
-    // and `"{"` are text, as they are for the compiler.
+    // and `"{"` are text, as they are for the compiler. A `{` right before
+    // the closing quote is text too.
     string_content: (_) =>
       choice(
         token.immediate(prec(1, /[^"\\{]+/)),
@@ -634,6 +739,9 @@ module.exports = grammar({
     component_identifier: (_) => /[A-Z][a-zA-Z0-9_]*/,
 
     // ─── Comments ───────────────────────────────────────────────────────
+
+    // `/// …` documents the declaration, prop or event that follows.
+    doc_comment: (_) => token(prec(1, seq("///", /.*/))),
 
     comment: (_) =>
       token(

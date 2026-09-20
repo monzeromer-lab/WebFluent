@@ -1,20 +1,23 @@
 ================================================================================
-Style block with properties, custom property, pseudo-states and a media query
+Style block with raw values, tokens, splices, custom properties and nested rules
 ================================================================================
 
-Page P (path: "/") {
-    Button("x") {
+page P(path: "/") {
+    Card {
         style {
-            background: "var(--brand)"
-            border-radius: "1rem"
-            --hover-bg: hoverColor
-            width: a - b
-            hover { background: "var(--hover-bg)" }
-            focus-within { outline: "2px solid red" }
-            @media (max-width: 768px) {
-                display: "none"
-            }
+            padding: 6px 0
+            --accent: {todo.color}
+            background: $surface
+            border: 1px solid $line; width: {pct}%
+            font-family: "Inter", sans-serif
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+                        0 4px 12px rgba(0, 0, 0, 0.2)
+            content: "»"
+            &:hover { background: $surface-hover }
+            &[aria-current="page"] { font-weight: 600 }
+            @media (max-width: 768px) { padding: 0; &:hover { padding: 1px } }
         }
+        Text("x")
     }
 }
 
@@ -23,7 +26,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -32,66 +35,99 @@ Page P (path: "/") {
     (block
       (element
         (builtin_component)
-        (argument_list
-          (string
-            (string_content)))
         (block
           (style_block
             (style_property
               (property_name
                 (identifier))
-              (string
-                (string_content)))
-            (style_property
-              (property_name
-                (identifier)
-                (identifier))
-              (string
-                (string_content)))
+              (style_value
+                (style_text)))
             (style_property
               (custom_property_name)
-              (identifier))
+              (style_value
+                (interpolation
+                  (member_expression
+                    (identifier)
+                    (identifier)))))
             (style_property
               (property_name
                 (identifier))
-              (binary_expression
-                (identifier)
-                (identifier)))
-            (pseudo_block
-              (pseudo_state
+              (style_value
+                (design_token)))
+            (style_property
+              (property_name
                 (identifier))
-              (style_property
-                (property_name
+              (style_value
+                (style_text)
+                (design_token)))
+            (style_property
+              (property_name
+                (identifier))
+              (style_value
+                (interpolation
                   (identifier))
-                (string
-                  (string_content))))
-            (pseudo_block
-              (pseudo_state
+                (style_text)))
+            (style_property
+              (property_name
                 (identifier)
                 (identifier))
+              (style_value
+                (style_text)))
+            (style_property
+              (property_name
+                (identifier)
+                (identifier))
+              (style_value
+                (style_text)))
+            (style_property
+              (property_name
+                (identifier))
+              (style_value
+                (style_text)))
+            (nested_rule
+              (selector)
               (style_property
                 (property_name
                   (identifier))
-                (string
-                  (string_content))))
-            (at_rule
-              (at_keyword)
-              (at_rule_condition)
+                (style_value
+                  (design_token))))
+            (nested_rule
+              (selector)
+              (style_property
+                (property_name
+                  (identifier)
+                  (identifier))
+                (style_value
+                  (style_text))))
+            (nested_rule
+              (selector)
               (style_property
                 (property_name
                   (identifier))
-                (string
-                  (string_content))))))))))
+                (style_value
+                  (style_text)))
+              (nested_rule
+                (selector)
+                (style_property
+                  (property_name
+                    (identifier))
+                  (style_value
+                    (style_text))))))
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content)))))))))
 
 ================================================================================
-Style block as a statement and keywords as property names
+Style values keep slashes and comments end them
 ================================================================================
 
-Page P (path: "/") {
-    Row {
+page P(path: "/") {
+    Card {
         style {
-            transition: "all 200ms ease"
-            state: "x"
+            background: url(https://example.com/a.png) // a comment
+            grid-area: 1 / 2 / 3 / 4
         }
     }
 }
@@ -101,7 +137,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -115,26 +151,25 @@ Page P (path: "/") {
             (style_property
               (property_name
                 (identifier))
-              (string
-                (string_content)))
+              (style_value
+                (style_text)
+                (style_text)))
             (style_property
               (property_name
+                (identifier)
                 (identifier))
-              (string
-                (string_content)))))))))
+              (style_value
+                (style_text)))))))))
 
 ================================================================================
 Transition block
 ================================================================================
 
-Page P (path: "/") {
-    Button("x") {
+page P(path: "/") {
+    Card {
         transition {
-            background 200ms ease
-            transform fast spring
-            opacity "150ms"
-            color 1.5s
-            width 200
+            background: 200ms ease
+            transform: 150ms $ease-standard
         }
     }
 }
@@ -144,7 +179,7 @@ Page P (path: "/") {
 (source_file
   (page_declaration
     (component_identifier)
-    (argument_list
+    (page_attributes
       (named_argument
         (attribute_name
           (identifier))
@@ -153,31 +188,16 @@ Page P (path: "/") {
     (block
       (element
         (builtin_component)
-        (argument_list
-          (string
-            (string_content)))
         (block
           (transition_block
-            (transition_property
+            (style_property
               (property_name
                 (identifier))
-              (duration)
-              (easing))
-            (transition_property
+              (style_value
+                (style_text)))
+            (style_property
               (property_name
                 (identifier))
-              (duration_keyword)
-              (easing))
-            (transition_property
-              (property_name
-                (identifier))
-              (string
-                (string_content)))
-            (transition_property
-              (property_name
-                (identifier))
-              (duration))
-            (transition_property
-              (property_name
-                (identifier))
-              (number))))))))
+              (style_value
+                (style_text)
+                (design_token)))))))))

@@ -1,9 +1,9 @@
 ; Syntax highlighting for WebFluent.
 ;
 ; Later patterns win over earlier ones, so the generic captures come first and
-; the specific ones after. The modifier vocabulary below is generated from
-; `src/parser/vocabulary.rs` (`just zed-check-vocabulary` verifies it); the
-; pseudo-state list from `Parser::PSEUDO_STATES`.
+; the specific ones after. Flags, cases, tokens and parts are nodes of the
+; grammar, so no vocabulary is listed here; the compiler's registry is what
+; decides whether a flag is real, and the language server reports it.
 
 ; ─── Generic ────────────────────────────────────────────────────────────
 
@@ -11,25 +11,35 @@
 (component_identifier) @type
 (builtin_type) @type.builtin
 (builtin_component) @type.builtin
+(named_type (component_identifier) @type)
 
 (comment) @comment
+(doc_comment) @comment.doc
 
 ; ─── Declarations ───────────────────────────────────────────────────────
 
 [
-  "Page"
-  "Component"
-  "Store"
-  "App"
-  "Theme"
+  "page"
+  "component"
+  "store"
+  "app"
+  "theme"
+  "type"
+  "enum"
 ] @keyword
 
 (page_declaration name: (_) @type.definition)
 (component_declaration name: (_) @type.definition)
 (store_declaration name: (_) @type.definition)
 (theme_declaration name: (_) @type.definition)
+(type_declaration name: (_) @type.definition)
+(enum_declaration name: (_) @type.definition)
 
 (parameter name: (_) @variable.parameter)
+(parameter "_" @punctuation.special)
+(field_declaration name: (_) @property)
+(enum_case_declaration (identifier) @constant)
+(route_parameter name: (identifier) @variable.parameter)
 
 (token_declaration name: (property_name) @property)
 
@@ -41,15 +51,25 @@
   "effect"
   "action"
   "use"
-  "token"
+  "resource"
+  "let"
   "return"
+  "event"
+  "slot"
+  "emit"
+  "await"
 ] @keyword
 
 (children) @keyword
 
 (state_declaration name: (_) @variable)
 (derived_declaration name: (_) @variable)
+(resource_declaration name: (_) @variable)
+(let_declaration name: (_) @variable)
 (action_declaration name: (_) @function.definition)
+(event_declaration name: (_) @function.definition)
+(slot_declaration name: (identifier) @label)
+(emit_statement event: (_) @function)
 (use_declaration store: (_) @type)
 
 ; ─── Control flow ───────────────────────────────────────────────────────
@@ -59,53 +79,56 @@
   "else"
   "for"
   "in"
+  "by"
   "show"
-  "fetch"
-  "from"
-  "loading"
-  "error"
-  "success"
+  "match"
 ] @keyword
 
+(if_let name: (_) @variable)
 (for_statement item: (_) @variable)
 (for_statement index: (_) @variable)
-(fetch_statement name: (_) @variable)
-(error_block name: (_) @variable)
+(error_pattern name: (_) @variable)
+(ready_pattern name: (_) @variable)
+
+[
+  (loading_pattern)
+  (else_pattern)
+] @keyword
+(error_pattern "error" @keyword)
+(ready_pattern "ready" @keyword)
 
 ; Built-in statements that read like calls.
 [
   "navigate"
   "log"
-  "animate"
 ] @function.special
 
 ; ─── Elements ───────────────────────────────────────────────────────────
 
 (element name: (component_identifier) @type)
 
-(sub_component
-  parent: (builtin_component) @type.builtin
-  child: (_) @type.builtin)
+(part
+  owner: (builtin_component) @type.builtin
+  name: (_) @type.builtin)
 
-; A bare word among an element's arguments is a modifier when it is one the
-; compiler knows: `Button("Save", primary, large)`, `Heading("T", h1)`.
-((argument_list (identifier) @attribute)
-  (#any-of? @attribute
-    "small" "medium" "large" "primary" "secondary" "success" "danger"
-    "warning" "info" "error" "loading" "rounded" "pill" "square" "flat"
-    "elevated" "outlined" "full" "fit" "fluid" "circle" "xs" "sm" "md" "lg"
-    "xl" "ordered" "multiple" "header" "bold" "italic" "underline"
-    "uppercase" "lowercase" "left" "center" "right" "heading" "subtitle"
-    "muted" "h1" "h2" "h3" "h4" "h5" "h6" "dismissible" "block" "bordered"
-    "controls" "autoplay" "text" "email" "password" "number" "search" "tel"
-    "url" "date" "time" "datetime" "color" "submit" "reset" "fadeIn"
-    "fadeOut" "slideUp" "slideDown" "slideLeft" "slideRight" "scaleIn"
-    "scaleOut" "bounce" "shake" "pulse" "spin" "fast" "slow"))
+; `.primary`, `.lg` — a flag; `.info` — a case; `$surface` — a token.
+(flag) @attribute
+(enum_case) @constant
+(design_token) @variable.special
 
 (named_argument name: (attribute_name) @property)
 (attribute_name (identifier) @property)
 
-(event_name) @keyword @label
+(call_statement
+  object: (component_identifier) @type
+  method: (method) @function.method)
+
+; ─── Events and slots ───────────────────────────────────────────────────
+
+"on" @keyword
+(event_handler event: (identifier) @label)
+(event_handler parameter: (_) @variable.parameter)
+(slot_fill name: (identifier) @label)
 
 ; ─── Style and transitions ──────────────────────────────────────────────
 
@@ -117,25 +140,8 @@
 (style_property name: (property_name) @property)
 (style_property name: (custom_property_name) @property)
 (property_name (identifier) @property)
-
-; `hover { }`, `focus-within { }` — the states the compiler compiles to a
-; rule. Any other word before a brace stays a plain name.
-((pseudo_state) @keyword
-  (#any-of? @keyword
-    "hover" "focus" "active" "disabled" "placeholder" "focus-within"
-    "current" "pressed" "selected" "checked" "expanded" "invalid"))
-((pseudo_state (identifier) @keyword) @_state
-  (#any-of? @_state
-    "hover" "focus" "active" "disabled" "placeholder" "focus-within"
-    "current" "pressed" "selected" "checked" "expanded" "invalid"))
-
-(at_keyword) @keyword
-(at_rule_condition) @string.special
-
-(transition_property property: (property_name) @property)
-(transition_property duration: (_) @number)
-(duration_keyword) @constant.builtin
-(easing) @constant.builtin
+(style_text) @string.special
+(selector) @keyword
 
 ; ─── Expressions ────────────────────────────────────────────────────────
 
@@ -146,15 +152,13 @@
 (call_expression
   function: (member_expression property: (_) @function.method))
 (call_expression function: (builtin_type) @type.builtin)
+(call_expression function: (component_identifier) @type)
 
 (lambda parameters: (identifier) @variable.parameter)
 (lambda_parameters (identifier) @variable.parameter)
 
 (pair key: (identifier) @property)
 (pair key: (component_identifier) @property)
-
-(animate_statement animation: (identifier) @attribute)
-(animate_clause (argument_list (identifier) @attribute))
 
 ; ─── Literals ───────────────────────────────────────────────────────────
 
@@ -185,6 +189,7 @@
   ">="
   "&&"
   "||"
+  "??"
   "!"
   "="
   "=>"
@@ -203,5 +208,6 @@
   ","
   "."
   ":"
+  ";"
   "?"
 ] @punctuation.delimiter
