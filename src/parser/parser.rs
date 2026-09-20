@@ -275,6 +275,7 @@ impl Parser {
             guard,
             redirect,
             layout: None,
+            params: Vec::new(),
             body,
             span: self.span_since(decl_mark),
             header_span,

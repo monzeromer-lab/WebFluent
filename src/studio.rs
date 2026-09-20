@@ -95,6 +95,10 @@ pub fn compile_studio(
     config: &ProjectConfig,
     translations: &HashMap<String, HashMap<String, String>>,
 ) -> CompiledSite {
+    // The new grammar's flags and cases are resolved onto the vocabulary the
+    // generators read; node ids are keyed by span, which lowering keeps.
+    let lowered = crate::sema::lower(program.clone());
+    let program = &lowered;
     let node_map = build_node_map(program);
 
     // A theme that fails to resolve must not take the preview down with it: the

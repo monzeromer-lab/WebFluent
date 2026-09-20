@@ -8,6 +8,8 @@
 #[allow(clippy::module_inception)]
 pub mod lexer;
 pub mod token;
+pub mod v2;
 
 pub use lexer::Lexer;
 pub use token::{Token, TokenType};
+pub use v2::LexerV2;

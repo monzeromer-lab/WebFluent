@@ -88,7 +88,25 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
     for warning in &vocab_warnings {
         eprintln!("{}", warning);
     }
-    let warning_count = a11y_warnings.len() + vocab_warnings.len();
+    // What the new grammar wrote, checked against what the components
+    // declare: a flag, case, event, slot or part that resolves to nothing is
+    // a broken site, and stops the build like a parse error.
+    let findings = crate::sema::check(&program, &file_of);
+    for warning in &findings.warnings {
+        eprintln!("Warning: {}", warning);
+    }
+    if !findings.errors.is_empty() {
+        for error in &findings.errors {
+            eprintln!("{}", error);
+        }
+        return Err(WebFluentError::CodegenError(format!(
+            "{} error(s)",
+            findings.errors.len()
+        )));
+    }
+    let warning_count = a11y_warnings.len() + vocab_warnings.len() + findings.warnings.len();
+    // Then lowered onto the vocabulary the code generators read.
+    let program = crate::sema::lower(program);
 
     // PDF output mode
     if config.build.output_type == OutputType::Pdf {

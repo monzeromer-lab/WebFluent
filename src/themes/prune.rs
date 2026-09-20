@@ -55,7 +55,8 @@ impl Usage {
     }
 }
 
-const ANIMATIONS: &[&str] = &[
+/// The animation modifier words.
+pub const ANIMATIONS: &[&str] = &[
     "fadeIn",
     "fadeOut",
     "slideUp",

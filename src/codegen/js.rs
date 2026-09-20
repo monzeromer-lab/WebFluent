@@ -73,6 +73,9 @@ pub struct JsCodegen {
     /// Each user component's declared events, which a call passes handlers
     /// for as `on: { name: fn }`.
     component_events: HashMap<String, Vec<String>>,
+    /// The route parameters of the page being emitted, read as
+    /// `params.<name>`.
+    page_params: Vec<String>,
 }
 
 impl Default for JsCodegen {
@@ -107,6 +110,7 @@ impl JsCodegen {
             resources: Vec::new(),
             component_positional: HashMap::new(),
             component_events: HashMap::new(),
+            page_params: Vec::new(),
         }
     }
 
@@ -816,6 +820,7 @@ impl JsCodegen {
     fn emit_page(&mut self, page: &PageDecl) {
         self.emit_line(&format!("function Page_{}(params) {{", page.name));
         self.indent += 1;
+        self.page_params = page.params.iter().map(|p| p.name.clone()).collect();
 
         // Emit state declarations
         self.resources = resource_names(&page.body);
@@ -843,6 +848,7 @@ impl JsCodegen {
         self.indent -= 1;
         self.emit_line("}");
         self.emit_line("");
+        self.page_params.clear();
     }
 
     // ─── App ─────────────────────────────────────────
@@ -3920,6 +3926,9 @@ impl JsCodegen {
                 if self.resources.contains(name) {
                     return format!("_{}", name);
                 }
+                if self.page_params.contains(name) {
+                    return format!("params.{}", name);
+                }
                 if self.stores.contains(name)
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
@@ -4311,6 +4320,7 @@ mod tests {
             page_type: None,
             noindex: false,
             layout: None,
+            params: Vec::new(),
             body,
             span: Span::dummy(),
             header_span: Span::dummy(),

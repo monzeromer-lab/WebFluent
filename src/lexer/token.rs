@@ -186,6 +186,22 @@ pub enum TokenType {
     // Special
     Children,
     EOF,
+
+    // ─── WebFluent 3 (the `v2` lexer) ───
+    /// `$name`: a design token.
+    DesignToken(String),
+    /// `??`.
+    NullCoalesce,
+    /// `;`.
+    Semicolon,
+    /// A `///` comment, without the slashes.
+    DocComment(String),
+    /// The property name of a declaration inside a style block.
+    StyleProp(String),
+    /// The raw CSS text of a declaration's value.
+    RawValue(String),
+    /// The raw selector of a nested rule inside a style block, before its `{`.
+    RawSelector(String),
 }
 
 impl fmt::Display for TokenType {

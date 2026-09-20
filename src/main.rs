@@ -9,6 +9,7 @@ mod linter;
 mod parser;
 mod registry;
 mod runtime;
+mod sema;
 mod syntax;
 mod template;
 mod themes;

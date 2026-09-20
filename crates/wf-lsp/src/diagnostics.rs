@@ -52,6 +52,33 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
         }
     }
 
+    let findings = webfluent::sema::check(&project.program, &file_of);
+    for (finding, severity) in findings
+        .errors
+        .iter()
+        .map(|d| (d, DiagnosticSeverity::ERROR))
+        .chain(
+            findings
+                .warnings
+                .iter()
+                .map(|d| (d, DiagnosticSeverity::WARNING)),
+        )
+    {
+        if let Some(ix) = route(&finding.file) {
+            let file = &project.files[ix];
+            out[ix].push(diagnostic(
+                &file.source,
+                &file.index,
+                finding.line,
+                finding.column,
+                &finding.message,
+                finding.hint.as_deref(),
+                severity,
+                None,
+            ));
+        }
+    }
+
     for warning in lint_vocabulary_with(&project.program, &project.stylesheets, &file_of) {
         if let Some(ix) = route(&warning.file) {
             let file = &project.files[ix];

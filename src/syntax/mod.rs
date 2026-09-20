@@ -60,17 +60,21 @@ fn first_word(source: &str) -> Option<&str> {
 /// `file` names the source in diagnostics.
 pub fn parse_source(source: &str, file: &str) -> Result<Program> {
     match detect_dialect(source) {
-        Dialect::V1 | Dialect::V2 => {
+        Dialect::V1 => {
             let tokens = Lexer::new(source, file).tokenize()?;
             Parser::new(tokens, file).parse()
         }
+        Dialect::V2 => crate::parser::v2::parse_v2(source, file),
     }
 }
 
 /// The token stream of `source`, for tools that work at the token level
 /// (the language server's cursor context).
 pub fn tokens(source: &str, file: &str) -> Result<Vec<Token>> {
-    Lexer::new(source, file).tokenize()
+    match detect_dialect(source) {
+        Dialect::V1 => Lexer::new(source, file).tokenize(),
+        Dialect::V2 => crate::lexer::LexerV2::new(source, file).tokenize(),
+    }
 }
 
 #[cfg(test)]

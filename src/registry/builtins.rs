@@ -219,6 +219,16 @@ const SPEEDS: &[CaseSig] = &[
 
 // ─── Shared props ────────────────────────────────────────────────────────
 
+/// The spacing scale as a named argument's value (`gap: .md`), which was
+/// never a modifier word and so carries no legacy spelling.
+const GAP_SPACES: &[CaseSig] = &[
+    case("xs", "", "Extra small"),
+    case("sm", "", "Small"),
+    case("md", "", "Medium, the default"),
+    case("lg", "", "Large"),
+    case("xl", "", "Extra large"),
+];
+
 const BIND: PropSig = special(
     "bind",
     PropType::State,
@@ -240,7 +250,7 @@ const ERROR: PropSig = special(
     "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`",
 );
 const DISABLED: PropSig = attr_flag("disabled", "Whether the control is inert");
-const GAP: PropSig = special("gap", PropType::Enum(SPACES), "Space between children");
+const GAP: PropSig = special("gap", PropType::Enum(GAP_SPACES), "Space between children");
 const ALIGN: PropSig = special("align", PropType::Enum(ALIGNS), "Cross-axis alignment");
 const JUSTIFY: PropSig = special(
     "justify",

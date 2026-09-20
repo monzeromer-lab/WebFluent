@@ -26,7 +26,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
 use crate::parser::ast::{
-    ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StyleBlock, StyleProperty,
+    ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, StyleBlock,
+    StyleProperty,
 };
 
 /// The class an element carries for its compiled style rules, or `None` when
@@ -208,9 +209,15 @@ fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut
     }
 }
 
-/// The CSS selector suffix for a pseudo-state block's name.
-fn selector(state: &str) -> &'static str {
-    match state {
+/// The CSS selector suffix for a pseudo-state block's name: the original
+/// grammar's state words map to a selector; the new grammar writes the
+/// selector itself, `&:hover` or `&[aria-current="page"]`, and it is used
+/// as written with the `&` standing for the element.
+fn selector(state: &str) -> std::borrow::Cow<'static, str> {
+    if let Some(raw) = state.strip_prefix('&') {
+        return std::borrow::Cow::Owned(raw.to_string());
+    }
+    std::borrow::Cow::Borrowed(match state {
         "hover" => ":hover",
         "focus" => ":focus-visible",
         "active" => ":active",
@@ -224,7 +231,7 @@ fn selector(state: &str) -> &'static str {
         "expanded" => "[aria-expanded=\"true\"]",
         "invalid" => "[aria-invalid=\"true\"]",
         _ => "",
-    }
+    })
 }
 
 /// A declaration's CSS property and value when both are known at build time
@@ -234,12 +241,32 @@ fn selector(state: &str) -> &'static str {
 /// This is the one place that decides what is hoisted; every backend asks it.
 pub fn static_declaration(prop: &StyleProperty) -> Option<(String, String)> {
     let name = canonical_style_prop(&prop.name);
-    let value = resolve_style_token(&name, &prop.value).or_else(|| match &prop.value {
+    let value = resolve_style_token(&name, &prop.value).or_else(|| static_value(&prop.value))?;
+    Some((name, value))
+}
+
+/// The CSS text of a value that is the same on every instance: a literal,
+/// a number, a design token, or text that holds only those.
+pub fn static_value(value: &Expr) -> Option<String> {
+    match value {
         Expr::StringLiteral(s) => Some(s.clone()),
         Expr::NumberLiteral(n) => Some(format!("{}", n)),
+        Expr::Token(name) => Some(format!("var(--{name})")),
+        Expr::InterpolatedString(parts) => {
+            let mut out = String::new();
+            for part in parts {
+                match part {
+                    StringPart::Literal(text) => out.push_str(text),
+                    StringPart::Expression(Expr::Token(name)) => {
+                        out.push_str(&format!("var(--{name})"));
+                    }
+                    StringPart::Expression(_) => return None,
+                }
+            }
+            Some(out)
+        }
         _ => None,
-    })?;
-    Some((name, value))
+    }
 }
 
 /// The base declarations a stylesheet rule can hold, as CSS text.

@@ -111,6 +111,10 @@ pub mod syntax;
 /// What every built-in component is: [`registry::COMPONENTS`].
 pub mod registry;
 
+/// Resolution of the new grammar against the registry and the program's own
+/// declarations: [`sema::check`] and [`sema::lower`].
+pub mod sema;
+
 /// Code generation — compiles the AST to various output formats.
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),

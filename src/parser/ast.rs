@@ -172,6 +172,9 @@ pub struct PageDecl {
     pub noindex: bool,
     /// The component that frames the page: `layout: AppShell(crumb: "x")`.
     pub layout: Option<LayoutRef>,
+    /// The route's parameters as typed props: `page Deploy(path:
+    /// "/deploys/:id", id: String)` binds `:id` to `id`.
+    pub params: Vec<PropDecl>,
 
     pub body: Vec<Statement>,
 

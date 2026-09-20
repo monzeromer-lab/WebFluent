@@ -72,7 +72,9 @@ pub fn page(body: &str) -> String {
 }
 
 pub fn parse_program(src: &str) -> Result<Program, String> {
-    webfluent::parse_source(src, "<test>").map_err(|e| format!("parse error: {e:?}"))
+    webfluent::parse_source(src, "<test>")
+        .map(webfluent::sema::lower)
+        .map_err(|e| format!("parse error: {e:?}"))
 }
 
 fn test_config() -> ProjectConfig {

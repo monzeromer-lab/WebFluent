@@ -8,6 +8,7 @@ pub mod ast;
 // flattening it would move every public path for no gain.
 #[allow(clippy::module_inception)]
 pub mod parser;
+pub mod v2;
 pub mod vocabulary;
 
 pub use ast::*;

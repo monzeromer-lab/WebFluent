@@ -259,7 +259,7 @@ impl Template {
     }
 
     fn parse(&self) -> Result<Program> {
-        crate::syntax::parse_source(&self.source, "<template>")
+        crate::syntax::parse_source(&self.source, "<template>").map(crate::sema::lower)
     }
 
     /// Resolve all data references in the program for PDF rendering.
