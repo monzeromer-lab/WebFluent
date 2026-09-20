@@ -3166,6 +3166,7 @@ impl JsCodegen {
             let elif = IfStmt {
                 condition: if_stmt.else_if_branches[0].0.clone(),
                 animate: if_stmt.animate.clone(),
+                animate_span: None,
                 then_body: if_stmt.else_if_branches[0].1.clone(),
                 else_if_branches: if_stmt.else_if_branches[1..].to_vec(),
                 else_body: if_stmt.else_body.clone(),

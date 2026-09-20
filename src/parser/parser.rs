@@ -562,7 +562,9 @@ impl Parser {
         let condition = self.parse_expression()?;
 
         // Optional animate clause: , animate(...)
+        let clause = self.mark();
         let animate = self.parse_optional_animate_clause()?;
+        let animate_span = animate.as_ref().map(|_| self.span_since(clause));
 
         let then_body = self.parse_block()?;
 
@@ -583,6 +585,7 @@ impl Parser {
         Ok(StatementKind::If(IfStmt {
             condition,
             animate,
+            animate_span,
             then_body,
             else_if_branches,
             else_body,
@@ -606,7 +609,9 @@ impl Parser {
         let iterable = self.parse_expression()?;
 
         // Optional animate clause: , animate(...)
+        let clause = self.mark();
         let animate = self.parse_optional_animate_clause()?;
+        let animate_span = animate.as_ref().map(|_| self.span_since(clause));
 
         let body = self.parse_block()?;
 
@@ -615,6 +620,7 @@ impl Parser {
             index,
             iterable,
             animate,
+            animate_span,
             body,
         }))
     }
@@ -624,12 +630,15 @@ impl Parser {
         let condition = self.parse_expression()?;
 
         // Optional animate clause: , animate(...)
+        let clause = self.mark();
         let animate = self.parse_optional_animate_clause()?;
+        let animate_span = animate.as_ref().map(|_| self.span_since(clause));
 
         let body = self.parse_block()?;
         Ok(StatementKind::Show(ShowStmt {
             condition,
             animate,
+            animate_span,
             body,
         }))
     }
@@ -710,11 +719,16 @@ impl Parser {
         self.expect(&TokenType::Fetch)?;
         let variable = self.expect_identifier()?;
         self.expect(&TokenType::From)?;
+        let url_mark = self.mark();
         let url = self.parse_fetch_url_expression()?;
+        let url_span = self.span_since(url_mark);
 
         // Optional fetch options
         let mut options = Vec::new();
-        if self.match_token(&TokenType::OpenParen) {
+        let mut options_span = None;
+        if self.check(&TokenType::OpenParen) {
+            let options_mark = self.mark();
+            self.advance();
             while !self.check(&TokenType::CloseParen) {
                 let key = self.expect_identifier()?;
                 self.expect(&TokenType::Colon)?;
@@ -725,6 +739,7 @@ impl Parser {
                 }
             }
             self.expect(&TokenType::CloseParen)?;
+            options_span = Some(self.span_since(options_mark));
         }
 
         self.expect(&TokenType::OpenBrace)?;
@@ -732,12 +747,17 @@ impl Parser {
         let mut loading_block = None;
         let mut error_block = None;
         let mut success_block = None;
+        let mut loading_span = None;
+        let mut error_span = None;
+        let mut success_span = None;
 
         while !self.check(&TokenType::CloseBrace) {
+            let clause = self.mark();
             match self.current_type() {
                 TokenType::Loading => {
                     self.advance();
                     loading_block = Some(self.parse_block()?);
+                    loading_span = Some(self.span_since(clause));
                 }
                 TokenType::Error => {
                     self.advance();
@@ -750,10 +770,12 @@ impl Parser {
                     };
                     let body = self.parse_block()?;
                     error_block = Some((err_var, body));
+                    error_span = Some(self.span_since(clause));
                 }
                 TokenType::Success => {
                     self.advance();
                     success_block = Some(self.parse_block()?);
+                    success_span = Some(self.span_since(clause));
                 }
                 _ => {
                     return Err(self.error(
@@ -772,6 +794,11 @@ impl Parser {
             loading_block,
             error_block,
             success_block,
+            url_span,
+            options_span,
+            loading_span,
+            error_span,
+            success_span,
         }))
     }
 
@@ -1330,6 +1357,7 @@ impl Parser {
     }
 
     fn parse_pseudo_block(&mut self, state: String) -> Result<PseudoBlock> {
+        let mark = self.mark();
         // Consume the name tokens (`hover` or `focus - within`).
         self.advance();
         if self.check(&TokenType::Minus) {
@@ -1342,7 +1370,11 @@ impl Parser {
             properties.push(self.parse_style_property()?);
         }
         self.expect(&TokenType::CloseBrace)?;
-        Ok(PseudoBlock { state, properties })
+        Ok(PseudoBlock {
+            state,
+            properties,
+            span: self.span_since(mark),
+        })
     }
 
     /// A hyphenated name: `border-radius`, `color-text-muted`.
@@ -1516,6 +1548,7 @@ impl Parser {
     }
 
     fn parse_media_query(&mut self) -> Result<MediaQuery> {
+        let mark = self.mark();
         // Build the @media condition by consuming tokens until '{'
         // Reconstruct CSS-style spacing: join with hyphens for Ident-Minus-Ident,
         // no space inside parens, space after colon.
@@ -1578,6 +1611,7 @@ impl Parser {
         Ok(MediaQuery {
             condition,
             properties,
+            span: self.span_since(mark),
         })
     }
 
@@ -1605,6 +1639,7 @@ impl Parser {
     // ─── Transition ──────────────────────────────────────
 
     fn parse_transition_block(&mut self) -> Result<TransitionBlock> {
+        let mark = self.mark();
         self.expect(&TokenType::Transition)?;
         self.expect(&TokenType::OpenBrace)?;
         let mut properties = Vec::new();
@@ -1660,7 +1695,10 @@ impl Parser {
             });
         }
         self.expect(&TokenType::CloseBrace)?;
-        Ok(TransitionBlock { properties })
+        Ok(TransitionBlock {
+            properties,
+            span: self.span_since(mark),
+        })
     }
 
     // ─── Animate statement ───────────────────────────────
@@ -1687,6 +1725,7 @@ impl Parser {
     // ─── Events ──────────────────────────────────────────
 
     fn parse_event_handler(&mut self) -> Result<EventHandler> {
+        let mark = self.mark();
         let event = if let TokenType::Event(name) = self.current_type().clone() {
             self.advance();
             name
@@ -1696,7 +1735,12 @@ impl Parser {
             );
         };
         let body = self.parse_block()?;
-        Ok(EventHandler { event, body })
+        Ok(EventHandler {
+            event,
+            param: None,
+            body,
+            span: self.span_since(mark),
+        })
     }
 
     // ─── Identifier-led statements ───────────────────────
@@ -2809,6 +2853,95 @@ mod span_tests {
         } else {
             panic!("expected UIElement statement");
         }
+    }
+
+    /// The clauses a migration rewrites carry the span of exactly what was
+    /// written: a handler with its block, a style state block, a media
+    /// block, a transition block, the `, animate(…)` clause, and each part
+    /// of a fetch.
+    #[test]
+    fn clause_spans_slice_to_the_clause_as_written() {
+        let src = "Page P (path: \"/\") {\n\
+                   \x20 Button(\"Go\") {\n\
+                   \x20   style { hover { color: \"red\" }  @media (max-width: 600px) { padding: \"0\" } }\n\
+                   \x20   transition { opacity fast }\n\
+                   \x20   on:click { count = 1 }\n\
+                   \x20 }\n\
+                   \x20 if open, animate(fadeIn, fast) { Text(\"a\") }\n\
+                   \x20 for x in xs, animate(slideUp) { Text(x) }\n\
+                   \x20 show open, animate(fadeIn) { Text(\"b\") }\n\
+                   \x20 fetch rows from \"/api\" (method: \"GET\") {\n\
+                   \x20   loading { Spinner() }\n\
+                   \x20   error(e) { Text(e) }\n\
+                   \x20   success { Text(\"ok\") }\n\
+                   \x20 }\n\
+                   }\n";
+        let program = parse(src);
+        let body = match &program.declarations[0] {
+            Declaration::Page(p) => &p.body,
+            _ => panic!("expected page"),
+        };
+        let StatementKind::UIElement(button) = &body[0].kind else {
+            panic!("button");
+        };
+        let style = button.style_block.as_ref().unwrap();
+        assert_eq!(
+            style.pseudo_blocks[0].span.slice(src),
+            "hover { color: \"red\" }"
+        );
+        assert_eq!(
+            style.media_queries[0].span.slice(src),
+            "@media (max-width: 600px) { padding: \"0\" }"
+        );
+        assert_eq!(
+            button.transition_block.as_ref().unwrap().span.slice(src),
+            "transition { opacity fast }"
+        );
+        assert_eq!(button.events[0].span.slice(src), "on:click { count = 1 }");
+        assert_eq!(button.events[0].param, None);
+
+        let StatementKind::If(i) = &body[1].kind else {
+            panic!("if");
+        };
+        assert_eq!(
+            i.animate_span.unwrap().slice(src),
+            ", animate(fadeIn, fast)"
+        );
+        let StatementKind::For(f) = &body[2].kind else {
+            panic!("for");
+        };
+        assert_eq!(f.animate_span.unwrap().slice(src), ", animate(slideUp)");
+        let StatementKind::Show(sh) = &body[3].kind else {
+            panic!("show");
+        };
+        assert_eq!(sh.animate_span.unwrap().slice(src), ", animate(fadeIn)");
+
+        let StatementKind::Fetch(fetch) = &body[4].kind else {
+            panic!("fetch");
+        };
+        assert_eq!(fetch.url_span.slice(src), "\"/api\"");
+        assert_eq!(fetch.options_span.unwrap().slice(src), "(method: \"GET\")");
+        assert_eq!(
+            fetch.loading_span.unwrap().slice(src),
+            "loading { Spinner() }"
+        );
+        assert_eq!(fetch.error_span.unwrap().slice(src), "error(e) { Text(e) }");
+        assert_eq!(
+            fetch.success_span.unwrap().slice(src),
+            "success { Text(\"ok\") }"
+        );
+    }
+
+    #[test]
+    fn an_if_without_an_animate_clause_has_no_clause_span() {
+        let program = parse("Page P (path: \"/\") { if open { Text(\"a\") } }");
+        let Declaration::Page(p) = &program.declarations[0] else {
+            panic!()
+        };
+        let StatementKind::If(i) = &p.body[0].kind else {
+            panic!()
+        };
+        assert!(i.animate_span.is_none());
     }
 }
 

@@ -345,6 +345,8 @@ pub struct StyleProperty {
 pub struct MediaQuery {
     pub condition: String,
     pub properties: Vec<StyleProperty>,
+    /// The whole block, `@media (…) { … }`.
+    pub span: Span,
 }
 
 /// A pseudo-state block inside `style { }`: the state's name as written
@@ -354,12 +356,19 @@ pub struct MediaQuery {
 pub struct PseudoBlock {
     pub state: String,
     pub properties: Vec<StyleProperty>,
+    /// The whole block, `hover { … }`.
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
 pub struct EventHandler {
     pub event: String, // click, submit, input, change, etc.
+    /// The handler's named event parameter (`on click(e)`); `None` for the
+    /// original grammar, whose handlers read an implicit `event`.
+    pub param: Option<String>,
     pub body: Vec<Statement>,
+    /// The whole handler, from `on` to the closing brace.
+    pub span: Span,
 }
 
 // ─── Animation ───────────────────────────────────────────
@@ -377,6 +386,8 @@ pub struct AnimateConfig {
 #[derive(Debug, Clone)]
 pub struct TransitionBlock {
     pub properties: Vec<TransitionProperty>,
+    /// The whole block, `transition { … }`.
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
@@ -399,6 +410,8 @@ pub struct AnimateStmt {
 pub struct IfStmt {
     pub condition: Expr,
     pub animate: Option<AnimateConfig>,
+    /// The `, animate(…)` clause as written, when there is one.
+    pub animate_span: Option<Span>,
     pub then_body: Vec<Statement>,
     pub else_if_branches: Vec<(Expr, Vec<Statement>)>,
     pub else_body: Option<Vec<Statement>>,
@@ -410,6 +423,8 @@ pub struct ForStmt {
     pub index: Option<String>,
     pub iterable: Expr,
     pub animate: Option<AnimateConfig>,
+    /// The `, animate(…)` clause as written, when there is one.
+    pub animate_span: Option<Span>,
     pub body: Vec<Statement>,
 }
 
@@ -417,6 +432,8 @@ pub struct ForStmt {
 pub struct ShowStmt {
     pub condition: Expr,
     pub animate: Option<AnimateConfig>,
+    /// The `, animate(…)` clause as written, when there is one.
+    pub animate_span: Option<Span>,
     pub body: Vec<Statement>,
 }
 
@@ -430,6 +447,14 @@ pub struct FetchDecl {
     pub loading_block: Option<Vec<Statement>>,
     pub error_block: Option<(String, Vec<Statement>)>, // (error_var_name, body)
     pub success_block: Option<Vec<Statement>>,
+    /// The URL expression, and the options list with its parentheses.
+    pub url_span: Span,
+    pub options_span: Option<Span>,
+    /// Each clause as written — `loading { … }`, `error(e) { … }`,
+    /// `success { … }` — for a tool that rewrites them.
+    pub loading_span: Option<Span>,
+    pub error_span: Option<Span>,
+    pub success_span: Option<Span>,
 }
 
 #[derive(Debug, Clone)]
