@@ -45,7 +45,7 @@ The extension looks for `wf-lsp` in this order and uses the first it finds:
    which it downloads on first use (the status shows in Zed's bottom bar) —
    and again, into a new `wf-lsp-<version>/` directory, when a newer release
    is out: restart Zed after a WebFluent release and the server is the new
-   one. Extension 1.1 was cut with wf-lsp 2.2.0.
+   one. Extension 2.0 was cut with wf-lsp 3.0.0.
 4. A copy it downloaded before, when the release lookup fails (offline, or
    rate-limited), so the editor keeps working without the network.
 

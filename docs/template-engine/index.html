@@ -284,7 +284,7 @@ fn main() -&gt; webfluent::Result&lt;()&gt; {
                             <code class="wf-code wf-code--block">const { Template } = require(&#x27;@aspect/webfluent&#x27;);
 
 const tpl = Template.fromFile(&#x27;templates/invoice.wf&#x27;);
-// or: Template.fromString(&#x27;Container { Heading(&quot;Hello!&quot;, h1) }&#x27;);
+// or: Template.fromString(&#x27;Container { Heading(&quot;Hello!&quot;).h1 }&#x27;);
 
 // Render to HTML
 const html = tpl.renderHtml({ name: &quot;World&quot; });

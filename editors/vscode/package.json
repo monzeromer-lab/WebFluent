@@ -2,7 +2,7 @@
   "name": "webfluent",
   "displayName": "WebFluent",
   "description": "WebFluent language support — syntax highlighting, auto-completion, diagnostics, and more",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "monzeromer-lab",
   "license": "GPL-3.0",
   "icon": "icon.png",
