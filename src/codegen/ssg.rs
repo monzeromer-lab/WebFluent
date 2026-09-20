@@ -113,10 +113,39 @@ pub fn render_page_html_studio(
         current_path: page.path.clone(),
     };
 
+    // A page with a layout is that component with the page as its default
+    // slot; the shell then wraps the layout as it would wrap the page.
+    let framed: Vec<Statement>;
+    let page_body: &[Statement] = match &page.layout {
+        Some(layout) => {
+            framed = vec![Statement::new(
+                StatementKind::UIElement(UIElement {
+                    component: ComponentRef::UserDefined(layout.name.clone()),
+                    args: layout.args.clone(),
+                    modifiers: Vec::new(),
+                    children: page.body.clone(),
+                    style_block: None,
+                    transition_block: None,
+                    events: Vec::new(),
+                    slot_fills: Vec::new(),
+                    span: layout.span,
+                    paren_span: None,
+                    body_span: None,
+                    style_span: None,
+                    arg_spans: Vec::new(),
+                    modifier_spans: Vec::new(),
+                }),
+                layout.span,
+            )];
+            &framed
+        }
+        None => &page.body,
+    };
+
     // Render app shell (navbar, etc.) if available
     let mut body_html = String::new();
     if let Some(app_stmts) = app_body {
-        render_app_shell_ssg(app_stmts, &page.body, &mut ctx, &mut body_html);
+        render_app_shell_ssg(app_stmts, page_body, &mut ctx, &mut body_html);
     } else {
         // With no shell there is no Router to stand in for `<main>`, so the page
         // body is the main content itself.
@@ -125,7 +154,7 @@ pub fn render_page_html_studio(
             ctx.indent_str(),
             {
                 ctx.indent += 1;
-                let inner = render_statements(&page.body, &mut ctx);
+                let inner = render_statements(page_body, &mut ctx);
                 ctx.indent -= 1;
                 inner
             },

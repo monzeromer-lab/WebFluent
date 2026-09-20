@@ -562,7 +562,10 @@ const WF = (() => {
         const prev = currentEffect;
         currentEffect = null;
         try {
-          const el = renderFn(match.params);
+          // A page that names a layout is rendered inside it.
+          const el = match.route.layout
+            ? match.route.layout(renderFn, match.params)
+            : renderFn(match.params);
           if (el instanceof Node) container.appendChild(el);
         } finally {
           currentEffect = prev;

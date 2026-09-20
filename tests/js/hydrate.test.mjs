@@ -467,3 +467,24 @@ test("emit calls the handler the caller passed, and is silent without one", () =
   WF.emit(null, "pick", 3);
   assert.deepEqual(seen, [42]);
 });
+
+test("a route with a layout renders the page inside it, with the page's params", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  const shell = (page, params) => WF.h("section", { className: "shell" }, [WF.h("h1", {}, ["Shell"]), page(params)]);
+  WF.createRouter(
+    [
+      { path: "/d/:id", layout: shell, render: (params) => WF.h("p", {}, [`deploy ${params.id}`]) },
+      { path: "/", render: () => WF.h("p", {}, ["home"]) },
+    ],
+    container,
+  );
+  WF.navigate("/d/42");
+  const section = container.querySelector("section");
+  assert.ok(section, "the layout wraps the page");
+  assert.equal(section.querySelector("p").textContent, "deploy 42");
+  WF.navigate("/");
+  assert.equal(container.querySelector("section"), null, "a page without a layout has none");
+  assert.equal(container.querySelector("p").textContent, "home");
+});

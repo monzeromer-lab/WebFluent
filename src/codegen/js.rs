@@ -76,6 +76,12 @@ pub struct JsCodegen {
     /// The route parameters of the page being emitted, read as
     /// `params.<name>`.
     page_params: Vec<String>,
+    /// Each page's layout component and the compiled props object it is
+    /// called with, when the page names one.
+    page_layouts: HashMap<String, (String, String)>,
+    /// Every page's path, in declaration order, for a router that lists no
+    /// routes of its own.
+    page_paths: Vec<(String, String)>,
 }
 
 impl Default for JsCodegen {
@@ -111,6 +117,8 @@ impl JsCodegen {
             component_positional: HashMap::new(),
             component_events: HashMap::new(),
             page_params: Vec::new(),
+            page_layouts: HashMap::new(),
+            page_paths: Vec::new(),
         }
     }
 
@@ -198,6 +206,15 @@ impl JsCodegen {
             ),
             None => String::new(),
         };
+        // The layout that frames the page, called with the page as its
+        // default slot.
+        let layout = match self.page_layouts.get(page) {
+            Some((name, args)) => format!(
+                "layout: (page, params) => Component_{}({}, {{ children: () => page(params) }}), ",
+                name, args
+            ),
+            None => String::new(),
+        };
         if self.split_pages {
             let css = if self.page_sheets.contains(page) {
                 format!("css: \"{}\", ", page)
@@ -205,13 +222,13 @@ impl JsCodegen {
                 String::new()
             };
             format!(
-                "{{ path: \"{}\", {}{}page: \"{}\" }},",
-                path, title, css, page
+                "{{ path: \"{}\", {}{}{}page: \"{}\" }},",
+                path, title, css, layout, page
             )
         } else {
             format!(
-                "{{ path: \"{}\", {}render: (params) => Page_{}(params) }},",
-                path, title, page
+                "{{ path: \"{}\", {}{}render: (params) => Page_{}(params) }},",
+                path, title, layout, page
             )
         }
     }
@@ -252,8 +269,21 @@ impl JsCodegen {
                     if let Some(title) = &p.title {
                         self.page_titles.insert(p.name.clone(), title.clone());
                     }
+                    if !p.path.is_empty() {
+                        self.page_paths.push((p.path.clone(), p.name.clone()));
+                    }
                 }
                 _ => {}
+            }
+        }
+        // A layout's props are compiled once the component names are known.
+        for decl in &program.declarations {
+            if let Declaration::Page(p) = decl
+                && let Some(layout) = &p.layout
+            {
+                let args = self.emit_component_args(&layout.name, &layout.args);
+                self.page_layouts
+                    .insert(p.name.clone(), (layout.name.clone(), args));
             }
         }
 
@@ -859,17 +889,16 @@ impl JsCodegen {
         self.emit_line("const _app = document.getElementById('app');");
         self.emit_line("_app.innerHTML = '';");
 
-        // Find Route declarations (may be nested at any depth)
+        // The routes: the Router's own `Route` children when it lists any,
+        // else every page's declared path — pages own their routes.
         let router_routes = Self::find_router_routes(&app.body);
-        let has_router = !router_routes.is_empty();
+        let has_router = Self::has_router(&app.body);
 
         // Recursively emit the app tree, replacing the Router with the route setup
         self.emit_app_tree(&app.body, "_app", has_router);
 
         if has_router {
-            // Emit route definitions
-            self.emit_line("const _routes = [");
-            self.indent += 1;
+            let mut routes: Vec<(String, String)> = Vec::new();
             for route in &router_routes {
                 let mut path = String::new();
                 let mut page_name = String::new();
@@ -884,8 +913,17 @@ impl JsCodegen {
                         }
                     }
                 }
-                let clean_path = path.trim_matches('"');
-                let entry = self.route_entry(clean_path, &page_name);
+                routes.push((path.trim_matches('"').to_string(), page_name));
+            }
+            if routes.is_empty() {
+                routes = self.page_paths.clone();
+                routes.sort_by_key(|(path, _)| route_order(path));
+            }
+            // Emit route definitions
+            self.emit_line("const _routes = [");
+            self.indent += 1;
+            for (path, page_name) in &routes {
+                let entry = self.route_entry(path, page_name);
                 self.emit_line(&entry);
             }
             self.indent -= 1;
@@ -966,6 +1004,17 @@ impl JsCodegen {
     }
 
     /// Find Route declarations recursively inside the App body
+    /// Whether a `Router` element appears anywhere in `body`.
+    fn has_router(body: &[Statement]) -> bool {
+        body.iter().any(|stmt| match &stmt.kind {
+            StatementKind::UIElement(ui) => {
+                matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router")
+                    || Self::has_router(&ui.children)
+            }
+            _ => false,
+        })
+    }
+
     fn find_router_routes(body: &[Statement]) -> Vec<&UIElement> {
         for stmt in body {
             if let StatementKind::UIElement(ui) = &stmt.kind {
@@ -4142,6 +4191,21 @@ impl JsCodegen {
     }
 }
 
+/// The order routes are matched in when they come from the pages' own
+/// paths: the more specific first — every static segment before a
+/// `:param`, and the catch-all `*` last — so that declaration order, which
+/// is file-system order, cannot shadow a route.
+fn route_order(path: &str) -> (bool, usize, std::cmp::Reverse<usize>) {
+    let segments: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    let wildcard = path.trim() == "*" || segments.contains(&"*");
+    let params = segments.iter().filter(|s| s.starts_with(':')).count();
+    let statics = segments
+        .iter()
+        .filter(|s| !s.starts_with(':') && **s != "*")
+        .count();
+    (wildcard, params, std::cmp::Reverse(statics))
+}
+
 /// The names of the resources a body declares, at any depth.
 fn resource_names(stmts: &[Statement]) -> Vec<String> {
     let mut names = Vec::new();
@@ -4555,6 +4619,37 @@ mod tests {
         assert!(out.contains("trailing: () => {"), "{out}");
         assert!(
             out.contains("WF.onRoot(_e2, \"mouseenter\", (event) => { console.log(\"in\"); });"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_router_without_routes_takes_every_page_most_specific_first() {
+        let out = compile(
+            "page Deploy(path: \"/deploys/:id\", id: String) { Text(id) }\npage NotFound(path: \"*\") { Text(\"?\") }\npage Home(path: \"/\") { Text(\"h\") }\npage Deploys(path: \"/deploys\") { Text(\"d\") }\napp { Router }",
+        );
+        let table = out.find("const _routes = [").unwrap();
+        let order: Vec<usize> = ["\"/deploys\"", "\"/\"", "\"/deploys/:id\"", "\"*\""]
+            .iter()
+            .map(|p| out[table..].find(&format!("path: {p}")).unwrap())
+            .collect();
+        assert!(
+            order[0] < order[1] && order[1] < order[2] && order[2] < order[3],
+            "{out}"
+        );
+        assert!(
+            out.contains("Page_Deploy(params)") && out.contains("params.id"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_page_with_a_layout_is_rendered_inside_it() {
+        let out = compile(
+            "component Shell(crumb: String) { slot  Text(crumb)  children }\npage Home(path: \"/\", layout: Shell(crumb: \"Home\")) { Text(\"h\") }\napp { Router }",
+        );
+        assert!(
+            out.contains("layout: (page, params) => Component_Shell({ crumb: \"Home\" }, { children: () => page(params) }), render: (params) => Page_Home(params)"),
             "{out}"
         );
     }
