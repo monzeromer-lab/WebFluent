@@ -1654,17 +1654,23 @@ impl ParserV2 {
         let mut properties = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let (property, raw) = self.parse_style_declaration()?;
+            // A duration or an easing may be a theme token: `$d-fast`,
+            // `$ease-standard`, which are `var(--…)` in the CSS.
+            let token = |word: &str| match word.strip_prefix('$') {
+                Some(name) => format!("var(--{name})"),
+                None => word.to_string(),
+            };
             let mut words = raw.split_whitespace();
             let duration = match words.next() {
                 Some("fast") => "150ms".to_string(),
                 Some("normal") => "250ms".to_string(),
                 Some("slow") => "350ms".to_string(),
-                Some(d) => d.to_string(),
+                Some(d) => token(d),
                 None => {
                     return Err(self.error(format!("`{property}` needs a duration, like `200ms`")));
                 }
             };
-            let easing = words.next().map(str::to_string);
+            let easing = words.next().map(token);
             properties.push(TransitionProperty {
                 property,
                 duration,
@@ -2375,6 +2381,24 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         assert!(err.contains("`.load` takes no arguments"), "{err}");
         let err = fails("page P(path: \"/\") { Card { load() } }");
         assert!(err.contains("Loose code in an element's block"), "{err}");
+    }
+
+    #[test]
+    fn a_transition_takes_tokens_for_its_timing() {
+        let body = page_body(
+            "page P(path: \"/\") { Card { transition { background: $d-fast $ease-standard\n opacity: 200ms ease } } }",
+        );
+        let StatementKind::UIElement(el) = &body[0].kind else {
+            panic!()
+        };
+        let t = el.transition_block.as_ref().unwrap();
+        assert_eq!(t.properties[0].duration, "var(--d-fast)");
+        assert_eq!(
+            t.properties[0].easing.as_deref(),
+            Some("var(--ease-standard)")
+        );
+        assert_eq!(t.properties[1].duration, "200ms");
+        assert_eq!(t.properties[1].easing.as_deref(), Some("ease"));
     }
 
     #[test]

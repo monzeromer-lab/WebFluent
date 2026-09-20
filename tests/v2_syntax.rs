@@ -232,6 +232,20 @@ fn a_short_token_resolves_through_the_propertys_group() {
 }
 
 #[test]
+fn a_transition_may_take_its_timing_from_the_theme() {
+    same(
+        r#"Theme T { token d-fast: "120ms" }
+        Page P (path: "/", title: "T") {
+            Card { transition { background "var(--d-fast)" easeOut } Text("x") }
+        }"#,
+        r#"theme T { d-fast: 120ms }
+        page P(path: "/", title: "T") {
+            Card { transition { background: $d-fast easeOut } Text("x") }
+        }"#,
+    );
+}
+
+#[test]
 fn a_theme_and_tokens() {
     same(
         r##"Theme Brand {

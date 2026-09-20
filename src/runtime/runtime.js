@@ -86,6 +86,11 @@ const WF = (() => {
           } else {
             el[k] = String(v);
           }
+        } else if (k === "data-wf-delay" || k === "data-wf-duration") {
+          // The element's own timing for the animation class it carries.
+          const prop = k === "data-wf-delay" ? "animationDelay" : "animationDuration";
+          el.setAttribute(k, v);
+          el.style[prop] = v;
         } else if (k === "data-icon") {
           // The glyph is drawn after the children: an icon button carries
           // data-icon and a .wf-icon child, and used to draw the glyph twice.
@@ -174,6 +179,20 @@ const WF = (() => {
     if (root) root.addEventListener(event, handler);
   }
 
+  // Motion asked of a component at its call site lands on its root
+  // element: `data-wf-exit`, `data-wf-delay`, `data-wf-duration`.
+  function mark(frag, attrs) {
+    const isFragment = frag.nodeType === 11 || frag.tagName === "#DOCUMENT-FRAGMENT";
+    const root = isFragment ? [...frag.childNodes].find((n) => n.nodeType === 1) : frag;
+    if (!root) return;
+    for (const [k, v] of Object.entries(attrs)) {
+      root.setAttribute(k, v);
+      if (k === "data-wf-delay") root.style.animationDelay = v;
+      if (k === "data-wf-duration") root.style.animationDuration = v;
+      if (k === "data-wf-animate") root.classList.add("wf-animate-" + v);
+    }
+  }
+
   function appendChildren(el, children) {
     for (const child of children.flat(Infinity)) {
       if (child == null || child === false) continue;
@@ -212,8 +231,14 @@ const WF = (() => {
     bounce: "fadeOut", shake: "fadeOut", pulse: "fadeOut",
   };
 
+  // A reader who asked for less motion gets none: no class, no wait.
+  function reducedMotion() {
+    return typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
   function animateIn(el, name, duration, delay) {
-    if (!name) return Promise.resolve();
+    if (!name || reducedMotion()) return Promise.resolve();
     const cls = "wf-animate-" + name;
     if (duration) el.style.animationDuration = duration;
     if (delay) el.style.animationDelay = delay;
@@ -226,16 +251,59 @@ const WF = (() => {
     });
   }
 
-  function animateOut(el, name, duration) {
-    if (!name) return Promise.resolve();
+  function animateOut(el, name, duration, delay) {
+    if (!name || reducedMotion()) return Promise.resolve();
     const cls = "wf-animate-" + name;
     if (duration) el.style.animationDuration = duration;
+    if (delay) el.style.animationDelay = delay;
     el.classList.add(cls);
     return new Promise(resolve => {
-      const done = () => { el.classList.remove(cls); el.style.animationDuration = ""; resolve(); };
+      const done = () => { el.classList.remove(cls); el.style.animationDuration = ""; el.style.animationDelay = ""; resolve(); };
       el.addEventListener("animationend", done, { once: true });
-      setTimeout(done, (parseInt(duration) || 300) + 100);
+      setTimeout(done, (parseInt(duration) || 300) + (parseInt(delay) || 0) + 100);
     });
+  }
+
+  // ─── Leaving ─────────────────────────────────────────
+  // Every exit the nodes on their way out asked for: the branch's own, on
+  // each root, and the one any element beneath carries as `data-wf-exit`.
+  // The promises resolve when the last has played; none means remove now.
+  function leave(nodes, config) {
+    const plays = [];
+    if (reducedMotion()) return plays;
+    const marked = (el) => {
+      if (!el.hasAttribute || !el.hasAttribute("data-wf-exit")) return;
+      const attr = (name) => el.getAttribute(name) || "";
+      plays.push(animateOut(el, attr("data-wf-exit"), attr("data-wf-duration"), attr("data-wf-delay")));
+    };
+    for (const n of nodes) {
+      if (!(n instanceof Element)) continue;
+      if (config && config.exit) plays.push(animateOut(n, config.exit, config.duration));
+      else marked(n);
+      if (typeof n.querySelectorAll === "function") {
+        for (const el of n.querySelectorAll("[data-wf-exit]")) marked(el);
+      }
+    }
+    return plays;
+  }
+
+  // Remove `nodes` once their exits have played, then call `onDone`. The
+  // handle returned (none when nothing played) is cancelled by a branch
+  // that comes back before the exit is over.
+  function leaveThenRemove(nodes, config, onDone) {
+    const plays = leave(nodes, config);
+    if (!plays.length) {
+      removeNodes(nodes);
+      if (onDone) onDone();
+      return null;
+    }
+    const pending = { cancelled: false };
+    Promise.all(plays).then(() => {
+      if (pending.cancelled) return;
+      removeNodes(nodes);
+      if (onDone) onDone();
+    });
+    return pending;
   }
 
   function animate(target, name, duration) {
@@ -274,32 +342,19 @@ const WF = (() => {
       if (show === lastShow) return;
       lastShow = show;
 
-      // Cancel any pending removal animation
+      // A branch that comes back before its exit has played: the old
+      // nodes go at once, the new ones take their place.
       if (pendingRemoval) {
-        removeNodes(pendingRemoval);
+        pendingRemoval.pending.cancelled = true;
+        removeNodes(pendingRemoval.nodes);
         pendingRemoval = null;
       }
 
-      // Remove old nodes
+      // Remove old nodes, once what asked for an exit has played it.
       const toRemove = [...currentNodes];
       currentNodes = [];
-
-      if (animConfig && animConfig.exit && toRemove.length) {
-        pendingRemoval = toRemove;
-        const exitName = animConfig.exit;
-        const promises = toRemove.map(n =>
-          n instanceof Element ? animateOut(n, exitName, animConfig.duration) : Promise.resolve()
-        );
-        Promise.all(promises).then(() => {
-          // Only remove if this is still the pending removal (not cancelled by a new toggle)
-          if (pendingRemoval === toRemove) {
-            removeNodes(toRemove);
-            pendingRemoval = null;
-          }
-        });
-      } else {
-        removeNodes(toRemove);
-      }
+      const pending = leaveThenRemove(toRemove, animConfig, () => { pendingRemoval = null; });
+      if (pending) pendingRemoval = { nodes: toRemove, pending };
 
       // Add new nodes (untracked so rendering doesn't subscribe this effect to state signals)
       const renderFn = show ? thenFn : elseFn;
@@ -344,7 +399,7 @@ const WF = (() => {
       const k = key();
       if (k === lastKey) return;
       lastKey = k;
-      removeNodes(currentNodes);
+      leaveThenRemove(currentNodes, null);
       currentNodes = [];
       const arm = Object.prototype.hasOwnProperty.call(arms, k) ? arms[k] : arms.else;
       if (!arm) return;
@@ -394,18 +449,46 @@ const WF = (() => {
         animateIn(n, config.enter, config.duration, delay);
       }
     };
-    const leave = (nodes) => {
-      if (!(config && config.exit)) { removeNodes(nodes); return; }
-      for (const n of nodes) {
-        if (n instanceof Element) {
-          exiting.add(n);
-          animateOut(n, config.exit, config.duration).then(() => {
-            exiting.delete(n);
-            if (n.parentNode) n.parentNode.removeChild(n);
-          });
-        } else if (n.parentNode) {
-          n.parentNode.removeChild(n);
+    const depart = (nodes) => {
+      const plays = leave(nodes, config);
+      if (!plays.length) { removeNodes(nodes); return; }
+      for (const n of nodes) exiting.add(n);
+      Promise.all(plays).then(() => {
+        for (const n of nodes) exiting.delete(n);
+        removeNodes(nodes);
+      });
+    };
+    // Where each kept node was before a change, so a node that moved can
+    // slide from there to where it is now (first, last, invert, play).
+    const positions = () => {
+      const seen = new Map();
+      if (reducedMotion() || typeof requestAnimationFrame !== "function") return seen;
+      for (const entry of entries.values()) {
+        for (const n of entry.nodes) {
+          if (n instanceof Element && typeof n.getBoundingClientRect === "function") {
+            const r = n.getBoundingClientRect();
+            seen.set(n, { x: r.left, y: r.top });
+          }
         }
+      }
+      return seen;
+    };
+    const slide = (before) => {
+      for (const [n, was] of before) {
+        if (!n.parentNode || typeof n.getBoundingClientRect !== "function") continue;
+        const r = n.getBoundingClientRect();
+        const dx = was.x - r.left;
+        const dy = was.y - r.top;
+        if (!dx && !dy) continue;
+        n.style.transition = "none";
+        n.style.transform = "translate(" + dx + "px, " + dy + "px)";
+        requestAnimationFrame(() => {
+          n.style.transition = "transform " + ((config && config.duration) || "200ms") + " ease";
+          n.style.transform = "";
+          const done = () => { n.style.transition = ""; };
+          n.addEventListener("transitionend", done, { once: true });
+          setTimeout(done, (parseInt(config && config.duration) || 200) + 100);
+        });
       }
     };
     // Put `nodes` right after `after`, moving only what is out of place; a
@@ -429,7 +512,7 @@ const WF = (() => {
       const items = listFn() || [];
       if (!key) {
         // Rebuilt whole.
-        leave(currentNodes);
+        depart(currentNodes);
         currentNodes = [];
         untracked(() => {
           const frag = document.createDocumentFragment();
@@ -445,6 +528,7 @@ const WF = (() => {
       untracked(() => {
         const host = marker.parentNode;
         if (!host) return;
+        const before = positions();
         const next = new Map();
         const seen = new Map();
         let cursor = marker;
@@ -473,8 +557,9 @@ const WF = (() => {
           next.set(k, entry);
         });
         // What is left never came back.
-        for (const gone of entries.values()) leave(gone.nodes);
+        for (const gone of entries.values()) depart(gone.nodes);
         entries = next;
+        slide(before);
       });
     });
   }
@@ -497,12 +582,9 @@ const WF = (() => {
             for (const n of wrapper.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay);
           }
         } else {
-          if (animConfig.exit) {
-            const promises = [...wrapper.children].map(n => animateOut(n, animConfig.exit, animConfig.duration));
-            Promise.all(promises).then(() => { wrapper.style.display = "none"; });
-          } else {
-            wrapper.style.display = "none";
-          }
+          const plays = leave([...wrapper.children], animConfig);
+          if (plays.length) Promise.all(plays).then(() => { wrapper.style.display = "none"; });
+          else wrapper.style.display = "none";
         }
       });
     } else {
@@ -556,7 +638,13 @@ const WF = (() => {
     });
   }
 
-  function router(routes, container) {
+  // `options.transition` — `fade` or `slide` — plays the old page out and
+  // the new one in on a route change; `options.duration` times both.
+  function router(routes, container, options) {
+    const motion = options && options.transition && options.transition !== "none"
+      ? { name: options.transition, duration: options.duration }
+      : null;
+    const ways = { fade: ["fadeOut", "fadeIn"], slide: ["slideLeft", "slideRight"] };
     // Check for SPA redirect from 404.html (?p=/path)
     const urlParams = new URLSearchParams(window.location.search);
     const redirectPath = urlParams.get("p");
@@ -609,9 +697,7 @@ const WF = (() => {
         return;
       }
 
-      const draw = (renderFn) => {
-        // The page arrived after the reader had already moved on.
-        if (currentPath() !== path) return;
+      const paint = (renderFn) => {
         container.innerHTML = "";
         _newPage();
         // The tab, the history entry and a screen reader all read the title;
@@ -629,7 +715,8 @@ const WF = (() => {
         } finally {
           currentEffect = prev;
         }
-
+      };
+      const settle = () => {
         // A full page load lands the reader at the top with focus on the
         // document; a route change used to leave focus on a link that no
         // longer existed, the scroll wherever it was, and say nothing. It now
@@ -641,6 +728,26 @@ const WF = (() => {
         }
         rendered = true;
         fromHistory = false;
+      };
+      const draw = (renderFn) => {
+        // The page arrived after the reader had already moved on.
+        if (currentPath() !== path) return;
+        const [out, back] = motion ? ways[motion.name] || ways.fade : [];
+        // The first paint, and every one for a reader who asked for less
+        // motion, is immediate; a route change plays the old page out, then
+        // the new one in, and settles focus once the new page is still.
+        if (!motion || !rendered || reducedMotion()) {
+          paint(renderFn);
+          settle();
+          return;
+        }
+        const leaving = [...container.children];
+        Promise.all(leaving.map((n) => animateOut(n, out, motion.duration))).then(() => {
+          if (currentPath() !== path) return;
+          paint(renderFn);
+          const arriving = [...container.children];
+          Promise.all(arriving.map((n) => animateIn(n, back, motion.duration))).then(settle);
+        });
       };
 
       // A route names its page's render function directly, or names a page
@@ -1614,7 +1721,7 @@ const WF = (() => {
     // State.
     signal, effect, computed,
     // Elements, and what a body puts inside them.
-    el, text, props, onRoot, classes,
+    el, text, props, onRoot, mark, classes,
     when, each, show, match,
     // Motion.
     animate, replay, animateIn, animateOut,

@@ -566,3 +566,107 @@ test("a keyed list plays the exit animation on what leaves and the enter animati
   await new Promise((r) => setImmediate(r));
   assert.deepEqual(parent.children.map((li) => li.textContent), ["2", "3"], "the leaver is removed once its animation ends");
 });
+
+test("an element marked with an exit animation plays it before its branch is removed", async () => {
+  const { WF, document } = loadRuntime();
+  const parent = document.createElement("div");
+  const open = WF.signal(true);
+  let inner;
+  WF.when(parent, () => open(), () => {
+    const card = WF.el("div", { className: "wf-card" });
+    inner = WF.el("p", { "data-wf-exit": "fadeOut", "data-wf-delay": "50ms" }, ["x"]);
+    card.appendChild(inner);
+    return card;
+  }, null, null);
+  assert.equal(parent.querySelectorAll("p").length, 1);
+  assert.equal(inner.style.animationDelay, "50ms", "the delay is set from the marker");
+  open.set(false);
+  // The exit class is on while the animation plays; the timer runs inline
+  // here, so it has already been taken off — but the branch is only removed
+  // once the promise settles.
+  assert.equal(parent.querySelectorAll("div").length, 1, "still there while leaving");
+  await new Promise((r) => setImmediate(r));
+  assert.equal(parent.querySelectorAll("div").length, 0, "gone once the exit has played");
+});
+
+test("a component's motion markers land on its root, and a reader who asked for less motion waits for nothing", async () => {
+  const { WF, document, window } = loadRuntime();
+  const frag = document.createDocumentFragment();
+  frag.appendChild(WF.el("div", { className: "chip" }));
+  WF.mark(frag, { "data-wf-exit": "fadeOut", "data-wf-animate": "fadeIn", "data-wf-duration": "150ms" });
+  const root = frag.childNodes[0];
+  assert.equal(root.getAttribute("data-wf-exit"), "fadeOut");
+  assert.ok(root.classList.contains("wf-animate-fadeIn"));
+  assert.equal(root.style.animationDuration, "150ms");
+
+  window.matchMedia = () => ({ matches: true });
+  const parent = document.createElement("div");
+  const open = WF.signal(true);
+  WF.when(parent, () => open(), () => WF.el("div", { "data-wf-exit": "fadeOut" }), null, { enter: "fadeIn", exit: "fadeOut" });
+  const el = parent.querySelectorAll("div")[0];
+  assert.ok(!el.classList.contains("wf-animate-fadeIn"), "no enter animation under reduced motion");
+  open.set(false);
+  assert.equal(parent.querySelectorAll("div").length, 0, "removed at once under reduced motion");
+});
+
+test("a keyed list slides a moved item from where it was", () => {
+  const { WF, document, window } = loadRuntime();
+  const frames = [];
+  window.requestAnimationFrame = (fn) => frames.push(fn);
+  globalThis.requestAnimationFrame = window.requestAnimationFrame;
+  try {
+    const parent = document.createElement("ul");
+    const items = WF.signal([{ id: 1 }, { id: 2 }]);
+    // Each item sits 20px below the one before it, as a layout would put it.
+    WF.each(parent, () => items(), (item) => {
+      const li = WF.el("li", {}, [String(item.id)]);
+      li.getBoundingClientRect = () => ({ left: 0, top: parent.children.indexOf(li) * 20 });
+      return li;
+    }, { key: (item) => item.id });
+    const [a, b] = parent.children;
+    items.set([items()[1], items()[0]]);
+    // Measured before the move, each node is held at its old offset until
+    // the next frame plays the slide to where it now sits.
+    assert.equal(a.style.transform, "translate(0px, -20px)", `${a.style.transform}`);
+    assert.equal(b.style.transform, "translate(0px, 20px)");
+    assert.equal(frames.length, 2);
+    for (const f of frames) f();
+    // The timer runs inline here, so the transition has already been taken
+    // off with the transform: the node rests where it now sits.
+    assert.equal(a.style.transform, "", "the slide plays to the new place");
+    assert.equal(a.style.transition, "");
+  } finally {
+    delete globalThis.requestAnimationFrame;
+  }
+});
+
+test("a router with a transition plays the old page out and the new one in, then settles focus", async () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  const seen = [];
+  const page = (text) => () => {
+    const p = WF.el("p", {}, [text]);
+    const h = WF.el("h1", {}, [text]);
+    h.focus = () => seen.push(`focus ${text}`);
+    return WF.el("section", {}, [h, p]);
+  };
+  WF.router(
+    [
+      { path: "/", title: "Home", render: page("home") },
+      { path: "/about", title: "About", render: page("about") },
+    ],
+    container,
+    { transition: "slide", duration: "150ms" },
+  );
+  // The first paint is immediate.
+  assert.equal(container.querySelector("p").textContent, "home");
+  WF.navigate("/about");
+  // The old page is on its way out: it is still there, sliding.
+  assert.equal(container.querySelector("p").textContent, "home");
+  await new Promise((r) => setImmediate(r));
+  await new Promise((r) => setImmediate(r));
+  assert.equal(container.querySelector("p").textContent, "about");
+  await new Promise((r) => setImmediate(r));
+  assert.deepEqual(seen, ["focus about"], "focus settles once the new page has arrived");
+});

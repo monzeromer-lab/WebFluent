@@ -1573,7 +1573,26 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Routing",
         "Where the current page renders. May sit at any depth inside `app`; pages declare their own paths.",
         None,
-        &[],
+        &[
+            special(
+                "transition",
+                PropType::Enum(&[
+                    case("none", "", "The next page replaces the last at once"),
+                    case("fade", "", "The last page fades out, the next fades in"),
+                    case(
+                        "slide",
+                        "",
+                        "The last page slides out to the left, the next in from the right",
+                    ),
+                ]),
+                "How a route change moves between pages",
+            ),
+            special(
+                "duration",
+                PropType::Str,
+                "How long each half of the transition plays, e.g. `200ms`",
+            ),
+        ],
         &[],
         G,
         Children::Elements,

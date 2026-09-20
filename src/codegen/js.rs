@@ -931,7 +931,33 @@ impl JsCodegen {
             }
             self.indent -= 1;
             self.emit_line("];");
-            self.emit_line("WF.router(_routes, _routerEl);");
+            // `Router(transition: .fade, duration: "200ms")`: the pages
+            // cross-fade or slide on a route change.
+            let options = Self::find_router(&app.body)
+                .map(|router| {
+                    let mut parts = Vec::new();
+                    for arg in &router.args {
+                        if let Arg::Named(k, v) = arg
+                            && matches!(k.as_str(), "transition" | "duration")
+                        {
+                            let value = match v {
+                                Expr::EnumCase(c) | Expr::StringLiteral(c) => format!("\"{c}\""),
+                                other => self.emit_expr(other),
+                            };
+                            parts.push(format!("{k}: {value}"));
+                        }
+                    }
+                    parts
+                })
+                .unwrap_or_default();
+            if options.is_empty() {
+                self.emit_line("WF.router(_routes, _routerEl);");
+            } else {
+                self.emit_line(&format!(
+                    "WF.router(_routes, _routerEl, {{ {} }});",
+                    options.join(", ")
+                ));
+            }
         }
 
         self.indent -= 1;
@@ -1016,6 +1042,21 @@ impl JsCodegen {
             }
             _ => false,
         })
+    }
+
+    /// The `Router` element, at any depth of the app body.
+    fn find_router(body: &[Statement]) -> Option<&UIElement> {
+        for stmt in body {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
+                if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Router") {
+                    return Some(ui);
+                }
+                if let Some(found) = Self::find_router(&ui.children) {
+                    return Some(found);
+                }
+            }
+        }
+        None
     }
 
     fn find_router_routes(body: &[Statement]) -> Vec<&UIElement> {
@@ -1802,6 +1843,20 @@ impl JsCodegen {
                         Self::handler_head(handler, "event"),
                         body
                     ));
+                }
+                // The motion asked of it here: markers on its root element.
+                let marks: Vec<String> = ui
+                    .args
+                    .iter()
+                    .filter_map(|a| match a {
+                        Arg::Named(k, v) if k.starts_with("data-wf-") => {
+                            Some(format!("\"{}\": {}", k, self.emit_expr(v)))
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                if !marks.is_empty() {
+                    self.emit_line(&format!("WF.mark({}, {{ {} }});", var, marks.join(", ")));
                 }
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
@@ -4109,6 +4164,8 @@ impl JsCodegen {
         let mut parts = Vec::new();
         for arg in args {
             match arg {
+                // A motion marker lands on the component's root, not in its props.
+                Arg::Named(name, _) if name.starts_with("data-wf-") => {}
                 Arg::Named(name, expr) => {
                     let key = if name.contains('-') {
                         format!("\"{}\"", name)
@@ -4657,6 +4714,27 @@ mod tests {
         );
         assert!(
             out.contains("async function load()") && out.contains("(await fetch(\"/x\"))"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn motion_off_a_branch_root_is_a_marker_and_the_router_takes_a_transition() {
+        let out = compile(
+            "component Chip(_ label: String) { Badge(label) }\npage P(path: \"/\") {\n  Card { Text(\"x\", exit: .fadeOut, delay: \"100ms\")  Chip(\"y\", exit: .fadeOut).fadeIn.fast }\n}\napp { Router(transition: .slide, duration: \"150ms\") }",
+        );
+        assert!(
+            out.contains("\"data-wf-exit\": \"fadeOut\", \"data-wf-delay\": \"100ms\""),
+            "{out}"
+        );
+        assert!(
+            out.contains("{ \"data-wf-exit\": \"fadeOut\", \"data-wf-animate\": \"fadeIn\", \"data-wf-duration\": \"150ms\" });"),
+            "{out}"
+        );
+        assert!(
+            out.contains(
+                "WF.router(_routes, _routerEl, { transition: \"slide\", duration: \"150ms\" });"
+            ),
             "{out}"
         );
     }

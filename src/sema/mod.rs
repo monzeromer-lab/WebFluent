@@ -854,6 +854,49 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
         ComponentRef::UserDefined(_) => None,
     };
 
+    // Off a branch, an exit, a delay or a duration is the element's own:
+    // written as `data-wf-*` markers the runtime reads when the element
+    // leaves or first animates in. A stagger belongs to a list and means
+    // nothing here.
+    let user_component = matches!(el.component, ComponentRef::UserDefined(_));
+    // The Router's `duration` times its route transition, not a marker.
+    let router = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Router");
+    for arg in el.args.iter_mut() {
+        if !router
+            && let Arg::Named(k, v) = arg
+            && (matches!(k.as_str(), "exit" | "delay" | "duration" | "easing")
+                || (user_component && matches!(k.as_str(), "animate" | "speed")))
+        {
+            let value = match v {
+                Expr::EnumCase(c) | Expr::StringLiteral(c) => Expr::StringLiteral(c.clone()),
+                other => other.clone(),
+            };
+            // A speed is a duration.
+            let (key, value) = match (k.as_str(), &value) {
+                ("speed", Expr::StringLiteral(s)) => (
+                    "duration".to_string(),
+                    Expr::StringLiteral(
+                        match s.as_str() {
+                            "fast" => "150ms",
+                            "slow" => "500ms",
+                            _ => "300ms",
+                        }
+                        .to_string(),
+                    ),
+                ),
+                _ => (k.clone(), value),
+            };
+            *arg = Arg::Named(format!("data-wf-{key}"), value);
+        }
+    }
+    let keep: Vec<bool> = el
+        .args
+        .iter()
+        .map(|a| !matches!(a, Arg::Named(k, _) if k == "stagger"))
+        .collect();
+    retain_by(&mut el.args, &keep);
+    retain_by(&mut el.arg_spans, &keep);
+
     match (&el.component, sig) {
         (ComponentRef::UserDefined(name), _) => {
             if let Some(us) = user.get(name) {
@@ -864,18 +907,6 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
         _ => {}
     }
     lower_action_shorthand(el);
-
-    // Off a branch there is nothing to play an exit or a delay yet; the
-    // enter animation is a class already.
-    let keep: Vec<bool> = el
-        .args
-        .iter()
-        .map(|a| {
-            !matches!(a, Arg::Named(k, _) if matches!(k.as_str(), "exit" | "delay" | "stagger" | "duration" | "easing"))
-        })
-        .collect();
-    retain_by(&mut el.args, &keep);
-    retain_by(&mut el.arg_spans, &keep);
 
     lower_statements(&mut el.children, user);
     for fill in &mut el.slot_fills {
@@ -1046,8 +1077,29 @@ fn lower_user_flags(el: &mut UIElement, us: &UserSig) {
             el.arg_spans.push(span);
             continue;
         }
-        // Universal props (`.fadeIn`) stay modifier words; the rest are
-        // errors the check reported.
+        // A universal flag — an enter animation, a speed — is a motion
+        // marker on the component's root; the rest are errors the check
+        // reported, kept as words.
+        if crate::themes::prune::ANIMATIONS.contains(&word.as_str()) {
+            el.args.push(Arg::Named(
+                "data-wf-animate".to_string(),
+                Expr::StringLiteral(word.clone()),
+            ));
+            el.arg_spans.push(span);
+            continue;
+        }
+        if let Some(ms) = match word.as_str() {
+            "fast" => Some("150ms"),
+            "slow" => Some("500ms"),
+            _ => None,
+        } {
+            el.args.push(Arg::Named(
+                "data-wf-duration".to_string(),
+                Expr::StringLiteral(ms.to_string()),
+            ));
+            el.arg_spans.push(span);
+            continue;
+        }
         modifiers.push(word.clone());
         modifier_spans.push(span);
     }
