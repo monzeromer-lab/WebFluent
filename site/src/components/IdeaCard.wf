@@ -1,0 +1,32 @@
+/// One of the five ideas on the landing page: a number in the accent, a
+/// title, a paragraph in Markdown (so a name reads as code), and — for the
+/// second idea — a line of code. `highlight` is the sixth card, the
+/// shortcut for people coming from another framework.
+component IdeaCard(_ title: String, number: String = "", body: String = "", code: String = "", link: String = "", linkTo: String = "/", highlight: Bool = false) {
+    Stack(gap: .sm, class: if highlight { "idea-card idea-card-highlight" } else { "idea-card" }) {
+        style {
+            gap: 10px
+            padding: 20px
+            border: 1px solid $border
+            border-radius: 10px
+            background: $surface-raised
+            &.idea-card-highlight { background: $brand-subtle; border-color: $border-brand; justify-content: center }
+            & h3 { margin: 0; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.004em }
+            & .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted }
+            &.idea-card-highlight .wf-markdown p { color: $color-text }
+            & .wf-markdown code { font-size: 12px; color: $brand-ink }
+            & a { font-size: 13px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none }
+        }
+        if number != "" {
+            Text(number) { style { margin: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }
+        }
+        Heading(title).h3
+        if body != "" { Markdown(body) }
+        if code != "" {
+            Code(code, language: "wf").block {
+                style { margin: 4px 0 0; padding: 10px 12px; background: $term-bg; border-radius: 6px; font-size: 12px; line-height: 18px; white-space: pre-wrap; color: $syntax-punct }
+            }
+        }
+        if link != "" { Link("{link} →", to: linkTo) }
+    }
+}

@@ -876,13 +876,13 @@ module.exports = grammar({
         choice('"', alias(token.immediate(/\{"/), '"')),
       ),
 
-    // A `{` opens an interpolation only when a name follows it; `"{ a: 1 }"`
-    // and `"{"` are text, as they are for the compiler. A `{` right before
-    // the closing quote is text too.
+    // A `{` opens an interpolation only when a name, a `[` or a `(` follows
+    // it; `"{ a: 1 }"` and `"{"` are text, as they are for the compiler. A
+    // `{` right before the closing quote is text too.
     string_content: (_) =>
       choice(
         token.immediate(prec(1, /[^"\\{]+/)),
-        token.immediate(/\{[^a-zA-Z_"\\{]/),
+        token.immediate(/\{[^a-zA-Z_"\\{\[(]/),
       ),
 
     escape_sequence: (_) => token.immediate(/\\./),

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pages and routing</title>
+    <meta name="description" content="Page attributes, routes and parameters, layouts, the app shell, per-page head tags and the 404 page.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pages and routing">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Page attributes, routes and parameters, layouts, the app shell, per-page head tags and the 404 page.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Pages and routing">
+    <meta name="twitter:description" content="Page attributes, routes and parameters, layouts, the app shell, per-page head tags and the 404 page.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing","name":"Pages and routing","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Page attributes, routes and parameters, layouts, the app shell, per-page head tags and the 404 page."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Pages and routing","item":"https://monzeromer-lab.github.io/WebFluent/docs/pages-and-routing"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../app.js" defer></script>
+    <script src="../../pages/PagesAndRouting.js" data-wf-page="PagesAndRouting" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <nav aria-label="Main" class="wf-navbar wf-s0e84e442">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s902faac3">
+                        <p class="wf-text wf-text--bold wf-s00f51c71">wf</p>
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                        <span class="wf-badge wf-badge--pill">3.0</span>
+                    </div>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+                <a class="wf-link" href="/WebFluent/docs/getting-started">Guide</a>
+                <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+            </div>
+            <div class="wf-navbar__actions">
+                <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
+            </div>
+        </nav>
+        <main id="wf-main">
+            <div class="wf-row wf-align--stretch wf-s75bc3a32">
+                <aside class="wf-sidebar wf-s3335f13c">
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/getting-started">
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/language-basics">
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/pages-and-routing" aria-current="page">
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/elements">
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <div class="wf-sidebar__divider">
+                    </div>
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/state">
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/events-and-forms">
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/control-flow">
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/components">
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/stores">
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/types">
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/expressions">
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <div class="wf-sidebar__divider">
+                    </div>
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/styling">
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/motion">
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/data">
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/i18n">
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/content">
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/outputs">
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <div class="wf-sidebar__divider">
+                    </div>
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tooling">
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--xl wf-sa9c23c09">
+                    <nav aria-label="Breadcrumb" class="wf-breadcrumb">
+                        <a class="wf-breadcrumb__item" href="/WebFluent/docs/getting-started">
+                            <p class="wf-text wf-text--small wf-text--muted">Guide</p>
+                        </a>
+                        <li class="wf-breadcrumb__item">
+                            <p class="wf-text wf-text--small wf-text--muted">Chapter 3</p>
+                        </li>
+                    </nav>
+                    <div class="wf-stack wf-gap--sm wf-se4caf3f1">
+                        <h1 class="wf-heading">Pages and routing</h1>
+                        <p class="wf-text wf-text--large wf-text--muted">A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s71ba6e0f">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>A page is a route and what it shows. Pages own their paths: there is no route table to keep in step with them.</p>
+                            </div>
+                            <h2 class="wf-heading">Declaring a page</h2>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page About(path: &quot;/about&quot;, title: &quot;About us&quot;, description: &quot;Who we are and why we build this.&quot;) {
+    Container {
+        Heading(&quot;About us&quot;).h1
+        Paragraph(&quot;We are three people and a dog.&quot;)
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The header takes these attributes:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Declaring a page</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Attribute</th>
+                                        <th scope="col">Required</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>path:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>yes</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The route: <code>&quot;/&quot;</code>, <code>&quot;/about&quot;</code>, <code>&quot;/posts/:slug&quot;</code>, or <code>&quot;*&quot;</code> for the catch-all</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>title:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>strongly</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The <code>&lt;title&gt;</code>, the history entry, what a screen reader announces on arrival</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>description:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>strongly</td>
+                                        <td>The meta description and the snippet a search result and a link preview show (~150 characters)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>image:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>The image a shared link previews with, site-relative or absolute</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>type:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>og:type</code> — <code>website</code> (default) or <code>article</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>noindex:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>true</code> keeps the page out of search results and the sitemap</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>layout:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>The component that frames the page (below)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>guard:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>An expression that must hold for the route to render</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>redirect:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Where the reader goes when the guard fails (default <code>/</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>paths:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The values a static build renders a <code>:param</code> page for (chapter 14)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>name: Type</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>A route parameter, typed (below)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A page without a <code>title</code> or <code>description</code> builds with a warning (<code>S01</code>, <code>S02</code>); the compiler cannot write those for you, and a page without them ships unshareable.</p>
+                            </div>
+                            <h2 class="wf-heading">The app shell</h2>
+                            <div class="wf-markdown">
+<p><code>app</code> declares what every page renders inside — a navbar, a footer, the <code>Router</code> where the current page goes:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">app {
+    Navbar {
+        Navbar.Brand { Link(&quot;Acme&quot;, to: &quot;/&quot;) }
+        Navbar.Links {
+            Link(&quot;Docs&quot;, to: &quot;/docs&quot;).prefix
+            Link(&quot;Pricing&quot;, to: &quot;/pricing&quot;)
+        }
+        Navbar.Actions { Button(&quot;Sign in&quot;).sm { on click { navigate(&quot;/login&quot;) } } }
+    }
+    Router
+    Footer { Text(&quot;© Acme&quot;).muted.sm }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>Router</code> is bare — it takes no children — and the table is built from every page's <code>path</code>, ordered by specificity (static segments before <code>:params</code>, <code>*</code> last), so declaration order can never shadow a route. A project with no <code>app</code> declaration gets a bare router.</p>
+<p><code>Router(transition: .fade, duration: &quot;200ms&quot;)</code> animates page changes (chapter 13).</p>
+                            </div>
+                            <h2 class="wf-heading">Links and navigation</h2>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page Nav(path: &quot;/nav&quot;) {
+    Link(&quot;Home&quot;, to: &quot;/&quot;)                       // an &lt;a&gt;; the router handles the click
+    Link(&quot;Guide&quot;, to: &quot;/docs&quot;).prefix           // also active on /docs/anything
+    Button(&quot;Go&quot;) { on click { navigate(&quot;/about&quot;) } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The link whose <code>to:</code> matches the current route carries the class <code>.active</code> and <code>aria-current=&quot;page&quot;</code>; <code>.prefix</code> makes a section link active for the routes beneath it. <code>navigate(path)</code> moves in code. In a static build, links are real page loads and <code>navigate</code> is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.</p>
+                            </div>
+                            <h2 class="wf-heading">Route parameters</h2>
+                            <div class="wf-markdown">
+<p>A <code>:name</code> segment is declared as a typed parameter of the page and read as a plain name, or as <code>params.name</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">type Post { slug: String, title: String, body: String }
+
+store Posts {
+    state all: [Post] = [
+        Post(slug: &quot;hello&quot;, title: &quot;Hello&quot;, body: &quot;First post.&quot;),
+        Post(slug: &quot;again&quot;, title: &quot;Again&quot;, body: &quot;Second post.&quot;)
+    ]
+}
+
+page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, description: &quot;One post.&quot;, slug: String) {
+    use Posts
+    derived post = Posts.all.find(p =&gt; p.slug == slug)
+    if let p = post {
+        Heading(p.title).h1
+        Paragraph(p.body)
+    } else {
+        Heading(&quot;No such post&quot;).h1
+        Text(&quot;Nothing lives at /posts/{params.slug}.&quot;)
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A parameter is a <code>String</code> unless you say otherwise (<code>id: Number</code>). A static build renders a <code>:param</code> page once per value named in <code>paths:</code> — see <a href="/docs/data#static-paths">Data</a>.</p>
+                            </div>
+                            <h2 class="wf-heading">Layouts</h2>
+                            <div class="wf-markdown">
+<p>A <code>layout:</code> is a component with a default slot; the page renders in it. Use it for a section's own chrome — a docs sidebar, an app rail — where the <code>app</code> shell is the site's.</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">component DocsShell(_ crumb: String) {
+    slot
+    Row(gap: .lg) {
+        Sidebar {
+            Sidebar.Item(to: &quot;/docs&quot;) { Text(&quot;Guide&quot;) }
+            Sidebar.Item(to: &quot;/docs/reference&quot;) { Text(&quot;Reference&quot;) }
+        }
+        Stack {
+            Breadcrumb {
+                Breadcrumb.Item(to: &quot;/docs&quot;) { Text(&quot;Docs&quot;) }
+                Breadcrumb.Item { Text(crumb) }
+            }
+            children
+        }
+    }
+}
+
+page Guide(path: &quot;/docs&quot;, title: &quot;Guide&quot;, description: &quot;The guide.&quot;, layout: DocsShell(&quot;Guide&quot;)) {
+    Heading(&quot;Guide&quot;).h1
+}
+
+page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, description: &quot;The reference.&quot;, layout: DocsShell(&quot;Reference&quot;)) {
+    Heading(&quot;Reference&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The layout's arguments are checked like any component call. The layout component is required to declare a <code>slot</code> (its default slot); a layout without one is an error, since the page would have nowhere to go.</p>
+                            </div>
+                            <h2 class="wf-heading">Guards</h2>
+                            <div class="wf-markdown">
+<p><code>guard:</code> names an expression — usually a store's derived value — that must be true for the route to render; otherwise the reader is sent to <code>redirect:</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">store Auth {
+    state user = null
+    derived loggedIn = user != null
+    action login() { user = { name: &quot;Sam&quot; } }
+    action logout() { user = null }
+}
+
+page Account(path: &quot;/account&quot;, title: &quot;Your account&quot;, description: &quot;Your account.&quot;, guard: Auth.loggedIn, redirect: &quot;/login&quot;) {
+    use Auth
+    Heading(&quot;Welcome back&quot;).h1
+    Button(&quot;Sign out&quot;) { on click { Auth.logout() } }
+}
+
+page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &quot;Sign in.&quot;) {
+    use Auth
+    Button(&quot;Sign in&quot;).primary { on click { Auth.login()  navigate(&quot;/account&quot;) } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The guard is evaluated on every navigation, in the browser. A static build still pre-renders the page's HTML (the guard is a client-side gate, not a secret), so keep anything private behind an API the page fetches.</p>
+                            </div>
+                            <h2 class="wf-heading">Per-page head tags</h2>
+                            <div class="wf-markdown">
+<p>A page may add tags of its own to the document's <code>&lt;head&gt;</code>; they are painted at build time where the value is known, kept current on the live page, and gone when the page is:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;A page with its own tags.&quot;) {
+    state image = &quot;/og-share.png&quot;
+    head {
+        meta(property: &quot;og:image&quot;, content: image)
+        link(rel: &quot;canonical&quot;, href: &quot;https://example.com/share&quot;)
+        script(src: &quot;/analytics.js&quot;, defer: true)
+    }
+    Heading(&quot;Share&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>title</code> and <code>description</code> are page attributes, not head tags; the compiler writes the standard tags (charset, viewport, description, canonical, Open Graph, Twitter card, JSON-LD) from them and the config.</p>
+                            </div>
+                            <h2 class="wf-heading">The catch-all page</h2>
+                            <div class="wf-markdown">
+<p><code>path: &quot;*&quot;</code> is the page a static host serves as <code>404.html</code> and the router shows for a route no page claims:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives here.&quot;, noindex: true) {
+    Container {
+        Heading(&quot;Nothing here&quot;).h1
+        Link(&quot;Back home&quot;, to: &quot;/&quot;)
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Where the code runs</h2>
+                            <div class="wf-markdown">
+<p>A page's body is a render block: it declares state, derived values and actions, and lists what to show. Everything at the top of the body runs once when the page renders; a call at the top — <code>Store.load(id)</code> — is set-up code.</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">store Deploys {
+    state rows = []
+    action load(id: String) { rows = [{ id: id, ok: true }] }
+}
+
+page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, description: &quot;One deploy.&quot;, id: String) {
+    use Deploys
+    Deploys.load(id)
+    for row in Deploys.rows by row.id {
+        Text(&quot;{row.id}: {row.ok}&quot;)
+    }
+}</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-se7a56472">
+                        <a class="wf-link wf-sbd317556" href="/WebFluent/docs/language-basics">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted">Previous</p>
+                                <p class="wf-text wf-text--bold">2. Language basics</p>
+                            </div>
+                        </a>
+                        <a class="wf-link wf-s48f12cb1" href="/WebFluent/docs/elements">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted">Next</p>
+                                <p class="wf-text wf-text--bold">4. Elements</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sb5c8d05c">
+                    <div class="wf-stack wf-gap--xs">
+                        <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">On this page</p>
+                        <a class="wf-link wf-sc1202a78" href="#declaring-a-page">Declaring a page</a>
+                        <a class="wf-link wf-sc1202a78" href="#the-app-shell">The app shell</a>
+                        <a class="wf-link wf-sc1202a78" href="#links-and-navigation">Links and navigation</a>
+                        <a class="wf-link wf-sc1202a78" href="#route-parameters">Route parameters</a>
+                        <a class="wf-link wf-sc1202a78" href="#layouts">Layouts</a>
+                        <a class="wf-link wf-sc1202a78" href="#guards">Guards</a>
+                        <a class="wf-link wf-sc1202a78" href="#per-page-head-tags">Per-page head tags</a>
+                        <a class="wf-link wf-sc1202a78" href="#the-catch-all-page">The catch-all page</a>
+                        <a class="wf-link wf-sc1202a78" href="#where-the-code-runs">Where the code runs</a>
+                    </div>
+                    <hr class="wf-divider">
+                    <div class="wf-stack wf-gap--xs">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">
+                            <div class="wf-row wf-align--center wf-gap--xs">
+                                <i class="wf-icon wf-icon--small wf-text--muted" data-icon="edit"></i>
+                                <p class="wf-text wf-text--small wf-text--muted">Edit this page</p>
+                            </div>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <div class="wf-row wf-align--center wf-gap--xs">
+                                <i class="wf-icon wf-icon--small wf-text--muted" data-icon="menu"></i>
+                                <p class="wf-text wf-text--small wf-text--muted">Components reference</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="wf-card wf-card--outlined wf-sa5ca2b68">
+                        <div class="wf-card__body">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--bold">Checked by the test suite</p>
+                                <p class="wf-text wf-text--small wf-text--muted">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-sae5afece">
+            <div class="wf-container">
+                <div class="wf-stack wf-gap--lg">
+                    <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-s9771ea3a">
+                        <div class="wf-stack wf-gap--sm wf-s0750a03e">
+                            <div class="wf-row wf-align--center wf-gap--sm">
+                                <p class="wf-text wf-text--bold wf-s00f51c71">wf</p>
+                                <p class="wf-text wf-text--heading">WebFluent</p>
+                            </div>
+                            <p class="wf-text wf-text--small wf-text--muted">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                        </div>
+                        <div class="wf-row wf-gap--xl wf-align--start wf-s9771ea3a">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Guide</p>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/getting-started">Getting started</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/language-basics">Language basics</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/state">State and reactivity</a>
+                            </div>
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Reference</p>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/reference">Components reference</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/tooling">Tooling</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            </div>
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Project</p>
+                                <a class="wf-link wf-s64409f3b" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                                <a class="wf-link wf-s64409f3b" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                                <a class="wf-link wf-s64409f3b" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="wf-divider">
+                    <div class="wf-row wf-justify--between wf-align--center">
+                        <p class="wf-text wf-text--small wf-se1f5f407">WebFluent 3</p>
+                        <p class="wf-text wf-text--small wf-se1f5f407">Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

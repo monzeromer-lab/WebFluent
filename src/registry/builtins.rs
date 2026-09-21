@@ -1425,9 +1425,16 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Code",
         "Typography",
-        "Inline code, or a code block with `block`.",
+        "Inline code, or a code block with `block`; `language:` colours it.",
         Some(special("content", PropType::Any, "The code")),
-        &[flag("block", "block", "A multi-line block")],
+        &[
+            flag("block", "block", "A multi-line block"),
+            special(
+                "language",
+                PropType::Str,
+                "Colours the code as this language: `wf`, `json`, `bash` or `css`",
+            ),
+        ],
         &[],
         G,
         Children::None,

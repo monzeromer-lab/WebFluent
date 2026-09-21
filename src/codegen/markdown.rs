@@ -11,6 +11,19 @@
 use regex::Regex;
 use std::sync::OnceLock;
 
+/// The HTML of `text`, with a site-relative link or image (`/docs/x`,
+/// `/img.png`) addressed from `base` — the site's `base_path` — as the
+/// element `Link(to:)` and `Image(src:)` are.
+pub fn render_with_base(text: &str, base: &str) -> String {
+    let html = render(text);
+    let base = base.trim_end_matches('/');
+    if base.is_empty() {
+        return html;
+    }
+    html.replace("href=\"/", &format!("href=\"{base}/"))
+        .replace("src=\"/", &format!("src=\"{base}/"))
+}
+
 /// The HTML of `text`.
 pub fn render(text: &str) -> String {
     let lines: Vec<&str> = text.lines().collect();
@@ -25,14 +38,20 @@ pub fn render(text: &str) -> String {
         }
         if let Some(rest) = trimmed.strip_prefix("```") {
             let lang = rest.trim();
-            let mut code = String::new();
+            let mut raw = String::new();
             i += 1;
             while i < lines.len() && lines[i].trim() != "```" {
-                code.push_str(&escape(lines[i]));
-                code.push('\n');
+                raw.push_str(lines[i]);
+                raw.push('\n');
                 i += 1;
             }
             i += 1;
+            // A fence in a language the highlighter knows is coloured.
+            let code = if super::highlight::knows(lang) {
+                super::highlight::highlight(&raw, lang)
+            } else {
+                escape(&raw)
+            };
             if lang.is_empty() {
                 out.push_str(&format!("<pre><code>{code}</code></pre>\n"));
             } else {
@@ -168,6 +187,21 @@ fn inline(text: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn a_site_relative_link_takes_the_base_path() {
+        let out = super::render_with_base(
+            "See [data](/docs/data#paths) and ![i](/i.png), not [x](https://a.b/c).",
+            "/WebFluent/",
+        );
+        assert!(out.contains("href=\"/WebFluent/docs/data#paths\""), "{out}");
+        assert!(out.contains("src=\"/WebFluent/i.png\""), "{out}");
+        assert!(out.contains("href=\"https://a.b/c\""), "{out}");
+        assert_eq!(
+            super::render_with_base("[a](/x)", ""),
+            super::render("[a](/x)")
+        );
+    }
+
     use super::*;
 
     #[test]

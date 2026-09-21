@@ -1,29 +1,36 @@
 {
   "name": "WebFluent",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "author": "Monzer Omer",
   "theme": {
-    "tokens": {
-      "color-primary": "#6366F1",
-      "color-secondary": "#8B5CF6",
-      "font-family": "Inter, system-ui, -apple-system, sans-serif"
-    }
+    "name": "Day",
+    "dark": "Night",
+    "builtin": "full"
   },
   "build": {
     "output": "../docs",
-    "minify": true,
     "ssg": true,
-    "base_path": "/WebFluent"
+    "split": true,
+    "minify": true,
+    "compress": true,
+    "csp": true,
+    "base_path": "/WebFluent",
+    "output_type": "spa"
   },
   "dev": {
-    "port": 4000
+    "port": 4000,
+    "hot_reload": true
   },
   "meta": {
-    "title": "WebFluent — The Web-First Language",
-    "description": "A programming language that compiles to HTML, CSS, and JavaScript. Build SPAs and static sites with built-in components, reactivity, routing, i18n, and animations.",
+    "title": "WebFluent — a language for websites",
+    "description": "A file describes what a page shows — its elements, the state behind them, what happens when the reader acts. The compiler turns it into a static site, a single-page app, a PDF or a slide deck.",
     "lang": "en",
     "site_url": "https://monzeromer-lab.github.io",
-    "site_name": "WebFluent"
+    "site_name": "WebFluent",
+    "sitemap": true,
+    "fonts": [
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    ]
   },
   "i18n": {
     "defaultLocale": "en",

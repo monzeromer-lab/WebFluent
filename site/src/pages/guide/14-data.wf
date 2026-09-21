@@ -1,0 +1,90 @@
+/// Chapter 14 of the guide, written from md-docs/14-data.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page DataChapter(path: "/docs/guide/data", title: "Data", description: "resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.", layout: DocsShell("Data", chapter: "Chapter 14", blurb: "Three ways to get data onto a page: resource, await fetch, and data files read at build time.", sections: [Anchor(id: "resource", label: "resource"), Anchor(id: "await-fetch-in-an-action", label: "await fetch in an action"), Anchor(id: "data-a-file-at-build-time", label: "data: a file at build time"), Anchor(id: "const-and-env", label: "const and env"), Anchor(id: "where-data-lands-in-the-static-paint", label: "Where data lands in the static paint")], prevTo: "/docs/guide/motion", prevLabel: "13. Motion", nextTo: "/docs/guide/i18n", nextLabel: "15. Internationalisation")) {
+    Stack(gap: .lg) {
+        Markdown("Three ways to get data onto a page: `resource` for something fetched while the page shows, `await fetch` inside an action for something fetched on demand, and `data` for a file read at build time. Plus `const` and `env` for values that are the same for the whole build.")
+
+        Heading("resource", id: "resource").h2
+
+        Markdown("A resource is a request the page makes and a `match` shows:")
+
+        CodeBlock("type Deploy \{ id: String, status: String, startedAt: String \}\n\npage Deploys(path: \"/\", title: \"Deploys\", description: \"Recent deploys.\") \{\n    resource deploys: [Deploy] = fetch(\"/api/deploys\")\n    match deploys \{\n        loading \{ Spinner \}\n        error(e) \{ Alert(\"Could not load: \{e.message\}\").danger \}\n        ready(rows) \{\n            if rows.length == 0 \{ Text(\"No deploys yet.\").muted \}\n            for d in rows by d.id \{\n                Row(justify: .between) \{\n                    Text(d.id).bold\n                    Badge(d.status, tone: if d.status == \"ok\" \{ .success \} else \{ .danger \})\n                    Text(ago(d.startedAt)).muted.sm\n                \}\n            \}\n        \}\n    \}\n    Button(\"Refresh\") \{ on click \{ deploys.reload() \} \}\n\}", title: "wf")
+
+        Markdown("- `resource name = fetch(url)` starts the request when the page renders. The annotation (`: [Deploy]`) types the value; without it the value is `Any`.\n- `match` over a resource has three arms — `loading`, `error(e)`, `ready(v)` — and `else`. The static paint renders the `loading` arm.\n- `name.reload()` makes the request again; `name.state` is `\"loading\"`, `\"ready\"` or `\"error\"`; `name.data` the last value (`T?`), `name.error` the last error.\n- A failed response (`!ok`) is an error with `e.message` of `HTTP 500`.")
+
+        Heading("Options", id: "options").h3
+
+        CodeBlock("page Search(path: \"/\") \{\n    state q = \"\"\n    state token = \"abc\"\n    resource hits = fetch(\"/api/search?q=\{q\}\", headers: \{ Authorization: \"Bearer \{token\}\" \})\n    resource created = fetch(\"/api/items\", method: \"POST\", body: \{ name: q \})\n    Input(bind: q, label: \"Search\")\n    match hits \{\n        loading \{ Spinner.sm \}\n        error(e) \{ Text(e.message).danger \}\n        ready(list) \{ Text(\"\{list.length\} hits\") \}\n    \}\n\}", title: "wf")
+
+        Markdown("Options are named after the URL: `method:`, `headers:` (a map), `body:` (a map, sent as JSON with the content type set). The body of a response is parsed as JSON.")
+
+        Heading("A reactive URL", id: "a-reactive-url").h3
+
+        Markdown("A URL that reads state is re-fetched whenever that state changes — a search box that fetches as you type, or a detail page that follows its parameter:")
+
+        CodeBlock("type Post \{ slug: String, title: String, body: String \}\n\npage PostPage(path: \"/posts/:slug\", slug: String) \{\n    resource post: Post = fetch(\"/api/posts/\{slug\}\")\n    match post \{\n        loading \{ Skeleton \}\n        error(e) \{ Alert(\"Not found\").warning \}\n        ready(p) \{\n            Heading(p.title).h1\n            Markdown(p.body)\n        \}\n    \}\n\}", title: "wf")
+
+        Markdown("Debounce a fast-changing URL by deriving it from a slower value, or by keeping the query in state and copying it to a `submitted` state on Enter.")
+
+        Heading("await fetch in an action", id: "await-fetch-in-an-action").h2
+
+        Markdown("For a request made on demand — a save, a delete, a step in a flow — `fetch` returns the parsed body and throws on a failed response:")
+
+        CodeBlock("type Todo \{ id: String, title: String, done: Bool = false \}\n\npage Todos(path: \"/\") \{\n    state todos: [Todo] = []\n    state draft = \"\"\n    state error = \"\"\n\n    action load() \{\n        let r: [Todo] = await fetch(\"/api/todos\")\n        todos = r\n    \}\n\n    action add() \{\n        if draft.trim() == \"\" \{ return \}\n        try \{\n            let created: Todo = await fetch(\"/api/todos\", \{ method: \"POST\", body: \{ title: draft \} \})\n            todos.push(created)\n            draft = \"\"\n        \} catch e \{\n            error = \"Could not save: \{e.message\}\"\n        \}\n    \}\n\n    action toggle(id: String) \{\n        let t = todos.find(x => x.id == id)\n        if let todo = t \{\n            let updated: Todo = await fetch(\"/api/todos/\{id\}\", \{ method: \"PATCH\", body: \{ done: !todo.done \} \})\n            todos = todos.map(x => if x.id == id \{ updated \} else \{ x \})\n        \}\n    \}\n\n    load()\n    Input(bind: draft, label: \"New todo\") \{ on key(\"Enter\") \{ add() \} \}\n    Button(\"Add\", disabled: add.pending).primary \{ on click \{ add() \} \}\n    if error != \"\" \{ Alert(error).danger \}\n    for t in todos by t.id \{\n        Checkbox(checked: t.done, label: t.title) \{ on change \{ toggle(t.id) \} \}\n    \}\n\}", title: "wf")
+
+        Markdown("The second argument is a map: `method`, `headers`, `body`. `name.pending` is true while the action runs. The browser's own `fetch`, for a response you want raw, is `window.fetch`.")
+
+        Heading("data: a file at build time", id: "data-a-file-at-build-time").h2
+
+        Markdown("`data name = \"file.json\"` reads a JSON file (from the project root or `src/`) at build time and makes its value a constant. It is in every page and component, costs nothing at run time, and is painted into the static build:")
+
+        CodeBlock("type Post \{ slug: String, title: String, date: String, body: String \}\n\ndata posts: [Post] = \"posts.json\"\n\npage Blog(path: \"/\", title: \"Blog\", description: \"Every post.\") \{\n    derived sorted = posts.sortBy(p => p.date).reverse()\n    for p in sorted by p.slug \{\n        Card \{\n            Link(p.title, to: \"/posts/\{p.slug\}\")\n            Text(format(p.date, .date)).muted.sm\n        \}\n    \}\n\}", title: "wf")
+
+        CodeBlock("[\n  \{ \"slug\": \"hello\", \"title\": \"Hello\", \"date\": \"2026-01-10\", \"body\": \"# Hi\\nFirst post.\" \},\n  \{ \"slug\": \"second\", \"title\": \"Second\", \"date\": \"2026-02-02\", \"body\": \"More.\" \}\n]", title: "json")
+
+        Markdown("Annotate it (`data posts: [Post]`) and the checker knows every field.")
+
+        Heading("Static paths", id: "static-paths").h3
+
+        Markdown("A `:param` page is rendered once per value in `paths:` by a static build — one HTML file per post, each with its own title and description:")
+
+        CodeBlock("type Post \{ slug: String, title: String, date: String, body: String \}\n\ndata posts: [Post] = \"posts.json\"\n\npage PostPage(path: \"/posts/:slug\", slug: String, title: \"Post\", description: \"A post.\", paths: posts.map(p => p.slug)) \{\n    derived post = posts.find(p => p.slug == slug)\n    head \{ meta(property: \"og:title\", content: post?.title ?? \"Post\") \}\n    if let p = post \{\n        Heading(p.title).h1\n        Markdown(p.body)\n    \} else \{\n        Alert(\"No such post\").warning\n    \}\n\}", title: "wf")
+
+        Markdown("`paths:` must be knowable at build time — a `data` file, a `const`, a literal. For a route with several parameters, each value is a map naming them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`. Routes not in `paths:` still work in the SPA; only the static build needs the list.")
+
+        Heading("const and env", id: "const-and-env").h2
+
+        CodeBlock("const PAGE_SIZE = 25\nconst API = env.API_URL ?? \"/api\"\nconst FEATURES = \{ billing: env.BILLING == \"on\", beta: false \}\n\npage Rows(path: \"/\") \{\n    resource rows = fetch(\"\{API\}/rows?limit=\{PAGE_SIZE\}\")\n    if FEATURES.billing \{ Link(\"Billing\", to: \"/billing\") \}\n    match rows \{\n        loading \{ Spinner \}\n        error(e) \{ Text(e.message).danger \}\n        ready(r) \{ Text(\"\{r.length\} rows\") \}\n    \}\n\}", title: "wf")
+
+        Markdown("`env.NAME` reads the build environment — the shell's variables and a `.env` file in the project root — and is `null` when unset. Everything here is inlined into the bundle, so a secret does not belong in `env` reads; only what a browser may see.")
+
+        Heading("Where data lands in the static paint", id: "where-data-lands-in-the-static-paint").h2
+
+        Table(caption: "Where data lands in the static paint") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Source").header
+                    Table.Cell("In the pre-rendered HTML").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`data`, `const`, `env`") }
+                    Table.Cell("Fully painted")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`state` initial values, `derived` over them") }
+                    Table.Cell("Painted")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`resource`") }
+                    Table.Cell { Markdown("The `loading` arm; the live page fetches and replaces it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`await fetch`") }
+                    Table.Cell("Nothing until the action runs")
+                }
+            }
+        }
+    }
+}

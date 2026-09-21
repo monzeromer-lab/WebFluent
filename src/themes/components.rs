@@ -56,6 +56,18 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 .wf-col--11 { flex: 0 0 calc(100%/12*11); max-width: calc(100%/12*11); }
 .wf-col--12 { flex: 0 0 100%; max-width: 100%; }
 .wf-grid { display: grid; gap: var(--spacing-md); }
+.wf-grid[data-cols="1"] { grid-template-columns: repeat(1, 1fr); }
+.wf-grid[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
+.wf-grid[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
+.wf-grid[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+.wf-grid[data-cols="5"] { grid-template-columns: repeat(5, 1fr); }
+.wf-grid[data-cols="6"] { grid-template-columns: repeat(6, 1fr); }
+.wf-grid[data-cols="7"] { grid-template-columns: repeat(7, 1fr); }
+.wf-grid[data-cols="8"] { grid-template-columns: repeat(8, 1fr); }
+.wf-grid[data-cols="9"] { grid-template-columns: repeat(9, 1fr); }
+.wf-grid[data-cols="10"] { grid-template-columns: repeat(10, 1fr); }
+.wf-grid[data-cols="11"] { grid-template-columns: repeat(11, 1fr); }
+.wf-grid[data-cols="12"] { grid-template-columns: repeat(12, 1fr); }
 .wf-stack { display: flex; flex-direction: column; gap: var(--spacing-md); }
 .wf-spacer { height: var(--spacing-md); }
 .wf-spacer--xs { height: var(--spacing-xs); }
@@ -405,12 +417,21 @@ h5.wf-heading { font-size: var(--font-size-base); }
 h6.wf-heading { font-size: var(--font-size-sm); }
 
 .wf-code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-surface); padding: 0.125rem var(--spacing-xs); border-radius: var(--radius-sm); }
-pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overflow-x: auto; background: #1e293b; color: #e2e8f0; border: none; border-radius: var(--radius-md); font-size: var(--font-size-sm); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overflow-x: auto; background: var(--term-bg); color: var(--term-ink); border: none; border-radius: var(--radius-md); font-size: var(--font-size-sm); line-height: 1.7; white-space: pre; }
+.wf-tok-kw { color: var(--syntax-keyword); }
+.wf-tok-name { color: var(--syntax-function); }
+.wf-tok-str { color: var(--syntax-string); }
+.wf-tok-num { color: var(--syntax-number); }
+.wf-tok-prop { color: var(--syntax-punct); }
+.wf-tok-tok { color: var(--syntax-function); }
+.wf-tok-cmt { color: var(--syntax-comment); }
+.wf-tok-prompt { color: var(--term-dim); }
+
 .wf-blockquote { border-inline-start: 4px solid var(--color-primary); padding: var(--spacing-sm) var(--spacing-md); margin: 0; color: var(--color-text-muted); font-style: italic; }
 .wf-markdown { line-height: 1.65; }
 .wf-markdown > * + * { margin-top: var(--spacing-md); }
 .wf-markdown h1, .wf-markdown h2, .wf-markdown h3, .wf-markdown h4 { line-height: 1.25; }
-.wf-markdown pre { padding: var(--spacing-md); overflow-x: auto; background: #1e293b; color: #e2e8f0; border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+.wf-markdown pre { padding: var(--spacing-md); overflow-x: auto; background: var(--term-bg); color: var(--term-ink); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
 .wf-markdown code { font-family: var(--font-family-mono); font-size: 0.925em; }
 .wf-markdown blockquote { border-inline-start: 4px solid var(--color-primary); padding: var(--spacing-sm) var(--spacing-md); margin: 0; color: var(--color-text-muted); }
 .wf-markdown ul, .wf-markdown ol { padding-inline-start: 1.5em; }
@@ -542,8 +563,9 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 }
 .wf-skip-link {
   position: absolute;
-  left: -9999px;
-  top: 0;
+  inset-inline-start: var(--spacing-sm);
+  top: var(--spacing-sm);
+  transform: translateY(-200%);
   z-index: 10000;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--color-background);
@@ -551,7 +573,7 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
-.wf-skip-link:focus { left: var(--spacing-sm); top: var(--spacing-sm); }
+.wf-skip-link:focus { transform: none; }
 
 "#
 }

@@ -1,14 +1,82 @@
+/// The site footer as the design draws it: the mark and one line about the
+/// guide, three columns of links under overline labels, and the legal line.
 component SiteFooter {
-    Divider
-    Container {
-        Spacer
-        Row(align: .center, justify: .between) {
-            Text(t("footer.built")).muted.sm
-            Row(gap: .md) {
-                Link(to: "/") { Text(t("nav.home")).muted.sm }
-                Link(to: "/getting-started") { Text(t("footer.docs")).muted.sm }
+    Footer {
+        style {
+            padding: 32px 40px
+            border-top: 1px solid $border
+            background: $color-background
+            @media (max-width: 768px) { padding: 24px 16px }
+        }
+        Stack(gap: .lg) {
+            style { gap: 24px; max-width: 1200px; margin: 0 auto }
+            Row(justify: .between, align: .start, gap: .xl) {
+                style { gap: 48px; flex-wrap: wrap }
+
+                Stack(gap: .sm) {
+                    style { gap: 8px; width: 300px; max-width: 100% }
+                    Row(align: .center, gap: .sm) {
+                        style { gap: 10px; flex-wrap: nowrap; @media (max-width: 768px) { flex-direction: row } }
+                        Text("wf") {
+                            style {
+                                display: inline-flex
+                                align-items: center
+                                justify-content: center
+                                width: 24px
+                                height: 24px
+                                margin: 0
+                                border-radius: 4px
+                                background: $color-primary
+                                color: #FFFFFF
+                                font-family: $font-family-mono
+                                font-size: 12px
+                            }
+                        }
+                        Text("WebFluent") { style { margin: 0; font-size: 15px; font-weight: 600 } }
+                    }
+                    Text(t("footer.built")) { style { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                }
+
+                Row(gap: .xl, align: .start, class: "footer-columns") {
+                    style {
+                        gap: 64px
+                        flex-wrap: wrap
+                        & a { font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none }
+                        & a:hover { color: $color-text }
+                        @media (max-width: 768px) { gap: 32px }
+                    }
+
+                    Stack(gap: .xs) {
+                        style { gap: 6px }
+                        Text(t("footer.guide"), class: "overline")
+                        Link(t("ch.01"), to: "/docs/guide/getting-started")
+                        Link(t("ch.02"), to: "/docs/guide/language-basics")
+                        Link(t("ch.05"), to: "/docs/guide/state")
+                    }
+
+                    Stack(gap: .xs) {
+                        style { gap: 6px }
+                        Text(t("footer.reference"), class: "overline")
+                        Link(t("footer.builtins"), to: "/docs/reference")
+                        Link(t("footer.diagnostics"), to: "/docs/guide/tooling#diagnostics")
+                        Link(t("ch.20"), to: "/docs/cookbook")
+                    }
+
+                    Stack(gap: .xs) {
+                        style { gap: 6px }
+                        Text(t("footer.project"), class: "overline")
+                        Link(t("footer.source"), href: REPO)
+                        Link(t("footer.releases"), href: "{REPO}/releases")
+                        Link(t("footer.issues"), href: "{REPO}/issues")
+                    }
+                }
+            }
+
+            Row(justify: .between, align: .center, gap: .md) {
+                style { flex-wrap: wrap; padding-top: 16px; border-top: 1px solid $border; & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                Text(t("footer.licence"))
+                Text(t("footer.copyright"))
             }
         }
-        Spacer
     }
 }

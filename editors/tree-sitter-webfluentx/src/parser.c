@@ -5662,8 +5662,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       ACCEPT_TOKEN(aux_sym_interpolation_token1);
       if (lookahead == '"') ADVANCE(160);
       if (lookahead != 0 &&
-          (lookahead < 'A' || 'Z' < lookahead) &&
-          lookahead != '\\' &&
+          lookahead != '(' &&
+          (lookahead < 'A' || '\\' < lookahead) &&
           lookahead != '_' &&
           (lookahead < 'a' || '{' < lookahead)) ADVANCE(169);
       END_STATE();

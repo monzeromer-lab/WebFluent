@@ -1,0 +1,120 @@
+/// Chapter 1 of the guide, written from md-docs/01-getting-started.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page GettingStarted(path: "/docs/guide/getting-started", title: "Getting started", description: "Install wf, run a first project, and learn the project layout and the config file.", layout: DocsShell("Getting started", chapter: "Chapter 1", blurb: "Install the compiler, make a project, and see what a build writes.", sections: [Anchor(id: "install", label: "Install"), Anchor(id: "a-first-project", label: "A first project"), Anchor(id: "the-smallest-site", label: "The smallest site"), Anchor(id: "what-a-build-produces", label: "What a build produces"), Anchor(id: "project-layout", label: "Project layout"), Anchor(id: "the-config-file", label: "The config file")], nextTo: "/docs/guide/language-basics", nextLabel: "2. Language basics")) {
+    Stack(gap: .lg) {
+        Markdown("By the end of this chapter you will have installed the compiler, built a two-page site, changed it with the dev server watching, and know where every file of a project lives.")
+
+        Heading("Install", id: "install").h2
+
+        Markdown("WebFluent is one binary, `wf`.")
+
+        Terminal(lines: [
+                Line(command: "# Linux and macOS"),
+                Line(command: "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash"),
+                Line(command: "# Windows (PowerShell)"),
+                Line(command: "irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex"),
+                Line(command: "# From source, with Rust installed"),
+                Line(command: "git clone https://github.com/monzeromer-lab/WebFluent.git"),
+                Line(command: "cd WebFluent && cargo install --path .")
+            ])
+
+        Markdown("Check it:")
+
+        Terminal(lines: [
+                Line(command: "wf --version")
+            ])
+
+        Markdown("The language server for your editor is a second binary, `wf-lsp` — see [Tooling](/docs/guide/tooling#editors) for Zed and VS Code.")
+
+        Heading("A first project", id: "a-first-project").h2
+
+        Terminal(lines: [
+                Line(command: "wf init hello"),
+                Line(command: "cd hello"),
+                Line(command: "wf serve")
+            ])
+
+        Markdown("`wf init` writes a small application (a dashboard, a task list, a settings page, a store, a theme) so you have something to read; `wf serve` builds it, opens it at `http://localhost:3000`, rebuilds when you save, reloads the page when a build lands, and — when a build fails — draws the error over the page until the next save fixes it.\n\nTemplates: `wf init name -t spa` (the default, an interactive app), `-t static` (a marketing site, pre-rendered), `-t pdf` (a document), `-t slides` (a deck).")
+
+        Heading("The smallest site", id: "the-smallest-site").h2
+
+        Markdown("Replace `src/` with two files.\n\n`src/App.wf` — the shell every page shares, and the router:")
+
+        CodeBlock("app \{\n    Navbar \{\n        Navbar.Brand \{ Text(\"Hello\").heading \}\n        Navbar.Links \{\n            Link(\"Home\", to: \"/\")\n            Link(\"About\", to: \"/about\")\n        \}\n    \}\n    Router\n\}", title: "wf")
+
+        Markdown("`src/pages/Home.wf` — a page that owns its route:")
+
+        CodeBlock("page Home(path: \"/\", title: \"Hello\", description: \"A first WebFluent site.\") \{\n    state count = 0\n    Container \{\n        Heading(\"Hello, world\").h1\n        Text(\"You have clicked \{count\} times.\")\n        Button(\"Click me\").primary \{ on click \{ count = count + 1 \} \}\n    \}\n\}\n\npage About(path: \"/about\", title: \"About\", description: \"What this site is for.\") \{\n    Container \{\n        Heading(\"About\").h1\n        Paragraph(\"Two pages, one shell, no framework.\")\n    \}\n\}", title: "wf")
+
+        Markdown("Read it top to bottom:\n\n- `app \{ … \}` is the shell: what every page sits inside. `Router` is where the current page renders. There is no route table — each `page` names its own `path:`.\n- `page Home(path: \"/\", title: …, description: …)` declares a page. `title` and `description` become the `<title>`, the meta description, the Open Graph and Twitter cards and the JSON-LD; leave them out and the build tells you.\n- `state count = 0` is a signal. `Text(\"… \{count\} …\")` reads it, so the text updates when it changes.\n- `Button(\"Click me\").primary \{ on click \{ … \} \}` — the label is the one positional argument, `.primary` is a flag (a case of the button's `tone` prop), and the block holds the click handler.\n- `Container`, `Heading`, `Text`, `Paragraph`, `Navbar`, `Link` are built-ins; [chapter 19](/docs/reference) lists all of them.\n\nSave, and the dev server shows it. `wf build` writes the finished site to `build/`.")
+
+        Heading("What a build produces", id: "what-a-build-produces").h2
+
+        CodeBlock("build/\n  index.html          the page, pre-rendered (with build.ssg) or the app shell\n  about/index.html    one directory per route in a static build\n  app.js              the runtime, stores and components\n  pages/Home.js       each page in its own chunk, loaded when its route shows\n  pages/Home.css      the styles only that page reaches\n  styles.css          the shared sheet: your tokens, the built-ins you used, your stylesheets\n  sitemap.xml, robots.txt\n  *.gz                pre-compressed copies a host can serve as-is", title: "text")
+
+        Markdown("Nothing in `build/` is hand-editable; it is regenerated on every build.")
+
+        Heading("Project layout", id: "project-layout").h2
+
+        CodeBlock("webfluent.app.json    the config (below)\nsrc/\n  App.wf              the app shell (read first; optional)\n  pages/*.wf          pages — any file name, any nesting\n  components/*.wf     components\n  stores/*.wf         stores\n  theme.wf            a theme, if you declare one\n  translations/*.json translation files, with \"i18n\" in the config\n  *.css               stylesheets, bundled into styles.css\n  *.md                Markdown pages (chapter 16)\npublic/               copied to build/ as-is (images, fonts, favicon)\ntests/*.wf            `test \"…\" \{ \}` declarations for `wf test`", title: "text")
+
+        Markdown("The compiler reads every `.wf` (or `.wfx`) under `src/` and merges their declarations into one program: a page in one file can use a component from another without importing anything. Names are global to the project, so two declarations of the same name is an error.")
+
+        Heading("The config file", id: "the-config-file").h2
+
+        Markdown("`webfluent.app.json` — every key is optional except `name`:")
+
+        CodeBlock("\{\n  \"name\": \"hello\",\n  \"version\": \"0.1.0\",\n  \"build\": \{\n    \"output\": \"build\",\n    \"ssg\": true,\n    \"split\": true,\n    \"minify\": true,\n    \"compress\": true,\n    \"csp\": true,\n    \"base_path\": \"\",\n    \"output_type\": \"spa\"\n  \},\n  \"dev\": \{ \"port\": 3000, \"hot_reload\": true \},\n  \"meta\": \{\n    \"title\": \"Hello\",\n    \"description\": \"A first WebFluent site.\",\n    \"lang\": \"en\",\n    \"site_url\": \"https://example.com\",\n    \"site_name\": \"Hello\",\n    \"image\": \"/og.png\",\n    \"favicon\": \"/favicon.svg\",\n    \"sitemap\": true,\n    \"fonts\": [\"https://fonts.googleapis.com/css2?family=Inter&display=swap\"],\n    \"stylesheets\": [\"/base.css\"]\n  \},\n  \"theme\": \{ \"name\": \"Brand\", \"dark\": \"Night\", \"builtin\": \"full\", \"tokens\": \{\} \},\n  \"i18n\": \{ \"default_locale\": \"en\", \"locales\": [\"en\", \"ar\"], \"dir\": \"src/translations\" \},\n  \"env\": \{ \"API_URL\": \"https://api.example.com\" \}\n\}", title: "json")
+
+        Table(caption: "The config file") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`build.ssg`") }
+                    Table.Cell { Markdown("Pre-render every page to HTML at build time (chapter 16). Off, the build is a single-page app with one `index.html`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`build.split`") }
+                    Table.Cell("One JS and CSS chunk per page, loaded when the route shows.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`build.minify`, `build.compress`") }
+                    Table.Cell { Markdown("Minify the bundle and the sheet; write `.gz` copies beside them.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`build.csp`") }
+                    Table.Cell { Markdown("Emit the strict content-security policy the output satisfies (`script-src 'self'`, no inline script or style).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`build.base_path`") }
+                    Table.Cell { Markdown("Serve from a sub-path, such as `/docs` on GitHub Pages.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`build.output_type`") }
+                    Table.Cell { Markdown("`spa`, `pdf` or `slides` (chapter 17).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`meta.*`") }
+                    Table.Cell("The site-wide title, description, language, canonical URL, sharing image, sitemap, web fonts and extra stylesheets (chapter 16).")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`theme.name`, `theme.dark`") }
+                    Table.Cell { Markdown("Which `theme` declaration the build uses, and which one stands in for dark mode (chapter 12). `theme.builtin`: `full` ships the baseline design of the built-ins, `structural` only their layout and mechanics.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`i18n`") }
+                    Table.Cell("Translation files and locales (chapter 15).")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`env`") }
+                    Table.Cell { Markdown("Values read in code as `env.API_URL` (chapter 10).") }
+                }
+            }
+        }
+    }
+}

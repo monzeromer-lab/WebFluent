@@ -77,7 +77,14 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
     let port = config.dev.port;
     let addr = format!("0.0.0.0:{}", port);
 
-    println!("Starting dev server at http://localhost:{}", port);
+    // A site built for a sub-path (`build.base_path`, as on a GitHub Pages
+    // project site) is served under that path, as its host will serve it:
+    // its absolute links then resolve, and a visit to `/` is sent there.
+    let base_path = config.build.base_path.trim_end_matches('/').to_string();
+    println!(
+        "Starting dev server at http://localhost:{}{}/",
+        port, base_path
+    );
 
     let server = tiny_http::Server::http(&addr).map_err(|e| {
         crate::error::WebFluentError::IoError(format!("Failed to start server: {}", e))
@@ -118,6 +125,25 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
         let url = request.url().to_string();
         // The query string names nothing on disk.
         let url = url.split('?').next().unwrap_or("").to_string();
+        let url = if base_path.is_empty() {
+            url
+        } else if let Some(rest) = url.strip_prefix(base_path.as_str())
+            && (rest.is_empty() || rest.starts_with('/'))
+        {
+            if rest.is_empty() {
+                "/".to_string()
+            } else {
+                rest.to_string()
+            }
+        } else if url.starts_with("/__wf/") {
+            url
+        } else {
+            let response = tiny_http::Response::empty(302).with_header(
+                tiny_http::Header::from_bytes("Location", format!("{base_path}{url}")).unwrap(),
+            );
+            let _ = request.respond(response);
+            continue;
+        };
         // The dev server's own routes.
         if url == "/__wf/status" {
             let s = state.lock().unwrap();

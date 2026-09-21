@@ -335,6 +335,43 @@ pub fn parts_of(owner: &str) -> impl Iterator<Item = &'static ComponentSig> {
     COMPONENTS.iter().filter(move |c| c.owner == Some(owner))
 }
 
+/// The icons the runtime draws, by name: an `Icon("home")` or an `icon:`
+/// that names another shows the name as text.
+pub const ICONS: &[&str] = &[
+    "close",
+    "menu",
+    "search",
+    "home",
+    "user",
+    "settings",
+    "check",
+    "plus",
+    "minus",
+    "edit",
+    "trash",
+    "star",
+    "heart",
+    "mail",
+    "bell",
+    "download",
+    "upload",
+    "eye",
+    "link",
+    "calendar",
+    "filter",
+    "chevron-down",
+    "chevron-right",
+    "chevron-left",
+    "info",
+    "warning",
+    "arrow-left",
+    "arrow-right",
+    "logout",
+    "copy",
+    "sun",
+    "moon",
+];
+
 /// Whether `name` is a universal DOM event every element accepts.
 pub fn is_dom_event(name: &str) -> bool {
     UNIVERSAL_EVENTS.iter().any(|(e, _)| *e == name)
@@ -342,6 +379,23 @@ pub fn is_dom_event(name: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_icon_list_is_the_runtimes() {
+        let runtime = include_str!("../runtime/runtime.js");
+        let start = runtime.find("const _ICONS = {").expect("the icon table");
+        let end = runtime[start..].find("\n  };").expect("its end") + start;
+        let mut drawn: Vec<&str> = runtime[start..end]
+            .lines()
+            .skip(1)
+            .filter_map(|l| l.trim().split(':').next())
+            .map(|k| k.trim_matches('"'))
+            .collect();
+        drawn.sort_unstable();
+        let mut listed: Vec<&str> = super::ICONS.to_vec();
+        listed.sort_unstable();
+        assert_eq!(listed, drawn);
+    }
+
     use super::*;
     use crate::codegen::builtin::builtin_to_html;
     use crate::parser::vocabulary::MODIFIER_KEYWORDS;

@@ -91,7 +91,7 @@ fn a_data_file_is_a_constant_and_paths_render_a_param_page_per_value() {
     let dir = scratch("data");
     std::fs::write(
         dir.join("src/App.wf"),
-        "data posts = \"posts.json\"\npage Home(path: \"/\", title: \"Home\", description: \"d\") {\n    Heading(\"Posts\").h1\n    for p in posts by p.slug { Link(to: \"/p/{p.slug}\") { Text(p.title) } }\n}\npage Post(path: \"/p/:slug\", title: \"Post\", description: \"d\", slug: String, paths: posts.map(p => p.slug)) {\n    derived post = posts.find(p => p.slug == slug)\n    Heading(post?.title ?? \"?\").h1\n    Text(\"{slug}: {params.slug}\")\n}\n",
+        "data posts = \"posts.json\"\npage Home(path: \"/\", title: \"Home\", description: \"d\") {\n    Heading(\"Posts\").h1\n    for p in posts by p.slug { Link(to: \"/p/{p.slug}\") { Text(p.title) } }\n}\npage Post(path: \"/p/:slug\", title: \"Post\", description: \"d\", slug: String, paths: posts.map(p => p.slug)) {\n    derived post = posts.find(p => p.slug == slug)\n    Heading(post?.title ?? \"?\").h1\n    Text(\"{slug}: {params.slug}\")\n    if let p = post { Text(\"Bound: {p.title}\") } else { Text(\"unbound\") }\n}\n",
     )
     .unwrap();
     std::fs::write(
@@ -111,6 +111,15 @@ fn a_data_file_is_a_constant_and_paths_render_a_param_page_per_value() {
         again.contains(">Again</h1>") && again.contains(">again: again<"),
         "{again}"
     );
+    assert!(
+        again.contains(">Bound: Again<") && !again.contains("unbound"),
+        "the static paint binds an `if let` name: {again}"
+    );
+    assert!(
+        again.contains("<link rel=\"canonical\" href=\"https://x.y/p/again\">"),
+        "the file's canonical is its own route, not the pattern: {again}"
+    );
+    assert!(!again.contains(":slug"), "{again}");
     assert!(dir.join("build/p/hello/index.html").exists());
     let home = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
     assert!(
@@ -237,6 +246,24 @@ fn a_message_with_a_count_picks_its_plural_form_at_build_time_and_live() {
     assert!(
         js.contains("WF.i18n.t(\"items\", ({count:_n(),name:\"Sam\"}))")
             || js.contains("WF.i18n.t(\"items\",({count:_n(),name:\"Sam\"}))"),
+        "{js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_guarded_page_carries_its_guard_and_redirect_into_the_route_table() {
+    let dir = scratch("guard");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "store Auth { state user = null\n derived loggedIn = user != null }\napp { Router }\npage Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"h\").h1 }\npage Login(path: \"/login\", title: \"Login\", description: \"d\") { Heading(\"l\").h1 }\npage Account(path: \"/account\", title: \"Account\", description: \"d\", guard: Auth.loggedIn, redirect: \"/login\") { Heading(\"a\").h1 }\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["build"]);
+    assert!(ok, "{out}");
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    assert!(
+        js.contains("guard:()=>(Auth.loggedIn),redirect:\"/login\""),
         "{js}"
     );
     let _ = std::fs::remove_dir_all(&dir);

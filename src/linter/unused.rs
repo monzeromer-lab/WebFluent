@@ -54,6 +54,23 @@ pub fn lint_unused_in(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
             _ => continue,
         };
         let mut reads = Reads::default();
+        // A page's header reads too: its guard, its static paths, its
+        // layout's arguments and its head tags.
+        if let Declaration::Page(p) = decl {
+            for e in p.guard.iter().chain(p.paths.iter()) {
+                read_expr(e, &mut reads);
+            }
+            for arg in p.layout.iter().flat_map(|l| l.args.iter()) {
+                match arg {
+                    Arg::Positional(e) | Arg::Named(_, e) => read_expr(e, &mut reads),
+                }
+            }
+            for tag in &p.head {
+                for (_, e) in &tag.attrs {
+                    read_expr(e, &mut reads);
+                }
+            }
+        }
         read_statements(body, &mut reads);
         let used: Vec<String> = body
             .iter()

@@ -1,0 +1,2 @@
+function Page_DocsIndex(params){const _root=document.createDocumentFragment();const _e320=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.guide"));_root.appendChild(_e320);const _e321=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/getting-started"},()=>WF.i18n.t("ch.01"));WF.activeLink(_e321,"/docs/guide/getting-started",false);_root.appendChild(_e321);return _root;}
+WF.page("DocsIndex",Page_DocsIndex);

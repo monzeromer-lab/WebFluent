@@ -1,0 +1,55 @@
+/// The right-hand rail of a chapter: its headings, the two links every
+/// chapter carries, and the note that the guide is checked.
+component OnThisPage(sections: [Anchor] = []) {
+    Stack(gap: .lg, aria-label: t("docs.onthispage")) {
+        style {
+            width: 240px
+            flex-shrink: 0
+            padding: 40px 20px
+            gap: 20px
+            border-inline-start: 1px solid $border
+            background: $color-background
+            @media (max-width: 1100px) { display: none }
+        }
+
+        if sections.length > 0 {
+            Stack(gap: .xs) {
+                style { gap: 8px }
+                Text(t("docs.onthispage"), class: "overline")
+                for section in sections by section.id {
+                    Link(section.label, href: "#{section.id}") {
+                        style {
+                            padding-inline-start: 10px
+                            border-inline-start: 2px solid $border
+                            font-size: 13px
+                            line-height: 22px
+                            color: $color-text-muted
+                            text-decoration: none
+                            &:hover { color: $brand-ink; border-color: $brand-ring; text-decoration: none }
+                        }
+                    }
+                }
+            }
+        }
+
+        Divider { style { margin: 0; border-color: $border } }
+
+        Stack(gap: .xs) {
+            style { gap: 10px; & a { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none } & a:hover { color: $color-text } & .wf-icon { font-size: 16px; display: inline-flex } }
+            Link(href: "{REPO}/tree/master/md-docs") { Icon("edit")  Text(t("docs.edit")) { style { margin: 0 } } }
+            Link(to: "/docs/reference") { Icon("menu")  Text(t("docs.reference")) { style { margin: 0 } } }
+        }
+
+        Stack(gap: .xs) {
+            style {
+                gap: 6px
+                padding: 12px 14px
+                background: $color-surface
+                border: 1px solid $border
+                border-radius: 10px
+            }
+            Text(t("docs.checked.title")) { style { margin: 0; font-size: 12px; line-height: 18px; font-weight: 600 } }
+            Text(t("docs.checked.body")) { style { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
+        }
+    }
+}

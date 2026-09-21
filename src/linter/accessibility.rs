@@ -176,6 +176,10 @@ struct HeadingTracker {
     components: std::collections::HashMap<String, ComponentDecl>,
     /// Components being expanded, so a component that calls itself stops.
     expanding: Vec<String>,
+    /// While a page's layout is walked: the page's body, placed where the
+    /// layout's `children` is, and the warnings it produces there.
+    page_body: Option<(Vec<Statement>, String)>,
+    page_warnings: Vec<A11yWarning>,
 }
 
 impl HeadingTracker {
@@ -186,6 +190,8 @@ impl HeadingTracker {
             checks_outline: true,
             components: std::collections::HashMap::new(),
             expanding: Vec::new(),
+            page_body: None,
+            page_warnings: Vec::new(),
         }
     }
 
@@ -251,7 +257,27 @@ fn lint_page(
         HeadingTracker::new()
     };
     tracker.components = HeadingTracker::with_components(components).components;
-    lint_statements(&page.body, file, warnings, &mut tracker);
+    // A page framed by a layout is the layout's outline with the page's
+    // body at its `children`: the `h1` a layout draws is the page's.
+    match page
+        .layout
+        .as_ref()
+        .and_then(|l| tracker.component(&l.name))
+    {
+        Some(layout) => {
+            tracker.page_body = Some((page.body.clone(), file.to_string()));
+            let mut quiet = Vec::new();
+            lint_statements(&layout.body, file, &mut quiet, &mut tracker);
+            warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
+            match tracker.page_body.take() {
+                // The layout placed the page: its findings are the page's.
+                None => warnings.append(&mut tracker.page_warnings),
+                // A layout without `children`: the page still gets checked.
+                Some((body, _)) => lint_statements(&body, file, warnings, &mut tracker),
+            }
+        }
+        None => lint_statements(&page.body, file, warnings, &mut tracker),
+    }
 
     if !tracker.checks_outline {
         return;
@@ -337,6 +363,16 @@ fn lint_ui_element(
     // element, so a warning lands on the line that needs the fix rather
     // than on line 1.
     let (line, col) = (ui.span.line.max(1) as usize, ui.span.col.max(1) as usize);
+
+    // The layout's `children`: the page's own body goes here.
+    if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Children")
+        && let Some((body, page_file)) = heading_tracker.page_body.take()
+    {
+        let mut found = Vec::new();
+        lint_statements(&body, &page_file, &mut found, heading_tracker);
+        heading_tracker.page_warnings.append(&mut found);
+        return;
+    }
 
     if let ComponentRef::BuiltIn(name) = &ui.component {
         match name.as_str() {
@@ -967,6 +1003,24 @@ mod structure_tests {
     fn warnings(src: &str) -> Vec<A11yWarning> {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_accessibility(&program)
+    }
+
+    #[test]
+    fn a_page_framed_by_a_layout_is_judged_with_the_layouts_outline() {
+        // The layout draws the h1; the page's body sits at its `children`.
+        let src = "component Shell(_ heading: String) {\n    slot\n    Heading(heading).h1\n    children\n}\npage P(path: \"/\", title: \"t\", description: \"d\", layout: Shell(\"Hi\")) {\n    Heading(\"Section\").h2\n    Image(src: \"x.png\")\n}\n";
+        let found = warnings(src);
+        assert!(found.iter().all(|w| w.rule_id != "A12"), "{found:?}");
+        assert!(found.iter().all(|w| w.rule_id != "A11"), "{found:?}");
+        // The page's own findings still surface, once.
+        assert_eq!(
+            found.iter().filter(|w| w.rule_id == "A01").count(),
+            1,
+            "{found:?}"
+        );
+        // A skip across the boundary is seen: h1 in the layout, h3 in the page.
+        let skip = "component Shell {\n    slot\n    Heading(\"Hi\").h1\n    children\n}\npage P(path: \"/\", title: \"t\", description: \"d\", layout: Shell) {\n    Heading(\"Deep\").h3\n}\n";
+        assert!(warnings(skip).iter().any(|w| w.rule_id == "A11"));
     }
 
     #[test]

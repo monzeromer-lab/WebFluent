@@ -1,0 +1,99 @@
+/// The frame every chapter renders inside, as the design draws it: the
+/// header with search, the chapter nav on one side, the article on the
+/// surface at a reading measure, the headings rail on the other, and the
+/// pair of links to the chapters either side.
+component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
+    slot
+
+    SiteHeader(docs: true)
+
+    Row(align: .stretch) {
+        style { align-items: stretch; flex-wrap: nowrap; background: $color-background; min-height: calc(100vh - 60px) }
+
+        DocSidebar
+
+        Stack(gap: .lg, role: "main", class: "docs-main") {
+            style {
+                flex: 1 1 0
+                min-width: 0
+                gap: 28px
+                padding: 40px 48px
+                background: $color-surface
+                @media (max-width: 768px) { padding: 24px 16px }
+            }
+
+            Row(align: .center, gap: .xs, aria-label: "Breadcrumb", role: "navigation", class: "crumbs") {
+                style { gap: 8px; font-size: 12px; line-height: 18px; color: $ink-subtle; & a { color: $ink-subtle; text-decoration: none } & a:hover { color: $color-text } & p { margin: 0 } }
+                Link(t("nav.guide"), to: "/docs/guide/getting-started")
+                Text("/")
+                if chapter != "" {
+                    Text(chapter) { style { color: $color-text-muted } }
+                }
+            }
+
+            Stack(gap: .sm) {
+                style { gap: 12px; max-width: 680px }
+                Heading(heading).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
+                if blurb != "" {
+                    Text(blurb) { style { margin: 0; font-size: 17px; line-height: 26px; color: $color-text-muted } }
+                }
+            }
+
+            // The chapters are written in English; they keep their direction
+            // when the site's chrome switches to Arabic.
+            Stack(gap: .lg, dir: "ltr", class: "docs-article") {
+                style { gap: 28px; max-width: 680px; text-align: start }
+                children
+            }
+
+            if nextLabel != "" || prevLabel != "" {
+                Row(gap: .md, align: .stretch, aria-label: "Chapters either side", role: "navigation") {
+                    style { gap: 16px; max-width: 680px; margin-top: auto; padding-top: 8px; flex-wrap: wrap }
+
+                    if prevLabel != "" {
+                        Link(to: prevTo) {
+                            style {
+                                flex: 1 1 200px
+                                display: flex
+                                flex-direction: column
+                                gap: 2px
+                                padding: 12px 16px
+                                border: 1px solid $border
+                                border-radius: 10px
+                                background: $surface-raised
+                                text-decoration: none
+                                &:hover { border-color: $border-strong; text-decoration: none }
+                                & p { margin: 0 }
+                            }
+                            Text(t("docs.previous")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                            Text(prevLabel) { style { font-size: 15px; line-height: 20px; font-weight: 600; color: $color-text } }
+                        }
+                    }
+
+                    if nextLabel != "" {
+                        Link(to: nextTo) {
+                            style {
+                                flex: 1 1 200px
+                                display: flex
+                                flex-direction: column
+                                align-items: flex-end
+                                gap: 2px
+                                padding: 12px 16px
+                                border: 1px solid $border
+                                border-radius: 10px
+                                background: $surface-raised
+                                text-decoration: none
+                                &:hover { border-color: $border-strong; text-decoration: none }
+                                & p { margin: 0 }
+                            }
+                            Text(t("docs.next")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                            Text(nextLabel) { style { font-size: 15px; line-height: 20px; font-weight: 600; color: $color-text } }
+                        }
+                    }
+                }
+            }
+        }
+
+        OnThisPage(sections: sections)
+    }
+}

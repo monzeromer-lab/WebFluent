@@ -1,0 +1,200 @@
+/// The site's top bar as the design draws it: the mark, the three places to
+/// read, then — on a docs page — search, and everywhere the theme, GitHub and
+/// the locale. On a phone the places to read fold behind a menu button.
+component SiteHeader(docs: Bool = false) {
+    state q = ""
+    state menu = false
+    derived query = q.trim().toLowerCase()
+    derived hits = guideIndex.filter(r => query != "" && "{r.title} {r.section}".toLowerCase().includes(query)).take(8)
+    // The theme on show: the reader's choice, or the system's when they
+    // have not made one.
+    derived dark = theme == "dark" || (theme == "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    derived otherLocale = if locale == "ar" { "EN" } else { "AR" }
+
+    on key("/") { if docs { search.focus() } }
+    on key("Escape") { q = ""  menu = false }
+
+    Row(align: .center, justify: .between, role: "banner", class: "site-header") {
+        style {
+            height: 60px
+            padding: 0 24px
+            gap: 24px
+            flex-wrap: nowrap
+            border-bottom: 1px solid $border
+            background: $color-background
+            position: sticky
+            top: 0
+            z-index: 100
+            @media (max-width: 768px) { height: 56px; padding: 0 16px; flex-direction: row }
+        }
+
+        Row(align: .center, gap: .lg) {
+            style { flex-wrap: nowrap; min-width: 0; @media (max-width: 768px) { flex-direction: row } }
+
+            Link(to: "/") {
+                Row(align: .center, gap: .sm) {
+                    style { flex-wrap: nowrap; color: $color-text; @media (max-width: 768px) { flex-direction: row } }
+                    Text("wf") {
+                        style {
+                            display: inline-flex
+                            align-items: center
+                            justify-content: center
+                            width: 26px
+                            height: 26px
+                            margin: 0
+                            border-radius: 4px
+                            background: $color-primary
+                            color: #FFFFFF
+                            font-family: $font-family-mono
+                            font-size: 12px
+                            font-weight: 500
+                        }
+                    }
+                    Text("WebFluent") { style { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -0.004em } }
+                    Text("3.0") {
+                        style {
+                            margin: 0
+                            font-family: $font-family-mono
+                            font-size: 12px
+                            line-height: 18px
+                            color: $ink-subtle
+                            border: 1px solid $border
+                            border-radius: 999px
+                            padding: 1px 8px
+                            @media (max-width: 480px) { display: none }
+                        }
+                    }
+                }
+            }
+
+            Row(align: .center, gap: .xs, role: "navigation", aria-label: "Site", class: "site-nav") {
+                style {
+                    flex-wrap: nowrap
+                    & a { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 4px; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none; white-space: nowrap }
+                    & a:hover { color: $color-text; background: $surface-hover; text-decoration: none }
+                    & a.active { background: $surface-raised; color: $color-text; font-weight: 600 }
+                    @media (max-width: 768px) { display: none }
+                }
+                Link(t("nav.guide"), to: "/docs/guide", active: .prefix)
+                Link(t("nav.reference"), to: "/docs/reference", active: .prefix)
+                Link(t("nav.cookbook"), to: "/docs/cookbook", active: .prefix)
+            }
+        }
+
+        Row(align: .center, gap: .sm) {
+            style { flex-wrap: nowrap; position: relative; @media (max-width: 768px) { flex-direction: row } }
+
+            if docs {
+                Row(align: .center, gap: .sm, class: "site-search") {
+                    style {
+                        flex-wrap: nowrap
+                        width: 300px
+                        height: 34px
+                        padding: 0 12px
+                        background: $color-surface
+                        border: 1px solid $border
+                        border-radius: 4px
+                        &:focus-within { border-color: $brand-ring }
+                        & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }
+                        & input { flex-grow: 1; min-width: 0; background: transparent; border: 0; outline: none; color: $color-text; font-family: inherit; font-size: 13px; line-height: 20px; padding: 0 }
+                        @media (max-width: 1100px) { width: 220px }
+                        @media (max-width: 768px) { display: none }
+                    }
+                    Icon("search")
+                    Input(bind: q, ref: search, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search")
+                    Text("/") {
+                        style {
+                            margin: 0
+                            font-family: $font-family-mono
+                            font-size: 12px
+                            line-height: 18px
+                            color: $ink-subtle
+                            border: 1px solid $border
+                            border-radius: 4px
+                            padding: 0 5px
+                        }
+                    }
+                }
+                if hits.length > 0 {
+                    Card(role: "listbox", aria-label: "Search results", animate: .fadeIn, exit: .fadeOut) {
+                        style {
+                            position: absolute
+                            top: 40px
+                            inset-inline-end: 0
+                            width: 420px
+                            max-width: 90vw
+                            padding: 6px
+                            background: $surface-overlay
+                            border: 1px solid $border
+                            border-radius: 6px
+                            box-shadow: $shadow-lg
+                            z-index: 200
+                        }
+                        for hit in hits by hit.route {
+                            Link(to: hit.route) {
+                                style {
+                                    display: flex
+                                    align-items: baseline
+                                    gap: 10px
+                                    padding: 8px 10px
+                                    border-radius: 4px
+                                    text-decoration: none
+                                    color: $color-text
+                                    &:hover { background: $surface-hover; text-decoration: none }
+                                }
+                                on click { q = "" }
+                                Text(hit.chapter) { style { margin: 0; font-family: $font-family-mono; font-size: 12px; color: $ink-subtle; width: 20px; flex-shrink: 0 } }
+                                Stack(gap: .xs) {
+                                    style { gap: 1px; min-width: 0 }
+                                    Text(if hit.section != "" { hit.section } else { hit.title }) { style { margin: 0; font-size: 13px; line-height: 20px; font-weight: 500 } }
+                                    if hit.section != "" {
+                                        Text(hit.title) { style { margin: 0; font-size: 12px; line-height: 16px; color: $ink-subtle } }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            IconButton(icon: if dark { "sun" } else { "moon" }, label: if dark { t("theme.light") } else { t("theme.dark") }, class: "site-icon-button") {
+                on click { setTheme(if dark { "light" } else { "dark" }) }
+            }
+
+            Link(t("nav.source"), href: REPO, class: "site-button site-button-outlined") {
+                style { @media (max-width: 480px) { display: none } }
+            }
+
+            if !docs {
+                Link(t("nav.read"), to: "/docs/guide/getting-started", class: "site-button site-button-primary") {
+                    style { @media (max-width: 768px) { display: none } }
+                }
+            }
+
+            Button(otherLocale, aria-label: t("nav.locale"), class: "site-button site-button-outlined") {
+                on click { setLocale(if locale == "ar" { "en" } else { "ar" }) }
+            }
+
+            IconButton(icon: if menu { "close" } else { "menu" }, label: t("nav.menu"), class: "site-icon-button site-menu-button", aria-expanded: menu) {
+                style { display: none; @media (max-width: 768px) { display: inline-flex } }
+                on click { menu = !menu }
+            }
+        }
+    }
+
+    if menu {
+        Stack(gap: .xs, role: "navigation", aria-label: "Site", animate: .slideDown, exit: .fadeOut) {
+            style {
+                padding: 8px 16px 16px
+                border-bottom: 1px solid $border
+                background: $color-background
+                & a { display: flex; align-items: center; height: 44px; padding: 0 10px; border-radius: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: $color-text-muted; text-decoration: none }
+                & a.active { background: $surface-raised; color: $color-text }
+            }
+            Link(t("nav.guide"), to: "/docs/guide", active: .prefix) { on click { menu = false } }
+            Link(t("nav.reference"), to: "/docs/reference", active: .prefix) { on click { menu = false } }
+            Link(t("nav.cookbook"), to: "/docs/cookbook", active: .prefix) { on click { menu = false } }
+            Link(t("nav.source"), href: REPO)
+        }
+    }
+}

@@ -1,0 +1,233 @@
+/// The components reference, drawn from the registry's own data
+/// (`site/src/registry.json`, written by scripts/site-data.py): an index
+/// page, and one page per built-in.
+page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", description: "Every built-in element, its props, flags, events, slots and parts — from the compiler's own registry.") {
+    derived groups = registry.groups
+    derived components = registry.components
+
+    ReferenceShell {
+
+        Row(align: .center, gap: .xs, class: "crumbs") {
+            Text(t("ref.chapter"))
+            Text("/")
+            Text(t("ch.19")) { style { color: $color-text-muted } }
+        }
+        Stack(gap: .sm) {
+            style { gap: 12px; max-width: 680px }
+            Heading(t("ch.19")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
+            Markdown(t("ref.intro", { count: registry.count })) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+        }
+
+        for group in groups by group {
+            Stack(gap: .sm, id: group.toLowerCase().replace(" ", "-")) {
+                style { gap: 12px }
+                Heading(group).h2 { style { margin: 8px 0 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.008em } }
+                Grid(columns: 3, gap: .md, class: "entry-grid") {
+                    style { gap: 12px }
+                    for c in components by c.name {
+                        if c.group == group {
+                            Link(to: "/docs/reference/{c.slug}") {
+                                style {
+                                    display: flex
+                                    flex-direction: column
+                                    gap: 4px
+                                    padding: 12px 14px
+                                    border: 1px solid $border
+                                    border-radius: 10px
+                                    background: $surface-raised
+                                    text-decoration: none
+                                    color: $color-text
+                                    &:hover { border-color: $border-strong; text-decoration: none }
+                                    & p { margin: 0 }
+                                }
+                                Text(c.name) { style { font-family: $font-family-mono; font-size: 14px; line-height: 20px; font-weight: 500; color: $brand-ink } }
+                                Text(c.plain) { style { font-size: 12px; line-height: 18px; color: $color-text-muted; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Stack(gap: .sm, id: "on-every-element") {
+            style { gap: 12px }
+            Heading(t("ref.universal.title")).h2 { style { margin: 8px 0 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.008em } }
+            Markdown(t("ref.universal.body")) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+            PropsTable(rows: registry.universal.props, caption: t("ref.universal.title"))
+            Heading(t("ref.events")).h3 { style { margin: 8px 0 0; font-size: 18px; line-height: 24px; font-weight: 600 } }
+            Grid(columns: 2, gap: .sm, class: "events-grid") {
+                for e in registry.universal.events by e.name {
+                    Row(align: .baseline, gap: .sm) {
+                        style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
+                        Text(e.name) { style { width: 110px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $brand-ink } }
+                        Text(e.meaning) { style { font-size: 13px; line-height: 20px; color: $color-text-muted } }
+                    }
+                }
+            }
+            Heading(t("ref.icons")).h3 { style { margin: 8px 0 0; font-size: 18px; line-height: 24px; font-weight: 600 } }
+            Text(t("ref.icons.body")) { style { margin: 0; max-width: 680px; font-size: 15px; line-height: 23px; color: $color-text-muted } }
+            Row(gap: .sm) {
+                style { gap: 8px; flex-wrap: wrap }
+                for icon in registry.icons by icon {
+                    Row(align: .center, gap: .xs, class: "chip") {
+                        style { gap: 8px; flex-wrap: nowrap; & p { margin: 0 } & .wf-icon { font-size: 16px; display: inline-flex } }
+                        Icon(icon)
+                        Text(icon)
+                    }
+                }
+            }
+        }
+    }
+}
+
+page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Components reference", description: "One built-in element: its signature, props, flags, events and parts, from the compiler's registry.", paths: registry.components.map(c => c.slug)) {
+    state tab = "props"
+    derived entry = registry.components.find(c => c.slug == slug)
+    derived events = registry.universal.events
+
+    ReferenceShell(current: slug) {
+        rail {
+            if let c = entry {
+                Stack(gap: .xs) {
+                    style { gap: 8px; & button { text-align: start; padding: 0 0 0 10px; height: 22px; background: transparent; border: 0; border-inline-start: 2px solid $border; border-radius: 0; font-family: inherit; font-size: 13px; line-height: 22px; font-weight: 400; color: $color-text-muted; cursor: pointer } & button:hover { background: transparent; color: $brand-ink; border-color: $brand-ring } & button.active { color: $brand-ink; font-weight: 600; border-color: $color-primary } }
+                    Text(t("ref.onthisentry"), class: "overline")
+                    Button(t("ref.tab.props"), class: if tab == "props" { "active" } else { "" }) { on click { tab = "props" } }
+                    Button(t("ref.tab.flags"), class: if tab == "flags" { "active" } else { "" }) { on click { tab = "flags" } }
+                    Button(t("ref.tab.events"), class: if tab == "events" { "active" } else { "" }) { on click { tab = "events" } }
+                    if c.parts.length > 0 {
+                        Button(t("ref.tab.parts"), class: if tab == "parts" { "active" } else { "" }) { on click { tab = "parts" } }
+                    }
+                }
+                Divider { style { margin: 0; border-color: $border } }
+                Stack(gap: .xs) {
+                    style { gap: 8px; padding: 12px 14px; background: $surface-raised; border: 1px solid $border; border-radius: 10px; & p { margin: 0 } }
+                    Text(t("ref.generated.title")) { style { font-size: 13px; line-height: 20px; font-weight: 600 } }
+                    Text(t("ref.generated.body")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                    Text("wf registry --json") { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }
+                }
+                if c.nearby.length > 0 {
+                    Stack(gap: .xs) {
+                        style { gap: 8px; & a { font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none } & a:hover { color: $color-text } }
+                        Text(t("ref.nearby"), class: "overline")
+                        for n in c.nearby by n {
+                            Link(n, to: "/docs/reference/{n.toLowerCase()}")
+                        }
+                    }
+                }
+            }
+        }
+        if let c = entry {
+
+            Stack(gap: .sm) {
+                style { gap: 10px }
+                Row(align: .center, gap: .xs, class: "crumbs") {
+                    Link(t("ref.chapter"), to: "/docs/reference")
+                    Text("/")
+                    Link(c.group, to: "/docs/reference#{c.group.toLowerCase().replace(" ", "-")}")
+                }
+                Row(align: .center, gap: .sm) {
+                    style { gap: 12px; flex-wrap: wrap }
+                    Heading(c.name).h1 { style { margin: 0; font-family: $font-family-mono; font-size: 28px; line-height: 34px; font-weight: 500 } }
+                    Text(c.group, class: "pill pill-brand")
+                    if c.block { Text(t("ref.block"), class: "pill pill-accent") }
+                }
+                Markdown(c.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+                Code(c.signature, language: "wf").block {
+                    style { margin: 4px 0 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                }
+            }
+
+            Row(gap: .xs, role: "tablist", class: "entry-tabs") {
+                style {
+                    gap: 4px
+                    flex-wrap: nowrap
+                    border-bottom: 1px solid $border
+                    & button { height: 36px; padding: 0 14px; background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; font-family: inherit; font-size: 14px; line-height: 20px; font-weight: 500; color: $color-text-muted; cursor: pointer }
+                    & button:hover { background: transparent; color: $color-text }
+                    & button.active { color: $color-text; font-weight: 600; border-bottom-color: $color-primary }
+                    @media (max-width: 768px) { flex-direction: row; overflow-x: auto }
+                }
+                Button(t("ref.tab.props"), role: "tab", class: if tab == "props" { "active" } else { "" }, aria-selected: tab == "props") { on click { tab = "props" } }
+                Button(t("ref.tab.flags"), role: "tab", class: if tab == "flags" { "active" } else { "" }, aria-selected: tab == "flags") { on click { tab = "flags" } }
+                Button(t("ref.tab.events"), role: "tab", class: if tab == "events" { "active" } else { "" }, aria-selected: tab == "events") { on click { tab = "events" } }
+                if c.parts.length > 0 {
+                    Button(t("ref.tab.parts"), role: "tab", class: if tab == "parts" { "active" } else { "" }, aria-selected: tab == "parts") { on click { tab = "parts" } }
+                }
+            }
+
+            if tab == "props" {
+                Stack(gap: .md, role: "tabpanel", id: "props") {
+                    style { gap: 16px }
+                    if c.props.length > 0 {
+                        PropsTable(rows: c.props, caption: "Props of {c.name}")
+                    } else {
+                        Text(t("ref.noprops")) { style { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } }
+                    }
+                    Markdown(t("ref.attrs", { families: c.attributes.join(", ") })) { style { & p { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } } }
+                }
+            }
+            if tab == "flags" {
+                Stack(gap: .md, role: "tabpanel", id: "flags") {
+                    style { gap: 16px }
+                    Markdown(t("ref.flags.body")) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+                    if c.flags.length > 0 {
+                        Row(gap: .sm) {
+                            style { gap: 8px; flex-wrap: wrap }
+                            for flag in c.flags by flag { Text(flag, class: "chip") }
+                        }
+                    } else {
+                        Text(t("ref.noflags")) { style { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } }
+                    }
+                }
+            }
+            if tab == "events" {
+                Stack(gap: .sm, role: "tabpanel", id: "events") {
+                    style { gap: 12px }
+                    Markdown(t("ref.events.body")) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+                    Grid(columns: 2, gap: .sm, class: "events-grid") {
+                        for e in c.events by e.name {
+                            Row(align: .baseline, gap: .sm) {
+                                style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
+                                Text(e.name) { style { width: 110px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }
+                                Text(t("ref.own.event")) { style { font-size: 13px; line-height: 20px; color: $color-text-muted } }
+                            }
+                        }
+                        for e in events by e.name {
+                            Row(align: .baseline, gap: .sm) {
+                                style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
+                                Text(e.name) { style { width: 110px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $brand-ink } }
+                                Text(e.meaning) { style { font-size: 13px; line-height: 20px; color: $color-text-muted } }
+                            }
+                        }
+                    }
+                }
+            }
+            if tab == "parts" {
+                Stack(gap: .lg, role: "tabpanel", id: "parts") {
+                    style { gap: 24px }
+                    for part in c.parts by part.name {
+                        Stack(gap: .sm) {
+                            style { gap: 10px }
+                            Heading(part.name).h2 { style { margin: 0; font-family: $font-family-mono; font-size: 18px; line-height: 24px; font-weight: 500 } }
+                            Markdown(part.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+                            Code(part.signature, language: "wf").block {
+                                style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                            }
+                            if part.props.length > 0 { PropsTable(rows: part.props, caption: "Props of {part.name}") }
+                            if part.flags.length > 0 {
+                                Row(gap: .sm) {
+                                    style { gap: 8px; flex-wrap: wrap }
+                                    for flag in part.flags by flag { Text(flag, class: "chip") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        } else {
+            Heading(t("notfound.title")).h2
+            Link(t("ch.19"), to: "/docs/reference")
+        }
+    }
+}

@@ -17,6 +17,7 @@ pub mod builtin;
 pub mod css;
 pub mod format;
 pub mod gzip;
+pub mod highlight;
 pub mod html;
 pub mod js;
 pub mod markdown;

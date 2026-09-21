@@ -153,6 +153,9 @@ pub struct JsCodegen {
     /// Each page's layout component and the compiled props object it is
     /// called with, when the page names one.
     page_layouts: HashMap<String, (String, String)>,
+    /// Each page's `guard:` expression as JavaScript and its `redirect:`,
+    /// for pages that have one.
+    page_guards: HashMap<String, (String, String)>,
     /// Every page's path, in declaration order, for a router that lists no
     /// routes of its own.
     page_paths: Vec<(String, String)>,
@@ -198,6 +201,7 @@ impl JsCodegen {
             component_slot_params: HashMap::new(),
             page_params: Vec::new(),
             page_layouts: HashMap::new(),
+            page_guards: HashMap::new(),
             page_paths: Vec::new(),
         }
     }
@@ -317,6 +321,15 @@ impl JsCodegen {
             ),
             None => String::new(),
         };
+        // `guard:` must hold for the route to render; `redirect:` is where
+        // the reader goes otherwise.
+        let layout = match self.page_guards.get(page) {
+            Some((guard, redirect)) => format!(
+                "{layout}guard: () => ({guard}), redirect: \"{}\", ",
+                redirect.replace('"', "\\\"")
+            ),
+            None => layout,
+        };
         if self.split_pages {
             let css = if self.page_sheets.contains(page) {
                 format!("css: \"{}\", ", page)
@@ -400,6 +413,14 @@ impl JsCodegen {
                 let args = self.emit_component_args(&layout.name, &layout.args);
                 self.page_layouts
                     .insert(p.name.clone(), (layout.name.clone(), args));
+            }
+            // A guard reads stores, which are in scope at the route table.
+            if let Declaration::Page(p) = decl
+                && let Some(guard) = &p.guard
+            {
+                let js = self.emit_expr(guard);
+                let redirect = p.redirect.clone().unwrap_or_else(|| "/".to_string());
+                self.page_guards.insert(p.name.clone(), (js, redirect));
             }
         }
 
@@ -781,6 +802,13 @@ impl JsCodegen {
                     .map(|a| self.emit_store_expr(a, store_states))
                     .collect();
                 match method.as_str() {
+                    // `items.push(x)` on a store's own state: a new list set
+                    // through the store, so what reads it repaints and a
+                    // persisted one is written.
+                    "push" if matches!(obj.as_ref(), Expr::Identifier(n) if store_states.contains(n)) =>
+                    {
+                        format!("({obj_str} = [...{obj_str}, {}])", args_str.join(", "))
+                    }
                     "push" => format!("{}.push({})", obj_str, args_str.join(", ")),
                     "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
                     "map" => format!("{}.map({})", obj_str, args_str.join(", ")),
@@ -821,6 +849,8 @@ impl JsCodegen {
                     format!("store.{}({})", name, args_str.join(", "))
                 } else if matches!(name.as_str(), "format" | "ago" | "setTheme") {
                     format!("WF.{}({})", name, args_str.join(", "))
+                } else if name == "fetch" {
+                    format!("WF.request({})", args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -916,6 +946,15 @@ impl JsCodegen {
                     self.emit_store_statement(s, store_states, action_params);
                 }
                 self.indent -= 1;
+                for (cond, body) in &if_stmt.else_if_branches {
+                    let cond = self.emit_store_expr(cond, store_states);
+                    self.emit_line(&format!("}} else if ({cond}) {{"));
+                    self.indent += 1;
+                    for s in body {
+                        self.emit_store_statement(s, store_states, action_params);
+                    }
+                    self.indent -= 1;
+                }
                 if let Some(else_body) = &if_stmt.else_body {
                     self.emit_line("} else {");
                     self.indent += 1;
@@ -925,6 +964,55 @@ impl JsCodegen {
                     self.indent -= 1;
                 }
                 self.emit_line("}");
+            }
+            // `try`, `for` and `log` used to fall through to the page
+            // emitter, whose statements read `_x()` signals a store does
+            // not have.
+            StatementKind::Try(t) => {
+                self.emit_line("try {");
+                self.indent += 1;
+                for s in &t.body {
+                    self.emit_store_statement(s, store_states, action_params);
+                }
+                self.indent -= 1;
+                let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
+                self.emit_line(&format!("}} catch ({param}) {{"));
+                self.store_locals.borrow_mut().push(param.clone());
+                self.indent += 1;
+                for s in &t.catch_body {
+                    self.emit_store_statement(s, store_states, action_params);
+                }
+                self.indent -= 1;
+                self.store_locals.borrow_mut().pop();
+                self.emit_line("}");
+            }
+            StatementKind::For(f) => {
+                let list = self.emit_store_expr(&f.iterable, store_states);
+                match &f.index {
+                    Some(index) => self.emit_line(&format!(
+                        "for (const [{index}, {}] of Array.from({list}).entries()) {{",
+                        f.item
+                    )),
+                    None => self.emit_line(&format!("for (const {} of {list}) {{", f.item)),
+                }
+                self.store_locals.borrow_mut().push(f.item.clone());
+                if let Some(index) = &f.index {
+                    self.store_locals.borrow_mut().push(index.clone());
+                }
+                self.indent += 1;
+                for s in &f.body {
+                    self.emit_store_statement(s, store_states, action_params);
+                }
+                self.indent -= 1;
+                if f.index.is_some() {
+                    self.store_locals.borrow_mut().pop();
+                }
+                self.store_locals.borrow_mut().pop();
+                self.emit_line("}");
+            }
+            StatementKind::Log(expr) => {
+                let val = self.emit_store_expr(expr, store_states);
+                self.emit_line(&format!("console.log({});", val));
             }
             StatementKind::Return(expr) => {
                 // Used to fall through to the page emitter, so a returned
@@ -1011,6 +1099,9 @@ impl JsCodegen {
         self.refs = crate::sema::types::ref_names(&comp.body);
         self.own_names = declared_names(&comp.body);
         self.emit_pending_signals(&comp.body);
+        // A form handle resolves as a bare name like a ref does, but is
+        // declared here, once, as a form.
+        let handles = self.refs.clone();
         for name in crate::sema::types::form_names(&comp.body) {
             self.emit_line(&format!("const {name} = WF.form();"));
             self.refs.push(name);
@@ -1044,7 +1135,7 @@ impl JsCodegen {
             "_p = WF.props(_p, {{ {} }});",
             defaults.join(", ")
         ));
-        for name in self.refs.clone() {
+        for name in handles {
             self.emit_line(&format!("const {name} = WF.ref();"));
         }
 
@@ -1087,6 +1178,7 @@ impl JsCodegen {
         self.refs = crate::sema::types::ref_names(&page.body);
         self.own_names = declared_names(&page.body);
         self.emit_pending_signals(&page.body);
+        let handles = self.refs.clone();
         for name in crate::sema::types::form_names(&page.body) {
             self.emit_line(&format!("const {name} = WF.form();"));
             self.refs.push(name);
@@ -1114,7 +1206,7 @@ impl JsCodegen {
                 .collect();
             self.emit_line(&format!("WF.head([{}]);", tags.join(", ")));
         }
-        for name in self.refs.clone() {
+        for name in handles {
             self.emit_line(&format!("const {name} = WF.ref();"));
         }
 
@@ -1567,15 +1659,15 @@ impl JsCodegen {
                                     }
                                 }
                                 "visible" => {
-                                    if let Expr::Identifier(state_name) = val {
-                                        // Handle Modal/Dialog visibility
-                                        attrs.push(format!(
-                                            "className: () => _{}() ? '{} open' : '{}'",
-                                            state_name,
-                                            classes.join(" "),
-                                            classes.join(" ")
-                                        ));
-                                    }
+                                    // Modal/Dialog visibility, from any
+                                    // expression that reads state.
+                                    let read = self.emit_expr(val);
+                                    attrs.push(format!(
+                                        "className: () => {} ? '{} open' : '{}'",
+                                        read,
+                                        classes.join(" "),
+                                        classes.join(" ")
+                                    ));
                                 }
                                 // A field's label, hint and error are elements
                                 // beside the control, built by `WF.field` below.
@@ -1629,12 +1721,15 @@ impl JsCodegen {
                                     // attribute they would replace the
                                     // engine's.
                                 }
+                                // `Grid(columns: 3)`: a `data-cols` the stylesheet
+                                // reads, so no inline style is needed under a
+                                // strict CSP; a value that reads state follows it.
                                 "columns" => {
-                                    if let Expr::NumberLiteral(n) = val {
-                                        attrs.push(format!(
-                                            "style: {{ gridTemplateColumns: 'repeat({}, 1fr)' }}",
-                                            *n as i32
-                                        ));
+                                    let v = self.emit_expr(val);
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("\"data-cols\": () => {v}"));
+                                    } else {
+                                        attrs.push(format!("\"data-cols\": {v}"));
                                     }
                                 }
                                 "title" => {
@@ -1659,8 +1754,15 @@ impl JsCodegen {
                                 }
                                 "icon" => {
                                     let v = self.emit_expr(val);
-                                    attrs.push(format!("\"data-icon\": {}", v));
+                                    if self.is_reactive(&v) {
+                                        attrs.push(format!("\"data-icon\": () => {}", v));
+                                    } else {
+                                        attrs.push(format!("\"data-icon\": {}", v));
+                                    }
                                 }
+                                // `Code(…, language: "wf")`: paired with the
+                                // content below, into a `highlight` attribute.
+                                "language" if name == "Code" => {}
                                 _ => {
                                     // Any other named argument is an HTML
                                     // attribute. A hyphenated name (`aria-*`,
@@ -1823,6 +1925,29 @@ impl JsCodegen {
                     attrs.push(entry);
                 }
 
+                // `Code(…, language: "wf")`: the content and the language go
+                // to the runtime's highlighter, not in as text.
+                if name == "Code"
+                    && let Some(lang) = ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, v) if k == "language" => Some(self.emit_expr(v)),
+                        _ => None,
+                    })
+                    && let Some(text) = inner_text.take()
+                {
+                    let getter = |v: &str| {
+                        if self.is_reactive(v) {
+                            format!("() => {v}")
+                        } else {
+                            v.to_string()
+                        }
+                    };
+                    attrs.push(format!(
+                        "highlight: {{ code: {}, lang: {} }}",
+                        getter(&text),
+                        getter(&lang)
+                    ));
+                }
+
                 let attrs_str = if attrs.is_empty() {
                     "{}".to_string()
                 } else {
@@ -1941,7 +2066,8 @@ impl JsCodegen {
                     }
                 }
 
-                // Inner text content
+                // Inner text content — unless a `Code` with a `language:`
+                // took it into its `highlight` attribute above.
                 if let Some(text) = &inner_text {
                     if self.is_reactive(text) {
                         children_arr.push(format!("() => {}", text));
@@ -2372,18 +2498,29 @@ impl JsCodegen {
             }
         });
 
-        // Check for visible binding
-        let visible_state = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "visible" {
-                    if let Expr::Identifier(s) = v {
-                        return Some(s.clone());
-                    }
+        // `visible:` is any expression that reads state: a page's own
+        // (`visible: open`), a store's (`visible: Ui.palette`), or a
+        // condition (`visible: Ui.confirmId != null`). The first two are
+        // written back when the browser closes the dialog itself.
+        let visible = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "visible" => Some(v),
+            _ => None,
+        });
+        let visible_binding = visible.map(|v| {
+            let read = self.emit_expr(v);
+            let write = match v {
+                Expr::Identifier(_) if self.is_state_signal(v) => {
+                    Some(format!("(v) => {}.set(v)", read.trim_end_matches("()")))
                 }
-                None
-            } else {
-                None
-            }
+                Expr::PropertyAccess(..) if self.is_store_member(v, &read) => {
+                    Some(format!("(v) => {{ {read} = v; }}"))
+                }
+                _ => None,
+            };
+            format!(
+                "() => {read}, {}",
+                write.unwrap_or_else(|| "null".to_string())
+            )
         });
 
         // The root carries the modifier classes too; `class` stays the bare base
@@ -2466,8 +2603,8 @@ impl JsCodegen {
         // writes the signal back when the browser closes the dialog itself — via
         // Escape or the backdrop — so the state cannot drift out of sync with
         // what is on screen.
-        if let Some(state_name) = visible_state {
-            self.emit_line(&format!("WF.dialog({}, _{});", var, state_name));
+        if let Some(binding) = visible_binding {
+            self.emit_line(&format!("WF.dialog({var}, {binding});"));
         }
 
         self.emit_line(&format!("{}.appendChild({});", parent, var));
@@ -2558,6 +2695,24 @@ impl JsCodegen {
         self.emit_line(&format!("{}.appendChild({});", parent, var));
     }
 
+    /// The attributes of a wrapped control that belong on its `<input>`:
+    /// `aria-*`, `data-*`, `name`, `id`, `disabled`, `required`, `tabindex`
+    /// — what a screen reader, a form handle or a stylesheet reads off it.
+    fn control_input_attrs(attrs: &[String]) -> String {
+        attrs
+            .iter()
+            .filter(|a| {
+                let key = a.trim_start_matches('"');
+                key.starts_with("aria-")
+                    || key.starts_with("data-")
+                    || ["name:", "id:", "disabled:", "required:", "tabindex:"]
+                        .iter()
+                        .any(|k| key.starts_with(k))
+            })
+            .map(|a| format!(", {a}"))
+            .collect()
+    }
+
     fn emit_switch(&mut self, var: &str, attrs: &[String], ui: &UIElement, parent: &str) {
         let bind_var = attrs.iter().find_map(|a| {
             if a.starts_with("value: () => _") {
@@ -2589,8 +2744,13 @@ impl JsCodegen {
         if let Some(state) = &bind_var {
             let input_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => _{}(), \"aria-checked\": () => _{}() ? \"true\" : \"false\",                  \"on:change\": () => _{}.set(!_{}()) }});",
-                input_var, state, state, state, state
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => _{}(), \"aria-checked\": () => _{}() ? \"true\" : \"false\",                  \"on:change\": () => _{}.set(!_{}()){} }});",
+                input_var,
+                state,
+                state,
+                state,
+                state,
+                Self::control_input_attrs(attrs)
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
         }
@@ -2613,7 +2773,7 @@ impl JsCodegen {
         &mut self,
         name: &str,
         var: &str,
-        _attrs: &[String],
+        attrs: &[String],
         ui: &UIElement,
         parent: &str,
     ) {
@@ -2670,6 +2830,15 @@ impl JsCodegen {
 
         let input_var = self.fresh_var();
         let mut input_attrs = format!("type: \"{}\"", input_type);
+        input_attrs.push_str(&Self::control_input_attrs(attrs));
+        // Radios bound to one state are one group: the arrow keys move
+        // between them only when they share a `name`.
+        if name == "Radio"
+            && let Some(state) = &bind_var
+            && !attrs.iter().any(|a| a.starts_with("name:"))
+        {
+            input_attrs.push_str(&format!(", name: \"{state}\""));
+        }
 
         if let Some(state) = &bind_var {
             if name == "Checkbox" {
@@ -3286,19 +3455,47 @@ impl JsCodegen {
                 _ => {}
             }
         }
+        // A `class:` joins the engine's classes; it used to replace them, so
+        // the button lost its size and shape.
+        if let Some(Arg::Named(_, Expr::StringLiteral(extra))) = ui
+            .args
+            .iter()
+            .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
+        {
+            cls.push(' ');
+            cls.push_str(extra);
+        }
 
-        let mut btn_attrs = format!("className: \"{}\", \"data-icon\": {}", cls, icon);
+        let icon_attr = if self.is_reactive(&icon) {
+            format!("() => {icon}")
+        } else {
+            icon.clone()
+        };
+        let mut btn_attrs = format!("className: \"{}\", \"data-icon\": {}", cls, icon_attr);
         if let Some(l) = &label {
+            let l = if self.is_reactive(l) {
+                format!("() => {l}")
+            } else {
+                l.clone()
+            };
             btn_attrs.push_str(&format!(", \"aria-label\": {}", l));
         }
-        btn_attrs.push_str(&format!(", title: {}", label.as_deref().unwrap_or(&icon)));
+        let title = label.as_deref().unwrap_or(&icon);
+        let title = if self.is_reactive(title) {
+            format!("() => {title}")
+        } else {
+            title.to_string()
+        };
+        btn_attrs.push_str(&format!(", title: {title}"));
 
         // Every other named argument is an attribute, as on a Button: `type`,
         // `disabled`, `aria-haspopup`, `data-variant`. A value that reads
         // state is a thunk the runtime keeps in step with it.
         for arg in &ui.args {
             if let Arg::Named(k, v) = arg {
-                if matches!(k.as_str(), "icon" | "label") {
+                if matches!(k.as_str(), "icon" | "label")
+                    || (k == "class" && matches!(v, Expr::StringLiteral(_)))
+                {
                     continue;
                 }
                 let value = self.emit_expr(v);
@@ -4413,6 +4610,17 @@ impl JsCodegen {
 
                 // Map WebFluent methods to JS
                 match method.as_str() {
+                    // `items.push(x)` on a state: the signal is set to a new
+                    // list, so what reads it repaints and a persisted one is
+                    // written; on a store's member, the same through the
+                    // store's setter.
+                    "push" if self.is_state_signal(obj) => {
+                        let signal = obj_str.trim_end_matches("()");
+                        format!("{signal}.set([...{obj_str}, {}])", args_str.join(", "))
+                    }
+                    "push" if self.is_store_member(obj, &obj_str) => {
+                        format!("({obj_str} = [...{obj_str}, {}])", args_str.join(", "))
+                    }
                     "push" => format!("{}.push({})", obj_str, args_str.join(", ")),
                     "remove" => format!("{}.splice({}, 1)", obj_str, args_str.join(", ")),
                     "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
@@ -4476,6 +4684,11 @@ impl JsCodegen {
                 }
 
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                // `await fetch(url, opts)`: the parsed body, as a `resource`
+                // reads it; a failed response throws.
+                if name == "fetch" && !self.own_actions.contains(name) {
+                    return format!("WF.request({})", args_str.join(", "));
+                }
                 // Check if it's a store function
                 if self.stores.contains(name) {
                     format!(
@@ -4661,6 +4874,29 @@ impl JsCodegen {
             {
                 self.emit_line(&format!("const _{}_pending = WF.signal(false);", a.name));
             }
+        }
+    }
+
+    /// Whether `expr` is a bare name that resolves to one of the body's own
+    /// signals — a `state`, `persist` or `let` — rather than a prop, a loop
+    /// binding, a constant or a global.
+    fn is_state_signal(&self, expr: &Expr) -> bool {
+        let Expr::Identifier(name) = expr else {
+            return false;
+        };
+        let emitted = self.emit_expr(expr);
+        emitted == format!("_{name}()")
+    }
+
+    /// Whether `expr` reaches a store's state: `Cart.items` from a page, or
+    /// bare `items` inside the store's own body, emitted as `store.items`.
+    fn is_store_member(&self, expr: &Expr, emitted: &str) -> bool {
+        match expr {
+            Expr::PropertyAccess(base, _) => {
+                matches!(base.as_ref(), Expr::Identifier(s) if self.stores.contains(s))
+            }
+            Expr::Identifier(name) => emitted == format!("store.{name}"),
+            _ => false,
         }
     }
 
@@ -5133,7 +5369,7 @@ mod tests {
             "the key function is in the list's options: {out}"
         );
         assert!(
-            out.contains("async function load()") && out.contains("(await fetch(\"/x\"))"),
+            out.contains("async function load()") && out.contains("(await WF.request(\"/x\"))"),
             "{out}"
         );
     }
@@ -5789,5 +6025,97 @@ mod tests {
         assert!(out.contains("_user()?.profile?.name ?? \"anon\""), "{out}");
         assert!(out.contains("_user()?.tags?.[0]"), "{out}");
         assert!(out.contains("_user()?.name?.toUpperCase()"), "{out}");
+    }
+
+    #[test]
+    fn push_on_a_state_sets_a_new_list_so_readers_repaint() {
+        let out = compile(
+            "store Cart { state items: [String] = []\n action add(x: String) { items.push(x) } }\npage P(path: \"/\") { use Cart\n state tags: [String] = []\n state form = { tags: [\"a\"] }\n action go() { tags.push(\"x\")  Cart.items.push(\"y\")  form.tags.push(\"z\") }\n Text(\"{tags.length}\") }",
+        );
+        assert!(out.contains("_tags.set([..._tags(), \"x\"])"), "{out}");
+        assert!(
+            out.contains("(Cart.items = [...Cart.items, \"y\"])"),
+            "{out}"
+        );
+        assert!(out.contains("(store.items = [...store.items, x])"), "{out}");
+        // A nested list is the writer's own object: pushed in place.
+        assert!(out.contains("_form().tags.push(\"z\")"), "{out}");
+    }
+
+    #[test]
+    fn a_wrapped_control_carries_its_aria_data_and_name_attributes_on_the_input() {
+        let out = compile(
+            "page P(path: \"/\") { state on = false\n state pick = \"a\"\n Checkbox(bind: on, aria-label: \"Done\", name: \"done\", disabled: true)\n Radio(bind: pick, value: \"a\", label: \"A\", aria-describedby: \"h\")\n Switch(bind: on, label: \"S\", data-kind: \"x\") }",
+        );
+        assert!(out.contains("type: \"checkbox\", \"aria-label\": \"Done\", name: \"done\", disabled: true, checked:"), "{out}");
+        assert!(
+            out.contains("type: \"radio\", \"aria-describedby\": \"h\", name: \"pick\", checked:"),
+            "{out}"
+        );
+        assert!(
+            out.contains("role: \"switch\"") && out.contains("\"data-kind\": \"x\" })"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn a_store_action_keeps_its_own_names_inside_try_for_and_else_if() {
+        let out = compile(
+            "store S { state user: Map? = null\n state error = \"\"\n state n = 0\n action login(email: String, rows: [Map]) { try { let r = await fetch(\"/x\")\n user = r.user\n for row, i in rows { if row.ok { n = n + i } else if row.bad { log(row) } else { n = 0 } } } catch e { error = e.message } } }\npage P(path: \"/\") { use S\n Text(\"x\") }",
+        );
+        let i = out.find("login: async").unwrap();
+        let action = &out[i..out[i..].find("},\n").map(|j| i + j).unwrap_or(out.len())];
+        for expected in [
+            "const r = (await WF.request(\"/x\"));",
+            "store.user = r.user;",
+            "for (const [i, row] of Array.from(rows).entries()) {",
+            "if (row.ok) {",
+            "store.n = (store.n + i);",
+            "} else if (row.bad) {",
+            "console.log(row);",
+            "} catch (e) {",
+            "store.error = e.message;",
+        ] {
+            assert!(action.contains(expected), "{expected} in {action}");
+        }
+        assert!(
+            !action.contains("_user") && !action.contains("WF.signal("),
+            "{action}"
+        );
+    }
+
+    #[test]
+    fn a_dialogs_visible_may_be_a_state_a_store_member_or_a_condition() {
+        let out = compile(
+            "store Ui { state palette = false\n state confirmId: String? = null }\npage P(path: \"/\") { use Ui\n state open = false\n Modal(visible: open, title: \"a\") { Text(\"x\") }\n Modal(visible: Ui.palette, title: \"b\") { Text(\"y\") }\n Dialog(visible: Ui.confirmId != null, title: \"c\") { Text(\"z\") } }",
+        );
+        assert!(
+            out.contains("() => _open(), (v) => _open.set(v));"),
+            "{out}"
+        );
+        assert!(
+            out.contains("() => Ui.palette, (v) => { Ui.palette = v; });"),
+            "{out}"
+        );
+        assert!(
+            out.contains("() => (Ui.confirmId !== null), null);"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn an_icon_buttons_class_joins_the_engines_and_its_icon_follows_state() {
+        let out = compile(
+            "page P(path: \"/\") { state dark = false\n IconButton(icon: if dark { \"sun\" } else { \"moon\" }, label: \"Theme\", class: \"site-icon-button\") { on click { dark = !dark } } }",
+        );
+        assert!(
+            out.contains("className: \"wf-icon-btn site-icon-button\""),
+            "{out}"
+        );
+        assert!(
+            out.contains("\"data-icon\": () => (_dark() ? \"sun\" : \"moon\")"),
+            "{out}"
+        );
+        assert!(!out.contains("class: \"site-icon-button\""), "{out}");
     }
 }

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expressions</title>
+    <meta name="description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Expressions">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Expressions">
+    <meta name="twitter:description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions","name":"Expressions","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Expressions","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/Expressions.js" data-wf-page="Expressions" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/expressions" aria-current="page">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 11</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Expressions</h1>
+                        <p class="wf-text wf-s38239618">The full expression language: literals, interpolation, operators, values that choose, calls, formatting and await.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>An expression is a value: a prop's value, a condition, the right side of a <code>state</code> or <code>derived</code>, the inside of <code>￾…￿</code> in a string. This chapter is the full expression language.</p>
+                            </div>
+                            <h2 class="wf-heading">Literals</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Literals(path: &quot;/&quot;) {
+    state s = &quot;text&quot;                        // String
+    state n = 42                            // Number
+    state f = 3.14                          // Number
+    state b = true                          // Bool
+    state nothing: String? = null           // null
+    state list = [1, 2, 3]                  // [Number]
+    state map = { name: &quot;Sam&quot;, age: 30 }    // a shape with those fields
+    state re = /^[a-z]+$/i                  // a regex
+    state color = $primary                  // a design token
+    Text(&quot;{s} {n} {f} {b} {list.length} {map.name}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Strings are double-quoted; <code>\&quot;</code>, <code>\\</code>, <code>\n</code> and <code>\t</code> escape. Lists and map literals may span lines and take a trailing comma.</p>
+                            </div>
+                            <h2 class="wf-heading">Interpolation</h2>
+                            <div class="wf-markdown">
+<p><code>&quot;￾expr￿&quot;</code> puts a value into a string; anything that shows text accepts one:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Interp(path: &quot;/&quot;) {
+    state name = &quot;Sam&quot;
+    state n = 3
+    derived items = if n == 1 { &quot;item&quot; } else { &quot;items&quot; }
+    Text(&quot;Hello, {name}: {n} {items}&quot;)
+    Text(&quot;Total: {format(n * 9.99, .currency)}&quot;)
+    Text(&quot;Next: {n + 1}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Anything that is an expression goes inside <code>￾…￿</code> — a call, a method chain, an <code>if</code>, even a string of its own: <code>&quot;￾n ?? &quot;none&quot;￿&quot;</code> and <code>&quot;￾if ok ￾ &quot;yes&quot; ￿ else ￾ &quot;no&quot; ￿￿&quot;</code> both work, as long as the group closes on the same line. A brace group that is not an expression (<code>&quot;￾key: value￿&quot;</code> in prose, a fragment of code) stays text. For anything long, a <code>derived</code> reads better, as <code>items</code> above.</p>
+                            </div>
+                            <h2 class="wf-heading">Operators</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Operators</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Kind</th>
+                                        <th scope="col">Operators</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Arithmetic</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>+ - * / %</code>, unary <code>-</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Comparison</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>== != &lt; &lt;= &gt; &gt;=</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Logic</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>`&amp;&amp; \</p>
+                                            </div>
+                                        </td>
+                                        <td>\</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>!`</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Null</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>??</code> fallback, <code>?.</code> optional chain</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Range</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>a..b</code> (exclusive), <code>a..=b</code> (inclusive)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Spread</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[...a, x]</code>, <code>￾ ...m, key: v ￿</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Grouping</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>( )</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p><code>+</code> joins strings when either side is a <code>String</code>, and adds numbers otherwise. <code>==</code> compares values; two records with the same fields are not <code>==</code> unless they are the same object, so compare ids. Precedence is the usual: <code>!</code> and unary <code>-</code>, then <code>* / %</code>, <code>+ -</code>, comparisons, <code>&amp;&amp;</code>, <code>||</code>, <code>??</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Ops(path: &quot;/&quot;) {
+    state a = 7
+    state b = 2
+    state user: Map? = null
+    Text(&quot;{a + b} {a - b} {a * b} {a / b} {a % b}&quot;)
+    Text(if a &gt; b &amp;&amp; b != 0 { &quot;a wins&quot; } else { &quot;b wins&quot; })
+    Text(user?.name ?? &quot;guest&quot;)
+    for n in 1..=3 { Badge(&quot;{n}&quot;) }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Choosing a value</h2>
+                            <div class="wf-markdown">
+<p><code>if</code> and <code>match</code> are expressions when they stand where a value is expected; each arm's block is its value:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Level { low, mid, high }
+
+page Choose(path: &quot;/&quot;) {
+    state score = 72
+    state level: Level = .mid
+    derived grade = if score &gt;= 90 { &quot;A&quot; } else if score &gt;= 70 { &quot;B&quot; } else { &quot;C&quot; }
+    derived tone = match level { .low { &quot;calm&quot; } .mid { &quot;steady&quot; } else { &quot;loud&quot; } }
+    Text(&quot;{grade} {tone}&quot;)
+    Badge(grade, tone: if score &gt;= 70 { .success } else { .danger })
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>match</code> expression always ends with an <code>else</code> arm, so it has a value whatever comes; a <code>match</code> statement may list only the arms it shows.</p>
+                            </div>
+                            <h2 class="wf-heading">Fields, calls and methods</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+
+page Calls(path: &quot;/&quot;) {
+    state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;milk&quot;), Todo(id: &quot;2&quot;, title: &quot;eggs&quot;, done: true)]
+    state q = &quot;M&quot;
+    derived open = todos.filter(t =&gt; !t.done)
+    derived titles = todos.map(t =&gt; t.title.capitalize())
+    derived hits = todos.filter(t =&gt; t.title.toLowerCase().includes(q.toLowerCase()))
+    derived first = todos.first()
+    derived count = todos.length
+    derived summary = titles.join(&quot;, &quot;)
+    Text(&quot;{count} todos, {open.length} open, {hits.length} match: {summary}&quot;)
+    if let f = first { Text(&quot;First: {f.title}&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Lambdas are <code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code> or <code>() =&gt; expr</code> — an expression body, which may call an action when it needs to do more; a parameter's type comes from what the method expects.</p>
+                            </div>
+                            <h3 class="wf-heading">String methods</h3>
+                            <div class="wf-markdown">
+<p><code>length</code>, <code>trim()</code>, <code>toLowerCase()</code>, <code>toUpperCase()</code>, <code>capitalize()</code>, <code>truncate(n)</code>, <code>includes(s)</code>, <code>startsWith(s)</code>, <code>endsWith(s)</code>, <code>indexOf(s)</code>, <code>slice(a, b)</code>, <code>substring(a, b)</code>, <code>charAt(i)</code>, <code>replace(a, b)</code>, <code>split(sep)</code>, <code>padStart(n, c)</code>, <code>padEnd(n, c)</code>, <code>repeat(n)</code>, <code>match(re)</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">List methods</h3>
+                            <div class="wf-markdown">
+<p><code>length</code>, <code>map(f)</code>, <code>filter(f)</code>, <code>find(f)</code>, <code>findIndex(f)</code>, <code>some(f)</code>, <code>every(f)</code>, <code>includes(x)</code>, <code>indexOf(x)</code>, <code>reduce(f, init)</code>, <code>join(sep)</code>, <code>slice(a, b)</code>, <code>concat(other)</code>, <code>reverse()</code>, <code>sort(f)</code>, <code>sortBy(f)</code>, <code>groupBy(f)</code>, <code>unique()</code>, <code>take(n)</code>, <code>first()</code>, <code>last()</code>, <code>sum()</code>, <code>flatMap(f)</code>, and, in an imperative block, <code>push(x)</code>.</p>
+<p><code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>sum</code>, <code>capitalize</code> and <code>truncate</code> are WebFluent's own; the rest are the browser's.</p>
+                            </div>
+                            <h3 class="wf-heading">Number methods</h3>
+                            <div class="wf-markdown">
+<p><code>toFixed(n)</code>, <code>toString()</code>. <code>Number(&quot;12&quot;)</code> converts a string; <code>&quot;￾n￿&quot;</code> or <code>String(n)</code> converts a number. <code>Math.round</code>, <code>Math.max</code> and friends are available as <code>Math.*</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">format and ago</h2>
+                            <div class="wf-markdown">
+<p><code>format(value, style, option)</code> formats numbers and dates in the reader's locale (the <code>locale</code> of the app, or the browser's):</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Format(path: &quot;/&quot;) {
+    state price = 1234.5
+    state ratio = 0.256
+    state big = 1200000
+    state when = &quot;2026-03-14T09:30:00&quot;
+    Text(format(price, .currency))                 // $1,234.50
+    Text(format(price, .currency, &quot;EUR&quot;))          // €1,234.50
+    Text(format(ratio, .percent))                  // 26%
+    Text(format(ratio, .percent, 1))               // 25.6%
+    Text(format(price, .decimal, 1))               // 1,234.5
+    Text(format(big, .integer))                    // 1,200,000
+    Text(format(big, .compact))                    // 1.2M
+    Text(format(when, .date))                      // Mar 14, 2026
+    Text(format(when, .date, &quot;long&quot;))              // March 14, 2026
+    Text(format(when, .time))                      // 9:30 AM
+    Text(format(when, .datetime))                  // Mar 14, 2026, 9:30 AM
+    Text(format(when, &quot;EEEE d MMMM yyyy, HH:mm&quot;))  // Saturday 14 March 2026, 09:30
+    Text(ago(when))                                // 3 days ago
+    Text(format(when, .relative))                  // the same
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Styles: <code>.integer</code>, <code>.decimal(places)</code>, <code>.currency(code)</code>, <code>.percent(places)</code>, <code>.compact</code>, <code>.date(short|medium|long|full)</code>, <code>.time</code>, <code>.datetime</code>, <code>.relative</code>, or a pattern string of <code>yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a</code>. <code>ago(date)</code> gives &quot;just now&quot;, &quot;5 minutes ago&quot;, &quot;in 2 days&quot;. The static paint formats with a built-in table for the common locales and currencies; the live page uses <code>Intl</code> and corrects any difference.</p>
+                            </div>
+                            <h2 class="wf-heading">Regular expressions</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Regex(path: &quot;/&quot;) {
+    state email = &quot;&quot;
+    derived valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+    derived domain = email.split(&quot;@&quot;).last() ?? &quot;&quot;
+    Input(bind: email, label: &quot;Email&quot;)
+    if email != &quot;&quot; &amp;&amp; !valid { Text(&quot;That does not look like an email.&quot;).danger.sm }
+    Text(&quot;Domain: {domain}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>/…/flags</code> is a regex; <code>re.test(s)</code> is a <code>Bool</code>, <code>s.match(re)</code> and <code>re.exec(s)</code> a <code>[String]?</code>, <code>s.replace(re, &quot;x&quot;)</code> a <code>String</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Tokens as values</h2>
+                            <div class="wf-markdown">
+<p><code>$name</code> names a design token from the theme (<a href="/WebFluent/docs/guide/styling">chapter 12</a>). In a style it becomes the CSS variable; as a value it is the variable reference, so a prop that takes a color takes a token:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Tokens(path: &quot;/&quot;) {
+    state accent = $primary
+    Card {
+        style { border-left: 4px solid {accent} }
+        Text(&quot;Accent from a token&quot;)
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">await</h2>
+                            <div class="wf-markdown">
+<p><code>await</code> waits for a promise in an action or handler, and makes the action asynchronous:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Await(path: &quot;/&quot;) {
+    state rows: [Map] = []
+    state note = &quot;&quot;
+    action load() {
+        let r = await fetch(&quot;/api/rows&quot;)
+        rows = r.rows
+        let text = await fetch(&quot;/api/note&quot;, { method: &quot;GET&quot; })
+        note = text.note
+    }
+    Button(&quot;Load&quot;, disabled: load.pending) { on click { load() } }
+    Text(&quot;{rows.length} rows, note: {note}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>fetch(url, options)</code> returns the parsed JSON body (or throws on a failed response); <code>options</code> is a map with <code>method</code>, <code>headers</code>, <code>body</code> (a map is sent as JSON). <a href="/WebFluent/docs/guide/data">Chapter 14</a> has <code>resource</code>, the declarative form.</p>
+                            </div>
+                            <h2 class="wf-heading">Constants and environment</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">const MAX_ROWS = 50
+const API = env.API_URL ?? &quot;/api&quot;
+
+page Consts(path: &quot;/&quot;) {
+    Text(&quot;Up to {MAX_ROWS} rows from {API}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>const</code> declares a project-wide value; <code>env.NAME</code> reads a variable from the build environment (and <code>.env</code> in the project root). Both are inlined.</p>
+                            </div>
+                            <h2 class="wf-heading">Built-in functions</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Built-in functions</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>log(x, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Prints to the console</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>navigate(path)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Changes the route (<a href="/WebFluent/docs/guide/pages-and-routing#navigating">chapter 3</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>format</code>, <code>ago</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Above</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>t(&quot;key&quot;, args)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Translates (<a href="/WebFluent/docs/guide/i18n">chapter 15</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>setTheme(&quot;dark&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Switches the theme (<a href="/WebFluent/docs/guide/styling#dark-mode">chapter 12</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Number(x)</code>, <code>String(x)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Convert</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>every(ms) ￾ ￿</code>, <code>after(ms) ￾ ￿</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Timers (<a href="/WebFluent/docs/guide/state#timers">chapter 5</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/types">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">10. Types</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/styling">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">12. Styling</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#literals">Literals</a>
+                        <a class="wf-link wf-sdae384de" href="#interpolation">Interpolation</a>
+                        <a class="wf-link wf-sdae384de" href="#operators">Operators</a>
+                        <a class="wf-link wf-sdae384de" href="#choosing-a-value">Choosing a value</a>
+                        <a class="wf-link wf-sdae384de" href="#fields-calls-and-methods">Fields, calls and methods</a>
+                        <a class="wf-link wf-sdae384de" href="#format-and-ago">format and ago</a>
+                        <a class="wf-link wf-sdae384de" href="#regular-expressions">Regular expressions</a>
+                        <a class="wf-link wf-sdae384de" href="#tokens-as-values">Tokens as values</a>
+                        <a class="wf-link wf-sdae384de" href="#await">await</a>
+                        <a class="wf-link wf-sdae384de" href="#constants-and-environment">Constants and environment</a>
+                        <a class="wf-link wf-sdae384de" href="#built-in-functions">Built-in functions</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

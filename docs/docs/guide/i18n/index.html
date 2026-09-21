@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internationalisation</title>
+    <meta name="description" content="Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Internationalisation">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Internationalisation">
+    <meta name="twitter:description" content="Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n","name":"Internationalisation","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Internationalisation","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/I18nChapter.js" data-wf-page="I18nChapter" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/i18n" aria-current="page">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 15</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Internationalisation</h1>
+                        <p class="wf-text wf-s38239618">One JSON file per locale, t() to read it, and a switch that flips the whole site.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>A site speaks several languages by keeping its text in one JSON file per locale and reading it with <code>t(&quot;key&quot;)</code>. Switching the locale re-renders every translated string, flips the document to right-to-left where the language reads that way, and changes how <code>format</code> and <code>ago</code> spell numbers and dates.</p>
+                            </div>
+                            <h2 class="wf-heading">Setting up</h2>
+                            <div class="wf-markdown">
+<p>In <code>webfluent.app.json</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;i18n&quot;: {
+    &quot;default_locale&quot;: &quot;en&quot;,
+    &quot;locales&quot;: [&quot;en&quot;, &quot;ar&quot;, &quot;es&quot;],
+    &quot;dir&quot;: &quot;src/translations&quot;
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>One file per locale in that directory, flat keys with dots by convention:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;nav.home&quot;: &quot;Home&quot;,
+  &quot;nav.about&quot;: &quot;About&quot;,
+  &quot;welcome&quot;: &quot;Welcome, {name}!&quot;,
+  &quot;items.one&quot;: &quot;{count} item&quot;,
+  &quot;items.other&quot;: &quot;{count} items&quot;,
+  &quot;actions.save&quot;: &quot;Save&quot;
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;nav.home&quot;: &quot;الرئيسية&quot;,
+  &quot;nav.about&quot;: &quot;حول&quot;,
+  &quot;welcome&quot;: &quot;أهلاً، {name}!&quot;,
+  &quot;items.zero&quot;: &quot;لا عناصر&quot;,
+  &quot;items.one&quot;: &quot;عنصر واحد&quot;,
+  &quot;items.two&quot;: &quot;عنصران&quot;,
+  &quot;items.few&quot;: &quot;{count} عناصر&quot;,
+  &quot;items.many&quot;: &quot;{count} عنصراً&quot;,
+  &quot;items.other&quot;: &quot;{count} عنصر&quot;,
+  &quot;actions.save&quot;: &quot;حفظ&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.</p>
+                            </div>
+                            <h2 class="wf-heading">t(&quot;key&quot;)</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type User { name: String }
+
+page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The home page.&quot;) {
+    state user = User(name: &quot;Sam&quot;)
+    state items: [String] = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]
+    Heading(t(&quot;welcome&quot;, { name: user.name })).h1
+    Text(t(&quot;items&quot;, { count: items.length }))
+    Button(t(&quot;actions.save&quot;)).primary
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>t(&quot;key&quot;)</code> is the string for the current locale, reactive: every call re-evaluates when the locale changes.</li>
+<li><code>t(&quot;key&quot;, ￾ name: value ￿)</code> fills <code>￾name￿</code> placeholders from the map.</li>
+<li>A <code>count</code> picks the plural form: <code>key.one</code> when the locale's rules say &quot;one&quot;, <code>key.other</code> otherwise, and <code>key.zero</code>, <code>key.two</code>, <code>key.few</code>, <code>key.many</code> when the file has them and the locale calls for them (Arabic has all six; English two). Falls back to <code>key.other</code>, then <code>key</code>.</li>
+<li>The static paint resolves <code>t</code> for the default locale at build time, so the pre-rendered HTML is already in the default language.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Switching the locale</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">app {
+    state chosen = &quot;en&quot;
+    Navbar {
+        Navbar.Brand { Link(&quot;i18n&quot;, to: &quot;/&quot;) }
+        Navbar.Links {
+            Link(t(&quot;nav.home&quot;), to: &quot;/&quot;)
+            Link(t(&quot;nav.about&quot;), to: &quot;/about&quot;)
+        }
+        Navbar.Actions {
+            Select(bind: chosen, label: t(&quot;nav.language&quot;)) {
+                on change { setLocale(chosen) }
+                Select.Option(&quot;English&quot;, value: &quot;en&quot;)
+                Select.Option(&quot;العربية&quot;, value: &quot;ar&quot;)
+                Select.Option(&quot;Español&quot;, value: &quot;es&quot;)
+            }
+        }
+    }
+    Router
+}
+
+page Home(path: &quot;/&quot;) {
+    Text(&quot;Locale: {locale}, direction: {dir}&quot;)
+    if locale == &quot;ar&quot; { Text(&quot;النسخة العربية&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>setLocale(&quot;ar&quot;)</code> switches; <code>locale</code> is the current code and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. On a switch, <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code> are set: <code>ar</code>, <code>he</code>, <code>fa</code> and <code>ur</code> are right-to-left, everything else left-to-right. The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so layouts mirror without work on your side; do the same in your own <code>style</code> blocks.</p>
+<p>An <code>app</code> block may declare <code>state</code> like a page, as <code>chosen</code> above.</p>
+                            </div>
+                            <h2 class="wf-heading">Numbers, dates and the locale</h2>
+                            <div class="wf-markdown">
+<p><code>format</code> and <code>ago</code> follow the current locale (<a href="/WebFluent/docs/guide/expressions#format-and-ago">chapter 11</a>): <code>format(1234.5, .currency, &quot;EUR&quot;)</code> is <code>€1,234.50</code> in <code>en</code>, <code>1.234,50 €</code> in <code>de</code>; <code>ago(date)</code> says &quot;il y a 3 jours&quot; in <code>fr</code>. The static paint uses a table of the common locales' separators and currency symbols; the live page uses <code>Intl</code> and corrects any difference.</p>
+                            </div>
+                            <h2 class="wf-heading">Translating a Markdown page or a .md page</h2>
+                            <div class="wf-markdown">
+<p>Text inside a <code>.md</code> page is not passed through <code>t</code>; keep one Markdown file per locale and route by a <code>:locale</code> parameter, or keep the long-form text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Checklist</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>Every visible string goes through <code>t</code>, including <code>label:</code>, <code>placeholder:</code> and <code>aria-label:</code> values.</li>
+<li>Never build a sentence from parts (<code>t(&quot;x&quot;) + name</code>); use a placeholder so a translator can reorder it.</li>
+<li>Give every count a plural key pair, even in English.</li>
+<li>Test with an RTL locale once: alignment, icons that imply direction (arrows), and any <code>left</code>/<code>right</code> in your own CSS.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/data">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">14. Data</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/content">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">16. Content</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#setting-up">Setting up</a>
+                        <a class="wf-link wf-sdae384de" href="#t-key">t(&quot;key&quot;)</a>
+                        <a class="wf-link wf-sdae384de" href="#switching-the-locale">Switching the locale</a>
+                        <a class="wf-link wf-sdae384de" href="#numbers-dates-and-the-locale">Numbers, dates and the locale</a>
+                        <a class="wf-link wf-sdae384de" href="#translating-a-markdown-page-or-a-md-page">Translating a Markdown page or a .md page</a>
+                        <a class="wf-link wf-sdae384de" href="#checklist">Checklist</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

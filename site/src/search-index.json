@@ -1,0 +1,1046 @@
+[
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "",
+  "route": "/docs/guide/getting-started"
+ },
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "Install",
+  "route": "/docs/guide/getting-started#install"
+ },
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "A first project",
+  "route": "/docs/guide/getting-started#a-first-project"
+ },
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "The smallest site",
+  "route": "/docs/guide/getting-started#the-smallest-site"
+ },
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "What a build produces",
+  "route": "/docs/guide/getting-started#what-a-build-produces"
+ },
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "Project layout",
+  "route": "/docs/guide/getting-started#project-layout"
+ },
+ {
+  "chapter": "01",
+  "title": "Getting started",
+  "section": "The config file",
+  "route": "/docs/guide/getting-started#the-config-file"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "",
+  "route": "/docs/guide/language-basics"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "A file is a list of declarations",
+  "route": "/docs/guide/language-basics#a-file-is-a-list-of-declarations"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "Naming",
+  "route": "/docs/guide/language-basics#naming"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "Comments",
+  "route": "/docs/guide/language-basics#comments"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "Bodies",
+  "route": "/docs/guide/language-basics#bodies"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "Two layouts: .wf and .wfx",
+  "route": "/docs/guide/language-basics#two-layouts-wf-and-wfx"
+ },
+ {
+  "chapter": "02",
+  "title": "Language basics",
+  "section": "Strings",
+  "route": "/docs/guide/language-basics#strings"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "",
+  "route": "/docs/guide/pages-and-routing"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Declaring a page",
+  "route": "/docs/guide/pages-and-routing#declaring-a-page"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "The app shell",
+  "route": "/docs/guide/pages-and-routing#the-app-shell"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Links and navigation",
+  "route": "/docs/guide/pages-and-routing#links-and-navigation"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Route parameters",
+  "route": "/docs/guide/pages-and-routing#route-parameters"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Layouts",
+  "route": "/docs/guide/pages-and-routing#layouts"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Guards",
+  "route": "/docs/guide/pages-and-routing#guards"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Per-page head tags",
+  "route": "/docs/guide/pages-and-routing#per-page-head-tags"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "The catch-all page",
+  "route": "/docs/guide/pages-and-routing#the-catch-all-page"
+ },
+ {
+  "chapter": "03",
+  "title": "Pages and routing",
+  "section": "Where the code runs",
+  "route": "/docs/guide/pages-and-routing#where-the-code-runs"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "",
+  "route": "/docs/guide/elements"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "The call shape",
+  "route": "/docs/guide/elements#the-call-shape"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "Props, cases and flags",
+  "route": "/docs/guide/elements#props-cases-and-flags"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "Attributes",
+  "route": "/docs/guide/elements#attributes"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "Parts",
+  "route": "/docs/guide/elements#parts"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "Text and headings",
+  "route": "/docs/guide/elements#text-and-headings"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "Layout elements",
+  "route": "/docs/guide/elements#layout-elements"
+ },
+ {
+  "chapter": "04",
+  "title": "Elements",
+  "section": "What the compiler checks on every element",
+  "route": "/docs/guide/elements#what-the-compiler-checks-on-every-element"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "",
+  "route": "/docs/guide/state"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "state",
+  "route": "/docs/guide/state#state"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "derived",
+  "route": "/docs/guide/state#derived"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "effect",
+  "route": "/docs/guide/state#effect"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "Actions and locals",
+  "route": "/docs/guide/state#actions-and-locals"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "persist",
+  "route": "/docs/guide/state#persist"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "Timers",
+  "route": "/docs/guide/state#timers"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "Ownership: what leaves, leaves",
+  "route": "/docs/guide/state#ownership-what-leaves-leaves"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "Element handles",
+  "route": "/docs/guide/state#element-handles"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "The browser as values",
+  "route": "/docs/guide/state#the-browser-as-values"
+ },
+ {
+  "chapter": "05",
+  "title": "State and reactivity",
+  "section": "Where values come from, in order",
+  "route": "/docs/guide/state#where-values-come-from-in-order"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "",
+  "route": "/docs/guide/events-and-forms"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Handlers",
+  "route": "/docs/guide/events-and-forms#handlers"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Keys",
+  "route": "/docs/guide/events-and-forms#keys"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Two-way binding",
+  "route": "/docs/guide/events-and-forms#two-way-binding"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Forms",
+  "route": "/docs/guide/events-and-forms#forms"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Pending actions",
+  "route": "/docs/guide/events-and-forms#pending-actions"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Emitting events from components",
+  "route": "/docs/guide/events-and-forms#emitting-events-from-components"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Switching the theme",
+  "route": "/docs/guide/events-and-forms#switching-the-theme"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
+  "section": "Overlays: modals, dialogs, toasts",
+  "route": "/docs/guide/events-and-forms#overlays-modals-dialogs-toasts"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "",
+  "route": "/docs/guide/control-flow"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "if / else if / else",
+  "route": "/docs/guide/control-flow#if-else-if-else"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "if let",
+  "route": "/docs/guide/control-flow#if-let"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "for",
+  "route": "/docs/guide/control-flow#for"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "show",
+  "route": "/docs/guide/control-flow#show"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "match",
+  "route": "/docs/guide/control-flow#match"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "Expressions that choose",
+  "route": "/docs/guide/control-flow#expressions-that-choose"
+ },
+ {
+  "chapter": "07",
+  "title": "Control flow",
+  "section": "In actions and handlers",
+  "route": "/docs/guide/control-flow#in-actions-and-handlers"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "",
+  "route": "/docs/guide/components"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Declaring and calling",
+  "route": "/docs/guide/components#declaring-and-calling"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Enum props",
+  "route": "/docs/guide/components#enum-props"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Events",
+  "route": "/docs/guide/components#events"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Slots",
+  "route": "/docs/guide/components#slots"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Parts",
+  "route": "/docs/guide/components#parts"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Local state and actions",
+  "route": "/docs/guide/components#local-state-and-actions"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Using stores inside a component",
+  "route": "/docs/guide/components#using-stores-inside-a-component"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Components in the static paint",
+  "route": "/docs/guide/components#components-in-the-static-paint"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "",
+  "route": "/docs/guide/stores"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Declaring a store",
+  "route": "/docs/guide/stores#declaring-a-store"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Using a store",
+  "route": "/docs/guide/stores#using-a-store"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Actions",
+  "route": "/docs/guide/stores#actions"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Persistence",
+  "route": "/docs/guide/stores#persistence"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Loading data into a store",
+  "route": "/docs/guide/stores#loading-data-into-a-store"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Stores in the static paint",
+  "route": "/docs/guide/stores#stores-in-the-static-paint"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "When to use a store, when a page's state",
+  "route": "/docs/guide/stores#when-to-use-a-store-when-a-page-s-state"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "",
+  "route": "/docs/guide/types"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "The type language",
+  "route": "/docs/guide/types#the-type-language"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Records: type",
+  "route": "/docs/guide/types#records-type"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Enums",
+  "route": "/docs/guide/types#enums"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Map literals are shapes",
+  "route": "/docs/guide/types#map-literals-are-shapes"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Where types come from",
+  "route": "/docs/guide/types#where-types-come-from"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Inference is bidirectional",
+  "route": "/docs/guide/types#inference-is-bidirectional"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Narrowing optionals",
+  "route": "/docs/guide/types#narrowing-optionals"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "Typing what comes from the network",
+  "route": "/docs/guide/types#typing-what-comes-from-the-network"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "The checks",
+  "route": "/docs/guide/types#the-checks"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "In the editor",
+  "route": "/docs/guide/types#in-the-editor"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "",
+  "route": "/docs/guide/expressions"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Literals",
+  "route": "/docs/guide/expressions#literals"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Interpolation",
+  "route": "/docs/guide/expressions#interpolation"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Operators",
+  "route": "/docs/guide/expressions#operators"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Choosing a value",
+  "route": "/docs/guide/expressions#choosing-a-value"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Fields, calls and methods",
+  "route": "/docs/guide/expressions#fields-calls-and-methods"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "format and ago",
+  "route": "/docs/guide/expressions#format-and-ago"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Regular expressions",
+  "route": "/docs/guide/expressions#regular-expressions"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Tokens as values",
+  "route": "/docs/guide/expressions#tokens-as-values"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "await",
+  "route": "/docs/guide/expressions#await"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Constants and environment",
+  "route": "/docs/guide/expressions#constants-and-environment"
+ },
+ {
+  "chapter": "11",
+  "title": "Expressions",
+  "section": "Built-in functions",
+  "route": "/docs/guide/expressions#built-in-functions"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "",
+  "route": "/docs/guide/styling"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "Design tokens and the theme",
+  "route": "/docs/guide/styling#design-tokens-and-the-theme"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "style { }",
+  "route": "/docs/guide/styling#style"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "transition { }",
+  "route": "/docs/guide/styling#transition"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "Classes and your own stylesheet",
+  "route": "/docs/guide/styling#classes-and-your-own-stylesheet"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "Enum props as hooks",
+  "route": "/docs/guide/styling#enum-props-as-hooks"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "Dark mode",
+  "route": "/docs/guide/styling#dark-mode"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "Layout without CSS",
+  "route": "/docs/guide/styling#layout-without-css"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
+  "section": "What the build emits",
+  "route": "/docs/guide/styling#what-the-build-emits"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "",
+  "route": "/docs/guide/motion"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Enter animations",
+  "route": "/docs/guide/motion#enter-animations"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Exit animations",
+  "route": "/docs/guide/motion#exit-animations"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Lists",
+  "route": "/docs/guide/motion#lists"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Custom animations",
+  "route": "/docs/guide/motion#custom-animations"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Transitions on state",
+  "route": "/docs/guide/motion#transitions-on-state"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Route transitions",
+  "route": "/docs/guide/motion#route-transitions"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "show and match",
+  "route": "/docs/guide/motion#show-and-match"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Reduced motion",
+  "route": "/docs/guide/motion#reduced-motion"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "",
+  "route": "/docs/guide/data"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "resource",
+  "route": "/docs/guide/data#resource"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "await fetch in an action",
+  "route": "/docs/guide/data#await-fetch-in-an-action"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "data: a file at build time",
+  "route": "/docs/guide/data#data-a-file-at-build-time"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "const and env",
+  "route": "/docs/guide/data#const-and-env"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "Where data lands in the static paint",
+  "route": "/docs/guide/data#where-data-lands-in-the-static-paint"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "",
+  "route": "/docs/guide/i18n"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "Setting up",
+  "route": "/docs/guide/i18n#setting-up"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "t(\"key\")",
+  "route": "/docs/guide/i18n#t-key"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "Switching the locale",
+  "route": "/docs/guide/i18n#switching-the-locale"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "Numbers, dates and the locale",
+  "route": "/docs/guide/i18n#numbers-dates-and-the-locale"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "Translating a Markdown page or a .md page",
+  "route": "/docs/guide/i18n#translating-a-markdown-page-or-a-md-page"
+ },
+ {
+  "chapter": "15",
+  "title": "Internationalisation",
+  "section": "Checklist",
+  "route": "/docs/guide/i18n#checklist"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": "",
+  "route": "/docs/guide/content"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": "The Markdown element",
+  "route": "/docs/guide/content#the-markdown-element"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": ".md pages",
+  "route": "/docs/guide/content#md-pages"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": "Static builds",
+  "route": "/docs/guide/content#static-builds"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": "Search and sharing",
+  "route": "/docs/guide/content#search-and-sharing"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": "Code on the page",
+  "route": "/docs/guide/content#code-on-the-page"
+ },
+ {
+  "chapter": "16",
+  "title": "Content",
+  "section": "Images and media",
+  "route": "/docs/guide/content#images-and-media"
+ },
+ {
+  "chapter": "17",
+  "title": "Outputs",
+  "section": "",
+  "route": "/docs/guide/outputs"
+ },
+ {
+  "chapter": "17",
+  "title": "Outputs",
+  "section": "SPA",
+  "route": "/docs/guide/outputs#spa"
+ },
+ {
+  "chapter": "17",
+  "title": "Outputs",
+  "section": "PDF documents",
+  "route": "/docs/guide/outputs#pdf-documents"
+ },
+ {
+  "chapter": "17",
+  "title": "Outputs",
+  "section": "Slide decks",
+  "route": "/docs/guide/outputs#slide-decks"
+ },
+ {
+  "chapter": "17",
+  "title": "Outputs",
+  "section": "Templates: rendering with data on a server",
+  "route": "/docs/guide/outputs#templates-rendering-with-data-on-a-server"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "",
+  "route": "/docs/guide/tooling"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "The commands",
+  "route": "/docs/guide/tooling#the-commands"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf serve",
+  "route": "/docs/guide/tooling#wf-serve"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf build",
+  "route": "/docs/guide/tooling#wf-build"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "Diagnostics",
+  "route": "/docs/guide/tooling#diagnostics"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf fmt",
+  "route": "/docs/guide/tooling#wf-fmt"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf test",
+  "route": "/docs/guide/tooling#wf-test"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf generate",
+  "route": "/docs/guide/tooling#wf-generate"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf docs, wf registry, wf types",
+  "route": "/docs/guide/tooling#wf-docs-wf-registry-wf-types"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "Editors",
+  "route": "/docs/guide/tooling#editors"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "Project layout, as a reminder",
+  "route": "/docs/guide/tooling#project-layout-as-a-reminder"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "",
+  "route": "/docs/reference"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Layout",
+  "route": "/docs/reference#layout"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Navigation",
+  "route": "/docs/reference#navigation"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Data display",
+  "route": "/docs/reference#data-display"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Form",
+  "route": "/docs/reference#form"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Feedback",
+  "route": "/docs/reference#feedback"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Actions",
+  "route": "/docs/reference#actions"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Media",
+  "route": "/docs/reference#media"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Typography",
+  "route": "/docs/reference#typography"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "PDF",
+  "route": "/docs/reference#pdf"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Slides",
+  "route": "/docs/reference#slides"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Routing",
+  "route": "/docs/reference#routing"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "On every element",
+  "route": "/docs/reference#on-every-element"
+ },
+ {
+  "chapter": "19",
+  "title": "Built-in components \u2014 reference",
+  "section": "Icons",
+  "route": "/docs/reference#icons"
+ },
+ {
+  "chapter": "20",
+  "title": "Cookbook",
+  "section": "",
+  "route": "/docs/cookbook"
+ },
+ {
+  "chapter": "20",
+  "title": "Cookbook",
+  "section": "App 1: Todos",
+  "route": "/docs/cookbook#app-1-todos"
+ },
+ {
+  "chapter": "20",
+  "title": "Cookbook",
+  "section": "App 2: A blog, statically built",
+  "route": "/docs/cookbook#app-2-a-blog-statically-built"
+ },
+ {
+  "chapter": "20",
+  "title": "Cookbook",
+  "section": "App 3: A dashboard behind a login",
+  "route": "/docs/cookbook#app-3-a-dashboard-behind-a-login"
+ },
+ {
+  "chapter": "20",
+  "title": "Cookbook",
+  "section": "Recipes",
+  "route": "/docs/cookbook#recipes"
+ },
+ {
+  "chapter": "20",
+  "title": "Cookbook",
+  "section": "Where to go next",
+  "route": "/docs/cookbook#where-to-go-next"
+ }
+]

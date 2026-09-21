@@ -23,9 +23,13 @@ pub fn render_page_html(page: &PageDecl, site: &SiteContext) -> String {
 pub fn render_page_html_with_params(
     page: &PageDecl,
     site: &SiteContext,
+    route: &str,
     params: &HashMap<String, Static>,
 ) -> String {
     let mut seeded = page.clone();
+    // The file is one concrete route: its canonical link, its sharing card
+    // and its asset paths are that route's, not the pattern's.
+    seeded.path = route.to_string();
     // Seed as declarations at the top of the body: `params` as a map, and
     // each parameter as a constant of the page.
     let mut extra: Vec<Statement> = Vec::new();
@@ -923,8 +927,12 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
                 };
                 return render_linked_item(&class, &href, current, ui, ctx);
             }
-            let tag = match sub.as_str() {
-                "Item" => "li",
+            // A `Breadcrumb.Item` without `to` is the current page, a
+            // `<span>` inside the `<nav>` as the SPA draws it; a list's item
+            // is an `<li>`.
+            let tag = match (parent.as_str(), sub.as_str()) {
+                ("Breadcrumb", "Item") => "span",
+                (_, "Item") => "li",
                 _ => "div",
             };
             render_tag(tag, &class, ui, ctx)
@@ -980,7 +988,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 class_str,
                 wf,
                 inline_style,
-                crate::codegen::markdown::render(&text),
+                crate::codegen::markdown::render_with_base(&text, &ctx.link_base),
                 ctx.indent_str()
             );
         }
@@ -1030,7 +1038,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     // Collected here and emitted as ONE `style="…"` attribute below so a grid
     // `columns` arg merges into the same attribute instead of producing a duplicate
     // `style=` (HTML keeps the first and silently drops the rest).
-    let mut style_decls = style_block_decls(ui);
+    let style_decls = style_block_decls(ui);
 
     for arg in &ui.args {
         match arg {
@@ -1087,9 +1095,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         }
                     }
                     "columns" => {
-                        if let Expr::NumberLiteral(n) = val {
-                            style_decls
-                                .push(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
+                        if let Some(Static::Num(n)) = eval(val, &ctx.scope) {
+                            attrs.push(format!("data-cols=\"{}\"", n as i32));
                         }
                     }
                     "icon" => {
@@ -1273,15 +1280,24 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
 
     if let Some(text) = &text_content {
+        // `Code(…, language: "wf")`: coloured, as the runtime colours it.
+        let language = if name == "Code" {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "language" => static_attr(v, &ctx.scope),
+                _ => None,
+            })
+        } else {
+            None
+        };
+        let inner = match language {
+            Some(lang) => crate::codegen::highlight::highlight(text, &lang),
+            None => html_escape(text),
+        };
         // Inline text
         if !has_children {
             return format!(
                 "{}<{}{}>{}</{}>\n",
-                indent,
-                actual_tag,
-                attrs_str,
-                html_escape(text),
-                actual_tag
+                indent, actual_tag, attrs_str, inner, actual_tag
             );
         }
         result.push_str(&format!("{}    {}\n", indent, html_escape(text)));
@@ -1464,8 +1480,17 @@ fn render_labelled_input(
 
 /// Paint the branch a resolvable condition takes, or `None` to defer to the client.
 fn render_if_static(if_stmt: &IfStmt, ctx: &mut SsgContext) -> Option<String> {
-    if eval(&if_stmt.condition, &ctx.scope)?.truthy() {
-        return Some(render_statements(&if_stmt.then_body, ctx));
+    let value = eval(&if_stmt.condition, &ctx.scope)?;
+    if value.truthy() {
+        // `if let p = post { … }`: the branch reads `p` as the value.
+        let Some(name) = &if_stmt.binding else {
+            return Some(render_statements(&if_stmt.then_body, ctx));
+        };
+        let outer = ctx.scope.clone();
+        ctx.scope = outer.with(name, value);
+        let out = render_statements(&if_stmt.then_body, ctx);
+        ctx.scope = outer;
+        return Some(out);
     }
     for (cond, body) in &if_stmt.else_if_branches {
         if eval(cond, &ctx.scope)?.truthy() {

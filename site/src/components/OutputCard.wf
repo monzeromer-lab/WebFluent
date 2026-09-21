@@ -1,0 +1,20 @@
+/// One of the four things `wf build` can write: its name, the
+/// `build.output_type` that selects it, and a line in Markdown.
+component OutputCard(_ title: String, value: String, body: String) {
+    Stack(gap: .xs) {
+        style {
+            gap: 8px
+            padding: 20px
+            border: 1px solid $border
+            border-radius: 10px
+            background: $color-surface
+            & h3 { margin: 0; font-size: 15px; line-height: 20px; font-weight: 600 }
+            & .value { margin: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink }
+            & .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted }
+            & .wf-markdown code { font-size: 12px }
+        }
+        Heading(title).h3
+        Text(value, class: "value")
+        Markdown(body)
+    }
+}

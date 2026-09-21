@@ -92,6 +92,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-col--11 { flex: 0 0 calc(100%/12*11); max-width: calc(100%/12*11); }
 .wf-col--12 { flex: 0 0 100%; max-width: 100%; }
 .wf-grid { display: grid; gap: var(--spacing-md); }
+.wf-grid[data-cols="1"] { grid-template-columns: repeat(1, 1fr); }
+.wf-grid[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
+.wf-grid[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
+.wf-grid[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+.wf-grid[data-cols="5"] { grid-template-columns: repeat(5, 1fr); }
+.wf-grid[data-cols="6"] { grid-template-columns: repeat(6, 1fr); }
+.wf-grid[data-cols="7"] { grid-template-columns: repeat(7, 1fr); }
+.wf-grid[data-cols="8"] { grid-template-columns: repeat(8, 1fr); }
+.wf-grid[data-cols="9"] { grid-template-columns: repeat(9, 1fr); }
+.wf-grid[data-cols="10"] { grid-template-columns: repeat(10, 1fr); }
+.wf-grid[data-cols="11"] { grid-template-columns: repeat(11, 1fr); }
+.wf-grid[data-cols="12"] { grid-template-columns: repeat(12, 1fr); }
 .wf-stack { display: flex; flex-direction: column; gap: var(--spacing-md); }
 .wf-spacer { height: var(--spacing-md); }
 .wf-spacer--xs { height: var(--spacing-xs); }
@@ -377,7 +389,16 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* No h1–h6 scale here: the level the author wrote carries the UA's own sizing. */
 .wf-heading { margin: 0; line-height: var(--line-height-tight); }
 .wf-code { font-family: var(--font-family-mono); }
-pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overflow-x: auto; white-space: pre; }
+.wf-tok-kw { color: var(--syntax-keyword); }
+.wf-tok-name { color: var(--syntax-function); }
+.wf-tok-str { color: var(--syntax-string); }
+.wf-tok-num { color: var(--syntax-number); }
+.wf-tok-prop { color: var(--syntax-punct); }
+.wf-tok-tok { color: var(--syntax-function); }
+.wf-tok-cmt { color: var(--syntax-comment); }
+.wf-tok-prompt { color: var(--term-dim); }
+
 .wf-blockquote { border-inline-start: 4px solid currentColor; padding: var(--spacing-sm) var(--spacing-md); margin: 0; }
 
 /* ─── Variant Colors (shared, requested) ────────────── */
@@ -489,7 +510,7 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 /* ─── Skip Link ─────────────────────────────────────── */
 /* Opaque: the link appears over page content when focused, and a transparent
    one is unreadable exactly when it is needed. */
-.wf-skip-link { position: absolute; left: -9999px; top: 0; z-index: 10000; padding: 0.5rem 1rem; background: var(--color-background); color: var(--color-text); }
-.wf-skip-link:focus { left: 0.5rem; top: 0.5rem; }
+.wf-skip-link { position: absolute; inset-inline-start: 0.5rem; top: 0.5rem; transform: translateY(-200%); z-index: 10000; padding: 0.5rem 1rem; background: var(--color-background); color: var(--color-text); }
+.wf-skip-link:focus { transform: none; }
 "#
 }

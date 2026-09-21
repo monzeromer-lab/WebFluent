@@ -14,9 +14,9 @@ app {
 
             Sidebar.Header { Text("Ops Console").bold }
             Sidebar.Item(to: "/", icon: "home") { Text("Overview") }
-            Sidebar.Item(to: "/incidents", icon: "alert") { Text("Incidents") }
+            Sidebar.Item(to: "/incidents", icon: "warning") { Text("Incidents") }
             Sidebar.Divider
-            Sidebar.Item(to: "/settings", icon: "cog") { Text("Settings") }
+            Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
         }
 
         Container {

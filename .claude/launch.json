@@ -4,8 +4,20 @@
     {
       "name": "halyard",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "cd /home/monzer-omer/Code/halyard && exec \"/run/media/monzer-omer/the good stuff/Work/WebFluent/target/debug/wf\" serve"],
+      "runtimeArgs": [
+        "-c",
+        "cd /home/monzer-omer/Code/halyard && exec \"/run/media/monzer-omer/the good stuff/Work/WebFluent/target/debug/wf\" serve"
+      ],
       "port": 3000
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd \"/run/media/monzer-omer/the good stuff/Work/WebFluent/site\" && exec \"/run/media/monzer-omer/the good stuff/Work/WebFluent/target/debug/wf\" serve"
+      ],
+      "port": 4000
     }
   ]
 }

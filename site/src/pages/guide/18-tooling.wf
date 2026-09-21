@@ -1,0 +1,166 @@
+/// Chapter 18 of the guide, written from md-docs/18-tooling.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page Tooling(path: "/docs/guide/tooling", title: "Tooling", description: "Every wf command, the dev server, diagnostics, the formatter, tests, the gallery and registry, and editor support.", layout: DocsShell("Tooling", chapter: "Chapter 18", blurb: "One binary does everything: scaffold, build, serve, format, test, render and describe. A language server brings the checks into the editor.", sections: [Anchor(id: "the-commands", label: "The commands"), Anchor(id: "wf-serve", label: "wf serve"), Anchor(id: "wf-build", label: "wf build"), Anchor(id: "diagnostics", label: "Diagnostics"), Anchor(id: "wf-fmt", label: "wf fmt"), Anchor(id: "wf-test", label: "wf test"), Anchor(id: "wf-generate", label: "wf generate"), Anchor(id: "wf-docs-wf-registry-wf-types", label: "wf docs, wf registry, wf types"), Anchor(id: "editors", label: "Editors"), Anchor(id: "project-layout-as-a-reminder", label: "Project layout, as a reminder")], prevTo: "/docs/guide/outputs", prevLabel: "17. Outputs", nextTo: "/docs/reference", nextLabel: "19. Components reference")) {
+    Stack(gap: .lg) {
+        Markdown("One binary, `wf`, does everything: scaffolds, builds, serves, formats, tests, renders and describes. A language server, `wf-lsp`, brings the same checks into the editor.")
+
+        Heading("The commands", id: "the-commands").h2
+
+        Table(caption: "The commands") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Command").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`wf init NAME [-t spa\\") }
+                    Table.Cell("static\\")
+                    Table.Cell("pdf\\")
+                    Table.Cell { Markdown("slides]`") }
+                    Table.Cell("Creates a project from a template")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf build [-d DIR]`") }
+                    Table.Cell { Markdown("Compiles `src/` to the output directory; fails on errors, prints warnings") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf serve [-d DIR]`") }
+                    Table.Cell { Markdown("Builds, serves on `dev.port` (3000), rebuilds on every save and reloads the browser") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf fmt [PATH] [--check] [--stdout] [--to wf\\") }
+                    Table.Cell { Markdown("wfx]`") }
+                    Table.Cell("Formats source files; converts layouts")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf test [PATH] [--update]`") }
+                    Table.Cell { Markdown("Runs `test \"…\" \{ \}` declarations against their expectations and snapshots") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf generate page\\") }
+                    Table.Cell("component\\")
+                    Table.Cell { Markdown("store NAME`") }
+                    Table.Cell("Adds a file with a starter declaration")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf render FILE --data JSON [-f html\\") }
+                    Table.Cell("html-fragment\\")
+                    Table.Cell("pdf\\")
+                    Table.Cell { Markdown("slides] [-o OUT]`") }
+                    Table.Cell { Markdown("Renders a template with data ([chapter 17](/docs/guide/outputs#templates-rendering-with-data-on-a-server))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf migrate [PATH] [--check] [--stdout] [--wfx]`") }
+                    Table.Cell("Rewrites WebFluent 2 sources to 3")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf docs [-o DIR]`") }
+                    Table.Cell("Writes a component gallery — every built-in and everything the project declares")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf registry [--json]`") }
+                    Table.Cell("Describes every built-in: props, cases, flags, events, slots, parts")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf types [--json]`") }
+                    Table.Cell("Describes what the project declares: enums, types, components, stores, pages")
+                }
+            }
+        }
+
+        Heading("wf serve", id: "wf-serve").h2
+
+        Markdown("The development loop. It builds once, serves the output, watches `src/`, `public/` and the config, rebuilds on a change and reloads every open tab. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at `/__wf/dev.js`, the build's state at `/__wf/status` (JSON), for anything else that wants to know.")
+
+        Heading("wf build", id: "wf-build").h2
+
+        Markdown("Runs the whole pipeline: parse → semantic checks → type checks → linters → codegen. Errors stop the build with the file, line, column, message and a hint; warnings print and the build goes on. The exit code is non-zero on an error, so a CI step is just `wf build`.")
+
+        Terminal(lines: [
+                Line(command: "wf build && rsync -a dist/ user@host:/var/www/site/")
+            ])
+
+        Heading("Diagnostics", id: "diagnostics").h2
+
+        Markdown("Every finding carries a code. The families:")
+
+        Table(caption: "Diagnostics") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Codes").header
+                    Table.Cell("Family").header
+                    Table.Cell("Examples").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`T01`–`T11`") }
+                    Table.Cell { Markdown("Types ([chapter 10](/docs/guide/types#the-checks))") }
+                    Table.Cell("Wrong type for a prop, unknown field, unwrapped optional, wrong arity")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A01`–`A15`") }
+                    Table.Cell("Accessibility")
+                    Table.Cell { Markdown("`A01` image without `alt`; `A03`/`A04` control without a label; `A05`–`A07` empty button/link/heading; `A10` table without a header row; `A11` heading level skipped; `A12` page without an `h1`; `A13` theme contrast below WCAG AA; `A14` a `role` whose children lack the role it requires; `A15` an `aria-label` that does not start with the visible text") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`U01`–`U05`") }
+                    Table.Cell("Unused")
+                    Table.Cell { Markdown("`U01` state, `U02` derived, `U03` component, `U04` store member, `U05` action — declared and never read. A name starting with `_` is exempt") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`V01`–`V02`") }
+                    Table.Cell("Vocabulary")
+                    Table.Cell { Markdown("`V01` a bare word in argument position that nothing declares (a flag is `.word`); `V02` a class the stylesheet does not define") }
+                }
+                Table.Row {
+                    Table.Cell("Semantic")
+                    Table.Cell("Structure")
+                    Table.Cell { Markdown("An unknown component, prop, flag or event; a fill for an undeclared slot; two positional arguments; a route claimed twice; an `emit` of an undeclared event") }
+                }
+            }
+        }
+
+        Markdown("Accessibility findings are warnings by default; the rules are in [spec/ACCESSIBILITY_SPEC.md](https://github.com/monzeromer-lab/WebFluent/blob/master/spec/ACCESSIBILITY_SPEC.md).")
+
+        Heading("wf fmt", id: "wf-fmt").h2
+
+        Markdown("Formats every `.wf` and `.wfx` under a path (or one file) to the canonical layout: four-space indents, one statement per line, clause order `style` → `transition` → `on` → fills → children, spaces after commas and around operators. `--check` fails without writing, for CI; `--stdout` prints one file. `--to wfx` rewrites a `.wf` project in the indented layout (and renames the files), `--to wf` the other way; both are lossless.")
+
+        Heading("wf test", id: "wf-test").h2
+
+        Markdown("A test declaration renders a body with the project's components, stores, types and constants at hand, and holds the result to what it expects:")
+
+        CodeBlock("component PriceTag(_ amount: Number, sale: Bool = false) \{\n    Row(gap: .sm, align: .center) \{\n        Text(format(amount, .currency)).bold\n        if sale \{ Badge(\"Sale\").danger \}\n    \}\n\}\n\ntest \"a price tag shows the amount as currency\" \{\n    PriceTag(1234.5)\n    expect \"$1,234.50\"\n    expect not \"Sale\"\n\}\n\ntest \"a sale tag carries the badge\" \{\n    PriceTag(10, sale: true)\n    expect \"Sale\"\n\}\n\ntest \"a list renders each row\"(data: \{ rows: [\{ name: \"a\" \}, \{ name: \"b\" \}] \}) \{\n    for r in rows \{ Text(r.name) \}\n    expect \"a\"\n    expect \"b\"\n\}", title: "wf")
+
+        Markdown("- Tests live in `tests/*.wf` (or beside the code in `src/`).\n- `expect \"text\"` must appear in the rendered HTML; `expect not \"text\"` must not.\n- `data: \{ … \}` supplies values by name; a `state` in the body is seeded with its initial value.\n- Each render is also compared to `tests/__snapshots__/<file>/<test>.html`, written when missing; `--update` rewrites them after an intended change.\n\n`wf test` exits non-zero on a failure, with a diff.")
+
+        Heading("wf generate", id: "wf-generate").h2
+
+        Terminal(lines: [
+                Line(command: "wf generate page Pricing")
+            ])
+
+        Markdown("writes `src/pages/Pricing.wf` with a page declaring `path: \"/pricing\"`, a title and an `h1`; `component` and `store` likewise. It is a starting point, not a framework — edit freely.")
+
+        Heading("wf docs, wf registry, wf types", id: "wf-docs-wf-registry-wf-types").h2
+
+        Markdown("`wf docs` writes `docs/index.html`: a gallery of every built-in with its props, cases, flags, events, slots and parts, and every component, enum, type, store and page the project declares, with their docs (`///` comments). `wf registry --json` and `wf types --json` print the same data for tools — a design tool, a generator, a script:")
+
+        Terminal(lines: [
+                Line(command: "wf registry --json | jq '.components[] | select(.name == \"Button\") | .props[].name'")
+            ])
+
+        Markdown("The registry is the compiler's own table: what it prints is exactly what the checker accepts.")
+
+        Heading("Editors", id: "editors").h2
+
+        Markdown("`wf-lsp` is the language server, built from `crates/wf-lsp` (`cargo install --path crates/wf-lsp`, or the binary from a release). It gives:\n\n- Diagnostics as you type — every check `wf build` runs.\n- Completion: components and their props after `(`, flags and parts after `.`, enum cases after `:`, events after `on `, `$` tokens, `match` arms, slot names, fields of a record, methods of a string or a list.\n- Hover: a component's doc and signature, a name's inferred type.\n- Go to definition, find references, rename across the project.\n- Document symbols and the outline.\n- Quick fixes — \"Change to `…`\" on a misspelt name — and `Extract component` on a selection.\n\n**Zed**: the extension is in `editors/zed`; install it with `zed: install dev extension` pointing at that folder, or from the extension registry. It brings Tree-sitter highlighting, outline, brackets, indentation, snippets and the language server (found on `PATH` or downloaded from the latest release), for `.wf` and `.wfx`.\n\n**VS Code**: `editors/vscode` — TextMate highlighting and the language server. Open the folder and run `Extensions: Install from VSIX` on the packaged extension, or symlink it into `~/.vscode/extensions`.\n\nAny other editor with LSP support runs `wf-lsp` over stdio.")
+
+        Heading("Project layout, as a reminder", id: "project-layout-as-a-reminder").h2
+
+        CodeBlock("webfluent.app.json    config\nsrc/                  .wf / .wfx / .md pages, components, stores, themes, .css, translations/\npublic/               copied to the output root\ntests/                wf test declarations and __snapshots__/\ndist/                 the build (build.output)", title: "")
+    }
+}

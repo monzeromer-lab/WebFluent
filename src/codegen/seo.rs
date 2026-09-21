@@ -15,7 +15,7 @@
 //! explicit that a relative canonical causes problems later.
 
 use crate::config::ProjectConfig;
-use crate::parser::ast::{Declaration, PageDecl, Program};
+use crate::parser::ast::{Declaration, Expr, PageDecl, Program};
 
 /// Escape text for an HTML attribute value.
 fn attr(value: &str) -> String {
@@ -109,7 +109,24 @@ fn site_name(config: &ProjectConfig) -> String {
 /// Returns pre-indented lines ready to splice into the document shell.
 pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> String {
     let mut out = String::new();
+    // A `meta` the page writes itself in `head { }` replaces the standard
+    // one of the same `property` or `name`: one `og:title`, the page's.
+    let own: Vec<String> = page
+        .head
+        .iter()
+        .filter(|t| t.tag == "meta")
+        .flat_map(|t| t.attrs.iter())
+        .filter_map(|(k, v)| match (k.as_str(), v) {
+            ("property" | "name", Expr::StringLiteral(value)) => {
+                Some(format!(r#"<meta {k}="{value}""#))
+            }
+            _ => None,
+        })
+        .collect();
     let mut push = |line: String| {
+        if own.iter().any(|prefix| line.starts_with(prefix.as_str())) {
+            return;
+        }
         out.push_str("    ");
         out.push_str(&line);
         out.push('\n');
@@ -492,6 +509,20 @@ mod tests {
         assert!(
             !out.contains("rel=\"canonical\""),
             "a hidden page needs no canonical: {out}"
+        );
+    }
+
+    #[test]
+    fn a_pages_own_meta_replaces_the_standard_one_of_the_same_name() {
+        let out = head(
+            r#"page P(path: "/p", title: "Section") { head { meta(property: "og:title", content: "The post")  meta(name: "twitter:card", content: "player") }  Text("x") }"#,
+            SITE,
+        );
+        assert!(!out.contains(r#"<meta property="og:title""#), "{out}");
+        assert!(!out.contains(r#"<meta name="twitter:card""#), "{out}");
+        assert!(
+            out.contains(r#"<meta name="twitter:title" content="Section">"#),
+            "{out}"
         );
     }
 

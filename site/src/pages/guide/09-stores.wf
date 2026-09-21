@@ -1,0 +1,49 @@
+/// Chapter 9 of the guide, written from md-docs/09-stores.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page Stores(path: "/docs/guide/stores", title: "Stores", description: "Stores: declaration, use, actions, persistence, loading data, and when to reach for one.", layout: DocsShell("Stores", chapter: "Chapter 9", blurb: "A store is state shared by every page and component that uses it, alive for the life of the app.", sections: [Anchor(id: "declaring-a-store", label: "Declaring a store"), Anchor(id: "using-a-store", label: "Using a store"), Anchor(id: "actions", label: "Actions"), Anchor(id: "persistence", label: "Persistence"), Anchor(id: "loading-data-into-a-store", label: "Loading data into a store"), Anchor(id: "stores-in-the-static-paint", label: "Stores in the static paint"), Anchor(id: "when-to-use-a-store-when-a-page-s-state", label: "When to use a store, when a page's state")], prevTo: "/docs/guide/components", prevLabel: "8. Components", nextTo: "/docs/guide/types", nextLabel: "10. Types")) {
+    Stack(gap: .lg) {
+        Markdown("A store is state shared by every page and component that uses it: the cart, the signed-in user, the theme, a cache of what was fetched. It holds `state`, `derived` values and actions, and it lives for the life of the app.")
+
+        Heading("Declaring a store", id: "declaring-a-store").h2
+
+        CodeBlock("type Item \{ id: String, name: String, price: Number, qty: Number = 1 \}\n\nstore Cart \{\n    state items: [Item] = []\n    persist coupon = \"\"\n\n    derived count = items.reduce((n, i) => n + i.qty, 0)\n    derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)\n    derived discount = if coupon == \"SAVE10\" \{ subtotal * 0.1 \} else \{ 0 \}\n    derived total = subtotal - discount\n\n    action add(item: Item) \{\n        let found = items.find(i => i.id == item.id)\n        if found != null \{\n            found.qty = found.qty + 1\n        \} else \{\n            items.push(item)\n        \}\n    \}\n    action remove(id: String) \{ items = items.filter(i => i.id != id) \}\n    action clear() \{ items = [] \}\n\}", title: "wf")
+
+        Markdown("Inside the store its members are read bare (`items`, `count`); outside, a page or component says `use Cart` and reads them as `Cart.items`, `Cart.count`, and calls `Cart.add(…)`.")
+
+        Heading("Using a store", id: "using-a-store").h2
+
+        CodeBlock("type Item \{ id: String, name: String, price: Number, qty: Number = 1 \}\n\nstore Cart \{\n    state items: [Item] = []\n    derived count = items.length\n    derived total = items.reduce((sum, i) => sum + i.price * i.qty, 0)\n    action add(item: Item) \{ items.push(item) \}\n    action remove(id: String) \{ items = items.filter(i => i.id != id) \}\n\}\n\npage Shop(path: \"/\", title: \"Shop\", description: \"Things to buy.\") \{\n    use Cart\n    Button(\"Add a pen\").primary \{ on click \{ Cart.add(Item(id: \"pen\", name: \"Pen\", price: 2.5)) \} \}\n    Text(\"\{Cart.count\} items, \{format(Cart.total, .currency)\}\")\n\}\n\npage CartPage(path: \"/cart\", title: \"Cart\", description: \"What you are buying.\") \{\n    use Cart\n    for item in Cart.items by item.id \{\n        Row(justify: .between) \{\n            Text(\"\{item.name\} × \{item.qty\}\")\n            Button(\"Remove\").sm \{ on click \{ Cart.remove(item.id) \} \}\n        \}\n    \}\n    if Cart.count == 0 \{ Text(\"Your cart is empty.\").muted \}\n\}", title: "wf")
+
+        Markdown("Everything that reads `Cart.count` — on any page — updates when it changes. The checker knows every member and its type: `Cart.cont` is an error (`T06`), and `Cart.add(\"pen\")` is an error because `add` takes an `Item` (`T01`).")
+
+        Heading("Actions", id: "actions").h2
+
+        Markdown("A store's actions are its API. They may be asynchronous, and an async action exposes `pending`:")
+
+        CodeBlock("store Session \{\n    state user: Map? = null\n    state error = \"\"\n    derived loggedIn = user != null\n\n    action login(email: String, password: String) \{\n        error = \"\"\n        try \{\n            let r = await fetch(\"/api/login\", \{ method: \"POST\", body: \{ email: email, password: password \} \})\n            user = r.user\n        \} catch e \{\n            error = \"Could not sign in: \{e.message\}\"\n        \}\n    \}\n\n    action logout() \{\n        user = null\n        navigate(\"/\")\n    \}\n\}\n\npage Login(path: \"/login\", title: \"Sign in\", description: \"Sign in.\") \{\n    use Session\n    state email = \"\"\n    state password = \"\"\n    Form \{\n        on submit \{ Session.login(email, password) \}\n        Input(bind: email, label: \"Email\").email.required\n        Input(bind: password, label: \"Password\").password.required\n        Button(\"Sign in\", type: .submit, disabled: Session.login.pending).primary\n    \}\n    if Session.error != \"\" \{ Alert(Session.error).danger \}\n\}", title: "wf")
+
+        Markdown("A derived value may call one of the store's own actions, and an action may read other stores through their names — stores are global, so no `use` is needed inside a store.")
+
+        Heading("Persistence", id: "persistence").h2
+
+        Markdown("`persist` in a store keeps a member across visits, keyed by the store's name:")
+
+        CodeBlock("store Prefs \{\n    persist theme = \"system\"\n    persist density = \"comfortable\"\n    persist recent: [String] = []\n    action visited(path: String) \{\n        recent = [path, ...recent.filter(p => p != path)].take(5)\n    \}\n\}", title: "wf")
+
+        Heading("Loading data into a store", id: "loading-data-into-a-store").h2
+
+        Markdown("A store can own a `resource` too, or fill its state from a fetch in an action called at the top of a page:")
+
+        CodeBlock("store Deploys \{\n    state rows: [Map] = []\n    state loaded = false\n    action load() \{\n        if loaded \{ return \}\n        let r = await fetch(\"/api/deploys\")\n        rows = r.rows\n        loaded = true\n    \}\n\}\n\npage DeploysPage(path: \"/deploys\", title: \"Deploys\", description: \"Every deploy.\") \{\n    use Deploys\n    Deploys.load()\n    if !Deploys.loaded \{ Spinner \}\n    for d in Deploys.rows by d.id \{ Text(\"\{d.id\}: \{d.status\}\") \}\n\}", title: "wf")
+
+        Markdown("A call at the top of a page's body runs once when the page renders — set-up code, in the right place.")
+
+        Heading("Stores in the static paint", id: "stores-in-the-static-paint").h2
+
+        Markdown("A pre-rendered page seeds a store's state from its initial values, so `Cart.count` paints as `0` and a store seeded with rows paints the rows. A value an action changes at run time is corrected once the page is live.")
+
+        Heading("When to use a store, when a page's state", id: "when-to-use-a-store-when-a-page-s-state").h2
+
+        Markdown("- Read by more than one page, or must outlive a navigation: a store.\n- Read by one page and its components: page `state`, passed down as props.\n- Read by one component: its own `state`.")
+    }
+}

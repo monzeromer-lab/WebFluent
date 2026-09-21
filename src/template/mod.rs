@@ -758,7 +758,17 @@ fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
 fn render_if(if_stmt: &IfStmt, ctx: &mut RenderContext) -> String {
     let cond = ctx.eval_expr(&if_stmt.condition);
     if is_truthy(&cond) {
-        return render_statements(&if_stmt.then_body, ctx);
+        // `if let p = post { … }`: the branch reads `p` as the value.
+        let Some(name) = &if_stmt.binding else {
+            return render_statements(&if_stmt.then_body, ctx);
+        };
+        let old = ctx.locals.insert(name.clone(), cond.clone());
+        let html = render_statements(&if_stmt.then_body, ctx);
+        match old {
+            Some(v) => ctx.locals.insert(name.clone(), v),
+            None => ctx.locals.remove(name),
+        };
+        return html;
     }
     // Check else-if branches
     for (branch_cond, branch_body) in &if_stmt.else_if_branches {
@@ -1051,9 +1061,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     text_content = Some(value_to_string(&resolved));
                 }
                 "columns" => {
-                    if let Expr::NumberLiteral(n) = val {
-                        inline_style =
-                            Some(format!("grid-template-columns: repeat({}, 1fr)", *n as i32));
+                    if let Value::Number(n) = ctx.eval_expr(val) {
+                        attrs.push(format!(
+                            "data-cols=\"{}\"",
+                            n.as_f64().unwrap_or(1.0) as i32
+                        ));
                     }
                 }
                 "required" | "disabled" | "controls" => {
@@ -1214,13 +1226,22 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
 
     if let Some(text) = &text_content {
         if !has_children {
+            // `Code(…, language: "wf")`: coloured, as every other backend.
+            let language = if name == "Code" {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == "language" => Some(value_to_string(&ctx.eval_expr(v))),
+                    _ => None,
+                })
+            } else {
+                None
+            };
+            let inner = match language {
+                Some(lang) => crate::codegen::highlight::highlight(text, &lang),
+                None => html_escape(text),
+            };
             return format!(
                 "{}<{}{}>{}</{}>\n",
-                indent,
-                actual_tag,
-                attrs_str,
-                html_escape(text),
-                actual_tag
+                indent, actual_tag, attrs_str, inner, actual_tag
             );
         }
     }
@@ -1397,7 +1418,23 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
             StatementKind::If(if_stmt) => {
                 let cond = ctx.eval_expr(&if_stmt.condition);
                 if is_truthy(&cond) {
-                    result.extend(resolve_statements(&if_stmt.then_body, ctx));
+                    // `if let p = post { … }`: the branch reads `p` as the value.
+                    match &if_stmt.binding {
+                        Some(name) => {
+                            let mut child_ctx = RenderContext {
+                                data: ctx.data,
+                                locals: ctx.locals.clone(),
+                                components: ctx.components.clone(),
+                                indent: ctx.indent,
+                                in_thead: ctx.in_thead,
+                                slots: ctx.slots.clone(),
+                                fields: ctx.fields,
+                            };
+                            child_ctx.locals.insert(name.clone(), cond.clone());
+                            result.extend(resolve_statements(&if_stmt.then_body, &child_ctx));
+                        }
+                        None => result.extend(resolve_statements(&if_stmt.then_body, ctx)),
+                    }
                 } else {
                     let mut matched = false;
                     for (branch_cond, branch_body) in &if_stmt.else_if_branches {

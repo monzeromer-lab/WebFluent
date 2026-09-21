@@ -207,7 +207,18 @@ export function makeDom() {
     addEventListener() {},
     removeEventListener() {},
     location: { pathname: "/", search: "", hash: "" },
-    history: { pushState() {}, replaceState() {} },
+    // A push or replace moves the location, as the browser's does.
+    history: {
+      pushState(_s, _t, url) { window._setUrl(url); },
+      replaceState(_s, _t, url) { window._setUrl(url); },
+    },
+    _setUrl(url) {
+      if (url == null) return;
+      const m = String(url).match(/^([^?#]*)(\?[^#]*)?(#.*)?$/);
+      window.location.pathname = m[1] || "/";
+      window.location.search = m[2] || "";
+      window.location.hash = m[3] || "";
+    },
     requestAnimationFrame: (fn) => fn(),
     queueMicrotask: (fn) => fn(),
     setTimeout: (fn) => fn(),

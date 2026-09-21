@@ -1,0 +1,51 @@
+/// The components reference's own nav: a filter box, then every built-in
+/// under its group, in mono. The one on show carries the wash.
+component ReferenceIndex(current: String = "") {
+    state q = ""
+    derived needle = q.trim().toLowerCase()
+    derived groups = registry.groups
+    derived shown = registry.components.filter(c => needle == "" || c.name.toLowerCase().includes(needle))
+
+    Sidebar(aria-label: t("ref.index")) {
+        style {
+            width: 280px
+            flex-shrink: 0
+            padding: 20px 16px
+            gap: 16px
+            border-inline-end: 1px solid $border
+            background: $color-background
+            & .wf-sidebar__item { height: 28px; padding: 0 10px; gap: 8px; border-radius: 4px; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text-muted }
+            & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
+            & .wf-sidebar__item.active { background: $brand-subtle; color: $brand-ink; font-weight: 500 }
+            & .wf-sidebar__item p { margin: 0 }
+            & .group-label { margin: 14px 0 4px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
+        }
+
+        Row(align: .center, gap: .sm, class: "site-search") {
+            style {
+                flex-wrap: nowrap
+                height: 34px
+                padding: 0 12px
+                background: $color-surface
+                border: 1px solid $border
+                border-radius: 4px
+                &:focus-within { border-color: $brand-ring }
+                & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }
+                & input { flex-grow: 1; min-width: 0; background: transparent; border: 0; outline: none; color: $color-text; font-family: inherit; font-size: 13px; line-height: 20px; padding: 0 }
+            }
+            Icon("search")
+            Input(bind: q, placeholder: t("ref.filter", { count: registry.count }), aria-label: t("ref.filter", { count: registry.count }), type: "search")
+        }
+
+        for group in groups by group {
+            if shown.some(c => c.group == group) {
+                Text(group, class: "group-label")
+                for c in shown by c.name {
+                    if c.group == group {
+                        Sidebar.Item(to: "/docs/reference/{c.slug}") { Text(c.name) }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,17 +1,15 @@
-page NotFound(path: "/404", description: "That page does not exist.", title: "Page Not Found") {
-    Container.fadeIn {
-        Spacer.xl
-
+page NotFound(path: "*", title: "Not found", description: "The address you followed does not match any page.", noindex: true) {
+    SiteHeader
+    Container {
+        style { max-width: 680px; padding: 96px 40px }
         Stack(gap: .md) {
-            Heading("404").h1.center
-            Heading("Page Not Found").h2.center
-            Text("The page you are looking for does not exist or has been moved.").muted.center
-            Spacer
-            Row(justify: .center) {
-                Button("Go Home").primary.lg { on click { navigate("/") } }
+            Text("404") { style { margin: 0; font-family: $font-family-mono; font-size: 12px; color: $accent-ink } }
+            Heading(t("notfound.title")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; letter-spacing: -0.016em } }
+            Text(t("notfound.body")) { style { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } }
+            Row(gap: .sm) {
+                Link(t("notfound.cta"), to: "/", class: "site-button site-button-primary")
+                Link(t("nav.guide"), to: "/docs/guide/getting-started", class: "site-button site-button-outlined")
             }
         }
-
-        Spacer.xl
     }
 }

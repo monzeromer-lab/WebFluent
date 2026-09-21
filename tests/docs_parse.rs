@@ -83,10 +83,12 @@ fn split(block: &str) -> (String, String) {
         into.push_str(&std::mem::take(&mut docs));
         into.push_str(line);
         into.push('\n');
+        // A declaration runs to its closing bracket of any kind: a `const`
+        // list or a call may span lines as well as a block.
         for c in line.split("//").next().unwrap_or("").chars() {
             match c {
-                '{' => depth += 1,
-                '}' => depth -= 1,
+                '{' | '[' | '(' => depth += 1,
+                '}' | ']' | ')' => depth -= 1,
                 _ => {}
             }
         }
@@ -165,6 +167,67 @@ fn check(path: &str) -> Vec<String> {
     check_until(path, None)
 }
 
+/// [`check`], and every block that is whole declarations is also held to
+/// the semantic and type checks: a guide's examples must build, not only
+/// parse. A block that names something another block declares is written
+/// with a `…` and skipped.
+/// Whether a block leaves something out — `…`, or `...` that is not a
+/// spread (`[...a, b]`, `{ ...m }`).
+fn abbreviates(block: &str) -> bool {
+    if block.contains('…') {
+        return true;
+    }
+    block.match_indices("...").any(|(i, _)| {
+        !block[i + 3..]
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_alphanumeric() || c == '_')
+    })
+}
+
+fn check_strictly(path: &str) -> Vec<String> {
+    let mut failures = check(path);
+    let markdown =
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(path)).unwrap();
+    for (line, block, wfx) in wf_blocks(&markdown) {
+        if abbreviates(&block) {
+            continue;
+        }
+        let block = if wfx {
+            match webfluent::layout::to_braces(&block, &format!("{path}.wfx")) {
+                Ok(b) => b,
+                Err(_) => continue,
+            }
+        } else {
+            block
+        };
+        let (declarations, loose) = split(&block);
+        if !loose.trim().is_empty() || declarations.trim().is_empty() {
+            continue;
+        }
+        let Ok(program) = parse_source(&declarations, path) else {
+            continue;
+        };
+        let file_of = |_: usize| format!("{path}:{line}");
+        let mut findings = webfluent::sema::check(&program, &file_of);
+        let typed = webfluent::sema::types::check(&program, &file_of);
+        findings.errors.extend(typed.findings.errors);
+        for e in &findings.errors {
+            failures.push(format!("{path}:{line}: {e}"));
+        }
+        // A guide shows the idiomatic spelling, so its warnings are
+        // failures too.
+        for w in &findings.warnings {
+            failures.push(format!("{path}:{line}: {w}"));
+        }
+        let semantic = webfluent::linter::validate_semantics_in(&program, &file_of);
+        for e in &semantic {
+            failures.push(format!("{path}:{line}: {e}"));
+        }
+    }
+    failures
+}
+
 /// Check `path` up to the first line that starts with `stop`, when given:
 /// release notes keep the older grammar in their older sections.
 fn check_until(path: &str, stop: Option<&str>) -> Vec<String> {
@@ -179,7 +242,7 @@ fn check_until(path: &str, stop: Option<&str>) -> Vec<String> {
         for old in old_spellings(&block) {
             failures.push(format!("{path}:{line}: the block still spells `{old}`"));
         }
-        if block.contains("...") || block.contains('…') {
+        if abbreviates(&block) {
             continue;
         }
         // An indented block is checked as its braced spelling, which the
@@ -244,6 +307,24 @@ fn the_specs_parse() {
         if name.ends_with(".md") {
             failures.extend(check(&format!("spec/{name}")));
         }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n\n"));
+}
+
+/// The developer guide under `md-docs/`: every block is real WebFluent 3.
+#[test]
+fn the_guide_parses() {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs");
+    let mut failures = Vec::new();
+    let mut names: Vec<String> = std::fs::read_dir(dir)
+        .unwrap()
+        .flatten()
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .filter(|n| n.ends_with(".md"))
+        .collect();
+    names.sort();
+    for name in names {
+        failures.extend(check_strictly(&format!("md-docs/{name}")));
     }
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
 }

@@ -1,0 +1,2994 @@
+{
+ "groups": [
+  "Layout",
+  "Navigation",
+  "Data display",
+  "Form",
+  "Feedback",
+  "Actions",
+  "Media",
+  "Typography",
+  "PDF",
+  "Slides",
+  "Routing"
+ ],
+ "components": [
+  {
+   "name": "Container",
+   "slug": "container",
+   "group": "Layout",
+   "summary": "Centred wrapper with a maximum width and horizontal padding.",
+   "plain": "Centred wrapper with a maximum width and horizontal padding.",
+   "signature": "Container(fluid: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "fluid:",
+     "type": "Bool",
+     "meaning": "Full width, no maximum"
+    }
+   ],
+   "flags": [
+    ".fluid"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Row",
+    "Column",
+    "Grid",
+    "Stack"
+   ]
+  },
+  {
+   "name": "Row",
+   "slug": "row",
+   "group": "Layout",
+   "summary": "Horizontal flex layout.",
+   "plain": "Horizontal flex layout.",
+   "signature": "Row(gap: \u2026, align: \u2026, justify: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "gap:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "Space between children"
+    },
+    {
+     "name": "align:",
+     "type": ".start .center .end .stretch .baseline",
+     "meaning": "Cross-axis alignment"
+    },
+    {
+     "name": "justify:",
+     "type": ".start .center .end .between .around .evenly",
+     "meaning": "Main-axis distribution"
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".stretch",
+    ".baseline",
+    ".between",
+    ".around",
+    ".evenly"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Column",
+    "Grid",
+    "Stack"
+   ]
+  },
+  {
+   "name": "Column",
+   "slug": "column",
+   "group": "Layout",
+   "summary": "A child of the 12-column grid, spanning `span` columns.",
+   "plain": "A child of the 12-column grid, spanning span columns.",
+   "signature": "Column(span: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "span:",
+     "type": "Number",
+     "meaning": "How many of the 12 grid columns to span"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Grid",
+    "Stack"
+   ]
+  },
+  {
+   "name": "Grid",
+   "slug": "grid",
+   "group": "Layout",
+   "summary": "CSS grid with a fixed number of columns.",
+   "plain": "CSS grid with a fixed number of columns.",
+   "signature": "Grid(columns: \u2026, gap: \u2026, align: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "columns:",
+     "type": "Number",
+     "meaning": "Number of equal columns"
+    },
+    {
+     "name": "gap:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "Space between children"
+    },
+    {
+     "name": "align:",
+     "type": ".start .center .end .stretch .baseline",
+     "meaning": "Cross-axis alignment"
+    },
+    {
+     "name": "justify:",
+     "type": ".start .center .end .between .around .evenly",
+     "meaning": "Main-axis distribution"
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".stretch",
+    ".baseline",
+    ".between",
+    ".around",
+    ".evenly"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Stack"
+   ]
+  },
+  {
+   "name": "Stack",
+   "slug": "stack",
+   "group": "Layout",
+   "summary": "Vertical flex layout.",
+   "plain": "Vertical flex layout.",
+   "signature": "Stack(gap: \u2026, align: \u2026, justify: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "gap:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "Space between children"
+    },
+    {
+     "name": "align:",
+     "type": ".start .center .end .stretch .baseline",
+     "meaning": "Cross-axis alignment"
+    },
+    {
+     "name": "justify:",
+     "type": ".start .center .end .between .around .evenly",
+     "meaning": "Main-axis distribution"
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".stretch",
+    ".baseline",
+    ".between",
+    ".around",
+    ".evenly"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ]
+  },
+  {
+   "name": "Spacer",
+   "slug": "spacer",
+   "group": "Layout",
+   "summary": "Vertical space; `md` when no size is given.",
+   "plain": "Vertical space; md when no size is given.",
+   "signature": "Spacer(size: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "size:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "How much space"
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ]
+  },
+  {
+   "name": "Divider",
+   "slug": "divider",
+   "group": "Layout",
+   "summary": "Horizontal rule.",
+   "plain": "Horizontal rule.",
+   "signature": "Divider",
+   "block": false,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ]
+  },
+  {
+   "name": "Navbar",
+   "slug": "navbar",
+   "group": "Navigation",
+   "summary": "Top navigation bar with brand, links and action areas.",
+   "plain": "Top navigation bar with brand, links and action areas.",
+   "signature": "Navbar { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Navbar.Brand",
+     "signature": "Navbar.Brand { \u2026 }",
+     "summary": "The brand area, usually a link home.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Navbar.Links",
+     "signature": "Navbar.Links { \u2026 }",
+     "summary": "The navigation links; collapses behind a toggle on small screens.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Navbar.Actions",
+     "signature": "Navbar.Actions { \u2026 }",
+     "summary": "Buttons at the end of the bar.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Sidebar",
+    "Link",
+    "Tabs",
+    "Breadcrumb"
+   ]
+  },
+  {
+   "name": "Sidebar",
+   "slug": "sidebar",
+   "group": "Navigation",
+   "summary": "Side navigation. A `Sidebar.Item` whose `to` matches the current route is marked `.active` and `aria-current=\"page\"`.",
+   "plain": "Side navigation. A Sidebar.Item whose to matches the current route is marked .active and aria-current=\"page\".",
+   "signature": "Sidebar { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Sidebar.Header",
+     "signature": "Sidebar.Header { \u2026 }",
+     "summary": "The sidebar's heading area.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Sidebar.Item",
+     "signature": "Sidebar.Item(to: \u2026, icon: \u2026, active: \u2026) { \u2026 }",
+     "summary": "One navigation entry.",
+     "props": [
+      {
+       "name": "to:",
+       "type": "Path",
+       "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+      },
+      {
+       "name": "icon:",
+       "type": "String",
+       "meaning": "Icon shown before the label"
+      },
+      {
+       "name": "active:",
+       "type": ".prefix",
+       "meaning": "How the link decides it is the current one"
+      }
+     ],
+     "flags": [
+      ".prefix"
+     ]
+    },
+    {
+     "name": "Sidebar.Divider",
+     "signature": "Sidebar.Divider",
+     "summary": "A rule between groups of items.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Navbar",
+    "Link",
+    "Tabs",
+    "Breadcrumb"
+   ]
+  },
+  {
+   "name": "Link",
+   "slug": "link",
+   "group": "Navigation",
+   "summary": "Client-side navigation link; its label or its block is the link text.",
+   "plain": "Client-side navigation link; its label or its block is the link text.",
+   "signature": "Link(label, to: \u2026, active: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The link text"
+    },
+    {
+     "name": "to:",
+     "type": "Path",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "active:",
+     "type": ".prefix",
+     "meaning": "How the link decides it is the current one"
+    }
+   ],
+   "flags": [
+    ".prefix"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "anchor"
+   ],
+   "nearby": [
+    "Navbar",
+    "Sidebar",
+    "Tabs",
+    "Breadcrumb"
+   ]
+  },
+  {
+   "name": "Tabs",
+   "slug": "tabs",
+   "group": "Navigation",
+   "summary": "Tab strip switching between its pages.",
+   "plain": "Tab strip switching between its pages.",
+   "signature": "Tabs { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Tabs.Page",
+     "signature": "Tabs.Page(label) { \u2026 }",
+     "summary": "One tab and its panel.",
+     "props": [
+      {
+       "name": "label",
+       "type": "String  (positional)",
+       "meaning": "The tab's label"
+      }
+     ],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Navbar",
+    "Sidebar",
+    "Link",
+    "Breadcrumb"
+   ]
+  },
+  {
+   "name": "Breadcrumb",
+   "slug": "breadcrumb",
+   "group": "Navigation",
+   "summary": "Breadcrumb trail. An item without `to` is the current page.",
+   "plain": "Breadcrumb trail. An item without to is the current page.",
+   "signature": "Breadcrumb { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Breadcrumb.Item",
+     "signature": "Breadcrumb.Item(to: \u2026) { \u2026 }",
+     "summary": "One step of the trail.",
+     "props": [
+      {
+       "name": "to:",
+       "type": "Path",
+       "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+      }
+     ],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Navbar",
+    "Sidebar",
+    "Link",
+    "Tabs"
+   ]
+  },
+  {
+   "name": "Menu",
+   "slug": "menu",
+   "group": "Navigation",
+   "summary": "Menu opened by a trigger button.",
+   "plain": "Menu opened by a trigger button.",
+   "signature": "Menu(trigger: \u2026, label: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "trigger:",
+     "type": "String",
+     "meaning": "Label of the button that opens the menu"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Same as `trigger`"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Menu.Item",
+     "signature": "Menu.Item { \u2026 }",
+     "summary": "One entry of the menu.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Menu.Divider",
+     "signature": "Menu.Divider",
+     "summary": "A rule between groups of entries.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Navbar",
+    "Sidebar",
+    "Link",
+    "Tabs"
+   ]
+  },
+  {
+   "name": "Card",
+   "slug": "card",
+   "group": "Data display",
+   "summary": "Card surface with optional header, body and footer sections.",
+   "plain": "Card surface with optional header, body and footer sections.",
+   "signature": "Card(surface: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "surface:",
+     "type": ".flat .elevated .outlined",
+     "meaning": "Surface treatment"
+    }
+   ],
+   "flags": [
+    ".flat",
+    ".elevated",
+    ".outlined"
+   ],
+   "events": [],
+   "parts": [
+    {
+     "name": "Card.Header",
+     "signature": "Card.Header { \u2026 }",
+     "summary": "The card's heading area.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Card.Body",
+     "signature": "Card.Body { \u2026 }",
+     "summary": "The card's content area.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Card.Footer",
+     "signature": "Card.Footer { \u2026 }",
+     "summary": "The card's action area.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Table",
+    "List",
+    "Badge",
+    "Tag"
+   ]
+  },
+  {
+   "name": "Table",
+   "slug": "table",
+   "group": "Data display",
+   "summary": "Data table. Cells inside `Table.Head` render as `<th scope=\"col\">`; `caption` is the table's accessible name, visually hidden.",
+   "plain": "Data table. Cells inside Table.Head render as <th scope=\"col\">; caption is the table's accessible name, visually hidden.",
+   "signature": "Table(caption: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "caption:",
+     "type": "String",
+     "meaning": "Accessible name of the table (rendered visually hidden)"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Table.Head",
+     "signature": "Table.Head { \u2026 }",
+     "summary": "Header section; its cells become `<th scope=\"col\">`.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Table.Body",
+     "signature": "Table.Body { \u2026 }",
+     "summary": "Body section.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Table.Row",
+     "signature": "Table.Row { \u2026 }",
+     "summary": "A row.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Table.Cell",
+     "signature": "Table.Cell(content, header: \u2026) { \u2026 }",
+     "summary": "A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.",
+     "props": [
+      {
+       "name": "content",
+       "type": "Any  (positional)",
+       "meaning": "The cell's content"
+      },
+      {
+       "name": "header:",
+       "type": "Bool",
+       "meaning": "Render as a `<th>`"
+      }
+     ],
+     "flags": [
+      ".header"
+     ]
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Card",
+    "List",
+    "Badge",
+    "Tag"
+   ]
+  },
+  {
+   "name": "List",
+   "slug": "list",
+   "group": "Data display",
+   "summary": "List of its children; `ordered` for a numbered list.",
+   "plain": "List of its children; ordered for a numbered list.",
+   "signature": "List(ordered: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "ordered:",
+     "type": "Bool",
+     "meaning": "Numbered (`<ol>`)"
+    }
+   ],
+   "flags": [
+    ".ordered"
+   ],
+   "events": [],
+   "parts": [
+    {
+     "name": "List.Item",
+     "signature": "List.Item { \u2026 }",
+     "summary": "One entry (`<li>`).",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Card",
+    "Table",
+    "Badge",
+    "Tag"
+   ]
+  },
+  {
+   "name": "Badge",
+   "slug": "badge",
+   "group": "Data display",
+   "summary": "Small status label.",
+   "plain": "Small status label.",
+   "signature": "Badge(label, tone: \u2026, pill: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The badge text"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "pill:",
+     "type": "Bool",
+     "meaning": "Fully rounded ends"
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".pill"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Card",
+    "Table",
+    "List",
+    "Tag"
+   ]
+  },
+  {
+   "name": "Tag",
+   "slug": "tag",
+   "group": "Data display",
+   "summary": "Compact chip.",
+   "plain": "Compact chip.",
+   "signature": "Tag(label)",
+   "block": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The tag text"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Card",
+    "Table",
+    "List",
+    "Badge"
+   ]
+  },
+  {
+   "name": "Avatar",
+   "slug": "avatar",
+   "group": "Data display",
+   "summary": "A picture of a person, or their initials.",
+   "plain": "A picture of a person, or their initials.",
+   "signature": "Avatar(src: \u2026, alt: \u2026, initials: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Image URL"
+    },
+    {
+     "name": "alt:",
+     "type": "String",
+     "meaning": "Text alternative for the image"
+    },
+    {
+     "name": "initials:",
+     "type": "String",
+     "meaning": "Letters shown when there is no image"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary",
+     "meaning": "Colour of the initials"
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".primary"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Card",
+    "Table",
+    "List",
+    "Badge"
+   ]
+  },
+  {
+   "name": "Tooltip",
+   "slug": "tooltip",
+   "group": "Data display",
+   "summary": "Shows `text` when its child is hovered or focused.",
+   "plain": "Shows text when its child is hovered or focused.",
+   "signature": "Tooltip(text) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The tooltip text"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Card",
+    "Table",
+    "List",
+    "Badge"
+   ]
+  },
+  {
+   "name": "Input",
+   "slug": "input",
+   "group": "Form",
+   "summary": "Text field. With `label`, `hint` or `error` it is a labelled field.",
+   "plain": "Text field. With label, hint or error it is a labelled field.",
+   "signature": "Input(bind: \u2026, label: \u2026, hint: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    },
+    {
+     "name": "type:",
+     "type": ".text .email .password .number .search .tel .url .date .time .datetime .color",
+     "meaning": "What the field holds"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Hint shown while the field is empty"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The control's value, when its state is not bound"
+    },
+    {
+     "name": "min:",
+     "type": "Any",
+     "meaning": "Lowest value"
+    },
+    {
+     "name": "max:",
+     "type": "Any",
+     "meaning": "Highest value"
+    },
+    {
+     "name": "step:",
+     "type": "Number",
+     "meaning": "Granularity"
+    },
+    {
+     "name": "required:",
+     "type": "Bool",
+     "meaning": "Whether the form refuses to submit without it"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "width:",
+     "type": ".full",
+     "meaning": "Width"
+    },
+    {
+     "name": "rounded:",
+     "type": "Bool",
+     "meaning": "Rounded corners"
+    }
+   ],
+   "flags": [
+    ".text",
+    ".email",
+    ".password",
+    ".number",
+    ".search",
+    ".tel",
+    ".url",
+    ".date",
+    ".time",
+    ".datetime",
+    ".color",
+    ".required",
+    ".disabled",
+    ".sm",
+    ".md",
+    ".lg",
+    ".full",
+    ".rounded"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Select",
+    "Checkbox",
+    "Radio",
+    "Switch"
+   ]
+  },
+  {
+   "name": "Select",
+   "slug": "select",
+   "group": "Form",
+   "summary": "Drop-down of `Select.Option` children.",
+   "plain": "Drop-down of Select.Option children.",
+   "signature": "Select(bind: \u2026, value: \u2026, label: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The control's value, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Allow several choices"
+    }
+   ],
+   "flags": [
+    ".disabled",
+    ".multiple"
+   ],
+   "events": [],
+   "parts": [
+    {
+     "name": "Select.Option",
+     "signature": "Select.Option(label, value: \u2026)",
+     "summary": "One choice: the visible label, and the value sent with the form.",
+     "props": [
+      {
+       "name": "label",
+       "type": "String  (positional)",
+       "meaning": "The visible label"
+      },
+      {
+       "name": "value:",
+       "type": "Any",
+       "meaning": "The value `bind` takes when this one is chosen; the label when absent"
+      }
+     ],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Checkbox",
+    "Radio",
+    "Switch"
+   ]
+  },
+  {
+   "name": "Checkbox",
+   "slug": "checkbox",
+   "group": "Form",
+   "summary": "Checkbox bound to a boolean state.",
+   "plain": "Checkbox bound to a boolean state.",
+   "signature": "Checkbox(bind: \u2026, checked: \u2026, label: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "Whether it is checked, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Radio",
+    "Switch"
+   ]
+  },
+  {
+   "name": "Radio",
+   "slug": "radio",
+   "group": "Form",
+   "summary": "One choice of a group; every radio bound to the same state is one group.",
+   "plain": "One choice of a group; every radio bound to the same state is one group.",
+   "signature": "Radio(bind: \u2026, value: \u2026, checked: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The value `bind` takes when this one is chosen"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "Whether it is checked, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Switch"
+   ]
+  },
+  {
+   "name": "Switch",
+   "slug": "switch",
+   "group": "Form",
+   "summary": "On/off toggle bound to a boolean state.",
+   "plain": "On/off toggle bound to a boolean state.",
+   "signature": "Switch(bind: \u2026, checked: \u2026, label: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "Whether it is checked, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Radio"
+   ]
+  },
+  {
+   "name": "Slider",
+   "slug": "slider",
+   "group": "Form",
+   "summary": "Range input. `aria-*` arguments reach the input; with `aria-valuetext` the raw number is not shown beside the track.",
+   "plain": "Range input. aria-* arguments reach the input; with aria-valuetext the raw number is not shown beside the track.",
+   "signature": "Slider(bind: \u2026, min: \u2026, max: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "Lowest value"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "Highest value"
+    },
+    {
+     "name": "step:",
+     "type": "Number",
+     "meaning": "Granularity"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Radio"
+   ]
+  },
+  {
+   "name": "DatePicker",
+   "slug": "datepicker",
+   "group": "Form",
+   "summary": "Date input.",
+   "plain": "Date input.",
+   "signature": "DatePicker(bind: \u2026, label: \u2026, min: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "min:",
+     "type": "String",
+     "meaning": "Earliest date, `YYYY-MM-DD`"
+    },
+    {
+     "name": "max:",
+     "type": "String",
+     "meaning": "Latest date, `YYYY-MM-DD`"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Radio"
+   ]
+  },
+  {
+   "name": "FileUpload",
+   "slug": "fileupload",
+   "group": "Form",
+   "summary": "File input; handle the chosen files in `on change`.",
+   "plain": "File input; handle the chosen files in on change.",
+   "signature": "FileUpload(accept: \u2026, label: \u2026, multiple: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "accept:",
+     "type": "String",
+     "meaning": "Accepted types, e.g. `image/*` or `.pdf,.doc`"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Accept several files"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".multiple",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Radio"
+   ]
+  },
+  {
+   "name": "Form",
+   "slug": "form",
+   "group": "Form",
+   "summary": "Groups controls; `on submit` runs when it is submitted, and the page never navigates away.",
+   "plain": "Groups controls; on submit runs when it is submitted, and the page never navigates away.",
+   "signature": "Form(bind: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "A handle on the form: `form.valid`, `form.values` by field name, `form.reset()`"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "form"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Radio"
+   ]
+  },
+  {
+   "name": "Alert",
+   "slug": "alert",
+   "group": "Feedback",
+   "summary": "Inline notice; a `danger` or `warning` one is announced as an alert.",
+   "plain": "Inline notice; a danger or warning one is announced as an alert.",
+   "signature": "Alert(message, tone: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "message",
+     "type": "String  (positional)",
+     "meaning": "The message"
+    },
+    {
+     "name": "tone:",
+     "type": ".success .danger .warning .info",
+     "meaning": "Kind of notice"
+    }
+   ],
+   "flags": [
+    ".success",
+    ".danger",
+    ".warning",
+    ".info"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Toast",
+    "Modal",
+    "Dialog",
+    "Spinner"
+   ]
+  },
+  {
+   "name": "Toast",
+   "slug": "toast",
+   "group": "Feedback",
+   "summary": "Temporary notification.",
+   "plain": "Temporary notification.",
+   "signature": "Toast(message, tone: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "message",
+     "type": "String  (positional)",
+     "meaning": "The message"
+    },
+    {
+     "name": "tone:",
+     "type": ".success .danger .warning .info",
+     "meaning": "Kind of notice"
+    }
+   ],
+   "flags": [
+    ".success",
+    ".danger",
+    ".warning",
+    ".info"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Modal",
+    "Dialog",
+    "Spinner"
+   ]
+  },
+  {
+   "name": "Modal",
+   "slug": "modal",
+   "group": "Feedback",
+   "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape.",
+   "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape.",
+   "signature": "Modal(visible: \u2026, title: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Heading shown at the top"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Modal.Footer",
+     "signature": "Modal.Footer { \u2026 }",
+     "summary": "The modal's action row.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Toast",
+    "Dialog",
+    "Spinner"
+   ]
+  },
+  {
+   "name": "Dialog",
+   "slug": "dialog",
+   "group": "Feedback",
+   "summary": "Confirmation `<dialog>`, opened by a state flag.",
+   "plain": "Confirmation <dialog>, opened by a state flag.",
+   "signature": "Dialog(visible: \u2026, title: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Heading shown at the top"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Toast",
+    "Modal",
+    "Spinner"
+   ]
+  },
+  {
+   "name": "Spinner",
+   "slug": "spinner",
+   "group": "Feedback",
+   "summary": "Loading indicator, announced as a status.",
+   "plain": "Loading indicator, announced as a status.",
+   "signature": "Spinner(size: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Toast",
+    "Modal",
+    "Dialog"
+   ]
+  },
+  {
+   "name": "Progress",
+   "slug": "progress",
+   "group": "Feedback",
+   "summary": "Progress bar; a `value` that reads state moves with it.",
+   "plain": "Progress bar; a value that reads state moves with it.",
+   "signature": "Progress(value: \u2026, max: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "value:",
+     "type": "Number",
+     "meaning": "Current value"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "Value at 100%"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Toast",
+    "Modal",
+    "Dialog"
+   ]
+  },
+  {
+   "name": "Skeleton",
+   "slug": "skeleton",
+   "group": "Feedback",
+   "summary": "Placeholder shape shown while content loads.",
+   "plain": "Placeholder shape shown while content loads.",
+   "signature": "Skeleton(height: \u2026, width: \u2026, size: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "height:",
+     "type": "String",
+     "meaning": "CSS height"
+    },
+    {
+     "name": "width:",
+     "type": "String",
+     "meaning": "CSS width"
+    },
+    {
+     "name": "size:",
+     "type": "String",
+     "meaning": "Diameter of a `circle`"
+    },
+    {
+     "name": "circle:",
+     "type": "Bool",
+     "meaning": "A round placeholder"
+    }
+   ],
+   "flags": [
+    ".circle"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Alert",
+    "Toast",
+    "Modal",
+    "Dialog"
+   ]
+  },
+  {
+   "name": "Button",
+   "slug": "button",
+   "group": "Actions",
+   "summary": "Button. Its block holds what it shows; `on click` what it does.",
+   "plain": "Button. Its block holds what it shows; on click what it does.",
+   "signature": "Button(label, tone: \u2026, size: \u2026, shape: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The label"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "shape:",
+     "type": ".rounded .pill",
+     "meaning": "Corner shape"
+    },
+    {
+     "name": "width:",
+     "type": ".full",
+     "meaning": "Width"
+    },
+    {
+     "name": "outlined:",
+     "type": "Bool",
+     "meaning": "A border and no fill"
+    },
+    {
+     "name": "type:",
+     "type": ".button .submit .reset",
+     "meaning": "Its role inside a form"
+    },
+    {
+     "name": "to:",
+     "type": "Path",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".sm",
+    ".md",
+    ".lg",
+    ".rounded",
+    ".pill",
+    ".full",
+    ".outlined",
+    ".button",
+    ".submit",
+    ".reset",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "IconButton",
+    "ButtonGroup",
+    "Dropdown"
+   ]
+  },
+  {
+   "name": "IconButton",
+   "slug": "iconbutton",
+   "group": "Actions",
+   "summary": "Icon-only button. `label` is its accessible name, never visible text.",
+   "plain": "Icon-only button. label is its accessible name, never visible text.",
+   "signature": "IconButton(icon: \u2026, label: \u2026, size: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "One of the built-in icon names"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Accessible name (`aria-label` and `title`)"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .danger",
+     "meaning": "Colour"
+    },
+    {
+     "name": "type:",
+     "type": ".button .submit .reset",
+     "meaning": "Its role inside a form"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".primary",
+    ".danger",
+    ".button",
+    ".submit",
+    ".reset",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Button",
+    "ButtonGroup",
+    "Dropdown"
+   ]
+  },
+  {
+   "name": "ButtonGroup",
+   "slug": "buttongroup",
+   "group": "Actions",
+   "summary": "Buttons joined into one row.",
+   "plain": "Buttons joined into one row.",
+   "signature": "ButtonGroup { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Button",
+    "IconButton",
+    "Dropdown"
+   ]
+  },
+  {
+   "name": "Dropdown",
+   "slug": "dropdown",
+   "group": "Actions",
+   "summary": "Button that opens a menu of `Dropdown.Item`s.",
+   "plain": "Button that opens a menu of Dropdown.Items.",
+   "signature": "Dropdown(label) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Label of the button that opens it"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Dropdown.Item",
+     "signature": "Dropdown.Item { \u2026 }",
+     "summary": "One entry of the menu.",
+     "props": [],
+     "flags": []
+    },
+    {
+     "name": "Dropdown.Divider",
+     "signature": "Dropdown.Divider",
+     "summary": "A rule between groups of entries.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Button",
+    "IconButton",
+    "ButtonGroup"
+   ]
+  },
+  {
+   "name": "Image",
+   "slug": "image",
+   "group": "Media",
+   "summary": "Image; `alt` is required for accessibility (rule A01).",
+   "plain": "Image; alt is required for accessibility (rule A01).",
+   "signature": "Image(src: \u2026, alt: \u2026, width: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Image URL"
+    },
+    {
+     "name": "alt:",
+     "type": "String",
+     "meaning": "Text alternative; empty for a purely decorative image"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Intrinsic width"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Intrinsic height"
+    },
+    {
+     "name": "loading:",
+     "type": ".lazy .eager",
+     "meaning": "Unset, the first image on a page is eager at high priority and the rest lazy"
+    },
+    {
+     "name": "shape:",
+     "type": ".rounded .circle",
+     "meaning": "Shape"
+    }
+   ],
+   "flags": [
+    ".lazy",
+    ".eager",
+    ".rounded",
+    ".circle"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Video",
+    "Icon",
+    "Carousel"
+   ]
+  },
+  {
+   "name": "Video",
+   "slug": "video",
+   "group": "Media",
+   "summary": "Video player.",
+   "plain": "Video player.",
+   "signature": "Video(src: \u2026, controls: \u2026, autoplay: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Video URL"
+    },
+    {
+     "name": "controls:",
+     "type": "Bool",
+     "meaning": "Show the browser's playback controls"
+    },
+    {
+     "name": "autoplay:",
+     "type": "Bool",
+     "meaning": "Start playing when shown"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Intrinsic width"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Intrinsic height"
+    }
+   ],
+   "flags": [
+    ".controls",
+    ".autoplay"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "media"
+   ],
+   "nearby": [
+    "Image",
+    "Icon",
+    "Carousel"
+   ]
+  },
+  {
+   "name": "Icon",
+   "slug": "icon",
+   "group": "Media",
+   "summary": "One of the built-in SVG icons, rendered inline.",
+   "plain": "One of the built-in SVG icons, rendered inline.",
+   "signature": "Icon(name, size: \u2026, tone: \u2026, muted: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "name",
+     "type": "String  (positional)",
+     "meaning": "The icon name"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".muted"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Image",
+    "Video",
+    "Carousel"
+   ]
+  },
+  {
+   "name": "Carousel",
+   "slug": "carousel",
+   "group": "Media",
+   "summary": "Slide track with named controls and dots; optional autoplay.",
+   "plain": "Slide track with named controls and dots; optional autoplay.",
+   "signature": "Carousel(label: \u2026, autoplay: \u2026, interval: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Accessible name of the region"
+    },
+    {
+     "name": "autoplay:",
+     "type": "Bool",
+     "meaning": "Advance automatically"
+    },
+    {
+     "name": "interval:",
+     "type": "Number",
+     "meaning": "Milliseconds between slides"
+    }
+   ],
+   "flags": [
+    ".autoplay"
+   ],
+   "events": [],
+   "parts": [
+    {
+     "name": "Carousel.Slide",
+     "signature": "Carousel.Slide { \u2026 }",
+     "summary": "One slide.",
+     "props": [],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Image",
+    "Video",
+    "Icon"
+   ]
+  },
+  {
+   "name": "Text",
+   "slug": "text",
+   "group": "Typography",
+   "summary": "A paragraph of text. `{\u2026}` in the string reads state and stays live.",
+   "plain": "A paragraph of text. {\u2026} in the string reads state and stays live.",
+   "signature": "Text(content, tone: \u2026, size: \u2026, align: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "align:",
+     "type": ".left .center .right",
+     "meaning": "Text alignment"
+    },
+    {
+     "name": "transform:",
+     "type": ".uppercase .lowercase",
+     "meaning": "Letter case"
+    },
+    {
+     "name": "kind:",
+     "type": ".heading .subtitle",
+     "meaning": "Typographic role"
+    },
+    {
+     "name": "bold:",
+     "type": "Bool",
+     "meaning": "Bold"
+    },
+    {
+     "name": "italic:",
+     "type": "Bool",
+     "meaning": "Italic"
+    },
+    {
+     "name": "underline:",
+     "type": "Bool",
+     "meaning": "Underlined"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".sm",
+    ".md",
+    ".lg",
+    ".left",
+    ".center",
+    ".right",
+    ".uppercase",
+    ".lowercase",
+    ".heading",
+    ".subtitle",
+    ".bold",
+    ".italic",
+    ".underline",
+    ".muted"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Heading",
+    "Code",
+    "Markdown",
+    "Blockquote"
+   ]
+  },
+  {
+   "name": "Heading",
+   "slug": "heading",
+   "group": "Typography",
+   "summary": "Heading; `level` picks the tag (`h2` when none is given).",
+   "plain": "Heading; level picks the tag (h2 when none is given).",
+   "signature": "Heading(content, level: \u2026, align: \u2026, muted: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The heading text"
+    },
+    {
+     "name": "level:",
+     "type": ".h1 .h2 .h3 .h4 .h5 .h6",
+     "meaning": "Heading level: the tag, and its place in the outline"
+    },
+    {
+     "name": "align:",
+     "type": ".left .center .right",
+     "meaning": "Text alignment"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "flags": [
+    ".h1",
+    ".h2",
+    ".h3",
+    ".h4",
+    ".h5",
+    ".h6",
+    ".left",
+    ".center",
+    ".right",
+    ".muted"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Text",
+    "Code",
+    "Markdown",
+    "Blockquote"
+   ]
+  },
+  {
+   "name": "Code",
+   "slug": "code",
+   "group": "Typography",
+   "summary": "Inline code, or a code block with `block`; `language:` colours it.",
+   "plain": "Inline code, or a code block with block; language: colours it.",
+   "signature": "Code(content, block: \u2026, language: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The code"
+    },
+    {
+     "name": "block:",
+     "type": "Bool",
+     "meaning": "A multi-line block"
+    },
+    {
+     "name": "language:",
+     "type": "String",
+     "meaning": "Colours the code as this language: `wf`, `json`, `bash` or `css`"
+    }
+   ],
+   "flags": [
+    ".block"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Text",
+    "Heading",
+    "Markdown",
+    "Blockquote"
+   ]
+  },
+  {
+   "name": "Markdown",
+   "slug": "markdown",
+   "group": "Typography",
+   "summary": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
+   "plain": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
+   "signature": "Markdown(text)",
+   "block": false,
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The Markdown text"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Text",
+    "Heading",
+    "Code",
+    "Blockquote"
+   ]
+  },
+  {
+   "name": "Blockquote",
+   "slug": "blockquote",
+   "group": "Typography",
+   "summary": "Quotation: the text, or its block as the quoted content.",
+   "plain": "Quotation: the text, or its block as the quoted content.",
+   "signature": "Blockquote(content) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The quoted text"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Text",
+    "Heading",
+    "Code",
+    "Markdown"
+   ]
+  },
+  {
+   "name": "Document",
+   "slug": "document",
+   "group": "PDF",
+   "summary": "Root of a PDF document.",
+   "plain": "Root of a PDF document.",
+   "signature": "Document(page_size: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "page_size:",
+     "type": ".A4 .A3 .A5 .Letter .Legal",
+     "meaning": "Paper size"
+    }
+   ],
+   "flags": [
+    ".A4",
+    ".A3",
+    ".A5",
+    ".Letter",
+    ".Legal"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Section",
+    "Paragraph",
+    "Header",
+    "Footer"
+   ]
+  },
+  {
+   "name": "Section",
+   "slug": "section",
+   "group": "PDF",
+   "summary": "Groups content with spacing; on the web, a `<section>`.",
+   "plain": "Groups content with spacing; on the web, a <section>.",
+   "signature": "Section { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Document",
+    "Paragraph",
+    "Header",
+    "Footer"
+   ]
+  },
+  {
+   "name": "Paragraph",
+   "slug": "paragraph",
+   "group": "PDF",
+   "summary": "Block of text with paragraph spacing.",
+   "plain": "Block of text with paragraph spacing.",
+   "signature": "Paragraph(content, tone: \u2026, size: \u2026, align: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "align:",
+     "type": ".left .center .right",
+     "meaning": "Text alignment"
+    },
+    {
+     "name": "transform:",
+     "type": ".uppercase .lowercase",
+     "meaning": "Letter case"
+    },
+    {
+     "name": "kind:",
+     "type": ".heading .subtitle",
+     "meaning": "Typographic role"
+    },
+    {
+     "name": "bold:",
+     "type": "Bool",
+     "meaning": "Bold"
+    },
+    {
+     "name": "italic:",
+     "type": "Bool",
+     "meaning": "Italic"
+    },
+    {
+     "name": "underline:",
+     "type": "Bool",
+     "meaning": "Underlined"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".sm",
+    ".md",
+    ".lg",
+    ".left",
+    ".center",
+    ".right",
+    ".uppercase",
+    ".lowercase",
+    ".heading",
+    ".subtitle",
+    ".bold",
+    ".italic",
+    ".underline",
+    ".muted"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Document",
+    "Section",
+    "Header",
+    "Footer"
+   ]
+  },
+  {
+   "name": "Header",
+   "slug": "header",
+   "group": "PDF",
+   "summary": "Repeated at the top of every PDF page; a `<header>` on the web.",
+   "plain": "Repeated at the top of every PDF page; a <header> on the web.",
+   "signature": "Header { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Document",
+    "Section",
+    "Paragraph",
+    "Footer"
+   ]
+  },
+  {
+   "name": "Footer",
+   "slug": "footer",
+   "group": "PDF",
+   "summary": "Repeated at the bottom of every PDF page; a `<footer>` on the web.",
+   "plain": "Repeated at the bottom of every PDF page; a <footer> on the web.",
+   "signature": "Footer { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Document",
+    "Section",
+    "Paragraph",
+    "Header"
+   ]
+  },
+  {
+   "name": "PageBreak",
+   "slug": "pagebreak",
+   "group": "PDF",
+   "summary": "Forces a new PDF page.",
+   "plain": "Forces a new PDF page.",
+   "signature": "PageBreak",
+   "block": false,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Document",
+    "Section",
+    "Paragraph",
+    "Header"
+   ]
+  },
+  {
+   "name": "Presentation",
+   "slug": "presentation",
+   "group": "Slides",
+   "summary": "Root of a slide deck; its children must be slides.",
+   "plain": "Root of a slide deck; its children must be slides.",
+   "signature": "Presentation { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Slide",
+    "TitleSlide",
+    "SectionSlide",
+    "TwoColumn"
+   ]
+  },
+  {
+   "name": "Slide",
+   "slug": "slide",
+   "group": "Slides",
+   "summary": "One slide, one PDF page; content is top-aligned and clipped at the bottom margin.",
+   "plain": "One slide, one PDF page; content is top-aligned and clipped at the bottom margin.",
+   "signature": "Slide { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Presentation",
+    "TitleSlide",
+    "SectionSlide",
+    "TwoColumn"
+   ]
+  },
+  {
+   "name": "TitleSlide",
+   "slug": "titleslide",
+   "group": "Slides",
+   "summary": "Cover slide: title and subtitle, vertically centred.",
+   "plain": "Cover slide: title and subtitle, vertically centred.",
+   "signature": "TitleSlide(title, subtitle: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "The title"
+    },
+    {
+     "name": "subtitle:",
+     "type": "String",
+     "meaning": "The subtitle"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Presentation",
+    "Slide",
+    "SectionSlide",
+    "TwoColumn"
+   ]
+  },
+  {
+   "name": "SectionSlide",
+   "slug": "sectionslide",
+   "group": "Slides",
+   "summary": "Full-bleed coloured band with a centred label.",
+   "plain": "Full-bleed coloured band with a centred label.",
+   "signature": "SectionSlide(label, tone: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The label"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .success .danger .warning .info",
+     "meaning": "Colour of the band"
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Presentation",
+    "Slide",
+    "TitleSlide",
+    "TwoColumn"
+   ]
+  },
+  {
+   "name": "TwoColumn",
+   "slug": "twocolumn",
+   "group": "Slides",
+   "summary": "Two equal columns; takes exactly two `Container` children.",
+   "plain": "Two equal columns; takes exactly two Container children.",
+   "signature": "TwoColumn { \u2026 }",
+   "block": true,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Presentation",
+    "Slide",
+    "TitleSlide",
+    "SectionSlide"
+   ]
+  },
+  {
+   "name": "ImageSlide",
+   "slug": "imageslide",
+   "group": "Slides",
+   "summary": "Image slide with an optional caption.",
+   "plain": "Image slide with an optional caption.",
+   "signature": "ImageSlide(src: \u2026, caption: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Image path (required)"
+    },
+    {
+     "name": "caption:",
+     "type": "String",
+     "meaning": "Caption under the image"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Presentation",
+    "Slide",
+    "TitleSlide",
+    "SectionSlide"
+   ]
+  },
+  {
+   "name": "Router",
+   "slug": "router",
+   "group": "Routing",
+   "summary": "Where the current page renders. May sit at any depth inside `app`; pages declare their own paths.",
+   "plain": "Where the current page renders. May sit at any depth inside app; pages declare their own paths.",
+   "signature": "Router(transition: \u2026, duration: \u2026) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "transition:",
+     "type": ".none .fade .slide",
+     "meaning": "How a route change moves between pages"
+    },
+    {
+     "name": "duration:",
+     "type": "String",
+     "meaning": "How long each half of the transition plays, e.g. `200ms`"
+    }
+   ],
+   "flags": [
+    ".none",
+    ".fade",
+    ".slide"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": []
+  }
+ ],
+ "universal": {
+  "props": [
+   {
+    "name": "animate:",
+    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin",
+    "meaning": "Animation played when the element appears"
+   },
+   {
+    "name": "exit:",
+    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin",
+    "meaning": "Animation played when the element leaves"
+   },
+   {
+    "name": "speed:",
+    "type": ".fast .normal .slow",
+    "meaning": "How fast its animation runs"
+   },
+   {
+    "name": "duration:",
+    "type": "String",
+    "meaning": "Animation length, e.g. `300ms`"
+   },
+   {
+    "name": "delay:",
+    "type": "String",
+    "meaning": "Wait before the animation starts"
+   },
+   {
+    "name": "easing:",
+    "type": "String",
+    "meaning": "Timing function of the animation, e.g. `ease-out`"
+   },
+   {
+    "name": "stagger:",
+    "type": "String",
+    "meaning": "Delay added per item of a list, e.g. `50ms`"
+   },
+   {
+    "name": "class:",
+    "type": "String",
+    "meaning": "Classes added beside the engine's, from the project's own stylesheets"
+   },
+   {
+    "name": "ref:",
+    "type": "State",
+    "meaning": "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`"
+   }
+  ],
+  "events": [
+   {
+    "name": "on click",
+    "meaning": "The element was clicked or activated"
+   },
+   {
+    "name": "on input",
+    "meaning": "The value changed, on every keystroke"
+   },
+   {
+    "name": "on change",
+    "meaning": "The value was committed"
+   },
+   {
+    "name": "on submit",
+    "meaning": "The form was submitted"
+   },
+   {
+    "name": "on focus",
+    "meaning": "The element received focus"
+   },
+   {
+    "name": "on blur",
+    "meaning": "The element lost focus"
+   },
+   {
+    "name": "on keydown",
+    "meaning": "A key went down; `e.key` names it"
+   },
+   {
+    "name": "on key",
+    "meaning": "One key, named: `on key(\"ctrl+k\") { }`"
+   },
+   {
+    "name": "on keyup",
+    "meaning": "A key came up"
+   },
+   {
+    "name": "on keypress",
+    "meaning": "A character key was pressed"
+   },
+   {
+    "name": "on mouseenter",
+    "meaning": "The pointer entered the element"
+   },
+   {
+    "name": "on mouseleave",
+    "meaning": "The pointer left the element"
+   }
+  ]
+ },
+ "icons": [
+  "close",
+  "menu",
+  "search",
+  "home",
+  "user",
+  "settings",
+  "check",
+  "plus",
+  "minus",
+  "edit",
+  "trash",
+  "star",
+  "heart",
+  "mail",
+  "bell",
+  "download",
+  "upload",
+  "eye",
+  "link",
+  "calendar",
+  "filter",
+  "chevron-down",
+  "chevron-right",
+  "chevron-left",
+  "info",
+  "warning",
+  "arrow-left",
+  "arrow-right",
+  "logout",
+  "copy",
+  "sun",
+  "moon"
+ ],
+ "count": 62
+}

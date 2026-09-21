@@ -34,7 +34,11 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         .map(|page| crate::codegen::seo::head_tags(page, config, program))
         .unwrap_or_default();
 
-    let head_links = head_links(config, ".");
+    // The shell is served for every route, at any depth, so its assets are
+    // addressed from the site root — `/deploys/8f2c` used to fetch
+    // `/deploys/app.js` and get the shell again.
+    let root = config.build.base_path.trim_end_matches('/').to_string();
+    let head_links = head_links(config, &root);
 
     // The shell serves every route, so it cannot know which page chunk the
     // reader wants; the one for "/" is the usual first visit and is linked
@@ -51,7 +55,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     let entry_chunk = entry
         .map(|name| {
             format!(
-                "    <script src=\"pages/{}.js\" data-wf-page=\"{}\" defer></script>\n",
+                "    <script src=\"{root}/pages/{}.js\" data-wf-page=\"{}\" defer></script>\n",
                 name, name
             )
         })
@@ -66,7 +70,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         })
         .map(|name| {
             format!(
-                "    <link rel=\"stylesheet\" href=\"pages/{}.css\" data-wf-page-css=\"{}\">\n",
+                "    <link rel=\"stylesheet\" href=\"{root}/pages/{}.css\" data-wf-page-css=\"{}\">\n",
                 name, name
             )
         })
@@ -85,8 +89,8 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}{}{}{}    <link rel="stylesheet" href="styles.css">
-{}    <script src="app.js" defer></script>
+{}{}{}{}    <link rel="stylesheet" href="{root}/styles.css">
+{}    <script src="{root}/app.js" defer></script>
 {}</head>
 <body>
 {}    <div id="app"><main id="wf-main"></main></div>
@@ -230,6 +234,26 @@ mod head_link_tests {
         let base = html.find("base.css").expect("base.css linked");
         let styles = html.find("styles.css").expect("styles.css linked");
         assert!(base < styles, "{html}");
+    }
+
+    #[test]
+    fn the_shell_addresses_its_assets_from_the_site_root() {
+        let program = Program {
+            declarations: Vec::new(),
+        };
+        let html = generate_html(&config(&[], &["/base.css"]), &program);
+        assert!(
+            html.contains("href=\"/styles.css\"") && html.contains("src=\"/app.js\""),
+            "{html}"
+        );
+        assert!(html.contains("href=\"/base.css\""), "{html}");
+        let mut cfg = config(&[], &[]);
+        cfg.build.base_path = "/site/".to_string();
+        let html = generate_html(&cfg, &program);
+        assert!(
+            html.contains("href=\"/site/styles.css\"") && html.contains("src=\"/site/app.js\""),
+            "{html}"
+        );
     }
 
     #[test]

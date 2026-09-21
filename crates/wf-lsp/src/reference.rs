@@ -351,39 +351,9 @@ pub const TOKENS: &[(&str, &str)] = &[
     ("transition-slow", "Transition duration"),
 ];
 
-/// The built-in icon names `Icon(…)`, `icon:` and `Sidebar.Item(icon:)` take.
-pub const ICONS: &[&str] = &[
-    "home",
-    "menu",
-    "search",
-    "close",
-    "user",
-    "settings",
-    "check",
-    "plus",
-    "minus",
-    "edit",
-    "trash",
-    "star",
-    "heart",
-    "mail",
-    "bell",
-    "download",
-    "upload",
-    "eye",
-    "link",
-    "calendar",
-    "filter",
-    "info",
-    "warning",
-    "arrow-left",
-    "arrow-right",
-    "chevron-down",
-    "chevron-right",
-    "chevron-left",
-    "logout",
-    "copy",
-];
+/// The built-in icon names `Icon(…)`, `icon:` and `Sidebar.Item(icon:)` take:
+/// the registry's, which is pinned to the runtime's table.
+pub const ICONS: &[&str] = webfluent::registry::ICONS;
 
 /// CSS properties offered inside `style { }`. Any CSS property is accepted;
 /// these are the ones worth offering.

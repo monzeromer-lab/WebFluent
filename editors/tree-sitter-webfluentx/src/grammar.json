@@ -5077,7 +5077,7 @@
           "type": "IMMEDIATE_TOKEN",
           "content": {
             "type": "PATTERN",
-            "value": "\\{[^a-zA-Z_\"\\\\{]"
+            "value": "\\{[^a-zA-Z_\"\\\\{\\[(]"
           }
         }
       ]

@@ -1,0 +1,59 @@
+/// Chapter 4 of the guide, written from md-docs/04-elements.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page Elements(path: "/docs/guide/elements", title: "Elements", description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes and parts.", layout: DocsShell("Elements", chapter: "Chapter 4", blurb: "Everything on screen is an element: a call with one positional value, named props, flags, and a block.", sections: [Anchor(id: "the-call-shape", label: "The call shape"), Anchor(id: "props-cases-and-flags", label: "Props, cases and flags"), Anchor(id: "attributes", label: "Attributes"), Anchor(id: "parts", label: "Parts"), Anchor(id: "text-and-headings", label: "Text and headings"), Anchor(id: "layout-elements", label: "Layout elements"), Anchor(id: "what-the-compiler-checks-on-every-element", label: "What the compiler checks on every element")], prevTo: "/docs/guide/pages-and-routing", prevLabel: "3. Pages and routing", nextTo: "/docs/guide/state", nextLabel: "5. State and reactivity")) {
+    Stack(gap: .lg) {
+        Markdown("Everything a page shows is an element: a built-in such as `Button`, or a component you declare. Every element is written the same way.")
+
+        Heading("The call shape", id: "the-call-shape").h2
+
+        CodeBlock("Name(positional, prop: value, prop: value).flag.flag \{ block \}", title: "text")
+
+        Markdown("- **`Name`** — PascalCase. A built-in (`Card`), a part of one (`Card.Header`), or a component of the project (`UserCard`, `Panel.Footer`).\n- **One positional argument**, first, unnamed — the element's own thing: a button's label, a heading's text, an icon's name. Every other value is passed by name. A second positional argument is an error (`Card(\"Laptop\", 999)` — name it: `Card(\"Laptop\", price: 999)`).\n- **Named props** `name: value`, in any order, any expression as the value.\n- **Flags** `.name`, written tight against the closing parenthesis (or the name, when there are no parentheses): `Button(\"Save\").primary.lg`, `Spacer.sm`, `Card.elevated \{ … \}`.\n- **The block** `\{ … \}`, in a fixed order: `style \{ \}` · `transition \{ \}` · `on … \{ \}` handlers · slot fills · children.")
+
+        CodeBlock("page P(path: \"/\") \{\n    Button(\"Save\", disabled: false).primary.lg \{\n        style \{ min-width: 120px \}\n        transition \{ background: 150ms ease-out \}\n        on click \{ log(\"saved\") \}\n        Icon(\"check\")\n    \}\n\}", title: "wf")
+
+        Heading("Props, cases and flags", id: "props-cases-and-flags").h2
+
+        Markdown("A prop has a type the compiler knows: `String`, `Number`, `Bool`, a state binding, a path, or an **enum** — a fixed set of cases. An enum prop takes a case written with a leading dot:")
+
+        CodeBlock("page P(path: \"/\") \{\n    Row(gap: .md, align: .center, justify: .between) \{\n        Text(\"left\")\n        Text(\"right\")\n    \}\n\}", title: "wf")
+
+        Markdown("A **flag** is shorthand for two things: a `Bool` prop set to `true`, or a case of exactly one of the element's enum props:")
+
+        CodeBlock("page P(path: \"/\") \{\n    Button(\"Danger\").danger            // tone: .danger\n    Button(\"Wide\").full.outlined       // width: .full, outlined: true\n    Input(bind: q).search.required     // type: .search, required: true\n    state q = \"\"\n\}", title: "wf")
+
+        Markdown("The two spellings are equivalent; `.md` on a `Row` is `gap: .md` because `gap` is the only prop of `Row` with an `md` case. When two props share a case name the flag is ambiguous and the compiler asks you to name the prop. A flag the element does not declare is an error, with the list of what it takes — there is no shared vocabulary of modifiers to guess from.\n\nEvery element also takes the universal motion props (`animate:`, `exit:`, `delay:`, `stagger:`, `speed:`, `duration:`, `easing:`) and their flags (`.fadeIn`, `.fast`), `class:` for your own stylesheet classes, and `ref:` (chapter 5). See the [reference](/docs/reference) for every element's props.")
+
+        Heading("Attributes", id: "attributes").h2
+
+        Markdown("Named arguments that are not props are HTML attributes, checked against the families the element accepts: the global attributes (`id`, `title`, `role`, `tabindex`, `lang`, …), `aria-*`, `data-*`, and per element the input, anchor, media, form and table attributes. A hyphenated name is written as-is:")
+
+        CodeBlock("page P(path: \"/\") \{\n    Button(\"More\", aria-expanded: \"false\", aria-controls: \"panel\", data-track: \"more\")\n    Input(bind: name, id: \"name\", autocomplete: \"name\", maxlength: 40)\n    state name = \"\"\n\}", title: "wf")
+
+        Markdown("An attribute value that reads state is kept in step with it; `aria-*` keeps a `false` value (it means something), other attributes drop it.")
+
+        Heading("Parts", id: "parts").h2
+
+        Markdown("Some built-ins are made of parts, written under their owner's name:")
+
+        CodeBlock("page P(path: \"/\") \{\n    Card.elevated \{\n        Card.Header \{ Heading(\"Title\").h3 \}\n        Card.Body \{ Text(\"Body\") \}\n        Card.Footer \{ Button(\"OK\").primary \}\n    \}\n    Table(caption: \"Regions\") \{\n        Table.Head \{ Table.Row \{ Table.Cell(\"Region\").header  Table.Cell(\"Latency\").header \} \}\n        Table.Body \{ Table.Row \{ Table.Cell(\"fra1\")  Table.Cell(\"34 ms\") \} \}\n    \}\n    Select(bind: region, label: \"Region\") \{\n        Select.Option(\"Frankfurt\", value: \"fra1\")\n        Select.Option(\"Iowa\", value: \"iad1\")\n    \}\n    Tabs \{\n        Tabs.Page(\"One\") \{ Text(\"first\") \}\n        Tabs.Page(\"Two\") \{ Text(\"second\") \}\n    \}\n    state region = \"fra1\"\n\}", title: "wf")
+
+        Markdown("A part is only valid directly inside its owner; `Card.Body` outside a `Card` is an error. Your own components may declare parts too (chapter 8).")
+
+        Heading("Text and headings", id: "text-and-headings").h2
+
+        CodeBlock("page P(path: \"/\") \{\n    Heading(\"Title\").h1                       // a real <h1>; .h2 is the default\n    Text(\"Plain, \{count\} live\").bold.muted   // an inline run of text\n    Paragraph(\"Prose, as a <p>.\")\n    Code(\"let x = 1\").block\n    Blockquote(\"A quotation.\")\n    Markdown(\"**Bold** and a [link](/docs)\")  // chapter 16\n    state count = 3\n\}", title: "wf")
+
+        Markdown("Headings form an outline the compiler checks: one `h1` per page, no skipped levels (`A11`, `A12`).")
+
+        Heading("Layout elements", id: "layout-elements").h2
+
+        CodeBlock("page P(path: \"/\") \{\n    Container \{                                  // centred, max-width\n        Row(gap: .md, align: .center) \{          // horizontal flex\n            Column(span: 8) \{ Text(\"main\") \}     // 12-column grid child\n            Column(span: 4) \{ Text(\"aside\") \}\n        \}\n        Grid(columns: 3, gap: .lg) \{ Card \{ Text(\"a\") \}  Card \{ Text(\"b\") \}  Card \{ Text(\"c\") \} \}\n        Stack(gap: .sm) \{ Text(\"one\")  Text(\"two\") \}   // vertical flex\n        Spacer.lg\n        Divider\n    \}\n    Header \{ Text(\"a page region\") \}\n    Section \{ Text(\"another\") \}\n    Footer \{ Text(\"the last\") \}\n\}", title: "wf")
+
+        Markdown("`Header`, `Section` and `Footer` are real landmarks (`<header>`, `<section>`, `<footer>`); use them for page regions so the page has an outline a screen reader and a search engine can follow.")
+
+        Heading("What the compiler checks on every element", id: "what-the-compiler-checks-on-every-element").h2
+
+        Markdown("- The name is a built-in, a part in its owner, or a declared component.\n- The positional argument is one the element takes; there is at most one.\n- Every named prop exists, with a value of its type; an enum prop's case exists.\n- Every flag resolves to one prop.\n- Handlers name a DOM event or one of the component's declared events.\n- Slot fills name a declared slot.\n- An `Icon(\"name\")` or `icon:` names one of the icons the runtime draws ([the list](/docs/reference#icons)); any other name shows as the word.\n- Accessibility: an `Image` has `alt:`, an `IconButton` has `label:`, a control has a label, a `Modal` a title, a `Table` a `Table.Head` (`A01`–`A10`).")
+    }
+}

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outputs</title>
+    <meta name="description" content="SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Outputs">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Outputs">
+    <meta name="twitter:description" content="SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs","name":"Outputs","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Outputs","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/Outputs.js" data-wf-page="Outputs" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/outputs" aria-current="page">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 17</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Outputs</h1>
+                        <p class="wf-text wf-s38239618">One source, several outputs: a single-page app, a static site, a PDF, a slide deck, or a template rendered with data.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>One source, several outputs. <code>build.output_type</code> in <code>webfluent.app.json</code> chooses what <code>wf build</code> writes, and the same file can also be rendered on a server with data.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Outputs</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Output</th>
+                                        <th scope="col">
+                                            <div class="wf-markdown">
+<p><code>output_type</code></p>
+                                            </div>
+                                        </th>
+                                        <th scope="col">Writes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Single-page app</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>spa</code> (default)</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>index.html</code> + <code>app.js</code> + <code>styles.css</code>: the router paints pages in the browser</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Static site</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>spa</code> with <code>build.ssg: true</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>One pre-rendered HTML file per route, hydrated by the same script (<a href="/WebFluent/docs/guide/content#static-builds">chapter 16</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>PDF document</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>pdf</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>One <code>.pdf</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Slide deck</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>slides</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>One <code>.pdf</code>, a slide per page</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Server template</td>
+                                        <td>—</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>HTML or PDF from <code>wf render</code> or the library, with JSON data</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">SPA</h2>
+                            <div class="wf-markdown">
+<p>The default: one <code>index.html</code> that loads <code>app.js</code>, which mounts the <code>app</code> and routes between pages in the browser. <code>build.split</code> (on by default) writes each page as its own <code>pages/&lt;Name&gt;.js</code> and <code>pages/&lt;Name&gt;.css</code>, fetched when its route first shows. A host serves <code>index.html</code> for every path (the &quot;SPA fallback&quot;), or you turn on <code>ssg</code> and get real files.</p>
+<p><code>build.base_path</code> (<code>&quot;/my-site&quot;</code> for a GitHub Pages project site) prefixes every asset and route; <code>build.minify</code>, <code>build.sourcemap</code>, <code>build.compress</code> (gzip beside each text file) and <code>build.csp</code> (a strict Content-Security-Policy and a <code>_headers</code> file) tune the output.</p>
+                            </div>
+                            <h2 class="wf-heading">PDF documents</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;build&quot;: {
+    &quot;output_type&quot;: &quot;pdf&quot;,
+    &quot;pdf&quot;: {
+      &quot;page_size&quot;: &quot;A4&quot;,
+      &quot;margins&quot;: { &quot;top&quot;: 72, &quot;bottom&quot;: 72, &quot;left&quot;: 72, &quot;right&quot;: 72 },
+      &quot;default_font&quot;: &quot;Helvetica&quot;,
+      &quot;default_font_size&quot;: 12,
+      &quot;output_filename&quot;: &quot;report.pdf&quot;
+    }
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A PDF page holds a <code>Document</code> with a body of the document components:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Line { item: String, qty: Number, price: Number }
+
+const LINES: [Line] = [
+    Line(item: &quot;Design&quot;, qty: 12, price: 90),
+    Line(item: &quot;Build&quot;, qty: 40, price: 110),
+]
+
+page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot;An invoice.&quot;) {
+    derived total = LINES.reduce((sum, l) =&gt; sum + l.qty * l.price, 0)
+    Document(page_size: &quot;A4&quot;) {
+        Header { Text(&quot;Acme Studio&quot;).muted.sm.right }
+        Footer { Text(&quot;Page footer — thank you for your business&quot;).muted.sm.center }
+        Section {
+            Heading(&quot;Invoice #2026-014&quot;).h1
+            Text(&quot;Issued {format(&quot;2026-09-01&quot;, .date, &quot;long&quot;)}&quot;)
+            Spacer
+            Table {
+                Table.Head {
+                    Table.Row { Table.Cell(&quot;Item&quot;)  Table.Cell(&quot;Qty&quot;)  Table.Cell(&quot;Price&quot;)  Table.Cell(&quot;Amount&quot;) }
+                }
+                Table.Body {
+                    for l in LINES {
+                        Table.Row {
+                            Table.Cell(l.item)
+                            Table.Cell(&quot;{l.qty}&quot;)
+                            Table.Cell(format(l.price, .currency))
+                            Table.Cell(format(l.qty * l.price, .currency))
+                        }
+                    }
+                }
+            }
+            Divider
+            Text(&quot;Total: {format(total, .currency)}&quot;).bold.lg
+        }
+        PageBreak
+        Section {
+            Heading(&quot;Terms&quot;).h2
+            Paragraph { Text(&quot;Payment within 30 days.&quot;) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>Document(page_size:)</code> — <code>A4</code>, <code>A3</code>, <code>A5</code>, <code>Letter</code>, <code>Legal</code> — is the root; <code>Header</code> and <code>Footer</code> repeat on every page; <code>Section</code> groups with spacing; <code>Paragraph</code> is a block of text; <code>PageBreak</code> starts a new page.</li>
+<li>Typography, layout containers, <code>Table</code>, <code>List</code>, <code>Badge</code>, <code>Card</code>, <code>Image</code>, <code>Divider</code>, <code>Spacer</code> render; <code>if</code> and <code>for</code> work over static data (<code>const</code>, <code>data</code>, literals).</li>
+<li>Interactive components (<code>Button</code>, <code>Input</code>, <code>Form</code>, <code>Modal</code>, …), navigation, handlers, <code>resource</code>, <code>state</code> that changes, and motion do not belong in a PDF; the PDF validator rejects them before codegen.</li>
+<li>A <code>style ￾ ￿</code> on a container honours a subset: <code>background</code> (colour or a two-stop <code>linear-gradient</code>), <code>padding</code>, <code>border</code>, <code>border-radius</code>, <code>box-shadow</code>, <code>width</code>, <code>height</code> in <code>pt</code> or <code>%</code>. Unknown properties warn once per component and property.</li>
+</ul>
+<p><code>wf init my-report --template pdf</code> scaffolds one.</p>
+                            </div>
+                            <h2 class="wf-heading">Slide decks</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;build&quot;: {
+    &quot;output_type&quot;: &quot;slides&quot;,
+    &quot;slides&quot;: {
+      &quot;size&quot;: &quot;16:9&quot;,
+      &quot;show_slide_numbers&quot;: true,
+      &quot;footer_text&quot;: &quot;Acme — Q4 review&quot;,
+      &quot;background_color&quot;: &quot;#FFFFFF&quot;
+    }
+  }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Deck(path: &quot;/&quot;, title: &quot;Q4 review&quot;, description: &quot;The quarter in slides.&quot;) {
+    Presentation {
+        TitleSlide(&quot;Q4 review&quot;, subtitle: &quot;Acme Studio, October 2026&quot;)
+        SectionSlide(&quot;Numbers&quot;).primary
+        Slide {
+            Heading(&quot;Revenue&quot;).h2
+            List {
+                List.Item { Text(&quot;Up 18% on Q3&quot;) }
+                List.Item { Text(&quot;Three new enterprise accounts&quot;) }
+                List.Item { Text(&quot;Churn at 1.2%&quot;) }
+            }
+        }
+        TwoColumn {
+            Container {
+                Heading(&quot;What worked&quot;).h3
+                Text(&quot;Self-serve onboarding.&quot;)
+            }
+            Container {
+                Heading(&quot;What did not&quot;).h3
+                Text(&quot;The March pricing test.&quot;)
+            }
+        }
+        ImageSlide(src: &quot;chart.png&quot;, caption: &quot;Monthly recurring revenue&quot;)
+        Slide {
+            style { background: linear-gradient(135deg, #1E3A8A, #0F172A) }
+            Heading(&quot;Thank you&quot;).h1
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>Presentation</code> holds only slides; a slide is one PDF page and never flows onto the next (content past the bottom margin is clipped, with a warning).</li>
+<li>Kinds: <code>Slide ￾ ￿</code> freeform; <code>TitleSlide(title, subtitle:)</code>; <code>SectionSlide(label).primary/.success/.danger/.warning/.info</code> full-bleed; <code>TwoColumn ￾ Container ￾ ￿ Container ￾ ￿ ￿</code>; <code>ImageSlide(src:, caption:)</code>.</li>
+<li><code>slides.size</code>: <code>16:9</code> (default), <code>4:3</code>, <code>A4-landscape</code>, or <code>WIDTHxHEIGHT</code> in points; <code>show_slide_numbers</code>, <code>footer_text</code> and <code>chrome_color</code> add the chrome (the colour auto-flips on a dark background when unset).</li>
+<li>Backgrounds: <code>slides.background_color</code> deck-wide, a <code>Slide</code>'s <code>style ￾ background ￿</code>, a <code>Container</code>'s; hex or a two-stop <code>linear-gradient</code>.</li>
+<li>Inside a slide: <code>Text</code>, <code>Heading</code> (scaled up), <code>List</code>, layout containers, <code>Spacer</code>, <code>Divider</code>, <code>if</code>/<code>for</code> over literals. Interactive, navigation and media components are rejected.</li>
+</ul>
+<p><code>wf init my-deck --template slides</code> scaffolds one.</p>
+                            </div>
+                            <h2 class="wf-heading">Templates: rendering with data on a server</h2>
+                            <div class="wf-markdown">
+<p>A <code>.wf</code> file can be rendered with JSON data — an invoice, an email, a report — from the CLI or from Rust and Node. The data's top-level keys are in scope by name; the static subset of the language applies (no <code>state</code>, handlers, stores, <code>resource</code>, motion).</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot;An invoice.&quot;) {
+    Heading(&quot;Invoice #{number}&quot;).h1
+    Text(&quot;Bill to: {customer.name}&quot;)
+    Table {
+        Table.Head { Table.Row { Table.Cell(&quot;Item&quot;)  Table.Cell(&quot;Qty&quot;)  Table.Cell(&quot;Amount&quot;) } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell(&quot;{item.qty}&quot;)
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge(&quot;Paid&quot;).success } else { Badge(&quot;Due&quot;).warning }
+    Text(&quot;Total: {format(total, .currency)}&quot;).bold.lg
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;number&quot;: &quot;INV-001&quot;,
+  &quot;customer&quot;: { &quot;name&quot;: &quot;Acme Corp&quot; },
+  &quot;items&quot;: [{ &quot;name&quot;: &quot;Widget&quot;, &quot;qty&quot;: 5, &quot;price&quot;: 9.99 }],
+  &quot;total&quot;: 49.95,
+  &quot;paid&quot;: false,
+  &quot;locale&quot;: &quot;en&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>CLI:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>--format</code> is <code>html</code> (a whole document with its CSS), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code>; <code>-o file</code> writes instead of printing; <code>--theme Name</code> picks one of several <code>theme</code> declarations; the data is read from stdin when <code>--data</code> is omitted.</p>
+<p>Rust:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">rust</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">use webfluent::Template;
+use serde_json::json;
+
+let tpl = Template::from_file(&quot;templates/invoice.wf&quot;)?;
+let html = tpl.render_html(&amp;json!({ &quot;number&quot;: &quot;INV-001&quot;, &quot;items&quot;: [], &quot;total&quot;: 0, &quot;paid&quot;: true }))?;
+let pdf: Vec&lt;u8&gt; = tpl.render_pdf(&amp;json!({ &quot;number&quot;: &quot;INV-001&quot;, &quot;items&quot;: [], &quot;total&quot;: 0, &quot;paid&quot;: true }))?;
+let themed = tpl.with_theme(&quot;Night&quot;).with_tokens(&amp;[(&quot;color-primary&quot;, &quot;#8B5CF6&quot;)]).render_html(&amp;json!({}))?;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Node (<code>npm install @aspect/webfluent</code>):</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">const { Template } = require(&quot;@aspect/webfluent&quot;);
+const tpl = Template.fromFile(&quot;templates/invoice.wf&quot;);
+res.send(tpl.renderHtml(invoice));
+res.type(&quot;application/pdf&quot;).send(tpl.renderPdf(invoice));</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A template may declare <code>type</code>s and a <code>theme</code> like any file; <code>data</code> files are read relative to the template. <code>format</code> and <code>ago</code> speak the data's <code>locale</code> when it has one, else English.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/content">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">16. Content</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/tooling">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">18. Tooling</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#spa">SPA</a>
+                        <a class="wf-link wf-sdae384de" href="#pdf-documents">PDF documents</a>
+                        <a class="wf-link wf-sdae384de" href="#slide-decks">Slide decks</a>
+                        <a class="wf-link wf-sdae384de" href="#templates-rendering-with-data-on-a-server">Templates: rendering with data on a server</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

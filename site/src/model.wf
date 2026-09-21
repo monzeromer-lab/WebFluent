@@ -1,0 +1,33 @@
+/// One entry of a page's "on this page" rail: the id of a heading, and its label.
+type Anchor {
+    id: String,
+    label: String
+}
+
+/// One command of a shell transcript: the line typed, and what came back.
+type Line {
+    command: String,
+    output: String = ""
+}
+
+/// One row of the guide's search index: a chapter, or a section of one.
+type SearchRow {
+    chapter: String,
+    title: String,
+    section: String,
+    route: String
+}
+
+/// Where the source lives. Used by the nav, the footer and every "edit this page" link.
+const REPO = "https://github.com/monzeromer-lab/WebFluent"
+
+/// The one-line install, shown in the hero and on chapter 1.
+const INSTALL = "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash"
+
+/// The components reference, written from `wf registry --json` by
+/// scripts/site-data.py: the groups, every built-in with its props, flags,
+/// parts and events, and what every element takes.
+data registry: Map = "registry.json"
+
+/// Every chapter and section of the guide, for the header's search.
+data guideIndex: [SearchRow] = "search-index.json"

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Types</title>
+    <meta name="description" content="The type language, records and enums, shapes, inference and narrowing, and every check the compiler makes.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/types">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/types?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/types?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/types">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Types">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The type language, records and enums, shapes, inference and narrowing, and every check the compiler makes.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/types">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Types">
+    <meta name="twitter:description" content="The type language, records and enums, shapes, inference and narrowing, and every check the compiler makes.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types","name":"Types","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The type language, records and enums, shapes, inference and narrowing, and every check the compiler makes."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Types","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/Types.js" data-wf-page="Types" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/types" aria-current="page">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 10</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Types</h1>
+                        <p class="wf-text wf-s38239618">A gradual, structural type checker that changes no output and names every mistake with a hint.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>WebFluent has a gradual, structural type checker. It runs in <code>wf build</code> and in the editor, before anything is emitted, and its findings are errors with a hint. A program that declares no types checks as it always did — what the checker cannot resolve is <code>Any</code>, and <code>Any</code> agrees with everything — and every annotation you add narrows what it can say.</p>
+                            </div>
+                            <h2 class="wf-heading">The type language</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The type language</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Written</th>
+                                        <th scope="col">Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>String</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>String</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;text&quot;</code>, <code>&quot;with ￾interpolation￿&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Number</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>42</code>, <code>3.14</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bool</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Bool</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>true</code>, <code>false</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>List</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[String]</code>, <code>[Todo]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[a, b]</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Map</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Map</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>￾ key: value ￿</code> — an object with unknown keys</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Optional</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>String?</code>, <code>Todo?</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a value or <code>null</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Record</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the <code>type</code>'s name</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Todo(id: &quot;a&quot;, title: &quot;b&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Enum</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the <code>enum</code>'s name</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.case</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Any</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Any</code></p>
+                                            </div>
+                                        </td>
+                                        <td>anything; what is not known</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A type is written after a colon on a <code>state</code>, a prop, an action parameter, a <code>type</code> field, a route parameter, a <code>let</code>, or a <code>resource</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Typed(path: &quot;/&quot;) {
+    state name: String = &quot;&quot;
+    state count: Number = 0
+    state tags: [String] = []
+    state picked: String? = null
+    state profile: Map = {}
+    action greet(who: String, times: Number) { log(&quot;hi {who} × {times}&quot;) }
+    derived pick = picked ?? &quot;none&quot;
+    Text(&quot;{name} {count} {tags.length} {pick}&quot;)
+    Button(&quot;Go&quot;) { on click { greet(name, count) } }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Records: type</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Tone { neutral, info, danger }
+
+type Todo {
+    id: String
+    title: String
+    done: Bool = false
+    tone: Tone = .neutral
+    note: String?
+}
+
+type Admin = Todo { owner: String }
+
+page Records(path: &quot;/&quot;) {
+    state todos: [Todo] = [
+        Todo(id: &quot;1&quot;, title: &quot;Write the docs&quot;),
+        Todo(id: &quot;2&quot;, title: &quot;Ship&quot;, done: true, tone: .info, note: &quot;Friday&quot;),
+    ]
+    state special: Admin = Admin(id: &quot;3&quot;, title: &quot;Review&quot;, owner: &quot;sam&quot;)
+    for t in todos by t.id {
+        Row(gap: .sm) {
+            Text(t.title)
+            if let n = t.note { Badge(n).info }
+        }
+    }
+    Text(&quot;{special.owner} owns {special.title}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li>Fields may be separated by newlines or commas.</li>
+<li>A field with a default may be left out of a construction; a <code>T?</code> field defaults to <code>null</code>.</li>
+<li><code>type Admin = Todo ￾ owner: String ￿</code> extends a record: an <code>Admin</code> has every field of <code>Todo</code> and then its own.</li>
+<li>Records are structural: <code>￾ id: &quot;a&quot;, title: &quot;b&quot; ￿</code> given where a <code>Todo</code> is wanted is a <code>Todo</code>, and its fields are checked against the record's.</li>
+<li>A <code>Map</code> fits any record and a record fits a <code>Map</code>: JSON from <code>fetch</code> fits a <code>type</code> it was never declared as.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Enums</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Size { sm, md, lg }
+enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+
+page Enums(path: &quot;/&quot;) {
+    state size: Size = .md
+    state s: Status = .idle
+    Button(&quot;Bigger&quot;) { on click { size = .lg } }
+    Button(&quot;Start&quot;) { on click { s = .running(&quot;build-42&quot;) } }
+    Text(match size { .sm { &quot;small&quot; } .md { &quot;medium&quot; } else { &quot;large&quot; } })
+    match s {
+        .running(job) { Text(&quot;Running {job}&quot;) }
+        .failed(reason) { Alert(reason).danger }
+        .done(n) { Text(&quot;{n} done&quot;) }
+        else { Text(&quot;Idle&quot;) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li>A case is written <code>.name</code>; on its own it is a case of an enum not yet known, and where a <code>Size</code> is wanted it becomes a <code>Size</code> — <code>.huge</code> is <code>T02</code>.</li>
+<li>A case may carry a payload: <code>.failed(&quot;x&quot;)</code> is checked like a call, and a <code>match</code> arm binds it: <code>.failed(r)</code> gives <code>r: String</code>.</li>
+<li><code>size == .lg</code> compares cases; an enum is written to a component's root as <code>data-&lt;prop&gt;</code> (<a href="/WebFluent/docs/guide/components#enum-props">chapter 8</a>).</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Map literals are shapes</h2>
+                            <div class="wf-markdown">
+<p>A map literal has the fields it was written with: <code>￾ name: &quot;&quot;, age: 0 ￿</code> is <code>￾ name: String, age: Number ￿</code>, and reading <code>form.nam</code> is <code>T05</code> with the fields it does have. A shape fits a <code>Map</code>, a record with the same fields, and any shape it agrees with. <code>￾￿</code> and a literal with a spread are plain <code>Map</code>s.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Shapes(path: &quot;/&quot;) {
+    state form = { name: &quot;&quot;, age: 0, tags: [&quot;new&quot;] }
+    Input(bind: form.name, label: &quot;Name&quot;)
+    Text(&quot;{form.name} is {form.age} with {form.tags.length} tags&quot;)
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Where types come from</h2>
+                            <div class="wf-markdown">
+<p><strong>Declared</strong> — annotations, a <code>type</code>'s fields, an <code>enum</code>'s cases, a page's route parameters, an event's parameters, a component's props.</p>
+<p><strong>Inferred</strong> — a literal; a list of literals (<code>[1, 2]</code> is <code>[Number]</code>, <code>[]</code> is <code>[Any]</code>); a record construction; a <code>derived</code> from its expression; a <code>state</code> from its initial value (one that starts as <code>null</code> is <code>Any?</code>); a <code>for</code> binding from the list's element type; a <code>match</code> arm's binding; an <code>if let</code> binding; a lambda's parameters from what the method expects (<code>items.filter(t =&gt; …)</code> gives <code>t</code> the item type).</p>
+<p><strong>From the registry</strong> — the type of every built-in prop; what a <code>bind:</code> needs (<code>Checkbox</code> and <code>Switch</code> a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, <code>Input</code> a <code>String</code> or a <code>Number</code> by its type).</p>
+<p><strong>From the method tables</strong> — on a <code>String</code>: <code>trim</code>, <code>toLowerCase</code>, <code>toUpperCase</code>, <code>replace</code>, <code>slice</code>, <code>padStart</code>, <code>repeat</code>, <code>capitalize</code>, <code>truncate(n)</code> → <code>String</code>; <code>length</code>, <code>indexOf</code> → <code>Number</code>; <code>includes</code>, <code>startsWith</code>, <code>endsWith</code> → <code>Bool</code>; <code>split</code> → <code>[String]</code>. On a list: <code>map</code> → <code>[U]</code> from the lambda; <code>filter</code>, <code>slice</code>, <code>concat</code>, <code>sort</code>, <code>sortBy</code>, <code>unique</code>, <code>take</code>, <code>flatMap</code> → <code>[T]</code>; <code>find</code>, <code>first</code>, <code>last</code> → <code>T?</code>; <code>some</code>, <code>every</code>, <code>includes</code> → <code>Bool</code>; <code>length</code>, <code>sum</code>, <code>indexOf</code>, <code>findIndex</code> → <code>Number</code>; <code>join</code> → <code>String</code>; <code>groupBy</code> → <code>Map</code>; <code>reduce</code> → the initial value's type. On a <code>Number</code>: <code>toFixed</code>, <code>toString</code> → <code>String</code>. Anything else is <code>Any</code>.</p>
+<p><strong>From stores</strong> — <code>Todos.items</code> has the type of the store's state, <code>Todos.add</code> the signature of its action.</p>
+<p>Browser globals (<code>window</code>, <code>document</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, …) are <code>Any</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Inference is bidirectional</h2>
+                            <div class="wf-markdown">
+<p>An expression is checked against the type its context wants when there is one, and its type is read off it otherwise:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Row { id: Number, label: String, score: Number? }
+
+page Infer(path: &quot;/&quot;) {
+    state rows: [Row] = [Row(id: 1, label: &quot;a&quot;), Row(id: 2, label: &quot;b&quot;, score: 9)]
+    derived labels = rows.map(r =&gt; r.label)                 // [String]
+    derived best = rows.find(r =&gt; r.score != null)          // Row?
+    derived total = rows.reduce((n, r) =&gt; n + (r.score ?? 0), 0)   // Number
+    derived kind = if total &gt; 5 { &quot;high&quot; } else { &quot;low&quot; }   // String
+    derived firstScore = best?.score ?? 0                   // Number
+    derived joined = labels.join(&quot;, &quot;)                      // String
+    Text(&quot;{joined} {kind} {firstScore}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>a ?? b</code> is <code>a</code> without its <code>null</code>, joined with <code>b</code>.</li>
+<li><code>a?.b</code> is <code>b</code>'s type made optional, and the rest of the chain with it.</li>
+<li><code>if</code>/<code>match</code> as values have the type both arms fit: the same type, <code>T?</code> when one arm is <code>null</code>, else <code>Any</code>.</li>
+<li><code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> are <code>Number</code>; <code>+</code> is a <code>String</code> when either side is one; comparisons and <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> are <code>Bool</code>.</li>
+<li><code>await e</code> on a <code>fetch</code> is <code>Any</code> unless annotated: <code>let r: [Row] = await fetch(…)</code>.</li>
+<li><code>let ￾ a, b ￿ = m</code> and <code>let [x, y] = l</code> bind the fields and items.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Narrowing optionals</h2>
+                            <div class="wf-markdown">
+<p>A <code>T?</code> must be unwrapped before a field or method is read off it (<code>T04</code>). Each of these proves a name non-null within its branch:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, note: String? }
+
+page Narrow(path: &quot;/&quot;) {
+    state sel: Todo? = null
+    state t: Todo = Todo(id: &quot;1&quot;, title: &quot;x&quot;)
+    if let n = t.note { Text(&quot;{n.length} chars&quot;) }
+    if sel != null { Text(sel.title) }
+    if sel { Text(sel.title) }
+    derived label = if sel != null { sel.title } else { &quot;none&quot; }
+    Text(t.note ?? &quot;no note&quot;)
+    Text(sel?.title ?? &quot;nothing selected&quot;)
+    Button(&quot;Pick&quot;) { on click { sel = t } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Narrowing is flow-sensitive within a block: it holds in the branch the condition guards, not after it.</p>
+                            </div>
+                            <h2 class="wf-heading">Typing what comes from the network</h2>
+                            <div class="wf-markdown">
+<p><code>fetch</code> returns <code>Any</code>. Annotate the resource or the local to type its value:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
+
+page Deploys(path: &quot;/&quot;) {
+    resource deploys: [Deploy] = fetch(&quot;/api/deploys&quot;)
+    match deploys {
+        loading { Spinner }
+        error(e) { Alert(&quot;Failed: {e.message}&quot;).danger }
+        ready(rows) {
+            for d in rows by d.id { Text(&quot;{d.id} {d.status} {ago(d.startedAt)}&quot;) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The checker trusts the annotation; it does not read the server's schema.</p>
+                            </div>
+                            <h2 class="wf-heading">The checks</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The checks</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Code</th>
+                                        <th scope="col">When</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T01</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A value of the wrong type given to a prop, a state, a field, a parameter, an assignment, an argument, or a <code>bind:</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T02</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A case the enum does not have</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T04</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A field or method read off a value that may be <code>null</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T05</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A field or method a record or shape does not have</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T06</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A member or action a store does not have</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T07</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A list, a record or an action used as a condition, which is always true</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T08</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>for</code> over something that is not a list</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T09</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>An <code>emit</code> whose arguments do not match the event's</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T10</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A call with the wrong number of arguments</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T11</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>match</code> on something that is neither a resource nor an enum, or an arm the value cannot take</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Each comes with a hint: a conversion (<code>Number(value)</code>, <code>&quot;￾value￿&quot;</code>), the cases an enum takes, the fields a record has, the unwrapping forms above.</p>
+<p>What the checker does not do: it does not check a lambda's body against a return type, does not change a name's type across assignments (<code>state x = 1</code> stays a <code>Number</code>; assigning a string to it is <code>T01</code>), and does not read the schema of a <code>fetch</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">In the editor</h2>
+                            <div class="wf-markdown">
+<p>Hover shows a name's inferred type (<code>state draft: String</code>, <code>derived remaining: Number</code>, <code>Todos.add: action(String)</code>); completion after <code>.</code> offers a record's fields, an enum's cases where one is wanted, and the methods of a <code>String</code>, a <code>Number</code> or a list. A type error is a diagnostic at the argument it belongs to. <a href="/WebFluent/docs/guide/tooling#editors">Chapter 18</a> sets it up.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/stores">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">9. Stores</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/expressions">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">11. Expressions</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#the-type-language">The type language</a>
+                        <a class="wf-link wf-sdae384de" href="#records-type">Records: type</a>
+                        <a class="wf-link wf-sdae384de" href="#enums">Enums</a>
+                        <a class="wf-link wf-sdae384de" href="#map-literals-are-shapes">Map literals are shapes</a>
+                        <a class="wf-link wf-sdae384de" href="#where-types-come-from">Where types come from</a>
+                        <a class="wf-link wf-sdae384de" href="#inference-is-bidirectional">Inference is bidirectional</a>
+                        <a class="wf-link wf-sdae384de" href="#narrowing-optionals">Narrowing optionals</a>
+                        <a class="wf-link wf-sdae384de" href="#typing-what-comes-from-the-network">Typing what comes from the network</a>
+                        <a class="wf-link wf-sdae384de" href="#the-checks">The checks</a>
+                        <a class="wf-link wf-sdae384de" href="#in-the-editor">In the editor</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

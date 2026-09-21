@@ -266,8 +266,9 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
                     for (route, params) in
                         crate::codegen::ssg::static_routes(page, &program, &config.env)?
                     {
-                        let page_html =
-                            crate::codegen::ssg::render_page_html_with_params(page, &site, &params);
+                        let page_html = crate::codegen::ssg::render_page_html_with_params(
+                            page, &site, &route, &params,
+                        );
                         let dir = output_dir.join(route.trim_start_matches('/'));
                         fs::create_dir_all(&dir)?;
                         fs::write(dir.join("index.html"), &page_html)?;

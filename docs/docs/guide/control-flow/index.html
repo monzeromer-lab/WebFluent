@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control flow</title>
+    <meta name="description" content="if, if let, for … by, show and match, in render blocks and in actions.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Control flow">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="if, if let, for … by, show and match, in render blocks and in actions.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Control flow">
+    <meta name="twitter:description" content="if, if let, for … by, show and match, in render blocks and in actions.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow","name":"Control flow","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"if, if let, for … by, show and match, in render blocks and in actions."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Control flow","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/ControlFlow.js" data-wf-page="ControlFlow" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/control-flow" aria-current="page">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 7</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Control flow</h1>
+                        <p class="wf-text wf-s38239618">Five statements decide what shows: if, if let, for, show and match. Each creates and removes elements as its condition changes.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>Inside a render block, five statements decide what shows: <code>if</code>, <code>if let</code>, <code>for</code>, <code>show</code> and <code>match</code>. Each creates and removes elements as its condition changes, and each animates if you ask it to (<a href="/WebFluent/docs/guide/motion">chapter 13</a>).</p>
+                            </div>
+                            <h2 class="wf-heading">if / else if / else</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Status(path: &quot;/&quot;) {
+    state count = 0
+    if count == 0 {
+        Text(&quot;Nothing yet.&quot;).muted
+    } else if count &lt; 10 {
+        Text(&quot;A few: {count}&quot;)
+    } else {
+        Text(&quot;Many: {count}&quot;).bold
+    }
+    Button(&quot;+&quot;) { on click { count = count + 1 } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The branch's elements are created when the condition turns true and removed when it turns false; state declared inside a component in the branch starts over each time. A condition must be a <code>Bool</code> (or a value that may be null, which is <code>false</code> when null); a list or a record as a condition is an error (<code>T07</code>), since it would always be true.</p>
+                            </div>
+                            <h2 class="wf-heading">if let</h2>
+                            <div class="wf-markdown">
+<p><code>if let name = value ￾ ￿</code> binds the non-null value inside the branch — the way to read a <code>T?</code> without the checker objecting:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type User { name: String, email: String? }
+
+page Profile(path: &quot;/&quot;) {
+    state user: User? = null
+    if let u = user {
+        Text(&quot;Signed in as {u.name}&quot;)
+        if let mail = u.email { Text(mail).muted } else { Text(&quot;No email on file&quot;).muted }
+    } else {
+        Button(&quot;Sign in&quot;) { on click { user = User(name: &quot;Sam&quot;, email: null) } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>if let x ￾ ￿</code> (no <code>=</code>) is the same for a name already in scope. The narrowing holds inside the branch only; <code>x != null</code> and <code>x &amp;&amp; …</code> narrow the same way.</p>
+                            </div>
+                            <h2 class="wf-heading">for</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+
+page List(path: &quot;/&quot;) {
+    state todos: [Todo] = [Todo(id: &quot;a&quot;, title: &quot;Write&quot;), Todo(id: &quot;b&quot;, title: &quot;Ship&quot;, done: true)]
+
+    for todo in todos by todo.id {                      // keyed: each item keeps its nodes
+        Row(gap: .sm) {
+            Checkbox(checked: todo.done, label: todo.title)
+        }
+    }
+    for todo, i in todos {                              // with the index
+        Text(&quot;{i + 1}. {todo.title}&quot;)
+    }
+    for n in 1..=3 { Badge(&quot;{n}&quot;) }                     // over a range
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>by expr</code> names the key: with it, an item that stays in the list keeps its nodes — focus, scroll and animation state survive an insert, a removal or a move, and moves slide. Without a key the list is rebuilt when it changes. Keys must be unique; the runtime warns once when two items share one. Looping over something that is not a list is an error (<code>T08</code>).</p>
+                            </div>
+                            <h2 class="wf-heading">show</h2>
+                            <div class="wf-markdown">
+<p><code>show</code> keeps the elements in the DOM and toggles their visibility, where <code>if</code> creates and destroys them. Use it for something expensive to rebuild or whose state must survive being hidden:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Panel(path: &quot;/&quot;) {
+    state open = true
+    Button(&quot;Toggle&quot;) { on click { open = !open } }
+    show open {
+        Card { Text(&quot;Still here when hidden; my state survives.&quot;) }
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">match</h2>
+                            <div class="wf-markdown">
+<p><code>match</code> shows one arm at a time. Over an <strong>enum</strong> it chooses by case; a case with a payload hands it to the arm:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+
+page Job(path: &quot;/&quot;) {
+    state s: Status = .idle
+    match s {
+        .idle { Button(&quot;Start&quot;) { on click { s = .running(&quot;build-42&quot;) } } }
+        .running(job) { Row { Spinner.sm  Text(&quot;Running {job}&quot;)  Button(&quot;Fail&quot;) { on click { s = .failed(&quot;timed out&quot;) } } } }
+        .failed(reason) { Alert(&quot;Failed: {reason}&quot;).danger }
+        .done(n) { Text(&quot;Done, {n} steps&quot;) }
+    }
+    Text(match s { .idle { &quot;waiting&quot; } .failed(r) { r } else { &quot;busy&quot; } })   // as a value
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Over a <strong>resource</strong> it chooses by the request's state — <a href="/WebFluent/docs/guide/data">chapter 14</a>.</p>
+<p>An arm binds one name per part of the payload; <code>else</code> covers the rest. Every case of an enum has to be handled or covered by <code>else</code> only in a match <em>expression</em> (which needs an <code>else</code> to have a value); a <code>match</code> statement may list only the arms it shows.</p>
+                            </div>
+                            <h2 class="wf-heading">Expressions that choose</h2>
+                            <div class="wf-markdown">
+<p><code>if</code> and <code>match</code> are also values, and <code>??</code> picks a fallback:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Choose(path: &quot;/&quot;) {
+    state n = 5
+    state nick: String? = null
+    derived size = if n &gt; 10 { &quot;big&quot; } else { &quot;small&quot; }
+    derived label = nick ?? &quot;anonymous&quot;
+    Text(&quot;{size} {label}&quot;)
+}</code>
+                            </div>
+                            <h2 class="wf-heading">In actions and handlers</h2>
+                            <div class="wf-markdown">
+<p>The same statements work in an imperative block, on values rather than elements, plus <code>try</code>/<code>catch</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Sync(path: &quot;/&quot;) {
+    state rows: [Map] = []
+    state error = &quot;&quot;
+    action pull() {
+        try {
+            let r = await fetch(&quot;/api/rows&quot;)
+            let { items } = r
+            rows = []
+            for item, i in items {
+                if i &gt;= 100 { return }
+                rows.push(item)
+            }
+        } catch e {
+            error = e.message
+        }
+    }
+    Button(&quot;Pull&quot;) { on click { pull() } }
+    if error != &quot;&quot; { Alert(error).danger }
+    Text(&quot;{rows.length} rows&quot;)
+}</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/events-and-forms">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">6. Events and forms</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/components">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">8. Components</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#if-else-if-else">if / else if / else</a>
+                        <a class="wf-link wf-sdae384de" href="#if-let">if let</a>
+                        <a class="wf-link wf-sdae384de" href="#for">for</a>
+                        <a class="wf-link wf-sdae384de" href="#show">show</a>
+                        <a class="wf-link wf-sdae384de" href="#match">match</a>
+                        <a class="wf-link wf-sdae384de" href="#expressions-that-choose">Expressions that choose</a>
+                        <a class="wf-link wf-sdae384de" href="#in-actions-and-handlers">In actions and handlers</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,3 +1,126 @@
+# WebFluent v3.2 Release Notes
+
+## Added
+
+### The guide: `md-docs/`
+
+A twenty-chapter developer guide, from `wf init` to three complete
+applications: getting started, the language basics, pages and routing,
+elements, state, events and forms, control flow, components, stores,
+types, expressions, styling, motion, data, internationalisation, content,
+outputs, tooling, a components reference generated from the registry
+(`scripts/components-reference.py`), and a cookbook. Every code block is
+parsed, semantically checked, type-checked and held to the linters by
+`tests/docs_parse.rs`, and the cookbook's applications build and were
+walked through in a browser. The site's documentation will be rewritten
+from it.
+
+### Syntax colouring
+
+`Code(…, language: "wf")` — or `json`, `bash`, `css` — and a Markdown
+fence in one of those languages are coloured, at build time by
+`codegen::highlight` and in the browser by `WF.highlight`, the same
+tokens either way: keywords, capitalised names, strings, numbers and
+colours, `name:` props, `$tokens`, comments and a shell prompt, each a
+`wf-tok-*` span taking its colour from the theme's `syntax-*` tokens. The
+baseline theme now carries those tokens and `term-bg`/`term-ink`/`term-dim`,
+and a code block is painted on `term-bg` — a console stays dark in both
+themes — with `white-space: pre` and a horizontal scroll. `sun` and `moon`
+join the icons; an `icon:` that reads state follows it.
+
+### The documentation site, from the guide
+
+`site/` is written from `md-docs/` by `scripts/site-from-guide.py`: one page
+per chapter under `site/src/pages/guide/` (routes `/docs/guide/<chapter>`),
+framed by `DocsShell` — the header with search over every chapter and
+section, the chapter nav with its numbers, the article at a reading
+measure, the headings rail and the links to the chapters either side —
+with prose as `Markdown` (inline code, links and lists render), fences as
+`CodeBlock` (coloured, with a Copy button), shell blocks as `Terminal` and
+pipe tables as `Table`. The components reference is data: `wf registry
+--json` becomes `site/src/registry.json` (`scripts/site-data.py`), an
+index page and one page per built-in at `/docs/reference/<name>` with its
+signature, props, flags and cases, events and parts under tabs, a filter
+over the index, and the entries nearby. The landing page, the chapter
+page, the reference and the phone layout follow the design canvas
+"WebFluent — site and documentation" to the pixel, in the MO design
+system: graphite for structure, blue for intent, cyan for data, Inter and
+JetBrains Mono, a console that stays dark in both themes, a theme toggle,
+light and dark, and Arabic chrome with the chapters kept left-to-right.
+
+### The language
+
+- A string splice takes any expression: `"{format(total, .currency)}"`,
+  `"{[1, 2].length}"`, `"{a ?? "none"}"` and
+  `"{if ok { "yes" } else { "no" }}"` — a splice may hold a string of its
+  own, as long as the group closes on the line. A brace group that is not
+  an expression (`"{key: value}"` in prose) stays text; one with a slip in
+  it is an error that names the splice.
+- `() => expr`: a lambda of no parameters, for `setTimeout(() => go(), 300)`.
+- A record construction carries the fields it left out — each field's
+  default, `null` for an optional — so `Todo(id: "a", title: "b")` holds
+  `done: false` wherever it goes.
+- `await fetch(url, options)` in an action or a handler is the parsed body,
+  and a failed response throws (`WF.request`): the same request a
+  `resource` makes. The browser's own is `window.fetch`.
+- `items.push(x)` on a `state`, a `persist` or a store's member sets a new
+  list, so what reads it repaints and a persisted one is written.
+- `Modal(visible:)`/`Dialog(visible:)` take any expression that reads
+  state — a store's member, a condition — and write a state or a store
+  member back when the browser closes the dialog itself.
+- A page's `guard:` and `redirect:` work: a route whose guard is false
+  sends the reader to its redirect (default `/`) instead of painting.
+- A page's own `meta` in `head { }` replaces the standard tag of the same
+  `property` or `name`, so a post page has one `og:title`, its own.
+- The registry lists the icons the runtime draws (`registry::ICONS`,
+  pinned to the runtime's table); an `Icon("…")` or `icon:` that names
+  another is a warning, and the language server completes from the same
+  list.
+
+## Fixed
+
+- The static paint and the template engine bind an `if let` name: the
+  branch used to read it as unknown and paint an empty heading.
+- A store action's `try`/`catch`, `for` and `else if` used to fall through
+  to the page emitter and read `_x()` signals a store does not have.
+- `Form(bind: form)` declared the handle twice — as a form and as a ref —
+  which the browser refused.
+- A `Checkbox`, `Radio` or `Switch` drops nothing now: `aria-*`, `data-*`,
+  `name`, `id` and `disabled` reach the `<input>`, and radios bound to one
+  state share a `name` so the arrow keys move between them.
+- `navigate("/?filter=done")` and a `Link(to:)` with a query string route
+  by the path and keep the query readable through `query`; a link to the
+  route with a query is the current one.
+- The single-page shell addresses its assets from the site root, so a deep
+  link served by the SPA fallback (`/deploys/8f2c`) loads `app.js` rather
+  than the shell again.
+- `WF._basePath` is a getter again; a static build's links no longer start
+  with `undefined`.
+- A bare `slot` followed by `on key(…)` on the next line names no slot
+  `on`.
+- The vocabulary lint knows a page's route parameters, and its `const` and
+  `data` names.
+- A page framed by a `layout:` is judged with the layout's outline: the
+  `h1` a layout draws is the page's (`A12`), and a heading level skipped
+  across the boundary is seen (`A11`).
+- `Grid(columns:)` is a `data-cols` attribute the stylesheet reads — a
+  build with `build.csp` on used to have its grids blocked as inline
+  styles — and a `columns:` that reads state follows it.
+- `wf serve` serves a site built with `build.base_path` under that path,
+  as its host will, and sends `/` there.
+- A Markdown link or image to a site-relative path takes the base path,
+  at build time and in the browser.
+- A `Breadcrumb.Item` without `to` paints as a `<span>`, not an `<li>`
+  outside a list.
+- The skip link hides by a transform, not an off-canvas offset that a
+  right-to-left page could scroll to.
+- A `:param` page's static files carry their own route as the canonical
+  link and sharing URL, not the pattern with `:slug` in it.
+- An `IconButton` with a `class:` keeps the engine's classes; its `icon:`,
+  `label:` and title follow state.
+
+---
+
 # WebFluent v3.1 Release Notes
 
 ## Added

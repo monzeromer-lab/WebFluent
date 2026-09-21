@@ -1,7 +1,72 @@
-component CodeBlock(code: String) {
-    Card.outlined {
-        Card.Body {
-            Code(code).block
+/// A code block in a titled frame, as the design draws it: a 32px bar with
+/// the language and a Copy button, then the code coloured by the compiler's
+/// highlighter on the console surface. `title` names the file or the
+/// language; a title the highlighter knows colours the block.
+component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
+    state copied = false
+    derived language = if title == "wf" || title == "wfx" || title == "json" || title == "css" { title } else if title == "shell" || title == "bash" { "bash" } else { "" }
+
+    action copy() {
+        copied = true
+        try { navigator.clipboard.writeText(code) } catch e { log(e) }
+        setTimeout(() => reset(), 1600)
+    }
+    action reset() { copied = false }
+
+    Stack(class: "code-block") {
+        style {
+            gap: 0
+            border: 1px solid $border
+            border-radius: 6px
+            overflow: hidden
+            background: $term-bg
+        }
+        Row(align: .center, justify: .between) {
+            style {
+                flex-wrap: nowrap
+                height: 32px
+                padding: 0 12px
+                background: $color-background
+                border-bottom: 1px solid $border
+                @media (max-width: 768px) { flex-direction: row }
+            }
+            Row(align: .center, gap: .sm) {
+                style { flex-wrap: nowrap; min-width: 0; & p { margin: 0 } }
+                Text(title) { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text-muted } }
+                if note != "" {
+                    Text(note) { style { font-size: 12px; line-height: 18px; color: $ink-subtle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
+                }
+            }
+            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy")) {
+                style {
+                    height: 22px
+                    padding: 0 8px
+                    background: transparent
+                    border: 1px solid $border
+                    border-radius: 4px
+                    color: $ink-subtle
+                    font-family: inherit
+                    font-size: 12px
+                    line-height: 18px
+                    font-weight: 400
+                    &:hover { color: $color-text; border-color: $border-strong; background: transparent }
+                }
+                on click { copy() }
+            }
+        }
+        Code(code, language: language).block {
+            style {
+                margin: 0
+                padding: 16px
+                background: $term-bg
+                color: $syntax-punct
+                font-family: $font-family-mono
+                font-size: 12px
+                line-height: 21px
+                white-space: pre
+                overflow-x: auto
+                border-radius: 0
+            }
         }
     }
 }

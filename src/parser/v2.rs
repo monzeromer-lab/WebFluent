@@ -992,9 +992,15 @@ impl ParserV2 {
             }
             if self.is_word("slot") {
                 let mark = self.mark();
+                let slot_line = self.current().line;
                 self.advance();
+                // A slot's name is on the slot's own line: a bare `slot`
+                // followed by `on key(…)` on the next names no slot `on`.
                 let name = match self.kind() {
-                    TokenType::Identifier(w) if !STATEMENT_WORDS.contains(&w.as_str()) => {
+                    TokenType::Identifier(w)
+                        if !STATEMENT_WORDS.contains(&w.as_str())
+                            && self.current().line == slot_line =>
+                    {
                         let w = w.clone();
                         if w.chars().next().is_some_and(char::is_uppercase) {
                             None
@@ -2312,7 +2318,19 @@ impl ParserV2 {
             ))
         })?;
         let mut sub = ParserV2::new(tokens, &self.file);
-        let expr = sub.parse_expression()?;
+        let expr = sub.parse_expression().map_err(|e| {
+            let t = self.current();
+            let message = match &e {
+                WebFluentError::ParseError(d) => d.message.clone(),
+                other => other.to_string(),
+            };
+            WebFluentError::ParseError(Diagnostic::new(
+                format!("In `{{{text}}}`: {message}"),
+                &self.file,
+                t.line,
+                t.column,
+            ))
+        })?;
         if !sub.at_end() {
             return Err(self.error(format!("Unexpected {} in `{{{text}}}`", sub.describe())));
         }
@@ -2541,7 +2559,12 @@ impl ParserV2 {
             TokenType::StringLiteral(s) => {
                 self.advance();
                 if has_interpolation(&s) {
-                    Ok(Expr::InterpolatedString(self.parse_interpolated(&s)?))
+                    let parts = self.parse_interpolated(&s)?;
+                    if parts.iter().all(|p| matches!(p, StringPart::Literal(_))) {
+                        // Every brace group was prose: the string as written.
+                        return Ok(Expr::StringLiteral(s));
+                    }
+                    Ok(Expr::InterpolatedString(parts))
                 } else {
                     Ok(Expr::StringLiteral(s))
                 }
@@ -2595,7 +2618,13 @@ impl ParserV2 {
             TokenType::OpenParen => {
                 // `(a, b) => body` or a grouped expression.
                 if let Some(params) = self.lambda_params_ahead() {
-                    for _ in 0..(params.len() * 2 + 1) {
+                    // `(`, the names with their commas, `)`.
+                    let tokens = if params.is_empty() {
+                        2
+                    } else {
+                        params.len() * 2 + 1
+                    };
+                    for _ in 0..tokens {
                         self.advance();
                     }
                     self.expect(&TokenType::Arrow, "`=>`")?;
@@ -2645,6 +2674,10 @@ impl ParserV2 {
     fn lambda_params_ahead(&self) -> Option<Vec<String>> {
         let mut params = Vec::new();
         let mut i = 1;
+        // `() => …`: a lambda of no parameters.
+        if matches!(self.kind_at(1), TokenType::CloseParen) {
+            return matches!(self.kind_at(2), TokenType::Arrow).then_some(params);
+        }
         loop {
             match self.kind_at(i) {
                 TokenType::Identifier(name) => params.push(name.clone()),
@@ -2845,7 +2878,19 @@ impl ParserV2 {
                     inner.push(chars[i]);
                     i += 1;
                 }
-                parts.push(StringPart::Expression(self.parse_sub_expression(&inner)?));
+                match self.parse_sub_expression(&inner) {
+                    Ok(expr) => parts.push(StringPart::Expression(expr)),
+                    // A brace group with a `:` or a `,` that is not an
+                    // expression — `{name: value}` in prose, a fragment of
+                    // code — is text; one without is a splice with a slip
+                    // in it, and says so.
+                    Err(_) if inner.contains([':', ',']) => {
+                        literal.push('{');
+                        literal.push_str(&inner);
+                        literal.push('}');
+                    }
+                    Err(e) => return Err(e),
+                }
                 i += 1;
             } else {
                 literal.push(chars[i]);
@@ -2859,8 +2904,8 @@ impl ParserV2 {
     }
 }
 
-/// Whether a string literal holds a `{name…}` splice (a `{` followed by a
-/// name and closed on the same line, with no `:` or `,`).
+/// Whether a string literal holds a `{name…}` splice: a `{` followed by a
+/// name, a `[` or a `(`, and closed on the same line.
 fn has_interpolation(s: &str) -> bool {
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
@@ -2868,12 +2913,12 @@ fn has_interpolation(s: &str) -> bool {
         if chars[i] == '{'
             && chars
                 .get(i + 1)
-                .is_some_and(|c| c.is_alphabetic() || *c == '_')
+                .is_some_and(|c| c.is_alphabetic() || matches!(*c, '_' | '[' | '('))
         {
             let mut j = i + 2;
             let mut valid = true;
             while j < chars.len() && chars[j] != '}' {
-                if matches!(chars[j], '\n' | ':' | ',') {
+                if chars[j] == '\n' {
                     valid = false;
                     break;
                 }
@@ -3242,6 +3287,68 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         assert!(c.props[1].optional);
         let err = fails("component C(items: List) { }");
         assert!(err.contains("`List` is not a type"), "{err}");
+    }
+
+    #[test]
+    fn a_bare_slot_before_a_page_level_handler_names_no_slot() {
+        let p =
+            parse("component S {\n    slot\n    on key(\"Escape\") { log(1) }\n    children\n}");
+        let Declaration::Component(c) = &p.declarations[0] else {
+            panic!()
+        };
+        assert_eq!(c.slots.len(), 1);
+        assert_eq!(c.slots[0].name, None);
+        assert!(c.body.iter().any(|s| matches!(&s.kind, StatementKind::EventHandler(h) if h.key.as_deref() == Some("Escape"))), "{:?}", c.body);
+    }
+
+    #[test]
+    fn a_lambda_may_take_no_parameters() {
+        let p = parse(
+            "page P(path: \"/\") {\n state n = 0\n action bump() { n = n + 1 }\n effect { setTimeout(() => bump(), 10) }\n Text(\"{n}\")\n}",
+        );
+        let Declaration::Page(page) = &p.declarations[0] else {
+            panic!()
+        };
+        let StatementKind::Effect(e) = &page.body[2].kind else {
+            panic!("{:?}", page.body[2])
+        };
+        assert!(
+            format!("{:?}", e.body).contains("Lambda(\"\""),
+            "{:?}",
+            e.body
+        );
+    }
+
+    #[test]
+    fn a_splice_may_hold_a_call_with_arguments_and_a_list() {
+        let el = first_element(
+            "page P(path: \"/\") { Text(\"Total {format(total, .currency)} of {[1, 2].length}\") }",
+        );
+        let Some(Arg::Positional(Expr::InterpolatedString(parts))) = el.args.first() else {
+            panic!("{:?}", el.args)
+        };
+        assert!(
+            matches!(&parts[1], StringPart::Expression(Expr::FunctionCall(n, a)) if n == "format" && a.len() == 2)
+        );
+        assert!(matches!(
+            &parts[3],
+            StringPart::Expression(Expr::PropertyAccess(..))
+        ));
+    }
+
+    #[test]
+    fn a_brace_group_that_is_not_an_expression_stays_text_only_when_it_could_be_prose() {
+        // `{name: value}` in prose, a code fragment: text.
+        let el =
+            first_element("page P(path: \"/\") { Text(\"Write {key: value} pairs, {a, b}\") }");
+        assert!(
+            matches!(el.args.first(), Some(Arg::Positional(Expr::StringLiteral(s))) if s == "Write {key: value} pairs, {a, b}"),
+            "{:?}",
+            el.args
+        );
+        // A splice with a slip in it is an error, not silently text.
+        let err = fails("page P(path: \"/\") { Text(\"Hi {name +}\") }");
+        assert!(err.contains("name +"), "{err}");
     }
 
     #[test]

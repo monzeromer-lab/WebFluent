@@ -1,0 +1,114 @@
+/// The light theme. Two inks drawn from one mark: graphite is structure,
+/// blue is intent, cyan is data, and nothing else carries colour.
+theme Day {
+    color-primary: #2B5178
+    color-secondary: #0F7285
+    color-success: #1C7A5A
+    color-danger: #B3261E
+    color-warning: #8A5800
+    color-info: #2B5178
+
+    color-background: #F9FAFB
+    color-surface: #FFFFFF
+    color-text: #17191C
+    color-text-muted: #5A5F64
+    color-border: #E2E5E8
+
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif
+    font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+
+    radius-none: 0
+    radius-sm: 4px
+    radius-md: 6px
+    radius-lg: 10px
+    radius-xl: 16px
+    radius-full: 999px
+
+    shadow-sm: 0 1px 2px rgba(23,25,28,0.06), 0 2px 6px rgba(23,25,28,0.06)
+    shadow-md: 0 2px 4px rgba(23,25,28,0.05), 0 8px 20px rgba(23,25,28,0.10)
+    shadow-lg: 0 4px 8px rgba(23,25,28,0.06), 0 16px 40px rgba(23,25,28,0.16)
+
+    transition-fast: 100ms ease
+    transition-normal: 140ms ease
+
+    // Surfaces, layered canvas -> surface -> raised -> overlay.
+    surface-canvas: #EEF0F2
+    surface-raised: #FFFFFF
+    surface-sunken: #F4F6F7
+    surface-overlay: #FFFFFF
+    surface-hover: #F4F6F7
+
+    // Ink beyond the two baseline steps.
+    ink-subtle: #676C71
+    ink-inverse: #F9FAFB
+
+    // Brand and accent, past the primary fill.
+    brand-ink: #2B5178
+    brand-subtle: #E7EEF6
+    brand-ring: #33689C
+    accent: #0F7285
+    accent-ink: #0D6274
+    accent-subtle: #E0F2F6
+
+    border-strong: #868B91
+
+    // A console stays dark in both themes.
+    term-bg: #1B1F22
+    term-ink: #E6E9EC
+    term-dim: #959BA1
+    syntax-keyword: #8FBDE7
+    syntax-string: #7FD6A8
+    syntax-number: #E0B070
+    syntax-function: #6FD3E6
+    syntax-punct: #B3BAC0
+    syntax-comment: #959BA1
+
+    // Measures.
+    prose-max: 680px
+    content-max: 1120px
+    sidebar-w: 264px
+    rail-w: 240px
+}
+
+/// The dark theme, used under `prefers-color-scheme: dark`. It lifts by
+/// stepping the surface lighter rather than by adding shadow.
+theme Night {
+    color-primary: #3D6FA3
+    color-secondary: #2F9FB6
+    color-success: #2F9D76
+    color-danger: #D94F45
+    color-warning: #C98A1F
+    color-info: #3D6FA3
+
+    color-background: #0E1012
+    color-surface: #17191C
+    color-text: #EEF0F2
+    color-text-muted: #A9AEB4
+    color-border: #2C3035
+
+    shadow-sm: 0 1px 2px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4)
+    shadow-md: 0 2px 4px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.5)
+    shadow-lg: 0 4px 8px rgba(0,0,0,0.5), 0 16px 40px rgba(0,0,0,0.6)
+
+    surface-canvas: #0E1012
+    surface-raised: #1F2225
+    surface-sunken: #0E1012
+    surface-overlay: #24282C
+    surface-hover: #1F2225
+
+    ink-subtle: #878D93
+    ink-inverse: #17191C
+
+    brand-ink: #8FBDE7
+    brand-subtle: #16283C
+    brand-ring: #8FBDE7
+    accent: #2F9FB6
+    accent-ink: #6FD3E6
+    accent-subtle: #10313A
+
+    border-strong: #6B7178
+
+    term-bg: #101315
+    term-ink: #E6E9EC
+    term-dim: #959BA1
+}

@@ -1,11 +1,5 @@
 app {
-    NavBar
-
-    Row {
-        DocSidebar
-
-        Router
-    }
+    Router(transition: .fade, duration: "160ms")
 
     SiteFooter
 }

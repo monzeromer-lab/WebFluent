@@ -118,6 +118,18 @@ pub fn default_tokens() -> HashMap<String, String> {
     t.insert("screen-lg".into(), "1024px".into());
     t.insert("screen-xl".into(), "1280px".into());
 
+    // A console stays dark in both themes: code blocks, terminals and the
+    // syntax colours of a `Code(…, language:)` or a Markdown fence.
+    t.insert("term-bg".into(), "#1B1F22".into());
+    t.insert("term-ink".into(), "#E6E9EC".into());
+    t.insert("term-dim".into(), "#959BA1".into());
+    t.insert("syntax-keyword".into(), "#8FBDE7".into());
+    t.insert("syntax-string".into(), "#7FD6A8".into());
+    t.insert("syntax-number".into(), "#E0B070".into());
+    t.insert("syntax-function".into(), "#6FD3E6".into());
+    t.insert("syntax-punct".into(), "#B3BAC0".into());
+    t.insert("syntax-comment".into(), "#959BA1".into());
+
     // Transitions
     t.insert("transition-fast".into(), "150ms ease".into());
     t.insert("transition-normal".into(), "250ms ease".into());

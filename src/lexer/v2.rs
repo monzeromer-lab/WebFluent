@@ -605,6 +605,20 @@ impl LexerV2 {
                         value.push(c);
                     }
                 }
+            } else if self.current() == '{' {
+                // A splice may hold a string of its own — `{a ?? "none"}` —
+                // so a balanced brace group on this line is taken whole,
+                // quotes and all; a lone `{` is a character like any other.
+                match self.splice_end() {
+                    Some(end) => {
+                        while self.pos < end {
+                            value.push(self.current());
+                            self.advance();
+                        }
+                        continue;
+                    }
+                    None => value.push('{'),
+                }
             } else {
                 value.push(self.current());
             }
@@ -620,6 +634,46 @@ impl LexerV2 {
         }
         self.advance();
         Ok(Token::new(TokenType::StringLiteral(value), line, column))
+    }
+
+    /// The index just past the `}` that closes the splice opening at the
+    /// current `{`, when the group is balanced on this line — a `{`
+    /// followed by a name, a `[` or a `(`, with any string inside it kept
+    /// whole — else `None`.
+    fn splice_end(&self) -> Option<usize> {
+        let opener = self.source.get(self.pos + 1).copied()?;
+        if !(opener.is_alphabetic() || matches!(opener, '_' | '[' | '(')) {
+            return None;
+        }
+        let mut depth = 0usize;
+        let mut in_string = false;
+        let mut i = self.pos;
+        while i < self.source.len() {
+            let c = self.source[i];
+            if in_string {
+                match c {
+                    '\\' => i += 1,
+                    '"' => in_string = false,
+                    '\n' => return None,
+                    _ => {}
+                }
+            } else {
+                match c {
+                    '"' => in_string = true,
+                    '{' => depth += 1,
+                    '}' => {
+                        depth -= 1;
+                        if depth == 0 {
+                            return Some(i + 1);
+                        }
+                    }
+                    '\n' => return None,
+                    _ => {}
+                }
+            }
+            i += 1;
+        }
+        None
     }
 
     fn read_number(&mut self) -> Result<Token> {
@@ -908,6 +962,33 @@ fn opens_style_block(before: &[Token]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_splice_keeps_a_string_of_its_own_and_a_lone_brace_is_text() {
+        let strings = |src: &str| -> Vec<String> {
+            kinds(src)
+                .into_iter()
+                .filter_map(|t| match t {
+                    TokenType::StringLiteral(s) => Some(s),
+                    _ => None,
+                })
+                .collect()
+        };
+        assert_eq!(
+            strings("\"B {a ?? \"x\"} end\""),
+            vec!["B {a ?? \"x\"} end"]
+        );
+        assert_eq!(
+            strings("\"{if ok { \"y\" } else { \"n\" }}\""),
+            vec!["{if ok { \"y\" } else { \"n\" }}"]
+        );
+        // No balanced group on the line: the `{` is a character, and the
+        // string ends at the next quote as it always did.
+        assert_eq!(strings("\"a { b\" \"c\""), vec!["a { b", "c"]);
+        assert_eq!(strings("\"{\" \"d\""), vec!["{", "d"]);
+        // A group with a `\"` inside it, the older spelling, still lexes.
+        assert_eq!(strings("\"{a ?? \\\"x\\\"}\""), vec!["{a ?? \"x\"}"]);
+    }
 
     fn kinds(src: &str) -> Vec<TokenType> {
         LexerV2::new(src, "<t>")

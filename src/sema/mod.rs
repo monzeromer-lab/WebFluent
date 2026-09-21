@@ -408,6 +408,21 @@ impl Checker<'_, '_> {
         }
         for (i, arg) in el.args.iter().enumerate() {
             let at = el.arg_spans.get(i).copied().unwrap_or(span);
+            // An icon the runtime does not draw shows its name as text.
+            let icon = match arg {
+                Arg::Positional(Expr::StringLiteral(s)) if name == "Icon" && i == 0 => Some(s),
+                Arg::Named(k, Expr::StringLiteral(s)) if k == "icon" => Some(s),
+                _ => None,
+            };
+            if let Some(icon) = icon
+                && !registry::ICONS.contains(&icon.as_str())
+            {
+                self.warning(
+                    at,
+                    format!("`{icon}` is not an icon the runtime draws; it will show as the word"),
+                    &format!("The icons: {}", registry::ICONS.join(", ")),
+                );
+            }
             match arg {
                 Arg::Positional(_) => {
                     if sig.positional.is_none() && i == 0 {
@@ -731,6 +746,10 @@ pub fn lower(mut program: Program) -> Program {
     let enum_names: std::collections::HashSet<String> =
         owned.enums.keys().map(|k| k.to_string()).collect();
     drop(owned);
+    // What a record's construction leaves out: each field's default, and
+    // `null` for an optional one, so `Todo(id: "a", title: "b")` carries
+    // `done: false` and `note: null` wherever it goes.
+    let record_defaults = record_defaults(&program);
     let theme_tokens: std::collections::HashSet<String> = program
         .declarations
         .iter()
@@ -759,8 +778,66 @@ pub fn lower(mut program: Program) -> Program {
         };
         lower_statements(body, &user);
         resolve_short_tokens(body, &theme_tokens);
+        fill_records(body, &record_defaults);
+    }
+    for decl in &mut program.declarations {
+        let value = match decl {
+            Declaration::Const(c) => &mut c.value,
+            Declaration::Test(t) => {
+                fill_records(&mut t.body, &record_defaults);
+                continue;
+            }
+            _ => continue,
+        };
+        value.walk_mut(&mut |e| fill_record(e, &record_defaults));
     }
     program
+}
+
+/// For each declared record, the fields a construction may leave out and
+/// what they hold then, in declaration order.
+fn record_defaults(program: &Program) -> HashMap<String, Vec<(String, Expr)>> {
+    let types: HashMap<&str, &TypeDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Type(t) => Some((t.name.as_str(), t)),
+            _ => None,
+        })
+        .collect();
+    types
+        .values()
+        .map(|t| {
+            let fields = t.all_fields(&|name| types.get(name).copied());
+            let defaults = fields
+                .iter()
+                .filter_map(|f| match (&f.default, &f.ty) {
+                    (Some(d), _) => Some((f.name.clone(), d.clone())),
+                    (None, TypeRef::Optional(_)) => Some((f.name.clone(), Expr::Null)),
+                    _ => None,
+                })
+                .collect();
+            (t.name.clone(), defaults)
+        })
+        .collect()
+}
+
+fn fill_records(stmts: &mut [Statement], defaults: &HashMap<String, Vec<(String, Expr)>>) {
+    walk_exprs_mut(stmts, &mut |e| fill_record(e, defaults));
+}
+
+fn fill_record(expr: &mut Expr, defaults: &HashMap<String, Vec<(String, Expr)>>) {
+    let Expr::Record(name, fields) = expr else {
+        return;
+    };
+    let Some(missing) = defaults.get(name) else {
+        return;
+    };
+    for (field, value) in missing {
+        if !fields.iter().any(|(k, _)| k == field) {
+            fields.push((field.clone(), value.clone()));
+        }
+    }
 }
 
 /// A component's enum props are written to its root element as
@@ -1632,6 +1709,65 @@ mod tests {
             "{messages:?}"
         );
         assert_eq!(f.errors.len(), 4, "{messages:?}");
+    }
+
+    #[test]
+    fn an_icon_the_runtime_does_not_draw_is_a_warning() {
+        let f = checked(
+            "page P(path: \"/\") { Icon(\"rocket\")  Icon(\"home\")  IconButton(icon: \"cog\", label: \"x\")  Sidebar { Sidebar.Item(to: \"/\", icon: \"settings\") { Text(\"s\") } } }",
+        );
+        let messages: Vec<String> = f.warnings.iter().map(|w| w.message.clone()).collect();
+        assert_eq!(messages.len(), 2, "{messages:?}");
+        assert!(
+            messages[0].contains("`rocket` is not an icon"),
+            "{messages:?}"
+        );
+        assert!(messages[1].contains("`cog` is not an icon"), "{messages:?}");
+    }
+
+    #[test]
+    fn a_record_construction_carries_the_fields_it_left_out() {
+        let p = lowered(
+            "type Base { id: String, note: String? }\ntype Todo = Base { title: String, done: Bool = false, tone: String = \"calm\" }\nconst T = Todo(id: \"a\", title: \"x\", tone: \"loud\")\npage P(path: \"/\") { state t = Todo(id: \"b\", title: \"y\")\n Text(t.title) { on click { log(Todo(id: \"c\", title: \"z\", done: true)) } } }",
+        );
+        let fields = |e: &Expr| -> Vec<String> {
+            let Expr::Record(_, f) = e else {
+                panic!("{e:?}")
+            };
+            f.iter().map(|(k, v)| format!("{k}={v:?}")).collect()
+        };
+        let Declaration::Const(c) = &p.declarations[2] else {
+            panic!()
+        };
+        assert_eq!(
+            fields(&c.value),
+            [
+                "id=StringLiteral(\"a\")",
+                "title=StringLiteral(\"x\")",
+                "tone=StringLiteral(\"loud\")",
+                "note=Null",
+                "done=BoolLiteral(false)"
+            ]
+        );
+        let Declaration::Page(page) = &p.declarations[3] else {
+            panic!()
+        };
+        let StatementKind::State(st) = &page.body[0].kind else {
+            panic!()
+        };
+        assert!(fields(&st.value).contains(&"done=BoolLiteral(false)".to_string()));
+        let StatementKind::UIElement(el) = &page.body[1].kind else {
+            panic!()
+        };
+        let StatementKind::Log(e) = &el.events[0].body[0].kind else {
+            panic!("{:?}", el.events[0].body[0])
+        };
+        let f = fields(e);
+        assert!(
+            f.contains(&"done=BoolLiteral(true)".to_string())
+                && f.contains(&"tone=StringLiteral(\"calm\")".to_string()),
+            "{f:?}"
+        );
     }
 
     #[test]

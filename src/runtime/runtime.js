@@ -165,6 +165,15 @@ const WF = (() => {
           } else {
             el.innerHTML = markdown(v);
           }
+        } else if (k === "highlight") {
+          // `{ code, lang }`: the code coloured as the language.
+          const paint = () => {
+            const code = typeof v.code === "function" ? v.code() : v.code;
+            const lang = typeof v.lang === "function" ? v.lang() : v.lang;
+            el.innerHTML = highlight(code, lang);
+          };
+          if (typeof v.code === "function" || typeof v.lang === "function") effect(paint);
+          else paint();
         } else if (k === "value" && tag === "select") {
           selectValue = v;
         } else if (k.startsWith("on:")) {
@@ -208,7 +217,7 @@ const WF = (() => {
         } else if (k === "data-icon") {
           // The glyph is drawn after the children: an icon button carries
           // data-icon and a .wf-icon child, and used to draw the glyph twice.
-          iconName = typeof v === "function" ? v() : v;
+          iconName = v;
         } else if (k.startsWith("aria-")) {
           // An ARIA state is a string: aria-pressed="false" means "not pressed",
           // while a missing attribute means "not a toggle". So false is kept.
@@ -232,7 +241,9 @@ const WF = (() => {
     appendChildren(el, children);
     if (iconName !== undefined) {
       const drawn = [...el.children].some((c) => String(c.className || "").split(" ").includes("wf-icon"));
-      if (!drawn) _renderIcon(el, iconName);
+      // A name that reads state follows it: `icon: if dark { "sun" } else { "moon" }`.
+      if (!drawn && typeof iconName === "function") effect(() => _renderIcon(el, iconName()));
+      else if (!drawn) _renderIcon(el, iconName);
     }
     if (typeof selectValue === "function") {
       effect(() => { const v = selectValue(); if (v != null) el.value = v; });
@@ -597,14 +608,158 @@ const WF = (() => {
   function mdInline(text) {
     const spans = [];
     let s = mdEscape(text).replace(MD.code, (_, c) => { spans.push("<code>" + c + "</code>"); return "\u0000" + (spans.length - 1) + "\u0000"; });
-    s = s.replace(MD.image, '<img src="$2" alt="$1">');
-    s = s.replace(MD.link, '<a href="$2">$1</a>');
+    // A site-relative link or image is addressed from the base path, as
+    // `Link(to:)` and `Image(src:)` are.
+    const at = (url) => (url.startsWith("/") && !url.startsWith("//") ? _basePath + url : url);
+    s = s.replace(MD.image, (_, alt, url) => '<img src="' + at(url) + '" alt="' + alt + '">');
+    s = s.replace(MD.link, (_, label, url) => '<a href="' + at(url) + '">' + label + "</a>");
     s = s.replace(MD.strong, "<strong>$1</strong>");
     s = s.replace(MD.em, "<em>$1</em>");
     s = s.replace(MD.em2, "$1<em>$2</em>$3");
     spans.forEach((span, i) => { s = s.split("\u0000" + i + "\u0000").join(span); });
     return s.replace(/\n/g, "<br>\n");
   }
+  // ─── Syntax colouring ───────────────────────────────
+  //
+  // `Code(…, language: "wf")` and a Markdown fence: the code as HTML with
+  // a `<span class="wf-tok-…">` around each token kind — the same tokens
+  // the compiler's `codegen::highlight` writes into the static paint.
+  const HL_KEYWORDS = new Set(("page component store theme app type enum const data animation test state persist " +
+    "derived effect action use resource event slot part if else for in by show match let return await try catch emit " +
+    "navigate log on style transition children every after from to cleanup expect not true false null loading error ready").split(" "));
+  const hlSpan = (kind, text) => '<span class="wf-tok-' + kind + '">' + mdEscape(text) + "</span>";
+  const hlWord = (c) => /[\p{L}\p{N}_-]/u.test(c);
+  function hlCodeLike(code, keywords) {
+    const chars = Array.from(code);
+    let out = "";
+    let plain = "";
+    const flush = () => { if (plain) { out += mdEscape(plain); plain = ""; } };
+    let i = 0;
+    while (i < chars.length) {
+      const c = chars[i];
+      if (c === "/" && chars[i + 1] === "/") {
+        flush();
+        const start = i;
+        while (i < chars.length && chars[i] !== "\n") i++;
+        out += hlSpan("cmt", chars.slice(start, i).join(""));
+        continue;
+      }
+      if (c === '"') {
+        flush();
+        const start = i;
+        i++;
+        while (i < chars.length && chars[i] !== '"') { if (chars[i] === "\\") i++; i++; }
+        i = Math.min(i + 1, chars.length);
+        out += hlSpan("str", chars.slice(start, i).join(""));
+        continue;
+      }
+      if (c === "$" && chars[i + 1] !== undefined && hlWord(chars[i + 1])) {
+        flush();
+        const start = i;
+        i++;
+        while (i < chars.length && hlWord(chars[i])) i++;
+        out += hlSpan("tok", chars.slice(start, i).join(""));
+        continue;
+      }
+      if (c === "#" && chars[i + 1] !== undefined && /[0-9a-fA-F]/.test(chars[i + 1])) {
+        flush();
+        const start = i;
+        i++;
+        while (i < chars.length && /[0-9a-fA-F]/.test(chars[i])) i++;
+        out += hlSpan("num", chars.slice(start, i).join(""));
+        continue;
+      }
+      const prev = i > 0 ? chars[i - 1] : "";
+      if (/[0-9]/.test(c) && !(i > 0 && (/[\p{L}\p{N}]/u.test(prev) || prev === "_"))) {
+        flush();
+        const start = i;
+        while (i < chars.length && /[0-9.]/.test(chars[i])) i++;
+        while (i < chars.length && /[A-Za-z%]/.test(chars[i])) i++;
+        out += hlSpan("num", chars.slice(start, i).join(""));
+        continue;
+      }
+      if (/\p{L}/u.test(c) || c === "_") {
+        const start = i;
+        while (i < chars.length && (/[\p{L}\p{N}]/u.test(chars[i]) || chars[i] === "_" || (!keywords && chars[i] === "-"))) i++;
+        const word = chars.slice(start, i).join("");
+        let j = i;
+        while (j < chars.length && chars[j] === " ") j++;
+        const afterDot = start > 0 && chars[start - 1] === ".";
+        let kind = null;
+        if (chars[j] === ":" && chars[j + 1] !== ":" && !afterDot) kind = "prop";
+        else if (keywords && !afterDot && HL_KEYWORDS.has(word)) kind = "kw";
+        else if (keywords && /\p{Lu}/u.test(word[0])) kind = "name";
+        if (kind) { flush(); out += hlSpan(kind, word); } else plain += word;
+        continue;
+      }
+      plain += c;
+      i++;
+    }
+    flush();
+    return out;
+  }
+  function hlJson(code) {
+    const chars = Array.from(code);
+    let out = "";
+    let plain = "";
+    const flush = () => { if (plain) { out += mdEscape(plain); plain = ""; } };
+    let i = 0;
+    while (i < chars.length) {
+      const c = chars[i];
+      if (c === '"') {
+        flush();
+        const start = i;
+        i++;
+        while (i < chars.length && chars[i] !== '"') { if (chars[i] === "\\") i++; i++; }
+        i = Math.min(i + 1, chars.length);
+        let j = i;
+        while (j < chars.length && chars[j] === " ") j++;
+        out += hlSpan(chars[j] === ":" ? "prop" : "str", chars.slice(start, i).join(""));
+        continue;
+      }
+      if (/[0-9]/.test(c) || (c === "-" && /[0-9]/.test(chars[i + 1] || ""))) {
+        flush();
+        const start = i;
+        i++;
+        while (i < chars.length && /[0-9.eE+-]/.test(chars[i])) i++;
+        out += hlSpan("num", chars.slice(start, i).join(""));
+        continue;
+      }
+      if (/[A-Za-z]/.test(c)) {
+        const start = i;
+        while (i < chars.length && /[A-Za-z]/.test(chars[i])) i++;
+        const word = chars.slice(start, i).join("");
+        if (word === "true" || word === "false" || word === "null") { flush(); out += hlSpan("kw", word); }
+        else plain += word;
+        continue;
+      }
+      plain += c;
+      i++;
+    }
+    flush();
+    return out;
+  }
+  function hlShell(code) {
+    return code.split("\n").map((line) => {
+      if (line.startsWith("$ ")) return hlSpan("prompt", "$ ") + mdEscape(line.slice(2));
+      if (line.trimStart().startsWith("#")) return hlSpan("cmt", line);
+      return mdEscape(line);
+    }).join("\n");
+  }
+  function highlightKnows(lang) {
+    return ["wf", "wfx", "json", "bash", "sh", "shell", "css"].includes(lang);
+  }
+  function highlight(code, lang) {
+    code = String(code == null ? "" : code);
+    switch (lang) {
+      case "wf": case "wfx": return hlCodeLike(code, true);
+      case "css": return hlCodeLike(code, false);
+      case "json": return hlJson(code);
+      case "bash": case "sh": case "shell": return hlShell(code);
+      default: return mdEscape(code);
+    }
+  }
+
   function markdown(text) {
     const lines = String(text == null ? "" : text).split("\n");
     let out = "";
@@ -615,10 +770,11 @@ const WF = (() => {
       if (t === "") { i++; continue; }
       if (t.startsWith("```")) {
         const lang = t.slice(3).trim();
-        let code = "";
+        let raw = "";
         i++;
-        while (i < lines.length && lines[i].trim() !== "```") { code += mdEscape(lines[i]) + "\n"; i++; }
+        while (i < lines.length && lines[i].trim() !== "```") { raw += lines[i] + "\n"; i++; }
         i++;
+        const code = highlightKnows(lang) ? highlight(raw, lang) : mdEscape(raw);
         out += lang ? '<pre><code class="language-' + mdEscape(lang) + '">' + code + "</code></pre>\n" : "<pre><code>" + code + "</code></pre>\n";
         continue;
       }
@@ -1126,8 +1282,13 @@ const WF = (() => {
   // `.active` for the stylesheet and `aria-current="page"` for assistive
   // technology, so the two cannot disagree. With `prefix`, a link to a section
   // root also matches the routes beneath it.
+  // The route part of a `to`: what is before its `?query` or `#hash`.
+  function _routeOf(path) {
+    return String(path).split(/[?#]/)[0];
+  }
+
   function activeLink(el, href, prefix) {
-    const target = String(href).replace(/\/$/, "") || "/";
+    const target = _routeOf(href).replace(/\/$/, "") || "/";
     effect(() => {
       const path = pathSignal()().replace(/\/$/, "") || "/";
       const on = path === target || (prefix && target !== "/" && path.startsWith(target + "/"));
@@ -1160,6 +1321,7 @@ const WF = (() => {
     currentPath.set(initialPath);
 
     function matchRoute(path) {
+      path = _routeOf(path);
       for (const route of routes) {
         const params = matchPath(route.path, path);
         if (params !== null) return { route, params };
@@ -1202,6 +1364,22 @@ const WF = (() => {
         return;
       }
 
+      // A guarded route the reader may not see sends them where its
+      // `redirect:` says, instead of painting.
+      if (typeof match.route.guard === "function") {
+        let allowed = false;
+        const prev = currentEffect;
+        currentEffect = null;
+        try { allowed = !!match.route.guard(); } finally { currentEffect = prev; }
+        if (!allowed) {
+          const to = match.route.redirect || "/";
+          if (to !== path) {
+            window.history.replaceState(null, "", _basePath + to);
+            currentPath.set(to);
+          }
+          return;
+        }
+      }
       const paint = (renderFn) => {
         if (disposePage) { disposePage(); disposePage = null; }
         container.innerHTML = "";
@@ -1304,8 +1482,11 @@ const WF = (() => {
 
     routerInstance = {
       navigate: (path) => {
+        // `to: "/?filter=done"`: the query and hash go to the address bar
+        // (and the `query`/`hash` values, which follow it); the route is
+        // the part before them.
         window.history.pushState(null, "", _basePath + path);
-        currentPath.set(path);
+        currentPath.set(_routeOf(path));
       },
       currentPath,
       back: () => window.history.back(),
@@ -1550,6 +1731,14 @@ const WF = (() => {
   // "ready" or "error"; `data()` and `error()` hold what arrived; `reload()`
   // asks again. A URL that reads state is followed: the request is made again
   // when it changes, and an answer to an older request is ignored.
+  // `let r = await fetch(url, opts)` in an action or a handler: the parsed
+  // JSON body, or a thrown `Error` on a failed response — the request a
+  // `resource` makes, made once. The browser's own is `window.fetch`.
+  function request(url, options) {
+    return fetch(url, fetchOptions(options))
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
+  }
+
   function fetchOptions(options) {
     const opts = {};
     if (options) {
@@ -1638,9 +1827,16 @@ const WF = (() => {
   /// Escape or the backdrop — so the `close` event writes back to the signal;
   /// without that the state says "open" while the screen says otherwise, and the
   /// next toggle appears to do nothing.
-  function dialog(el, openSignal) {
+  // `visible:` as a read, and a write for when the browser closes the
+  // dialog itself (Escape, the backdrop) so the state follows; a
+  // `visible:` that is a condition has no write, and stays as it is.
+  function dialog(el, read, write) {
+    if (write === undefined && typeof read.set === "function") {
+      const signal = read;
+      write = (v) => signal.set(v);
+    }
     effect(() => {
-      const shouldBeOpen = openSignal();
+      const shouldBeOpen = read();
       if (shouldBeOpen && !el.open) {
         if (el.showModal) el.showModal();
         else el.setAttribute("open", "");
@@ -1650,7 +1846,7 @@ const WF = (() => {
       }
     });
     el.addEventListener("close", () => {
-      if (openSignal()) openSignal.set(false);
+      if (write && read()) write(false);
     });
   }
 
@@ -2232,6 +2428,8 @@ const WF = (() => {
     "arrow-right": '<line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
     logout: '<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
     copy: '<rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/>',
+    sun: '<circle cx="12" cy="12" r="4.3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    moon: '<path d="M19.8 14.2A8.4 8.4 0 0 1 9.8 4.2a8.4 8.4 0 1 0 10 10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
   };
 
   function _renderIcon(el, name) {
@@ -2341,11 +2539,11 @@ const WF = (() => {
     // Routing and pages.
     router, navigate, params, activeLink, page, loadPage, loadSheet, mainOf,
     // Data.
-    resource, fetch: wfFetch, store, emit,
+    resource, request, fetch: wfFetch, store, emit,
     sortBy, groupBy, unique, take, first, last, capitalize, truncate, range,
     caseOf, payload, format, ago, slot,
     scoped, onCleanup, every, after, listen, onKey, keyIs, ref, persist,
-    viewport, query, hash, theme, setTheme, form, head, markdown,
+    viewport, query, hash, theme, setTheme, form, head, markdown, highlight,
     locales,
     // Overlays and widgets.
     toast, dialog, popup, tabs, drawer, announce, carousel, tooltip, menu, field,

@@ -1,0 +1,94 @@
+/* The site's own rules, in the MO design system: the pieces the design
+   repeats — overlines, the two button shapes, chips, pills — and the
+   guide's prose rendered from Markdown. Colours are the theme's tokens. */
+
+body { font-family: var(--font-family); }
+
+.overline { margin: 0; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-subtle); }
+.overline.accent { color: var(--accent-ink); }
+
+.site-button {
+  display: inline-flex; align-items: center; height: 34px; box-sizing: border-box; padding: 0 12px;
+  border-radius: 4px; font-size: 14px; line-height: 20px; font-weight: 500; text-decoration: none; white-space: nowrap;
+  border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.site-button:hover { text-decoration: none; }
+.site-button-primary { background: var(--color-primary); color: #ffffff; font-weight: 600; }
+.site-button-primary:hover { background: var(--brand-hover); color: #ffffff; }
+.site-button-outlined { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); }
+.site-button-outlined:hover { border-color: var(--border-strong); background: var(--color-surface); color: var(--color-text); }
+button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mono); font-size: 12px; }
+.site-icon-button.wf-icon-btn { width: 34px; height: 34px; border: 1px solid var(--color-border); border-radius: 4px; background: var(--color-surface); color: var(--color-text-muted); font-size: 16px; }
+.site-icon-button.wf-icon-btn:hover { color: var(--color-text); border-color: var(--border-strong); background: var(--color-surface); }
+
+.pill { display: inline-flex; align-items: center; height: 22px; margin: 0; padding: 0 8px; border-radius: 999px; font-size: 12px; line-height: 18px; }
+.pill-brand { background: var(--brand-subtle); border: 1px solid var(--border-brand); color: var(--brand-ink); }
+.pill-accent { background: var(--accent-subtle); border: 1px solid var(--accent); color: var(--accent-ink); }
+.chip { display: inline-flex; align-items: center; height: 26px; margin: 0; padding: 0 10px; border-radius: 4px; background: var(--color-background); border: 1px solid var(--color-border); font-family: var(--font-family-mono); font-size: 12px; line-height: 18px; color: var(--color-text); }
+.crumbs { gap: 8px; font-size: 12px; line-height: 18px; color: var(--ink-subtle); flex-direction: row !important; flex-wrap: nowrap; }
+.crumbs p { margin: 0; }
+.crumbs a { color: var(--ink-subtle); text-decoration: none; }
+.crumbs a:hover { color: var(--color-text); }
+
+/* The guide's prose, rendered from Markdown. */
+.docs-article { font-size: 15px; line-height: 23px; }
+.docs-article h2 { margin: 12px 0 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.008em; }
+.docs-article h3 { margin: 6px 0 0; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.004em; }
+.docs-article .wf-markdown p, .docs-article .wf-markdown li { font-size: 15px; line-height: 23px; color: var(--color-text-muted); }
+.docs-article .wf-markdown > * + * { margin-top: 12px; }
+.docs-article .wf-markdown strong { color: var(--color-text); font-weight: 600; }
+.wf-markdown code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  font-size: 13px;
+  color: var(--color-text);
+}
+.wf-markdown a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 2px; }
+.wf-markdown a:hover { color: var(--color-primary); }
+.wf-markdown ul, .wf-markdown ol { padding-inline-start: 1.4em; }
+.wf-markdown li + li { margin-top: 4px; }
+.wf-markdown blockquote {
+  display: flex; gap: 12px; margin: 0; padding: 14px 16px;
+  background: var(--accent-subtle); border: 1px solid var(--accent); border-radius: 10px;
+}
+.wf-markdown blockquote p { margin: 0; font-size: 13px; line-height: 20px; color: var(--color-text); }
+
+/* Tables in the guide: the header on the canvas, the first column in mono. */
+.docs-article .wf-table { width: 100%; border: 1px solid var(--color-border); border-radius: 0; border-collapse: collapse; }
+.docs-article .wf-table th { text-align: start; padding: 8px 12px; background: var(--color-background); border-bottom: 1px solid var(--color-border); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--color-text-muted); }
+.docs-article .wf-table td { padding: 6px 12px; border-bottom: 1px solid var(--color-border); font-size: 13px; line-height: 20px; color: var(--color-text-muted); vertical-align: top; }
+.docs-article .wf-table tr:last-child td { border-bottom: 0; }
+.docs-article .wf-table td:first-child { font-family: var(--font-family-mono); font-size: 12px; color: var(--brand-ink); }
+.docs-article .wf-table td:first-child code { color: var(--brand-ink); background: transparent; border: 0; padding: 0; font-size: 12px; }
+.wf-table .wf-markdown { max-width: none; }
+.wf-table .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; }
+.wf-table code { white-space: nowrap; font-size: 12px; }
+
+/* Code blocks: no wrapping, the block scrolls. */
+.code-block pre.wf-code, .code-block .wf-code--block { white-space: pre; }
+pre.wf-code, .wf-code--block { white-space: pre; }
+
+/* Breadcrumb text sits on the line. */
+.wf-breadcrumb p { margin: 0; display: inline; }
+
+/* The chapter list and the component index are drawers on a phone; their
+   toggle sits bottom-right, clear of the header's menu button. */
+@media (max-width: 768px) {
+  .wf-sidebar__toggle {
+    top: auto;
+    inset-inline-start: auto;
+    bottom: var(--spacing-md);
+    inset-inline-end: var(--spacing-md);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-full);
+  }
+  .wf-sidebar { width: min(320px, 85vw); overflow-y: auto; }
+  .outputs-grid.wf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .landing-section .site-button { height: 46px; justify-content: center; font-size: 15px; }
+}
+@media (max-width: 1024px) {
+  .entry-grid.wf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .events-grid.wf-grid { grid-template-columns: 1fr !important; }
+}

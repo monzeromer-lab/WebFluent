@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elements</title>
+    <meta name="description" content="The element call shape: positional, named props, flags and enum cases, the block and its order, attributes and parts.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/elements">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/elements?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/elements?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/elements">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Elements">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The element call shape: positional, named props, flags and enum cases, the block and its order, attributes and parts.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/elements">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Elements">
+    <meta name="twitter:description" content="The element call shape: positional, named props, flags and enum cases, the block and its order, attributes and parts.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/elements#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/elements","name":"Elements","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The element call shape: positional, named props, flags and enum cases, the block and its order, attributes and parts."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/elements#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Elements","item":"https://monzeromer-lab.github.io/WebFluent/docs/elements"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../app.js" defer></script>
+    <script src="../../pages/Elements.js" data-wf-page="Elements" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <nav aria-label="Main" class="wf-navbar wf-s0e84e442">
+            <div class="wf-navbar__brand">
+                <a class="wf-link" href="/WebFluent/">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s902faac3">
+                        <p class="wf-text wf-text--bold wf-s00f51c71">wf</p>
+                        <p class="wf-text wf-text--heading">WebFluent</p>
+                        <span class="wf-badge wf-badge--pill">3.0</span>
+                    </div>
+                </a>
+            </div>
+            <div class="wf-navbar__links">
+                <a class="wf-link" href="/WebFluent/docs/getting-started">Guide</a>
+                <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+            </div>
+            <div class="wf-navbar__actions">
+                <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                <button class="wf-btn wf-btn--small">EN</button>
+                <button class="wf-btn wf-btn--small">AR</button>
+            </div>
+        </nav>
+        <main id="wf-main">
+            <div class="wf-row wf-align--stretch wf-s75bc3a32">
+                <aside class="wf-sidebar wf-s3335f13c">
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/getting-started">
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/language-basics">
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/pages-and-routing">
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/elements" aria-current="page">
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <div class="wf-sidebar__divider">
+                    </div>
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/state">
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/events-and-forms">
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/control-flow">
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/components">
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/stores">
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/types">
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/expressions">
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <div class="wf-sidebar__divider">
+                    </div>
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/styling">
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/motion">
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/data">
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/i18n">
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/content">
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/outputs">
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <div class="wf-sidebar__divider">
+                    </div>
+                    <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/tooling">
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--xl wf-sa9c23c09">
+                    <nav aria-label="Breadcrumb" class="wf-breadcrumb">
+                        <a class="wf-breadcrumb__item" href="/WebFluent/docs/getting-started">
+                            <p class="wf-text wf-text--small wf-text--muted">Guide</p>
+                        </a>
+                        <li class="wf-breadcrumb__item">
+                            <p class="wf-text wf-text--small wf-text--muted">Chapter 4</p>
+                        </li>
+                    </nav>
+                    <div class="wf-stack wf-gap--sm wf-se4caf3f1">
+                        <h1 class="wf-heading">Elements</h1>
+                        <p class="wf-text wf-text--large wf-text--muted">Everything on screen is an element: a call with one positional value, named props, flags, and a block.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s71ba6e0f">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>Everything a page shows is an element: a built-in such as <code>Button</code>, or a component you declare. Every element is written the same way.</p>
+                            </div>
+                            <h2 class="wf-heading">The call shape</h2>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">text</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">Name(positional, prop: value, prop: value).flag.flag { block }</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>Name</code></strong> — PascalCase. A built-in (<code>Card</code>), a part of one (<code>Card.Header</code>), or a component of the project (<code>UserCard</code>, <code>Panel.Footer</code>).</li>
+<li><strong>One positional argument</strong>, first, unnamed — the element's own thing: a button's label, a heading's text, an icon's name. Every other value is passed by name. A second positional argument is an error (<code>Card(&quot;Laptop&quot;, 999)</code> — name it: <code>Card(&quot;Laptop&quot;, price: 999)</code>).</li>
+<li><strong>Named props</strong> <code>name: value</code>, in any order, any expression as the value.</li>
+<li><strong>Flags</strong> <code>.name</code>, written tight against the closing parenthesis (or the name, when there are no parentheses): <code>Button(&quot;Save&quot;).primary.lg</code>, <code>Spacer.sm</code>, <code>Card.elevated ￾ … ￿</code>.</li>
+<li><strong>The block</strong> <code>￾ … ￿</code>, in a fixed order: <code>style ￾ ￿</code> · <code>transition ￾ ￿</code> · <code>on … ￾ ￿</code> handlers · slot fills · children.</li>
+</ul>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Button(&quot;Save&quot;, disabled: false).primary.lg {
+        style { min-width: 120px }
+        transition { background: 150ms ease-out }
+        on click { log(&quot;saved&quot;) }
+        Icon(&quot;check&quot;)
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Props, cases and flags</h2>
+                            <div class="wf-markdown">
+<p>A prop has a type the compiler knows: <code>String</code>, <code>Number</code>, <code>Bool</code>, a state binding, a path, or an <strong>enum</strong> — a fixed set of cases. An enum prop takes a case written with a leading dot:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Row(gap: .md, align: .center, justify: .between) {
+        Text(&quot;left&quot;)
+        Text(&quot;right&quot;)
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <strong>flag</strong> is shorthand for two things: a <code>Bool</code> prop set to <code>true</code>, or a case of exactly one of the element's enum props:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Button(&quot;Danger&quot;).danger            // tone: .danger
+    Button(&quot;Wide&quot;).full.outlined       // width: .full, outlined: true
+    Input(bind: q).search.required     // type: .search, required: true
+    state q = &quot;&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The two spellings are equivalent; <code>.md</code> on a <code>Row</code> is <code>gap: .md</code> because <code>gap</code> is the only prop of <code>Row</code> with an <code>md</code> case. When two props share a case name the flag is ambiguous and the compiler asks you to name the prop. A flag the element does not declare is an error, with the list of what it takes — there is no shared vocabulary of modifiers to guess from.</p>
+<p>Every element also takes the universal motion props (<code>animate:</code>, <code>exit:</code>, <code>delay:</code>, <code>stagger:</code>, <code>speed:</code>, <code>duration:</code>, <code>easing:</code>) and their flags (<code>.fadeIn</code>, <code>.fast</code>), <code>class:</code> for your own stylesheet classes, and <code>ref:</code> (chapter 5). See the <a href="/docs/reference">reference</a> for every element's props.</p>
+                            </div>
+                            <h2 class="wf-heading">Attributes</h2>
+                            <div class="wf-markdown">
+<p>Named arguments that are not props are HTML attributes, checked against the families the element accepts: the global attributes (<code>id</code>, <code>title</code>, <code>role</code>, <code>tabindex</code>, <code>lang</code>, …), <code>aria-*</code>, <code>data-*</code>, and per element the input, anchor, media, form and table attributes. A hyphenated name is written as-is:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Button(&quot;More&quot;, aria-expanded: &quot;false&quot;, aria-controls: &quot;panel&quot;, data-track: &quot;more&quot;)
+    Input(bind: name, id: &quot;name&quot;, autocomplete: &quot;name&quot;, maxlength: 40)
+    state name = &quot;&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>An attribute value that reads state is kept in step with it; <code>aria-*</code> keeps a <code>false</code> value (it means something), other attributes drop it.</p>
+                            </div>
+                            <h2 class="wf-heading">Parts</h2>
+                            <div class="wf-markdown">
+<p>Some built-ins are made of parts, written under their owner's name:</p>
+                            </div>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Card.elevated {
+        Card.Header { Heading(&quot;Title&quot;).h3 }
+        Card.Body { Text(&quot;Body&quot;) }
+        Card.Footer { Button(&quot;OK&quot;).primary }
+    }
+    Table(caption: &quot;Regions&quot;) {
+        Table.Head { Table.Row { Table.Cell(&quot;Region&quot;).header  Table.Cell(&quot;Latency&quot;).header } }
+        Table.Body { Table.Row { Table.Cell(&quot;fra1&quot;)  Table.Cell(&quot;34 ms&quot;) } }
+    }
+    Select(bind: region, label: &quot;Region&quot;) {
+        Select.Option(&quot;Frankfurt&quot;, value: &quot;fra1&quot;)
+        Select.Option(&quot;Iowa&quot;, value: &quot;iad1&quot;)
+    }
+    Tabs {
+        Tabs.Page(&quot;One&quot;) { Text(&quot;first&quot;) }
+        Tabs.Page(&quot;Two&quot;) { Text(&quot;second&quot;) }
+    }
+    state region = &quot;fra1&quot;
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A part is only valid directly inside its owner; <code>Card.Body</code> outside a <code>Card</code> is an error. Your own components may declare parts too (chapter 8).</p>
+                            </div>
+                            <h2 class="wf-heading">Text and headings</h2>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Heading(&quot;Title&quot;).h1                       // a real &lt;h1&gt;; .h2 is the default
+    Text(&quot;Plain, {count} live&quot;).bold.muted   // an inline run of text
+    Paragraph(&quot;Prose, as a &lt;p&gt;.&quot;)
+    Code(&quot;let x = 1&quot;).block
+    Blockquote(&quot;A quotation.&quot;)
+    Markdown(&quot;**Bold** and a [link](/docs)&quot;)  // chapter 16
+    state count = 3
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Headings form an outline the compiler checks: one <code>h1</code> per page, no skipped levels (<code>A11</code>, <code>A12</code>).</p>
+                            </div>
+                            <h2 class="wf-heading">Layout elements</h2>
+                            <div class="wf-stack wf-s694f896d">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sa274ecec">
+                                    <p class="wf-text wf-text--small wf-s02f64529">wf</p>
+                                </div>
+                                <code class="wf-code wf-code--block wf-s3f1960dc">page P(path: &quot;/&quot;) {
+    Container {                                  // centred, max-width
+        Row(gap: .md, align: .center) {          // horizontal flex
+            Column(span: 8) { Text(&quot;main&quot;) }     // 12-column grid child
+            Column(span: 4) { Text(&quot;aside&quot;) }
+        }
+        Grid(columns: 3, gap: .lg) { Card { Text(&quot;a&quot;) }  Card { Text(&quot;b&quot;) }  Card { Text(&quot;c&quot;) } }
+        Stack(gap: .sm) { Text(&quot;one&quot;)  Text(&quot;two&quot;) }   // vertical flex
+        Spacer.lg
+        Divider
+    }
+    Header { Text(&quot;a page region&quot;) }
+    Section { Text(&quot;another&quot;) }
+    Footer { Text(&quot;the last&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>Header</code>, <code>Section</code> and <code>Footer</code> are real landmarks (<code>&lt;header&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;footer&gt;</code>); use them for page regions so the page has an outline a screen reader and a search engine can follow.</p>
+                            </div>
+                            <h2 class="wf-heading">What the compiler checks on every element</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>The name is a built-in, a part in its owner, or a declared component.</li>
+<li>The positional argument is one the element takes; there is at most one.</li>
+<li>Every named prop exists, with a value of its type; an enum prop's case exists.</li>
+<li>Every flag resolves to one prop.</li>
+<li>Handlers name a DOM event or one of the component's declared events.</li>
+<li>Slot fills name a declared slot.</li>
+<li>An <code>Icon(&quot;name&quot;)</code> or <code>icon:</code> names one of the icons the runtime draws (<a href="/docs/reference#icons">the list</a>); any other name shows as the word.</li>
+<li>Accessibility: an <code>Image</code> has <code>alt:</code>, an <code>IconButton</code> has <code>label:</code>, a control has a label, a <code>Modal</code> a title, a <code>Table</code> a <code>Table.Head</code> (<code>A01</code>–<code>A10</code>).</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-se7a56472">
+                        <a class="wf-link wf-sbd317556" href="/WebFluent/docs/pages-and-routing">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted">Previous</p>
+                                <p class="wf-text wf-text--bold">3. Pages and routing</p>
+                            </div>
+                        </a>
+                        <a class="wf-link wf-s48f12cb1" href="/WebFluent/docs/state">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted">Next</p>
+                                <p class="wf-text wf-text--bold">5. State and reactivity</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sb5c8d05c">
+                    <div class="wf-stack wf-gap--xs">
+                        <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">On this page</p>
+                        <a class="wf-link wf-sc1202a78" href="#the-call-shape">The call shape</a>
+                        <a class="wf-link wf-sc1202a78" href="#props-cases-and-flags">Props, cases and flags</a>
+                        <a class="wf-link wf-sc1202a78" href="#attributes">Attributes</a>
+                        <a class="wf-link wf-sc1202a78" href="#parts">Parts</a>
+                        <a class="wf-link wf-sc1202a78" href="#text-and-headings">Text and headings</a>
+                        <a class="wf-link wf-sc1202a78" href="#layout-elements">Layout elements</a>
+                        <a class="wf-link wf-sc1202a78" href="#what-the-compiler-checks-on-every-element">What the compiler checks on every element</a>
+                    </div>
+                    <hr class="wf-divider">
+                    <div class="wf-stack wf-gap--xs">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">
+                            <div class="wf-row wf-align--center wf-gap--xs">
+                                <i class="wf-icon wf-icon--small wf-text--muted" data-icon="edit"></i>
+                                <p class="wf-text wf-text--small wf-text--muted">Edit this page</p>
+                            </div>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <div class="wf-row wf-align--center wf-gap--xs">
+                                <i class="wf-icon wf-icon--small wf-text--muted" data-icon="menu"></i>
+                                <p class="wf-text wf-text--small wf-text--muted">Components reference</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="wf-card wf-card--outlined wf-sa5ca2b68">
+                        <div class="wf-card__body">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--bold">Checked by the test suite</p>
+                                <p class="wf-text wf-text--small wf-text--muted">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-sae5afece">
+            <div class="wf-container">
+                <div class="wf-stack wf-gap--lg">
+                    <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-s9771ea3a">
+                        <div class="wf-stack wf-gap--sm wf-s0750a03e">
+                            <div class="wf-row wf-align--center wf-gap--sm">
+                                <p class="wf-text wf-text--bold wf-s00f51c71">wf</p>
+                                <p class="wf-text wf-text--heading">WebFluent</p>
+                            </div>
+                            <p class="wf-text wf-text--small wf-text--muted">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                        </div>
+                        <div class="wf-row wf-gap--xl wf-align--start wf-s9771ea3a">
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Guide</p>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/getting-started">Getting started</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/language-basics">Language basics</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/state">State and reactivity</a>
+                            </div>
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Reference</p>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/reference">Components reference</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/tooling">Tooling</a>
+                                <a class="wf-link wf-s64409f3b" href="/WebFluent/docs/cookbook">Cookbook</a>
+                            </div>
+                            <div class="wf-stack wf-gap--xs">
+                                <p class="wf-text wf-text--small wf-text--muted wf-text--uppercase wf-text--bold">Project</p>
+                                <a class="wf-link wf-s64409f3b" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                                <a class="wf-link wf-s64409f3b" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                                <a class="wf-link wf-s64409f3b" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="wf-divider">
+                    <div class="wf-row wf-justify--between wf-align--center">
+                        <p class="wf-text wf-text--small wf-se1f5f407">WebFluent 3</p>
+                        <p class="wf-text wf-text--small wf-se1f5f407">Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

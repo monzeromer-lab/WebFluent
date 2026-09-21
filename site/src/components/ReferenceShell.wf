@@ -1,0 +1,40 @@
+/// The frame of the components reference: the header, the component index,
+/// the entry on the surface, and a rail for the entry's own parts.
+component ReferenceShell(current: String = "") {
+    slot
+    slot rail
+
+    SiteHeader(docs: true)
+
+    Row(align: .stretch) {
+        style { align-items: stretch; flex-wrap: nowrap; background: $color-background; min-height: calc(100vh - 60px) }
+
+        ReferenceIndex(current: current)
+
+        Stack(gap: .lg, role: "main", dir: "ltr", class: "docs-main reference-main") {
+            style {
+                flex: 1 1 0
+                min-width: 0
+                gap: 24px
+                padding: 32px 40px
+                background: $color-surface
+                text-align: start
+                @media (max-width: 768px) { padding: 24px 16px }
+            }
+            children
+        }
+
+        Stack(gap: .lg, class: "reference-rail") {
+            style {
+                width: 240px
+                flex-shrink: 0
+                gap: 20px
+                padding: 32px 20px
+                border-inline-start: 1px solid $border
+                background: $color-background
+                @media (max-width: 1100px) { display: none }
+            }
+            rail
+        }
+    }
+}

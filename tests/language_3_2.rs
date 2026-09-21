@@ -277,6 +277,10 @@ fn a_form_handle_and_a_pending_action() {
     ] {
         assert!(js.contains(expected), "{expected} in {js}");
     }
+    assert!(
+        !js.contains("const signup = WF.ref();"),
+        "a form handle is declared once, as a form: {js}"
+    );
     let html = painted(&src);
     assert!(
         html.contains("<form") && html.contains("wf-input"),
@@ -304,4 +308,81 @@ fn a_page_declares_its_own_head_tags() {
     );
     let js = raw_output(Backend::Spa, &src);
     assert!(js.contains("WF.head([[\"meta\", { \"property\": \"og:image\", \"content\": () => _img() }], [\"link\", { \"rel\": \"canonical\", \"href\": \"https://x.y/\" }], [\"script\", { \"src\": \"/analytics.js\", \"defer\": true }]]);"), "{js}");
+}
+
+#[test]
+fn an_if_let_binding_is_read_by_the_static_paint_and_the_template_engine() {
+    let src = page(
+        "state user: Map? = { name: \"Ann\" }\n  state none: Map? = null\n  if let u = user { Text(\"Hi {u.name}\") } else { Text(\"nobody\") }\n  if let n = none { Text(\"Hi {n.name}\") } else { Text(\"nobody\") }",
+    );
+    let html = painted(&src);
+    assert!(
+        html.contains(">Hi Ann<") && html.contains(">nobody<"),
+        "{html}"
+    );
+    let tpl = page("if let u = user { Text(\"Hi {u.name}\") } else { Text(\"nobody\") }");
+    let html = templated(&tpl, json!({ "user": { "name": "Bob" } }));
+    assert!(html.contains(">Hi Bob<"), "template: {html}");
+    let html = templated(&tpl, json!({ "user": null }));
+    assert!(html.contains(">nobody<"), "template: {html}");
+}
+
+#[test]
+fn a_breadcrumb_item_without_a_destination_is_a_span_in_every_backend() {
+    let src = page(
+        "Breadcrumb { Breadcrumb.Item(to: \"/docs\") { Text(\"Docs\") }  Breadcrumb.Item { Text(\"Here\") } }",
+    );
+    let html = painted(&src);
+    assert!(
+        html.contains("<a class=\"wf-breadcrumb__item\" href=\"/docs\""),
+        "{html}"
+    );
+    assert!(
+        html.contains("<span class=\"wf-breadcrumb__item\""),
+        "{html}"
+    );
+    assert!(
+        !html.contains("<li "),
+        "no list item outside a list: {html}"
+    );
+    let js = raw_output(Backend::Spa, &src);
+    assert!(
+        js.contains("WF.el(\"span\", { className: \"wf-breadcrumb__item\""),
+        "{js}"
+    );
+}
+
+#[test]
+fn a_code_with_a_language_is_coloured_by_every_backend() {
+    let src = page(
+        "state lang = \"wf\"\n  Code(\"page P(path: \\\"/\\\") { state n = 1 }\", language: \"wf\").block\n  Code(\"{ \\\"a\\\": 1 }\", language: lang).block\n  Markdown(\"```json\\n{ \\\"k\\\": true }\\n```\")",
+    );
+    let html = painted(&src);
+    for expected in [
+        "<span class=\"wf-tok-kw\">page</span> <span class=\"wf-tok-name\">P</span>(<span class=\"wf-tok-prop\">path</span>: <span class=\"wf-tok-str\">&quot;/&quot;</span>) { <span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span> }",
+        "{ <span class=\"wf-tok-str\">&quot;a&quot;</span>: <span class=\"wf-tok-num\">1</span> }",
+        "<code class=\"language-json\">{ <span class=\"wf-tok-prop\">&quot;k&quot;</span>: <span class=\"wf-tok-kw\">true</span> }",
+    ] {
+        assert!(html.contains(expected), "{expected}\n---\n{html}");
+    }
+    let js = raw_output(Backend::Spa, &src);
+    assert!(
+        js.contains(
+            "highlight: { code: \"page P(path: \\\"/\\\") { state n = 1 }\", lang: \"wf\" }"
+        ),
+        "{js}"
+    );
+    assert!(
+        js.contains("highlight: { code: \"{ \\\"a\\\": 1 }\", lang: () => _lang() }"),
+        "{js}"
+    );
+    assert!(
+        !js.contains("language: \"wf\" }"),
+        "the language is not an attribute: {js}"
+    );
+    let html = templated(&src, json!({}));
+    assert!(
+        html.contains("<span class=\"wf-tok-kw\">page</span>"),
+        "template: {html}"
+    );
 }

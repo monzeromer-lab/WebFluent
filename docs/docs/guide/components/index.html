@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components</title>
+    <meta name="description" content="Declaring components: props, enum props, events, slots and scoped slots, parts, local state and stores.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/components">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/components?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/components?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/components">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Components">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Declaring components: props, enum props, events, slots and scoped slots, parts, local state and stores.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/components">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Components">
+    <meta name="twitter:description" content="Declaring components: props, enum props, events, slots and scoped slots, parts, local state and stores.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components","name":"Components","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Declaring components: props, enum props, events, slots and scoped slots, parts, local state and stores."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Components","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/ComponentsChapter.js" data-wf-page="ComponentsChapter" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/components" aria-current="page">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 8</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Components</h1>
+                        <p class="wf-text wf-s38239618">A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>A component is a reusable element you declare: typed props, the events it fires, the slots its caller fills, the parts it offers, and a body. A call to it is checked like a call to a built-in.</p>
+                            </div>
+                            <h2 class="wf-heading">Declaring and calling</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true, avatar: String? = null) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            if let src = avatar { Avatar(src: src, alt: name) } else { Avatar(initials: name.slice(0, 2)).primary }
+            Stack {
+                Text(name).bold
+                Text(role).muted
+            }
+            if active { Badge(&quot;Active&quot;).success }
+        }
+    }
+}
+
+page Team(path: &quot;/&quot;) {
+    UserCard(&quot;Monzer&quot;, role: &quot;Developer&quot;)
+    UserCard(&quot;Sam&quot;, role: &quot;Designer&quot;, active: false, avatar: &quot;/sam.png&quot;)
+    UserCard(&quot;Ann&quot;, role: &quot;PM&quot;).active
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>_ name: Type</code> marks the one prop a call may pass positionally; it must be first. Every other prop is passed by name.</li>
+<li>Prop types: <code>String</code>, <code>Number</code>, <code>Bool</code>, <code>Map</code>, <code>Any</code>, <code>[T]</code>, <code>T?</code>, or a declared <code>type</code> or <code>enum</code>. They must be written; <code>= expr</code> gives a default, and a <code>T?</code> defaults to <code>null</code>.</li>
+<li>A <code>Bool</code> prop is set with a flag: <code>.active</code>. An enum prop with a flag or by name: <code>.loud</code> or <code>tone: .loud</code>.</li>
+<li>A <code>///</code> comment above the component or a prop is its documentation.</li>
+</ul>
+<p>A prop that reads the caller's state stays live inside the component: a <code>Chip(pressed: isOn)</code> repaints when <code>isOn</code> changes.</p>
+                            </div>
+                            <h2 class="wf-heading">Enum props</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Tone { calm, loud }
+
+component Note(_ text: String, tone: Tone = .calm) {
+    Text(text) {
+        style { padding: $sm; border-radius: $radius-sm }
+    }
+}
+
+page Notes(path: &quot;/&quot;) {
+    Note(&quot;Quiet&quot;)
+    Note(&quot;Loud!&quot;, tone: .loud)
+    Note(&quot;Loud too&quot;).loud
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A component's enum props are written to its root element as <code>data-&lt;prop&gt;=&quot;&lt;case&gt;&quot;</code> — <code>data-tone=&quot;loud&quot;</code> — so a stylesheet can select on them: <code>.note[data-tone=&quot;loud&quot;] ￾ font-weight: 700 ￿</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Events</h2>
+                            <div class="wf-markdown">
+<p>A component declares the events it fires with <code>event name(param: Type)</code>, fires them with <code>emit name(value)</code>, and the caller handles them with <code>on name(value) ￾ ￿</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+
+component TodoRow(_ todo: Todo) {
+    event toggle(id: String)
+    event remove(id: String)
+    Row(align: .center, gap: .sm) {
+        Checkbox(checked: todo.done, label: todo.title) { on change { emit toggle(todo.id) } }
+        IconButton(icon: &quot;trash&quot;, label: &quot;Remove {todo.title}&quot;).sm { on click { emit remove(todo.id) } }
+    }
+}
+
+page Todos(path: &quot;/&quot;) {
+    state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;Milk&quot;), Todo(id: &quot;2&quot;, title: &quot;Eggs&quot;)]
+    action toggle(id: String) {
+        todos = todos.map(t =&gt; if t.id == id { Todo(id: t.id, title: t.title, done: !t.done) } else { t })
+    }
+    for t in todos by t.id {
+        TodoRow(t) {
+            on toggle(id) { toggle(id) }
+            on remove(id) { todos = todos.filter(t =&gt; t.id != id) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The checker holds <code>emit</code> to the declared parameters (<code>T09</code>) and a handler on a call to a declared event or a DOM event; a DOM event on a component call attaches to its root element.</p>
+                            </div>
+                            <h2 class="wf-heading">Slots</h2>
+                            <div class="wf-markdown">
+<p>A component places its caller's block with <code>children</code>, and may declare named slots the caller fills with <code>name ￾ … ￿</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Panel(_ title: String) {
+    slot
+    slot trailing
+    Card {
+        Row(justify: .between, align: .center) {
+            Heading(title).h3
+            trailing
+        }
+        children
+    }
+}
+
+page Keys(path: &quot;/&quot;) {
+    Panel(&quot;API keys&quot;) {
+        trailing { Badge(&quot;Beta&quot;).info }
+        Text(&quot;Rotate every 90 days.&quot;)
+        Button(&quot;Generate&quot;).primary
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>slot</code> declares the default slot (<code>children</code>); <code>slot trailing</code> a named one. A fill is compiled in the caller's scope — it reads the caller's state and loop variables — and the component only decides where it lands. A page's <code>layout:</code> is a component with a default slot, called with the page as its block.</p>
+                            </div>
+                            <h3 class="wf-heading">Scoped slots</h3>
+                            <div class="wf-markdown">
+<p>A slot may hand values to its fill. The component declares what it hands, uses the slot with those values by name, and the caller's fill names them in order:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
+
+component TodoList(items: [Todo]) {
+    slot row(item: Todo, index: Number)
+    slot empty
+    if items.length == 0 {
+        empty
+    } else {
+        for it, i in items by it.id { row(item: it, index: i) }
+    }
+}
+
+page Use(path: &quot;/&quot;) {
+    state todos: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;Milk&quot;)]
+    TodoList(items: todos) {
+        row(t, i) { Text(&quot;{i + 1}. {t.title}&quot;) }
+        empty { Text(&quot;Nothing to do.&quot;).muted }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The fill's names are typed by the declaration (<code>t</code> is a <code>Todo</code>), and the fill is drawn again when a value it is handed changes.</p>
+                            </div>
+                            <h2 class="wf-heading">Parts</h2>
+                            <div class="wf-markdown">
+<p>A component may declare parts — components of its own, called under its name, the way <code>Card.Header</code> is a part of <code>Card</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Panel(_ title: String) {
+    part Header(_ text: String) { Heading(text).h3 }
+    part Footer { Divider  Text(&quot;End&quot;).muted.sm }
+    Card { Text(title)  children }
+    slot
+}
+
+page Parts(path: &quot;/&quot;) {
+    Panel(&quot;Keys&quot;) {
+        Panel.Header(&quot;Rotate&quot;)
+        Text(&quot;Body&quot;)
+        Panel.Footer
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A part is declared inside the component and has props, events and slots of its own; a part declares no parts.</p>
+                            </div>
+                            <h2 class="wf-heading">Local state and actions</h2>
+                            <div class="wf-markdown">
+<p>A component has its own <code>state</code>, <code>derived</code>, <code>effect</code>, actions, timers and handles; each instance gets its own:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Stepper(_ start: Number, step: Number = 1) {
+    event change(value: Number)
+    state n = start
+    derived even = n % 2 == 0
+    action move(by: Number) { n = n + by  emit change(n) }
+    Row(gap: .sm, align: .center) {
+        Button(&quot;−&quot;).sm { on click { move(-step) } }
+        Text(&quot;{n}&quot;).bold
+        Button(&quot;+&quot;).sm { on click { move(step) } }
+        if even { Badge(&quot;even&quot;).info }
+    }
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Using stores inside a component</h2>
+                            <div class="wf-markdown">
+<p><code>use StoreName</code> brings a store into a component as it does a page:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart {
+    state items: [String] = []
+    action add(name: String) { items.push(name) }
+}
+
+component AddToCart(_ name: String) {
+    use Cart
+    Button(&quot;Add {name}&quot;).primary { on click { Cart.add(name) } }
+}
+
+page Shop(path: &quot;/&quot;) {
+    use Cart
+    AddToCart(&quot;Pen&quot;)
+    Text(&quot;{Cart.items.length} in cart&quot;)
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Components in the static paint</h2>
+                            <div class="wf-markdown">
+<p>A static build expands every component call into HTML at build time — its props substituted, its slots filled, its loops and branches over seeded state painted — so a page built from components is a real page before any script runs.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/control-flow">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">7. Control flow</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/stores">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">9. Stores</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#declaring-and-calling">Declaring and calling</a>
+                        <a class="wf-link wf-sdae384de" href="#enum-props">Enum props</a>
+                        <a class="wf-link wf-sdae384de" href="#events">Events</a>
+                        <a class="wf-link wf-sdae384de" href="#slots">Slots</a>
+                        <a class="wf-link wf-sdae384de" href="#parts">Parts</a>
+                        <a class="wf-link wf-sdae384de" href="#local-state-and-actions">Local state and actions</a>
+                        <a class="wf-link wf-sdae384de" href="#using-stores-inside-a-component">Using stores inside a component</a>
+                        <a class="wf-link wf-sdae384de" href="#components-in-the-static-paint">Components in the static paint</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

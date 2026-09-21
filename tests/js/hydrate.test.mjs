@@ -610,6 +610,37 @@ test("the runtime's markdown matches the compiler's, and follows its text", () =
   assert.equal(el.innerHTML, "<p>plain</p>\n");
   note.set("**bold**");
   assert.equal(el.innerHTML, "<p><strong>bold</strong></p>\n", "the render follows the text");
+  // A site-relative link or image is addressed from the base path.
+  WF.setBasePath("/site/");
+  assert.equal(
+    WF.markdown("[docs](/docs/x#a) ![i](/i.png) [out](https://a.b/) [rel](other.html)"),
+    "<p><a href=\"/site/docs/x#a\">docs</a> <img src=\"/site/i.png\" alt=\"i\"> <a href=\"https://a.b/\">out</a> <a href=\"other.html\">rel</a></p>\n",
+  );
+  WF.setBasePath("");
+});
+
+test("the runtime's highlighter matches the compiler's, and paints a Code element", () => {
+  const { WF, document } = loadRuntime();
+  assert.equal(
+    WF.highlight("page Home(path: \"/\") { // hi\n    state n = 0\n    Button(\"Go\", tone: .primary).lg { style { padding: $md; color: #FF0 } }\n}", "wf"),
+    "<span class=\"wf-tok-kw\">page</span> <span class=\"wf-tok-name\">Home</span>(<span class=\"wf-tok-prop\">path</span>: <span class=\"wf-tok-str\">&quot;/&quot;</span>) { <span class=\"wf-tok-cmt\">// hi</span>\n    <span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">0</span>\n    <span class=\"wf-tok-name\">Button</span>(<span class=\"wf-tok-str\">&quot;Go&quot;</span>, <span class=\"wf-tok-prop\">tone</span>: .primary).lg { <span class=\"wf-tok-kw\">style</span> { <span class=\"wf-tok-prop\">padding</span>: <span class=\"wf-tok-tok\">$md</span>; <span class=\"wf-tok-prop\">color</span>: <span class=\"wf-tok-num\">#FF0</span> } }\n}",
+  );
+  assert.equal(
+    WF.highlight("{ \"a\": [1, true], \"b\": \"x\" }", "json"),
+    "{ <span class=\"wf-tok-prop\">&quot;a&quot;</span>: [<span class=\"wf-tok-num\">1</span>, <span class=\"wf-tok-kw\">true</span>], <span class=\"wf-tok-prop\">&quot;b&quot;</span>: <span class=\"wf-tok-str\">&quot;x&quot;</span> }",
+  );
+  assert.equal(
+    WF.highlight("$ wf build\n# then\nwf serve", "bash"),
+    "<span class=\"wf-tok-prompt\">$ </span>wf build\n<span class=\"wf-tok-cmt\"># then</span>\nwf serve",
+  );
+  assert.equal(WF.highlight("a < b", "python"), "a &lt; b");
+  assert.equal(WF.highlight("t.title", "wf"), "t.title");
+  const lang = WF.signal("wf");
+  const el = WF.el("code", { className: "wf-code", highlight: { code: "state n = 1", lang: () => lang() } });
+  assert.equal(el.innerHTML, "<span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span>");
+  lang.set("text");
+  assert.equal(el.innerHTML, "state n = 1", "follows the language");
+  assert.equal(WF.markdown("```wf\nstate n = 1\n```"), "<pre><code class=\"language-wf\"><span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span>\n</code></pre>\n");
 });
 
 test("a scoped slot is drawn again when a value it is handed changes, and not when its fill reads change", () => {
@@ -712,6 +743,27 @@ test("a resource loads, exposes its state, ignores a stale answer, and reloads",
   }
 });
 
+test("request answers with the parsed body, sends a map body as JSON, and throws on a failed response", async () => {
+  const { WF } = loadRuntime();
+  const calls = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    calls.push({ url, opts });
+    if (url === "/fail") return { ok: false, status: 404 };
+    return { ok: true, json: async () => ({ rows: [1, 2] }) };
+  };
+  try {
+    const r = await WF.request("/api/rows", { method: "POST", body: { q: "x" } });
+    assert.deepEqual(r, { rows: [1, 2] });
+    assert.equal(calls[0].opts.method, "POST");
+    assert.equal(calls[0].opts.body, JSON.stringify({ q: "x" }));
+    assert.equal(calls[0].opts.headers["Content-Type"], "application/json");
+    await assert.rejects(WF.request("/fail"), { message: "HTTP 404" });
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
 test("emit calls the handler the caller passed, and is silent without one", () => {
   const { WF } = loadRuntime();
   const seen = [];
@@ -788,6 +840,83 @@ test("t() picks a plural form by count under the locale's rules", () => {
   assert.equal(i18n.t("items", { count: 2 }), "عنصران", "two");
   assert.equal(i18n.t("items", { count: 5 }), "5 عناصر", "few");
   assert.equal(i18n.t("items", { count: 11 }), "11 عنصرًا", "many");
+});
+
+test("a guarded route sends the reader to its redirect until the guard holds", () => {
+  const { WF, document } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  const loggedIn = WF.signal(false);
+  WF.router(
+    [
+      { path: "/", render: () => WF.el("p", {}, ["home"]) },
+      { path: "/login", render: () => WF.el("p", {}, ["login"]) },
+      { path: "/account", guard: () => loggedIn(), redirect: "/login", render: () => WF.el("p", {}, ["account"]) },
+    ],
+    container,
+  );
+  WF.navigate("/account");
+  assert.equal(container.querySelector("p").textContent, "login", "the guard failed, so the redirect shows");
+  loggedIn.set(true);
+  WF.navigate("/account");
+  assert.equal(container.querySelector("p").textContent, "account", "the guard holds, so the page shows");
+});
+
+test("a navigation with a query string routes by its path and keeps the query readable", () => {
+  const { WF, document, window } = loadRuntime();
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  WF.router(
+    [
+      { path: "/", render: () => WF.el("p", {}, ["home"]) },
+      { path: "/about", render: () => WF.el("p", {}, ["about"]) },
+    ],
+    container,
+  );
+  WF.navigate("/about?tab=x");
+  assert.equal(container.querySelector("p").textContent, "about");
+  assert.equal(window.location.search, "?tab=x");
+  assert.equal(WF.query().tab, "x");
+  WF.navigate("/?filter=done#top");
+  assert.equal(container.querySelector("p").textContent, "home");
+  assert.equal(WF.query().filter, "done");
+  const link = document.createElement("a");
+  WF.activeLink(link, "/?filter=done", false);
+  assert.equal(link.getAttribute("aria-current"), "page", "a link to the route with a query is the current one");
+});
+
+test("a dialog opens with its read, and writes back only where it can", () => {
+  const { WF, document } = loadRuntime();
+  const mk = () => {
+    const el = document.createElement("dialog");
+    let listeners = {};
+    el.showModal = () => { el.open = true; };
+    el.close = () => { el.open = false; (listeners.close || []).forEach((fn) => fn()); };
+    el.addEventListener = (name, fn) => { (listeners[name] = listeners[name] || []).push(fn); };
+    return el;
+  };
+  const open = WF.signal(false);
+  const a = mk();
+  WF.dialog(a, () => open(), (v) => open.set(v));
+  assert.equal(a.open, false);
+  open.set(true);
+  assert.equal(a.open, true);
+  a.close();
+  assert.equal(open(), false, "the browser's close writes the state back");
+  // A bare signal still works as the read and the write.
+  const b = mk();
+  WF.dialog(b, open);
+  open.set(true);
+  assert.equal(b.open, true);
+  b.close();
+  assert.equal(open(), false);
+  // A condition has no write: closing leaves the state alone.
+  const id = WF.signal("x");
+  const c = mk();
+  WF.dialog(c, () => id() != null, null);
+  assert.equal(c.open, true);
+  c.close();
+  assert.equal(id(), "x");
 });
 
 test("a keyed list inserts, removes and moves items without rebuilding the others", () => {

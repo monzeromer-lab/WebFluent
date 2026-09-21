@@ -1,0 +1,7 @@
+/// A shell transcript: each line is a command the reader types, with what
+/// came back under it. Stays dark in both themes, the way a console should;
+/// a line that starts with `#` is a comment.
+component Terminal(lines: [Line], title: String = "bash") {
+    derived text = lines.map(l => if l.command.startsWith("#") { l.command } else if l.output != "" { "$ {l.command}\n{l.output}" } else { "$ {l.command}" }).join("\n")
+    CodeBlock(text, title: title)
+}

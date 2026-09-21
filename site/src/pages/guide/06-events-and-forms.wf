@@ -1,0 +1,94 @@
+/// Chapter 6 of the guide, written from md-docs/06-events-and-forms.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page EventsAndForms(path: "/docs/guide/events-and-forms", title: "Events and forms", description: "Event handlers, keyboard shortcuts, bind:, Form handles, pending actions, emitted events, theme switching and overlays.", layout: DocsShell("Events and forms", chapter: "Chapter 6", blurb: "Handlers, keys, two-way binding, forms with a handle, pending actions, and the overlays a page opens.", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "two-way-binding", label: "Two-way binding"), Anchor(id: "forms", label: "Forms"), Anchor(id: "pending-actions", label: "Pending actions"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "switching-the-theme", label: "Switching the theme"), Anchor(id: "overlays-modals-dialogs-toasts", label: "Overlays: modals, dialogs, toasts")], prevTo: "/docs/guide/state", prevLabel: "5. State and reactivity", nextTo: "/docs/guide/control-flow", nextLabel: "7. Control flow")) {
+    Stack(gap: .lg) {
+        Heading("Handlers", id: "handlers").h2
+
+        Markdown("A handler is written inside an element's block: `on <event> \{ … \}`, or `on <event>(name) \{ … \}` when the body reads the event object.")
+
+        CodeBlock("page Clicks(path: \"/\") \{\n    state n = 0\n    state last = \"\"\n    Button(\"+1\") \{ on click \{ n = n + 1 \} \}\n    Input(bind: last, placeholder: \"type\") \{\n        on input \{ log(last) \}\n        on keydown(e) \{ if e.key == \"Enter\" \{ log(\"submitted \{last\}\") \} \}\n        on focus \{ log(\"in\") \}\n        on blur \{ log(\"out\") \}\n    \}\n    Text(\"\{n\}\")\n\}", title: "wf")
+
+        Markdown("The DOM events every element accepts: `click`, `input`, `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`; a component's own declared events (chapter 8) join them on its calls. A handler's body is an imperative block, so it may assign state, call actions, `await`, and `navigate`.\n\nA handler on a component call — `UserCard(\"x\") \{ on click \{ \} \}` — attaches to the component's root element, so a styled button component is clickable wherever it is used.")
+
+        Heading("Keys", id: "keys").h2
+
+        Markdown("`on key(\"…\")` answers to one key, with modifiers:")
+
+        CodeBlock("page Keys(path: \"/\") \{\n    state open = false\n    state q = \"\"\n    Input(bind: q, ref: box, placeholder: \"Search\") \{\n        on key(\"Escape\") \{ q = \"\" \}            // on the element: fires while it has focus\n        on key(\"Enter\", e) \{ log(e.target.value) \}\n    \}\n    on key(\"ctrl+k\") \{ box.focus() \}           // on the page: fires anywhere on the page\n    on key(\"cmd+k\") \{ box.focus() \}\n    on key(\"?\") \{ open = !open \}\n    if open \{ Alert(\"Shortcuts: ctrl+k to search, ? for this.\").info \}\n\}", title: "wf")
+
+        Markdown("Spelling: modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), joined with `+`, then the key as the browser names it — `k`, `Enter`, `Escape` (or `esc`), `Tab`, `ArrowDown` (or `down`), `space`. On an element the handler listens on that element; at the top of a page or component it listens on the document for as long as the page shows. Every modifier must match exactly, so `ctrl+k` does not fire on `ctrl+shift+k`.")
+
+        Heading("Two-way binding", id: "two-way-binding").h2
+
+        Markdown("`bind: stateName` on a control keeps the state and the control in step, both ways:")
+
+        CodeBlock("page Signup(path: \"/\") \{\n    state name = \"\"\n    state email = \"\"\n    state plan = \"free\"\n    state agree = false\n    state seats = 1\n    state when = \"\"\n\n    Input(bind: name, label: \"Name\", placeholder: \"Ada Lovelace\").required\n    Input(bind: email, label: \"Email\").email.required\n    Select(bind: plan, label: \"Plan\") \{\n        Select.Option(\"Free\", value: \"free\")\n        Select.Option(\"Team\", value: \"team\")\n    \}\n    Radio(bind: plan, value: \"free\", label: \"Free\")\n    Radio(bind: plan, value: \"team\", label: \"Team\")\n    Checkbox(bind: agree, label: \"I agree to the terms\")\n    Switch(bind: agree, label: \"Same thing, as a switch\")\n    Slider(bind: seats, min: 1, max: 50, label: \"Seats\")\n    DatePicker(bind: when, label: \"Start date\")\n    Text(\"\{name\} <\{email\}> wants \{seats\} \{plan\} seats from \{when\}\")\n\}", title: "wf")
+
+        Markdown("The checker knows what each control holds: `Checkbox` and `Switch` bind a `Bool`, `Slider` a `Number`, the rest a `String` (an `Input.number` holds a `Number`). A control needs a `label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the accessibility lint says so otherwise.")
+
+        Heading("Forms", id: "forms").h2
+
+        Markdown("A `Form` groups controls; `on submit` runs when it is submitted, and the page never navigates away. `Form(bind: name)` hands you a handle on the form:")
+
+        CodeBlock("page Contact(path: \"/\") \{\n    state name = \"\"\n    state email = \"\"\n    state message = \"\"\n    state sent = false\n\n    action send() \{\n        let r = await fetch(\"/api/contact\", \{ method: \"POST\", body: \{ name: name, email: email, message: message \} \})\n        sent = true\n        form.reset()\n    \}\n\n    Form(bind: form) \{\n        on submit \{ send() \}\n        Input(bind: name, name: \"name\", label: \"Name\").required\n        Input(bind: email, name: \"email\", label: \"Email\").email.required\n        Input(bind: message, name: \"message\", label: \"Message\").required\n        Button(\"Send\", type: .submit, disabled: !form.valid || send.pending).primary\n        Text(\"Fields: \{form.values.name\} \{form.values.email\}\").muted.sm\n    \}\n    if sent \{ Alert(\"Thanks — we will be in touch.\").success \}\n\}", title: "wf")
+
+        Markdown("The handle gives:")
+
+        Table(caption: "Forms") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("").header
+                    Table.Cell("").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`form.valid`") }
+                    Table.Cell { Markdown("`true` when every control passes its own checks (`required`, `type: email`, `min`/`max`, `pattern`) — kept current as the reader types") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`form.values`") }
+                    Table.Cell { Markdown("A map of the controls' values by their `name:` attribute") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`form.reset()`") }
+                    Table.Cell("Clears the form")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`form.submit()`") }
+                    Table.Cell("Submits it in code")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`form.element`") }
+                    Table.Cell { Markdown("The `<form>` itself") }
+                }
+            }
+        }
+
+        Markdown("A `Button` with `type: .submit` (or `.submit`) submits; the browser's own constraint validation runs first, so an invalid form never reaches `on submit`.")
+
+        Heading("Pending actions", id: "pending-actions").h2
+
+        Markdown("An action that `await`s exposes `name.pending`, `true` while a call of it runs — for a disabled button or a spinner:")
+
+        CodeBlock("store Api \{\n    state saved = 0\n    action save(payload: Map) \{\n        let r = await fetch(\"/api/save\", \{ method: \"POST\", body: payload \})\n        saved = saved + 1\n    \}\n\}\n\npage Save(path: \"/\") \{\n    use Api\n    state text = \"\"\n    Input(bind: text, label: \"Note\")\n    Button(\"Save\", disabled: Api.save.pending).primary \{ on click \{ Api.save(\{ text: text \}) \} \}\n    if Api.save.pending \{ Spinner.sm \}\n    Text(\"Saved \{Api.saved\} times\")\n\}", title: "wf")
+
+        Heading("Emitting events from components", id: "emitting-events-from-components").h2
+
+        Markdown("A component declares the events it fires and fires them with `emit`; the caller handles them like DOM events. [Chapter 8](/docs/guide/components#events) covers it:")
+
+        CodeBlock("component Counter(_ start: Number) \{\n    event change(value: Number)\n    state n = start\n    Row(gap: .sm) \{\n        Button(\"−\") \{ on click \{ n = n - 1  emit change(n) \} \}\n        Text(\"\{n\}\")\n        Button(\"+\") \{ on click \{ n = n + 1  emit change(n) \} \}\n    \}\n\}\n\npage Use(path: \"/\") \{\n    state total = 0\n    Counter(10) \{ on change(v) \{ total = v \} \}\n    Text(\"Now \{total\}\")\n\}", title: "wf")
+
+        Heading("Switching the theme", id: "switching-the-theme").h2
+
+        Markdown("`setTheme(\"dark\" | \"light\" | \"system\")` records the reader's choice, applies it, and keeps it across visits; `theme` reads it. [Chapter 12](/docs/guide/styling#dark-mode) shows the theme declaration it switches to.")
+
+        CodeBlock("page ThemePicker(path: \"/\") \{\n    Row(gap: .sm) \{\n        Button(\"Light\", outlined: theme != \"light\") \{ on click \{ setTheme(\"light\") \} \}\n        Button(\"Dark\", outlined: theme != \"dark\") \{ on click \{ setTheme(\"dark\") \} \}\n        Button(\"System\", outlined: theme != \"system\") \{ on click \{ setTheme(\"system\") \} \}\n    \}\n\}", title: "wf")
+
+        Heading("Overlays: modals, dialogs, toasts", id: "overlays-modals-dialogs-toasts").h2
+
+        CodeBlock("page Overlays(path: \"/\") \{\n    state confirm = false\n    state deleted = false\n    Button(\"Delete\").danger \{ on click \{ confirm = true \} \}\n    Modal(visible: confirm, title: \"Delete this?\") \{\n        Text(\"This cannot be undone.\")\n        Modal.Footer \{\n            Button(\"Cancel\") \{ on click \{ confirm = false \} \}\n            Button(\"Delete\").danger \{ on click \{ confirm = false  deleted = true \} \}\n        \}\n    \}\n    if deleted \{ Toast(\"Deleted\").success \}\n\}", title: "wf")
+
+        Markdown("A `Modal` or `Dialog` opens while its `visible:` state is true, traps focus, closes on Escape, and returns focus where it was. A `Toast` shows the moment it is rendered, so it lives under a condition that turns true.")
+    }
+}

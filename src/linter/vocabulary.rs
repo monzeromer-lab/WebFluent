@@ -70,7 +70,8 @@ pub fn lint_vocabulary_with(
         let file = file_of(index);
         let file = file.as_str();
         let (body, props): (&[Statement], Vec<String>) = match decl {
-            Declaration::Page(p) => (&p.body, Vec::new()),
+            // A page's route parameters are names its body reads.
+            Declaration::Page(p) => (&p.body, p.params.iter().map(|p| p.name.clone()).collect()),
             Declaration::Component(c) => {
                 (&c.body, c.props.iter().map(|p| p.name.clone()).collect())
             }
@@ -131,14 +132,19 @@ fn global_names(program: &Program) -> HashSet<String> {
                 names.insert(s.name.clone());
                 hoist_names(&s.body, &mut names);
             }
+            // A constant or a data file is a name every body reads bare.
+            Declaration::Const(c) => {
+                names.insert(c.name.clone());
+            }
+            Declaration::Data(d) => {
+                names.insert(d.name.clone());
+            }
             Declaration::App(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
-            | Declaration::Const(_)
             | Declaration::Animation(_)
-            | Declaration::Test(_)
-            | Declaration::Data(_) => {}
+            | Declaration::Test(_) => {}
         }
     }
     names
@@ -472,7 +478,10 @@ mod tests {
                 Price(first)
                 for item in items { Text(item) }
             }
-            
+            page Post(path: "/posts/:slug", slug: String) { Text(slug) }
+            const INSTALL = "curl …"
+            data posts = "posts.json"
+            page Install(path: "/install") { Code(INSTALL)  Text(posts) }
             "#,
         );
         assert_eq!(w, Vec::new());

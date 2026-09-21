@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookbook</title>
+    <meta name="description" content="Three complete applications — todos, a static blog, a guarded dashboard — and recipes for search, pagination, forms and more.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/cookbook">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/cookbook?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/cookbook?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/cookbook">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Cookbook">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Three complete applications — todos, a static blog, a guarded dashboard — and recipes for search, pagination, forms and more.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/cookbook">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Cookbook">
+    <meta name="twitter:description" content="Three complete applications — todos, a static blog, a guarded dashboard — and recipes for search, pagination, forms and more.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/cookbook#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/cookbook","name":"Cookbook","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Three complete applications — todos, a static blog, a guarded dashboard — and recipes for search, pagination, forms and more."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/cookbook#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Cookbook","item":"https://monzeromer-lab.github.io/WebFluent/docs/cookbook"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../app.js" defer></script>
+    <script src="../../pages/Cookbook.js" data-wf-page="Cookbook" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link" href="/WebFluent/docs/guide">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link active" href="/WebFluent/docs/cookbook" aria-current="page">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/cookbook" aria-current="page">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 20</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Cookbook</h1>
+                        <p class="wf-text wf-s38239618">Three complete applications you can paste into a fresh project, and recipes for the things every site needs.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>Three complete applications, each a single file you can paste into <code>src/App.wf</code> of a fresh <code>wf init</code>, then a set of recipes for things that come up in every project. Every block here builds.</p>
+                            </div>
+                            <h2 class="wf-heading">App 1: Todos</h2>
+                            <div class="wf-markdown">
+<p>A keyed list, a store with <code>persist</code>, filters in the URL, keyboard shortcuts, and an empty state.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Filter { all, open, done }
+
+type Todo { id: Number, title: String, done: Bool = false, createdAt: String }
+
+store Todos {
+    persist items: [Todo] = []
+    persist nextId = 1
+    derived open = items.filter(t =&gt; !t.done)
+    derived done = items.filter(t =&gt; t.done)
+    derived count = items.length
+
+    action add(title: String) {
+        let text = title.trim()
+        if text == &quot;&quot; { return }
+        items.push(Todo(id: nextId, title: text, createdAt: &quot;{Date.now()}&quot;))
+        nextId = nextId + 1
+    }
+    action toggle(id: Number) {
+        items = items.map(t =&gt; if t.id == id { Todo(id: t.id, title: t.title, done: !t.done, createdAt: t.createdAt) } else { t })
+    }
+    action rename(id: Number, title: String) {
+        items = items.map(t =&gt; if t.id == id { Todo(id: t.id, title: title, done: t.done, createdAt: t.createdAt) } else { t })
+    }
+    action remove(id: Number) { items = items.filter(t =&gt; t.id != id) }
+    action clearDone() { items = items.filter(t =&gt; !t.done) }
+}
+
+component TodoRow(_ todo: Todo) {
+    use Todos
+    event edit(id: Number)
+    state editing = false
+    state draft = todo.title
+
+    Row(align: .center, gap: .sm, exit: .fadeOut) {
+        style { padding: $sm 0; border-bottom: 1px solid $border; &amp;:hover { background: $surface } }
+        Checkbox(checked: todo.done, aria-label: &quot;Done: {todo.title}&quot;) { on change { Todos.toggle(todo.id) } }
+        if editing {
+            Input(bind: draft, ref: box, aria-label: &quot;Edit {todo.title}&quot;) {
+                on key(&quot;Enter&quot;) { Todos.rename(todo.id, draft)  editing = false }
+                on key(&quot;Escape&quot;) { draft = todo.title  editing = false }
+                on blur { Todos.rename(todo.id, draft)  editing = false }
+            }
+        } else {
+            Text(todo.title, class: if todo.done { &quot;is-done&quot; } else { &quot;&quot; }) {
+                style { flex: 1; &amp;.is-done { text-decoration: line-through; color: $text-muted } }
+                on click { editing = true  emit edit(todo.id) }
+            }
+        }
+        IconButton(icon: &quot;trash&quot;, label: &quot;Remove {todo.title}&quot;).sm { on click { Todos.remove(todo.id) } }
+    }
+}
+
+app {
+    Container {
+        style { max-width: 40rem; padding: $lg }
+        Router
+    }
+}
+
+page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A small list of things to do.&quot;) {
+    use Todos
+    state draft = &quot;&quot;
+    state lastEdited: Number? = null
+    derived filter: Filter = if query.filter == &quot;open&quot; { .open } else if query.filter == &quot;done&quot; { .done } else { .all }
+    derived shown = match filter { .open { Todos.open } .done { Todos.done } else { Todos.items } }
+
+    on key(&quot;/&quot;) { box.focus() }
+
+    Heading(&quot;Todos&quot;).h1
+    Row(gap: .sm) {
+        Input(bind: draft, ref: box, placeholder: &quot;What needs doing? (press / to focus)&quot;, aria-label: &quot;New todo&quot;) {
+            on key(&quot;Enter&quot;) { Todos.add(draft)  draft = &quot;&quot; }
+        }
+        Button(&quot;Add&quot;, disabled: draft.trim() == &quot;&quot;).primary { on click { Todos.add(draft)  draft = &quot;&quot; } }
+    }
+
+    Row(gap: .sm, align: .center) {
+        style { margin: $md 0 }
+        Link(&quot;All&quot;, to: &quot;/?filter=all&quot;, active: .prefix)
+        Link(&quot;Open ({Todos.open.length})&quot;, to: &quot;/?filter=open&quot;)
+        Link(&quot;Done ({Todos.done.length})&quot;, to: &quot;/?filter=done&quot;)
+        Spacer
+        if Todos.done.length &gt; 0 { Button(&quot;Clear done&quot;).sm { on click { Todos.clearDone() } } }
+    }
+
+    if shown.length == 0 {
+        Card(animate: .fadeIn) {
+            Text(if Todos.count == 0 { &quot;Nothing yet. Add your first todo above.&quot; } else { &quot;Nothing here.&quot; }).muted
+        }
+    }
+    for todo in shown by todo.id {
+        TodoRow(todo, animate: .fadeIn) { on edit(id) { lastEdited = id } }
+    }
+    if let id = lastEdited { Text(&quot;Editing #{id}&quot;).muted.sm }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What to notice:</p>
+<ul>
+<li><code>persist items</code> keeps the list across visits with no storage code.</li>
+<li><code>for … by todo.id</code> keeps each row's <code>editing</code> state and its input while the list is filtered or reordered.</li>
+<li>The filter lives in the URL (<code>?filter=open</code>), read through <code>query</code>, so a reload and a shared link keep it.</li>
+<li><code>on key(&quot;/&quot;)</code> at page level and <code>on key(&quot;Enter&quot;)</code>/<code>(&quot;Escape&quot;)</code> on the input are the whole keyboard story.</li>
+<li><code>TodoRow</code> declares <code>event edit</code> and the page listens with <code>on edit(id)</code>.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">App 2: A blog, statically built</h2>
+                            <div class="wf-markdown">
+<p>A <code>data</code> file, one <code>.md</code>-free blog written entirely in WebFluent with static paths, a layout, SEO tags, and a dark theme.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">theme Paper {
+    color-primary: #7C3AED
+    color-background: #FFFFFF
+    color-surface: #FAF5FF
+    color-text: #1F1235
+    color-text-muted: #5B5470
+    font-family: &#x27;Georgia&#x27;, serif
+    radius-md: 4px
+}
+
+theme Ink {
+    color-background: #14101C
+    color-surface: #1D1728
+    color-text: #F3EEFF
+    color-text-muted: #B9AECF
+    color-border: #2E2540
+}
+
+type Post {
+    slug: String
+    title: String
+    summary: String
+    date: String
+    tags: [String]
+    body: String
+}
+
+data posts: [Post] = &quot;posts.json&quot;
+
+component Shell(_ crumb: String) {
+    slot
+    Navbar {
+        Navbar.Brand { Link(&quot;Paper &amp; Ink&quot;, to: &quot;/&quot;) }
+        Navbar.Links {
+            Link(&quot;Posts&quot;, to: &quot;/&quot;, active: .prefix)
+            Link(&quot;Tags&quot;, to: &quot;/tags&quot;)
+            Link(&quot;About&quot;, to: &quot;/about&quot;)
+        }
+        Navbar.Actions {
+            Button(if theme == &quot;dark&quot; { &quot;Light&quot; } else { &quot;Dark&quot; }).sm {
+                on click { setTheme(if theme == &quot;dark&quot; { &quot;light&quot; } else { &quot;dark&quot; }) }
+            }
+        }
+    }
+    Container {
+        style { max-width: 44rem; padding: $lg $md }
+        Breadcrumb {
+            Breadcrumb.Item(to: &quot;/&quot;) { Text(&quot;Home&quot;) }
+            Breadcrumb.Item { Text(crumb) }
+        }
+        children
+    }
+}
+
+component PostCard(_ post: Post) {
+    Card {
+        style { margin-bottom: $md }
+        Link(post.title, to: &quot;/posts/{post.slug}&quot;) { style { font-size: $xl; font-weight: 700 } }
+        Text(format(post.date, .date, &quot;long&quot;)).muted.sm
+        Text(post.summary)
+        Row(gap: .xs) {
+            for tag in post.tags by tag { Tag(tag) }
+        }
+    }
+}
+
+app { Router(transition: .fade) }
+
+page Home(path: &quot;/&quot;, title: &quot;Paper &amp; Ink&quot;, description: &quot;Notes on making things.&quot;, layout: Shell(crumb: &quot;Posts&quot;)) {
+    derived sorted = posts.sortBy(p =&gt; p.date).reverse()
+    Heading(&quot;Posts&quot;).h1
+    for p in sorted by p.slug { PostCard(p) }
+}
+
+page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Paper &amp; Ink&quot;, description: &quot;A post.&quot;, type: &quot;article&quot;, layout: Shell(crumb: &quot;Post&quot;), paths: posts.map(p =&gt; p.slug)) {
+    derived post = posts.find(p =&gt; p.slug == slug)
+    derived related = posts.filter(p =&gt; p.slug != slug &amp;&amp; p.tags.some(t =&gt; post?.tags.includes(t) ?? false)).take(3)
+    head {
+        meta(property: &quot;og:title&quot;, content: post?.title ?? &quot;Post&quot;)
+        meta(property: &quot;og:description&quot;, content: post?.summary ?? &quot;&quot;)
+        meta(property: &quot;article:published_time&quot;, content: post?.date ?? &quot;&quot;)
+    }
+    if let p = post {
+        Heading(p.title).h1
+        Text(format(p.date, .date, &quot;long&quot;)).muted
+        Markdown(p.body)
+        Divider
+        if related.length &gt; 0 {
+            Heading(&quot;Related&quot;).h2
+            for r in related by r.slug { Link(r.title, to: &quot;/posts/{r.slug}&quot;) }
+        }
+    } else {
+        Alert(&quot;No such post.&quot;).warning
+        Link(&quot;Back to posts&quot;, to: &quot;/&quot;)
+    }
+}
+
+page Tags(path: &quot;/tags&quot;, title: &quot;Tags&quot;, description: &quot;Every tag on the blog.&quot;, layout: Shell(crumb: &quot;Tags&quot;)) {
+    derived tags = posts.flatMap(p =&gt; p.tags).unique().sort()
+    Heading(&quot;Tags&quot;).h1
+    for tag in tags by tag {
+        derived count = posts.filter(p =&gt; p.tags.includes(tag)).length
+        Row(gap: .sm, align: .center) {
+            Link(tag, to: &quot;/tags/{tag}&quot;)
+            Badge(&quot;{count}&quot;).info
+        }
+    }
+}
+
+page TagPage(path: &quot;/tags/:tag&quot;, tag: String, title: &quot;Tag&quot;, description: &quot;Posts under a tag.&quot;, layout: Shell(crumb: &quot;Tag&quot;), paths: posts.flatMap(p =&gt; p.tags).unique()) {
+    derived hits = posts.filter(p =&gt; p.tags.includes(tag))
+    Heading(&quot;Tagged {tag}&quot;).h1
+    for p in hits by p.slug { PostCard(p) }
+}
+
+page About(path: &quot;/about&quot;, title: &quot;About&quot;, description: &quot;Who writes here.&quot;, layout: Shell(crumb: &quot;About&quot;)) {
+    Heading(&quot;About&quot;).h1
+    Markdown(&quot;Written with **WebFluent**. Every page here is a static file, hydrated in place.&quot;)
+}
+
+page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives here.&quot;, noindex: true, layout: Shell(crumb: &quot;404&quot;)) {
+    Heading(&quot;Not found&quot;).h1
+    Link(&quot;Back home&quot;, to: &quot;/&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>posts.json</code> beside it:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">[
+  { &quot;slug&quot;: &quot;hello&quot;, &quot;title&quot;: &quot;Hello, world&quot;, &quot;summary&quot;: &quot;The first post.&quot;, &quot;date&quot;: &quot;2026-01-10&quot;, &quot;tags&quot;: [&quot;meta&quot;], &quot;body&quot;: &quot;# Hello\n\nThis is the **first** post.&quot; },
+  { &quot;slug&quot;: &quot;static&quot;, &quot;title&quot;: &quot;Why static&quot;, &quot;summary&quot;: &quot;Files are fast.&quot;, &quot;date&quot;: &quot;2026-02-02&quot;, &quot;tags&quot;: [&quot;meta&quot;, &quot;web&quot;], &quot;body&quot;: &quot;Static files are cached everywhere.&quot; }
+]</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>And the config: <code>&quot;theme&quot;: ￾ &quot;name&quot;: &quot;Paper&quot;, &quot;dark&quot;: &quot;Ink&quot; ￿</code>, <code>&quot;build&quot;: ￾ &quot;ssg&quot;: true ￿</code>, <code>&quot;meta&quot;: ￾ &quot;site_url&quot;: &quot;https://example.com&quot; ￿</code>.</p>
+<p>What to notice:</p>
+<ul>
+<li><code>paths:</code> over the <code>data</code> file renders one HTML file per post and per tag; <code>head ￾ ￿</code> gives each its own sharing tags.</li>
+<li>The <code>Shell</code> layout takes an argument (<code>crumb:</code>) like any component.</li>
+<li><code>derived count</code> inside a <code>for</code> body is per item.</li>
+<li><code>setTheme</code> and a <code>dark:</code> theme are the whole dark-mode feature.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">App 3: A dashboard behind a login</h2>
+                            <div class="wf-markdown">
+<p>Guarded routes, a session store, resources with reload, a form with a handle, a modal, a table with sorting, and a command palette.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, service: String, status: String, startedAt: String, by: String }
+type Service { name: String, healthy: Bool, region: String }
+
+enum Sort { newest, service, status }
+
+store Session {
+    persist user: Map? = null
+    state error = &quot;&quot;
+    derived loggedIn = user != null
+    action login(email: String, password: String) {
+        error = &quot;&quot;
+        try {
+            let r = await fetch(&quot;/api/login&quot;, { method: &quot;POST&quot;, body: { email: email, password: password } })
+            user = r.user
+            navigate(&quot;/&quot;)
+        } catch e {
+            error = &quot;Sign-in failed: {e.message}&quot;
+        }
+    }
+    action logout() { user = null  navigate(&quot;/login&quot;) }
+}
+
+store Ui {
+    state palette = false
+    state confirmId: String? = null
+    action openPalette() { palette = true }
+    action close() { palette = false  confirmId = null }
+}
+
+component Shell {
+    use Session
+    use Ui
+    slot
+    on key(&quot;cmd+k&quot;) { Ui.openPalette() }
+    on key(&quot;ctrl+k&quot;) { Ui.openPalette() }
+    on key(&quot;Escape&quot;) { Ui.close() }
+    Row {
+        style { min-height: 100vh }
+        Sidebar {
+            style { width: 220px }
+            Sidebar.Header { Text(&quot;Ops&quot;).bold }
+            Sidebar.Item(to: &quot;/&quot;, icon: &quot;home&quot;) { Text(&quot;Overview&quot;) }
+            Sidebar.Item(to: &quot;/deploys&quot;, icon: &quot;upload&quot;) { Text(&quot;Deploys&quot;) }
+            Sidebar.Item(to: &quot;/settings&quot;, icon: &quot;settings&quot;) { Text(&quot;Settings&quot;) }
+            Sidebar.Divider
+            if let u = Session.user {
+                Text(u.email).muted.sm
+                Button(&quot;Sign out&quot;).sm { on click { Session.logout() } }
+            }
+        }
+        Container {
+            style { flex: 1; padding: $lg }
+            children
+        }
+    }
+    Palette
+}
+
+component Palette {
+    use Ui
+    state q = &quot;&quot;
+    derived commands = [
+        { label: &quot;Go to overview&quot;, to: &quot;/&quot; },
+        { label: &quot;Go to deploys&quot;, to: &quot;/deploys&quot; },
+        { label: &quot;Go to settings&quot;, to: &quot;/settings&quot; },
+    ]
+    derived hits = commands.filter(c =&gt; c.label.toLowerCase().includes(q.toLowerCase()))
+    Modal(visible: Ui.palette, title: &quot;Command palette&quot;) {
+        Input(bind: q, placeholder: &quot;Type a command&quot;, aria-label: &quot;Command&quot;)
+        for c, i in hits {
+            Button(c.label).sm { on click { navigate(c.to)  Ui.close() } }
+        }
+        if hits.length == 0 { Text(&quot;No matches&quot;).muted }
+    }
+}
+
+app { Router }
+
+page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &quot;Sign in to the console.&quot;) {
+    use Session
+    state email = &quot;&quot;
+    state password = &quot;&quot;
+    Container {
+        style { max-width: 24rem; margin: 4rem auto }
+        Heading(&quot;Sign in&quot;).h1
+        Form(bind: form) {
+            on submit { Session.login(email, password) }
+            Input(bind: email, name: &quot;email&quot;, label: &quot;Email&quot;).email.required
+            Input(bind: password, name: &quot;password&quot;, label: &quot;Password&quot;).password.required
+            Button(&quot;Sign in&quot;, type: .submit, disabled: !form.valid || Session.login.pending).primary
+        }
+        if Session.error != &quot;&quot; { Alert(Session.error).danger }
+    }
+}
+
+page Overview(path: &quot;/&quot;, title: &quot;Overview&quot;, description: &quot;Service health.&quot;, guard: Session.loggedIn, redirect: &quot;/login&quot;, layout: Shell) {
+    resource services: [Service] = fetch(&quot;/api/services&quot;)
+    every(30000) { services.reload() }
+    Heading(&quot;Overview&quot;).h1
+    match services {
+        loading { Skeleton }
+        error(e) { Alert(&quot;Could not load services: {e.message}&quot;).danger { Button(&quot;Retry&quot;) { on click { services.reload() } } } }
+        ready(list) {
+            derived healthy = list.filter(s =&gt; s.healthy).length
+            Row(gap: .md) {
+                Card { Text(&quot;Services&quot;).muted.sm  Heading(&quot;{list.length}&quot;).h2 }
+                Card { Text(&quot;Healthy&quot;).muted.sm  Heading(&quot;{healthy}&quot;).h2 }
+                Card { Text(&quot;Regions&quot;).muted.sm  Heading(&quot;{list.map(s =&gt; s.region).unique().length}&quot;).h2 }
+            }
+            Grid(columns: if viewport.lg { 3 } else { 1 }, gap: .md) {
+                for s in list by s.name {
+                    Card {
+                        Row(justify: .between, align: .center) {
+                            Text(s.name).bold
+                            Badge(if s.healthy { &quot;healthy&quot; } else { &quot;down&quot; }, tone: if s.healthy { .success } else { .danger })
+                        }
+                        Text(s.region).muted.sm
+                    }
+                }
+            }
+        }
+    }
+}
+
+page Deploys(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, description: &quot;Recent deploys.&quot;, guard: Session.loggedIn, redirect: &quot;/login&quot;, layout: Shell) {
+    use Ui
+    state sort: Sort = .newest
+    state q = &quot;&quot;
+    state rolledBack = &quot;&quot;
+    resource deploys: [Deploy] = fetch(&quot;/api/deploys&quot;)
+    action rollback(id: String) {
+        await fetch(&quot;/api/deploys/{id}/rollback&quot;, { method: &quot;POST&quot; })
+        rolledBack = id
+        Ui.close()
+        deploys.reload()
+    }
+    Row(justify: .between, align: .center) {
+        Heading(&quot;Deploys&quot;).h1
+        Row(gap: .sm) {
+            Input(bind: q, placeholder: &quot;Filter by service&quot;, aria-label: &quot;Filter&quot;)
+            Select(bind: sort, label: &quot;Sort&quot;) {
+                Select.Option(&quot;Newest&quot;, value: &quot;newest&quot;)
+                Select.Option(&quot;Service&quot;, value: &quot;service&quot;)
+                Select.Option(&quot;Status&quot;, value: &quot;status&quot;)
+            }
+        }
+    }
+    match deploys {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(rows) {
+            derived shown = rows.filter(d =&gt; d.service.toLowerCase().includes(q.toLowerCase()))
+            derived sorted = match sort { .service { shown.sortBy(d =&gt; d.service) } .status { shown.sortBy(d =&gt; d.status) } else { shown.sortBy(d =&gt; d.startedAt).reverse() } }
+            Table(caption: &quot;Recent deploys&quot;) {
+                Table.Head {
+                    Table.Row { Table.Cell(&quot;Service&quot;)  Table.Cell(&quot;Status&quot;)  Table.Cell(&quot;When&quot;)  Table.Cell(&quot;By&quot;)  Table.Cell(&quot;&quot;) }
+                }
+                Table.Body {
+                    for d in sorted by d.id {
+                        Table.Row {
+                            Table.Cell(d.service)
+                            Table.Cell { Badge(d.status, tone: if d.status == &quot;ok&quot; { .success } else if d.status == &quot;failed&quot; { .danger } else { .info }) }
+                            Table.Cell(ago(d.startedAt))
+                            Table.Cell(d.by)
+                            Table.Cell {
+                                Menu(trigger: &quot;Actions&quot;, aria-label: &quot;Actions for {d.service}&quot;) {
+                                    Menu.Item { Link(&quot;Details&quot;, to: &quot;/deploys/{d.id}&quot;) }
+                                    Menu.Divider
+                                    Menu.Item { Button(&quot;Roll back&quot;).sm.danger { on click { Ui.confirmId = d.id } } }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if sorted.length == 0 { Text(&quot;No deploys match.&quot;).muted }
+        }
+    }
+    Modal(visible: Ui.confirmId != null, title: &quot;Roll back this deploy?&quot;) {
+        Text(&quot;The previous build will be restored.&quot;)
+        Modal.Footer {
+            Button(&quot;Cancel&quot;) { on click { Ui.close() } }
+            Button(&quot;Roll back&quot;, disabled: rollback.pending).danger { on click { if let id = Ui.confirmId { rollback(id) } } }
+        }
+    }
+    if rolledBack != &quot;&quot; { Toast(&quot;Rolled back {rolledBack}&quot;).success }
+}
+
+page DeployDetail(path: &quot;/deploys/:id&quot;, id: String, title: &quot;Deploy&quot;, description: &quot;One deploy.&quot;, guard: Session.loggedIn, redirect: &quot;/login&quot;, layout: Shell) {
+    resource deploy: Deploy = fetch(&quot;/api/deploys/{id}&quot;)
+    Breadcrumb {
+        Breadcrumb.Item(to: &quot;/deploys&quot;) { Text(&quot;Deploys&quot;) }
+        Breadcrumb.Item { Text(id) }
+    }
+    match deploy {
+        loading { Skeleton }
+        error(e) { Alert(&quot;Not found&quot;).warning }
+        ready(d) {
+            Heading(&quot;{d.service} — {d.status}&quot;).h1
+            Text(&quot;Started {ago(d.startedAt)} by {d.by}&quot;)
+        }
+    }
+}
+
+page Settings(path: &quot;/settings&quot;, title: &quot;Settings&quot;, description: &quot;Your preferences.&quot;, guard: Session.loggedIn, redirect: &quot;/login&quot;, layout: Shell) {
+    persist density = &quot;comfortable&quot;
+    persist notify = true
+    Heading(&quot;Settings&quot;).h1
+    Radio(bind: density, value: &quot;comfortable&quot;, label: &quot;Comfortable&quot;)
+    Radio(bind: density, value: &quot;compact&quot;, label: &quot;Compact&quot;)
+    Switch(bind: notify, label: &quot;Email me when a deploy fails&quot;)
+    Row(gap: .sm) {
+        Button(&quot;Light&quot;) { on click { setTheme(&quot;light&quot;) } }
+        Button(&quot;Dark&quot;) { on click { setTheme(&quot;dark&quot;) } }
+        Button(&quot;System&quot;) { on click { setTheme(&quot;system&quot;) } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What to notice:</p>
+<ul>
+<li><code>guard: Session.loggedIn, redirect: &quot;/login&quot;</code> on each private page; the session itself is a <code>persist</code> in a store, so a reload stays signed in.</li>
+<li><code>Shell</code> is both a layout and the place the global shortcuts live — its <code>on key</code> handlers exist while any page inside it shows.</li>
+<li><code>every(30000) ￾ services.reload() ￿</code> polls, and stops when the page leaves.</li>
+<li>The confirm modal's state is in <code>Ui</code>, so any page can open it; <code>Ui.close()</code> on Escape covers the palette and the modal.</li>
+<li><code>Table.Cell ￾ … ￿</code> holds elements; <code>Table.Cell(text)</code> holds text.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Recipes</h2>
+                            <h3 class="wf-heading">Debounced search</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
+    state typed = &quot;&quot;
+    state q = &quot;&quot;
+    action commit(value: String) { if value == typed { q = value } }
+    effect {
+        let pending = typed
+        setTimeout(() =&gt; commit(pending), 300)
+    }
+    resource hits = fetch(&quot;/api/search?q={q}&quot;)
+    Input(bind: typed, placeholder: &quot;Search&quot;, aria-label: &quot;Search&quot;)
+    match hits {
+        loading { Spinner.sm }
+        error(e) { Text(e.message).danger }
+        ready(list) { Text(&quot;{list.length} results for {q}&quot;) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The effect re-runs on every keystroke; each run schedules a check, and only the one whose value is still current commits to <code>q</code>, which the resource follows. (<code>after(ms)</code> is a declaration of a body, not a statement, so a timer inside an effect is the browser's <code>setTimeout</code>.)</p>
+                            </div>
+                            <h3 class="wf-heading">Pagination</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Rows(path: &quot;/&quot;) {
+    state page = 1
+    state perPage = 20
+    resource rows = fetch(&quot;/api/rows?page={page}&amp;per={perPage}&quot;)
+    match rows {
+        loading { Spinner }
+        error(e) { Text(e.message).danger }
+        ready(r) {
+            for row in r.items by row.id { Text(row.name) }
+            Row(gap: .sm, align: .center) {
+                Button(&quot;Previous&quot;, disabled: page == 1) { on click { page = page - 1 } }
+                Text(&quot;Page {page} of {r.pages}&quot;)
+                Button(&quot;Next&quot;, disabled: page &gt;= r.pages) { on click { page = page + 1 } }
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">Optimistic update with rollback</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, liked: Bool }
+
+page Likes(path: &quot;/&quot;) {
+    state items: [Item] = [Item(id: &quot;a&quot;, liked: false)]
+    state error = &quot;&quot;
+    action like(id: String) {
+        let before = items
+        items = items.map(i =&gt; if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
+        try {
+            await fetch(&quot;/api/like/{id}&quot;, { method: &quot;POST&quot; })
+        } catch e {
+            items = before
+            error = &quot;Could not save. Try again.&quot;
+        }
+    }
+    for i in items by i.id {
+        Button(if i.liked { &quot;♥&quot; } else { &quot;♡&quot; }, aria-label: &quot;Like&quot;).sm { on click { like(i.id) } }
+    }
+    if error != &quot;&quot; { Toast(error).danger }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">A confirm dialog component</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
+    event confirm()
+    event cancel()
+    slot
+    Dialog(visible: visible, title: title) {
+        children
+        Row(gap: .sm, justify: .end) {
+            Button(&quot;Cancel&quot;) { on click { emit cancel() } }
+            Button(&quot;Confirm&quot;, tone: if danger { .danger } else { .primary }) { on click { emit confirm() } }
+        }
+    }
+}
+
+page Use(path: &quot;/&quot;) {
+    state asking = false
+    state gone = false
+    Button(&quot;Delete account&quot;).danger { on click { asking = true } }
+    Confirm(&quot;Delete your account?&quot;, visible: asking, danger: true) {
+        on confirm { gone = true  asking = false }
+        on cancel { asking = false }
+        Text(&quot;Everything goes. This cannot be undone.&quot;)
+    }
+    if gone { Alert(&quot;Account deleted.&quot;).info }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">Responsive navigation</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/&quot;) {
+    state open = false
+    if viewport.md {
+        Row(gap: .md) {
+            Link(&quot;Home&quot;, to: &quot;/&quot;)
+            Link(&quot;Docs&quot;, to: &quot;/docs&quot;)
+            Link(&quot;Pricing&quot;, to: &quot;/pricing&quot;)
+        }
+    } else {
+        IconButton(icon: &quot;menu&quot;, label: &quot;Open navigation&quot;) { on click { open = !open } }
+        show open {
+            Stack(gap: .sm, animate: .slideDown) {
+                Link(&quot;Home&quot;, to: &quot;/&quot;)
+                Link(&quot;Docs&quot;, to: &quot;/docs&quot;)
+                Link(&quot;Pricing&quot;, to: &quot;/pricing&quot;)
+            }
+        }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">A form with validation messages</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/&quot;) {
+    state email = &quot;&quot;
+    state password = &quot;&quot;
+    state confirm = &quot;&quot;
+    state sent = false
+    derived emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+    derived passwordOk = password.length &gt;= 8
+    derived same = password == confirm
+    derived ok = emailOk &amp;&amp; passwordOk &amp;&amp; same
+    Form(bind: form) {
+        on submit { if ok { sent = true  form.reset() } }
+        Input(bind: email, name: &quot;email&quot;, label: &quot;Email&quot;, error: if email != &quot;&quot; &amp;&amp; !emailOk { &quot;Enter a valid email&quot; } else { &quot;&quot; }).email.required
+        Input(bind: password, name: &quot;password&quot;, label: &quot;Password&quot;, error: if password != &quot;&quot; &amp;&amp; !passwordOk { &quot;At least 8 characters&quot; } else { &quot;&quot; }).password.required
+        Input(bind: confirm, name: &quot;confirm&quot;, label: &quot;Confirm password&quot;, error: if confirm != &quot;&quot; &amp;&amp; !same { &quot;Passwords differ&quot; } else { &quot;&quot; }).password.required
+        Button(&quot;Create account&quot;, type: .submit, disabled: !ok).primary
+    }
+    if sent { Alert(&quot;Welcome aboard.&quot;).success }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">Tabs with the active tab in the URL</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Account(path: &quot;/account&quot;) {
+    derived tab = if hash != &quot;&quot; { hash } else { &quot;profile&quot; }
+    Row(gap: .sm) {
+        Link(&quot;Profile&quot;, to: &quot;/account#profile&quot;)
+        Link(&quot;Billing&quot;, to: &quot;/account#billing&quot;)
+    }
+    if tab == &quot;profile&quot; { Text(&quot;Profile settings&quot;) }
+    if tab == &quot;billing&quot; { Text(&quot;Billing settings&quot;) }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">Reading a store from a component without use</h3>
+                            <div class="wf-markdown">
+<p>A component that only needs one value takes it as a prop, which keeps it reusable outside that store:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart { state count = 0 }
+
+component CartBadge(count: Number) {
+    if count &gt; 0 { Badge(&quot;{count}&quot;).primary }
+}
+
+page Shop(path: &quot;/&quot;) {
+    use Cart
+    CartBadge(count: Cart.count)
+}</code>
+                            </div>
+                            <h3 class="wf-heading">Countdown</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Countdown(path: &quot;/&quot;) {
+    state left = 10
+    every(1000) { if left &gt; 0 { left = left - 1 } }
+    Progress(value: 10 - left, max: 10)
+    Text(if left == 0 { &quot;Done&quot; } else { &quot;{left}s&quot; })
+}</code>
+                            </div>
+                            <h2 class="wf-heading">Where to go next</h2>
+                            <div class="wf-markdown">
+<ul>
+<li>The <a href="/WebFluent/docs/reference">components reference</a> for every prop and flag.</li>
+<li>The <code>examples/</code> and <code>tests/fixtures/</code> folders of the repository: a gallery, a marketing site, a dashboard, a docs site and a bespoke design, each a complete project.</li>
+<li><code>wf docs</code> in your own project, for what <em>your</em> components take.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/reference">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">19. Components reference</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#app-1-todos">App 1: Todos</a>
+                        <a class="wf-link wf-sdae384de" href="#app-2-a-blog-statically-built">App 2: A blog, statically built</a>
+                        <a class="wf-link wf-sdae384de" href="#app-3-a-dashboard-behind-a-login">App 3: A dashboard behind a login</a>
+                        <a class="wf-link wf-sdae384de" href="#recipes">Recipes</a>
+                        <a class="wf-link wf-sdae384de" href="#where-to-go-next">Where to go next</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link active" href="/WebFluent/docs/cookbook" aria-current="page">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

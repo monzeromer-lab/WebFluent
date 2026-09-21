@@ -933,6 +933,53 @@ impl Expr {
         }
     }
 
+    /// The expressions directly inside this one, to change.
+    pub fn children_mut(&mut self) -> Vec<&mut Expr> {
+        match self {
+            Expr::InterpolatedString(parts) => parts
+                .iter_mut()
+                .filter_map(|p| match p {
+                    StringPart::Expression(e) => Some(e),
+                    StringPart::Literal(_) => None,
+                })
+                .collect(),
+            Expr::PropertyAccess(base, _) | Expr::OptionalProperty(base, _) => vec![base],
+            Expr::IndexAccess(base, index) | Expr::OptionalIndex(base, index) => {
+                vec![base, index]
+            }
+            Expr::BinaryOp(l, _, r) => vec![l, r],
+            Expr::UnaryOp(_, e) | Expr::Lambda(_, e) | Expr::Await(e) | Expr::Spread(e) => {
+                vec![e]
+            }
+            Expr::Range(a, b, _) => vec![a, b],
+            Expr::MethodCall(obj, _, args) | Expr::OptionalMethod(obj, _, args) => {
+                std::iter::once(&mut **obj).chain(args).collect()
+            }
+            Expr::FunctionCall(_, args) | Expr::ListLiteral(args) | Expr::CaseValue(_, args) => {
+                args.iter_mut().collect()
+            }
+            Expr::MapLiteral(pairs) | Expr::Record(_, pairs) => {
+                pairs.iter_mut().map(|(_, v)| v).collect()
+            }
+            Expr::StringLiteral(_)
+            | Expr::Regex(..)
+            | Expr::NumberLiteral(_)
+            | Expr::BoolLiteral(_)
+            | Expr::Null
+            | Expr::Identifier(_)
+            | Expr::EnumCase(_)
+            | Expr::Token(_) => Vec::new(),
+        }
+    }
+
+    /// `f` on this expression and then on every one inside it, at any depth.
+    pub fn walk_mut(&mut self, f: &mut dyn FnMut(&mut Expr)) {
+        f(self);
+        for child in self.children_mut() {
+            child.walk_mut(f);
+        }
+    }
+
     /// Whether this expression, at any depth, is or holds an `await`.
     pub fn contains_await(&self) -> bool {
         matches!(self, Expr::Await(_)) || self.children().iter().any(|c| c.contains_await())
@@ -1010,6 +1057,136 @@ impl StatementKind {
             | StatementKind::Use(_)
             | StatementKind::EventHandler(_)
             | StatementKind::Animate(_) => Vec::new(),
+        }
+    }
+}
+
+/// `f` on every expression under `stmts`, at any depth: a statement's own,
+/// an element's arguments, style splices, handler bodies, fills, children.
+pub fn walk_exprs_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut Expr)) {
+    fn style(block: &mut StyleBlock, f: &mut dyn FnMut(&mut Expr)) {
+        for p in &mut block.properties {
+            p.value.walk_mut(f);
+        }
+        for mq in &mut block.media_queries {
+            for p in &mut mq.properties {
+                p.value.walk_mut(f);
+            }
+        }
+        for pb in &mut block.pseudo_blocks {
+            for p in &mut pb.properties {
+                p.value.walk_mut(f);
+            }
+        }
+    }
+    for stmt in stmts.iter_mut() {
+        match &mut stmt.kind {
+            StatementKind::State(s) => s.value.walk_mut(f),
+            StatementKind::Derived(d) => d.value.walk_mut(f),
+            StatementKind::Effect(e) => {
+                walk_exprs_mut(&mut e.body, f);
+                walk_exprs_mut(&mut e.cleanup, f);
+            }
+            StatementKind::Timer(t) => {
+                t.interval.walk_mut(f);
+                walk_exprs_mut(&mut t.body, f);
+            }
+            StatementKind::Action(a) => walk_exprs_mut(&mut a.body, f),
+            StatementKind::UIElement(el) => {
+                for arg in &mut el.args {
+                    match arg {
+                        Arg::Positional(e) | Arg::Named(_, e) => e.walk_mut(f),
+                    }
+                }
+                if let Some(block) = &mut el.style_block {
+                    style(block, f);
+                }
+                for h in &mut el.events {
+                    walk_exprs_mut(&mut h.body, f);
+                }
+                for fill in &mut el.slot_fills {
+                    walk_exprs_mut(&mut fill.body, f);
+                }
+                walk_exprs_mut(&mut el.children, f);
+            }
+            StatementKind::If(i) => {
+                i.condition.walk_mut(f);
+                walk_exprs_mut(&mut i.then_body, f);
+                for (c, b) in &mut i.else_if_branches {
+                    c.walk_mut(f);
+                    walk_exprs_mut(b, f);
+                }
+                if let Some(b) = &mut i.else_body {
+                    walk_exprs_mut(b, f);
+                }
+            }
+            StatementKind::For(fs) => {
+                fs.iterable.walk_mut(f);
+                if let Some(k) = &mut fs.key {
+                    k.walk_mut(f);
+                }
+                walk_exprs_mut(&mut fs.body, f);
+            }
+            StatementKind::Show(s) => {
+                s.condition.walk_mut(f);
+                walk_exprs_mut(&mut s.body, f);
+            }
+            StatementKind::Fetch(fd) => {
+                fd.url.walk_mut(f);
+                for o in &mut fd.options {
+                    o.value.walk_mut(f);
+                }
+                if let Some(b) = &mut fd.loading_block {
+                    walk_exprs_mut(b, f);
+                }
+                if let Some((_, b)) = &mut fd.error_block {
+                    walk_exprs_mut(b, f);
+                }
+                if let Some(b) = &mut fd.success_block {
+                    walk_exprs_mut(b, f);
+                }
+            }
+            StatementKind::Assignment(a) => {
+                a.target.walk_mut(f);
+                a.value.walk_mut(f);
+            }
+            StatementKind::MethodCall(m) => {
+                m.object.walk_mut(f);
+                for a in &mut m.args {
+                    a.walk_mut(f);
+                }
+            }
+            StatementKind::EventHandler(h) => walk_exprs_mut(&mut h.body, f),
+            StatementKind::Navigate(e)
+            | StatementKind::Log(e)
+            | StatementKind::ExprStatement(e) => e.walk_mut(f),
+            StatementKind::Return(e) => {
+                if let Some(e) = e {
+                    e.walk_mut(f);
+                }
+            }
+            StatementKind::Resource(r) => {
+                r.url.walk_mut(f);
+                for o in &mut r.options {
+                    o.value.walk_mut(f);
+                }
+            }
+            StatementKind::Match(m) => {
+                m.scrutinee.walk_mut(f);
+                for arm in &mut m.arms {
+                    walk_exprs_mut(&mut arm.body, f);
+                }
+            }
+            StatementKind::Emit(e) => {
+                for a in &mut e.args {
+                    a.walk_mut(f);
+                }
+            }
+            StatementKind::Try(t) => {
+                walk_exprs_mut(&mut t.body, f);
+                walk_exprs_mut(&mut t.catch_body, f);
+            }
+            StatementKind::Use(_) | StatementKind::Animate(_) => {}
         }
     }
 }

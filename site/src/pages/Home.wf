@@ -1,140 +1,207 @@
-page Home(path: "/", description: "WebFluent — the web-first language that compiles to HTML, CSS, JavaScript and PDF.", title: "WebFluent — The Web-First Language") {
-    state counter = 0
-    state taskInput = ""
-    state showDemo = false
+page Home(path: "/", title: "WebFluent — a language for websites", description: "A file describes what a page shows; the compiler turns it into a static site, a single-page app, a PDF or a slide deck, with accessibility and search built in.") {
+    state copied = false
+    action copyInstall() {
+        copied = true
+        try { navigator.clipboard.writeText(INSTALL) } catch e { log(e) }
+        setTimeout(() => uncopy(), 1600)
+    }
+    action uncopy() { copied = false }
 
-    Container {
-        Spacer.xl
+    SiteHeader
 
-        Heading(t("hero.title")).h1.center.slideUp
-        Spacer.sm
-        Text(t("hero.sub1")).muted.center.fadeIn
-        Text(t("hero.sub2")).muted.center.fadeIn
-
-        Spacer
-
-        Row(gap: .md, justify: .center) {
-            Button(t("hero.cta")).primary.lg { on click { navigate("/getting-started") } }
-            Button(t("hero.guide")).lg { on click { navigate("/guide") } }
+    // ------------------------------------------------------------------ hero
+    Row(gap: .xl, align: .start, id: "top", class: "landing-section") {
+        style {
+            gap: 48px
+            flex-wrap: nowrap
+            max-width: 1280px
+            margin: 0 auto
+            padding: 96px 40px 80px
+            border-bottom: 1px solid $border
+            @media (max-width: 960px) { flex-direction: column; padding: 48px 24px }
+            @media (max-width: 768px) { padding: 40px 16px 32px }
         }
 
-        Spacer.xl
+        Stack(gap: .lg) {
+            style { gap: 24px; width: 560px; max-width: 100%; flex-shrink: 0; @media (max-width: 960px) { width: 100% } }
 
-        Card.outlined {
-            Card.Body {
-                Code("page Home(path: \"/\") \{\n    Container \{\n        Heading(\"Hello, WebFluent!\").h1\n        Text(\"Build for the web. Nothing else.\")\n\n        Button(\"Get Started\").primary.lg \{\n            on click \{\n                navigate(\"/docs\")\n            \}\n        \}\n    \}\n\}").block
+            Text(t("hero.eyebrow"), class: "overline accent")
+            Heading(t("hero.title")).h1 {
+                style { margin: 0; font-size: 56px; line-height: 56px; font-weight: 800; letter-spacing: -0.022em; @media (max-width: 768px) { font-size: 40px; line-height: 44px; letter-spacing: -0.02em } }
+            }
+            Text(t("hero.sub")) { style { margin: 0; max-width: 520px; font-size: 17px; line-height: 26px; color: $color-text-muted } }
+
+            Row(align: .center, gap: .sm, class: "install-line") {
+                style {
+                    gap: 12px
+                    flex-wrap: nowrap
+                    height: 46px
+                    padding: 0 14px
+                    max-width: 520px
+                    background: $term-bg
+                    border: 1px solid $border
+                    border-radius: 6px
+                    & p { margin: 0 }
+                    @media (max-width: 768px) { flex-direction: row; height: 44px; padding: 0 12px }
+                }
+                Text("$") { style { font-family: $font-family-mono; font-size: 13px; line-height: 20px; color: $term-dim } }
+                Text(INSTALL) { style { flex-grow: 1; min-width: 0; font-family: $font-family-mono; font-size: 13px; line-height: 20px; color: $term-ink; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
+                Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("hero.copy")) {
+                    style {
+                        height: 28px
+                        padding: 0 10px
+                        background: transparent
+                        border: 1px solid $term-dim
+                        border-radius: 4px
+                        color: $term-ink
+                        font-family: inherit
+                        font-size: 12px
+                        line-height: 18px
+                        font-weight: 400
+                        &:hover { background: transparent; border-color: $term-ink }
+                    }
+                    on click { copyInstall() }
+                }
+            }
+
+            Row(align: .center, gap: .sm) {
+                style { gap: 8px; flex-wrap: wrap; & a { height: 42px; padding: 0 18px } @media (max-width: 768px) { flex-direction: column; align-items: stretch } }
+                Link(t("hero.cta"), to: "/docs/guide/getting-started", class: "site-button site-button-primary")
+                Link(t("hero.reference"), to: "/docs/reference", class: "site-button site-button-outlined")
+            }
+
+            Row(align: .center, gap: .md) {
+                style { gap: 20px; padding-top: 8px; flex-wrap: nowrap; & p { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } @media (max-width: 768px) { flex-direction: row; gap: 12px; font-size: 12px } @media (max-width: 400px) { display: none } }
+                Text(t("hero.platforms"))
+                Divider { style { width: 1px; height: 14px; margin: 0; border: 0; background: $border } }
+                Text(t("hero.nodeps"))
             }
         }
 
-        Spacer.xl
-        Divider
-        Spacer
+        Stack(class: "hero-editor") {
+            style {
+                gap: 0
+                flex: 1 1 0
+                min-width: 0
+                width: 100%
+                border: 1px solid $border
+                border-radius: 10px
+                overflow: hidden
+                background: $term-bg
+                box-shadow: $shadow-md
+            }
+            Row(align: .center, justify: .between) {
+                style { flex-wrap: nowrap; height: 36px; padding: 0 12px; background: $color-surface; border-bottom: 1px solid $border; & p { margin: 0 } @media (max-width: 768px) { flex-direction: row } }
+                Text("src/pages/Home.wf") { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text } }
+                Text(t("hero.serve")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle; @media (max-width: 480px) { display: none } } }
+            }
+            Code("page Home(path: \"/\", title: \"Hello\") \{\n    state count = 0\n\n    Container \{\n        Heading(\"Hello, world\").h1\n        Text(\"You have clicked \{count\} times.\")\n\n        Button(\"Click me\").primary \{\n            on click \{ count = count + 1 \}\n        \}\n    \}\n\}", language: "wf").block {
+                style { margin: 0; padding: 20px; background: $term-bg; color: $syntax-punct; font-size: 13px; line-height: 22px; white-space: pre; overflow-x: auto; border-radius: 0; @media (max-width: 768px) { font-size: 11px; line-height: 19px; padding: 14px } }
+            }
+            Stack(gap: .xs) {
+                style { gap: 6px; padding: 14px 20px; border-top: 1px solid $border; background: $color-surface; & p { margin: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px } }
+                Text(t("hero.build")) { style { color: $syntax-string } }
+                Text(t("hero.watch")) { style { color: $term-dim } }
+            }
+        }
+    }
 
-        Heading(t("demo.title")).h2.center
-        Text(t("demo.subtitle")).muted.center
+    // ------------------------------------------------------------ five ideas
+    Stack(gap: .lg, class: "landing-section") {
+        style { gap: 32px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        Stack(gap: .xs) {
+            style { gap: 10px }
+            Text(t("ideas.eyebrow"), class: "overline")
+            Heading(t("ideas.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+        }
+        Grid(columns: 3, gap: .lg, class: "ideas-grid") {
+            style { gap: 24px; @media (max-width: 768px) { gap: 16px } }
+            IdeaCard(t("idea.1.title"), number: "01", body: t("idea.1.body"))
+            IdeaCard(t("idea.2.title"), number: "02", body: t("idea.2.body"), code: "Button(\"Save\", tone: .primary).lg")
+            IdeaCard(t("idea.3.title"), number: "03", body: t("idea.3.body"))
+            IdeaCard(t("idea.4.title"), number: "04", body: t("idea.4.body"))
+            IdeaCard(t("idea.5.title"), number: "05", body: t("idea.5.body"))
+            IdeaCard(t("ideas.react.title"), body: t("ideas.react.body"), link: t("ideas.react.link"), linkTo: "/docs/guide/state", highlight: true)
+        }
+    }
 
-        Spacer
+    // --------------------------------------------------------------- outputs
+    Stack(gap: .lg, id: "outputs", class: "landing-section") {
+        style { gap: 28px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        Row(align: .end, justify: .between, gap: .lg) {
+            style { gap: 24px; flex-wrap: wrap }
+            Stack(gap: .xs) {
+                style { gap: 10px }
+                Text(t("outputs.eyebrow"), class: "overline")
+                Heading(t("outputs.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            }
+            Markdown(t("outputs.lede")) { style { max-width: 420px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+        }
+        Grid(columns: 4, gap: .lg, class: "outputs-grid") {
+            style { gap: 24px; @media (max-width: 768px) { gap: 12px } }
+            OutputCard(t("output.spa.title"), value: "\"spa\"", body: t("output.spa.body"))
+            OutputCard(t("output.static.title"), value: "\"spa\" + ssg", body: t("output.static.body"))
+            OutputCard(t("output.pdf.title"), value: "\"pdf\"", body: t("output.pdf.body"))
+            OutputCard(t("output.slides.title"), value: "\"slides\"", body: t("output.slides.body"))
+        }
+    }
 
+    // ----------------------------------------------------------- two layouts
+    Stack(gap: .lg, class: "landing-section") {
+        style { gap: 28px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        Stack(gap: .xs) {
+            style { gap: 10px; max-width: 680px }
+            Text(t("layouts.eyebrow"), class: "overline")
+            Heading(t("layouts.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            Markdown(t("layouts.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+        }
         Grid(columns: 2, gap: .lg) {
-            Card.elevated.fadeIn {
-                Card.Header { Heading(t("demo.counter")).h2 }
-                Card.Body {
-                    Row(align: .center, gap: .md) {
-                        Button("-").lg { on click { counter = counter - 1 } }
-                        Heading("{counter}").h2
-                        Button("+").primary.lg { on click { counter = counter + 1 } }
-                    }
-                    Spacer.sm
-                    Text(t("demo.counter.hint")).muted.sm
-                }
-            }
+            style { gap: 24px }
+            CodeBlock("page Home(path: \"/\") \{\n    state open = true\n    Row(gap: .sm) \{\n        style \{\n            padding: 6px 0\n            &:hover \{ background: $surface-hover \}\n        \}\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    \}\n    if open \{\n        Spinner\n    \} else \{\n        Text(\"b\")\n    \}\n\}", title: "wf", note: t("layouts.braces"))
+            CodeBlock("page Home(path: \"/\")\n    state open = true\n    Row(gap: .sm)\n        style\n            padding: 6px 0\n            &:hover\n                background: $surface-hover\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    if open\n        Spinner\n    else\n        Text(\"b\")", title: "wfx", note: t("layouts.indent"))
+        }
+    }
 
-            Card.elevated.fadeIn {
-                Card.Header { Heading(t("demo.binding")).h2 }
-                Card.Body {
-                    Input(bind: taskInput, placeholder: t("demo.binding.placeholder"), label: "Input").text
-                    Spacer.sm
-                    if taskInput != "" {
-                        Alert("You typed: {taskInput}").info
-                    }
-                    Text(t("demo.binding.hint")).muted.sm
-                }
-            }
-
-            Card.elevated.fadeIn {
-                Card.Header { Heading(t("demo.conditional")).h2 }
-                Card.Body {
-                    Switch(bind: showDemo, label: t("demo.conditional.toggle"))
-                    Spacer.sm
-                    if showDemo {
-                        Card(exit: .fadeOut).slideUp.outlined {
-                            Card.Body {
-                                Badge("Visible!").success
-                                Spacer.sm
-                                Text(t("demo.conditional.text"))
-                            }
-                        }
-                    }
-                }
-            }
-
-            Card.elevated.fadeIn {
-                Card.Header { Heading(t("demo.components")).h2 }
-                Card.Body {
-                    Stack(gap: .sm) {
-                        Row(gap: .sm) {
-                            Button("Primary").primary
-                            Button("Danger").danger
-                            Button("Success").success
-                        }
-                        Row(gap: .sm) {
-                            Badge("New").primary
-                            Badge("Sale").danger
-                            Badge("Active").success
-                            Tag("WebFluent")
-                        }
-                        Progress(value: 72, max: 100)
-                        Text(t("demo.components.hint")).muted.sm
-                    }
-                }
+    // ------------------------------------------------- what a build produces
+    Row(gap: .xl, align: .start, class: "landing-section") {
+        style { gap: 48px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 960px) { flex-direction: column } @media (max-width: 768px) { padding: 32px 16px; gap: 24px } }
+        Stack(gap: .md) {
+            style { gap: 16px; width: 440px; max-width: 100%; flex-shrink: 0; @media (max-width: 960px) { width: 100% } }
+            Text(t("build.eyebrow"), class: "overline")
+            Heading(t("build.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            Text(t("build.body")) { style { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } }
+            Stack(gap: .xs) {
+                style { gap: 10px; padding-top: 4px; & .wf-row { flex-wrap: nowrap; gap: 10px } & .dot { width: 6px; height: 6px; margin: 0; border: 0; border-radius: 50%; background: $color-success; flex-shrink: 0 } & p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted } }
+                Row(align: .center) { Divider(class: "dot")  Text(t("build.point1")) }
+                Row(align: .center) { Divider(class: "dot")  Text(t("build.point2")) }
+                Row(align: .center) { Divider(class: "dot")  Text(t("build.point3")) }
             }
         }
-
-        Spacer.xl
-        Divider
-        Spacer
-
-        Heading(t("why.title")).h2.center
-        Text(t("why.subtitle")).muted.center
-
-        Spacer
-
-        Grid(columns: 3, gap: .md) {
-            FeatureCard(title: t("why.syntax"), description: t("why.syntax.desc"))
-            FeatureCard(title: t("why.components"), description: t("why.components.desc"))
-            FeatureCard(title: t("why.reactivity"), description: t("why.reactivity.desc"))
-            FeatureCard(title: t("why.design"), description: t("why.design.desc"))
-            FeatureCard(title: t("why.animation"), description: t("why.animation.desc"))
-            FeatureCard(title: t("why.i18n"), description: t("why.i18n.desc"))
-            FeatureCard(title: t("why.ssg"), description: t("why.ssg.desc"))
-            FeatureCard(title: t("why.a11y"), description: t("why.a11y.desc"))
-            FeatureCard(title: t("why.zero"), description: t("why.zero.desc"))
+        Stack {
+            style { flex: 1 1 0; min-width: 0; width: 100% }
+            CodeBlock("build/\n  index.html          # the page, pre-rendered\n  about/index.html    # one directory per route\n  app.js              # the runtime, stores, components\n  pages/Home.js       # loaded when its route shows\n  pages/Home.css      # the styles that page reaches\n  styles.css          # tokens + built-ins you used\n  sitemap.xml, robots.txt\n  *.gz                # pre-compressed copies", title: "wf build")
         }
+    }
 
-        Spacer.xl
-
-        Card.elevated {
-            Card.Body {
-                Row(align: .center, justify: .between) {
-                    Stack {
-                        Heading(t("cta.title")).h2
-                        Text(t("cta.subtitle")).muted
-                    }
-                    Button(t("hero.cta")).primary.lg { on click { navigate("/getting-started") } }
-                }
+    // ---------------------------------------------------------- install / CTA
+    Stack(id: "install", class: "landing-cta") {
+        style { background: $color-surface; border-bottom: 1px solid $border }
+        Row(align: .center, justify: .between, gap: .xl) {
+            style { gap: 48px; flex-wrap: wrap; max-width: 1280px; margin: 0 auto; padding: 64px 40px; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+            Stack(gap: .xs) {
+                style { gap: 10px; max-width: 560px }
+                Heading(t("cta.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 22px; line-height: 28px } } }
+                Markdown(t("cta.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
+            }
+            Stack(gap: .xs) {
+                style { gap: 10px; width: 460px; max-width: 100%; flex-shrink: 0 }
+                Terminal(lines: [
+                        Line(command: "wf init hello"),
+                        Line(command: "cd hello"),
+                        Line(command: "wf serve")
+                    ])
+                Markdown(t("cta.templates")) { style { & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } & code { color: $color-text-muted; background: transparent; padding: 0 } } }
             }
         }
-
-        Spacer.xl
     }
 }

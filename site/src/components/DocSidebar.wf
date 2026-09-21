@@ -1,30 +1,52 @@
+/// The guide's chapter nav, as the design draws it: 280px, three groups
+/// under overline labels, each chapter with its number in mono; the one
+/// whose `to` matches the route carries the rail, the wash and the bold.
 component DocSidebar {
-    Sidebar {
-        Sidebar.Header {
-            Link(to: "/") { Text("WebFluent").heading }
+    Sidebar(aria-label: t("nav.chapters")) {
+        style {
+            width: 280px
+            flex-shrink: 0
+            padding: 24px 16px
+            gap: 18px
+            border-inline-end: 1px solid $border
+            background: $color-background
+            & .wf-sidebar__item { height: 32px; padding: 0 10px; gap: 10px; border-radius: 4px; font-size: 13px; line-height: 20px; color: $color-text-muted }
+            & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
+            & .wf-sidebar__item.active { padding-inline-start: 7px; border-inline-start: 3px solid $color-primary; border-radius: 0 4px 4px 0; background: $brand-subtle; color: $color-text; font-weight: 600 }
+            & .wf-sidebar__item .num { margin: 0; width: 16px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; color: $ink-subtle }
+            & .wf-sidebar__item.active .num { color: $brand-ink }
+            & .wf-sidebar__item p { margin: 0 }
+            & .wf-sidebar__divider { display: none }
+            & .group-label { margin: 8px 0 4px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
+            & .group-label:first-child { margin-top: 0 }
         }
 
-        Text(t("nav.section.intro")).muted.sm.bold.uppercase
-        Sidebar.Item(to: "/", icon: "home") { Text(t("nav.home")) }
-        Sidebar.Item(to: "/getting-started", icon: "arrow-right") { Text(t("nav.start")) }
-        Sidebar.Item(to: "/guide", icon: "info") { Text(t("nav.guide")) }
+        Text(t("nav.group.basics"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/getting-started") { Text("01", class: "num")  Text(t("ch.01")) }
+        Sidebar.Item(to: "/docs/guide/language-basics") { Text("02", class: "num")  Text(t("ch.02")) }
+        Sidebar.Item(to: "/docs/guide/pages-and-routing") { Text("03", class: "num")  Text(t("ch.03")) }
+        Sidebar.Item(to: "/docs/guide/elements") { Text("04", class: "num")  Text(t("ch.04")) }
 
-        Sidebar.Divider
+        Text(t("nav.group.behaviour"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/state") { Text("05", class: "num")  Text(t("ch.05")) }
+        Sidebar.Item(to: "/docs/guide/events-and-forms") { Text("06", class: "num")  Text(t("ch.06")) }
+        Sidebar.Item(to: "/docs/guide/control-flow") { Text("07", class: "num")  Text(t("ch.07")) }
+        Sidebar.Item(to: "/docs/guide/components") { Text("08", class: "num")  Text(t("ch.08")) }
+        Sidebar.Item(to: "/docs/guide/stores") { Text("09", class: "num")  Text(t("ch.09")) }
+        Sidebar.Item(to: "/docs/guide/types") { Text("10", class: "num")  Text(t("ch.10")) }
+        Sidebar.Item(to: "/docs/guide/expressions") { Text("11", class: "num")  Text(t("ch.11")) }
 
-        Text(t("nav.section.features")).muted.sm.bold.uppercase
-        Sidebar.Item(to: "/components", icon: "filter") { Text(t("nav.components")) }
-        Sidebar.Item(to: "/styling", icon: "eye") { Text(t("nav.styling")) }
-        Sidebar.Item(to: "/animation", icon: "star") { Text(t("nav.animation")) }
-        Sidebar.Item(to: "/i18n", icon: "link") { Text(t("nav.i18n")) }
-        Sidebar.Item(to: "/seo", icon: "search") { Text(t("nav.seo")) }
-        Sidebar.Item(to: "/ssg", icon: "download") { Text(t("nav.ssg")) }
-        Sidebar.Item(to: "/pdf", icon: "copy") { Text(t("nav.pdf")) }
-        Sidebar.Item(to: "/template-engine", icon: "settings") { Text(t("nav.template")) }
+        Text(t("nav.group.surface"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/styling") { Text("12", class: "num")  Text(t("ch.12")) }
+        Sidebar.Item(to: "/docs/guide/motion") { Text("13", class: "num")  Text(t("ch.13")) }
+        Sidebar.Item(to: "/docs/guide/data") { Text("14", class: "num")  Text(t("ch.14")) }
+        Sidebar.Item(to: "/docs/guide/i18n") { Text("15", class: "num")  Text(t("ch.15")) }
+        Sidebar.Item(to: "/docs/guide/content") { Text("16", class: "num")  Text(t("ch.16")) }
+        Sidebar.Item(to: "/docs/guide/outputs") { Text("17", class: "num")  Text(t("ch.17")) }
 
-        Sidebar.Divider
-
-        Text(t("nav.section.tools")).muted.sm.bold.uppercase
-        Sidebar.Item(to: "/accessibility", icon: "check") { Text(t("nav.a11y")) }
-        Sidebar.Item(to: "/cli", icon: "chevron-right") { Text(t("nav.cli")) }
+        Text(t("nav.group.reference"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/tooling") { Text("18", class: "num")  Text(t("ch.18")) }
+        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("19", class: "num")  Text(t("ch.19")) }
+        Sidebar.Item(to: "/docs/cookbook") { Text("20", class: "num")  Text(t("ch.20")) }
     }
 }

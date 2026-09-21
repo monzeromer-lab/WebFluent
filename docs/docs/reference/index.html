@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components reference</title>
+    <meta name="description" content="Every built-in element, its props, flags, events, slots and parts — from the compiler&#x27;s own registry.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/reference">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/reference?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/reference?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/reference">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Components reference">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Every built-in element, its props, flags, events, slots and parts — from the compiler&#x27;s own registry.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/reference">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Components reference">
+    <meta name="twitter:description" content="Every built-in element, its props, flags, events, slots and parts — from the compiler&#x27;s own registry.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference","name":"Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every built-in element, its props, flags, events, slots and parts — from the compiler's own registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../styles.css">
+    <link rel="stylesheet" href="../../pages/ReferenceIndexPage.css" data-wf-page-css="ReferenceIndexPage">
+    <script src="../../app.js" defer></script>
+    <script src="../../pages/ReferenceIndexPage.js" data-wf-page="ReferenceIndexPage" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link" href="/WebFluent/docs/guide">Guide</a>
+                        <a class="wf-link active" href="/WebFluent/docs/reference" aria-current="page">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-sad979936">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s8d4b4f51 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                    </div>
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                    <!--wf-if-->
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-sc5c212b4 docs-main reference-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs crumbs">
+                        <p class="wf-text">Chapter 19</p>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Components reference</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Components reference</h1>
+                        <div class="wf-markdown wf-se4ee4d09">
+<p>62 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Layout</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/container">
+                                <p class="wf-text wf-s778fc8aa">Container</p>
+                                <p class="wf-text wf-s36513411">Centred wrapper with a maximum width and horizontal padding.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/row">
+                                <p class="wf-text wf-s778fc8aa">Row</p>
+                                <p class="wf-text wf-s36513411">Horizontal flex layout.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/column">
+                                <p class="wf-text wf-s778fc8aa">Column</p>
+                                <p class="wf-text wf-s36513411">A child of the 12-column grid, spanning span columns.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/grid">
+                                <p class="wf-text wf-s778fc8aa">Grid</p>
+                                <p class="wf-text wf-s36513411">CSS grid with a fixed number of columns.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/stack">
+                                <p class="wf-text wf-s778fc8aa">Stack</p>
+                                <p class="wf-text wf-s36513411">Vertical flex layout.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/spacer">
+                                <p class="wf-text wf-s778fc8aa">Spacer</p>
+                                <p class="wf-text wf-s36513411">Vertical space; md when no size is given.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/divider">
+                                <p class="wf-text wf-s778fc8aa">Divider</p>
+                                <p class="wf-text wf-s36513411">Horizontal rule.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Navigation</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/navbar">
+                                <p class="wf-text wf-s778fc8aa">Navbar</p>
+                                <p class="wf-text wf-s36513411">Top navigation bar with brand, links and action areas.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/sidebar">
+                                <p class="wf-text wf-s778fc8aa">Sidebar</p>
+                                <p class="wf-text wf-s36513411">Side navigation. A Sidebar.Item whose to matches the current route is marked .active and aria-current=&quot;page&quot;.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/link">
+                                <p class="wf-text wf-s778fc8aa">Link</p>
+                                <p class="wf-text wf-s36513411">Client-side navigation link; its label or its block is the link text.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/tabs">
+                                <p class="wf-text wf-s778fc8aa">Tabs</p>
+                                <p class="wf-text wf-s36513411">Tab strip switching between its pages.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/breadcrumb">
+                                <p class="wf-text wf-s778fc8aa">Breadcrumb</p>
+                                <p class="wf-text wf-s36513411">Breadcrumb trail. An item without to is the current page.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/menu">
+                                <p class="wf-text wf-s778fc8aa">Menu</p>
+                                <p class="wf-text wf-s36513411">Menu opened by a trigger button.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Data display</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/card">
+                                <p class="wf-text wf-s778fc8aa">Card</p>
+                                <p class="wf-text wf-s36513411">Card surface with optional header, body and footer sections.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/table">
+                                <p class="wf-text wf-s778fc8aa">Table</p>
+                                <p class="wf-text wf-s36513411">Data table. Cells inside Table.Head render as &lt;th scope=&quot;col&quot;&gt;; caption is the table&#x27;s accessible name, visually hidden.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/list">
+                                <p class="wf-text wf-s778fc8aa">List</p>
+                                <p class="wf-text wf-s36513411">List of its children; ordered for a numbered list.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/badge">
+                                <p class="wf-text wf-s778fc8aa">Badge</p>
+                                <p class="wf-text wf-s36513411">Small status label.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/tag">
+                                <p class="wf-text wf-s778fc8aa">Tag</p>
+                                <p class="wf-text wf-s36513411">Compact chip.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/avatar">
+                                <p class="wf-text wf-s778fc8aa">Avatar</p>
+                                <p class="wf-text wf-s36513411">A picture of a person, or their initials.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/tooltip">
+                                <p class="wf-text wf-s778fc8aa">Tooltip</p>
+                                <p class="wf-text wf-s36513411">Shows text when its child is hovered or focused.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Form</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/input">
+                                <p class="wf-text wf-s778fc8aa">Input</p>
+                                <p class="wf-text wf-s36513411">Text field. With label, hint or error it is a labelled field.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/select">
+                                <p class="wf-text wf-s778fc8aa">Select</p>
+                                <p class="wf-text wf-s36513411">Drop-down of Select.Option children.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/checkbox">
+                                <p class="wf-text wf-s778fc8aa">Checkbox</p>
+                                <p class="wf-text wf-s36513411">Checkbox bound to a boolean state.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/radio">
+                                <p class="wf-text wf-s778fc8aa">Radio</p>
+                                <p class="wf-text wf-s36513411">One choice of a group; every radio bound to the same state is one group.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/switch">
+                                <p class="wf-text wf-s778fc8aa">Switch</p>
+                                <p class="wf-text wf-s36513411">On/off toggle bound to a boolean state.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/slider">
+                                <p class="wf-text wf-s778fc8aa">Slider</p>
+                                <p class="wf-text wf-s36513411">Range input. aria-* arguments reach the input; with aria-valuetext the raw number is not shown beside the track.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/datepicker">
+                                <p class="wf-text wf-s778fc8aa">DatePicker</p>
+                                <p class="wf-text wf-s36513411">Date input.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/fileupload">
+                                <p class="wf-text wf-s778fc8aa">FileUpload</p>
+                                <p class="wf-text wf-s36513411">File input; handle the chosen files in on change.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/form">
+                                <p class="wf-text wf-s778fc8aa">Form</p>
+                                <p class="wf-text wf-s36513411">Groups controls; on submit runs when it is submitted, and the page never navigates away.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Feedback</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/alert">
+                                <p class="wf-text wf-s778fc8aa">Alert</p>
+                                <p class="wf-text wf-s36513411">Inline notice; a danger or warning one is announced as an alert.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/toast">
+                                <p class="wf-text wf-s778fc8aa">Toast</p>
+                                <p class="wf-text wf-s36513411">Temporary notification.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/modal">
+                                <p class="wf-text wf-s778fc8aa">Modal</p>
+                                <p class="wf-text wf-s36513411">Modal &lt;dialog&gt;, opened by a state flag; the browser supplies focus trapping and Escape.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/dialog">
+                                <p class="wf-text wf-s778fc8aa">Dialog</p>
+                                <p class="wf-text wf-s36513411">Confirmation &lt;dialog&gt;, opened by a state flag.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/spinner">
+                                <p class="wf-text wf-s778fc8aa">Spinner</p>
+                                <p class="wf-text wf-s36513411">Loading indicator, announced as a status.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/progress">
+                                <p class="wf-text wf-s778fc8aa">Progress</p>
+                                <p class="wf-text wf-s36513411">Progress bar; a value that reads state moves with it.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/skeleton">
+                                <p class="wf-text wf-s778fc8aa">Skeleton</p>
+                                <p class="wf-text wf-s36513411">Placeholder shape shown while content loads.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Actions</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/button">
+                                <p class="wf-text wf-s778fc8aa">Button</p>
+                                <p class="wf-text wf-s36513411">Button. Its block holds what it shows; on click what it does.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/iconbutton">
+                                <p class="wf-text wf-s778fc8aa">IconButton</p>
+                                <p class="wf-text wf-s36513411">Icon-only button. label is its accessible name, never visible text.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/buttongroup">
+                                <p class="wf-text wf-s778fc8aa">ButtonGroup</p>
+                                <p class="wf-text wf-s36513411">Buttons joined into one row.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/dropdown">
+                                <p class="wf-text wf-s778fc8aa">Dropdown</p>
+                                <p class="wf-text wf-s36513411">Button that opens a menu of Dropdown.Items.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Media</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/image">
+                                <p class="wf-text wf-s778fc8aa">Image</p>
+                                <p class="wf-text wf-s36513411">Image; alt is required for accessibility (rule A01).</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/video">
+                                <p class="wf-text wf-s778fc8aa">Video</p>
+                                <p class="wf-text wf-s36513411">Video player.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/icon">
+                                <p class="wf-text wf-s778fc8aa">Icon</p>
+                                <p class="wf-text wf-s36513411">One of the built-in SVG icons, rendered inline.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/carousel">
+                                <p class="wf-text wf-s778fc8aa">Carousel</p>
+                                <p class="wf-text wf-s36513411">Slide track with named controls and dots; optional autoplay.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Typography</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/text">
+                                <p class="wf-text wf-s778fc8aa">Text</p>
+                                <p class="wf-text wf-s36513411">A paragraph of text. {…} in the string reads state and stays live.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/heading">
+                                <p class="wf-text wf-s778fc8aa">Heading</p>
+                                <p class="wf-text wf-s36513411">Heading; level picks the tag (h2 when none is given).</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/code">
+                                <p class="wf-text wf-s778fc8aa">Code</p>
+                                <p class="wf-text wf-s36513411">Inline code, or a code block with block; language: colours it.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/markdown">
+                                <p class="wf-text wf-s778fc8aa">Markdown</p>
+                                <p class="wf-text wf-s36513411">Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/blockquote">
+                                <p class="wf-text wf-s778fc8aa">Blockquote</p>
+                                <p class="wf-text wf-s36513411">Quotation: the text, or its block as the quoted content.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">PDF</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/document">
+                                <p class="wf-text wf-s778fc8aa">Document</p>
+                                <p class="wf-text wf-s36513411">Root of a PDF document.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/section">
+                                <p class="wf-text wf-s778fc8aa">Section</p>
+                                <p class="wf-text wf-s36513411">Groups content with spacing; on the web, a &lt;section&gt;.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/paragraph">
+                                <p class="wf-text wf-s778fc8aa">Paragraph</p>
+                                <p class="wf-text wf-s36513411">Block of text with paragraph spacing.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/header">
+                                <p class="wf-text wf-s778fc8aa">Header</p>
+                                <p class="wf-text wf-s36513411">Repeated at the top of every PDF page; a &lt;header&gt; on the web.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/footer">
+                                <p class="wf-text wf-s778fc8aa">Footer</p>
+                                <p class="wf-text wf-s36513411">Repeated at the bottom of every PDF page; a &lt;footer&gt; on the web.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/pagebreak">
+                                <p class="wf-text wf-s778fc8aa">PageBreak</p>
+                                <p class="wf-text wf-s36513411">Forces a new PDF page.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Slides</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/presentation">
+                                <p class="wf-text wf-s778fc8aa">Presentation</p>
+                                <p class="wf-text wf-s36513411">Root of a slide deck; its children must be slides.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/slide">
+                                <p class="wf-text wf-s778fc8aa">Slide</p>
+                                <p class="wf-text wf-s36513411">One slide, one PDF page; content is top-aligned and clipped at the bottom margin.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/titleslide">
+                                <p class="wf-text wf-s778fc8aa">TitleSlide</p>
+                                <p class="wf-text wf-s36513411">Cover slide: title and subtitle, vertically centred.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/sectionslide">
+                                <p class="wf-text wf-s778fc8aa">SectionSlide</p>
+                                <p class="wf-text wf-s36513411">Full-bleed coloured band with a centred label.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/twocolumn">
+                                <p class="wf-text wf-s778fc8aa">TwoColumn</p>
+                                <p class="wf-text wf-s36513411">Two equal columns; takes exactly two Container children.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/imageslide">
+                                <p class="wf-text wf-s778fc8aa">ImageSlide</p>
+                                <p class="wf-text wf-s36513411">Image slide with an optional caption.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">Routing</h2>
+                        <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/router">
+                                <p class="wf-text wf-s778fc8aa">Router</p>
+                                <p class="wf-text wf-s36513411">Where the current page renders. May sit at any depth inside app; pages declare their own paths.</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-sff66c3ff">On every element</h2>
+                        <div class="wf-markdown wf-sa01f76ef">
+<p>Every element takes these props, and the HTML attribute families named on it (<code>aria-*</code>, <code>data-*</code>, and the global attributes such as <code>id</code>, <code>class</code>, <code>title</code>, <code>role</code>, <code>tabindex</code>).</p>
+                        </div>
+                        <table class="wf-table wf-s0f8d4e10 props-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Prop</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>animate:</td>
+                                    <td>.fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Animation played when the element appears</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>exit:</td>
+                                    <td>.fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Animation played when the element leaves</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>speed:</td>
+                                    <td>.fast .normal .slow</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>How fast its animation runs</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>duration:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Animation length, e.g. <code>300ms</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>delay:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Wait before the animation starts</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>easing:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Timing function of the animation, e.g. <code>ease-out</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>stagger:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Delay added per item of a list, e.g. <code>50ms</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>class:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Classes added beside the engine's, from the project's own stylesheets</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>ref:</td>
+                                    <td>State</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A handle on the element, usable as the element: <code>ref: nameInput</code>, then <code>nameInput.focus()</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3 class="wf-heading wf-sa5bd3f5f">Events</h3>
+                        <div class="wf-grid wf-gap--sm events-grid" data-cols="2">
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on click</p>
+                                <p class="wf-text wf-s7de2311d">The element was clicked or activated</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on input</p>
+                                <p class="wf-text wf-s7de2311d">The value changed, on every keystroke</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on change</p>
+                                <p class="wf-text wf-s7de2311d">The value was committed</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on submit</p>
+                                <p class="wf-text wf-s7de2311d">The form was submitted</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on focus</p>
+                                <p class="wf-text wf-s7de2311d">The element received focus</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on blur</p>
+                                <p class="wf-text wf-s7de2311d">The element lost focus</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on keydown</p>
+                                <p class="wf-text wf-s7de2311d">A key went down; `e.key` names it</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on key</p>
+                                <p class="wf-text wf-s7de2311d">One key, named: `on key(&quot;ctrl+k&quot;) { }`</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on keyup</p>
+                                <p class="wf-text wf-s7de2311d">A key came up</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on keypress</p>
+                                <p class="wf-text wf-s7de2311d">A character key was pressed</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on mouseenter</p>
+                                <p class="wf-text wf-s7de2311d">The pointer entered the element</p>
+                            </div>
+                            <div class="wf-row wf-align--baseline wf-gap--sm wf-sb7eacd2a">
+                                <p class="wf-text wf-s0886b346">on mouseleave</p>
+                                <p class="wf-text wf-s7de2311d">The pointer left the element</p>
+                            </div>
+                        </div>
+                        <h3 class="wf-heading wf-sa5bd3f5f">Icons</h3>
+                        <p class="wf-text wf-sce69b4e3">The names Icon(…), IconButton(icon:) and Sidebar.Item(icon:) draw; any other name shows as the word, and the compiler warns.</p>
+                        <div class="wf-row wf-gap--sm wf-s0ef3ed1d">
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="close"></i>
+                                <p class="wf-text">close</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="menu"></i>
+                                <p class="wf-text">menu</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <p class="wf-text">search</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="home"></i>
+                                <p class="wf-text">home</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="user"></i>
+                                <p class="wf-text">user</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="settings"></i>
+                                <p class="wf-text">settings</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="check"></i>
+                                <p class="wf-text">check</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="plus"></i>
+                                <p class="wf-text">plus</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="minus"></i>
+                                <p class="wf-text">minus</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="edit"></i>
+                                <p class="wf-text">edit</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="trash"></i>
+                                <p class="wf-text">trash</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="star"></i>
+                                <p class="wf-text">star</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="heart"></i>
+                                <p class="wf-text">heart</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="mail"></i>
+                                <p class="wf-text">mail</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="bell"></i>
+                                <p class="wf-text">bell</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="download"></i>
+                                <p class="wf-text">download</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="upload"></i>
+                                <p class="wf-text">upload</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="eye"></i>
+                                <p class="wf-text">eye</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="link"></i>
+                                <p class="wf-text">link</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="calendar"></i>
+                                <p class="wf-text">calendar</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="filter"></i>
+                                <p class="wf-text">filter</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <p class="wf-text">chevron-down</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="chevron-right"></i>
+                                <p class="wf-text">chevron-right</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="chevron-left"></i>
+                                <p class="wf-text">chevron-left</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="info"></i>
+                                <p class="wf-text">info</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="warning"></i>
+                                <p class="wf-text">warning</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="arrow-left"></i>
+                                <p class="wf-text">arrow-left</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="arrow-right"></i>
+                                <p class="wf-text">arrow-right</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="logout"></i>
+                                <p class="wf-text">logout</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="copy"></i>
+                                <p class="wf-text">copy</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="sun"></i>
+                                <p class="wf-text">sun</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--xs wf-sf87242c2 chip">
+                                <i class="wf-icon" data-icon="moon"></i>
+                                <p class="wf-text">moon</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-sf1485ab1 reference-rail"></div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link active" href="/WebFluent/docs/reference" aria-current="page">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

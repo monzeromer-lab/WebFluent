@@ -1346,8 +1346,9 @@ may too. Its surface:
 | Bodies | `when(parent, cond, then, else, anim)`; `each(parent, list, item, {key, index, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` |
 | Motion | `animate(target, name, duration)`; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay)`; `mark(node, attrs)` puts `data-wf-exit`/`data-wf-delay`/`data-wf-duration`/`data-wf-animate` on a component's root — what `when`, `each`, `show` and `match` play before removing an element, and what times its enter animation |
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
-| Data | `resource(url, options)` → `{state, data, error, reload}`; `fetch(url, options)`; `store(def)`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
-| Widgets | `toast(message, tone, ms)`; `dialog`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
+| Data | `resource(url, options)` → `{state, data, error, reload}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `fetch(url, options)`; `store(def)`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
+| Widgets | `toast(message, tone, ms)`; `dialog(el, read, write)`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
+| Text | `markdown(text)` → HTML; `highlight(code, lang)` → HTML with `wf-tok-*` spans (`wf`, `json`, `bash`, `css`), the twin of `codegen::highlight` |
 | Boot | `mount(fn, container)`; `hydrate(fn, container)`; `setBasePath`; `setSsgMode`; `__debug` (studio) |
 
 ## Search and Sharing

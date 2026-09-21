@@ -1,0 +1,45 @@
+/// Chapter 15 of the guide, written from md-docs/15-i18n.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page I18nChapter(path: "/docs/guide/i18n", title: "Internationalisation", description: "Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting.", layout: DocsShell("Internationalisation", chapter: "Chapter 15", blurb: "One JSON file per locale, t() to read it, and a switch that flips the whole site.", sections: [Anchor(id: "setting-up", label: "Setting up"), Anchor(id: "t-key", label: "t(\"key\")"), Anchor(id: "switching-the-locale", label: "Switching the locale"), Anchor(id: "numbers-dates-and-the-locale", label: "Numbers, dates and the locale"), Anchor(id: "translating-a-markdown-page-or-a-md-page", label: "Translating a Markdown page or a .md page"), Anchor(id: "checklist", label: "Checklist")], prevTo: "/docs/guide/data", prevLabel: "14. Data", nextTo: "/docs/guide/content", nextLabel: "16. Content")) {
+    Stack(gap: .lg) {
+        Markdown("A site speaks several languages by keeping its text in one JSON file per locale and reading it with `t(\"key\")`. Switching the locale re-renders every translated string, flips the document to right-to-left where the language reads that way, and changes how `format` and `ago` spell numbers and dates.")
+
+        Heading("Setting up", id: "setting-up").h2
+
+        Markdown("In `webfluent.app.json`:")
+
+        CodeBlock("\{\n  \"i18n\": \{\n    \"default_locale\": \"en\",\n    \"locales\": [\"en\", \"ar\", \"es\"],\n    \"dir\": \"src/translations\"\n  \}\n\}", title: "json")
+
+        Markdown("One file per locale in that directory, flat keys with dots by convention:")
+
+        CodeBlock("\{\n  \"nav.home\": \"Home\",\n  \"nav.about\": \"About\",\n  \"welcome\": \"Welcome, \{name\}!\",\n  \"items.one\": \"\{count\} item\",\n  \"items.other\": \"\{count\} items\",\n  \"actions.save\": \"Save\"\n\}", title: "json")
+
+        CodeBlock("\{\n  \"nav.home\": \"الرئيسية\",\n  \"nav.about\": \"حول\",\n  \"welcome\": \"أهلاً، \{name\}!\",\n  \"items.zero\": \"لا عناصر\",\n  \"items.one\": \"عنصر واحد\",\n  \"items.two\": \"عنصران\",\n  \"items.few\": \"\{count\} عناصر\",\n  \"items.many\": \"\{count\} عنصراً\",\n  \"items.other\": \"\{count\} عنصر\",\n  \"actions.save\": \"حفظ\"\n\}", title: "json")
+
+        Markdown("A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.")
+
+        Heading("t(\"key\")", id: "t-key").h2
+
+        CodeBlock("type User \{ name: String \}\n\npage Home(path: \"/\", title: \"Home\", description: \"The home page.\") \{\n    state user = User(name: \"Sam\")\n    state items: [String] = [\"a\", \"b\", \"c\"]\n    Heading(t(\"welcome\", \{ name: user.name \})).h1\n    Text(t(\"items\", \{ count: items.length \}))\n    Button(t(\"actions.save\")).primary\n\}", title: "wf")
+
+        Markdown("- `t(\"key\")` is the string for the current locale, reactive: every call re-evaluates when the locale changes.\n- `t(\"key\", \{ name: value \})` fills `\{name\}` placeholders from the map.\n- A `count` picks the plural form: `key.one` when the locale's rules say \"one\", `key.other` otherwise, and `key.zero`, `key.two`, `key.few`, `key.many` when the file has them and the locale calls for them (Arabic has all six; English two). Falls back to `key.other`, then `key`.\n- The static paint resolves `t` for the default locale at build time, so the pre-rendered HTML is already in the default language.")
+
+        Heading("Switching the locale", id: "switching-the-locale").h2
+
+        CodeBlock("app \{\n    state chosen = \"en\"\n    Navbar \{\n        Navbar.Brand \{ Link(\"i18n\", to: \"/\") \}\n        Navbar.Links \{\n            Link(t(\"nav.home\"), to: \"/\")\n            Link(t(\"nav.about\"), to: \"/about\")\n        \}\n        Navbar.Actions \{\n            Select(bind: chosen, label: t(\"nav.language\")) \{\n                on change \{ setLocale(chosen) \}\n                Select.Option(\"English\", value: \"en\")\n                Select.Option(\"العربية\", value: \"ar\")\n                Select.Option(\"Español\", value: \"es\")\n            \}\n        \}\n    \}\n    Router\n\}\n\npage Home(path: \"/\") \{\n    Text(\"Locale: \{locale\}, direction: \{dir\}\")\n    if locale == \"ar\" \{ Text(\"النسخة العربية\") \}\n\}", title: "wf")
+
+        Markdown("`setLocale(\"ar\")` switches; `locale` is the current code and `dir` is `\"ltr\"` or `\"rtl\"`. On a switch, `<html lang>` and `<html dir>` are set: `ar`, `he`, `fa` and `ur` are right-to-left, everything else left-to-right. The built-ins use logical CSS properties (`margin-inline-start`, not `margin-left`), so layouts mirror without work on your side; do the same in your own `style` blocks.\n\nAn `app` block may declare `state` like a page, as `chosen` above.")
+
+        Heading("Numbers, dates and the locale", id: "numbers-dates-and-the-locale").h2
+
+        Markdown("`format` and `ago` follow the current locale ([chapter 11](/docs/guide/expressions#format-and-ago)): `format(1234.5, .currency, \"EUR\")` is `€1,234.50` in `en`, `1.234,50 €` in `de`; `ago(date)` says \"il y a 3 jours\" in `fr`. The static paint uses a table of the common locales' separators and currency symbols; the live page uses `Intl` and corrects any difference.")
+
+        Heading("Translating a Markdown page or a .md page", id: "translating-a-markdown-page-or-a-md-page").h2
+
+        Markdown("Text inside a `.md` page is not passed through `t`; keep one Markdown file per locale and route by a `:locale` parameter, or keep the long-form text in the translation file under a key and render `Markdown(t(\"about.body\"))`.")
+
+        Heading("Checklist", id: "checklist").h2
+
+        Markdown("- Every visible string goes through `t`, including `label:`, `placeholder:` and `aria-label:` values.\n- Never build a sentence from parts (`t(\"x\") + name`); use a placeholder so a translator can reorder it.\n- Give every count a plural key pair, even in English.\n- Test with an RTL locale once: alignment, icons that imply direction (arrows), and any `left`/`right` in your own CSS.")
+    }
+}

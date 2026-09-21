@@ -1,0 +1,2 @@
+function Page_GuideIndex(params){const _root=document.createDocumentFragment();const _e322=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.guide"));_root.appendChild(_e322);const _e323=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/getting-started"},()=>WF.i18n.t("ch.01"));WF.activeLink(_e323,"/docs/guide/getting-started",false);_root.appendChild(_e323);return _root;}
+WF.page("GuideIndex",Page_GuideIndex);

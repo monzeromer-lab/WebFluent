@@ -28,6 +28,7 @@ pub fn registry_json() -> Value {
                 .collect::<Vec<_>>(),
         },
         "retiredModifiers": super::RETIRED_MODIFIERS,
+        "icons": super::ICONS,
     })
 }
 
