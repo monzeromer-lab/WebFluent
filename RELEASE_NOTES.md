@@ -118,6 +118,9 @@ light and dark, and Arabic chrome with the chapters kept left-to-right.
   link and sharing URL, not the pattern with `:slug` in it.
 - An `IconButton` with a `class:` keeps the engine's classes; its `icon:`,
   `label:` and title follow state.
+- A `Sidebar.Item` or `Breadcrumb.Item` with a `to:` reached through a
+  `for` or an `if` is a link in the browser too; it used to be a bare
+  `<li to="…">` that went nowhere.
 
 ---
 

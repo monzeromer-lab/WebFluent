@@ -92,3 +92,16 @@ pre.wf-code, .wf-code--block { white-space: pre; }
   .entry-grid.wf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .events-grid.wf-grid { grid-template-columns: 1fr !important; }
 }
+
+/* A heading reached by its anchor clears the sticky header. */
+.docs-main [id], .reference-main [id] { scroll-margin-top: 76px; }
+
+/* On a phone: the search stays a row, the entry's title row wraps, and a
+   wide table scrolls inside its own box rather than the page. */
+@media (max-width: 768px) {
+  .site-search.wf-row, .entry-title.wf-row, .code-block .wf-row, .install-line.wf-row { flex-direction: row !important; }
+  .entry-title.wf-row { flex-wrap: wrap; }
+  .docs-article .wf-table, .props-table.wf-table { display: block; overflow-x: auto; max-width: 100%; }
+  .docs-article .wf-table thead, .props-table.wf-table thead { display: table-header-group; }
+  .docs-article .wf-table tbody, .props-table.wf-table tbody { display: table-row-group; }
+}

@@ -15,10 +15,7 @@ page Tooling(path: "/docs/guide/tooling", title: "Tooling", description: "Every 
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`wf init NAME [-t spa\\") }
-                    Table.Cell("static\\")
-                    Table.Cell("pdf\\")
-                    Table.Cell { Markdown("slides]`") }
+                    Table.Cell { Markdown("`wf init NAME [-t spa|static|pdf|slides]`") }
                     Table.Cell("Creates a project from a template")
                 }
                 Table.Row {
@@ -30,8 +27,7 @@ page Tooling(path: "/docs/guide/tooling", title: "Tooling", description: "Every 
                     Table.Cell { Markdown("Builds, serves on `dev.port` (3000), rebuilds on every save and reloads the browser") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf fmt [PATH] [--check] [--stdout] [--to wf\\") }
-                    Table.Cell { Markdown("wfx]`") }
+                    Table.Cell { Markdown("`wf fmt [PATH] [--check] [--stdout] [--to wf|wfx]`") }
                     Table.Cell("Formats source files; converts layouts")
                 }
                 Table.Row {
@@ -39,16 +35,11 @@ page Tooling(path: "/docs/guide/tooling", title: "Tooling", description: "Every 
                     Table.Cell { Markdown("Runs `test \"…\" \{ \}` declarations against their expectations and snapshots") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf generate page\\") }
-                    Table.Cell("component\\")
-                    Table.Cell { Markdown("store NAME`") }
+                    Table.Cell { Markdown("`wf generate page|component|store NAME`") }
                     Table.Cell("Adds a file with a starter declaration")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf render FILE --data JSON [-f html\\") }
-                    Table.Cell("html-fragment\\")
-                    Table.Cell("pdf\\")
-                    Table.Cell { Markdown("slides] [-o OUT]`") }
+                    Table.Cell { Markdown("`wf render FILE --data JSON [-f html|html-fragment|pdf|slides] [-o OUT]`") }
                     Table.Cell { Markdown("Renders a template with data ([chapter 17](/docs/guide/outputs#templates-rendering-with-data-on-a-server))") }
                 }
                 Table.Row {

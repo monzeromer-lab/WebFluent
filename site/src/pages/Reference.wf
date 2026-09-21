@@ -125,7 +125,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Compone
                     Text("/")
                     Link(c.group, to: "/docs/reference#{c.group.toLowerCase().replace(" ", "-")}")
                 }
-                Row(align: .center, gap: .sm) {
+                Row(align: .center, gap: .sm, class: "entry-title") {
                     style { gap: 12px; flex-wrap: wrap }
                     Heading(c.name).h1 { style { margin: 0; font-family: $font-family-mono; font-size: 28px; line-height: 34px; font-weight: 500 } }
                     Text(c.group, class: "pill pill-brand")

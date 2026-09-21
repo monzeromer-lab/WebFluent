@@ -2206,16 +2206,47 @@ impl JsCodegen {
                     parent_name.to_lowercase(),
                     camel_to_kebab(sub_name)
                 );
-                let tag = match (parent_name.as_str(), sub_name.as_str()) {
-                    (_, "Item") => "li",
+                // A part with a `to:` is a link — a `Sidebar.Item` or a
+                // `Breadcrumb.Item` reached through a `for` or an `if`, which
+                // the owner's own emitter does not see. It used to become a
+                // `<li to="…">` that went nowhere.
+                let to = ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == "to" => Some(self.emit_expr(v)),
+                    _ => None,
+                });
+                let tag = match (parent_name.as_str(), sub_name.as_str(), &to) {
+                    (_, _, Some(_)) => "a",
+                    ("Breadcrumb", "Item", None) => "span",
+                    (_, "Item", None) => "li",
                     _ => "div",
                 };
 
                 // Hyphenated and unknown named arguments are attributes here
                 // too (`Card.Header(id: …)`, `List.Item(aria-current: …)`).
                 let mut attrs = vec![format!("className: \"{}\"", class)];
+                if let Some(href) = &to {
+                    let bp = if self.base_path.is_empty() {
+                        String::new()
+                    } else {
+                        "WF._basePath + ".to_string()
+                    };
+                    let href_attr = if self.is_reactive(href) {
+                        format!("() => {bp}{href}")
+                    } else {
+                        format!("{bp}{href}")
+                    };
+                    attrs.push(format!("href: {href_attr}"));
+                    if !self.ssg_mode {
+                        attrs.push(format!(
+                            "\"on:click\": (e) => {{ e.preventDefault(); WF.navigate({href}); }}"
+                        ));
+                    }
+                }
                 for arg in &ui.args {
                     if let Arg::Named(k, v) = arg {
+                        if matches!(k.as_str(), "to" | "active") {
+                            continue;
+                        }
                         let value = self.emit_expr(v);
                         let key = if k.contains('-') {
                             format!("\"{}\"", k)
@@ -2238,6 +2269,12 @@ impl JsCodegen {
                     tag,
                     attrs.join(", ")
                 ));
+                if let Some(href) = &to {
+                    let prefix = ui.args.iter().any(|a| {
+                        matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
+                    });
+                    self.emit_line(&format!("WF.activeLink({var}, {href}, {prefix});"));
+                }
                 for child in &ui.children {
                     self.emit_statement_dom(child, &var);
                 }
@@ -6117,5 +6154,19 @@ mod tests {
             "{out}"
         );
         assert!(!out.contains("class: \"site-icon-button\""), "{out}");
+    }
+
+    #[test]
+    fn a_part_with_a_destination_inside_a_loop_is_a_link() {
+        let out = compile(
+            "page P(path: \"/\") { state names = [\"a\"]\n Sidebar { for n in names by n { Sidebar.Item(to: \"/x/{n}\") { Text(n) } } } }",
+        );
+        assert!(
+            out.contains("WF.el(\"a\", { className: \"wf-sidebar__item\", href: `/x/${n}`"),
+            "{out}"
+        );
+        assert!(out.contains("WF.navigate(`/x/${n}`)"), "{out}");
+        assert!(out.contains("WF.activeLink("), "{out}");
+        assert!(!out.contains("to: `/x/${n}`"), "{out}");
     }
 }

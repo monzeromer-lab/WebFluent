@@ -138,7 +138,8 @@ def rewrite_links(text: str) -> str:
 def parse_table(lines):
     rows = []
     for line in lines:
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        # A `\|` is a pipe inside a cell, not a column edge.
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
         rows.append(cells)
     head = rows[0]
     body = [r for r in rows[2:]]

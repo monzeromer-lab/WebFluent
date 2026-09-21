@@ -38,9 +38,7 @@ page Expressions(path: "/docs/guide/expressions", title: "Expressions", descript
                 }
                 Table.Row {
                     Table.Cell("Logic")
-                    Table.Cell { Markdown("`&& \\") }
-                    Table.Cell("\\")
-                    Table.Cell { Markdown("!`") }
+                    Table.Cell { Markdown("`&& || !`") }
                 }
                 Table.Row {
                     Table.Cell("Null")
