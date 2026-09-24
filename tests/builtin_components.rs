@@ -1324,7 +1324,7 @@ fn the_children_slot_renders_the_callers_block_in_every_backend() {
         if backend != Backend::Spa && !(first < second && second < after) {
             failures.push(format!("{}: slot rendered out of order", backend.name()));
         }
-        if backend == Backend::Spa && !(first < second) {
+        if backend == Backend::Spa && first >= second {
             failures.push(format!("{}: slot rendered out of order", backend.name()));
         }
     }
@@ -1547,6 +1547,74 @@ fn a_navigation_item_with_a_destination_is_a_link_everywhere() {
     assert!(
         failures.is_empty(),
         "dead navigation:\n{}",
+        failures.join("\n")
+    );
+}
+
+/// …and it stays a link when a `for` or an `if` is what renders it.
+///
+/// A part reached through a branch is emitted where the owner's own emitter
+/// cannot see it, so it took a separate path through codegen and kept coming
+/// out as `<li to="…">` — an element with no href, which a click does nothing
+/// to. That is how the components reference on the site lost its sidebar: the
+/// index is `for c in shown { if … { Sidebar.Item(to: …) } }`, so every entry
+/// was dead while the plainly-written items elsewhere were fine.
+#[test]
+fn a_navigation_item_in_a_branch_is_still_a_link() {
+    let cases = [
+        (
+            "for",
+            "Sidebar { for p in [\"a\", \"b\"] { Sidebar.Item(to: \"/docs/{p}\") { Text(p) } } }",
+        ),
+        (
+            "if",
+            "Sidebar { if true { Sidebar.Item(to: \"/about\") { Text(\"About\") } } }",
+        ),
+        (
+            "for over an if",
+            "Sidebar { for p in [\"a\"] { if p != \"\" { Sidebar.Item(to: \"/docs/{p}\") { Text(p) } } } }",
+        ),
+    ];
+
+    let mut failures = Vec::new();
+    for (shape, body) in cases {
+        let src = page(body);
+        for backend in Backend::ALL {
+            let Some(item) = first_with_class(backend, &src, "wf-sidebar__item") else {
+                failures.push(format!(
+                    "{} / {shape}: no sidebar item at all",
+                    backend.name()
+                ));
+                continue;
+            };
+            if item.tag != "a" {
+                failures.push(format!(
+                    "{} / {shape}: the item rendered as <{}>, which cannot be followed",
+                    backend.name(),
+                    item.tag
+                ));
+            }
+            // The destination has to survive as an href; `to` is not an
+            // attribute a browser follows.
+            match item.attr("href") {
+                Some(href) if href.contains("/docs") || href.contains("/about") => {}
+                other => failures.push(format!(
+                    "{} / {shape}: href is {:?}, expected the declared destination",
+                    backend.name(),
+                    other
+                )),
+            }
+            if item.attr("to").is_some() {
+                failures.push(format!(
+                    "{} / {shape}: the item still carries a `to` attribute, which goes nowhere",
+                    backend.name()
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "dead navigation in a branch:\n{}",
         failures.join("\n")
     );
 }

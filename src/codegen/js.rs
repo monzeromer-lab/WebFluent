@@ -4645,6 +4645,16 @@ impl JsCodegen {
                 let obj_str = self.emit_expr(obj);
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
 
+                // A store's own actions come first. `Todos.remove(id)` calls
+                // the action the store declares, not the list method of the
+                // name; a store is an object, and mapping the call onto a
+                // list's `splice` leaves it calling something that is not
+                // there. The list methods stay for `Todos.items.remove(0)`,
+                // which reaches the list rather than the store.
+                if matches!(obj.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) {
+                    return format!("{}.{}({})", obj_str, method, args_str.join(", "));
+                }
+
                 // Map WebFluent methods to JS
                 match method.as_str() {
                     // `items.push(x)` on a state: the signal is set to a new
@@ -4659,6 +4669,23 @@ impl JsCodegen {
                         format!("({obj_str} = [...{obj_str}, {}])", args_str.join(", "))
                     }
                     "push" => format!("{}.push({})", obj_str, args_str.join(", ")),
+                    // `items.remove(i)`, like `push`, goes through the signal
+                    // or the store's setter: an in-place `splice` changes the
+                    // list the signal already holds, so nothing reading it
+                    // repaints and a persisted one is never written.
+                    "remove" if self.is_state_signal(obj) => {
+                        let signal = obj_str.trim_end_matches("()");
+                        format!(
+                            "{signal}.set(WF.removeAt({obj_str}, {}))",
+                            args_str.join(", ")
+                        )
+                    }
+                    "remove" if self.is_store_member(obj, &obj_str) => {
+                        format!(
+                            "({obj_str} = WF.removeAt({obj_str}, {}))",
+                            args_str.join(", ")
+                        )
+                    }
                     "remove" => format!("{}.splice({}, 1)", obj_str, args_str.join(", ")),
                     "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
                     "map" => format!("{}.map({})", obj_str, args_str.join(", ")),

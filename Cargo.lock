@@ -950,7 +950,7 @@ checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
 
 [[package]]
 name = "webfluent"
-version = "3.2.0"
+version = "3.2.1"
 dependencies = [
  "clap",
  "regex",

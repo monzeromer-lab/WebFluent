@@ -224,8 +224,66 @@ fn check_strictly(path: &str) -> Vec<String> {
         for e in &semantic {
             failures.push(format!("{path}:{line}: {e}"));
         }
+        // The back end too. Parsing and type-checking say nothing about the
+        // JavaScript a block turns into: a store's `remove` action once
+        // compiled to a list's `splice`, which passed every check above and
+        // threw on the first click.
+        for finding in emitted_js_problems(&program) {
+            failures.push(format!("{path}:{line}: {finding}"));
+        }
     }
     failures
+}
+
+/// What the JavaScript for `program` gets wrong, read back from the emission.
+///
+/// The check that matters here is the one the type checker cannot make: a
+/// store compiles to an object of the state and actions it declares, so every
+/// `Store.member(…)` the bundle calls has to be one of them.
+fn emitted_js_problems(program: &webfluent::parser::ast::Program) -> Vec<String> {
+    use webfluent::parser::ast::{Declaration, StatementKind};
+
+    let js = webfluent::codegen::JsCodegen::new().generate(program);
+    let mut problems = Vec::new();
+
+    for declaration in &program.declarations {
+        let Declaration::Store(store) = declaration else {
+            continue;
+        };
+        let members: Vec<&str> = store
+            .body
+            .iter()
+            .filter_map(|statement| match &statement.kind {
+                StatementKind::State(s) => Some(s.name.as_str()),
+                StatementKind::Derived(d) => Some(d.name.as_str()),
+                StatementKind::Action(a) => Some(a.name.as_str()),
+                StatementKind::Resource(r) => Some(r.name.as_str()),
+                _ => None,
+            })
+            .collect();
+
+        let needle = format!("{}.", store.name);
+        for (at, _) in js.match_indices(&needle) {
+            // A call, not a read: `Todos.remove(` but not `Todos.items`.
+            let rest = &js[at + needle.len()..];
+            let name: String = rest
+                .chars()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect();
+            if name.is_empty() || !rest[name.len()..].starts_with('(') {
+                continue;
+            }
+            if !members.contains(&name.as_str()) {
+                problems.push(format!(
+                    "the bundle calls `{}.{name}(…)`, which the store does not declare",
+                    store.name
+                ));
+            }
+        }
+    }
+    problems.sort();
+    problems.dedup();
+    problems
 }
 
 /// Check `path` up to the first line that starts with `stop`, when given:

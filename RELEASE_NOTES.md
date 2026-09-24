@@ -1,3 +1,53 @@
+# WebFluent v3.2.1 Release Notes
+
+## Fixed
+
+### A store's action is no longer mistaken for a list method
+
+`Todos.remove(id)` called the action the store declares. The JavaScript
+back end matched the method table on the name alone, without looking at
+what it was called on, so it compiled to `Todos.splice(id, 1)` — a store
+is an object of state and actions, never a list, so the handler threw
+`Todos.splice is not a function` on the first click. The page painted
+perfectly until then, which is why nothing caught it.
+
+A store's own members now come first, so an action may be named after a
+list method. The shadowing was not limited to `remove`: every name in the
+table — `push`, `filter`, `map`, `take`, `contains`, `first`, `last` — hid
+an action of the same name. `Todos.items.remove(0)` still reaches the
+list, since that names the list rather than the store.
+
+### `items.remove(i)` repaints
+
+`remove` on a list held by `state`, `persist` or a store's member spliced
+it in place, so the signal kept the array it already had: nothing reading
+it repainted and a persisted list was never written. It now goes through
+the signal, as `push` does, via the new `WF.removeAt(list, index)`.
+
+### Navigation items drawn by a `for` are links in a static build
+
+A `Sidebar.Item(to:)` reached through a loop pre-rendered as a bare `<li>`
+with the destination dropped: the components reference on the site, whose
+index is `for c in shown { if … { Sidebar.Item(to: …) } }`, shipped a
+navigation panel with no links in it. The static back end read `to:` as a
+literal only, so a destination that needs the loop's binding — `"/docs/{p}"`
+— resolved to nothing. It now reads it through the build-time scope.
+
+The published site was also rebuilt: its bundle still carried the
+`<li to="…">` from before the 3.2.0 fix, so clicking a component in the
+reference sidebar did nothing at all, silently.
+
+## Testing
+
+`tests/cookbook.rs` extracts the three applications from
+`md-docs/20-cookbook.md` — the guide itself, not a copy — builds them and
+runs them against the fake DOM in `tests/js/cookbook.test.mjs`, clicking
+through add, toggle, remove and clear. `tests/docs_parse.rs` now runs the
+JavaScript back end over every guide block and rejects a bundle that calls
+a store member the store does not declare, which parsing and type-checking
+could not see. A navigation item inside a `for` or an `if` is held to being
+a link in every backend.
+
 # WebFluent v3.2 Release Notes
 
 ## Added
