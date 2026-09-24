@@ -106,26 +106,42 @@ page Home(path: "/") {
 
 ### Install
 
-**Linux (Debian/Ubuntu):**
+WebFluent is one binary, `wf`. Run the line for your machine; each one
+leaves `wf` on your `PATH`.
+
+**macOS and Linux** — the binary for your platform, no Rust needed:
 ```bash
-sudo dpkg -i webfluent_0.2.0-alpha-1_amd64.deb
+curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 ```
 
-**From source** (requires [Rust](https://rustup.rs)):
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
+```
+
+**With [Rust](https://rustup.rs)** — works everywhere Rust does, and is how
+to install on Linux arm64:
+```bash
+cargo install webfluent
+```
+
+Then:
+```bash
+wf --version
+```
+
+If the shell cannot find `wf`, open a new terminal — the installer puts its
+directory on your `PATH` in your shell's startup file. Set `WF_INSTALL_DIR`
+to install elsewhere, or `WF_VERSION` (`v3.2.1`) to pin a release.
+
+A Debian package and a Windows installer are attached to each
+[release](https://github.com/monzeromer-lab/WebFluent/releases), alongside
+the tarballs the script downloads.
+
+**From a clone**, for an unreleased change or to work on the compiler:
 ```bash
 git clone https://github.com/monzeromer-lab/WebFluent.git
-cd WebFluent
-cargo build --release
-# Binary is at target/release/wf
-```
-
-**Install script:**
-```bash
-# Linux
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
-
-# Windows (PowerShell)
-irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
+cd WebFluent && cargo install --path .
 ```
 
 ### Create a Project

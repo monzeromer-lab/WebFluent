@@ -37,6 +37,25 @@ The published site was also rebuilt: its bundle still carried the
 `<li to="…">` from before the 3.2.0 fix, so clicking a component in the
 reference sidebar did nothing at all, silently.
 
+### The install scripts download a file that exists
+
+`install.sh` and `install.ps1` asked for Rust target triples —
+`wf-$VERSION-x86_64-unknown-linux-gnu.tar.gz`,
+`wf-$VERSION-x86_64-pc-windows-msvc.zip` — but the release publishes
+`wf-<version>-<arch>-<os>`: `x86_64-linux`, `x86_64-macos`,
+`aarch64-macos`, `x86_64-windows`. Every run downloaded a 404 page and
+handed it to `tar`. `install.sh` also rejected macOS outright, despite
+the release carrying both Mac builds, and appended its `PATH` line again
+on every run.
+
+Both now resolve the right asset, cover Apple Silicon and Intel Macs,
+fail with a readable message instead of a corrupt unpack (`curl -f`,
+unpacked through a temporary directory), and add the `PATH` line once.
+Linux arm64, which has no prebuilt binary, is told to use Cargo.
+
+`cargo install webfluent` is documented in the guide and the README,
+which had been pointing at a `0.2.0-alpha` Debian package.
+
 ## Testing
 
 `tests/cookbook.rs` extracts the three applications from
