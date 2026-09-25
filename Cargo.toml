@@ -9,6 +9,21 @@ repository = "https://github.com/monzeromer-lab/WebFluent"
 homepage = "https://monzeromer-lab.github.io/WebFluent"
 documentation = "https://docs.rs/webfluent"
 readme = "README.md"
+
+# What a `cargo install webfluent` does not need. `editors/` is 8 MB, 7.4 MB
+# of it the two generated tree-sitter `parser.c` files; `docs/` is the built
+# documentation site. Neither is used to build or run the compiler, and
+# together they were most of a 15.6 MB package that crates.io kept timing
+# out on. The editor extensions and the site live in the repository.
+exclude = [
+    "/editors",
+    "/docs",
+    "/site",
+    "/dist",
+    "/tests",
+    "/.github",
+    "/.claude",
+]
 keywords = ["web", "language", "compiler", "template-engine", "pdf"]
 categories = ["compilers", "template-engine", "web-programming"]
 rust-version = "1.85"
