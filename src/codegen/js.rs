@@ -1021,29 +1021,20 @@ impl JsCodegen {
                     .iter()
                     .map(|a| self.emit_store_expr(a, store_states))
                     .collect();
-                match method.as_str() {
-                    // `items.push(x)` on a store's own state: a new list set
-                    // through the store, so what reads it repaints and a
-                    // persisted one is written.
-                    "push" if matches!(obj.as_ref(), Expr::Identifier(n) if store_states.contains(n)) =>
-                    {
-                        format!("({obj_str} = [...{obj_str}, {}])", args_str.join(", "))
+                // The same table the page emitter reads. A bare name that
+                // is one of the store's own states is held by the store, so
+                // a mutating method assigns back through it.
+                let holder = match obj.as_ref() {
+                    Expr::Identifier(n) if store_states.contains(n) => Holder::StoreMember,
+                    Expr::PropertyAccess(base, _) => {
+                        match base.as_ref() {
+                            Expr::Identifier(s) if self.stores.contains(s) => Holder::StoreMember,
+                            _ => Holder::Plain,
+                        }
                     }
-                    "push" => format!("{}.push({})", obj_str, args_str.join(", ")),
-                    "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
-                    "map" => format!("{}.map({})", obj_str, args_str.join(", ")),
-                    "sum" => format!("{}.reduce((a,b) => a+b, 0)", obj_str),
-                    "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize"
-                    | "truncate" | "dedent" | "lines" | "words" => {
-                        let rest = if args_str.is_empty() {
-                            String::new()
-                        } else {
-                            format!(", {}", args_str.join(", "))
-                        };
-                        format!("WF.{}({}{})", method, obj_str, rest)
-                    }
-                    _ => format!("{}.{}({})", obj_str, method, args_str.join(", ")),
-                }
+                    _ => Holder::Plain,
+                };
+                method_to_js(method, &obj_str, &args_str, holder)
             }
             Expr::Lambda(param, body) => {
                 let body_str = self.emit_store_expr(body, store_states);
@@ -5564,87 +5555,16 @@ impl JsCodegen {
                     return format!("{}.{}({})", obj_str, method, args_str.join(", "));
                 }
 
-                // Map WebFluent methods to JS
-                match method.as_str() {
-                    // `items.push(x)` on a state: the signal is set to a new
-                    // list, so what reads it repaints and a persisted one is
-                    // written; on a store's member, the same through the
-                    // store's setter.
-                    "push" if self.is_state_signal(obj) => {
-                        let signal = obj_str.trim_end_matches("()");
-                        format!("{signal}.set([...{obj_str}, {}])", args_str.join(", "))
-                    }
-                    "push" if self.is_store_member(obj, &obj_str) => {
-                        format!("({obj_str} = [...{obj_str}, {}])", args_str.join(", "))
-                    }
-                    "push" => format!("{}.push({})", obj_str, args_str.join(", ")),
-                    // `items.remove(i)`, like `push`, goes through the signal
-                    // or the store's setter: an in-place `splice` changes the
-                    // list the signal already holds, so nothing reading it
-                    // repaints and a persisted one is never written.
-                    "remove" if self.is_state_signal(obj) => {
-                        let signal = obj_str.trim_end_matches("()");
-                        format!(
-                            "{signal}.set(WF.removeAt({obj_str}, {}))",
-                            args_str.join(", ")
-                        )
-                    }
-                    "remove" if self.is_store_member(obj, &obj_str) => {
-                        format!(
-                            "({obj_str} = WF.removeAt({obj_str}, {}))",
-                            args_str.join(", ")
-                        )
-                    }
-                    "remove" => format!("{}.splice({}, 1)", obj_str, args_str.join(", ")),
-                    "filter" => format!("{}.filter({})", obj_str, args_str.join(", ")),
-                    "map" => format!("{}.map({})", obj_str, args_str.join(", ")),
-                    "sum" => format!("{}.reduce((a,b) => a+b, 0)", obj_str),
-                    "length" => format!("{}.length", obj_str),
-                    "toUpper" => format!("{}.toUpperCase()", obj_str),
-                    "toLower" => format!("{}.toLowerCase()", obj_str),
-                    "contains" => format!("{}.includes({})", obj_str, args_str.join(", ")),
-                    "trim" => format!("{}.trim()", obj_str),
-                    "split" => format!("{}.split({})", obj_str, args_str.join(", ")),
-                    // What the language's own types can do: a date's
-                    // arithmetic, money's, a URL's parts, a colour's mixing.
-                    m if scalar_method(m).is_some() => {
-                        let rest = if args_str.is_empty() {
-                            String::new()
-                        } else {
-                            format!(", {}", args_str.join(", "))
-                        };
-                        format!(
-                            "WF.{}({}{})",
-                            scalar_method(m).expect("just checked"),
-                            obj_str,
-                            rest
-                        )
-                    }
-                    // The helpers the runtime adds to lists and strings.
-                    m if scalar_method(m).is_some() => {
-                        let rest = if args_str.is_empty() {
-                            String::new()
-                        } else {
-                            format!(", {}", args_str.join(", "))
-                        };
-                        format!(
-                            "WF.{}({}{})",
-                            scalar_method(m).expect("just checked"),
-                            obj_str,
-                            rest
-                        )
-                    }
-                    "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize"
-                    | "truncate" | "dedent" | "lines" | "words" => {
-                        let rest = if args_str.is_empty() {
-                            String::new()
-                        } else {
-                            format!(", {}", args_str.join(", "))
-                        };
-                        format!("WF.{}({}{})", method, obj_str, rest)
-                    }
-                    _ => format!("{}.{}({})", obj_str, method, args_str.join(", ")),
-                }
+                // Map WebFluent methods to JS, through the one table the
+                // store emitter reads too.
+                let holder = if self.is_state_signal(obj) {
+                    Holder::Signal
+                } else if self.is_store_member(obj, &obj_str) {
+                    Holder::StoreMember
+                } else {
+                    Holder::Plain
+                };
+                method_to_js(method, &obj_str, &args_str, holder)
             }
             Expr::FunctionCall(name, args) => {
                 // i18n: t("key") or t("key", name: value, ...)
@@ -5963,6 +5883,89 @@ fn is_reactive_expr(expr_str: &str) -> bool {
 /// Routed by name, because the value carries its own kind at run time —
 /// and each function leaves a receiver that has a method of that name to
 /// answer for itself, so a record with its own `plus` is never taken over.
+/// How the receiver of a method call is held, which decides whether a
+/// mutating method assigns back through a signal, through a store's setter,
+/// or mutates the value in place.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Holder {
+    /// A local, a parameter, a literal: nothing reactive reads it.
+    Plain,
+    /// A page or component `state`, read as `_name()`.
+    Signal,
+    /// A store's state: `Cart.items` from outside, `store.items` within.
+    StoreMember,
+}
+
+/// The one table mapping a WebFluent method onto JavaScript.
+///
+/// Both the page emitter (`emit_expr`) and the store emitter
+/// (`emit_store_expr`) read it. They used to keep a copy each, and the
+/// copies drifted: `remove`, `contains`, `toUpper`, `toLower` and all 41 of
+/// the scalar methods were in one and not the other, so inside a store
+/// action they compiled to `store.items.remove(i)` and `store.due.plus(…)`
+/// — methods no JavaScript array, string or JSON value has. Every one threw
+/// the first time its action ran, and nothing before this point could see
+/// it: parsing, the types and the linters all pass on the source that
+/// produces them.
+pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) -> String {
+    let joined = args.join(", ");
+    let with_obj = |name: &str| {
+        if args.is_empty() {
+            format!("WF.{name}({obj})")
+        } else {
+            format!("WF.{name}({obj}, {joined})")
+        }
+    };
+
+    match method {
+        // `items.push(x)` and `items.remove(i)` mutate. On a signal or a
+        // store's state the new list is assigned back, so what reads it
+        // repaints and a persisted one is written; an in-place change would
+        // leave the holder with the array it already had.
+        "push" => match holder {
+            Holder::Signal => {
+                format!("{}.set([...{obj}, {joined}])", obj.trim_end_matches("()"))
+            }
+            Holder::StoreMember => format!("({obj} = [...{obj}, {joined}])"),
+            Holder::Plain => format!("{obj}.push({joined})"),
+        },
+        "remove" => match holder {
+            // The comma leaves the new list as the value of the expression.
+            // `set` itself returns nothing, so `items = items.remove(i)`
+            // used to set the list to the nothing the inner call handed
+            // back — the removal happened, then the list became undefined.
+            // Reading the signal again costs no new subscription: the
+            // argument above already read it.
+            Holder::Signal => {
+                let sig = obj.trim_end_matches("()");
+                format!("({sig}.set(WF.removeAt({obj}, {joined})), {obj})")
+            }
+            Holder::StoreMember => format!("({obj} = WF.removeAt({obj}, {joined}))"),
+            Holder::Plain => format!("{obj}.splice({joined}, 1)"),
+        },
+        "filter" => format!("{obj}.filter({joined})"),
+        "map" => format!("{obj}.map({joined})"),
+        "sum" => format!("{obj}.reduce((a,b) => a+b, 0)"),
+        "length" => format!("{obj}.length"),
+        "toUpper" => format!("{obj}.toUpperCase()"),
+        "toLower" => format!("{obj}.toLowerCase()"),
+        "contains" => format!("{obj}.includes({joined})"),
+        "trim" => format!("{obj}.trim()"),
+        "split" => format!("{obj}.split({joined})"),
+        // What the language's own types can do: a date's arithmetic,
+        // money's, a URL's parts, a colour's mixing. Each is a plain JSON
+        // value at run time, so the work is the runtime's, never a method
+        // on the value.
+        m if scalar_method(m).is_some() => {
+            with_obj(scalar_method(m).expect("just checked"))
+        }
+        // The helpers the runtime adds to lists and strings.
+        "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize" | "truncate"
+        | "dedent" | "lines" | "words" => with_obj(method),
+        _ => format!("{obj}.{method}({joined})"),
+    }
+}
+
 pub fn scalar_method(name: &str) -> Option<&'static str> {
     Some(match name {
         "year" => "year",

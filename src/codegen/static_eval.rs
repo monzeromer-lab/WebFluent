@@ -796,7 +796,12 @@ fn method_call(
                         .unwrap_or(-1.0),
                 ))
             }
-            "includes" => {
+            // `contains` is what WebFluent calls it; `includes` is the
+            // JavaScript name the same call also answers to. Only the
+            // JavaScript names were here, so a static paint of
+            // `items.contains(x)` produced nothing and the element came out
+            // empty until the page's script ran.
+            "includes" | "contains" => {
                 let needle = value(0)?;
                 Some(Static::Bool(items.contains(&needle)))
             }
@@ -887,8 +892,8 @@ fn method_call(
             _ => None,
         },
         Static::Str(s) => match method {
-            "toLowerCase" => Some(Static::Str(s.to_lowercase())),
-            "toUpperCase" => Some(Static::Str(s.to_uppercase())),
+            "toLowerCase" | "toLower" => Some(Static::Str(s.to_lowercase())),
+            "toUpperCase" | "toUpper" => Some(Static::Str(s.to_uppercase())),
             "trim" => Some(Static::Str(s.trim().to_string())),
             "indexOf" => {
                 let needle = value(0)?.to_text();
@@ -898,7 +903,7 @@ fn method_call(
                         .unwrap_or(-1.0),
                 ))
             }
-            "includes" => Some(Static::Bool(s.contains(&value(0)?.to_text()))),
+            "includes" | "contains" => Some(Static::Bool(s.contains(&value(0)?.to_text()))),
             "startsWith" => Some(Static::Bool(s.starts_with(&value(0)?.to_text()))),
             "endsWith" => Some(Static::Bool(s.ends_with(&value(0)?.to_text()))),
             "split" => {

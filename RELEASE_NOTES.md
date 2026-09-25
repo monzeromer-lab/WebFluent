@@ -221,6 +221,38 @@ removed, and formatted splices `{total:.currency}`.
 
 ## Fixed
 
+### A store's actions now speak the whole language
+
+A store's action and a page's handler are compiled by two different
+emitters, and each kept its own table of what a WebFluent method becomes in
+JavaScript. The tables drifted. Inside a store action, `items.remove(i)`
+compiled to `store.items.remove(i)`, `word.toUpper()` to
+`store.word.toUpper()`, `items.contains(x)` to `store.items.contains(x)`,
+and every one of the 41 scalar methods — `due.plus(days: 5)`,
+`total.times(2)`, `site.host()` — to a method call on the value itself. A
+`Date` is a string at run time and `Money` a map, so each of these threw
+the first time its action ran. The page painted correctly until then, which
+is why nothing caught them: the source parses, type-checks and lints clean,
+and only the generated JavaScript is wrong.
+
+There is one table now, read by both emitters, so a method added to one
+cannot go missing from the other.
+
+### Removing from a list no longer empties it
+
+`items = items.remove(i)` on a page `state` compiled to a `set` inside a
+`set`. The inner one removed the item; the outer one then set the list to
+what `set` hands back, which is nothing. The item went, and the list went
+with it. The removal now evaluates to the new list, so both the statement
+`items.remove(i)` and the assignment are correct.
+
+### The static paint knows WebFluent's own spellings
+
+`toUpper`, `toLower` and `contains` were missing from the build-time
+evaluator, which knew only `toUpperCase`, `toLowerCase` and `includes`. A
+page that used them painted an empty element, and it stayed empty for a
+reader without JavaScript and for a crawler.
+
 - A `derived` that read a store declared later in the file read
   `undefined`.
 - A page `state` named `key`, `value`, `event`, `e` or `params` compiled
