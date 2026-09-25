@@ -19,3 +19,36 @@ secret and re-run the job to publish a release that went out without it.
 If the grammar changed since the last release, point the Zed extension at
 it before tagging: commit the grammar, then `just zed-pin-grammar` and
 commit that. The preflight refuses a tag whose pinned grammar is stale.
+
+## The editor extensions
+
+Each release attaches the VS Code extension as a `.vsix`, built from the
+tagged commit; it installs from a file with *Extensions: Install from
+VSIX…*. Its version is its own (`editors/vscode/package.json`): bump it
+when the extension changes, and add its `CHANGELOG.md` entry.
+
+The same release publishes it to the marketplaces once their tokens exist:
+
+- **VS Code Marketplace** — a publisher named `monzeromer-lab`, and an Azure
+  DevOps personal access token with *Marketplace › Manage*, saved as the
+  secret `VSCE_PAT`.
+- **Open VSX** (VSCodium, Cursor, Gitpod) — an account, the namespace
+  created once with `npx ovsx create-namespace monzeromer-lab -p <token>`,
+  and the token saved as `OVSX_PAT`.
+
+A version already published is skipped, so a release that leaves the
+extension alone leaves the marketplaces alone.
+
+The Zed extension (`editors/zed`, version in `extension.toml`) is listed by
+a pull request to `zed-industries/extensions`: a submodule
+`extensions/webfluent` pointing at this repository, and
+
+```toml
+[webfluent]
+submodule = "extensions/webfluent"
+path = "editors/zed"
+version = "3.0.0"
+```
+
+A later version is the same pull request with the submodule moved to the
+new commit and `version` raised.

@@ -38,6 +38,36 @@ jobs:
           shellcheck scripts/*.sh
           actionlint .github/workflows/*.yml
 
+  # The VS Code extension, built and packaged as the marketplace would take
+  # it. Its 0.2.0 package could not start — the language client was left out
+  # of it — and nothing before this built or loaded what it carried.
+  vscode:
+    name: VS Code extension
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: editors/vscode
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: editors/vscode/package-lock.json
+
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build
+
+      # With the network: the latest release's server is downloaded and
+      # answers `initialize`, as a reader's first start would do.
+      - run: npm test
+        env:
+          WF_NETWORK_TESTS: "1"
+
+      - run: npx vsce package --out webfluent.vsix
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest

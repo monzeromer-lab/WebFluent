@@ -1,5 +1,9 @@
+# The extension ships bundled: one out/extension.js, the grammar, the
+# language configuration, the icon and the docs. The client library is inside
+# the bundle, so node_modules stays out.
 .vscode/**
 src/**
+test/**
 node_modules/**
 tsconfig.json
 **/*.ts

@@ -1,7 +1,7 @@
 {
   "name": "webfluent",
   "displayName": "WebFluent",
-  "description": "WebFluent language support — syntax highlighting, auto-completion, diagnostics, and more",
+  "description": "WebFluent for VS Code: highlighting for .wf and .wfx, and the wf-lsp language server — diagnostics, completion, hover, go to definition, rename and quick fixes.",
   "version": "0.3.0",
   "publisher": "monzeromer-lab",
   "license": "GPL-3.0",
@@ -14,7 +14,7 @@
     "Programming Languages"
   ],
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.82.0"
   },
   "activationEvents": [
     "onLanguage:webfluent"
@@ -41,17 +41,50 @@
         "scopeName": "source.webfluent",
         "path": "./syntaxes/webfluent.tmLanguage.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "WebFluent",
+      "properties": {
+        "webfluent.server.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "The `wf-lsp` to run. Empty: look on `PATH`, then in the workspace's `target/`, then download the latest release's."
+        },
+        "webfluent.server.download": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Download `wf-lsp` from the latest GitHub release when it is not on `PATH`. Off: highlighting only, until a server is installed."
+        }
+      }
+    }
   },
   "scripts": {
-    "build": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "build": "esbuild src/extension.ts --bundle --platform=node --target=node18 --format=cjs --external:vscode --minify --outfile=out/extension.js",
+    "typecheck": "tsc -p ./ --noEmit",
+    "test": "node --test test/server.test.mjs test/bundle.test.mjs",
+    "vscode:prepublish": "npm run typecheck && npm run build",
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.80.0",
+    "@types/node": "^18.19.0",
+    "@types/vscode": "^1.82.0",
     "@vscode/vsce": "^3.2.0",
-    "typescript": "^5.7.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "webfluent",
+    "wf",
+    "wfx",
+    "language server",
+    "static site",
+    "pdf"
+  ],
+  "homepage": "https://monzeromer-lab.github.io/WebFluent",
+  "bugs": {
+    "url": "https://github.com/monzeromer-lab/WebFluent/issues"
+  },
+  "dependencies": {
     "vscode-languageclient": "^9.0.1"
   }
 }
