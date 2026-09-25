@@ -8,7 +8,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
     ReferenceShell {
 
         Row(align: .center, gap: .xs, class: "crumbs") {
-            Text(t("ref.chapter"))
+            Text(t("guide.chapter", { n: "20" }))
             Text("/")
             Text(t("ch.20")) { style { color: $color-text-muted } }
         }
@@ -121,7 +121,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Compone
             Stack(gap: .sm) {
                 style { gap: 10px }
                 Row(align: .center, gap: .xs, class: "crumbs") {
-                    Link(t("ref.chapter"), to: "/docs/reference")
+                    Link(t("guide.chapter", { n: "20" }), to: "/docs/reference")
                     Text("/")
                     Link(c.group, to: "/docs/reference#{c.group.toLowerCase().replace(" ", "-")}")
                 }

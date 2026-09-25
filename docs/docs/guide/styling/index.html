@@ -49,19 +49,19 @@
                 <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" type="search">
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button"></button>
                     <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s782ff52c">
+                <aside class="wf-sidebar wf-s782ff52c" aria-label="Chapters">
                     <p class="wf-text group-label">The basics</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
                         <p class="wf-text num">01</p>
@@ -175,7 +175,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">theme Brand {
     color-primary: #0F766E
@@ -249,13 +249,54 @@
                                         <td>Motion</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>transition-fast</code>, <code>transition-normal</code>, <code>transition-slow</code></p>
+<p><code>transition-fast</code>, <code>transition-normal</code>, <code>transition-slow</code>, <code>animation-duration-fast/normal/slow</code>, <code>animation-easing-default/spring/bounce</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Easing</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ease-standard</code>, <code>ease-in</code>, <code>ease-out</code>, <code>ease-spring</code> — what <code>easing: .standard</code> and <code>.spring</code> resolve to (<a href="/WebFluent/docs/guide/motion#the-defaults">chapter 13</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Breakpoints</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>screen-sm</code>, <code>screen-md</code>, <code>screen-lg</code>, <code>screen-xl</code> — every media query a responsive value or an <code>@md { }</code> writes, and what <code>viewport.md</code> follows</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Code</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>syntax-keyword</code>, <code>syntax-string</code>, <code>syntax-number</code>, <code>syntax-comment</code>, <code>syntax-function</code>, <code>syntax-punct</code> — the colours <code>Code</code> highlights with</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Terminal</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>term-bg</code>, <code>term-ink</code>, <code>term-dim</code> — a <code>Code</code> block shown as a shell</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Layout</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf-header-height</code> — what a fixed <code>Navbar</code> reserves, which anchored scrolling offsets by</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
+<p>That is the whole baseline: 71 tokens, every one a <code>--custom-property</code> on <code>:root</code>, readable from a style block as <code>$name</code> and from a stylesheet as <code>var(--name)</code>. Moving a breakpoint moves every media query the build writes with it.</p>
 <p>A theme may add tokens of its own (<code>surface-raised: #131519</code>); they become custom properties like the rest. The contrast lint (<code>A13</code>) checks text against background pairs in the theme and warns below WCAG AA.</p>
 <p><code>theme.builtin</code> in <code>webfluent.app.json</code>: <code>full</code> (default) ships the baseline look of every built-in you use; <code>structural</code> ships only their layout and mechanics — focus rings, overlays, the grid — for a site that brings its whole design.</p>
                             </div>
@@ -265,7 +306,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Styled(path: &quot;/&quot;) {
     state accent = &quot;#D97706&quot;
@@ -304,7 +345,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Fade(path: &quot;/&quot;) {
     state on = false
@@ -328,7 +369,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Classes(path: &quot;/&quot;) {
     state active = true
@@ -349,7 +390,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">css</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">.note[data-tone=&quot;loud&quot;] { font-weight: 700; color: var(--color-danger) }</code>
                             </div>
@@ -362,7 +403,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">theme Light {
     color-background: #FFFFFF
@@ -398,7 +439,7 @@ page Prefs(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Layout(path: &quot;/&quot;, title: &quot;Layout&quot;, description: &quot;A grid of projects.&quot;) {
     Container {
@@ -423,7 +464,7 @@ page Prefs(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Grid(columns: { base: 1, md: 2, lg: 3 }, gap: { base: .sm, lg: .lg }) { … }
 Row(direction: { base: .column, md: .row }) { … }
@@ -438,7 +479,7 @@ Column(span: { base: 12, md: 6 }) { … }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">theme Brand { screen-md: 900px }</code>
                             </div>
@@ -451,7 +492,7 @@ Column(span: { base: 12, md: 6 }) { … }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Heading(&quot;Title&quot;).h1 {
     style {
@@ -469,7 +510,7 @@ Column(span: { base: 12, md: 6 }) { … }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Row.stacks { … }                          // a column on a narrow screen
 Grid.stacks { … }                         // one column on a narrow screen
@@ -496,7 +537,7 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#design-tokens-and-the-theme">Design tokens and the theme</a>

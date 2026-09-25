@@ -51,8 +51,8 @@
                     <button class="wf-icon-btn site-icon-button"></button>
                     <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <a class="wf-link wf-s07606340 site-button site-button-primary" href="/WebFluent/docs/guide/getting-started">Read the guide</a>
-                    <button class="wf-btn site-button site-button-outlined"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -64,7 +64,7 @@
                     <div class="wf-row wf-align--center wf-gap--sm wf-s15edd9d2 install-line">
                         <p class="wf-text wf-sbd4ae13e">$</p>
                         <p class="wf-text wf-se1d9ba3c">curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash</p>
-                        <button class="wf-btn wf-sef94c5cb"></button>
+                        <button class="wf-btn wf-sef94c5cb" aria-label="Copy the install command">Copy</button>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-s64a34524">
                         <a class="wf-link site-button site-button-primary" href="/WebFluent/docs/guide/getting-started">Start the guide</a>
@@ -108,33 +108,45 @@
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
                         <p class="wf-text wf-se6051429">01</p>
                         <h3 class="wf-heading">A file is a list of declarations</h3>
-                        <!--wf-if-->
+                        <div class="wf-markdown">
+<p>Eleven kinds: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>const</code>, <code>data</code>, <code>animation</code>, <code>test</code>. Pages own their routes; there is no separate route table.</p>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
                         <p class="wf-text wf-se6051429">02</p>
                         <h3 class="wf-heading">An element is a typed call</h3>
-                        <!--wf-if-->
+                        <div class="wf-markdown">
+<p>One positional argument, named props, flags, then a block. The compiler knows every built-in, so a misspelling is an error with a hint — never a silent no-op.</p>
+                        </div>
                         <code class="wf-code wf-code--block wf-s632d2bef"><span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Save&quot;</span>, <span class="wf-tok-prop">tone</span>: .primary).lg</code>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
                         <p class="wf-text wf-se6051429">03</p>
                         <h3 class="wf-heading">State is a signal</h3>
-                        <!--wf-if-->
+                        <div class="wf-markdown">
+<p><code>state count = 0</code> — anything that reads it follows it. Derived values recompute, effects re-run, the DOM updates. No dependency arrays.</p>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
                         <p class="wf-text wf-se6051429">04</p>
                         <h3 class="wf-heading">Styles are CSS, written where the element is</h3>
-                        <!--wf-if-->
+                        <div class="wf-markdown">
+<p>Raw values, design tokens with <code>$</code>, nested rules as CSS nesting spells them. One sheet, pruned to what you used.</p>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
                         <p class="wf-text wf-se6051429">05</p>
                         <h3 class="wf-heading">The build is the whole site</h3>
-                        <!--wf-if-->
+                        <div class="wf-markdown">
+<p>HTML pre-rendered per page, a small runtime, a sitemap, Open Graph tags, content-security headers — from <code>wf build</code>, with nothing to configure.</p>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card idea-card-highlight">
                         <h3 class="wf-heading">Coming from React, Vue or Svelte?</h3>
-                        <!--wf-if-->
-                        <!--wf-if-->
+                        <div class="wf-markdown">
+<p>Skim chapters 2 and 4, then read 5, 8 and 9. The reactivity model is signals, the components are declared and typed, and the compiler checks what you write against what they declare.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/state">Take the shortcut →</a>
                     </div>
                 </div>
             </div>
@@ -192,9 +204,9 @@
                         <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                 <p class="wf-text wf-s6dc9a872">wf</p>
-                                <!--wf-if-->
+                                <p class="wf-text wf-s2d34472f">braces</p>
                             </div>
-                            <button class="wf-btn wf-s21cc4e75"></button>
+                            <button class="wf-btn wf-s21cc4e75" aria-label="Copy">Copy</button>
                         </div>
                         <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;) {
     state open = true
@@ -217,9 +229,9 @@
                         <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                 <p class="wf-text wf-s6dc9a872">wfx</p>
-                                <!--wf-if-->
+                                <p class="wf-text wf-s2d34472f">indentation</p>
                             </div>
-                            <button class="wf-btn wf-s21cc4e75"></button>
+                            <button class="wf-btn wf-s21cc4e75" aria-label="Copy">Copy</button>
                         </div>
                         <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;)
     state open = true
@@ -263,7 +275,7 @@
                             <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                 <p class="wf-text wf-s6dc9a872">wf build</p>
                             </div>
-                            <button class="wf-btn wf-s21cc4e75"></button>
+                            <button class="wf-btn wf-s21cc4e75" aria-label="Copy">Copy</button>
                         </div>
                         <code class="wf-code wf-code--block wf-sa8223565">build/
   index.html          # the page, pre-rendered
@@ -291,7 +303,7 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                     <p class="wf-text wf-s6dc9a872">bash</p>
                                 </div>
-                                <button class="wf-btn wf-s21cc4e75"></button>
+                                <button class="wf-btn wf-s21cc4e75" aria-label="Copy">Copy</button>
                             </div>
                             <code class="wf-code wf-code--block wf-sa8223565"></code>
                         </div>

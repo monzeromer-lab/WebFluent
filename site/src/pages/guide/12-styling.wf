@@ -1,6 +1,6 @@
 /// Chapter 12 of the guide, written from md-docs/12-styling.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page Styling(path: "/docs/guide/styling", title: "Styling", description: "Design tokens and themes, style blocks with splices and nesting, transitions, classes, dark mode and layout.", layout: DocsShell("Styling", chapter: "Chapter 12", blurb: "Every built-in ships styled; a theme changes the whole site; a style block is real CSS scoped to its element.", sections: [Anchor(id: "design-tokens-and-the-theme", label: "Design tokens and the theme"), Anchor(id: "style", label: "style \{ \}"), Anchor(id: "transition", label: "transition \{ \}"), Anchor(id: "classes-and-your-own-stylesheet", label: "Classes and your own stylesheet"), Anchor(id: "enum-props-as-hooks", label: "Enum props as hooks"), Anchor(id: "dark-mode", label: "Dark mode"), Anchor(id: "layout-without-css", label: "Layout without CSS"), Anchor(id: "responsive-values", label: "Responsive values"), Anchor(id: "what-the-build-emits", label: "What the build emits")], prevTo: "/docs/guide/expressions", prevLabel: "11. Expressions", nextTo: "/docs/guide/motion", nextLabel: "13. Motion")) {
+page Styling(path: "/docs/guide/styling", title: "Styling", description: "Design tokens and themes, style blocks with splices and nesting, transitions, classes, dark mode and layout.", layout: DocsShell("Styling", chapter: t("guide.chapter", { n: "12" }), blurb: "Every built-in ships styled; a theme changes the whole site; a style block is real CSS scoped to its element.", sections: [Anchor(id: "design-tokens-and-the-theme", label: "Design tokens and the theme"), Anchor(id: "style", label: "style \{ \}"), Anchor(id: "transition", label: "transition \{ \}"), Anchor(id: "classes-and-your-own-stylesheet", label: "Classes and your own stylesheet"), Anchor(id: "enum-props-as-hooks", label: "Enum props as hooks"), Anchor(id: "dark-mode", label: "Dark mode"), Anchor(id: "layout-without-css", label: "Layout without CSS"), Anchor(id: "responsive-values", label: "Responsive values"), Anchor(id: "what-the-build-emits", label: "What the build emits")], prevTo: "/docs/guide/expressions", prevLabel: "11. {t("ch.11")}", nextTo: "/docs/guide/motion", nextLabel: "13. {t("ch.13")}")) {
     Stack(gap: .lg) {
         Markdown("Every built-in ships styled, and a theme changes the whole site by changing its tokens. When you need more, an element takes a `style \{ \}` block of real CSS, scoped to that element, with tokens and live values spliced in.")
 
@@ -55,12 +55,32 @@ page Styling(path: "/docs/guide/styling", title: "Styling", description: "Design
                 }
                 Table.Row {
                     Table.Cell("Motion")
-                    Table.Cell { Markdown("`transition-fast`, `transition-normal`, `transition-slow`") }
+                    Table.Cell { Markdown("`transition-fast`, `transition-normal`, `transition-slow`, `animation-duration-fast/normal/slow`, `animation-easing-default/spring/bounce`") }
+                }
+                Table.Row {
+                    Table.Cell("Easing")
+                    Table.Cell { Markdown("`ease-standard`, `ease-in`, `ease-out`, `ease-spring` — what `easing: .standard` and `.spring` resolve to ([chapter 13](/docs/guide/motion#the-defaults))") }
+                }
+                Table.Row {
+                    Table.Cell("Breakpoints")
+                    Table.Cell { Markdown("`screen-sm`, `screen-md`, `screen-lg`, `screen-xl` — every media query a responsive value or an `@md \{ \}` writes, and what `viewport.md` follows") }
+                }
+                Table.Row {
+                    Table.Cell("Code")
+                    Table.Cell { Markdown("`syntax-keyword`, `syntax-string`, `syntax-number`, `syntax-comment`, `syntax-function`, `syntax-punct` — the colours `Code` highlights with") }
+                }
+                Table.Row {
+                    Table.Cell("Terminal")
+                    Table.Cell { Markdown("`term-bg`, `term-ink`, `term-dim` — a `Code` block shown as a shell") }
+                }
+                Table.Row {
+                    Table.Cell("Layout")
+                    Table.Cell { Markdown("`wf-header-height` — what a fixed `Navbar` reserves, which anchored scrolling offsets by") }
                 }
             }
         }
 
-        Markdown("A theme may add tokens of its own (`surface-raised: #131519`); they become custom properties like the rest. The contrast lint (`A13`) checks text against background pairs in the theme and warns below WCAG AA.\n\n`theme.builtin` in `webfluent.app.json`: `full` (default) ships the baseline look of every built-in you use; `structural` ships only their layout and mechanics — focus rings, overlays, the grid — for a site that brings its whole design.")
+        Markdown("That is the whole baseline: 71 tokens, every one a `--custom-property` on `:root`, readable from a style block as `$name` and from a stylesheet as `var(--name)`. Moving a breakpoint moves every media query the build writes with it.\n\nA theme may add tokens of its own (`surface-raised: #131519`); they become custom properties like the rest. The contrast lint (`A13`) checks text against background pairs in the theme and warns below WCAG AA.\n\n`theme.builtin` in `webfluent.app.json`: `full` (default) ships the baseline look of every built-in you use; `structural` ships only their layout and mechanics — focus rings, overlays, the grid — for a site that brings its whole design.")
 
         Heading("style \{ \}", id: "style").h2
 

@@ -49,19 +49,19 @@
                 <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" type="search">
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button"></button>
                     <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s782ff52c">
+                <aside class="wf-sidebar wf-s782ff52c" aria-label="Chapters">
                     <p class="wf-text group-label">The basics</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
                         <p class="wf-text num">01</p>
@@ -172,7 +172,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page About(path: &quot;/about&quot;, title: &quot;About us&quot;, description: &quot;Who we are and why we build this.&quot;) {
     Container {
@@ -331,7 +331,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">app {
     Navbar {
@@ -356,7 +356,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/nav&quot;) {
     Link(&quot;Home&quot;, to: &quot;/&quot;)                       // an &lt;a&gt;; the router handles the click
@@ -376,7 +376,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
 
@@ -411,7 +411,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component DocsShell(_ crumb: String) {
     slot
@@ -450,7 +450,7 @@ page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Auth {
     state user = null
@@ -482,7 +482,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;A page with its own tags.&quot;) {
     state image = &quot;/og-share.png&quot;
@@ -506,7 +506,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives here.&quot;, noindex: true) {
     Container {
@@ -524,7 +524,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Deploys {
     state rows = []
@@ -552,7 +552,7 @@ page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, descripti
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#declaring-a-page">Declaring a page</a>

@@ -49,19 +49,19 @@
                 <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" type="search">
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button"></button>
                     <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s782ff52c">
+                <aside class="wf-sidebar wf-s782ff52c" aria-label="Chapters">
                     <p class="wf-text group-label">The basics</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
                         <p class="wf-text num">01</p>
@@ -172,7 +172,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Status(path: &quot;/&quot;) {
     state count = 0
@@ -198,7 +198,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { name: String, email: String? }
 
@@ -221,7 +221,7 @@ page Profile(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
 
@@ -251,7 +251,7 @@ page List(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Panel(path: &quot;/&quot;) {
     state open = true
@@ -270,7 +270,7 @@ page List(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
 
@@ -298,7 +298,7 @@ page Job(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Choose(path: &quot;/&quot;) {
     state n = 5
@@ -317,7 +317,7 @@ page Job(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Sync(path: &quot;/&quot;) {
     state rows: [Map] = []
@@ -353,7 +353,7 @@ page Job(path: &quot;/&quot;) {
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#if-else-if-else">if / else if / else</a>

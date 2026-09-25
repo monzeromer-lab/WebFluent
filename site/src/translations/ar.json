@@ -109,7 +109,6 @@
   "hero.serve": "wf serve · localhost:3000",
   "footer.builtins": "المكوّنات المدمجة",
   "footer.diagnostics": "التشخيصات",
-  "ref.chapter": "الفصل 20",
   "ref.index": "المكوّنات",
   "ref.filter": "تصفية {count} مكوّنًا",
   "ref.intro": "{count} عنصرًا مدمجًا في أحد عشر مجموعة، لكلٍّ توقيعه وخصائصه وأعلامه وأحداثه وأجزاؤه — مقروءة من سجلّ المترجم نفسه.",
@@ -136,5 +135,6 @@
   "ref.events": "الأحداث",
   "ref.icons": "الأيقونات",
   "ref.icons.body": "الأسماء التي ترسمها Icon(…) وIconButton(icon:) وSidebar.Item(icon:)؛ أي اسم آخر يظهر كلمةً ويحذّر المترجم.",
-  "ch.21": "كتاب الوصفات"
+  "ch.21": "كتاب الوصفات",
+  "guide.chapter": "الفصل {n}"
 }

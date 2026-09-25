@@ -49,19 +49,19 @@
                 <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" type="search">
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button"></button>
                     <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s782ff52c">
+                <aside class="wf-sidebar wf-s782ff52c" aria-label="Chapters">
                     <p class="wf-text group-label">The basics</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
                         <p class="wf-text num">01</p>
@@ -175,7 +175,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Notes(path: &quot;/&quot;) {
     state body = &quot;# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n&gt; Ship it.&quot;
@@ -195,7 +195,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">markdown</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">---
 path: /guide/install
@@ -224,7 +224,7 @@ Then `wf init my-site`.</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component DocsShell {
     slot
@@ -338,7 +338,7 @@ Then `wf init my-site`.</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{
   &quot;meta&quot;: {
@@ -371,7 +371,7 @@ Then `wf init my-site`.</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
 
@@ -404,7 +404,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Snippets(path: &quot;/&quot;) {
     Text(&quot;Run &quot;)  Code(&quot;wf serve&quot;)  Text(&quot; to start.&quot;)
@@ -418,7 +418,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Media(path: &quot;/&quot;) {
     Image(src: &quot;/hero.jpg&quot;, alt: &quot;The team at the launch&quot;, width: 1200, height: 630)
@@ -440,7 +440,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">image hero = &quot;hero.jpg&quot;
 
@@ -466,7 +466,7 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The f
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;media&quot;: {
     &quot;formats&quot;: [&quot;webp&quot;],
@@ -491,7 +491,7 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The f
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#the-markdown-element">The Markdown element</a>

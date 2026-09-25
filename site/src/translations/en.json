@@ -109,7 +109,6 @@
   "hero.serve": "wf serve · localhost:3000",
   "footer.builtins": "Built-in components",
   "footer.diagnostics": "Diagnostics",
-  "ref.chapter": "Chapter 20",
   "ref.index": "Components",
   "ref.filter": "Filter {count} built-ins",
   "ref.intro": "{count} built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written `Name(positional, prop: value).flag { block }`.",
@@ -136,5 +135,6 @@
   "ref.events": "Events",
   "ref.icons": "Icons",
   "ref.icons.body": "The names Icon(…), IconButton(icon:) and Sidebar.Item(icon:) draw; any other name shows as the word, and the compiler warns.",
-  "ch.21": "Cookbook"
+  "ch.21": "Cookbook",
+  "guide.chapter": "Chapter {n}"
 }

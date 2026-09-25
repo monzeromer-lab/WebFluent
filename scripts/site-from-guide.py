@@ -8,12 +8,16 @@ at `/docs/<route>` framed by `DocsShell`, with a `Heading` per `##`/`###`,
 for a pipe table. The guide is the source: rerun after it changes,
 `python3 scripts/site-from-guide.py`.
 """
+import os
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 GUIDE = ROOT / "md-docs"
-OUT = ROOT / "site" / "src" / "pages" / "guide"
+# `WF_GUIDE_OUT` and `WF_BIN` let `tests/docs_parse.rs` run this into a
+# scratch directory with the binary it just built, and hold the committed
+# pages to the result.
+OUT = Path(os.environ.get("WF_GUIDE_OUT") or ROOT / "site" / "src" / "pages" / "guide")
 REPO = "https://github.com/monzeromer-lab/WebFluent"
 
 # Chapter number → route, page name, nav group.
@@ -322,7 +326,7 @@ def convert(num: str, md: str):
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{num}-{{slug}}.md by',
         "/// scripts/site-from-guide.py; edit the guide, not this file.",
-        f'page {page_name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: "Chapter {n}", blurb: "{wf_string(blurb)}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {page_name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("guide.chapter", {{ n: "{n}" }}), blurb: "{wf_string(blurb)}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
@@ -345,17 +349,17 @@ def main():
     for num, (f, (header, body, prev_num, next_num)) in converted.items():
         prevnext = ""
         if prev_num:
-            prevnext += f', prevTo: "/docs/{CHAPTERS[prev_num][0]}", prevLabel: "{int(prev_num)}. {wf_string(TITLES[prev_num])}"'
+            prevnext += f', prevTo: "/docs/{CHAPTERS[prev_num][0]}", prevLabel: "{int(prev_num)}. {{t("ch.{prev_num}")}}"'
         if next_num:
-            prevnext += f', nextTo: "/docs/{CHAPTERS[next_num][0]}", nextLabel: "{int(next_num)}. {wf_string(TITLES[next_num])}"'
+            prevnext += f', nextTo: "/docs/{CHAPTERS[next_num][0]}", nextLabel: "{int(next_num)}. {{t("ch.{next_num}")}}"'
         header[0] = header[0].replace("{slug}", f.name[3:-3])
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
         (OUT / f"{f.name[:-3]}.wf").write_text(text)
-    print(f"wrote {len(converted)} chapters to {OUT.relative_to(ROOT)}")
+    print(f"wrote {len(converted)} chapters to {OUT}")
     # The site's files are held to the formatter by tests/fmt_corpus.rs.
     import subprocess
-    wf = ROOT / "target" / "debug" / "wf"
+    wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
     subprocess.run([str(wf) if wf.exists() else "wf", "fmt", str(OUT)], check=False)
 
 

@@ -595,3 +595,67 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
         }
     }
 }
+
+/// The guide's pages on the site are generated from `md-docs/` by
+/// `scripts/site-from-guide.py`, and nothing held the committed pages to what
+/// the script would write. They fell behind: the documentation audit added
+/// five rows to the design-token table in `md-docs/12-styling.md`, and the
+/// published Styling chapter never got them.
+///
+/// This runs the script into a scratch directory, formatted by the binary
+/// this test run just built, and compares.
+#[test]
+fn the_sites_guide_pages_are_current_with_the_guide() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    if std::process::Command::new("python3")
+        .arg("--version")
+        .output()
+        .is_err()
+    {
+        eprintln!("skipped: the generator needs python3");
+        return;
+    }
+    let out = std::env::temp_dir().join(format!("wf-guide-fresh-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&out);
+    let run = std::process::Command::new("python3")
+        .arg(root.join("scripts/site-from-guide.py"))
+        .env("WF_GUIDE_OUT", &out)
+        .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
+        .output()
+        .expect("run the generator");
+    assert!(
+        run.status.success(),
+        "the generator failed: {}",
+        String::from_utf8_lossy(&run.stderr)
+    );
+
+    let committed = root.join("site/src/pages/guide");
+    let names = |dir: &Path| {
+        let mut v: Vec<String> = std::fs::read_dir(dir)
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .map(|e| e.file_name().to_string_lossy().to_string())
+            .filter(|n| n.ends_with(".wf"))
+            .collect();
+        v.sort();
+        v
+    };
+    assert_eq!(
+        names(&committed),
+        names(&out),
+        "the site's guide pages are not the set md-docs/ generates"
+    );
+    let mut stale = Vec::new();
+    for name in names(&out) {
+        let want = std::fs::read_to_string(out.join(&name)).unwrap();
+        let have = std::fs::read_to_string(committed.join(&name)).unwrap();
+        if want != have {
+            stale.push(name);
+        }
+    }
+    let _ = std::fs::remove_dir_all(&out);
+    assert!(
+        stale.is_empty(),
+        "these pages are behind md-docs/; run `python3 scripts/site-from-guide.py`: {stale:?}"
+    );
+}
