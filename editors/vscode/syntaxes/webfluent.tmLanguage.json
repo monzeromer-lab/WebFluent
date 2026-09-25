@@ -89,6 +89,79 @@
     "strings": {
       "patterns": [
         {
+          "name": "string.quoted.raw.webfluent",
+          "begin": "(#+)\"",
+          "end": "\"\\1",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.webfluent"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.webfluent"
+            }
+          }
+        },
+        {
+          "name": "string.quoted.triple.webfluent",
+          "begin": "\"\"\"",
+          "end": "\"\"\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.webfluent"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.webfluent"
+            }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.escape.webfluent",
+              "match": "\\\\."
+            },
+            {
+              "name": "meta.interpolation.webfluent",
+              "begin": "\\{",
+              "end": "\\}",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.interpolation.begin.webfluent"
+                }
+              },
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.section.interpolation.end.webfluent"
+                }
+              },
+              "contentName": "meta.embedded.expression.webfluent",
+              "patterns": [
+                {
+                  "include": "#strings"
+                },
+                {
+                  "include": "#operators"
+                },
+                {
+                  "include": "#numbers"
+                },
+                {
+                  "include": "#boolean-null"
+                },
+                {
+                  "include": "#function-calls"
+                },
+                {
+                  "name": "variable.other.readwrite.webfluent",
+                  "match": "[a-zA-Z_][a-zA-Z0-9_.]*"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "string.quoted.double.webfluent",
           "begin": "\"",
           "end": "\"",
@@ -124,6 +197,9 @@
               "contentName": "meta.embedded.expression.webfluent",
               "patterns": [
                 {
+                  "include": "#strings"
+                },
+                {
                   "include": "#operators"
                 },
                 {
@@ -148,6 +224,22 @@
     "numbers": {
       "patterns": [
         {
+          "name": "constant.other.date.webfluent",
+          "match": "@[0-9]{4}-[0-9]{2}-[0-9]{2}(?:T[0-9]{2}:[0-9]{2}(?::[0-9]{2})?(?:Z|[+-][0-9]{2}:[0-9]{2})?)?"
+        },
+        {
+          "name": "constant.other.time.webfluent",
+          "match": "@[0-9]{2}:[0-9]{2}\\b"
+        },
+        {
+          "name": "constant.numeric.money.webfluent",
+          "match": "[$€£¥][0-9]+(?:\\.[0-9]+)?\\b"
+        },
+        {
+          "name": "constant.numeric.duration.webfluent",
+          "match": "\\b[0-9]+(?:\\.[0-9]+)?\\.(?:ms|seconds|minutes|hours|days|weeks)\\b"
+        },
+        {
           "name": "constant.numeric.float.webfluent",
           "match": "\\b[0-9]+\\.[0-9]+\\b"
         },
@@ -160,7 +252,7 @@
     "declarations": {
       "patterns": [
         {
-          "match": "\\b(page|component|store|theme|type|enum)\\b\\s+([A-Z][a-zA-Z0-9]*)",
+          "match": "\\b(page|component|store|theme|type|enum|api|animation|part)\\b\\s+([A-Z][a-zA-Z0-9]*)",
           "captures": {
             "1": {
               "name": "keyword.declaration.webfluent"
@@ -173,6 +265,21 @@
         {
           "match": "\\b(app)\\b(?=\\s*\\{)",
           "name": "keyword.declaration.webfluent"
+        },
+        {
+          "match": "(?<!\\.)\\b(const|image|data|socket|stream|channel|persist|validate)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.webfluent"
+            },
+            "2": {
+              "name": "variable.other.declaration.webfluent"
+            }
+          }
+        },
+        {
+          "name": "keyword.declaration.test.webfluent",
+          "match": "\\b(test)\\b(?=\\s*\")"
         }
       ]
     },
@@ -233,6 +340,37 @@
         {
           "name": "keyword.other.webfluent",
           "match": "\\b(use|effect|return|children|await|navigate|log)\\b"
+        },
+        {
+          "name": "keyword.other.webfluent",
+          "match": "(?<!\\.)\\b(every|after)\\b(?=\\s*\\()"
+        },
+        {
+          "name": "keyword.other.webfluent",
+          "match": "\\b(cleanup|head|sequence)\\b(?=\\s*\\{)"
+        },
+        {
+          "name": "keyword.other.webfluent",
+          "match": "\\b(step)\\b(?=\\s*[({])"
+        },
+        {
+          "name": "keyword.other.webfluent",
+          "match": "\\b(migrate)\\b(?=\\s+[0-9])"
+        },
+        {
+          "match": "\\b(expect)\\b(?:\\s+(not)\\b)?(?=\\s*\")",
+          "captures": {
+            "1": {
+              "name": "keyword.other.test.webfluent"
+            },
+            "2": {
+              "name": "keyword.other.test.webfluent"
+            }
+          }
+        },
+        {
+          "name": "keyword.other.test.webfluent",
+          "match": "\\b(click|press|type|into)\\b(?=\\s+\")"
         }
       ]
     },
@@ -240,7 +378,7 @@
       "patterns": [
         {
           "name": "keyword.control.webfluent",
-          "match": "\\b(if|else|for|in|by|show|match|let)\\b"
+          "match": "\\b(if|else|for|in|by|show|match|let|try|catch)\\b"
         }
       ]
     },
@@ -319,7 +457,7 @@
       "patterns": [
         {
           "name": "support.type.webfluent",
-          "match": "\\b(String|Number|Bool|Map|Any)\\b"
+          "match": "\\b(String|Number|Bool|Map|Any|Date|Time|DateTime|Duration|Money|Url|Email|Color|Uuid|File|Secret)\\b"
         }
       ]
     },
@@ -360,7 +498,7 @@
       "patterns": [
         {
           "name": "support.class.component.webfluent",
-          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Link|Tabs|TabPage|Breadcrumb|Menu|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Icon|Carousel|Text|Heading|Code|Blockquote|Markdown|Document|Section|Paragraph|Header|Footer|PageBreak)\\b"
+          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Breadcrumb|Link|Menu|Tabs|TabPage|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Textarea|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Audio|Icon|Carousel|Text|Heading|Code|Blockquote|Markdown|Host|Unsafe|Document|Section|Paragraph|PageBreak|Header|Footer|Presentation|Slide|TitleSlide|SectionSlide|TwoColumn|ImageSlide|Router|Route)\\b"
         }
       ]
     },
