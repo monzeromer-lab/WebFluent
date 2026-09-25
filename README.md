@@ -47,6 +47,7 @@ curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/inst
 <sub>**Windows:** `irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex` · **With Rust** (everywhere Rust runs, and the way to install on Linux arm64): `cargo install webfluent` · A `.deb`, `.msi` and tarballs are attached to each [release](https://github.com/monzeromer-lab/WebFluent/releases).</sub>
 
 ```bash
+wf --version
 wf init my-app        # -t spa (default) · static · pdf · slides
 cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
@@ -192,6 +193,13 @@ wf migrate [path] [--check] [--wfx]         WebFluent 2 or 3 → 4
 ```
 
 The compiler is Rust. The generated JavaScript is a small signal-based runtime with no dependencies. PDF output is written byte by byte with Base14 font metrics.
+
+To build the compiler from a clone — for an unreleased change, or to work on it:
+
+```bash
+git clone https://github.com/monzeromer-lab/WebFluent.git
+cd WebFluent && cargo install --path .
+```
 
 Contributions welcome — see [the spec](spec/SPEC.md) for what the language promises.
 
