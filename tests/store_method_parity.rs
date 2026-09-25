@@ -153,7 +153,9 @@ fn the_two_emitters_map_the_same_methods() {
 
     for (call, name, init) in cases {
         let in_store = store_js(
-            &format!("    state {name} = {init}\n    state probe = \"\"\n    action go() {{ {call} }}"),
+            &format!(
+                "    state {name} = {init}\n    state probe = \"\"\n    action go() {{ {call} }}"
+            ),
             "S.go()",
         );
         let in_page = spa_generated(&format!(

@@ -1026,12 +1026,10 @@ impl JsCodegen {
                 // a mutating method assigns back through it.
                 let holder = match obj.as_ref() {
                     Expr::Identifier(n) if store_states.contains(n) => Holder::StoreMember,
-                    Expr::PropertyAccess(base, _) => {
-                        match base.as_ref() {
-                            Expr::Identifier(s) if self.stores.contains(s) => Holder::StoreMember,
-                            _ => Holder::Plain,
-                        }
-                    }
+                    Expr::PropertyAccess(base, _) => match base.as_ref() {
+                        Expr::Identifier(s) if self.stores.contains(s) => Holder::StoreMember,
+                        _ => Holder::Plain,
+                    },
                     _ => Holder::Plain,
                 };
                 method_to_js(method, &obj_str, &args_str, holder)
@@ -5956,9 +5954,7 @@ pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) ->
         // money's, a URL's parts, a colour's mixing. Each is a plain JSON
         // value at run time, so the work is the runtime's, never a method
         // on the value.
-        m if scalar_method(m).is_some() => {
-            with_obj(scalar_method(m).expect("just checked"))
-        }
+        m if scalar_method(m).is_some() => with_obj(scalar_method(m).expect("just checked")),
         // The helpers the runtime adds to lists and strings.
         "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize" | "truncate"
         | "dedent" | "lines" | "words" => with_obj(method),

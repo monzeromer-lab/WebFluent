@@ -551,7 +551,10 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
         })
         .collect();
     chapters.sort();
-    assert!(chapters.len() > 15, "expected the whole guide, got {chapters:?}");
+    assert!(
+        chapters.len() > 15,
+        "expected the whole guide, got {chapters:?}"
+    );
 
     let sidebar = std::fs::read_to_string(root.join("site/src/components/DocSidebar.wf"))
         .expect("DocSidebar.wf");
@@ -581,10 +584,9 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
 
     // Both locales have to carry every title, or the rail is blank in one.
     for locale in ["en", "ar"] {
-        let table = std::fs::read_to_string(
-            root.join(format!("site/src/translations/{locale}.json")),
-        )
-        .expect("translations");
+        let table =
+            std::fs::read_to_string(root.join(format!("site/src/translations/{locale}.json")))
+                .expect("translations");
         for (num, stem) in &chapters {
             assert!(
                 table.contains(&format!("\"ch.{num}\"")),
