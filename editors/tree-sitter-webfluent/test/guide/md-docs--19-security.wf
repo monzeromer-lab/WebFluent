@@ -1,4 +1,4 @@
-// md-docs/19-security.md:54
+// md-docs/19-security.md
 page Post(path: "/p/:slug", title: "Post", slug: String) {
     resource post = Backend.post(slug: slug)
     match post {
@@ -7,7 +7,7 @@ page Post(path: "/p/:slug", title: "Post", slug: String) {
     }
 }
 
-// md-docs/19-security.md:100
+// md-docs/19-security.md
 api Backend(base: "/api/v1") {
     credentials: .sameOrigin      // the cookie goes with every call
     get me() -> User

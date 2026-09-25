@@ -1,4 +1,4 @@
-// md-docs/15-i18n.md:57
+// md-docs/15-i18n.md
 type User { name: String }
 page Home(path: "/", title: "Home", description: "The home page.") {
     state user = User(name: "Sam")
@@ -8,7 +8,7 @@ page Home(path: "/", title: "Home", description: "The home page.") {
     Button(t("actions.save")).primary
 }
 
-// md-docs/15-i18n.md:81
+// md-docs/15-i18n.md
 app {
     state chosen = "en"
     Navbar {

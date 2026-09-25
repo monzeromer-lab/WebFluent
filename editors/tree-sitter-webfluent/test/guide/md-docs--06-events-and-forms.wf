@@ -1,4 +1,4 @@
-// md-docs/06-events-and-forms.md:9
+// md-docs/06-events-and-forms.md
 page Clicks(path: "/") {
     state n = 0
     state last = ""
@@ -12,7 +12,7 @@ page Clicks(path: "/") {
     Text("{n}")
 }
 
-// md-docs/06-events-and-forms.md:38
+// md-docs/06-events-and-forms.md
 page Keys(path: "/") {
     state open = false
     state q = ""
@@ -26,7 +26,7 @@ page Keys(path: "/") {
     if open { Alert("Shortcuts: ctrl+k to search, ? for this.").info }
 }
 
-// md-docs/06-events-and-forms.md:65
+// md-docs/06-events-and-forms.md
 page Signup(path: "/") {
     state name = ""
     state email = ""
@@ -50,7 +50,7 @@ page Signup(path: "/") {
     Text("{name} <{email}> wants {seats} {plan} seats from {when}")
 }
 
-// md-docs/06-events-and-forms.md:104
+// md-docs/06-events-and-forms.md
 page Contact(path: "/") {
     state name = ""
     state email = ""
@@ -74,7 +74,7 @@ page Contact(path: "/") {
     if sent { Alert("Thanks — we will be in touch.").success }
 }
 
-// md-docs/06-events-and-forms.md:153
+// md-docs/06-events-and-forms.md
 page Signup(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
@@ -103,13 +103,13 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     }
 }
 
-// md-docs/06-events-and-forms.md:217
+// md-docs/06-events-and-forms.md
 page Doc(path: "/") {
     state nights: Number(1..=30) = 2
     validate nights { required }
 }
 
-// md-docs/06-events-and-forms.md:227
+// md-docs/06-events-and-forms.md
 page Doc(path: "/") {
     action signUp() {
         try {
@@ -120,7 +120,7 @@ page Doc(path: "/") {
     }
 }
 
-// md-docs/06-events-and-forms.md:245
+// md-docs/06-events-and-forms.md
 store Api {
     state saved = 0
     action save(payload: Map) {
@@ -137,7 +137,7 @@ page Save(path: "/") {
     Text("Saved {Api.saved} times")
 }
 
-// md-docs/06-events-and-forms.md:270
+// md-docs/06-events-and-forms.md
 component Counter(_ start: Number) {
     event change(value: Number)
     state n = start
@@ -153,7 +153,7 @@ page Use(path: "/") {
     Text("Now {total}")
 }
 
-// md-docs/06-events-and-forms.md:294
+// md-docs/06-events-and-forms.md
 page ThemePicker(path: "/") {
     Row(gap: .sm) {
         Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
@@ -162,7 +162,7 @@ page ThemePicker(path: "/") {
     }
 }
 
-// md-docs/06-events-and-forms.md:306
+// md-docs/06-events-and-forms.md
 page Overlays(path: "/") {
     state confirm = false
     state deleted = false

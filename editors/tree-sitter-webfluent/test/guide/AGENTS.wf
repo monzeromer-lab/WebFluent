@@ -1,4 +1,4 @@
-// AGENTS.md:78
+// AGENTS.md
 test "greets by name" {
     Greeting("Sam")
     expect "Hello, Sam"
@@ -22,7 +22,7 @@ test "reporting an incident opens one more" {
     expect "3 open"
 }
 
-// AGENTS.md:144
+// AGENTS.md
 page Home(path: "/", title: "Home") {
     state count = 0
 
@@ -33,7 +33,7 @@ page Home(path: "/", title: "Home") {
     }
 }
 
-// AGENTS.md:195
+// AGENTS.md
 /// A person, at a glance.
 component UserCard(_ name: String, role: String, active: Bool = true) {
     Card.elevated {
@@ -55,7 +55,7 @@ page Doc(path: "/") {
     UserCard("Sam", role: "Designer").active
 }
 
-// AGENTS.md:235
+// AGENTS.md
 component Panel(_ title: String) {
     slot trailing
     Card {
@@ -71,7 +71,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:258
+// AGENTS.md
 component Rows(items: [Todo]) {
     slot row(item: Todo, index: Number)
     for it, i in items by it.id { row(item: it, index: i) }
@@ -80,7 +80,7 @@ page Doc(path: "/") {
     Rows(items: todos) { row(t, i) { Text("{i}: {t.title}") } }
 }
 
-// AGENTS.md:291
+// AGENTS.md
 component TodoRow(_ label: String, done: Bool = false) {
     event toggle(id: String)
     Row {
@@ -92,7 +92,7 @@ page Doc(path: "/") {
     TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
 }
 
-// AGENTS.md:305
+// AGENTS.md
 enum Tone { calm, loud }
 type Todo { id: String, title: String, done: Bool = false, tone: Tone = .calm, note: String? = null }
 store Todos {
@@ -100,7 +100,7 @@ store Todos {
     action add(title: String) { items = items.concat([Todo(id: uuid(), title: title)]) }
 }
 
-// AGENTS.md:341
+// AGENTS.md
 type Booking {
     id: Uuid
     guest: Email
@@ -115,14 +115,14 @@ page Doc(path: "/") {
     Text("Due {format(total)} on {checkout:.date(long)}")
 }
 
-// AGENTS.md:368
+// AGENTS.md
 page Doc(path: "/") {
     state nights: Number(1..=30) = 12
     state pass: String(minLength: 8) = "correcthorse"
     state start: Date(after: @2026-01-01) = @2026-03-14
 }
 
-// AGENTS.md:415
+// AGENTS.md
 const API = "/api/v1"
 const PAGE_SIZE: Number = 20
 page Doc(path: "/") {
@@ -130,7 +130,7 @@ page Doc(path: "/") {
     Text(env.PUBLIC_APP_NAME)
 }
 
-// AGENTS.md:434
+// AGENTS.md
 page Home(path: "/", title: "Home") {
     Image(hero, alt: "The team at the launch",
           sizes: "(max-width: 768px) 100vw, 1200px",
@@ -143,14 +143,14 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:476
+// AGENTS.md
 data posts = "posts.json"
 page Post(path: "/p/:slug", title: "Post", slug: String, paths: posts.map(p => p.slug)) {
     derived post = posts.find(p => p.slug == slug)
     Heading(post?.title ?? "?").h1
 }
 
-// AGENTS.md:532
+// AGENTS.md
 app {
     Navbar {
         Navbar.Brand { Link("Ledger", to: "/") }
@@ -162,7 +162,7 @@ page Doc(path: "/") {
     // Simple: Router at top level
 }
 
-// AGENTS.md:543
+// AGENTS.md
 app {
     Row {
         style { min-height: 100vh }
@@ -195,7 +195,7 @@ page Doc(path: "/") {
     // Sidebar layout: Router nested inside Row > Container
 }
 
-// AGENTS.md:594
+// AGENTS.md
 store CartStore {
     state items = []
     state total = 0
@@ -227,7 +227,7 @@ page Doc(path: "/") {
     // Usage in any page/component:
 }
 
-// AGENTS.md:628
+// AGENTS.md
 page Doc(path: "/") {
     state count = 0                      // Signal — reactive variable
     state draft: String = ""             // with a declared type
@@ -235,7 +235,7 @@ page Doc(path: "/") {
     effect { log(count) }                // Side effect — runs on change
 }
 
-// AGENTS.md:663
+// AGENTS.md
 page Doc(path: "/") {
     Button("Click") {
         on click { doSomething() }
@@ -251,7 +251,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:702
+// AGENTS.md
 page Signup(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
@@ -279,7 +279,7 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     }
 }
 
-// AGENTS.md:748
+// AGENTS.md
 store AuthStore {
     state accessToken = ""
 
@@ -295,7 +295,7 @@ store AuthStore {
     }
 }
 
-// AGENTS.md:770
+// AGENTS.md
 page Doc(path: "/") {
     action sync() {
         try {
@@ -310,7 +310,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:788
+// AGENTS.md
 page Doc(path: "/") {
     action doc() {
         // Storage
@@ -337,7 +337,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:822
+// AGENTS.md
 page Doc(path: "/") {
     derived open = incidents.filter(i => !i.resolved)
     derived byAge = rows.slice().sort((a, b) => a.age - b.age)
@@ -354,7 +354,7 @@ page Doc(path: "/") {
     derived short = description.truncate(80)
 }
 
-// AGENTS.md:848
+// AGENTS.md
 page Doc(path: "/") {
     Text(format(price, .currency))                 // $1,234.50 — the page's locale
     Text(format(price, .currency, "EUR"))          // €1,234.50
@@ -366,7 +366,7 @@ page Doc(path: "/") {
     Text(ago(when))                                // 3 minutes ago · yesterday · in 2 weeks
 }
 
-// AGENTS.md:871
+// AGENTS.md
 page Doc(path: "/") {
     // Conditional
     if isLoggedIn {
@@ -402,7 +402,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:908
+// AGENTS.md
 page Doc(path: "/") {
     resource users = fetch("/api/users")
     match users {
@@ -416,7 +416,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:928
+// AGENTS.md
 page Doc(path: "/") {
     resource data = fetch("/api/users", method: "POST",
         headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
@@ -427,7 +427,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:946
+// AGENTS.md
 type User { id: String, name: String }
 api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     timeout: 10.seconds
@@ -447,10 +447,10 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     post   avatar(id: String, file: File) at "users/:id/avatar" -> Url
 }
 
-// AGENTS.md:971
+// AGENTS.md
 api Backend from "openapi.json" (base: env.PUBLIC_API)
 
-// AGENTS.md:981
+// AGENTS.md
 page Doc(path: "/") {
     resource users = Backend.users(page: n, cache: .swr(60.seconds), on: .focus)
 
@@ -468,7 +468,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1022
+// AGENTS.md
 page Doc(path: "/") {
     socket chat = ws("wss://example.com/chat", protocols: ["v2"], heartbeat: 20.seconds) {
         send    Outgoing                  // typed both ways
@@ -493,7 +493,7 @@ page Doc(path: "/") {
     beacon("/analytics", { event: "checkout", value: total })   // survives unload
 }
 
-// AGENTS.md:1069
+// AGENTS.md
 page Doc(path: "/") {
     action rename(id: String, name: String) {
         optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
@@ -502,7 +502,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1102
+// AGENTS.md
 page Doc(path: "/") {
     Host(tag: "canvas",                            // div · span · canvas · svg · section · figure · pre · p · ul · table
          mount: (node) => Chart.Chart(node, config),
@@ -510,18 +510,18 @@ page Doc(path: "/") {
          cleanup: (chart) => chart.destroy())      // when its page, branch or item leaves
 }
 
-// AGENTS.md:1112
+// AGENTS.md
 page Doc(path: "/") {
     Stripe(publishableKey: key) { on ready { loaded = true } }
 }
 
-// AGENTS.md:1134
+// AGENTS.md
 page Doc(path: "/") {
     navigate("/path")                    // Programmatic
     Link("About", to: "/about")          // Declarative
 }
 
-// AGENTS.md:1147
+// AGENTS.md
 type Todo { id: String, title: String }
 store Todos {
     state items: [Todo] = []
@@ -559,7 +559,7 @@ page Home(path: "/", title: "Todos") {
     Button("Add").primary { on click { Todos.add(draft) } }
 }
 
-// AGENTS.md:1311
+// AGENTS.md
 page Doc(path: "/") {
     Sidebar {
         Sidebar.Header { Text("My App").heading }
@@ -570,7 +570,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1330
+// AGENTS.md
 page Doc(path: "/") {
     Breadcrumb {
         Breadcrumb.Item(to: "/") { Text("Home") }
@@ -579,27 +579,27 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1344
+// AGENTS.md
 page Doc(path: "/") {
     Tooltip("Click to save") {
         Button("Save").primary
     }
 }
 
-// AGENTS.md:1354
+// AGENTS.md
 page Doc(path: "/") {
     Avatar(src: "/photo.jpg", alt: "User")
     Avatar(initials: "MO").primary
     Avatar(initials: "J").lg
 }
 
-// AGENTS.md:1366
+// AGENTS.md
 page Doc(path: "/") {
     Skeleton(height: "20px", width: "200px")
     Skeleton(size: "48px").circle
 }
 
-// AGENTS.md:1377
+// AGENTS.md
 page Doc(path: "/") {
     Carousel(autoplay: true, interval: 5000) {
         Carousel.Slide { Image(src: "/1.jpg", alt: "Slide 1") }
@@ -607,24 +607,24 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1388
+// AGENTS.md
 page Doc(path: "/") {
     IconButton(icon: "close", label: "Close")
     IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }
     IconButton(icon: "menu", label: "Actions", aria-haspopup: "menu", aria-expanded: open) { on click { toggleMenu() } }
 }
 
-// AGENTS.md:1400
+// AGENTS.md
 page Doc(path: "/") {
     Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")
 }
 
-// AGENTS.md:1408
+// AGENTS.md
 page Doc(path: "/") {
     DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")
 }
 
-// AGENTS.md:1416
+// AGENTS.md
 page Doc(path: "/") {
     FileUpload(accept: "image/*", label: "Upload Photo") {
         on change(event) { handleFile(event) }
@@ -632,7 +632,7 @@ page Doc(path: "/") {
     FileUpload(accept: ".pdf,.doc", label: "Documents").multiple
 }
 
-// AGENTS.md:1431
+// AGENTS.md
 page Doc(path: "/") {
     Icon("home")
     Icon("search").lg.primary
@@ -640,7 +640,7 @@ page Doc(path: "/") {
     Sidebar.Item(to: "/", icon: "home") { Text("Home") }
 }
 
-// AGENTS.md:1561
+// AGENTS.md
 page Doc(path: "/") {
     Card {
         style {
@@ -653,7 +653,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1625
+// AGENTS.md
 page Doc(path: "/") {
     Heading("Title").h1 {
         style {
@@ -663,7 +663,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1655
+// AGENTS.md
 page Doc(path: "/") {
     Sidebar {
         style {
@@ -687,7 +687,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1689
+// AGENTS.md
 page Doc(path: "/") {
     Button("Publish changes") {
         style {
@@ -707,7 +707,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1724
+// AGENTS.md
 page Doc(path: "/") {
     Button(label) {
         style {
@@ -717,7 +717,7 @@ page Doc(path: "/") {
     }
 }
 
-// AGENTS.md:1781
+// AGENTS.md
 theme Brand {
     color-primary: #3B82F6
     color-secondary: #8B5CF6
@@ -725,15 +725,15 @@ theme Brand {
     radius-md: 0.5rem
 }
 
-// AGENTS.md:1807
+// AGENTS.md
 theme Night { color-background: #0B1220  color-text: #E5E7EB  color-surface: #111827 }
 
-// AGENTS.md:2002
+// AGENTS.md
 page Doc(path: "/") {
     Unsafe.Html(sanitize(post.body))     // markup from outside the project
 }
 
-// AGENTS.md:2072
+// AGENTS.md
 page Doc(path: "/") {
     Text(t("nav.home"))                    // Translated text
     Text(t("greeting", { name: user.name }))          // With interpolation
@@ -742,7 +742,7 @@ page Doc(path: "/") {
     Button("AR") { on click { setLocale("ar") } }     // Auto-RTL for Arabic
 }
 
-// AGENTS.md:2138
+// AGENTS.md
 page Report(path: "/", title: "Report") {
     Document(page_size: "A4") {
         Header {
@@ -770,7 +770,7 @@ page Report(path: "/", title: "Report") {
     }
 }
 
-// AGENTS.md:2233
+// AGENTS.md
 page Deck(path: "/", title: "Q1 Review") {
     Presentation {
         TitleSlide("Q1 Review", subtitle: "Company Inc. — March 2026")
@@ -806,7 +806,7 @@ page Deck(path: "/", title: "Q1 Review") {
     }
 }
 
-// AGENTS.md:2276
+// AGENTS.md
 const SAMPLE = #"page Home(path: "/") { state n = 0 }"#
 const TRICKY = ##"a raw string ends with "# — like that"##
 const LETTER = """
@@ -822,14 +822,14 @@ page Doc(path: "/") {
     // the text was indented, and that much comes off every line.
 }
 
-// AGENTS.md:2295
+// AGENTS.md
 page Doc(path: "/") {
     Text("Total: {total:.currency}")          // Total: $1,234.50
     Text("{count:.integer} items")            // 1,235 items
     Text("Shipped {when:.date(long)}")        // Shipped March 5, 2026
 }
 
-// AGENTS.md:2532
+// AGENTS.md
 page Invoice(path: "/", title: "Invoice") {
     Container {
         Heading("Invoice #{number}").h1

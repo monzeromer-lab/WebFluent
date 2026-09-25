@@ -1,4 +1,4 @@
-// md-docs/18-tooling.md:274
+// md-docs/18-tooling.md
 component PriceTag(_ amount: Number, sale: Bool = false) {
     Row(gap: .sm, align: .center) {
         Text(format(amount, .currency)).bold
@@ -20,7 +20,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
     expect "b"
 }
 
-// md-docs/18-tooling.md:318
+// md-docs/18-tooling.md
 test "reporting an incident opens one more" {
     use IncidentStore
     state draft = ""

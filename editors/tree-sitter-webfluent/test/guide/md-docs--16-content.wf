@@ -1,11 +1,11 @@
-// md-docs/16-content.md:13
+// md-docs/16-content.md
 page Notes(path: "/") {
     state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
     Markdown(body)
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }
 
-// md-docs/16-content.md:59
+// md-docs/16-content.md
 component DocsShell {
     slot
     Row(gap: .lg) {
@@ -17,7 +17,7 @@ component DocsShell {
     }
 }
 
-// md-docs/16-content.md:142
+// md-docs/16-content.md
 type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
 data posts: [Post] = "posts.json"
 page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.map(p => p.slug)) {
@@ -35,14 +35,14 @@ page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.
     }
 }
 
-// md-docs/16-content.md:175
+// md-docs/16-content.md
 page Snippets(path: "/") {
     Text("Run ")  Code("wf serve")  Text(" to start.")
     Code("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf").block
     Code("$ wf build", language: "bash").block
 }
 
-// md-docs/16-content.md:185
+// md-docs/16-content.md
 page Media(path: "/") {
     Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)
     Image(src: "/deco.png", alt: "")
@@ -50,7 +50,7 @@ page Media(path: "/") {
     Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
 }
 
-// md-docs/16-content.md:207
+// md-docs/16-content.md
 page Home(path: "/", title: "Home", description: "The front page.") {
     Image(hero, alt: "The team at the launch",
           sizes: "(max-width: 768px) 100vw, 1200px",

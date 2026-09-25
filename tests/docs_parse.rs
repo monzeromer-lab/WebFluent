@@ -707,7 +707,7 @@ fn corpus_for(path: &str, stop: Option<&str>) -> (String, String) {
     };
     let mut wf = String::new();
     let mut wfx = String::new();
-    for (line, block, indented) in wf_blocks(&markdown) {
+    for (_, block, indented) in wf_blocks(&markdown) {
         if abbreviates(&block) {
             continue;
         }
@@ -738,9 +738,11 @@ fn corpus_for(path: &str, stop: Option<&str>) -> (String, String) {
         } else {
             continue;
         };
-        wf.push_str(&format!("// {path}:{line}\n{accepted}\n"));
+        // By document, not line: a line number would move with every edit
+        // above the block, and the corpus would go stale with no code changed.
+        wf.push_str(&format!("// {path}\n{accepted}\n"));
         if indented && loose.trim().is_empty() {
-            wfx.push_str(&format!("// {path}:{line}\n{}\n", block.trim_end()));
+            wfx.push_str(&format!("// {path}\n{}\n", block.trim_end()));
         }
     }
     (wf, wfx)

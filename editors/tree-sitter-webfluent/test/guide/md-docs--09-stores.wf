@@ -1,4 +1,4 @@
-// md-docs/09-stores.md:16
+// md-docs/09-stores.md
 type Item { id: String, name: String, price: Number, qty: Number = 1 }
 store Cart {
     state items: [Item] = []
@@ -21,7 +21,7 @@ store Cart {
     action clear() { items = [] }
 }
 
-// md-docs/09-stores.md:71
+// md-docs/09-stores.md
 type Item { id: String, name: String, price: Number, qty: Number = 1 }
 store Cart {
     state items: [Item] = []
@@ -46,7 +46,7 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
     if Cart.count == 0 { Text("Your cart is empty.").muted }
 }
 
-// md-docs/09-stores.md:109
+// md-docs/09-stores.md
 store Session {
     state user: Map? = null
     state error = ""
@@ -80,7 +80,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     if Session.error != "" { Alert(Session.error).danger }
 }
 
-// md-docs/09-stores.md:154
+// md-docs/09-stores.md
 store Prefs {
     persist theme = "system"
     persist density = "comfortable"
@@ -90,7 +90,7 @@ store Prefs {
     }
 }
 
-// md-docs/09-stores.md:171
+// md-docs/09-stores.md
 store Cart {
     persist items: [Item] = [] {
         in: .local          // .local (default, across visits) · .session (this tab)
@@ -100,7 +100,7 @@ store Cart {
     }
 }
 
-// md-docs/09-stores.md:206
+// md-docs/09-stores.md
 store Deploys {
     state rows: [Map] = []
     state loaded = false
@@ -118,7 +118,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
     for d in Deploys.rows by d.id { Text("{d.id}: {d.status}") }
 }
 
-// md-docs/09-stores.md:255
+// md-docs/09-stores.md
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
     CartSummary()
     expect "2 items"

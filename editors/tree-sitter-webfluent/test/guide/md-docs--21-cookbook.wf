@@ -1,4 +1,4 @@
-// md-docs/21-cookbook.md:13
+// md-docs/21-cookbook.md
 enum Filter { all, open, done }
 type Todo { id: Number, title: String, done: Bool = false, createdAt: String }
 store Todos {
@@ -90,7 +90,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
     if let id = lastEdited { Text("Editing #{id}").muted.sm }
 }
 
-// md-docs/21-cookbook.md:127
+// md-docs/21-cookbook.md
 theme Paper {
     color-primary: #7C3AED
     color-background: #FFFFFF
@@ -204,7 +204,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives here.",
     Link("Back home", to: "/")
 }
 
-// md-docs/21-cookbook.md:279
+// md-docs/21-cookbook.md
 type Deploy { id: String, service: String, status: String, startedAt: String, by: String }
 type Service { name: String, healthy: Bool, region: String }
 enum Sort { newest, service, status }
@@ -412,7 +412,7 @@ page Settings(path: "/settings", title: "Settings", description: "Your preferenc
     }
 }
 
-// md-docs/21-cookbook.md:515
+// md-docs/21-cookbook.md
 page Search(path: "/") {
     state typed = ""
     state q = ""
@@ -430,7 +430,7 @@ page Search(path: "/") {
     }
 }
 
-// md-docs/21-cookbook.md:541
+// md-docs/21-cookbook.md
 page Rows(path: "/") {
     state page = 1
     state perPage = 20
@@ -449,7 +449,7 @@ page Rows(path: "/") {
     }
 }
 
-// md-docs/21-cookbook.md:563
+// md-docs/21-cookbook.md
 type Item { id: String, liked: Bool }
 page Likes(path: "/") {
     state items: [Item] = [Item(id: "a", liked: false)]
@@ -470,7 +470,7 @@ page Likes(path: "/") {
     if error != "" { Toast(error).danger }
 }
 
-// md-docs/21-cookbook.md:588
+// md-docs/21-cookbook.md
 component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
     event cancel()
@@ -495,7 +495,7 @@ page Use(path: "/") {
     if gone { Alert("Account deleted.").info }
 }
 
-// md-docs/21-cookbook.md:617
+// md-docs/21-cookbook.md
 page Nav(path: "/") {
     state open = false
     if viewport.md {
@@ -516,7 +516,7 @@ page Nav(path: "/") {
     }
 }
 
-// md-docs/21-cookbook.md:641
+// md-docs/21-cookbook.md
 page Signup(path: "/") {
     state email = ""
     state password = ""
@@ -536,7 +536,7 @@ page Signup(path: "/") {
     if sent { Alert("Welcome aboard.").success }
 }
 
-// md-docs/21-cookbook.md:664
+// md-docs/21-cookbook.md
 page Account(path: "/account") {
     derived tab = if hash != "" { hash } else { "profile" }
     Row(gap: .sm) {
@@ -547,7 +547,7 @@ page Account(path: "/account") {
     if tab == "billing" { Text("Billing settings") }
 }
 
-// md-docs/21-cookbook.md:681
+// md-docs/21-cookbook.md
 store Cart { state count = 0 }
 component CartBadge(count: Number) {
     if count > 0 { Badge("{count}").primary }
@@ -557,7 +557,7 @@ page Shop(path: "/") {
     CartBadge(count: Cart.count)
 }
 
-// md-docs/21-cookbook.md:696
+// md-docs/21-cookbook.md
 page Countdown(path: "/") {
     state left = 10
     every(1000) { if left > 0 { left = left - 1 } }

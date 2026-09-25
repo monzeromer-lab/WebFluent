@@ -100,7 +100,7 @@
     /// Ask now for what will be wanted soon.
     call.prefetch = (args) => send(addressOf(args), optionsOf(args)).catch(() => null);
     /// Every line of a streamed response, as it arrives.
-    call.lines = (args) => lines(addressOf(args), optionsOf(args));
+    call.lines = (args) => streamLines(addressOf(args), optionsOf(args));
     return call;
   }
 

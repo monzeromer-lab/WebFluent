@@ -1,4 +1,4 @@
-// README.md:135
+// README.md
 page Home(path: "/", title: "Home")
     state count = 0
     Container

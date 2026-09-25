@@ -5881,6 +5881,22 @@ fn is_reactive_expr(expr_str: &str) -> bool {
 /// Routed by name, because the value carries its own kind at run time —
 /// and each function leaves a receiver that has a method of that name to
 /// answer for itself, so a record with its own `plus` is never taken over.
+/// The helpers the runtime adds to lists and strings, each a runtime function
+/// of the same name: `items.sortBy(f)` is `WF.sortBy(items, f)`.
+pub const LIST_AND_STRING_HELPERS: &[&str] = &[
+    "sortBy",
+    "groupBy",
+    "unique",
+    "take",
+    "first",
+    "last",
+    "capitalize",
+    "truncate",
+    "dedent",
+    "lines",
+    "words",
+];
+
 /// How the receiver of a method call is held, which decides whether a
 /// mutating method assigns back through a signal, through a store's setter,
 /// or mutates the value in place.
@@ -5956,56 +5972,66 @@ pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) ->
         // on the value.
         m if scalar_method(m).is_some() => with_obj(scalar_method(m).expect("just checked")),
         // The helpers the runtime adds to lists and strings.
-        "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize" | "truncate"
-        | "dedent" | "lines" | "words" => with_obj(method),
+        m if LIST_AND_STRING_HELPERS.contains(&m) => with_obj(m),
         _ => format!("{obj}.{method}({joined})"),
     }
 }
 
+/// What the language's own types can do — a date's arithmetic, money's, a
+/// URL's parts, a colour's mixing — each as the runtime function that does
+/// it. Each is a plain JSON value at run time, so the work is always the
+/// runtime's, never a method on the value. A list rather than a `match`, so
+/// `tests/build_and_runtime_agree.rs` can hold every one of them to the
+/// runtime and to the static paint.
+pub const SCALAR_METHODS: &[(&str, &str)] = &[
+    ("year", "year"),
+    ("month", "month"),
+    ("day", "day"),
+    ("weekday", "weekday"),
+    ("hour", "hour"),
+    ("minute", "minute"),
+    ("second", "second"),
+    ("native", "native"),
+    ("plus", "plus"),
+    ("minus", "minus"),
+    ("isBefore", "isBefore"),
+    ("isAfter", "isAfter"),
+    ("isSame", "isSame"),
+    ("until", "until"),
+    ("startOfDay", "startOfDay"),
+    ("startOfWeek", "startOfWeek"),
+    ("startOfMonth", "startOfMonth"),
+    ("endOfDay", "endOfDay"),
+    ("inZone", "inZone"),
+    ("days", "days"),
+    ("hours", "hours"),
+    ("minutes", "minutes"),
+    ("seconds", "seconds"),
+    ("ms", "ms"),
+    ("times", "times"),
+    ("convert", "convert"),
+    ("host", "host"),
+    ("path", "path"),
+    ("domain", "domain"),
+    ("mix", "mix"),
+    ("lighten", "lighten"),
+    ("darken", "darken"),
+    ("alpha", "alpha"),
+    ("contrast", "contrast"),
+    ("preview", "preview"),
+    // Named apart from the browser's own `query`, `date` and `time`.
+    ("date", "dateOf"),
+    ("time", "timeOf"),
+    ("query", "urlQuery"),
+    ("with", "urlWith"),
+];
+
+/// The runtime function a scalar method compiles to.
 pub fn scalar_method(name: &str) -> Option<&'static str> {
-    Some(match name {
-        "year" => "year",
-        "month" => "month",
-        "day" => "day",
-        "weekday" => "weekday",
-        "hour" => "hour",
-        "minute" => "minute",
-        "second" => "second",
-        "native" => "native",
-        "plus" => "plus",
-        "minus" => "minus",
-        "isBefore" => "isBefore",
-        "isAfter" => "isAfter",
-        "isSame" => "isSame",
-        "until" => "until",
-        "startOfDay" => "startOfDay",
-        "startOfWeek" => "startOfWeek",
-        "startOfMonth" => "startOfMonth",
-        "endOfDay" => "endOfDay",
-        "inZone" => "inZone",
-        "days" => "days",
-        "hours" => "hours",
-        "minutes" => "minutes",
-        "seconds" => "seconds",
-        "ms" => "ms",
-        "times" => "times",
-        "convert" => "convert",
-        "host" => "host",
-        "path" => "path",
-        "domain" => "domain",
-        "mix" => "mix",
-        "lighten" => "lighten",
-        "darken" => "darken",
-        "alpha" => "alpha",
-        "contrast" => "contrast",
-        "preview" => "preview",
-        // Named apart from the browser's own `query`, `date` and `time`.
-        "date" => "dateOf",
-        "time" => "timeOf",
-        "query" => "urlQuery",
-        "with" => "urlWith",
-        _ => return None,
-    })
+    SCALAR_METHODS
+        .iter()
+        .find(|(method, _)| *method == name)
+        .map(|(_, runtime)| *runtime)
 }
 
 /// Whether a body shows something before the server has agreed, which is

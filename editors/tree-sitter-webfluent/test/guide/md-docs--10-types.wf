@@ -1,4 +1,4 @@
-// md-docs/10-types.md:27
+// md-docs/10-types.md
 page Typed(path: "/") {
     state name: String = ""
     state count: Number = 0
@@ -11,7 +11,7 @@ page Typed(path: "/") {
     Button("Go") { on click { greet(name, count) } }
 }
 
-// md-docs/10-types.md:68
+// md-docs/10-types.md
 type Booking {
     id: Uuid
     guest: Email
@@ -34,13 +34,13 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
     if late { Alert("Checkout has passed").warning }
 }
 
-// md-docs/10-types.md:117
+// md-docs/10-types.md
 page Doc(path: "/") {
     state site: Url = "https://example.com"     // fine
     state bad: Url = "example"                  // T01: A URL has a scheme
 }
 
-// md-docs/10-types.md:127
+// md-docs/10-types.md
 page Feed(path: "/", title: "Feed", description: "What just happened.") {
     state posted: DateTime = @2026-03-14T09:30:00Z
     derived age = posted.until(now)
@@ -48,14 +48,14 @@ page Feed(path: "/", title: "Feed", description: "What just happened.") {
     Text("ticking: {now(every: 1.seconds)}")
 }
 
-// md-docs/10-types.md:141
+// md-docs/10-types.md
 page Doc(path: "/") {
     state nights: Number(1..=30) = 12
     state pass: String(minLength: 8) = "correcthorse"
     state start: Date(after: @2026-01-01) = @2026-03-14
 }
 
-// md-docs/10-types.md:157
+// md-docs/10-types.md
 page Doc(path: "/") {
     state token: Secret = ""
     Text(token)                     // shown
@@ -64,7 +64,7 @@ page Doc(path: "/") {
     log(token)                      // in the console, and often in a log service
 }
 
-// md-docs/10-types.md:175
+// md-docs/10-types.md
 enum Tone { neutral, info, danger }
 type Todo {
     id: String
@@ -89,7 +89,7 @@ page Records(path: "/") {
     Text("{special.owner} owns {special.title}")
 }
 
-// md-docs/10-types.md:216
+// md-docs/10-types.md
 enum Size { sm, md, lg }
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
 page Enums(path: "/") {
@@ -106,14 +106,14 @@ page Enums(path: "/") {
     }
 }
 
-// md-docs/10-types.md:250
+// md-docs/10-types.md
 page Shapes(path: "/") {
     state form = { name: "", age: 0, tags: ["new"] }
     Input(bind: form.name, label: "Name")
     Text("{form.name} is {form.age} with {form.tags.length} tags")
 }
 
-// md-docs/10-types.md:295
+// md-docs/10-types.md
 type Row { id: Number, label: String, score: Number? }
 page Infer(path: "/") {
     state rows: [Row] = [Row(id: 1, label: "a"), Row(id: 2, label: "b", score: 9)]
@@ -126,7 +126,7 @@ page Infer(path: "/") {
     Text("{joined} {kind} {firstScore}")
 }
 
-// md-docs/10-types.md:324
+// md-docs/10-types.md
 type Todo { id: String, title: String, note: String? }
 page Narrow(path: "/") {
     state sel: Todo? = null
@@ -140,7 +140,7 @@ page Narrow(path: "/") {
     Button("Pick") { on click { sel = t } }
 }
 
-// md-docs/10-types.md:347
+// md-docs/10-types.md
 type Deploy { id: String, status: String, startedAt: String }
 page Deploys(path: "/") {
     resource deploys: [Deploy] = fetch("/api/deploys")

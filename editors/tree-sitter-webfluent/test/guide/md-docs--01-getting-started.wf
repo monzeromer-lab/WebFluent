@@ -1,4 +1,4 @@
-// md-docs/01-getting-started.md:86
+// md-docs/01-getting-started.md
 app {
     Navbar {
         Navbar.Brand { Text("Hello").heading }
@@ -10,7 +10,7 @@ app {
     Router
 }
 
-// md-docs/01-getting-started.md:101
+// md-docs/01-getting-started.md
 page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
     state count = 0
     Container {

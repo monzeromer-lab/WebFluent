@@ -105,10 +105,12 @@ jobs:
         with:
           node-version: '22'
 
+      # Every suite: the runtime modules, the network, stores, forms, motion,
+      # security, interop and the cookbook's applications, on the builds the
+      # Rust tests above wrote to target/. Only two of them ran here, and the
+      # rest — 176 tests in all — were run by hand or not at all.
       - name: JavaScript suites
-        run: |
-          node --test tests/js/hydrate.test.mjs
-          node --test tests/js/rendered_site.test.mjs
+        run: node --test tests/js/*.test.mjs
 
   scaffolds:
     name: Scaffolds build clean

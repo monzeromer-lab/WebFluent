@@ -820,39 +820,7 @@ impl LexerV2 {
     /// followed by a name, a `[` or a `(`, with any string inside it kept
     /// whole — else `None`.
     fn splice_end(&self) -> Option<usize> {
-        let opener = self.source.get(self.pos + 1).copied()?;
-        if !(opener.is_alphabetic() || matches!(opener, '_' | '[' | '(')) {
-            return None;
-        }
-        let mut depth = 0usize;
-        let mut in_string = false;
-        let mut i = self.pos;
-        while i < self.source.len() {
-            let c = self.source[i];
-            if in_string {
-                match c {
-                    '\\' => i += 1,
-                    '"' => in_string = false,
-                    '\n' => return None,
-                    _ => {}
-                }
-            } else {
-                match c {
-                    '"' => in_string = true,
-                    '{' => depth += 1,
-                    '}' => {
-                        depth -= 1;
-                        if depth == 0 {
-                            return Some(i + 1);
-                        }
-                    }
-                    '\n' => return None,
-                    _ => {}
-                }
-            }
-            i += 1;
-        }
-        None
+        crate::parser::v2::splice_end(&self.source, self.pos)
     }
 
     fn read_number(&mut self) -> Result<Token> {

@@ -1,4 +1,4 @@
-// md-docs/05-state-and-reactivity.md:11
+// md-docs/05-state-and-reactivity.md
 page Counter(path: "/") {
     state count = 0                  // inferred: Number
     state name: String = ""          // declared
@@ -10,7 +10,7 @@ page Counter(path: "/") {
     Button("+") { on click { count = count + 1 } }
 }
 
-// md-docs/05-state-and-reactivity.md:40
+// md-docs/05-state-and-reactivity.md
 page Cart(path: "/") {
     state items = [{ name: "Pen", price: 2.5, qty: 4 }, { name: "Pad", price: 6, qty: 1 }]
     state taxRate = 0.2
@@ -23,7 +23,7 @@ page Cart(path: "/") {
     if empty { Text("Your cart is empty.").muted }
 }
 
-// md-docs/05-state-and-reactivity.md:63
+// md-docs/05-state-and-reactivity.md
 page Watch(path: "/") {
     state query = ""
     state hits = 0
@@ -39,7 +39,7 @@ page Watch(path: "/") {
     Text("{hits} runs")
 }
 
-// md-docs/05-state-and-reactivity.md:89
+// md-docs/05-state-and-reactivity.md
 page Todos(path: "/") {
     state items: [String] = []
     state draft = ""
@@ -68,7 +68,7 @@ page Todos(path: "/") {
     }
 }
 
-// md-docs/05-state-and-reactivity.md:134
+// md-docs/05-state-and-reactivity.md
 page Prefs(path: "/") {
     persist theme = "light"
     persist perPage = 20
@@ -79,7 +79,7 @@ page Prefs(path: "/") {
     Slider(bind: perPage, min: 10, max: 100, step: 10, label: "Rows per page")
 }
 
-// md-docs/05-state-and-reactivity.md:156
+// md-docs/05-state-and-reactivity.md
 page Clock(path: "/") {
     state seconds = 0
     state toast: String? = "Welcome"
@@ -89,7 +89,7 @@ page Clock(path: "/") {
     if let t = toast { Alert(t).info }
 }
 
-// md-docs/05-state-and-reactivity.md:179
+// md-docs/05-state-and-reactivity.md
 page Search(path: "/") {
     state q = ""
     Input(bind: q, ref: box, placeholder: "Search")
@@ -98,7 +98,7 @@ page Search(path: "/") {
     on key("/") { box.focus() }
 }
 
-// md-docs/05-state-and-reactivity.md:196
+// md-docs/05-state-and-reactivity.md
 page Where(path: "/") {
     Text(if viewport.md { "wide" } else { "narrow" })   // viewport.width, .height, .sm .md .lg .xl
     derived tab = query.tab ?? "all"                      // the URL's ?tab=x

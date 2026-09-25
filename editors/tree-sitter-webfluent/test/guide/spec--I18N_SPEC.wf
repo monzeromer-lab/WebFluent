@@ -1,11 +1,11 @@
-// spec/I18N_SPEC.md:98
+// spec/I18N_SPEC.md
 page Doc(path: "/") {
     Text(t("home.title"))
     Heading(t("app.name")).h1
     Button(t("actions.save")).primary
 }
 
-// spec/I18N_SPEC.md:110
+// spec/I18N_SPEC.md
 page Doc(path: "/") {
     // Translation: "Hello, {name}!"
     Text(t("home.greeting", { name: user.name }))
@@ -14,14 +14,14 @@ page Doc(path: "/") {
     Text(t("tasks.remaining", { count: tasks.length }))
 }
 
-// spec/I18N_SPEC.md:132
+// spec/I18N_SPEC.md
 page Doc(path: "/") {
     Button("English") { on click { setLocale("en") } }
     Button("العربية") { on click { setLocale("ar") } }
     Button("Español") { on click { setLocale("es") } }
 }
 
-// spec/I18N_SPEC.md:147
+// spec/I18N_SPEC.md
 page Doc(path: "/") {
     Text("Language: {locale}")
 
@@ -30,13 +30,13 @@ page Doc(path: "/") {
     }
 }
 
-// spec/I18N_SPEC.md:159
+// spec/I18N_SPEC.md
 page Doc(path: "/") {
     // "ltr" or "rtl"
     Text("Direction: {dir}")
 }
 
-// spec/I18N_SPEC.md:209
+// spec/I18N_SPEC.md
 app {
     Navbar {
         Navbar.Brand {
@@ -57,7 +57,7 @@ app {
     Router
 }
 
-// spec/I18N_SPEC.md:231
+// spec/I18N_SPEC.md
 page Home(path: "/") {
     Container {
         Heading(t("welcome")).h1.fadeIn

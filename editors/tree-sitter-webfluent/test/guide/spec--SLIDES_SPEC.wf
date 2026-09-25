@@ -1,4 +1,4 @@
-// spec/SLIDES_SPEC.md:93
+// spec/SLIDES_SPEC.md
 page Doc(path: "/") {
     Slide {
         style { background: linear-gradient(135deg, #C69C6D, #8B5A2B) }
@@ -6,7 +6,7 @@ page Doc(path: "/") {
     }
 }
 
-// spec/SLIDES_SPEC.md:120
+// spec/SLIDES_SPEC.md
 page Doc(path: "/") {
     Container {
         style {

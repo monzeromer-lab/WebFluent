@@ -1,4 +1,4 @@
-// README.md:10
+// README.md
 store Todos {
     state items = []
 
@@ -23,7 +23,7 @@ page Home(path: "/", title: "Todos") {
 }
 app { Router }
 
-// README.md:74
+// README.md
 /// A person, at a glance.
 component UserCard(_ name: String, role: String, active: Bool = true) {
     Card.elevated {
@@ -41,7 +41,7 @@ page Doc(path: "/") {
     UserCard("Monzer", role: "Developer")
 }
 
-// README.md:98
+// README.md
 page Doc(path: "/") {
     resource users = fetch("/api/users")
 
@@ -52,7 +52,7 @@ page Doc(path: "/") {
     }
 }
 
-// README.md:114
+// README.md
 page Doc(path: "/") {
     Button("Save").primary.lg.rounded
 
@@ -66,7 +66,7 @@ page Doc(path: "/") {
     }
 }
 
-// README.md:135
+// README.md
 page Home(path: "/", title: "Home") {
     state count = 0
     Container {
@@ -79,7 +79,7 @@ page Home(path: "/", title: "Home") {
     }
 }
 
-// README.md:149
+// README.md
 page Deck(path: "/", title: "Q1 Review") {
     Presentation {
         TitleSlide("Q1 Review", subtitle: "March 2026")

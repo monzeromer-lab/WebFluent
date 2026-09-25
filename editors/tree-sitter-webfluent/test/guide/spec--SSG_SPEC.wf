@@ -1,4 +1,4 @@
-// spec/SSG_SPEC.md:173
+// spec/SSG_SPEC.md
 page Home(path: "/", title: "Home") {
     Container {
         Heading("Welcome to My App").h1

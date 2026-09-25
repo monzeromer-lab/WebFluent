@@ -1,4 +1,4 @@
-// md-docs/13-motion.md:13
+// md-docs/13-motion.md
 page Enter(path: "/") {
     state open = false
     Button("Open") { on click { open = !open } }
@@ -10,12 +10,12 @@ page Enter(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:54
+// md-docs/13-motion.md
 page Doc(path: "/") {
     Section(animate: .fadeIn, on: .enterView) { Heading("Further down").h2 }
 }
 
-// md-docs/13-motion.md:65
+// md-docs/13-motion.md
 page Exit(path: "/") {
     state toast: String? = "Saved"
     if let t = toast {
@@ -26,7 +26,7 @@ page Exit(path: "/") {
     Button("Show") { on click { toast = "Saved again" } }
 }
 
-// md-docs/13-motion.md:84
+// md-docs/13-motion.md
 type Item { id: Number, text: String }
 page List(path: "/") {
     state items: [Item] = [Item(id: 1, text: "First"), Item(id: 2, text: "Second")]
@@ -47,7 +47,7 @@ page List(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:117
+// md-docs/13-motion.md
 animation Pulse {
     from { opacity: 1 }
     50% { opacity: 0.4; transform: scale(0.98) }
@@ -65,7 +65,7 @@ page Custom(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:147
+// md-docs/13-motion.md
 page Details(path: "/") {
     state open = false
     Button("Details") { on click { open = !open } }
@@ -74,14 +74,14 @@ page Details(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:165
+// md-docs/13-motion.md
 page Revenue(path: "/") {
     state revenue = 0
     Text(format(revenue, .currency), count: "600ms")
     Button("Load") { on click { revenue = 1200 } }
 }
 
-// md-docs/13-motion.md:183
+// md-docs/13-motion.md
 page Post(path: "/p/:slug", slug: String) {
     derived post = posts.find(p => p.slug == slug)
     Image(post?.cover ?? "", alt: post?.title ?? "", shared: "cover-{post?.id}")
@@ -92,7 +92,7 @@ page Doc(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:201
+// md-docs/13-motion.md
 page Landing(path: "/") {
     sequence {
         step { Heading("Welcome").h1.fadeIn }
@@ -101,21 +101,21 @@ page Landing(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:223
+// md-docs/13-motion.md
 page Doc(path: "/") {
     Card(ref: panel) {
         on mouseenter { animate(panel, "pulse", "400ms") }
     }
 }
 
-// md-docs/13-motion.md:233
+// md-docs/13-motion.md
 page Doc(path: "/") {
     Card.outlined.fadeIn {
         on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }
     }
 }
 
-// md-docs/13-motion.md:257
+// md-docs/13-motion.md
 page Tween(path: "/") {
     state open = false
     Card {
@@ -126,7 +126,7 @@ page Tween(path: "/") {
     }
 }
 
-// md-docs/13-motion.md:271
+// md-docs/13-motion.md
 app {
     Navbar {
         Navbar.Brand { Link("Motion", to: "/") }
@@ -137,7 +137,7 @@ app {
 page Home(path: "/") { Heading("Home").h1 }
 page About(path: "/about") { Heading("About").h1 }
 
-// md-docs/13-motion.md:297
+// md-docs/13-motion.md
 enum Step { one, two, three }
 page Wizard(path: "/") {
     state step: Step = .one

@@ -1863,6 +1863,127 @@ mod scalars {
         Some((host.to_string(), path.to_string()))
     }
 
+    /// A URL's search, as `URLSearchParams` reads it: `+` is a space and a
+    /// `%XX` is its byte.
+    fn query_pairs(text: &str) -> Vec<(String, Static)> {
+        let search = text.split('#').next().unwrap_or(text);
+        let Some((_, search)) = search.split_once('?') else {
+            return Vec::new();
+        };
+        search
+            .split('&')
+            .filter(|pair| !pair.is_empty())
+            .map(|pair| {
+                let (key, value) = pair.split_once('=').unwrap_or((pair, ""));
+                (form_decode(key), Static::Str(form_decode(value)))
+            })
+            .collect()
+    }
+
+    fn form_decode(text: &str) -> String {
+        let bytes = text.as_bytes();
+        let mut out = Vec::with_capacity(bytes.len());
+        let mut i = 0;
+        while i < bytes.len() {
+            match bytes[i] {
+                b'+' => out.push(b' '),
+                b'%' if i + 2 < bytes.len() => {
+                    let hex = |b: u8| (b as char).to_digit(16);
+                    match (hex(bytes[i + 1]), hex(bytes[i + 2])) {
+                        (Some(hi), Some(lo)) => {
+                            out.push((hi * 16 + lo) as u8);
+                            i += 2;
+                        }
+                        _ => out.push(b'%'),
+                    }
+                }
+                other => out.push(other),
+            }
+            i += 1;
+        }
+        String::from_utf8_lossy(&out).into_owned()
+    }
+
+    /// `application/x-www-form-urlencoded`, as `URLSearchParams` writes it.
+    fn form_encode(text: &str) -> String {
+        let mut out = String::new();
+        for byte in text.bytes() {
+            match byte {
+                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'*' | b'-' | b'.' | b'_' => {
+                    out.push(byte as char)
+                }
+                b' ' => out.push('+'),
+                other => out.push_str(&format!("%{other:02X}")),
+            }
+        }
+        out
+    }
+
+    /// The same URL with a new path, hash or query values: a `null` value
+    /// takes its key away, and every other key keeps its place.
+    fn url_with(text: &str, parts: &[(String, Static)]) -> Option<Static> {
+        let (scheme, rest) = text.split_once("://")?;
+        let (before_hash, hash) = match rest.split_once('#') {
+            Some((b, h)) => (b, Some(h.to_string())),
+            None => (rest, None),
+        };
+        let (address, _) = before_hash.split_once('?').unwrap_or((before_hash, ""));
+        let (host, path) = match address.find('/') {
+            Some(at) => (&address[..at], address[at..].to_string()),
+            None => (address, "/".to_string()),
+        };
+        let mut path = path;
+        let mut hash = hash;
+        let mut query = query_pairs(text);
+        for (key, value) in parts {
+            match (key.as_str(), value) {
+                ("path", Static::Str(p)) => {
+                    path = if p.starts_with('/') {
+                        p.clone()
+                    } else {
+                        format!("/{p}")
+                    }
+                }
+                ("hash", Static::Str(h)) => {
+                    let h = h.trim_start_matches('#');
+                    hash = (!h.is_empty()).then(|| h.to_string());
+                }
+                ("query", Static::Map(values)) => {
+                    for (k, v) in values {
+                        match v {
+                            Static::Null => query.retain(|(existing, _)| existing != k),
+                            _ => {
+                                let v = Static::Str(v.to_text());
+                                match query.iter_mut().find(|(existing, _)| existing == k) {
+                                    Some(slot) => slot.1 = v,
+                                    None => query.push((k.clone(), v)),
+                                }
+                            }
+                        }
+                    }
+                }
+                // A part this does not know how the runtime would treat: no
+                // guess, and the element waits for the script.
+                _ => return None,
+            }
+        }
+        let search = query
+            .iter()
+            .map(|(k, v)| format!("{}={}", form_encode(k), form_encode(&v.to_text())))
+            .collect::<Vec<_>>()
+            .join("&");
+        let mut out = format!("{scheme}://{host}{path}");
+        if !search.is_empty() {
+            out.push('?');
+            out.push_str(&search);
+        }
+        if let Some(h) = hash {
+            out.push('#');
+            out.push_str(&h);
+        }
+        Some(Static::Str(out))
+    }
+
     /// One method of one of the language's own types, or `None` when this
     /// is not one of them.
     pub fn method(
@@ -2010,6 +2131,21 @@ mod scalars {
                 }
                 let (host, path) = url_parts(&text)?;
                 Some(Static::Str(if method == "host" { host } else { path }))
+            }
+            // `site.query()` and `site.with(query: { page: 2 })`, as the
+            // runtime's `URL` and `URLSearchParams` give them: a value
+            // decoded, a key replaced where it stood, the search written
+            // back form-encoded. Not known here, they painted nothing and the
+            // page changed as its script ran.
+            "query" if receiver.to_text().contains("://") => {
+                let text = receiver.to_text();
+                Some(Static::Map(query_pairs(&text)))
+            }
+            "with" if receiver.to_text().contains("://") => {
+                let Static::Map(parts) = arg(0)? else {
+                    return None;
+                };
+                url_with(&receiver.to_text(), &parts)
             }
             "domain" => {
                 let text = receiver.to_text();

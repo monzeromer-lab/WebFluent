@@ -1,4 +1,4 @@
-// RELEASE_NOTES.md:190
+// RELEASE_NOTES.md
 test "reporting an incident opens one more" {
     use IncidentStore
     state draft = ""
@@ -12,7 +12,7 @@ test "reporting an incident opens one more" {
     expect "3 open"
 }
 
-// RELEASE_NOTES.md:708
+// RELEASE_NOTES.md
 enum Tone { neutral, info, danger }
 type Todo { id: String, title: String, done: Bool = false, tone: Tone = .neutral }
 /// A todo, as one row.

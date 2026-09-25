@@ -4002,11 +4002,27 @@ fn split_pieces(spelling: &str) -> Vec<Piece> {
 /// A splice's source is code, not text, so the escapes a string needs are
 /// undone: `{a ?? \"x\"}` is the older way to write `{a ?? "x"}`, and both
 /// mean the same expression.
+///
+/// Only outside a string the splice writes with plain quotes, though. Inside
+/// one, an escape is that string's own — `{("a\"b").length}` — and undoing it
+/// ended the inner string early, so the build refused an expression the
+/// language allows.
 fn splice_source(chars: &[char]) -> String {
     let mut out = String::with_capacity(chars.len());
+    let mut in_string = false;
     let mut i = 0;
     while i < chars.len() {
         match (chars[i], chars.get(i + 1)) {
+            ('\\', Some(&next)) if in_string => {
+                out.push('\\');
+                out.push(next);
+                i += 2;
+            }
+            ('"', _) => {
+                in_string = !in_string;
+                out.push('"');
+                i += 1;
+            }
             ('\\', Some('"')) => {
                 out.push('"');
                 i += 2;
@@ -4028,16 +4044,24 @@ fn splice_source(chars: &[char]) -> String {
 /// `{` followed by a name, a `[` or a `(`, balanced and closed on the
 /// same line, with any string inside it kept whole. A lone `{` is a
 /// character like any other.
-fn splice_end(chars: &[char], at: usize) -> Option<usize> {
+///
+/// A string in a splice is written `"…"`, or — the older spelling —
+/// `\"…\"`, whose escaped quotes delimit it. Only the first was recognised,
+/// so the second never closed and `{a ?? \"x\"}` was shown as text. The
+/// lexer and the parser each had a copy of this; there is one now, which
+/// both call.
+pub(crate) fn splice_end(chars: &[char], at: usize) -> Option<usize> {
     let opener = *chars.get(at + 1)?;
     if !(opener.is_alphabetic() || matches!(opener, '_' | '[' | '(')) {
         return None;
     }
     let mut depth = 0usize;
     let mut in_string = false;
+    let mut in_escaped_string = false;
     let mut i = at;
     while i < chars.len() {
         let c = chars[i];
+        let escaped_quote = c == '\\' && chars.get(i + 1) == Some(&'"');
         if in_string {
             match c {
                 '\\' => i += 1,
@@ -4045,6 +4069,16 @@ fn splice_end(chars: &[char], at: usize) -> Option<usize> {
                 '\n' => return None,
                 _ => {}
             }
+        } else if in_escaped_string {
+            if escaped_quote {
+                in_escaped_string = false;
+                i += 1;
+            } else if c == '\n' {
+                return None;
+            }
+        } else if escaped_quote {
+            in_escaped_string = true;
+            i += 1;
         } else {
             match c {
                 '"' => in_string = true,

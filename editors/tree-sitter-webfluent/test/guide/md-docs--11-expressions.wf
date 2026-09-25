@@ -1,4 +1,4 @@
-// md-docs/11-expressions.md:10
+// md-docs/11-expressions.md
 page Literals(path: "/") {
     state s = "text"                        // String
     state n = 42                            // Number
@@ -12,7 +12,7 @@ page Literals(path: "/") {
     Text("{s} {n} {f} {b} {list.length} {map.name}")
 }
 
-// md-docs/11-expressions.md:32
+// md-docs/11-expressions.md
 page Interp(path: "/") {
     state name = "Sam"
     state n = 3
@@ -22,7 +22,7 @@ page Interp(path: "/") {
     Text("Next: {n + 1}")
 }
 
-// md-docs/11-expressions.md:56
+// md-docs/11-expressions.md
 page Receipt(path: "/") {
     state total = 1234.5
     state count = 1235
@@ -33,7 +33,7 @@ page Receipt(path: "/") {
     Text("Down {0.256:.percent(1)}")            // — see below
 }
 
-// md-docs/11-expressions.md:91
+// md-docs/11-expressions.md
 page Ops(path: "/") {
     state a = 7
     state b = 2
@@ -44,7 +44,7 @@ page Ops(path: "/") {
     for n in 1..=3 { Badge("{n}") }
 }
 
-// md-docs/11-expressions.md:108
+// md-docs/11-expressions.md
 enum Level { low, mid, high }
 page Choose(path: "/") {
     state score = 72
@@ -55,7 +55,7 @@ page Choose(path: "/") {
     Badge(grade, tone: if score >= 70 { .success } else { .danger })
 }
 
-// md-docs/11-expressions.md:126
+// md-docs/11-expressions.md
 type Todo { id: String, title: String, done: Bool = false }
 page Calls(path: "/") {
     state todos: [Todo] = [Todo(id: "1", title: "milk"), Todo(id: "2", title: "eggs", done: true)]
@@ -70,7 +70,7 @@ page Calls(path: "/") {
     if let f = first { Text("First: {f.title}") }
 }
 
-// md-docs/11-expressions.md:185
+// md-docs/11-expressions.md
 page Format(path: "/") {
     state price = 1234.5
     state ratio = 0.256
@@ -92,7 +92,7 @@ page Format(path: "/") {
     Text(format(when, .relative))                  // the same
 }
 
-// md-docs/11-expressions.md:218
+// md-docs/11-expressions.md
 page Regex(path: "/") {
     state email = ""
     derived valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
@@ -102,7 +102,7 @@ page Regex(path: "/") {
     Text("Domain: {domain}")
 }
 
-// md-docs/11-expressions.md:238
+// md-docs/11-expressions.md
 page Tokens(path: "/") {
     state accent = $primary
     Card {
@@ -111,7 +111,7 @@ page Tokens(path: "/") {
     }
 }
 
-// md-docs/11-expressions.md:253
+// md-docs/11-expressions.md
 page Await(path: "/") {
     state rows: [Map] = []
     state note = ""
@@ -125,7 +125,7 @@ page Await(path: "/") {
     Text("{rows.length} rows, note: {note}")
 }
 
-// md-docs/11-expressions.md:275
+// md-docs/11-expressions.md
 const MAX_ROWS = 50
 const API = env.PUBLIC_API_URL ?? "/api"
 page Consts(path: "/") {

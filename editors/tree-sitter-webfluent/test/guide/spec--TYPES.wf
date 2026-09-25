@@ -1,4 +1,4 @@
-// spec/TYPES.md:43
+// spec/TYPES.md
 enum Tone { neutral, info, danger }
 type Todo {
     id: String
@@ -8,7 +8,7 @@ type Todo {
     note: String?
 }
 
-// spec/TYPES.md:165
+// spec/TYPES.md
 page Doc(path: "/") {
     if let n = t.note { Text(n.length) }
     if sel != null { Text(sel.title) }

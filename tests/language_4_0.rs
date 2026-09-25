@@ -1758,3 +1758,24 @@ fn the_step_that_types_is_told_from_the_declaration_that_names_a_type() {
         ["type Ada into N", "expect x"]
     );
 }
+
+/// A splice's source had every `\"` undone — right for the older spelling
+/// `{a ?? \"x\"}`, whose escaped quotes delimit the string, and wrong inside
+/// a string the splice writes with plain quotes, where the escape is that
+/// string's own: `{("a\"b").length}` ended the inner string early and the
+/// build refused it.
+#[test]
+fn an_escape_inside_a_splices_own_string_is_that_strings() {
+    let js = spa_generated(&page(r#"Text("n={("a\"b").length}")"#));
+    assert!(js.contains(r#"n=${"a\"b".length}"#), "{js}");
+
+    let js = spa_generated(&page(r#"Text("{("say \"hi\"")}")"#));
+    assert!(js.contains(r#"${"say \"hi\""}"#), "{js}");
+
+    // The older spelling still means what it meant.
+    let js = spa_generated(&page("state x = null\nText(\"{x ?? \\\"none\\\"}\")"));
+    assert!(
+        js.contains(r#"?? "none""#) || js.contains(r#"??"none""#),
+        "{js}"
+    );
+}

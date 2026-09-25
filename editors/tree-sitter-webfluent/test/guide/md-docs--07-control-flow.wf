@@ -1,4 +1,4 @@
-// md-docs/07-control-flow.md:10
+// md-docs/07-control-flow.md
 page Status(path: "/") {
     state count = 0
     if count == 0 {
@@ -11,7 +11,7 @@ page Status(path: "/") {
     Button("+") { on click { count = count + 1 } }
 }
 
-// md-docs/07-control-flow.md:35
+// md-docs/07-control-flow.md
 type User { name: String, email: String? }
 page Profile(path: "/") {
     state user: User? = null
@@ -23,7 +23,7 @@ page Profile(path: "/") {
     }
 }
 
-// md-docs/07-control-flow.md:54
+// md-docs/07-control-flow.md
 type Todo { id: String, title: String, done: Bool = false }
 page List(path: "/") {
     state todos: [Todo] = [Todo(id: "a", title: "Write"), Todo(id: "b", title: "Ship", done: true)]
@@ -39,7 +39,7 @@ page List(path: "/") {
     for n in 1..=3 { Badge("{n}") }                     // over a range
 }
 
-// md-docs/07-control-flow.md:84
+// md-docs/07-control-flow.md
 page Panel(path: "/") {
     state open = true
     Button("Toggle") { on click { open = !open } }
@@ -48,7 +48,7 @@ page Panel(path: "/") {
     }
 }
 
-// md-docs/07-control-flow.md:99
+// md-docs/07-control-flow.md
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
 page Job(path: "/") {
     state s: Status = .idle
@@ -61,7 +61,7 @@ page Job(path: "/") {
     Text(match s { .idle { "waiting" } .failed(r) { r } else { "busy" } })   // as a value
 }
 
-// md-docs/07-control-flow.md:125
+// md-docs/07-control-flow.md
 page Choose(path: "/") {
     state n = 5
     state nick: String? = null
@@ -70,7 +70,7 @@ page Choose(path: "/") {
     Text("{size} {label}")
 }
 
-// md-docs/07-control-flow.md:140
+// md-docs/07-control-flow.md
 page Sync(path: "/") {
     state rows: [Map] = []
     state error = ""

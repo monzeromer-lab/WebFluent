@@ -1,4 +1,4 @@
-// spec/TEMPLATE_ENGINE_SPEC.md:19
+// spec/TEMPLATE_ENGINE_SPEC.md
 page Doc(path: "/") {
     // invoice.wf
     Container {
@@ -22,7 +22,7 @@ page Doc(path: "/") {
     }
 }
 
-// spec/TEMPLATE_ENGINE_SPEC.md:92
+// spec/TEMPLATE_ENGINE_SPEC.md
 page Doc(path: "/") {
     // Property access
     Text(user.name)

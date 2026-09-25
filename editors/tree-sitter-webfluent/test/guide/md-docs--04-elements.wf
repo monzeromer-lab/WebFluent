@@ -1,4 +1,4 @@
-// md-docs/04-elements.md:26
+// md-docs/04-elements.md
 page P(path: "/") {
     Button("Save", disabled: false).primary.lg {
         style { min-width: 120px }
@@ -8,7 +8,7 @@ page P(path: "/") {
     }
 }
 
-// md-docs/04-elements.md:43
+// md-docs/04-elements.md
 page P(path: "/") {
     Row(gap: .md, align: .center, justify: .between) {
         Text("left")
@@ -16,7 +16,7 @@ page P(path: "/") {
     }
 }
 
-// md-docs/04-elements.md:55
+// md-docs/04-elements.md
 page P(path: "/") {
     Button("Danger").danger            // tone: .danger
     Button("Wide").full.outlined       // width: .full, outlined: true
@@ -24,14 +24,14 @@ page P(path: "/") {
     state q = ""
 }
 
-// md-docs/04-elements.md:83
+// md-docs/04-elements.md
 page P(path: "/") {
     Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
     Input(bind: name, id: "name", autocomplete: "name", maxlength: 40)
     state name = ""
 }
 
-// md-docs/04-elements.md:98
+// md-docs/04-elements.md
 page P(path: "/") {
     Card.elevated {
         Card.Header { Heading("Title").h3 }
@@ -53,7 +53,7 @@ page P(path: "/") {
     state region = "fra1"
 }
 
-// md-docs/04-elements.md:126
+// md-docs/04-elements.md
 page P(path: "/") {
     Heading("Title").h1                       // a real <h1>; .h2 is the default
     Text("Plain, {count} live").bold.muted   // an inline run of text
@@ -64,7 +64,7 @@ page P(path: "/") {
     state count = 3
 }
 
-// md-docs/04-elements.md:143
+// md-docs/04-elements.md
 page P(path: "/") {
     Container {                                  // centred, max-width
         Row(gap: .md, align: .center) {          // horizontal flex

@@ -1,4 +1,4 @@
-// md-docs/12-styling.md:14
+// md-docs/12-styling.md
 theme Brand {
     color-primary: #0F766E
     color-secondary: #134E4A
@@ -14,7 +14,7 @@ theme Brand {
     shadow-md: 0 4px 12px rgba(0,0,0,0.08)
 }
 
-// md-docs/12-styling.md:66
+// md-docs/12-styling.md
 page Styled(path: "/") {
     state accent = "#D97706"
     state wide = false
@@ -36,7 +36,7 @@ page Styled(path: "/") {
     }
 }
 
-// md-docs/12-styling.md:110
+// md-docs/12-styling.md
 page Fade(path: "/") {
     state on = false
     Card {
@@ -47,7 +47,7 @@ page Fade(path: "/") {
     Button("Toggle") { on click { on = !on } }
 }
 
-// md-docs/12-styling.md:132
+// md-docs/12-styling.md
 page Classes(path: "/") {
     state active = true
     Container(class: "hero") {
@@ -55,7 +55,7 @@ page Classes(path: "/") {
     }
 }
 
-// md-docs/12-styling.md:164
+// md-docs/12-styling.md
 theme Light {
     color-background: #FFFFFF
     color-text: #0F172A
@@ -76,7 +76,7 @@ page Prefs(path: "/") {
     }
 }
 
-// md-docs/12-styling.md:198
+// md-docs/12-styling.md
 page Layout(path: "/", title: "Layout", description: "A grid of projects.") {
     Container {
         Stack(gap: .lg) {
@@ -91,10 +91,10 @@ page Layout(path: "/", title: "Layout", description: "A grid of projects.") {
     }
 }
 
-// md-docs/12-styling.md:232
+// md-docs/12-styling.md
 theme Brand { screen-md: 900px }
 
-// md-docs/12-styling.md:241
+// md-docs/12-styling.md
 page Doc(path: "/") {
     Heading("Title").h1 {
         style {

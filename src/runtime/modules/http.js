@@ -347,7 +347,13 @@
 
   /// A response read line by line, as it arrives: `Stream<T>` on an
   /// endpoint, and what a log viewer or a token stream is made of.
-  async function* lines(url, opts) {
+  ///
+  /// Every module shares one closure, and this was called `lines` — the
+  /// name of the helper that splits a text — so wherever this module was
+  /// built in, the later declaration won and `text.lines()` handed back an
+  /// async generator: the static paint showed the lines, and the live page
+  /// replaced them with `undefined`.
+  async function* streamLines(url, opts) {
     const response = await fetch(url, {
       method: (opts && opts.method) || "GET",
       headers: (opts && opts.headers) || {},

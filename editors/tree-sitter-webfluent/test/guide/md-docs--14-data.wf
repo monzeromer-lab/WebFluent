@@ -1,4 +1,4 @@
-// md-docs/14-data.md:15
+// md-docs/14-data.md
 type Deploy { id: String, status: String, startedAt: String }
 page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
     resource deploys: [Deploy] = fetch("/api/deploys")
@@ -19,7 +19,7 @@ page Deploys(path: "/", title: "Deploys", description: "Recent deploys.") {
     Button("Refresh") { on click { deploys.reload() } }
 }
 
-// md-docs/14-data.md:50
+// md-docs/14-data.md
 page Search(path: "/") {
     state q = ""
     state token = "abc"
@@ -33,7 +33,7 @@ page Search(path: "/") {
     }
 }
 
-// md-docs/14-data.md:75
+// md-docs/14-data.md
 type Post { slug: String, title: String, body: String }
 page PostPage(path: "/posts/:slug", slug: String) {
     resource post: Post = fetch("/api/posts/{slug}")
@@ -47,7 +47,7 @@ page PostPage(path: "/posts/:slug", slug: String) {
     }
 }
 
-// md-docs/14-data.md:99
+// md-docs/14-data.md
 type User { id: String, name: String }
 api Backend(base: "/api/v1") {
     credentials: .sameOrigin      // the session cookie goes with every call
@@ -79,7 +79,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
     }
 }
 
-// md-docs/14-data.md:144
+// md-docs/14-data.md
 api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     headers {
         Authorization: "Bearer {Session.token}"
@@ -93,10 +93,10 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     get me() -> User
 }
 
-// md-docs/14-data.md:187
+// md-docs/14-data.md
 api Backend from "openapi.json" (base: env.PUBLIC_API)
 
-// md-docs/14-data.md:197
+// md-docs/14-data.md
 page Doc(path: "/") {
     action rename(id: String, name: String) {
         optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
@@ -105,7 +105,7 @@ page Doc(path: "/") {
     }
 }
 
-// md-docs/14-data.md:213
+// md-docs/14-data.md
 page Chat(path: "/chat", title: "Chat", description: "Talk.") {
     state draft = ""
     socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
@@ -123,25 +123,25 @@ page Chat(path: "/chat", title: "Chat", description: "Talk.") {
     Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
 }
 
-// md-docs/14-data.md:235
+// md-docs/14-data.md
 page Doc(path: "/") {
     stream ticks = sse("/events", events: ["price"])
     channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
     beacon("/analytics", { event: "checkout" })     // survives the page unloading
 }
 
-// md-docs/14-data.md:244
+// md-docs/14-data.md
 page Doc(path: "/") {
     effect { if let p = ticks.last("price") { price = p } }
     Button("Sync") { on click { cart.post({ items: Cart.count }) } }
 }
 
-// md-docs/14-data.md:267
+// md-docs/14-data.md
 page Doc(path: "/") {
     if !network.online { Alert("You are offline — changes are queued.").warning }
 }
 
-// md-docs/14-data.md:279
+// md-docs/14-data.md
 type Todo { id: String, title: String, done: Bool = false }
 page Todos(path: "/") {
     state todos: [Todo] = []
@@ -181,7 +181,7 @@ page Todos(path: "/") {
     }
 }
 
-// md-docs/14-data.md:332
+// md-docs/14-data.md
 type Post { slug: String, title: String, date: String, body: String }
 data posts: [Post] = "posts.json"
 page Blog(path: "/", title: "Blog", description: "Every post.") {
@@ -194,7 +194,7 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
     }
 }
 
-// md-docs/14-data.md:362
+// md-docs/14-data.md
 type Post { slug: String, title: String, date: String, body: String }
 data posts: [Post] = "posts.json"
 page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post.", paths: posts.map(p => p.slug)) {
@@ -208,7 +208,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
     }
 }
 
-// md-docs/14-data.md:386
+// md-docs/14-data.md
 const PAGE_SIZE = 25
 const API = env.PUBLIC_API_URL ?? "/api"
 const FEATURES = { billing: env.PUBLIC_BILLING == "on", beta: false }

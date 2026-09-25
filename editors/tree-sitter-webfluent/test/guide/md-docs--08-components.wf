@@ -1,4 +1,4 @@
-// md-docs/08-components.md:10
+// md-docs/08-components.md
 /// A person, at a glance.
 component UserCard(_ name: String, role: String, active: Bool = true, avatar: String? = null) {
     Card.elevated {
@@ -18,7 +18,7 @@ page Team(path: "/") {
     UserCard("Ann", role: "PM").active
 }
 
-// md-docs/08-components.md:46
+// md-docs/08-components.md
 enum Tone { calm, loud }
 component Note(_ text: String, tone: Tone = .calm) {
     Text(text) {
@@ -31,7 +31,7 @@ page Notes(path: "/") {
     Note("Loud too").loud
 }
 
-// md-docs/08-components.md:72
+// md-docs/08-components.md
 type Todo { id: String, title: String, done: Bool = false }
 component TodoRow(_ todo: Todo) {
     event toggle(id: String)
@@ -54,7 +54,7 @@ page Todos(path: "/") {
     }
 }
 
-// md-docs/08-components.md:107
+// md-docs/08-components.md
 component Panel(_ title: String) {
     slot
     slot trailing
@@ -74,7 +74,7 @@ page Keys(path: "/") {
     }
 }
 
-// md-docs/08-components.md:141
+// md-docs/08-components.md
 type Todo { id: String, title: String, done: Bool = false }
 component TodoList(items: [Todo]) {
     slot row(item: Todo, index: Number)
@@ -93,7 +93,7 @@ page Use(path: "/") {
     }
 }
 
-// md-docs/08-components.md:171
+// md-docs/08-components.md
 component Panel(_ title: String) {
     part Header(_ text: String) { Heading(text).h3 }
     part Footer { Divider  Text("End").muted.sm }
@@ -108,7 +108,7 @@ page Parts(path: "/") {
     }
 }
 
-// md-docs/08-components.md:196
+// md-docs/08-components.md
 component Stepper(_ start: Number, step: Number = 1) {
     event change(value: Number)
     state n = start
@@ -122,7 +122,7 @@ component Stepper(_ start: Number, step: Number = 1) {
     }
 }
 
-// md-docs/08-components.md:215
+// md-docs/08-components.md
 store Cart {
     state items: [String] = []
     action add(name: String) { items.push(name) }
@@ -137,7 +137,7 @@ page Shop(path: "/") {
     Text("{Cart.items.length} in cart")
 }
 
-// md-docs/08-components.md:273
+// md-docs/08-components.md
 page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
     resource rows = Backend.sales()
     Host(tag: "canvas",
@@ -146,14 +146,14 @@ page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
          cleanup: (chart) => chart.destroy())
 }
 
-// md-docs/08-components.md:298
+// md-docs/08-components.md
 external element Stripe("stripe-pricing-table") {
     prop publishableKey: String
     prop pricingTableId: String
     event ready()
 }
 
-// md-docs/08-components.md:306
+// md-docs/08-components.md
 page Doc(path: "/") {
     Stripe(publishableKey: key, pricingTableId: "prctbl_1") { on ready { loaded = true } }
 }

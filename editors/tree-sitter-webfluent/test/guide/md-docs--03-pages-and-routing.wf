@@ -1,4 +1,4 @@
-// md-docs/03-pages-and-routing.md:9
+// md-docs/03-pages-and-routing.md
 page About(path: "/about", title: "About us", description: "Who we are and why we build this.") {
     Container {
         Heading("About us").h1
@@ -6,7 +6,7 @@ page About(path: "/about", title: "About us", description: "Who we are and why w
     }
 }
 
-// md-docs/03-pages-and-routing.md:43
+// md-docs/03-pages-and-routing.md
 app {
     Navbar {
         Navbar.Brand { Link("Acme", to: "/") }
@@ -20,14 +20,14 @@ app {
     Footer { Text("© Acme").muted.sm }
 }
 
-// md-docs/03-pages-and-routing.md:68
+// md-docs/03-pages-and-routing.md
 page Nav(path: "/nav") {
     Link("Home", to: "/")                       // an <a>; the router handles the click
     Link("Guide", to: "/docs").prefix           // also active on /docs/anything
     Button("Go") { on click { navigate("/about") } }
 }
 
-// md-docs/03-pages-and-routing.md:88
+// md-docs/03-pages-and-routing.md
 type Post { slug: String, title: String, body: String }
 store Posts {
     state all: [Post] = [
@@ -47,7 +47,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
     }
 }
 
-// md-docs/03-pages-and-routing.md:121
+// md-docs/03-pages-and-routing.md
 component DocsShell(_ crumb: String) {
     slot
     Row(gap: .lg) {
@@ -71,7 +71,7 @@ page Reference(path: "/docs/reference", title: "Reference", description: "The re
     Heading("Reference").h1
 }
 
-// md-docs/03-pages-and-routing.md:157
+// md-docs/03-pages-and-routing.md
 store Auth {
     state user = null
     derived loggedIn = user != null
@@ -88,7 +88,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     Button("Sign in").primary { on click { Auth.login()  navigate("/account") } }
 }
 
-// md-docs/03-pages-and-routing.md:187
+// md-docs/03-pages-and-routing.md
 page Share(path: "/share", title: "Share", description: "A page with its own tags.") {
     state image = "/og-share.png"
     head {
@@ -99,7 +99,7 @@ page Share(path: "/share", title: "Share", description: "A page with its own tag
     Heading("Share").h1
 }
 
-// md-docs/03-pages-and-routing.md:208
+// md-docs/03-pages-and-routing.md
 page NotFound(path: "*", title: "Not found", description: "Nothing lives here.", noindex: true) {
     Container {
         Heading("Nothing here").h1
@@ -107,7 +107,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives here.",
     }
 }
 
-// md-docs/03-pages-and-routing.md:223
+// md-docs/03-pages-and-routing.md
 store Deploys {
     state rows = []
     action load(id: String) { rows = [{ id: id, ok: true }] }

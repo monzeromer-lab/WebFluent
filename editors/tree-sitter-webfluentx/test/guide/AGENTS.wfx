@@ -1,4 +1,4 @@
-// AGENTS.md:1147
+// AGENTS.md
 type Todo { id: String, title: String }
 
 store Todos

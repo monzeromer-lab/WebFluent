@@ -1,4 +1,4 @@
-// md-docs/02-language-basics.md:122
+// md-docs/02-language-basics.md
 page Home(path: "/")
     state open = true
     Row(gap: .sm)

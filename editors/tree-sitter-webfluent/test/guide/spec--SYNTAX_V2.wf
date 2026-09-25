@@ -1,4 +1,4 @@
-// spec/SYNTAX_V2.md:123
+// spec/SYNTAX_V2.md
 store Todos {
     state items: [Todo] = []
     derived remaining = items.filter(t => !t.done).length
@@ -6,24 +6,24 @@ store Todos {
     effect { localStorage.setItem("todos", JSON.stringify(items)) }
 }
 
-// spec/SYNTAX_V2.md:138
+// spec/SYNTAX_V2.md
 theme Brand {
     color-primary: #8B5CF6
     surface-raised: #131519
     radius-md: 6px
 }
 
-// spec/SYNTAX_V2.md:152
+// spec/SYNTAX_V2.md
 app {
     Navbar { Navbar.Links { Link("Home", to: "/") } }
     Router(transition: .fade, duration: "200ms")
 }
 
-// spec/SYNTAX_V2.md:164
+// spec/SYNTAX_V2.md
 enum Tone { neutral, info, danger }
 type Todo { id: String, title: String, done: Bool = false, tone: Tone = .neutral }
 
-// spec/SYNTAX_V2.md:224
+// spec/SYNTAX_V2.md
 page Doc(path: "/") {
     Button("Save").primary {
         style { min-width: 8rem }
@@ -36,7 +36,7 @@ page Doc(path: "/") {
     }
 }
 
-// spec/SYNTAX_V2.md:249
+// spec/SYNTAX_V2.md
 component TodoRow(_ label: String) {
     event toggle(id: String)
     Checkbox(label: label) { on change { emit toggle(label) } }
@@ -45,7 +45,7 @@ page Doc(path: "/") {
     TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
 }
 
-// spec/SYNTAX_V2.md:286
+// spec/SYNTAX_V2.md
 page Doc(path: "/") {
     resource posts = fetch("/api/posts")
     match posts {
@@ -55,7 +55,7 @@ page Doc(path: "/") {
     }
 }
 
-// spec/SYNTAX_V2.md:318
+// spec/SYNTAX_V2.md
 page Doc(path: "/") {
     Card {
         style {
@@ -70,13 +70,13 @@ page Doc(path: "/") {
     }
 }
 
-// spec/SYNTAX_V2.md:369
+// spec/SYNTAX_V2.md
 const API = "/api"                                   // a top-level value, read everywhere
 const LIMIT: Number = 20
 type Admin = User { role: String }                   // User's fields, then role
 enum Status { idle, failed(reason: String) }         // a case with a payload
 
-// spec/SYNTAX_V2.md:426
+// spec/SYNTAX_V2.md
 component TodoRow(_ label: String, todo: Todo) {
     event toggle(id: String)
     Row(align: .center, gap: .sm) {

@@ -1,4 +1,4 @@
-// spec/ANIMATION_SPEC.md:63
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     // Fade in a card on mount
     Card.elevated.fadeIn {
@@ -24,7 +24,7 @@ page Doc(path: "/") {
     UserCard("Sam", role: "Designer", exit: .fadeOut).fadeIn
 }
 
-// spec/ANIMATION_SPEC.md:124
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     // Smooth background and color transitions
     Button("Hover me").primary {
@@ -46,7 +46,7 @@ page Doc(path: "/") {
     }
 }
 
-// spec/ANIMATION_SPEC.md:234
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     Button("Submit").primary.shake {
         on click(event) {
@@ -57,30 +57,30 @@ page Doc(path: "/") {
     }
 }
 
-// spec/ANIMATION_SPEC.md:275
+// spec/ANIMATION_SPEC.md
 theme Brand {
     animation-duration-normal: 200ms
     animation-easing-default: ease-in-out
 }
 
-// spec/ANIMATION_SPEC.md:323
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     Card.elevated.fadeIn { Text("Hello") }
 }
 
-// spec/ANIMATION_SPEC.md:333
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     if isVisible {
         Text("Hello", exit: .fadeOut).fadeIn
     }
 }
 
-// spec/ANIMATION_SPEC.md:353
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     Card { Text("x", exit: .fadeOut, delay: "100ms", easing: "ease-out") }
 }
 
-// spec/ANIMATION_SPEC.md:370
+// spec/ANIMATION_SPEC.md
 page Doc(path: "/") {
     Button("Click") {
         transition {

@@ -1,3 +1,46 @@
+# WebFluent v4.0.2 Release Notes
+
+## Fixed
+
+### `text.lines()` on a live page
+
+Every runtime module shares one closure, and the network module declared a
+`lines` of its own — the reader for a streamed response. Wherever that
+module was built in, the later declaration won: `text.lines()` handed back
+an async generator, so the static paint showed the lines and the live page
+replaced them with `undefined`. The stream reader has its own name now.
+
+### Escapes in a splice
+
+A string written inside a splice keeps its own escapes:
+`"n={("a\"b").length}"` refused to build, because the escape was undone
+before the splice was read. And the older spelling `{a ?? \"x\"}`, which
+the compiler has always said it accepts, was shown as text rather than
+read as a splice.
+
+### `url.query()` and `url.with(…)` paint at build time
+
+They painted nothing until the script ran. The static paint now computes
+both as the browser's `URL` does — values decoded, a key replaced where it
+stood, the search written back form-encoded.
+
+### Held to each other
+
+Behind these, three checks: every method's value at build time is compared
+with the runtime's, in Node, for 61 samples — anything the build cannot
+know says why; every runtime function the compiler can call must exist;
+and no two runtime modules may declare the same name.
+
+## Editors
+
+- **Zed**: the grammar reads WebFluent 4 — `api`, connections, `validate`,
+  refined types, the language's literals — where it used to mark them as
+  errors, and a call with a bare-name argument (`remove(i)`) no longer
+  fails to parse. It is held to every example in the guide.
+- **VS Code 0.3.0**: attached to this release as a `.vsix`. It is bundled —
+  the 0.2.0 package could not start — finds `wf-lsp.exe` on Windows, and
+  downloads the server from the latest release when it is not on `PATH`.
+
 # WebFluent v4.0.1 Release Notes
 
 ## Fixed
@@ -257,7 +300,7 @@ emitters, and each kept its own table of what a WebFluent method becomes in
 JavaScript. The tables drifted. Inside a store action, `items.remove(i)`
 compiled to `store.items.remove(i)`, `word.toUpper()` to
 `store.word.toUpper()`, `items.contains(x)` to `store.items.contains(x)`,
-and every one of the 41 scalar methods — `due.plus(days: 5)`,
+and every one of the 39 scalar methods — `due.plus(days: 5)`,
 `total.times(2)`, `site.host()` — to a method call on the value itself. A
 `Date` is a string at run time and `Money` a map, so each of these threw
 the first time its action ran. The page painted correctly until then, which
