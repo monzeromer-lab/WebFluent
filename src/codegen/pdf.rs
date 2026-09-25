@@ -1681,14 +1681,14 @@ impl PdfCodegen {
     fn extract_text_content(&self, ui: &UIElement) -> String {
         for arg in &ui.args {
             if let crate::parser::Arg::Positional(expr) = arg {
-                let text = self.expr_to_string(expr);
+                let text = Self::expr_to_string(expr);
                 return self.substitute_page_vars(&text);
             }
         }
         String::new()
     }
 
-    fn expr_to_string(&self, expr: &Expr) -> String {
+    fn expr_to_string(expr: &Expr) -> String {
         match expr {
             Expr::StringLiteral(s) => s.clone(),
             Expr::InterpolatedString(parts) => {
@@ -1696,7 +1696,7 @@ impl PdfCodegen {
                 for p in parts {
                     match p {
                         StringPart::Literal(s) => out.push_str(s),
-                        StringPart::Expression(e) => out.push_str(&self.expr_to_string(e)),
+                        StringPart::Expression(e) => out.push_str(&Self::expr_to_string(e)),
                     }
                 }
                 out

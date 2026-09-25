@@ -6,24 +6,54 @@ file of a project lives.
 
 ## Install
 
-WebFluent is one binary, `wf`.
+WebFluent is one binary, `wf`. Run the line for your machine; each one
+leaves `wf` on your `PATH`.
+
+### macOS and Linux
 
 ```bash
-# Linux and macOS
 curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
-
-# Windows (PowerShell)
-irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
-
-# From source, with Rust installed
-git clone https://github.com/monzeromer-lab/WebFluent.git
-cd WebFluent && cargo install --path .
 ```
 
-Check it:
+Fetches the binary for your platform from the latest release — no Rust
+needed. Covers Apple Silicon and Intel Macs, and x86_64 Linux.
+
+### Windows
+
+```bash
+irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex
+```
+
+### With Rust
+
+```bash
+cargo install webfluent
+```
+
+Builds from crates.io. This is the one that works everywhere Rust does,
+and it is how to install on Linux arm64, which has no prebuilt binary
+yet.
+
+### Check it
 
 ```bash
 wf --version
+```
+
+If the shell cannot find `wf`, open a new terminal: the installer adds
+its directory to your `PATH` in your shell's startup file, which the
+session you ran it in has already read.
+
+Both installers take two environment variables — `WF_INSTALL_DIR` to put
+the binary somewhere other than `~/.webfluent/bin`, and `WF_VERSION`
+(`v3.2.1`) to pin a release rather than take the latest.
+
+To build from a clone instead, for an unreleased change or to work on
+the compiler itself:
+
+```bash
+git clone https://github.com/monzeromer-lab/WebFluent.git
+cd WebFluent && cargo install --path .
 ```
 
 The language server for your editor is a second binary, `wf-lsp` — see

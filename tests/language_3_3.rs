@@ -268,3 +268,75 @@ fn a_guarded_page_carries_its_guard_and_redirect_into_the_route_table() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn a_store_action_wins_over_a_list_method_of_the_same_name() {
+    let dir = scratch("store-action-name");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "type Todo { id: Number, title: String }\n\
+         store Todos {\n\
+         \x20   state items: [Todo] = []\n\
+         \x20   action remove(id: Number) { items = items.filter(t => t.id != id) }\n\
+         \x20   action take(id: Number) { items = items.filter(t => t.id == id) }\n\
+         }\n\
+         app { Router }\n\
+         page Home(path: \"/\", title: \"Home\", description: \"d\") {\n\
+         \x20   use Todos\n\
+         \x20   Heading(\"h\").h1\n\
+         \x20   for todo in Todos.items by todo.id {\n\
+         \x20       Button(\"x\") { on click { Todos.remove(todo.id) } }\n\
+         \x20       Button(\"y\") { on click { Todos.take(todo.id) } }\n\
+         \x20   }\n\
+         }\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["build"]);
+    assert!(ok, "{out}");
+    let js = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    // A store is an object of state and actions, not a list: mapping these
+    // onto `splice`/`WF.take` left the handler calling what was never there.
+    assert!(
+        js.contains("Todos.remove(todo.id)"),
+        "the store's own `remove` action is called, not a list's: {js}"
+    );
+    assert!(
+        js.contains("Todos.take(todo.id)"),
+        "the store's own `take` action is called, not the runtime helper: {js}"
+    );
+    assert!(
+        !js.contains("Todos.splice("),
+        "a store never gets a list's `splice`: {js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn remove_on_a_state_list_goes_through_the_signal_so_the_view_repaints() {
+    let dir = scratch("remove-repaints");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "app { Router }\n\
+         page Home(path: \"/\", title: \"Home\", description: \"d\") {\n\
+         \x20   state nums: [Number] = [1, 2, 3]\n\
+         \x20   Heading(\"h\").h1\n\
+         \x20   Button(\"drop\") { on click { nums.remove(0) } }\n\
+         \x20   for n in nums { Text(\"{n}\") }\n\
+         }\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["build"]);
+    assert!(ok, "{out}");
+    let js = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    // An in-place `splice` changes the list the signal already holds, so
+    // nothing reading it repaints — `remove` sets the signal, as `push` does.
+    assert!(
+        js.contains("_nums.set(WF.removeAt(_nums()"),
+        "`remove` sets the signal to a new list: {js}"
+    );
+    assert!(
+        !js.contains("_nums().splice("),
+        "`remove` never mutates the list in place: {js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

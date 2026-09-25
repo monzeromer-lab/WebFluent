@@ -69,7 +69,8 @@ pub const MODULES: &[Module] = &[
         same("expand"), same("countTo"), same("counted"), same("onEnterView"), same("shared"),
     ], deps: [], triggers: []),
     module!("helpers", exports: [
-        same("sortBy"), same("groupBy"), same("unique"), same("take"), same("range"),
+        same("sortBy"), same("groupBy"), same("unique"), same("take"), same("removeAt"),
+        same("range"),
         same("first"), same("last"), same("capitalize"), same("truncate"),
         same("dedent"), same("lines"), same("words"),
     ], deps: [], triggers: []),

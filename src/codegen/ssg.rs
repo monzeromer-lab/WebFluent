@@ -919,8 +919,17 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
             // This used to drop the destination and emit a bare `<li>`, so every
             // `Sidebar.Item` in a static build was dead until JavaScript ran —
             // and a crawler saw a navigation panel containing no links at all.
+            // The destination is read through the build-time scope, not as a
+            // literal alone: inside a resolved `for`, `to: "/docs/{p}"` is
+            // only knowable once `p` is bound. Reading it as a literal left
+            // every item a loop drew falling through to the `<li>` below —
+            // which is how the components reference, written as
+            // `for c in shown { if … { Sidebar.Item(to: …) } }`, pre-rendered
+            // a navigation panel with no links in it.
             if let Some(href) = ui.args.iter().find_map(|a| match a {
-                Arg::Named(k, v) if k == "to" => expr_to_static_string(v),
+                Arg::Named(k, v) if k == "to" => {
+                    resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                }
                 _ => None,
             }) {
                 let prefix = ui.args.iter().any(|a| {

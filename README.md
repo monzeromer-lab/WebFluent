@@ -38,17 +38,21 @@ That is the whole app — routing, reactivity, styling and the components includ
 
 ## Try it
 
+**macOS and Linux** — the binary for your platform, no Rust needed:
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 ```
 
-<sub>Windows: `irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex` · Or grab a `.deb`, `.msi`, `.tar.gz` or `.zip` from [Releases](https://github.com/monzeromer-lab/WebFluent/releases) · Or `cargo install --path .` from a clone.</sub>
+<sub>**Windows:** `irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex` · **With Rust** (everywhere Rust runs, and the way to install on Linux arm64): `cargo install webfluent` · A `.deb`, `.msi` and tarballs are attached to each [release](https://github.com/monzeromer-lab/WebFluent/releases).</sub>
 
 ```bash
 wf init my-app        # -t spa (default) · static · pdf · slides
 cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
 ```
+
+<sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 
 ## What you get
 

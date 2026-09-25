@@ -164,8 +164,9 @@
                             </div>
                             <h2 class="wf-heading">Install</h2>
                             <div class="wf-markdown">
-<p>WebFluent is one binary, <code>wf</code>.</p>
+<p>WebFluent is one binary, <code>wf</code>. Run the line for your machine; each one leaves <code>wf</code> on your <code>PATH</code>.</p>
                             </div>
+                            <h3 class="wf-heading">macOS and Linux</h3>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -176,7 +177,45 @@
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
-<p>Check it:</p>
+<p>Fetches the binary for your platform from the latest release — no Rust needed. Covers Apple Silicon and Intel Macs, and x86_64 Linux.</p>
+                            </div>
+                            <h3 class="wf-heading">Windows</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <h3 class="wf-heading">With Rust</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Builds from crates.io. This is the one that works everywhere Rust does, and it is how to install on Linux arm64, which has no prebuilt binary yet.</p>
+                            </div>
+                            <h3 class="wf-heading">Check it</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>If the shell cannot find <code>wf</code>, open a new terminal: the installer adds its directory to your <code>PATH</code> in your shell's startup file, which the session you ran it in has already read.</p>
+<p>Both installers take two environment variables — <code>WF_INSTALL_DIR</code> to put the binary somewhere other than <code>~/.webfluent/bin</code>, and <code>WF_VERSION</code> (<code>v3.2.1</code>) to pin a release rather than take the latest.</p>
+<p>To build from a clone instead, for an unreleased change or to work on the compiler itself:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">

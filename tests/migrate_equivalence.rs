@@ -117,7 +117,7 @@ fn assert_migrates_as_expected(name: &str, project: &Path) {
         .join("src");
     let mut diffs = Vec::new();
     for path in walkdir(&root.join("src")) {
-        if !path.extension().is_some_and(|e| e == "wf") {
+        if path.extension().is_none_or(|e| e != "wf") {
             continue;
         }
         first_word_is_lowercase(&path);

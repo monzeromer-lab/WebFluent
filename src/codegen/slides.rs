@@ -603,7 +603,7 @@ impl SlidesCodegen {
             .args
             .iter()
             .find_map(|a| match a {
-                Arg::Named(k, v) if k == "subtitle" => Some(self.expr_to_string(v)),
+                Arg::Named(k, v) if k == "subtitle" => Some(Self::expr_to_string(v)),
                 _ => None,
             })
             .unwrap_or_else(|| self.positional_string(ui, 1));
@@ -719,7 +719,7 @@ impl SlidesCodegen {
         for arg in &ui.args {
             if let Arg::Named(name, value) = arg {
                 if name == "caption" {
-                    caption = self.expr_to_string(value);
+                    caption = Self::expr_to_string(value);
                 }
             }
         }
@@ -1178,7 +1178,7 @@ impl SlidesCodegen {
     fn text_content(&self, ui: &UIElement) -> String {
         for arg in &ui.args {
             if let Arg::Positional(expr) = arg {
-                return self.expr_to_string(expr);
+                return Self::expr_to_string(expr);
             }
         }
         String::new()
@@ -1189,7 +1189,7 @@ impl SlidesCodegen {
         for arg in &ui.args {
             if let Arg::Positional(expr) = arg {
                 if i == index {
-                    return self.expr_to_string(expr);
+                    return Self::expr_to_string(expr);
                 }
                 i += 1;
             }
@@ -1197,7 +1197,7 @@ impl SlidesCodegen {
         String::new()
     }
 
-    fn expr_to_string(&self, expr: &Expr) -> String {
+    fn expr_to_string(expr: &Expr) -> String {
         match expr {
             Expr::StringLiteral(s) => s.clone(),
             Expr::InterpolatedString(parts) => {
@@ -1205,7 +1205,7 @@ impl SlidesCodegen {
                 for p in parts {
                     match p {
                         StringPart::Literal(s) => out.push_str(s),
-                        StringPart::Expression(e) => out.push_str(&self.expr_to_string(e)),
+                        StringPart::Expression(e) => out.push_str(&Self::expr_to_string(e)),
                     }
                 }
                 out

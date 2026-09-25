@@ -25,6 +25,14 @@
     return out;
   }
   function take(list, n) { return Array.from(list).slice(0, Math.max(0, n)); }
+  // `items.remove(i)`: the list without the item at `i`, as a new list, so a
+  // signal set to it repaints what reads it. An index out of range drops
+  // nothing and still hands back a copy.
+  function removeAt(list, index) {
+    const out = Array.from(list);
+    if (index >= 0 && index < out.length) out.splice(index, 1);
+    return out;
+  }
   // `a..b` and `a..=b`: the whole numbers from `a`, up to `b`.
   function range(a, b, inclusive) {
     const out = [];
