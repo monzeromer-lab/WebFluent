@@ -1,7 +1,7 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
-// Tree-sitter grammar for WebFluent 3.
+// Tree-sitter grammar for WebFluent 4.
 //
 // This mirrors the hand-written parser in `src/parser/v2.rs`; when the
 // language grows, that file is the reference and this one follows it. A few
@@ -138,6 +138,15 @@ module.exports = grammar({
     // run until the next token settles it, and the statement wins a tie.
     [$.expression_statement, $._primary_expression],
     [$.expression_statement, $._expression],
+    // `trailing { … }` and `row(t, i) { … }` fill a slot; `remove(i)` calls.
+    // They read alike until what follows the name or the `)`, so both stay
+    // open until then, and a fill wins where both would parse.
+    [$.slot_fill, $.expression_statement],
+    [$.slot_fill, $._primary_expression],
+    // `Card.elevated.fadeIn`, `Backend.users.invalidate()` and
+    // `Ui.confirmId = x` are one shape until a `(` or an `=`: an element's
+    // flags, a call on a store's member, an assignment to one.
+    [$.flag, $.call_statement, $.store_member],
   ],
 
   // Inlined so that `element`'s precedence applies to the name itself: a
@@ -164,6 +173,7 @@ module.exports = grammar({
         $.enum_declaration,
         $.const_declaration,
         $.data_declaration,
+        $.api_declaration,
         $.animation_declaration,
         $.test_declaration,
       ),
@@ -178,14 +188,69 @@ module.exports = grammar({
         field("value", $._expression),
       ),
 
-    // `data posts = "posts.json"` — a file's JSON, a constant at build time.
+    // `data posts = "posts.json"` — a file's JSON, a constant at build time;
+    // `image hero = "hero.jpg"` — a picture the build processes.
     data_declaration: ($) =>
       seq(
-        "data",
+        field("kind", choice("data", "image")),
         field("name", $._name),
         optional(seq(":", field("type", $._type))),
         "=",
         field("file", $.string),
+      ),
+
+    // `api Backend(base: "/api/v1") { timeout: 10.seconds  get users() -> [User] }`,
+    // and `api Backend from "openapi.json" (base: env.PUBLIC_API)`.
+    api_declaration: ($) =>
+      seq(
+        "api",
+        field("name", $._name),
+        optional(seq("from", field("from", $.string))),
+        optional(field("settings", $.api_settings)),
+        optional(field("body", $.api_body)),
+      ),
+
+    api_settings: ($) => seq("(", sepBy($.named_argument, ","), optional(","), ")"),
+
+    api_body: ($) =>
+      braced($, repeat(choice($.api_headers, $.event_handler, $.endpoint, $.api_setting))),
+
+    // `timeout: 10.seconds`, `retry: .backoff(times: 3)` — a setting of the
+    // service, or of a connection.
+    api_setting: ($) =>
+      seq(field("name", $.identifier), ":", field("value", $._expression), optional(",")),
+
+    // `headers { Authorization: "Bearer {Session.token}"  Accept-Language: lang }`
+    api_headers: ($) => seq("headers", braced($, repeat(seq($.header, optional(","))))),
+
+    header: ($) =>
+      seq(field("name", choice($.string, $.header_name)), ":", field("value", $._expression)),
+
+    header_name: ($) => seq($._name, repeat(seq(token.immediate("-"), $._name))),
+
+    // `get user(id: String) at "users/:id" -> User  errors { 422 -> Map }`
+    endpoint: ($) =>
+      prec.right(
+        seq(
+          field("method", choice("get", "post", "put", "patch", "delete", "head", "options")),
+          field("name", $._name),
+          optional(field("parameters", $.parameter_list)),
+          optional(seq("at", field("path", $.string))),
+          optional(seq("-", ">", field("returns", $._type))),
+          repeat(choice($.endpoint_errors, $.endpoint_setting)),
+        ),
+      ),
+
+    endpoint_errors: ($) => seq("errors", braced($, repeat(seq($.error_mapping, optional(","))))),
+
+    error_mapping: ($) => seq(field("status", $.number), "-", ">", field("type", $._type)),
+
+    // `cache: .swr(60.seconds)`, `as: .blob` — how one endpoint is called.
+    endpoint_setting: ($) =>
+      seq(
+        field("name", alias(choice("cache", "as", "errorAs", "fileField"), $.identifier)),
+        ":",
+        field("value", $._expression),
       ),
 
     // `page Home(path: "/", title: "Home", id: String, layout: Shell) { }`
@@ -202,8 +267,17 @@ module.exports = grammar({
     // `id: String` — a route parameter, told from an attribute by its type;
     // `String` is also a name an expression may be, so the parameter wins
     // where both readings survive.
+    // Its type is never refined: `layout: Shell(crumb: "Blog")` is a call,
+    // and a refined type written there would read as the same shape.
     route_parameter: ($) =>
-      prec.dynamic(1, seq(field("name", $.identifier), ":", field("type", $._type))),
+      prec.dynamic(
+        1,
+        seq(
+          field("name", $.identifier),
+          ":",
+          field("type", choice($.builtin_type, $.list_type, $.optional_type, $.named_type)),
+        ),
+      ),
 
     // `component Name(_ label: String, tone: Tone = .calm) { }`
     component_declaration: ($) =>
@@ -326,6 +400,8 @@ module.exports = grammar({
       seq(
         "type",
         field("name", $._name),
+        // `type Admin = User { … }`: every field of `User`, and these.
+        optional(seq("=", field("base", $._name))),
         braced($, seq(sepBy($.field_declaration, optional(",")), optional(","))),
       ),
 
@@ -371,7 +447,19 @@ module.exports = grammar({
         optional(seq("=", field("default", $._expression))),
       ),
 
-    _type: ($) => choice($.builtin_type, $.list_type, $.optional_type, $.named_type),
+    _type: ($) =>
+      choice($.builtin_type, $.list_type, $.optional_type, $.refined_type, $.named_type),
+
+    // `Number(1..=30)`, `String(minLength: 8)`, `Date(after: @2026-01-01)` —
+    // a type with a condition its values must meet.
+    refined_type: ($) =>
+      seq(
+        field("base", choice($.builtin_type, $.named_type)),
+        "(",
+        sepBy1($._argument, ","),
+        optional(","),
+        ")",
+      ),
 
     builtin_type: (_) => choice("String", "Number", "Bool", "Map", "Any"),
 
@@ -383,7 +471,8 @@ module.exports = grammar({
 
     // ─── Statements ─────────────────────────────────────────────────────
 
-    block: ($) => braced($, repeat($._statement)),
+    // Statements are separated by lines; `;` puts two on one.
+    block: ($) => braced($, repeat(seq($._statement, optional(";")))),
 
     _statement: ($) =>
       choice(
@@ -393,6 +482,8 @@ module.exports = grammar({
         $.action_declaration,
         $.use_declaration,
         $.resource_declaration,
+        $.validate_declaration,
+        $.connection_declaration,
         $.event_declaration,
         $.slot_declaration,
         $.part_declaration,
@@ -456,7 +547,46 @@ module.exports = grammar({
       ),
 
     derived_declaration: ($) =>
-      seq("derived", field("name", $._name), "=", field("value", $._expression)),
+      seq(
+        "derived",
+        field("name", $._name),
+        optional(seq(":", field("type", $._type))),
+        "=",
+        field("value", $._expression),
+      ),
+
+    // `validate email { required  minLength(8) "Use at least 8"  async "Taken" { … } }`
+    validate_declaration: ($) =>
+      seq("validate", field("name", $._name), braced($, repeat($.validation_rule))),
+
+    validation_rule: ($) =>
+      prec.right(
+        seq(
+          field("rule", $.identifier),
+          optional(field("arguments", $.arguments)),
+          optional(field("message", $.string)),
+          // `custom "…" { expr }` and `async "…" { await … }` say what to check.
+          optional(seq("{", field("check", $._expression), "}")),
+        ),
+      ),
+
+    // `socket chat = ws("wss://…") { send Out  receive In  on message(m) { } }`,
+    // `stream ticks = sse("/events")`, `channel cart = broadcast("cart") { … }`.
+    connection_declaration: ($) =>
+      prec.right(
+        seq(
+          field("kind", choice("socket", "stream", "channel")),
+          field("name", $._name),
+          "=",
+          field("value", $._expression),
+          optional(field("body", $.connection_body)),
+        ),
+      ),
+
+    connection_body: ($) =>
+      braced($, repeat(choice($.message_type, $.event_handler, $.api_setting))),
+
+    message_type: ($) => seq(field("direction", choice("send", "receive")), field("type", $._type)),
 
     effect_declaration: ($) => seq("effect", field("body", $.block)),
 
@@ -589,13 +719,27 @@ module.exports = grammar({
     match_arm: ($) => seq(field("pattern", $._arm_pattern), field("body", $.block)),
 
     _arm_pattern: ($) =>
-      choice($.loading_pattern, $.error_pattern, $.ready_pattern, $.case_pattern, $.else_pattern),
+      choice(
+        $.loading_pattern,
+        $.error_pattern,
+        $.ready_pattern,
+        $.state_pattern,
+        $.case_pattern,
+        $.else_pattern,
+      ),
 
     loading_pattern: (_) => "loading",
 
     error_pattern: ($) => seq("error", optional(seq("(", field("name", $._name), ")"))),
 
     ready_pattern: ($) => seq("ready", optional(seq("(", field("name", $._name), ")"))),
+
+    // `connecting`, `open`, `closed(c)` — the states a connection is in.
+    state_pattern: ($) =>
+      seq(
+        field("state", choice("connecting", "open", "closed")),
+        optional(seq("(", field("name", $._name), ")")),
+      ),
 
     // `.failed(reason)` binds the case's payload, one name per part.
     case_pattern: ($) =>
@@ -706,7 +850,7 @@ module.exports = grammar({
 
     // `trailing { … }`; a scoped slot's fill names its values: `row(item) { … }`.
     slot_fill: ($) =>
-      prec(
+      prec.dynamic(
         1,
         seq(
           field("name", $.identifier),
@@ -775,14 +919,38 @@ module.exports = grammar({
         PREC.element + 1,
         seq(
           field("object", $.component_identifier),
+          // `Backend.users.invalidate()`: the members on the way to the call.
+          repeat(field("property", alias($._dot_word, $.property))),
           field("method", alias($._dot_word, $.method)),
           field("arguments", $.arguments),
         ),
       ),
 
+    // `Ui.confirmId = d.id` — a store's member, written where a statement
+    // starts, where a capitalised word is otherwise an element with flags.
+    store_member: ($) =>
+      prec(
+        PREC.element + 1,
+        seq(
+          field("object", $.component_identifier),
+          repeat1(field("property", alias($._dot_word, $.property))),
+        ),
+      ),
+
     assignment: ($) =>
       seq(
-        field("target", choice($._name, $.member_expression, $.index_expression)),
+        field(
+          "target",
+          choice(
+            $._name,
+            $.member_expression,
+            $.index_expression,
+            $.store_member,
+            // A state named `on`: the word is the event keyword only where a
+            // handler can start, and a handler does not continue with `=`.
+            alias("on", $.identifier),
+          ),
+        ),
         "=",
         field("value", $._expression),
       ),
@@ -827,6 +995,10 @@ module.exports = grammar({
         $.parenthesized_expression,
         $.string,
         $.regex,
+        $.temporal,
+        $.money,
+        $.duration,
+        $.color,
         $.number,
         $.boolean,
         $.null,
@@ -836,6 +1008,9 @@ module.exports = grammar({
         $.enum_case,
         $.design_token,
         $.identifier,
+        // `event` is a keyword where a statement starts; a handler that
+        // names no parameter reads the DOM event by it, as a plain value.
+        alias("event", $.identifier),
         $.component_identifier,
         $.builtin_type,
         $.builtin_component,
@@ -880,7 +1055,7 @@ module.exports = grammar({
       prec.left(
         PREC.postfix,
         seq(
-          field("object", choice($._expression, alias("event", $.identifier))),
+          field("object", $._expression),
           // `?.` reads null through null.
           choice(".", "?."),
           // Any word may follow a dot — `item.action`, `Array.from`.
@@ -911,6 +1086,8 @@ module.exports = grammar({
               $.identifier,
               $.component_identifier,
               $.builtin_type,
+              // A declared `type Row` is built as `Row(id: 1)`, a built-in's name.
+              $.builtin_component,
               $.member_expression,
               $.index_expression,
               $.call_expression,
@@ -967,11 +1144,11 @@ module.exports = grammar({
       seq(field("pattern", $._arm_pattern), "{", field("value", $._expression), "}"),
 
     // `.primary`, `.calm` — a case of an enum, named by the prop or type.
-    enum_case: ($) => seq(".", field("name", $.identifier)),
+    enum_case: ($) => seq(".", field("name", $._name)),
 
     // `.failed("boom")` — a case with its payload.
     case_value: ($) =>
-      prec(PREC.postfix, seq(".", field("name", $.identifier), field("arguments", $.arguments))),
+      prec(PREC.postfix, seq(".", field("name", $._name), field("arguments", $.arguments))),
 
     // `$surface`, `$spacing-xl` — a design token.
     design_token: (_) => token(seq("$", /[a-zA-Z_][a-zA-Z0-9_-]*/)),
@@ -1010,6 +1187,7 @@ module.exports = grammar({
       choice(
         token.immediate(prec(1, /([^"\\{]|"[^"]|""[^"])+/)),
         token.immediate(/\{[^a-zA-Z_"\\{\[(]/),
+        token.immediate(/\{\\./),
       ),
 
     // A `{` opens an interpolation only when a name, a `[` or a `(` follows
@@ -1019,6 +1197,8 @@ module.exports = grammar({
       choice(
         token.immediate(prec(1, /[^"\\{]+/)),
         token.immediate(/\{[^a-zA-Z_"\\{\[(]/),
+        // A `{` before an escape opens nothing either: `"{\n}"`.
+        token.immediate(/\{\\./),
       ),
 
     escape_sequence: (_) => token.immediate(/\\./),
@@ -1037,6 +1217,37 @@ module.exports = grammar({
         field("style", $.identifier),
         optional(seq("(", field("option", choice($.identifier, $.number, $.string)), ")")),
       ),
+
+    // `@2026-03-14`, `@09:30`, `@2026-03-14T09:30Z` — a Date, a Time, a DateTime.
+    temporal: (_) =>
+      token(
+        seq(
+          "@",
+          choice(
+            /\d{2}:\d{2}(:\d{2}(\.\d+)?)?/,
+            /\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?)?/,
+          ),
+        ),
+      ),
+
+    // `$9.99`, `€249.00` — an amount in the currency the symbol names.
+    money: (_) => token(seq(choice("$", "€", "£", "¥"), /\d+(\.\d+)?/)),
+
+    // `10.seconds`, `250.ms`, `3.days`.
+    duration: (_) =>
+      token(
+        seq(
+          /\d+(\.\d+)?/,
+          ".",
+          choice(
+            "ms", "second", "seconds", "minute", "minutes", "hour", "hours",
+            "day", "days", "week", "weeks",
+          ),
+        ),
+      ),
+
+    // `#0F766E` — a colour: three, four, six or eight hex digits.
+    color: (_) => token(seq("#", /[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4}/)),
 
     number: (_) => /\d+(\.\d+)?/,
 

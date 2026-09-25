@@ -1,0 +1,20 @@
+// spec/TYPES.md:43
+enum Tone { neutral, info, danger }
+type Todo {
+    id: String
+    title: String
+    done: Bool = false
+    tone: Tone = .neutral
+    note: String?
+}
+
+// spec/TYPES.md:165
+page Doc(path: "/") {
+    if let n = t.note { Text(n.length) }
+    if sel != null { Text(sel.title) }
+    if sel { Text(sel.title) }
+    if sel && t.done { Text(sel.title) }
+    derived label = if sel != null { sel.title } else { "none" }
+    Text(t.note ?? "none")
+}
+

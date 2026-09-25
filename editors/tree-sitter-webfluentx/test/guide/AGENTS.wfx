@@ -1,0 +1,29 @@
+// AGENTS.md:1147
+type Todo { id: String, title: String }
+
+store Todos
+    state items: [Todo] = []
+    action add(title: String)
+        items = items.concat([Todo(id: uuid(), title: title)])
+
+component TodoRow(_ label: String, todo: Todo)
+    Row
+        Text(label)
+
+page Home(path: "/", title: "Todos")
+    use Todos
+    state draft = ""
+    Row(align: .center, gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click
+            draft = ""
+        Text("Todos").bold
+    if Todos.items.length == 0
+        Text("Nothing yet").muted
+    else
+        for t in Todos.items by t.id
+            TodoRow(t.title, todo: t)
+    Button("Add").primary { on click { Todos.add(draft) } }

@@ -1,0 +1,53 @@
+// RELEASE_NOTES.md:190
+test "reporting an incident opens one more" {
+    use IncidentStore
+    state draft = ""
+    Text("{IncidentStore.open} open")
+    Input(bind: draft, label: "What happened")
+    Button("Report") { on click { IncidentStore.report(draft) } }
+
+    expect "2 open"
+    type "Queue backing up" into "What happened"
+    click "Report"
+    expect "3 open"
+}
+
+// RELEASE_NOTES.md:708
+enum Tone { neutral, info, danger }
+type Todo { id: String, title: String, done: Bool = false, tone: Tone = .neutral }
+/// A todo, as one row.
+component TodoRow(_ label: String, todo: Todo, compact: Bool = false) {
+    event toggle(id: String)
+    slot trailing
+    Row(align: .center, gap: .sm) {
+        style {
+            padding: 6px 0
+            background: $surface
+            --accent: {todo.color}
+            &:hover { background: $surface-hover }
+        }
+        transition { background: 150ms ease-out }
+        on click { emit toggle(todo.id) }
+        Text(label).bold
+        trailing
+    }
+}
+page Home(path: "/", title: "Todos", layout: AppShell(crumb: "Todos")) {
+    use Todos
+    resource list = fetch("/api/todos")
+    match list {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(v) {
+            for t in v by t.id {
+                TodoRow(t.title, todo: t, exit: .fadeOut).fadeIn {
+                    on toggle(id) { Todos.toggle(id) }
+                    trailing { Badge("new").info }
+                }
+            }
+        }
+    }
+    Button("Add").primary.lg { on click { Todos.add(draft) } }
+}
+app { Navbar(brand: "Todos") { Navbar.Links { Link("Home", to: "/") } }  Router(transition: .fade) }
+

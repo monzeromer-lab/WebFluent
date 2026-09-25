@@ -1,0 +1,14 @@
+// spec/SSG_SPEC.md:173
+page Home(path: "/", title: "Home") {
+    Container {
+        Heading("Welcome to My App").h1
+        Text("This loads instantly with SSG.")
+
+        Spacer
+
+        Card.elevated {
+            Text("Static content pre-rendered at build time.").muted
+        }
+    }
+}
+

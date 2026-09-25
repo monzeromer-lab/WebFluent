@@ -1,0 +1,95 @@
+// spec/SYNTAX_V2.md:123
+store Todos {
+    state items: [Todo] = []
+    derived remaining = items.filter(t => !t.done).length
+    action add(title: String) { items = items.concat([Todo(id: uuid(), title: title)]) }
+    effect { localStorage.setItem("todos", JSON.stringify(items)) }
+}
+
+// spec/SYNTAX_V2.md:138
+theme Brand {
+    color-primary: #8B5CF6
+    surface-raised: #131519
+    radius-md: 6px
+}
+
+// spec/SYNTAX_V2.md:152
+app {
+    Navbar { Navbar.Links { Link("Home", to: "/") } }
+    Router(transition: .fade, duration: "200ms")
+}
+
+// spec/SYNTAX_V2.md:164
+enum Tone { neutral, info, danger }
+type Todo { id: String, title: String, done: Bool = false, tone: Tone = .neutral }
+
+// spec/SYNTAX_V2.md:224
+page Doc(path: "/") {
+    Button("Save").primary {
+        style { min-width: 8rem }
+        transition { background: 150ms ease-out }
+        on click { save() }
+    }
+    Panel("Keys") {
+        trailing { Badge("Beta") }
+        Text("Rotate every 90 days.")
+    }
+}
+
+// spec/SYNTAX_V2.md:249
+component TodoRow(_ label: String) {
+    event toggle(id: String)
+    Checkbox(label: label) { on change { emit toggle(label) } }
+}
+page Doc(path: "/") {
+    TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
+}
+
+// spec/SYNTAX_V2.md:286
+page Doc(path: "/") {
+    resource posts = fetch("/api/posts")
+    match posts {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(list) { for p in list by p.id { PostCard(p) } }
+    }
+}
+
+// spec/SYNTAX_V2.md:318
+page Doc(path: "/") {
+    Card {
+        style {
+            padding: 1rem 2rem
+            background: $surface
+            --accent: {todo.color}
+            width: {pct}%
+            content: "→"
+            &:hover { background: $surface-hover }
+            @media (max-width: 768px) { padding: 0.5rem }
+        }
+    }
+}
+
+// spec/SYNTAX_V2.md:369
+const API = "/api"                                   // a top-level value, read everywhere
+const LIMIT: Number = 20
+type Admin = User { role: String }                   // User's fields, then role
+enum Status { idle, failed(reason: String) }         // a case with a payload
+
+// spec/SYNTAX_V2.md:426
+component TodoRow(_ label: String, todo: Todo) {
+    event toggle(id: String)
+    Row(align: .center, gap: .sm) {
+        style {
+            padding: 6px 0
+            &:hover {
+                background: $surface-hover
+            }
+        }
+        on click {
+            emit toggle(todo.id)
+        }
+        Text(label).bold
+    }
+}
+

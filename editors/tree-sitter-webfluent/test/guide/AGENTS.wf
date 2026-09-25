@@ -1,0 +1,849 @@
+// AGENTS.md:78
+test "greets by name" {
+    Greeting("Sam")
+    expect "Hello, Sam"
+    expect not "Hello, world"
+}
+test "lists the data"(data: { items: ["a", "b"] }) {
+    state open = true
+    for it in items { if open { Text(it) } }
+    expect "b"
+}
+test "reporting an incident opens one more" {
+    use IncidentStore
+    state draft = ""
+    Text("{IncidentStore.open} open")
+    Input(bind: draft, label: "What happened")
+    Button("Report") { on click { IncidentStore.report(draft) } }
+
+    expect "2 open"
+    type "Queue backing up" into "What happened"
+    click "Report"
+    expect "3 open"
+}
+
+// AGENTS.md:144
+page Home(path: "/", title: "Home") {
+    state count = 0
+
+    Container {
+        Heading("Welcome").h1
+        Text("Count: {count}")
+        Button("+1").primary { on click { count = count + 1 } }
+    }
+}
+
+// AGENTS.md:195
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            Avatar(initials: "U").primary
+            Stack {
+                Text(name).bold
+                Text(role).muted
+            }
+            if active {
+                Badge("Active").success
+            }
+        }
+    }
+}
+page Doc(path: "/") {
+    // Usage
+    UserCard("Monzer", role: "Developer")
+    UserCard("Sam", role: "Designer").active
+}
+
+// AGENTS.md:235
+component Panel(_ title: String) {
+    slot trailing
+    Card {
+        Row(justify: .between) { Heading(title).h3  trailing }
+        children
+    }
+}
+page Doc(path: "/") {
+    Panel("Keys") {
+        trailing { Badge("Beta") }
+        Text("Rotate every 90 days.")
+        Button("Generate").primary { on click { generate() } }
+    }
+}
+
+// AGENTS.md:258
+component Rows(items: [Todo]) {
+    slot row(item: Todo, index: Number)
+    for it, i in items by it.id { row(item: it, index: i) }
+}
+page Doc(path: "/") {
+    Rows(items: todos) { row(t, i) { Text("{i}: {t.title}") } }
+}
+
+// AGENTS.md:291
+component TodoRow(_ label: String, done: Bool = false) {
+    event toggle(id: String)
+    Row {
+        Checkbox(checked: done) { on change { emit toggle(label) } }
+        Text(label)
+    }
+}
+page Doc(path: "/") {
+    TodoRow("Milk") { on toggle(id) { Todos.toggle(id) } }
+}
+
+// AGENTS.md:305
+enum Tone { calm, loud }
+type Todo { id: String, title: String, done: Bool = false, tone: Tone = .calm, note: String? = null }
+store Todos {
+    state items: [Todo] = []
+    action add(title: String) { items = items.concat([Todo(id: uuid(), title: title)]) }
+}
+
+// AGENTS.md:341
+type Booking {
+    id: Uuid
+    guest: Email
+    from: Date
+    nights: Number(1..=30)
+    total: Money
+}
+page Doc(path: "/") {
+    state due: Date = @2026-03-14
+    derived checkout = due.plus(days: 5)          // 2026-03-19
+    derived late = now.date().isAfter(checkout)
+    Text("Due {format(total)} on {checkout:.date(long)}")
+}
+
+// AGENTS.md:368
+page Doc(path: "/") {
+    state nights: Number(1..=30) = 12
+    state pass: String(minLength: 8) = "correcthorse"
+    state start: Date(after: @2026-01-01) = @2026-03-14
+}
+
+// AGENTS.md:415
+const API = "/api/v1"
+const PAGE_SIZE: Number = 20
+page Doc(path: "/") {
+    resource rows = fetch("{API}/rows?limit={PAGE_SIZE}")
+    Text(env.PUBLIC_APP_NAME)
+}
+
+// AGENTS.md:434
+page Home(path: "/", title: "Home") {
+    Image(hero, alt: "The team at the launch",
+          sizes: "(max-width: 768px) 100vw, 1200px",
+          placeholder: .blur)
+    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
+}
+page Doc(path: "/") {
+    action doc() {
+        image hero = "hero.jpg"
+    }
+}
+
+// AGENTS.md:476
+data posts = "posts.json"
+page Post(path: "/p/:slug", title: "Post", slug: String, paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    Heading(post?.title ?? "?").h1
+}
+
+// AGENTS.md:532
+app {
+    Navbar {
+        Navbar.Brand { Link("Ledger", to: "/") }
+        Navbar.Links { Link("Home", to: "/") }
+    }
+    Router
+}
+page Doc(path: "/") {
+    // Simple: Router at top level
+}
+
+// AGENTS.md:543
+app {
+    Row {
+        style { min-height: 100vh }
+
+        Sidebar {
+            style {
+                width: 220px
+                position: fixed
+                top: 0
+                left: 0
+                bottom: 0
+                background: #1A1A19
+            }
+            Sidebar.Header { Text("My App").bold }
+            Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+            Sidebar.Item(to: "/about", icon: "info") { Text("About") }
+        }
+
+        Container {
+            style {
+                margin-left: 220px
+                flex: 1
+            }
+
+            Router
+        }
+    }
+}
+page Doc(path: "/") {
+    // Sidebar layout: Router nested inside Row > Container
+}
+
+// AGENTS.md:594
+store CartStore {
+    state items = []
+    state total = 0
+
+    derived count = items.length
+
+    action add(product: Map) {
+        items = items.concat([product])
+        total = total + product.price
+    }
+
+    action getHeaders() {
+        let h = {}
+        h["Authorization"] = "Bearer " + accessToken
+        return h
+    }
+
+    action clear() {
+        items = []
+        total = 0
+    }
+}
+page Shop(path: "/shop") {
+    use CartStore
+    Text("Cart: {CartStore.count} items")
+    Button("Clear") { on click { CartStore.clear() } }
+}
+page Doc(path: "/") {
+    // Usage in any page/component:
+}
+
+// AGENTS.md:628
+page Doc(path: "/") {
+    state count = 0                      // Signal — reactive variable
+    state draft: String = ""             // with a declared type
+    derived double = count * 2           // Computed — auto-updates
+    effect { log(count) }                // Side effect — runs on change
+}
+
+// AGENTS.md:663
+page Doc(path: "/") {
+    Button("Click") {
+        on click { doSomething() }
+    }
+    Input(bind: query).text {
+        on input { search(query) }
+    }
+    Form {
+        on submit(event) { event.preventDefault()  saveData() }
+    }
+    Input(bind: q) {
+        on keydown(e) { if e.key == "Escape" { q = "" } }
+    }
+}
+
+// AGENTS.md:702
+page Signup(path: "/join", title: "Join", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state confirm = ""
+
+    validate email {
+        required
+        email
+        async "That address is taken" { !(await Backend.emailTaken(email)) }
+    }
+    validate password {
+        required
+        minLength(8) "Use at least 8 characters"
+        pattern(/[0-9]/) "Include a number"
+    }
+    validate confirm { matches(password) "The two passwords differ" }
+
+    Form(bind: form, show: .onBlur) {        // .onBlur (default) · .onSubmit · .live
+        on submit { Backend.signUp(email, password) }
+        Input(bind: email, label: "Email").email
+        Input(bind: password, label: "Password").password
+        Input(bind: confirm, label: "Confirm").password
+        Textarea(bind: note, label: "Anything else?", rows: 4, maxLength: 200)
+        Button("Join", type: .submit, disabled: !form.valid || form.pending).primary
+    }
+}
+
+// AGENTS.md:748
+store AuthStore {
+    state accessToken = ""
+
+    action getHeaders() {
+        let h = {}
+        h["Authorization"] = "Bearer " + accessToken
+        return h
+    }
+
+    action load() {
+        let r = await fetch("/api/me")
+        accessToken = r.token
+    }
+}
+
+// AGENTS.md:770
+page Doc(path: "/") {
+    action sync() {
+        try {
+            let r = await fetch("/api/sync")
+            let { items, total } = r
+            let [first, second] = items
+            for item, i in items { log("{i}: {item.title}") }
+            for n in 1..=total { count = n }
+        } catch e {
+            error = e.message
+        }
+    }
+}
+
+// AGENTS.md:788
+page Doc(path: "/") {
+    action doc() {
+        // Storage
+        localStorage.setItem("token", tok)
+        sessionStorage.getItem("key")
+
+        // Window & Document
+        window.open("https://example.com")
+        document.title = "New Title"
+
+        // Console
+        console.log("debug info")
+
+        // JSON
+        payload = JSON.parse(responseText)
+        text = JSON.stringify(obj)
+
+        // Timers
+        setTimeout(callback, 1000)
+
+        // Other globals: Math, Date, Array, Object, Promise, Error,
+        // parseInt, parseFloat, encodeURIComponent, atob, btoa, fetch,
+        // alert, confirm, prompt, RegExp, Map, Set, etc.
+    }
+}
+
+// AGENTS.md:822
+page Doc(path: "/") {
+    derived open = incidents.filter(i => !i.resolved)
+    derived byAge = rows.slice().sort((a, b) => a.age - b.age)
+    derived label = if let s = selected { s.title } else { "none" }
+    derived city = user?.address?.city ?? "—"
+    derived valid = /^[\w.]+@[\w.]+$/.test(email)
+    derived slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    derived merged = { ...defaults, ...overrides, open: true }
+    derived all = [...pinned, ...rest]
+    derived pages = 1..=pageCount
+    derived byTeam = rows.groupBy(r => r.team)
+    derived top = rows.sortBy(r => -r.score).take(3)
+    derived names = rows.map(r => r.name).unique().join(", ")
+    derived short = description.truncate(80)
+}
+
+// AGENTS.md:848
+page Doc(path: "/") {
+    Text(format(price, .currency))                 // $1,234.50 — the page's locale
+    Text(format(price, .currency, "EUR"))          // €1,234.50
+    Text(format(count, .integer))                  // 1,235
+    Text(format(ratio, .percent, 1))               // 25.6%
+    Text(format(views, .compact))                  // 1.2K
+    Text(format(when, .date, "long"))              // March 5, 2024
+    Text(format(when, "yyyy-MM-dd HH:mm"))         // a pattern: yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a
+    Text(ago(when))                                // 3 minutes ago · yesterday · in 2 weeks
+}
+
+// AGENTS.md:871
+page Doc(path: "/") {
+    // Conditional
+    if isLoggedIn {
+        Text("Welcome!")
+    } else {
+        Button("Log In") { on click { navigate("/login") } }
+    }
+
+    // A value that may be null, bound when it is not
+    if let user = session.user {
+        Text(user.name)
+    }
+
+    // Loop, keyed: an item keeps its nodes across inserts, removals and moves
+    for item in items by item.id {
+        Card { Text(item.name) }
+    }
+
+    // Loop with index
+    for item, index in items {
+        Text("{index}. {item.name}")
+    }
+
+    // Show/hide (keeps in DOM, toggles visibility)
+    show isVisible {
+        Modal { Text("Content") }
+    }
+
+    // One arm by a value: a resource's states, or an enum's cases
+    match tone {
+        .calm { Text("Calm") }
+        else { Text("Loud") }
+    }
+}
+
+// AGENTS.md:908
+page Doc(path: "/") {
+    resource users = fetch("/api/users")
+    match users {
+        loading { Spinner }
+        error(err) { Alert("Failed: {err.message}").danger }
+        ready(users) {
+            for user in users by user.id {
+                Text(user.name)
+            }
+        }
+    }
+}
+
+// AGENTS.md:928
+page Doc(path: "/") {
+    resource data = fetch("/api/users", method: "POST",
+        headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+        body: { action: "create", token: sessionToken })
+    match data {
+        ready(data) { Text("Done") }
+        else { Spinner }
+    }
+}
+
+// AGENTS.md:946
+type User { id: String, name: String }
+api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+    timeout: 10.seconds
+    retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
+    credentials: .sameOrigin           // .omit · .sameOrigin · .include — the
+                                       // session cookie, which is where a
+                                       // session belongs; `persist` is not
+
+    on request(r)  { r.headers["X-Request-Id"] = uuid() }
+    on response(r) { Metrics.record(r.status) }
+
+    get    users(page: Number = 1, q: String?)   -> [User]
+    get    user(id: String) at "users/:id"       -> User
+    post   createUser(body: Map)                 -> User
+        errors { 422 -> Map }
+    delete removeUser(id: String) at "users/:id"
+    post   avatar(id: String, file: File) at "users/:id/avatar" -> Url
+}
+
+// AGENTS.md:971
+api Backend from "openapi.json" (base: env.PUBLIC_API)
+
+// AGENTS.md:981
+page Doc(path: "/") {
+    resource users = Backend.users(page: n, cache: .swr(60.seconds), on: .focus)
+
+    match users {
+        loading { Skeleton }
+        error(e) {
+            match e {
+                .offline { Alert("You are offline.").warning }
+                .timeout { Alert("The server took too long.").warning }
+                else     { Alert(e.message).danger }
+            }
+            Button("Try again") { on click { users.reload() } }
+        }
+        ready(list) { for u in list by u.id { Text(u.name) } }
+    }
+}
+
+// AGENTS.md:1022
+page Doc(path: "/") {
+    socket chat = ws("wss://example.com/chat", protocols: ["v2"], heartbeat: 20.seconds) {
+        send    Outgoing                  // typed both ways
+        receive Incoming
+        on message(m) { Feed.add(m) }
+    }
+
+    match chat {
+        connecting { Spinner.sm }
+        open       { for m in chat.messages by m.id { Bubble(m) } }
+        closed(c)  { Alert("Disconnected ({c.code})").warning }
+        error(e)   { Alert(e.message).danger }
+    }
+    Button("Send") { on click { chat.send(Outgoing(text: draft))  draft = "" } }
+
+    stream ticks = sse("/events", events: ["price", "status"])
+    effect { if let p = ticks.last("price") { price = p } }
+
+    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+    Button("Sync") { on click { cart.post({ items: Cart.count }) } }
+
+    beacon("/analytics", { event: "checkout", value: total })   // survives unload
+}
+
+// AGENTS.md:1069
+page Doc(path: "/") {
+    action rename(id: String, name: String) {
+        optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
+        await Backend.updateUser(id, { name: name })
+        Backend.users.invalidate()
+    }
+}
+
+// AGENTS.md:1102
+page Doc(path: "/") {
+    Host(tag: "canvas",                            // div · span · canvas · svg · section · figure · pre · p · ul · table
+         mount: (node) => Chart.Chart(node, config),
+         update: (chart) => chart.update(rows),    // again whenever the state it reads changes
+         cleanup: (chart) => chart.destroy())      // when its page, branch or item leaves
+}
+
+// AGENTS.md:1112
+page Doc(path: "/") {
+    Stripe(publishableKey: key) { on ready { loaded = true } }
+}
+
+// AGENTS.md:1134
+page Doc(path: "/") {
+    navigate("/path")                    // Programmatic
+    Link("About", to: "/about")          // Declarative
+}
+
+// AGENTS.md:1147
+type Todo { id: String, title: String }
+store Todos {
+    state items: [Todo] = []
+    action add(title: String) {
+        items = items.concat([Todo(id: uuid(), title: title)])
+    }
+}
+component TodoRow(_ label: String, todo: Todo) {
+    Row {
+        Text(label)
+    }
+}
+page Home(path: "/", title: "Todos") {
+    use Todos
+    state draft = ""
+    Row(align: .center, gap: .sm) {
+        style {
+            padding: 6px 0
+            &:hover {
+                background: $surface-hover
+            }
+        }
+        on click {
+            draft = ""
+        }
+        Text("Todos").bold
+    }
+    if Todos.items.length == 0 {
+        Text("Nothing yet").muted
+    } else {
+        for t in Todos.items by t.id {
+            TodoRow(t.title, todo: t)
+        }
+    }
+    Button("Add").primary { on click { Todos.add(draft) } }
+}
+
+// AGENTS.md:1311
+page Doc(path: "/") {
+    Sidebar {
+        Sidebar.Header { Text("My App").heading }
+        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+        Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
+        Sidebar.Divider
+        Sidebar.Item(to: "/logout", icon: "logout") { Text("Logout") }
+    }
+}
+
+// AGENTS.md:1330
+page Doc(path: "/") {
+    Breadcrumb {
+        Breadcrumb.Item(to: "/") { Text("Home") }
+        Breadcrumb.Item(to: "/docs") { Text("Docs") }
+        Breadcrumb.Item { Text("Components") }
+    }
+}
+
+// AGENTS.md:1344
+page Doc(path: "/") {
+    Tooltip("Click to save") {
+        Button("Save").primary
+    }
+}
+
+// AGENTS.md:1354
+page Doc(path: "/") {
+    Avatar(src: "/photo.jpg", alt: "User")
+    Avatar(initials: "MO").primary
+    Avatar(initials: "J").lg
+}
+
+// AGENTS.md:1366
+page Doc(path: "/") {
+    Skeleton(height: "20px", width: "200px")
+    Skeleton(size: "48px").circle
+}
+
+// AGENTS.md:1377
+page Doc(path: "/") {
+    Carousel(autoplay: true, interval: 5000) {
+        Carousel.Slide { Image(src: "/1.jpg", alt: "Slide 1") }
+        Carousel.Slide { Image(src: "/2.jpg", alt: "Slide 2") }
+    }
+}
+
+// AGENTS.md:1388
+page Doc(path: "/") {
+    IconButton(icon: "close", label: "Close")
+    IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }
+    IconButton(icon: "menu", label: "Actions", aria-haspopup: "menu", aria-expanded: open) { on click { toggleMenu() } }
+}
+
+// AGENTS.md:1400
+page Doc(path: "/") {
+    Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")
+}
+
+// AGENTS.md:1408
+page Doc(path: "/") {
+    DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")
+}
+
+// AGENTS.md:1416
+page Doc(path: "/") {
+    FileUpload(accept: "image/*", label: "Upload Photo") {
+        on change(event) { handleFile(event) }
+    }
+    FileUpload(accept: ".pdf,.doc", label: "Documents").multiple
+}
+
+// AGENTS.md:1431
+page Doc(path: "/") {
+    Icon("home")
+    Icon("search").lg.primary
+    IconButton(icon: "close", label: "Close")
+    Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+}
+
+// AGENTS.md:1561
+page Doc(path: "/") {
+    Card {
+        style {
+            background: #f0f0f0
+            border-radius: 1rem
+            padding: 2rem
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1)
+            transition: all 200ms ease
+        }
+    }
+}
+
+// AGENTS.md:1625
+page Doc(path: "/") {
+    Heading("Title").h1 {
+        style {
+            font-size: 24px
+            @md { font-size: 34px }
+        }
+    }
+}
+
+// AGENTS.md:1655
+page Doc(path: "/") {
+    Sidebar {
+        style {
+            width: 260px
+            position: fixed
+
+            @media (max-width: 768px) {
+                display: none
+            }
+        }
+    }
+
+    Heading("Title").h1 {
+        style {
+            font-size: 3rem
+
+            @media (max-width: 768px) {
+                font-size: 1.5rem
+            }
+        }
+    }
+}
+
+// AGENTS.md:1689
+page Doc(path: "/") {
+    Button("Publish changes") {
+        style {
+            background: $brand
+            color: $on-brand
+            &:hover { background: $brand-hover }
+            &:active { transform: translateY(1px) }
+            &:focus-visible { outline: 2px solid $focus-ring; outline-offset: 2px }
+            &:disabled { opacity: 0.45 }
+        }
+    }
+    Input(placeholder: "shop.example.com").text {
+        style { &::placeholder { color: $text-tertiary } }
+    }
+    Link("Home", to: "/") {
+        style { &[aria-current="page"] { font-weight: 600 } }
+    }
+}
+
+// AGENTS.md:1724
+page Doc(path: "/") {
+    Button(label) {
+        style {
+            --hover-bg: {hoverColor}  // state, prop or derived
+            &:hover { background: var(--hover-bg) }
+        }
+    }
+}
+
+// AGENTS.md:1781
+theme Brand {
+    color-primary: #3B82F6
+    color-secondary: #8B5CF6
+    font-family: Inter, sans-serif
+    radius-md: 0.5rem
+}
+
+// AGENTS.md:1807
+theme Night { color-background: #0B1220  color-text: #E5E7EB  color-surface: #111827 }
+
+// AGENTS.md:2002
+page Doc(path: "/") {
+    Unsafe.Html(sanitize(post.body))     // markup from outside the project
+}
+
+// AGENTS.md:2072
+page Doc(path: "/") {
+    Text(t("nav.home"))                    // Translated text
+    Text(t("greeting", { name: user.name }))          // With interpolation
+    Text(t("items", { count: n }))                    // A plural form, picked by `count`
+    Button("EN") { on click { setLocale("en") } }     // Switch locale
+    Button("AR") { on click { setLocale("ar") } }     // Auto-RTL for Arabic
+}
+
+// AGENTS.md:2138
+page Report(path: "/", title: "Report") {
+    Document(page_size: "A4") {
+        Header {
+            Text("Company Inc.").muted.sm.right
+        }
+        Footer {
+            Text("Confidential").muted.sm.center
+        }
+        Section {
+            Heading("Q1 Report").h1
+            Text("Revenue grew 15% this quarter.")
+
+            Table {
+                Table.Head { Table.Row { Table.Cell("Region") Table.Cell("Revenue") } }
+                Table.Body { Table.Row { Table.Cell("North America") Table.Cell("$2.4M") } }
+            }
+
+            PageBreak
+            Heading("Highlights").h2
+            List {
+                Text("Launched 3 new products")
+                Text("Expanded to 5 markets")
+            }
+        }
+    }
+}
+
+// AGENTS.md:2233
+page Deck(path: "/", title: "Q1 Review") {
+    Presentation {
+        TitleSlide("Q1 Review", subtitle: "Company Inc. — March 2026")
+
+        Slide {
+            Heading("Highlights").h1
+            List {
+                Text("Launched 3 new products")
+                Text("Expanded to 5 markets")
+                Text("Revenue grew 15%")
+            }
+        }
+
+        TwoColumn {
+            Container {
+                Heading("Wins").h3
+                Text("New enterprise deals")
+            }
+            Container {
+                Heading("Risks").h3
+                Text("Supply chain delays")
+            }
+        }
+
+        ImageSlide(src: "chart.png", caption: "Q1 revenue by region")
+
+        SectionSlide("Q2 Plan").primary
+
+        Slide {
+            Heading("Thanks").h1
+            Text("Questions?")
+        }
+    }
+}
+
+// AGENTS.md:2276
+const SAMPLE = #"page Home(path: "/") { state n = 0 }"#
+const TRICKY = ##"a raw string ends with "# — like that"##
+const LETTER = """
+    Dear {name},
+      thank you.
+    """                        // "Dear Ada,\n  thank you."
+page Doc(path: "/") {
+    // Raw: no escapes, no splices — the text is what is written. As many `#`
+    // as it takes for the text not to close it.
+
+    // Block: over as many lines as it likes, escapes and splices on, and the
+    // indentation the source gave it removed. The closing `"""` says how far
+    // the text was indented, and that much comes off every line.
+}
+
+// AGENTS.md:2295
+page Doc(path: "/") {
+    Text("Total: {total:.currency}")          // Total: $1,234.50
+    Text("{count:.integer} items")            // 1,235 items
+    Text("Shipped {when:.date(long)}")        // Shipped March 5, 2026
+}
+
+// AGENTS.md:2532
+page Invoice(path: "/", title: "Invoice") {
+    Container {
+        Heading("Invoice #{number}").h1
+        Text("Customer: {customer.name}")
+
+        for item in items {
+            Card { Text(item.name).bold Text("${item.price}") }
+        }
+
+        if paid { Badge("PAID").success }
+        else    { Badge("UNPAID").danger }
+    }
+}
+page Doc(path: "/") {
+    // template.wf
+}
+

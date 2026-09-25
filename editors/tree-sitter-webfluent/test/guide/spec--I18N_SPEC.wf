@@ -1,0 +1,67 @@
+// spec/I18N_SPEC.md:98
+page Doc(path: "/") {
+    Text(t("home.title"))
+    Heading(t("app.name")).h1
+    Button(t("actions.save")).primary
+}
+
+// spec/I18N_SPEC.md:110
+page Doc(path: "/") {
+    // Translation: "Hello, {name}!"
+    Text(t("home.greeting", { name: user.name }))
+
+    // Translation: "{count} tasks remaining"
+    Text(t("tasks.remaining", { count: tasks.length }))
+}
+
+// spec/I18N_SPEC.md:132
+page Doc(path: "/") {
+    Button("English") { on click { setLocale("en") } }
+    Button("العربية") { on click { setLocale("ar") } }
+    Button("Español") { on click { setLocale("es") } }
+}
+
+// spec/I18N_SPEC.md:147
+page Doc(path: "/") {
+    Text("Language: {locale}")
+
+    if locale == "ar" {
+        Text("You are viewing the Arabic version")
+    }
+}
+
+// spec/I18N_SPEC.md:159
+page Doc(path: "/") {
+    // "ltr" or "rtl"
+    Text("Direction: {dir}")
+}
+
+// spec/I18N_SPEC.md:209
+app {
+    Navbar {
+        Navbar.Brand {
+            Text(t("nav.home")).heading
+        }
+        Navbar.Links {
+            Link(to: "/") { Text(t("nav.home")) }
+            Link(to: "/about") { Text(t("nav.about")) }
+        }
+        Navbar.Actions {
+            Dropdown(label: t("lang.switch")) {
+                Dropdown.Item { Button("English") { on click { setLocale("en") } } }
+                Dropdown.Item { Button("العربية") { on click { setLocale("ar") } } }
+            }
+        }
+    }
+
+    Router
+}
+
+// spec/I18N_SPEC.md:231
+page Home(path: "/") {
+    Container {
+        Heading(t("welcome")).h1.fadeIn
+        Text(t("greeting", { name: "Monzer" }))
+    }
+}
+

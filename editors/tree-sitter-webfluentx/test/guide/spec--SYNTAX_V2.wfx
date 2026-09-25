@@ -1,0 +1,11 @@
+// spec/SYNTAX_V2.md:426
+component TodoRow(_ label: String, todo: Todo)
+    event toggle(id: String)
+    Row(align: .center, gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click
+            emit toggle(todo.id)
+        Text(label).bold

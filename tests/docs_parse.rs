@@ -659,3 +659,141 @@ fn the_sites_guide_pages_are_current_with_the_guide() {
         "these pages are behind md-docs/; run `python3 scripts/site-from-guide.py`: {stale:?}"
     );
 }
+
+// ─── The editor grammar's corpus ─────────────────────────────────────────
+//
+// The Tree-sitter grammar that Zed highlights with is written by hand beside
+// the compiler's parser, and nothing held the one to the other: `just
+// grammar-test` parsed every `.wf` file in the repository, and no file in
+// the repository used `api`, `socket`, `validate`, `image`, `try`, a date
+// literal or most of what 4.0 added — so the grammar marked all of it an
+// error in every reader's editor and the check still passed. The guide's
+// blocks do use all of it, and this file already holds every one of them to
+// the compiler. So the blocks the compiler accepts are written out as the
+// grammar's corpus, one file per document, and the grammar is held to them.
+
+/// The documents whose blocks the compiler is held to, as above.
+fn corpus_documents() -> Vec<(String, Option<&'static str>)> {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut docs = vec![
+        ("AGENTS.md".to_string(), None),
+        ("README.md".to_string(), None),
+        ("RELEASE_NOTES.md".to_string(), Some("# WebFluent v2.2")),
+    ];
+    for dir in ["spec", "md-docs"] {
+        let mut names: Vec<String> = std::fs::read_dir(root.join(dir))
+            .unwrap()
+            .flatten()
+            .map(|e| e.file_name().to_string_lossy().to_string())
+            .filter(|n| n.ends_with(".md"))
+            .collect();
+        names.sort();
+        for name in names {
+            docs.push((format!("{dir}/{name}"), None));
+        }
+    }
+    docs
+}
+
+/// The corpus files for one document: its blocks as the compiler accepts
+/// them, braced (for `.wf`), and its indented blocks that are whole
+/// declarations as written (for `.wfx`).
+fn corpus_for(path: &str, stop: Option<&str>) -> (String, String) {
+    let markdown =
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(path)).unwrap();
+    let markdown = match stop.and_then(|stop| markdown.lines().position(|l| l.starts_with(stop))) {
+        Some(at) => markdown.lines().take(at).collect::<Vec<_>>().join("\n"),
+        None => markdown,
+    };
+    let mut wf = String::new();
+    let mut wfx = String::new();
+    for (line, block, indented) in wf_blocks(&markdown) {
+        if abbreviates(&block) {
+            continue;
+        }
+        let braced = if indented {
+            match webfluent::layout::to_braces(&block, &format!("{path}.wfx")) {
+                Ok(b) => b,
+                Err(_) => continue,
+            }
+        } else {
+            block.clone()
+        };
+        let (declarations, loose) = split(&braced);
+        let loose = loose.trim_matches('\n');
+        let as_render = format!(
+            "{declarations}page Doc(path: \"/\") {{\n{}}}\n",
+            indent(loose, "    ")
+        );
+        let as_action = format!(
+            "{declarations}page Doc(path: \"/\") {{\n    action doc() {{\n{}    }}\n}}\n",
+            indent(loose, "        ")
+        );
+        let accepted = if loose.trim().is_empty() && parse_source(&declarations, path).is_ok() {
+            declarations.clone()
+        } else if parse_source(&as_render, path).is_ok() {
+            as_render
+        } else if parse_source(&as_action, path).is_ok() {
+            as_action
+        } else {
+            continue;
+        };
+        wf.push_str(&format!("// {path}:{line}\n{accepted}\n"));
+        if indented && loose.trim().is_empty() {
+            wfx.push_str(&format!("// {path}:{line}\n{}\n", block.trim_end()));
+        }
+    }
+    (wf, wfx)
+}
+
+fn corpus_name(path: &str) -> String {
+    path.trim_end_matches(".md").replace('/', "--")
+}
+
+/// The committed corpus is what the guide's blocks are now. Run with
+/// `WF_WRITE_GUIDE_CORPUS=1` to rewrite it after the guide changes.
+#[test]
+fn the_editor_grammar_corpus_is_current_with_the_guide() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let wf_dir = root.join("editors/tree-sitter-webfluent/test/guide");
+    let wfx_dir = root.join("editors/tree-sitter-webfluentx/test/guide");
+    let write = std::env::var_os("WF_WRITE_GUIDE_CORPUS").is_some();
+    if write {
+        for dir in [&wf_dir, &wfx_dir] {
+            let _ = std::fs::remove_dir_all(dir);
+            std::fs::create_dir_all(dir).unwrap();
+        }
+    }
+    let mut stale = Vec::new();
+    let mut expected_files = Vec::new();
+    for (path, stop) in corpus_documents() {
+        let (wf, wfx) = corpus_for(&path, stop);
+        for (dir, ext, text) in [(&wf_dir, "wf", wf), (&wfx_dir, "wfx", wfx)] {
+            if text.trim().is_empty() {
+                continue;
+            }
+            let file = dir.join(format!("{}.{ext}", corpus_name(&path)));
+            expected_files.push(file.clone());
+            if write {
+                std::fs::write(&file, &text).unwrap();
+            } else if std::fs::read_to_string(&file).ok().as_deref() != Some(text.as_str()) {
+                stale.push(file.strip_prefix(root).unwrap().display().to_string());
+            }
+        }
+    }
+    // And nothing left over from a document that is gone.
+    for dir in [&wf_dir, &wfx_dir] {
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for e in entries.flatten() {
+                if !expected_files.contains(&e.path()) {
+                    stale.push(e.path().strip_prefix(root).unwrap().display().to_string());
+                }
+            }
+        }
+    }
+    assert!(
+        stale.is_empty(),
+        "the editor grammar's corpus is behind the guide; rewrite it with \
+         `WF_WRITE_GUIDE_CORPUS=1 cargo test --test docs_parse the_editor_grammar_corpus`: {stale:?}"
+    );
+}

@@ -1,0 +1,93 @@
+// README.md:10
+store Todos {
+    state items = []
+
+    action add(title: String) {
+        items = items.concat([{ id: uuid(), title: title, done: false }])
+    }
+}
+page Home(path: "/", title: "Todos") {
+    use Todos
+    state draft = ""
+
+    Container {
+        Heading("Todos").h1
+        Row(gap: .sm) {
+            Input(bind: draft, placeholder: "What needs doing?").text
+            Button("Add").primary { on click { Todos.add(draft)  draft = "" } }
+        }
+        for t in Todos.items by t.id {
+            Card { Text(t.title) }
+        }
+    }
+}
+app { Router }
+
+// README.md:74
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            Avatar(initials: "U").primary
+            Stack {
+                Text(name).bold
+                Text(role).muted
+            }
+            if active { Badge("Active").success }
+        }
+    }
+}
+page Doc(path: "/") {
+    UserCard("Monzer", role: "Developer")
+}
+
+// README.md:98
+page Doc(path: "/") {
+    resource users = fetch("/api/users")
+
+    match users {
+        loading      { Spinner }
+        error(err)   { Alert("Failed to load").danger }
+        ready(users) { for u in users by u.id { UserCard(u.name, role: u.role) } }
+    }
+}
+
+// README.md:114
+page Doc(path: "/") {
+    Button("Save").primary.lg.rounded
+
+    Button("Custom") {
+        style {
+            background: $surface
+            padding: $xl
+            &:hover { background: $primary }
+            @md { padding: $lg }
+        }
+    }
+}
+
+// README.md:135
+page Home(path: "/", title: "Home") {
+    state count = 0
+    Container {
+        Heading("Welcome").h1
+        Button("+1").primary {
+            on click {
+                count = count + 1
+            }
+        }
+    }
+}
+
+// README.md:149
+page Deck(path: "/", title: "Q1 Review") {
+    Presentation {
+        TitleSlide("Q1 Review", subtitle: "March 2026")
+        Slide {
+            Heading("Highlights").h1
+            List { Text("Revenue grew 15%")  Text("Expanded to 5 markets") }
+        }
+        SectionSlide("Q2 Plan").primary
+    }
+}
+

@@ -1,0 +1,23 @@
+// spec/SLIDES_SPEC.md:93
+page Doc(path: "/") {
+    Slide {
+        style { background: linear-gradient(135deg, #C69C6D, #8B5A2B) }
+        Heading("Tan-to-brown gradient").h1
+    }
+}
+
+// spec/SLIDES_SPEC.md:120
+page Doc(path: "/") {
+    Container {
+        style {
+            background: #2A2A28
+            padding: 24
+            border: 1pt #C69C6D
+            border-radius: 12
+            box-shadow: 4 4 #000000
+        }
+        Heading("Card heading").h3
+        Text("Card body.")
+    }
+}
+

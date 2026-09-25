@@ -1,0 +1,92 @@
+// md-docs/17-outputs.md:48
+type Line { item: String, qty: Number, price: Number }
+const LINES: [Line] = [
+    Line(item: "Design", qty: 12, price: 90),
+    Line(item: "Build", qty: 40, price: 110),
+]
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
+    Document(page_size: "A4") {
+        Header { Text("Acme Studio").muted.sm.right }
+        Footer { Text("Page footer — thank you for your business").muted.sm.center }
+        Section {
+            Heading("Invoice #2026-014").h1
+            Text("Issued {format("2026-09-01", .date, "long")}")
+            Spacer
+            Table {
+                Table.Head {
+                    Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Price")  Table.Cell("Amount") }
+                }
+                Table.Body {
+                    for l in LINES {
+                        Table.Row {
+                            Table.Cell(l.item)
+                            Table.Cell("{l.qty}")
+                            Table.Cell(format(l.price, .currency))
+                            Table.Cell(format(l.qty * l.price, .currency))
+                        }
+                    }
+                }
+            }
+            Divider
+            Text("Total: {format(total, .currency)}").bold.lg
+        }
+        PageBreak
+        Section {
+            Heading("Terms").h2
+            Paragraph { Text("Payment within 30 days.") }
+        }
+    }
+}
+
+// md-docs/17-outputs.md:124
+page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
+    Presentation {
+        TitleSlide("Q4 review", subtitle: "Acme Studio, October 2026")
+        SectionSlide("Numbers").primary
+        Slide {
+            Heading("Revenue").h2
+            List {
+                List.Item { Text("Up 18% on Q3") }
+                List.Item { Text("Three new enterprise accounts") }
+                List.Item { Text("Churn at 1.2%") }
+            }
+        }
+        TwoColumn {
+            Container {
+                Heading("What worked").h3
+                Text("Self-serve onboarding.")
+            }
+            Container {
+                Heading("What did not").h3
+                Text("The March pricing test.")
+            }
+        }
+        ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
+        Slide {
+            style { background: linear-gradient(135deg, #1E3A8A, #0F172A) }
+            Heading("Thank you").h1
+        }
+    }
+}
+
+// md-docs/17-outputs.md:196
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+

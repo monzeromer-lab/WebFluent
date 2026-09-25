@@ -1,0 +1,134 @@
+// spec/ACCESSIBILITY_SPEC.md:46
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Image(src: "/photo.jpg")
+
+    // Good
+    Image(src: "/photo.jpg", alt: "Team photo from the 2026 retreat")
+
+    // Decorative image — use empty alt
+    Image(src: "/divider.png", alt: "")
+}
+
+// spec/ACCESSIBILITY_SPEC.md:61
+page Doc(path: "/") {
+    // Bad — triggers warning
+    IconButton(icon: "close")
+
+    // Good
+    IconButton(icon: "close", label: "Close dialog")
+}
+
+// spec/ACCESSIBILITY_SPEC.md:73
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Input.text
+
+    // Good
+    Input(label: "Username").text
+    Input(placeholder: "Enter your name").text
+}
+
+// spec/ACCESSIBILITY_SPEC.md:86
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Checkbox(bind: agreed)
+    Switch(bind: darkMode)
+
+    // Good
+    Checkbox(bind: agreed, label: "I agree to the terms")
+    Switch(bind: darkMode, label: "Dark mode")
+}
+
+// spec/ACCESSIBILITY_SPEC.md:100
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Button
+
+    // Good
+    Button("Save")
+    Button("Delete").danger
+}
+
+// spec/ACCESSIBILITY_SPEC.md:113
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Link(to: "/about") {}
+
+    // Good
+    Link(to: "/about") { Text("About Us") }
+}
+
+// spec/ACCESSIBILITY_SPEC.md:125
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Heading("").h1
+
+    // Good
+    Heading("Welcome").h1
+}
+
+// spec/ACCESSIBILITY_SPEC.md:137
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Modal(visible: showModal) { Text("Content") }
+
+    // Good
+    Modal(visible: showModal, title: "Confirm Action") { Text("Are you sure?") }
+}
+
+// spec/ACCESSIBILITY_SPEC.md:149
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Video(src: "/intro.mp4")
+
+    // Good
+    Video(src: "/intro.mp4", controls: true)
+}
+
+// spec/ACCESSIBILITY_SPEC.md:161
+page Doc(path: "/") {
+    // Bad — triggers warning
+    Table {
+        Table.Row { Table.Cell("Alice") Table.Cell("Admin") }
+    }
+
+    // Good
+    Table {
+        Table.Head { Table.Cell("Name") Table.Cell("Role") }
+        Table.Row { Table.Cell("Alice") Table.Cell("Admin") }
+    }
+}
+
+// spec/ACCESSIBILITY_SPEC.md:178
+page Doc(path: "/") {
+    // Bad — triggers warning (skips h2)
+    Heading("Title").h1
+    Heading("Section").h3
+
+    // Good
+    Heading("Title").h1
+    Heading("Section").h2
+    Heading("Subsection").h3
+}
+
+// spec/ACCESSIBILITY_SPEC.md:193
+page Home(path: "/") {
+    Heading("Welcome").h2
+}
+page Home(path: "/") {
+    Heading("Title One").h1
+    Heading("Title Two").h1
+}
+page Home(path: "/") {
+    Heading("Welcome").h1
+    Heading("Features").h2
+}
+page Doc(path: "/") {
+    // Bad — no h1
+
+    // Bad — multiple h1
+
+    // Good
+}
+

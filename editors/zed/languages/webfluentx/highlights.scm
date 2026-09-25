@@ -26,6 +26,15 @@
   "theme"
   "type"
   "enum"
+  "const"
+  "image"
+  "api"
+  "external"
+  "element"
+  "from"
+  "fn"
+  "prop"
+  "integrity"
 ] @keyword
 
 (page_declaration name: (_) @type.definition)
@@ -34,6 +43,11 @@
 (theme_declaration name: (_) @type.definition)
 (type_declaration name: (_) @type.definition)
 (enum_declaration name: (_) @type.definition)
+(api_declaration name: (_) @type.definition)
+(animation_declaration name: (_) @type.definition)
+(type_declaration base: (_) @type)
+(const_declaration name: (_) @constant)
+(data_declaration name: (_) @constant)
 
 (parameter name: (_) @variable.parameter)
 (parameter "_" @punctuation.special)
@@ -86,6 +100,36 @@
 (emit_statement event: (_) @function)
 (use_declaration store: (_) @type)
 
+; ─── Services, connections and validation ───────────────────────────────
+
+[
+  "headers"
+  "errors"
+  "at"
+  "get"
+  "post"
+  "put"
+  "patch"
+  "delete"
+  "options"
+  "validate"
+  "socket"
+  "stream"
+  "channel"
+  "send"
+  "receive"
+  "try"
+  "catch"
+] @keyword
+
+(endpoint name: (_) @function.definition)
+(api_setting name: (identifier) @property)
+(endpoint_setting name: (identifier) @property)
+(header_name (_) @property)
+(connection_declaration name: (_) @variable)
+(validate_declaration name: (_) @variable)
+(validation_rule rule: (identifier) @function.builtin)
+
 ; ─── Control flow ───────────────────────────────────────────────────────
 
 [
@@ -109,12 +153,18 @@
 (for_statement index: (_) @variable)
 (error_pattern name: (_) @variable)
 (ready_pattern name: (_) @variable)
+(state_pattern name: (_) @variable)
 
 [
   (loading_pattern)
   (else_pattern)
 ] @keyword
 (error_pattern "error" @keyword)
+[
+  "connecting"
+  "open"
+  "closed"
+] @keyword
 (ready_pattern "ready" @keyword)
 
 ; Built-in statements that read like calls.
@@ -134,7 +184,7 @@
 ; `.primary`, `.lg` — a flag; `.info` — a case; `$surface` — a token.
 (flag) @attribute
 (enum_case) @constant
-(case_value name: (identifier) @constant)
+(case_value name: (_) @constant)
 (case_pattern binding: (_) @variable.parameter)
 (design_token) @variable.special
 
@@ -144,6 +194,9 @@
 (call_statement
   object: (component_identifier) @type
   method: (method) @function.method)
+(call_statement property: (property) @property)
+(store_member object: (component_identifier) @type)
+(store_member property: (property) @property)
 
 ; ─── Events and slots ───────────────────────────────────────────────────
 
@@ -190,6 +243,14 @@
 (escape_sequence) @string.escape
 (format_spec) @string.special
 (number) @number
+(temporal) @number
+(money) @number
+(duration) @number
+(color) @constant
+
+; The types the language brings with it, which a program names like its own.
+((named_type (component_identifier) @type.builtin)
+  (#match? @type.builtin "^(Date|Time|DateTime|Duration|Money|Url|Email|Color|Uuid|File|Secret)$"))
 (boolean) @boolean
 (null) @constant.builtin
 

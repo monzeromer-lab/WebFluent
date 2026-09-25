@@ -1,0 +1,62 @@
+// spec/TEMPLATE_ENGINE_SPEC.md:19
+page Doc(path: "/") {
+    // invoice.wf
+    Container {
+        Heading("Invoice #{number}").h1
+        Text("Date: {date}")
+        Text("Bill to: {customer.name}")
+
+        Table {
+            Table.Head { Table.Row { Table.Cell("Item") Table.Cell("Qty") Table.Cell("Price") } }
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.quantity}")
+                    Table.Cell("${item.price}")
+                }
+            }
+        }
+
+        Divider
+        Text("Total: ${total}").bold.lg
+    }
+}
+
+// spec/TEMPLATE_ENGINE_SPEC.md:92
+page Doc(path: "/") {
+    // Property access
+    Text(user.name)
+    Text(order.items[0].name)
+
+    // String interpolation
+    Text("Hello, {user.name}! You have {items.length} items.")
+
+    // Conditionals
+    if order.status == "shipped" {
+        Badge("Shipped").success
+    } else if order.status == "pending" {
+        Badge("Pending").warning
+    }
+
+    // Loops
+    for product in products {
+        Card {
+            Text(product.name).bold
+            Text("${product.price}")
+        }
+    }
+
+    // Nested loops
+    for category in categories {
+        Heading(category.name).h2
+        for item in category.items {
+            Text("- {item.name}")
+        }
+    }
+
+    // Boolean checks
+    if user.verified {
+        Badge("Verified").success
+    }
+}
+

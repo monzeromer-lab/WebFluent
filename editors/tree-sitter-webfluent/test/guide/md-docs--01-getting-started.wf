@@ -1,0 +1,28 @@
+// md-docs/01-getting-started.md:86
+app {
+    Navbar {
+        Navbar.Brand { Text("Hello").heading }
+        Navbar.Links {
+            Link("Home", to: "/")
+            Link("About", to: "/about")
+        }
+    }
+    Router
+}
+
+// md-docs/01-getting-started.md:101
+page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
+    state count = 0
+    Container {
+        Heading("Hello, world").h1
+        Text("You have clicked {count} times.")
+        Button("Click me").primary { on click { count = count + 1 } }
+    }
+}
+page About(path: "/about", title: "About", description: "What this site is for.") {
+    Container {
+        Heading("About").h1
+        Paragraph("Two pages, one shell, no framework.")
+    }
+}
+

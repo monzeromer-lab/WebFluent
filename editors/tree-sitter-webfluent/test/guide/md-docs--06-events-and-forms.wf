@@ -1,0 +1,179 @@
+// md-docs/06-events-and-forms.md:9
+page Clicks(path: "/") {
+    state n = 0
+    state last = ""
+    Button("+1") { on click { n = n + 1 } }
+    Input(bind: last, placeholder: "type") {
+        on input { log(last) }
+        on keydown(e) { if e.key == "Enter" { log("submitted {last}") } }
+        on focus { log("in") }
+        on blur { log("out") }
+    }
+    Text("{n}")
+}
+
+// md-docs/06-events-and-forms.md:38
+page Keys(path: "/") {
+    state open = false
+    state q = ""
+    Input(bind: q, ref: box, placeholder: "Search") {
+        on key("Escape") { q = "" }            // on the element: fires while it has focus
+        on key("Enter", e) { log(e.target.value) }
+    }
+    on key("ctrl+k") { box.focus() }           // on the page: fires anywhere on the page
+    on key("cmd+k") { box.focus() }
+    on key("?") { open = !open }
+    if open { Alert("Shortcuts: ctrl+k to search, ? for this.").info }
+}
+
+// md-docs/06-events-and-forms.md:65
+page Signup(path: "/") {
+    state name = ""
+    state email = ""
+    state plan = "free"
+    state agree = false
+    state seats = 1
+    state when: Date? = null
+
+    Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
+    Input(bind: email, label: "Email").email.required
+    Select(bind: plan, label: "Plan") {
+        Select.Option("Free", value: "free")
+        Select.Option("Team", value: "team")
+    }
+    Radio(bind: plan, value: "free", label: "Free")
+    Radio(bind: plan, value: "team", label: "Team")
+    Checkbox(bind: agree, label: "I agree to the terms")
+    Switch(bind: agree, label: "Same thing, as a switch")
+    Slider(bind: seats, min: 1, max: 50, label: "Seats")
+    DatePicker(bind: when, label: "Start date")
+    Text("{name} <{email}> wants {seats} {plan} seats from {when}")
+}
+
+// md-docs/06-events-and-forms.md:104
+page Contact(path: "/") {
+    state name = ""
+    state email = ""
+    state message = ""
+    state sent = false
+
+    action send() {
+        let r = await fetch("/api/contact", { method: "POST", body: { name: name, email: email, message: message } })
+        sent = true
+        form.reset()
+    }
+
+    Form(bind: form) {
+        on submit { send() }
+        Input(bind: name, name: "name", label: "Name").required
+        Input(bind: email, name: "email", label: "Email").email.required
+        Input(bind: message, name: "message", label: "Message").required
+        Button("Send", type: .submit, disabled: !form.valid || send.pending).primary
+        Text("Fields: {form.values.name} {form.values.email}").muted.sm
+    }
+    if sent { Alert("Thanks — we will be in touch.").success }
+}
+
+// md-docs/06-events-and-forms.md:153
+page Signup(path: "/join", title: "Join", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state confirm = ""
+
+    validate email {
+        required
+        email
+    }
+    validate password {
+        required
+        minLength(8) "Use at least 8 characters"
+        pattern(/[0-9]/) "Include a number"
+    }
+    validate confirm {
+        matches(password) "The two passwords differ"
+    }
+
+    Heading("Join").h1
+    Form(bind: form) {
+        on submit { log("signing up") }
+        Input(bind: email, label: "Email").email
+        Input(bind: password, label: "Password").password
+        Input(bind: confirm, label: "Confirm").password
+        Button("Join", type: .submit, disabled: !form.valid).primary
+    }
+}
+
+// md-docs/06-events-and-forms.md:217
+page Doc(path: "/") {
+    state nights: Number(1..=30) = 2
+    validate nights { required }
+}
+
+// md-docs/06-events-and-forms.md:227
+page Doc(path: "/") {
+    action signUp() {
+        try {
+            await Backend.signUp(email, password)
+        } catch e {
+            form.apply(e.body.errors)     // { email: "That address is taken" }
+        }
+    }
+}
+
+// md-docs/06-events-and-forms.md:245
+store Api {
+    state saved = 0
+    action save(payload: Map) {
+        let r = await fetch("/api/save", { method: "POST", body: payload })
+        saved = saved + 1
+    }
+}
+page Save(path: "/") {
+    use Api
+    state text = ""
+    Input(bind: text, label: "Note")
+    Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
+    if Api.save.pending { Spinner.sm }
+    Text("Saved {Api.saved} times")
+}
+
+// md-docs/06-events-and-forms.md:270
+component Counter(_ start: Number) {
+    event change(value: Number)
+    state n = start
+    Row(gap: .sm) {
+        Button("−") { on click { n = n - 1  emit change(n) } }
+        Text("{n}")
+        Button("+") { on click { n = n + 1  emit change(n) } }
+    }
+}
+page Use(path: "/") {
+    state total = 0
+    Counter(10) { on change(v) { total = v } }
+    Text("Now {total}")
+}
+
+// md-docs/06-events-and-forms.md:294
+page ThemePicker(path: "/") {
+    Row(gap: .sm) {
+        Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
+        Button("Dark", outlined: theme != "dark") { on click { setTheme("dark") } }
+        Button("System", outlined: theme != "system") { on click { setTheme("system") } }
+    }
+}
+
+// md-docs/06-events-and-forms.md:306
+page Overlays(path: "/") {
+    state confirm = false
+    state deleted = false
+    Button("Delete").danger { on click { confirm = true } }
+    Modal(visible: confirm, title: "Delete this?") {
+        Text("This cannot be undone.")
+        Modal.Footer {
+            Button("Cancel") { on click { confirm = false } }
+            Button("Delete").danger { on click { confirm = false  deleted = true } }
+        }
+    }
+    if deleted { Toast("Deleted").success }
+}
+

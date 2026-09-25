@@ -1,0 +1,106 @@
+// md-docs/12-styling.md:14
+theme Brand {
+    color-primary: #0F766E
+    color-secondary: #134E4A
+    color-background: #FFFFFF
+    color-surface: #F8FAFC
+    color-text: #0F172A
+    color-text-muted: #64748B
+    color-border: #E2E8F0
+    font-family: 'Inter', system-ui, sans-serif
+    font-family-mono: 'JetBrains Mono', monospace
+    radius-md: 14px
+    spacing-lg: 2.5rem
+    shadow-md: 0 4px 12px rgba(0,0,0,0.08)
+}
+
+// md-docs/12-styling.md:66
+page Styled(path: "/") {
+    state accent = "#D97706"
+    state wide = false
+    Card {
+        style {
+            padding: $lg                       // a token, resolved by the property: spacing-lg
+            background: $surface               // color-surface
+            border: 1px solid $border
+            border-radius: $radius-lg
+            box-shadow: $shadow-md
+            border-left: 4px solid {accent}    // a live value: repaints when `accent` changes
+            max-width: {if wide { "100%" } else { "40rem" }}
+            &:hover { box-shadow: $shadow-lg }
+            & > p { margin: 0 }
+            @media (max-width: 640px) { padding: $sm }
+        }
+        Text("Styled card")
+        Button("Widen") { on click { wide = !wide } }
+    }
+}
+
+// md-docs/12-styling.md:110
+page Fade(path: "/") {
+    state on = false
+    Card {
+        style { opacity: {if on { 1 } else { 0.4 }}; transform: {if on { "none" } else { "scale(0.98)" }} }
+        transition { opacity: $fast; transform: 200ms ease-out }
+        Text("Fades")
+    }
+    Button("Toggle") { on click { on = !on } }
+}
+
+// md-docs/12-styling.md:132
+page Classes(path: "/") {
+    state active = true
+    Container(class: "hero") {
+        Heading("Welcome", class: if active { "title is-on" } else { "title" }).h1
+    }
+}
+
+// md-docs/12-styling.md:164
+theme Light {
+    color-background: #FFFFFF
+    color-text: #0F172A
+}
+theme Night {
+    color-background: #0B1220
+    color-surface: #111827
+    color-text: #E5E7EB
+    color-text-muted: #9CA3AF
+    color-border: #1F2937
+}
+page Prefs(path: "/") {
+    Text("You are on the {theme} theme")
+    Row(gap: .sm) {
+        Button("Light") { on click { setTheme("light") } }
+        Button("Dark") { on click { setTheme("dark") } }
+        Button("System") { on click { setTheme("system") } }
+    }
+}
+
+// md-docs/12-styling.md:198
+page Layout(path: "/", title: "Layout", description: "A grid of projects.") {
+    Container {
+        Stack(gap: .lg) {
+            Row(justify: .between, align: .center) {
+                Heading("Projects").h2
+                Button("New").primary.sm
+            }
+            Grid(columns: { base: 1, md: 2, lg: 3 }, gap: .md) {
+                for n in 1..=6 { Card { Text("Project {n}") } }
+            }
+        }
+    }
+}
+
+// md-docs/12-styling.md:232
+theme Brand { screen-md: 900px }
+
+// md-docs/12-styling.md:241
+page Doc(path: "/") {
+    Heading("Title").h1 {
+        style {
+            font-size: 24px
+            @md { font-size: 34px }
+        }
+    }
+}
+

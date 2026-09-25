@@ -1,0 +1,92 @@
+// spec/ANIMATION_SPEC.md:63
+page Doc(path: "/") {
+    // Fade in a card on mount
+    Card.elevated.fadeIn {
+        Text("Welcome!")
+    }
+
+    // Slide up, slowly
+    Heading("Hello").h1.slideUp.slow
+
+    // Bounce a button
+    Button("Click me").primary.bounce
+
+    // Several elements, each with its own motion
+    Container {
+        Heading("Dashboard").h1.fadeIn
+        Row.slideUp {
+            Card.scaleIn { Text("Users: 42") }
+            Card(delay: "100ms").scaleIn { Text("Revenue: $1.2k") }
+        }
+    }
+
+    // A component takes the same props; they land on its root element
+    UserCard("Sam", role: "Designer", exit: .fadeOut).fadeIn
+}
+
+// spec/ANIMATION_SPEC.md:124
+page Doc(path: "/") {
+    // Smooth background and color transitions
+    Button("Hover me").primary {
+        transition {
+            background: 200ms ease
+            color: 200ms ease
+            transform: 150ms spring
+        }
+    }
+
+    // Transition all properties, with the theme's timing
+    Card.elevated {
+        style {
+            background: $surface
+        }
+        transition {
+            all: $animation-duration-normal $animation-easing-default
+        }
+    }
+}
+
+// spec/ANIMATION_SPEC.md:234
+page Doc(path: "/") {
+    Button("Submit").primary.shake {
+        on click(event) {
+            if username == "" {
+                replayAnimation(event.currentTarget, "shake")
+            }
+        }
+    }
+}
+
+// spec/ANIMATION_SPEC.md:275
+theme Brand {
+    animation-duration-normal: 200ms
+    animation-easing-default: ease-in-out
+}
+
+// spec/ANIMATION_SPEC.md:323
+page Doc(path: "/") {
+    Card.elevated.fadeIn { Text("Hello") }
+}
+
+// spec/ANIMATION_SPEC.md:333
+page Doc(path: "/") {
+    if isVisible {
+        Text("Hello", exit: .fadeOut).fadeIn
+    }
+}
+
+// spec/ANIMATION_SPEC.md:353
+page Doc(path: "/") {
+    Card { Text("x", exit: .fadeOut, delay: "100ms", easing: "ease-out") }
+}
+
+// spec/ANIMATION_SPEC.md:370
+page Doc(path: "/") {
+    Button("Click") {
+        transition {
+            background: 200ms ease
+            transform: 150ms spring
+        }
+    }
+}
+

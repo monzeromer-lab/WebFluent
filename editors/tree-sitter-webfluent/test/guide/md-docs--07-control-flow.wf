@@ -1,0 +1,94 @@
+// md-docs/07-control-flow.md:10
+page Status(path: "/") {
+    state count = 0
+    if count == 0 {
+        Text("Nothing yet.").muted
+    } else if count < 10 {
+        Text("A few: {count}")
+    } else {
+        Text("Many: {count}").bold
+    }
+    Button("+") { on click { count = count + 1 } }
+}
+
+// md-docs/07-control-flow.md:35
+type User { name: String, email: String? }
+page Profile(path: "/") {
+    state user: User? = null
+    if let u = user {
+        Text("Signed in as {u.name}")
+        if let mail = u.email { Text(mail).muted } else { Text("No email on file").muted }
+    } else {
+        Button("Sign in") { on click { user = User(name: "Sam", email: null) } }
+    }
+}
+
+// md-docs/07-control-flow.md:54
+type Todo { id: String, title: String, done: Bool = false }
+page List(path: "/") {
+    state todos: [Todo] = [Todo(id: "a", title: "Write"), Todo(id: "b", title: "Ship", done: true)]
+
+    for todo in todos by todo.id {                      // keyed: each item keeps its nodes
+        Row(gap: .sm) {
+            Checkbox(checked: todo.done, label: todo.title)
+        }
+    }
+    for todo, i in todos {                              // with the index
+        Text("{i + 1}. {todo.title}")
+    }
+    for n in 1..=3 { Badge("{n}") }                     // over a range
+}
+
+// md-docs/07-control-flow.md:84
+page Panel(path: "/") {
+    state open = true
+    Button("Toggle") { on click { open = !open } }
+    show open {
+        Card { Text("Still here when hidden; my state survives.") }
+    }
+}
+
+// md-docs/07-control-flow.md:99
+enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+page Job(path: "/") {
+    state s: Status = .idle
+    match s {
+        .idle { Button("Start") { on click { s = .running("build-42") } } }
+        .running(job) { Row { Spinner.sm  Text("Running {job}")  Button("Fail") { on click { s = .failed("timed out") } } } }
+        .failed(reason) { Alert("Failed: {reason}").danger }
+        .done(n) { Text("Done, {n} steps") }
+    }
+    Text(match s { .idle { "waiting" } .failed(r) { r } else { "busy" } })   // as a value
+}
+
+// md-docs/07-control-flow.md:125
+page Choose(path: "/") {
+    state n = 5
+    state nick: String? = null
+    derived size = if n > 10 { "big" } else { "small" }
+    derived label = nick ?? "anonymous"
+    Text("{size} {label}")
+}
+
+// md-docs/07-control-flow.md:140
+page Sync(path: "/") {
+    state rows: [Map] = []
+    state error = ""
+    action pull() {
+        try {
+            let r = await fetch("/api/rows")
+            let { items } = r
+            rows = []
+            for item, i in items {
+                if i >= 100 { return }
+                rows.push(item)
+            }
+        } catch e {
+            error = e.message
+        }
+    }
+    Button("Pull") { on click { pull() } }
+    if error != "" { Alert(error).danger }
+    Text("{rows.length} rows")
+}
+

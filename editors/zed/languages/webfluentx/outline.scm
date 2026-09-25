@@ -28,6 +28,29 @@
 (app_declaration
   "app" @context) @item
 
+(api_declaration
+  "api" @context
+  name: (_) @name) @item
+
+(endpoint
+  name: (_) @name
+  parameters: (parameter_list)? @context.extra) @item
+
+(const_declaration
+  "const" @context
+  name: (_) @name) @item
+
+(data_declaration
+  name: (_) @name) @item
+
+(animation_declaration
+  "animation" @context
+  name: (_) @name) @item
+
+(test_declaration
+  "test" @context
+  name: (_) @name) @item
+
 (state_declaration
   "state" @context
   name: (_) @name) @item
@@ -38,6 +61,13 @@
 
 (resource_declaration
   "resource" @context
+  name: (_) @name) @item
+
+(connection_declaration
+  name: (_) @name) @item
+
+(validate_declaration
+  "validate" @context
   name: (_) @name) @item
 
 (action_declaration

@@ -150,8 +150,18 @@ grammar-test: grammar-generate
     cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q \
         $(find ../../site ../../tests ../../examples -name '*.wf' -not -path '*/tests/migrate/corpus/*' 2>/dev/null) \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
+    # Every block of the guide the compiler accepts (tests/docs_parse.rs keeps
+    # `test/guide` current): the files above use a fraction of the language.
+    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q test/guide/*.wf \
+        | tee /dev/stderr | grep -q 'failed parses: 0;'
     rm -rf target/grammar-wfx && mkdir -p target/grammar-wfx && cp -r site target/grammar-wfx/site \
         && cargo run -q -- fmt --to wfx target/grammar-wfx/site > /dev/null
+    # The guide in the indented layout: its `.wfx` blocks as written, and its
+    # braced ones converted. A file the converter refuses — one that indents
+    # a line deeper without opening a block — keeps its braced spelling.
+    mkdir -p target/grammar-wfx/guide && cp {{grammar_dir}}/test/guide/*.wf target/grammar-wfx/guide/ \
+        && (cargo run -q -- fmt --to wfx target/grammar-wfx/guide > /dev/null 2>&1 || true) \
+        && rm -f target/grammar-wfx/guide/*.wf && cp {{grammarx_dir}}/test/guide/*.wfx target/grammar-wfx/guide/
     cd {{grammarx_dir}} && {{tree_sitter}} parse --stat -q $(find ../../target/grammar-wfx -name '*.wfx') \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
 

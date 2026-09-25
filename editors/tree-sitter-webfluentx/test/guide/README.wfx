@@ -1,0 +1,8 @@
+// README.md:135
+page Home(path: "/", title: "Home")
+    state count = 0
+    Container
+        Heading("Welcome").h1
+        Button("+1").primary
+            on click
+                count = count + 1

@@ -1,0 +1,451 @@
+================================================================================
+A call with a bare name for an argument, against a scoped slot's fill
+================================================================================
+
+page P(path: "/") {
+    Button("x") { on click { remove(i) } }
+    Rows(items: todos) { row(t, i) { Text(t) } }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (event_handler
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (identifier)
+                  (arguments
+                    (identifier))))))))
+      (element
+        (component_identifier)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (identifier)))
+        (block
+          (slot_fill
+            (identifier)
+            (identifier)
+            (identifier)
+            (block
+              (element
+                (builtin_component)
+                (argument_list
+                  (identifier))))))))))
+
+================================================================================
+A service: settings, a hook, headers, endpoints, errors
+================================================================================
+
+api Backend(base: "/api/v1") {
+    timeout: 10.seconds
+    on request(r) { log(r) }
+    headers { Accept-Language: lang }
+    get users(page: Number = 1) -> [User]
+    post createUser(body: Map) -> User errors { 422 -> Map }
+    delete removeUser(id: String) at "users/:id"
+}
+api Spec from "openapi.json" (base: env.PUBLIC_API)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (api_declaration
+    (component_identifier)
+    (api_settings
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (api_body
+      (api_setting
+        (identifier)
+        (duration))
+      (event_handler
+        (identifier)
+        (identifier)
+        (block
+          (log_statement
+            (identifier))))
+      (api_headers
+        (header
+          (header_name
+            (component_identifier)
+            (component_identifier))
+          (identifier)))
+      (endpoint
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type)
+            (number)))
+        (list_type
+          (named_type
+            (component_identifier))))
+      (endpoint
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type)))
+        (named_type
+          (component_identifier))
+        (endpoint_errors
+          (error_mapping
+            (number)
+            (builtin_type))))
+      (endpoint
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (builtin_type)))
+        (string
+          (string_content)))))
+  (api_declaration
+    (component_identifier)
+    (string
+      (string_content))
+    (api_settings
+      (named_argument
+        (attribute_name
+          (identifier))
+        (member_expression
+          (identifier)
+          (component_identifier))))))
+
+================================================================================
+Validation rules
+================================================================================
+
+page P(path: "/") {
+    validate email {
+        required
+        minLength(8) "Use at least 8 characters"
+        async "Taken" { !(await Backend.taken(email)) }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (validate_declaration
+        (identifier)
+        (validation_rule
+          (identifier))
+        (validation_rule
+          (identifier)
+          (arguments
+            (number))
+          (string
+            (string_content)))
+        (validation_rule
+          (identifier)
+          (string
+            (string_content))
+          (unary_expression
+            (parenthesized_expression
+              (unary_expression
+                (call_expression
+                  (member_expression
+                    (component_identifier)
+                    (identifier))
+                  (arguments
+                    (identifier)))))))))))
+
+================================================================================
+A connection and the states a match reads
+================================================================================
+
+page P(path: "/") {
+    socket chat = ws("wss://x", heartbeat: 20.seconds) {
+        send Outgoing
+        receive Incoming
+        on message(m) { log(m) }
+    }
+    match chat {
+        connecting { Spinner }
+        closed(c) { Text(c.code) }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (connection_declaration
+        (identifier)
+        (call_expression
+          (identifier)
+          (arguments
+            (string
+              (string_content))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (duration))))
+        (connection_body
+          (message_type
+            (named_type
+              (component_identifier)))
+          (message_type
+            (named_type
+              (component_identifier)))
+          (event_handler
+            (identifier)
+            (identifier)
+            (block
+              (log_statement
+                (identifier))))))
+      (match_statement
+        (identifier)
+        (match_arm
+          (state_pattern)
+          (block
+            (element
+              (builtin_component))))
+        (match_arm
+          (state_pattern
+            (identifier))
+          (block
+            (element
+              (builtin_component)
+              (argument_list
+                (member_expression
+                  (identifier)
+                  (identifier))))))))))
+
+================================================================================
+Refined, extended and annotated types
+================================================================================
+
+type Admin = User { role: String }
+page P(path: "/") {
+    state nights: Number(1..=30) = 12
+    derived label: String = "x"
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (type_declaration
+    (component_identifier)
+    (component_identifier)
+    (field_declaration
+      (identifier)
+      (builtin_type)))
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (refined_type
+          (builtin_type)
+          (range_expression
+            (number)
+            (number)))
+        (number))
+      (derived_declaration
+        (identifier)
+        (builtin_type)
+        (string
+          (string_content))))))
+
+================================================================================
+The language's own literals
+================================================================================
+
+const DUE = @2026-03-14
+const AT = @2026-03-14T09:30Z
+const PRICE = €249.00
+const WAIT = 250.ms
+const INK = #0F766E
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (const_declaration
+    (component_identifier)
+    (temporal))
+  (const_declaration
+    (component_identifier)
+    (temporal))
+  (const_declaration
+    (component_identifier)
+    (money))
+  (const_declaration
+    (component_identifier)
+    (duration))
+  (const_declaration
+    (component_identifier)
+    (color)))
+
+================================================================================
+A store's member assigned and called where a statement starts
+================================================================================
+
+page P(path: "/") {
+    Button("x") { on click { Ui.confirmId = d.id; Backend.users.invalidate() } }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (event_handler
+            (identifier)
+            (block
+              (assignment
+                (store_member
+                  (component_identifier)
+                  (property))
+                (member_expression
+                  (identifier)
+                  (identifier)))
+              (call_statement
+                (component_identifier)
+                (property)
+                (method)
+                (arguments)))))))))
+
+================================================================================
+Words that are keywords elsewhere, used as values
+================================================================================
+
+page P(path: "/") {
+    state on = false
+    FileUpload(label: "f") { on change { handle(event) } }
+    Button("t") { on click { on = !on } }
+    Card(animate: .Drop) { Text("{\n}") }
+    Text(Row(id: 1).id)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (state_declaration
+        (identifier)
+        (boolean))
+      (element
+        (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (string
+              (string_content))))
+        (block
+          (event_handler
+            (identifier)
+            (block
+              (expression_statement
+                (call_expression
+                  (identifier)
+                  (arguments
+                    (identifier))))))))
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)))
+        (block
+          (event_handler
+            (identifier)
+            (block
+              (assignment
+                (identifier)
+                (unary_expression
+                  (identifier)))))))
+      (element
+        (builtin_component)
+        (argument_list
+          (named_argument
+            (attribute_name
+              (identifier))
+            (enum_case
+              (component_identifier))))
+        (block
+          (element
+            (builtin_component)
+            (argument_list
+              (string
+                (string_content)
+                (string_content))))))
+      (element
+        (builtin_component)
+        (argument_list
+          (member_expression
+            (call_expression
+              (builtin_component)
+              (arguments
+                (named_argument
+                  (attribute_name
+                    (identifier))
+                  (number))))
+            (identifier)))))))
