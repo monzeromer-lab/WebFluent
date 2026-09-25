@@ -53,6 +53,19 @@ site-build:
     cargo build --release
     target/release/wf build -d site
 
+# ── Release ──────────────────────────────────────────
+
+# Then write the release notes' section, and `just preflight vVERSION`.
+# Set both crates to VERSION, and the lock file with them
+bump version:
+    sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml crates/wf-lsp/Cargo.toml
+    cargo update -w --quiet
+    @grep -H '^version' Cargo.toml crates/wf-lsp/Cargo.toml
+
+# What the release workflow checks before it builds anything for TAG
+preflight tag:
+    scripts/release-preflight.sh {{tag}}
+
 # ── Package ──────────────────────────────────────────
 
 # Build .deb package (installs cargo-deb if needed)

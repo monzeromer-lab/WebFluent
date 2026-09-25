@@ -16,6 +16,28 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  # `release.yml` runs only when a tag is pushed, so a mistake in it would
+  # first show halfway through a release. Its scripts and every workflow are
+  # linted here instead, on every change.
+  workflows:
+    name: Workflows and release scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A Python of its own: the runner's system Python refuses `pip install`.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install actionlint and shellcheck
+        run: python -m pip install --quiet actionlint-py shellcheck-py
+
+      - name: Lint
+        run: |
+          shellcheck scripts/*.sh
+          actionlint .github/workflows/*.yml
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest
