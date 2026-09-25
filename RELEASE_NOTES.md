@@ -1,3 +1,32 @@
+# WebFluent v4.0.1 Release Notes
+
+## Fixed
+
+### A translation paints wherever it is written
+
+The static paint resolved `t(…)` only when it was the whole of a text.
+`Text(t("name"))` painted; `"Hello, {t("name")}"`, `"{n} " + t("items")`,
+an `if` on a translation, and a translated prop that a component spliced
+into its own text all painted **empty**, and stayed empty until the page's
+script ran — so a reader without JavaScript, and a crawler, saw nothing
+there. A static or server-rendered page with more than one locale almost
+certainly had some.
+
+The build-time evaluator now answers `t("key")` and `t("key", { … })`
+wherever they appear, from the default locale, with the same plural
+picking, placeholder filling and fallback to the key that `Text(t(…))`
+always had. Nothing to change in your source: rebuild, and the text is in
+the HTML.
+
+### The documentation site
+
+The Security chapter was missing from the navigation and the two chapters
+after it were numbered one short; the Styling chapter was behind the guide
+by five rows of the design-token table; an Arabic reader saw each page's
+breadcrumb and prev/next titles in English; and the header read 3.0. The
+site is now held to the guide by two tests, so its pages cannot fall behind
+the chapters they are generated from again.
+
 # WebFluent v4.0 Release Notes
 
 Thirteen things the language could not do, or did badly. The runtime is
