@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+mod browser;
 mod cli;
 mod codegen;
 mod config;
@@ -11,7 +12,9 @@ mod i18n;
 mod layout;
 mod lexer;
 mod linter;
+mod media;
 mod migrate;
+mod openapi;
 mod parser;
 mod registry;
 mod runtime;
@@ -47,6 +50,10 @@ enum Commands {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
+        /// Print what the build weighs: every file, gzipped, and the runtime
+        /// modules it kept and left out
+        #[arg(long)]
+        stats: bool,
     },
     /// Start the development server
     Serve {
@@ -115,6 +122,30 @@ enum Commands {
         #[arg(long)]
         update: bool,
     },
+    /// What this project trusts: markup it did not write, other origins,
+    /// what it keeps on the reader's machine, its `env` names, its policy
+    /// and its dependencies
+    Audit {
+        /// Project directory (default: current directory)
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+    },
+    /// Load every page of a built project in a real browser: errors,
+    /// failed requests, paint timing, and which built-ins it drew
+    Verify {
+        /// Project directory (default: current directory)
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Print JSON, for a pipeline
+        #[arg(long)]
+        json: bool,
+        /// Fail a route whose first paint is slower than this, in milliseconds
+        #[arg(long, value_name = "MS")]
+        budget: Option<u64>,
+    },
     /// Describe every built-in component: props, cases, flags, events, slots, parts
     Registry {
         /// Print JSON, for tools
@@ -153,7 +184,7 @@ fn main() {
 
     let result = match cli.command {
         Commands::Init { name, template } => cli::init::run_init(&name, &template),
-        Commands::Build { dir } => cli::build::run_build(&dir),
+        Commands::Build { dir, stats } => cli::build::run_build_with(&dir, stats),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),
         Commands::Render {
@@ -183,6 +214,8 @@ fn main() {
         } => cli::fmt::run_fmt(&path, to.as_deref(), check, stdout),
         Commands::Test { path, update } => cli::test::run_test(&path, update),
         Commands::Docs { dir, out } => cli::docs::run_docs(&dir, &out),
+        Commands::Audit { path, json } => cli::audit::run_audit(&path, json),
+        Commands::Verify { path, json, budget } => cli::verify::run_verify(&path, json, budget),
         Commands::Registry { json } => cli::describe::run_registry(json),
         Commands::Types { path, json } => cli::describe::run_types(&path, json),
     };

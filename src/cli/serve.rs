@@ -41,6 +41,105 @@ const DEV_SCRIPT: &str = r##"(() => {
     overlay.querySelector("pre").textContent = error;
   }
   function hide() { if (overlay) { overlay.remove(); overlay = null; } }
+
+  // ─── Stores ─────────────────────────────────────────
+  //
+  // A store is a signal nobody can see. This panel shows what each one
+  // holds, what every action did to it, and lets a step be put back — the
+  // three things that make a bug in shared state findable rather than
+  // guessed at.
+  const log = [];
+  let panel = null, list = null, tree = null;
+  function css(node, text) { node.style.cssText = text; }
+  function json(value) {
+    try { return JSON.stringify(value); } catch (e) { return String(value); }
+  }
+  function changed(before, after) {
+    if (!before) return "";
+    return Object.keys(after || {})
+      .filter((k) => json(before[k]) !== json(after[k]))
+      .map((k) => k + ": " + json(before[k]) + " \u2192 " + json(after[k]))
+      .join(", ");
+  }
+  function drawTree() {
+    const held = window.WF.storeSnapshot();
+    tree.textContent = "";
+    const names = Object.keys(held);
+    if (!names.length) {
+      const empty = document.createElement("div");
+      css(empty, "color:#9ca3af");
+      empty.textContent = "No store has been read yet.";
+      tree.appendChild(empty);
+      return;
+    }
+    for (const name of names) {
+      const row = document.createElement("div");
+      css(row, "margin-bottom:6px");
+      const title = document.createElement("b");
+      title.textContent = name;
+      title.style.color = "#93c5fd";
+      const body = document.createElement("pre");
+      css(body, "margin:2px 0 0;white-space:pre-wrap;color:#e5e7eb");
+      try { body.textContent = JSON.stringify(held[name], null, 2); }
+      catch (e) { body.textContent = String(held[name]); }
+      row.append(title, body);
+      tree.appendChild(row);
+    }
+  }
+  function drawLog() {
+    list.textContent = "";
+    for (const entry of log.slice(-60).reverse()) {
+      const row = document.createElement("button");
+      css(row, "display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #374151;color:inherit;font:inherit;padding:6px 0;cursor:pointer");
+      const head = document.createElement("div");
+      head.textContent = entry.action
+        ? entry.store + "." + entry.action + "(" + entry.args.map(json).join(", ") + ")"
+        : entry.store + " \u2014 built";
+      head.style.color = "#a7f3d0";
+      const diff = document.createElement("div");
+      diff.style.color = "#9ca3af";
+      diff.textContent = changed(entry.before, entry.after) || "nothing changed";
+      row.append(head, diff);
+      // Time travel: put the store back to what it held before this ran.
+      row.title = entry.before ? "Put the store back to before this action" : "";
+      row.onclick = () => {
+        if (!entry.before) return;
+        window.WF.restoreStore(entry.store, entry.before);
+        drawTree();
+      };
+      list.appendChild(row);
+    }
+  }
+  function devtools() {
+    if (!window.WF || typeof window.WF.watchStores !== "function") return;
+    const open = document.createElement("button");
+    open.textContent = "stores";
+    css(open, "position:fixed;right:12px;bottom:12px;z-index:2147483646;background:#111827;color:#e5e7eb;border:1px solid #374151;border-radius:6px;padding:4px 10px;font:12px ui-monospace,Menlo,monospace;cursor:pointer");
+    panel = document.createElement("div");
+    css(panel, "position:fixed;right:12px;bottom:48px;width:360px;max-height:60vh;overflow:auto;z-index:2147483646;background:#111827;color:#e5e7eb;border:1px solid #374151;border-radius:8px;padding:12px;font:12px/1.5 ui-monospace,Menlo,monospace;display:none");
+    const head = document.createElement("div");
+    head.textContent = "Stores \u2014 click an action to put it back";
+    css(head, "color:#9ca3af;margin-bottom:8px");
+    tree = document.createElement("div");
+    list = document.createElement("div");
+    css(list, "margin-top:10px;border-top:1px solid #374151");
+    panel.append(head, tree, list);
+    open.onclick = () => {
+      const showing = panel.style.display === "block";
+      panel.style.display = showing ? "none" : "block";
+      if (!showing) { drawTree(); drawLog(); }
+    };
+    document.body.append(open, panel);
+    window.WF.watchStores((entry) => {
+      log.push(entry);
+      if (panel.style.display === "block") { drawTree(); drawLog(); }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", devtools);
+  } else {
+    devtools();
+  }
   async function poll() {
     try {
       const r = await fetch("/__wf/status", { cache: "no-store" });

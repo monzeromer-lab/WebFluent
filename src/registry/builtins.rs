@@ -219,6 +219,29 @@ const ANIMATIONS: &[CaseSig] = &[
     case("shake", "shake", "Shake"),
     case("pulse", "pulse", "Pulse"),
     case("spin", "spin", "Spin"),
+    case(
+        "expand",
+        "expand",
+        "Open to the height of what is inside, which CSS alone cannot do",
+    ),
+    case("collapse", "collapse", "Close to nothing"),
+];
+/// The easings a design names. Each is a token, so a theme retunes them
+/// once — and any CSS timing function may be written as a string instead.
+const EASINGS: &[CaseSig] = &[
+    case("standard", "", "The design's own pacing"),
+    case(
+        "spring",
+        "",
+        "Overshoots a little and settles, like a real spring",
+    ),
+    case("ease", "", "Slow at both ends"),
+    case("easeIn", "", "Slow to start"),
+    case("easeOut", "", "Slow to stop"),
+    case("easeInOut", "", "Slow at both ends, more so than `ease`"),
+    case("linear", "", "The same speed throughout"),
+    case("bouncy", "", "Overshoots hard"),
+    case("smooth", "", "Even, with no overshoot"),
 ];
 const SPEEDS: &[CaseSig] = &[
     case("fast", "fast", "150ms"),
@@ -259,6 +282,13 @@ const ERROR: PropSig = special(
     "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`",
 );
 const DISABLED: PropSig = attr_flag("disabled", "Whether the control is inert");
+/// A layout that asks to reflow on a narrow screen. Without it a layout
+/// stays as it was written, at every width.
+const STACKS: PropSig = flag(
+    "stacks",
+    "stacks",
+    "Reflow on a narrow screen: a Row becomes a column, a Grid one column",
+);
 const VALUE: PropSig = attr(
     "value",
     PropType::Any,
@@ -313,15 +343,39 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
     variant("speed", SPEEDS, "How fast its animation runs"),
     special("duration", PropType::Str, "Animation length, e.g. `300ms`"),
     special("delay", PropType::Str, "Wait before the animation starts"),
-    special(
-        "easing",
-        PropType::Str,
-        "Timing function of the animation, e.g. `ease-out`",
-    ),
+    PropSig {
+        name: "easing",
+        ty: PropType::Enum(EASINGS),
+        summary: "How the animation is paced — a named easing, or any CSS timing function",
+        sink: Sink::Special,
+        legacy: Legacy::Attr,
+        shorthand: false,
+    },
     special(
         "stagger",
         PropType::Str,
         "Delay added per item of a list, e.g. `50ms`",
+    ),
+    PropSig {
+        name: "on",
+        ty: PropType::Enum(&[
+            case("mount", "mount", "When it appears (the default)"),
+            case("enterView", "enterView", "When it first scrolls into view"),
+        ]),
+        summary: "When its animation plays",
+        sink: Sink::Special,
+        legacy: Legacy::Attr,
+        shorthand: false,
+    },
+    special(
+        "count",
+        PropType::Str,
+        "How long the number it shows takes to count to a new value, e.g. `600ms`",
+    ),
+    special(
+        "shared",
+        PropType::Str,
+        "A name this element keeps across a route change, so the browser carries it from one page to the next",
     ),
     special(
         "class",
@@ -426,9 +480,22 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Row",
         "Layout",
-        "Horizontal flex layout.",
+        "Horizontal flex layout. It stays a row at every width unless `.stacks` or a responsive `direction` says otherwise.",
         None,
-        &[GAP, ALIGN, JUSTIFY],
+        &[
+            GAP,
+            ALIGN,
+            JUSTIFY,
+            special(
+                "direction",
+                PropType::Enum(&[
+                    case("row", "", "Side by side"),
+                    case("column", "", "Stacked"),
+                ]),
+                "Which way its children run; takes a value per breakpoint",
+            ),
+            STACKS,
+        ],
         &[],
         G,
         Children::Elements,
@@ -438,11 +505,14 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Layout",
         "A child of the 12-column grid, spanning `span` columns.",
         None,
-        &[special(
-            "span",
-            PropType::Num,
-            "How many of the 12 grid columns to span",
-        )],
+        &[
+            special(
+                "span",
+                PropType::Num,
+                "How many of the 12 grid columns to span",
+            ),
+            STACKS,
+        ],
         &[],
         G,
         Children::Elements,
@@ -457,6 +527,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             GAP,
             ALIGN,
             JUSTIFY,
+            STACKS,
         ],
         &[],
         G,
@@ -1094,14 +1165,53 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Form",
         "Groups controls; `on submit` runs when it is submitted, and the page never navigates away.",
         None,
-        &[special(
-            "bind",
-            PropType::State,
-            "A handle on the form: `form.valid`, `form.values` by field name, `form.reset()`",
-        )],
+        &[
+            special(
+                "bind",
+                PropType::State,
+                "A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)`",
+            ),
+            attr(
+                "show",
+                PropType::Enum(&[
+                    case(
+                        "onBlur",
+                        "onBlur",
+                        "After the reader leaves the field (the default)",
+                    ),
+                    case("onSubmit", "onSubmit", "Only after a submit"),
+                    case("live", "live", "As they type"),
+                ]),
+                "When a `validate` block's message is shown",
+            ),
+        ],
         &[],
         G_FORM,
         Children::Elements,
+    ),
+    comp(
+        "Textarea",
+        "Form",
+        "Several lines of text. With `label`, `hint` or `error` it is a labelled field; with `maxLength` it counts what is left.",
+        None,
+        &[
+            BIND,
+            LABEL,
+            HINT,
+            ERROR,
+            attr(
+                "placeholder",
+                PropType::Str,
+                "Hint shown while the field is empty",
+            ),
+            attr("rows", PropType::Num, "How many lines it shows"),
+            attr("maxLength", PropType::Num, "The most characters it takes"),
+            attr_flag("required", "Whether the form refuses to submit without it"),
+            DISABLED,
+        ],
+        &[],
+        G_INPUT,
+        Children::None,
     ),
     // ─── Feedback ─────────────────────────────────────────────────────────
     comp(
@@ -1304,10 +1414,32 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Image",
         "Media",
-        "Image; `alt` is required for accessibility (rule A01).",
-        None,
+        "Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.",
+        Some(special(
+            "source",
+            PropType::Any,
+            "An `image` the program declares, or a URL",
+        )),
         &[
             attr("src", PropType::Str, "Image URL"),
+            special(
+                "sizes",
+                PropType::Str,
+                "How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px`",
+            ),
+            special(
+                "placeholder",
+                PropType::Enum(&[
+                    case(
+                        "blur",
+                        "blur",
+                        "A tiny blurred copy, until the real one lands",
+                    ),
+                    case("color", "color", "The image's average colour"),
+                    case("none", "none", "Nothing"),
+                ]),
+                "What fills the box while the image loads",
+            ),
             attr(
                 "alt",
                 PropType::Str,
@@ -1339,17 +1471,46 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Video",
         "Media",
-        "Video player.",
+        "Video player. Without `captions` it draws an `A09` warning: a video nobody can hear is a video nobody can follow.",
         None,
         &[
             attr("src", PropType::Str, "Video URL"),
             attr_flag("controls", "Show the browser's playback controls"),
             attr_flag("autoplay", "Start playing when shown"),
+            attr("poster", PropType::Str, "The frame shown before it plays"),
+            attr_flag("muted", "Start with the sound off"),
+            attr_flag("loop", "Start again when it ends"),
+            attr_flag("playsinline", "Play where it sits, rather than full screen"),
+            special(
+                "captions",
+                PropType::Str,
+                "A WebVTT file of captions, which becomes a `<track>`",
+            ),
             attr("width", PropType::Num, "Intrinsic width"),
             attr("height", PropType::Num, "Intrinsic height"),
         ],
         &[],
         G_MEDIA,
+        Children::None,
+    ),
+    comp(
+        "Audio",
+        "Media",
+        "Audio player. `transcript` links what was said, which is what a reader who cannot hear it needs.",
+        None,
+        &[
+            attr("src", PropType::Str, "Audio URL"),
+            attr_flag("controls", "Show the browser's playback controls"),
+            attr_flag("autoplay", "Start playing when shown"),
+            attr_flag("loop", "Start again when it ends"),
+            special(
+                "transcript",
+                PropType::Str,
+                "A link to what was said, shown beneath the player",
+            ),
+        ],
+        &[],
+        G,
         Children::None,
     ),
     comp(
@@ -1445,6 +1606,57 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.",
         Some(special("text", PropType::Str, "The Markdown text")),
         &[],
+        &[],
+        G,
+        Children::None,
+    ),
+    comp(
+        "Host",
+        "Layout",
+        "An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.",
+        None,
+        &[
+            special(
+                "mount",
+                PropType::Any,
+                "`(node) => …` — run once with the element, giving back whatever the library hands over",
+            ),
+            special(
+                "update",
+                PropType::Any,
+                "`(handle) => …` — run again whenever the state it reads changes",
+            ),
+            special(
+                "cleanup",
+                PropType::Any,
+                "`(handle) => …` — run when what owns it leaves, so nothing is left behind",
+            ),
+            special(
+                "tag",
+                PropType::Str,
+                "The element to make, `div` by default",
+            ),
+        ],
+        &[],
+        G,
+        Children::None,
+    ),
+    comp(
+        "Unsafe",
+        "Typography",
+        "The one door for markup a page did not write. It has a single part, `Unsafe.Html`.",
+        None,
+        &[],
+        &["Html"],
+        G,
+        Children::None,
+    ),
+    part(
+        "Unsafe",
+        "Html",
+        Ir::BuiltIn("UnsafeHtml"),
+        "Markup, put in as markup. It is **not** sanitised — the name says so — and `sanitize(…)` is one call away for anything the project did not write itself.",
+        Some(special("markup", PropType::Str, "The HTML to insert")),
         &[],
         G,
         Children::None,

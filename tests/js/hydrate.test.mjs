@@ -3,13 +3,13 @@
 //! Run: node --test tests/js/
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { makeDom } from "./dom.mjs";
+import { fullRuntime } from "./runtime.mjs";
 
-/// Load runtime.js against a fake DOM and hand back its public surface.
+/// Load the whole runtime against a fake DOM and hand back its public surface.
 function loadRuntime() {
   const { window, document, Node, Element, DocumentFragment } = makeDom();
-  const src = readFileSync(new URL("../../src/runtime/runtime.js", import.meta.url), "utf8");
+  const src = fullRuntime();
   // Timers run inline: the runtime defers by a tick, and a test wants the
   // settled state.
   const setTimeout = (fn) => { fn(); return 0; };
@@ -114,11 +114,11 @@ test("the router sets the document title to the page it shows", () => {
 
 test("a store's derived value may call one of its actions", () => {
   const { WF } = loadRuntime();
-  const S = WF.store({
+  const S = WF.store("S", () => ({
     state: { total: 50 },
     derived: { half: (store) => store.pctOf(25) },
     actions: { pctOf: (store, part) => Math.round((part / store.total) * 100) },
-  });
+  }));
   assert.equal(S.half, 50);
   S.total = 100;
   assert.equal(S.half, 25);
@@ -563,10 +563,10 @@ test("a form handle reports validity and values as the reader types, and a store
   assert.deepEqual(seen.values, { email: "a@b.c", agree: true });
 
   let release;
-  const store = WF.store({
+  const store = WF.store("Sync", () => ({
     state: { n: 0 },
     actions: { sync: async (s) => { await new Promise((r) => { release = r; }); s.n = s.n + 1; }, bump: (s) => { s.n = s.n + 1; } },
-  });
+  }));
   assert.equal(typeof store.bump.pending, "undefined", "a plain action has no pending");
   let pending;
   WF.effect(() => { pending = store.sync.pending(); });
@@ -635,6 +635,19 @@ test("the runtime's highlighter matches the compiler's, and paints a Code elemen
   );
   assert.equal(WF.highlight("a < b", "python"), "a &lt; b");
   assert.equal(WF.highlight("t.title", "wf"), "t.title");
+  // The raw and block forms are one string each, as in `codegen::highlight`.
+  assert.equal(
+    WF.highlight("const S = #\"a \"b\" c\"#", "wf"),
+    "<span class=\"wf-tok-kw\">const</span> <span class=\"wf-tok-name\">S</span> = <span class=\"wf-tok-str\">#&quot;a &quot;b&quot; c&quot;#</span>",
+  );
+  assert.equal(
+    WF.highlight("x = \"\"\"\n  a \"b\"\n  \"\"\"", "wf"),
+    "x = <span class=\"wf-tok-str\">&quot;&quot;&quot;\n  a &quot;b&quot;\n  &quot;&quot;&quot;</span>",
+  );
+  assert.equal(
+    WF.highlight("color: #FF0", "css"),
+    "<span class=\"wf-tok-prop\">color</span>: <span class=\"wf-tok-num\">#FF0</span>",
+  );
   const lang = WF.signal("wf");
   const el = WF.el("code", { className: "wf-code", highlight: { code: "state n = 1", lang: () => lang() } });
   assert.equal(el.innerHTML, "<span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span>");
@@ -712,6 +725,16 @@ test("an enum case with a payload is its name and the payload; a match over one 
   assert.equal(parent.querySelectorAll("p").length, 1);
 });
 
+/// A response as the browser gives one: a body read as text, and headers.
+function ok(body, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: { forEach: () => {} },
+    text: async () => (body == null ? "" : JSON.stringify(body)),
+  };
+}
+
 test("a resource loads, exposes its state, ignores a stale answer, and reloads", async () => {
   const { WF } = loadRuntime();
   const pending = [];
@@ -721,7 +744,7 @@ test("a resource loads, exposes its state, ignores a stale answer, and reloads",
     const r = WF.resource("/api/rows", null);
     assert.equal(r.state(), "loading");
     assert.equal(pending[0].url, "/api/rows");
-    pending[0].resolve({ ok: true, json: async () => [1, 2] });
+    pending[0].resolve(ok([1, 2]));
     await new Promise((res) => setTimeout(res, 0));
     await new Promise((res) => setTimeout(res, 0));
     assert.equal(r.state(), "ready");
@@ -731,12 +754,14 @@ test("a resource loads, exposes its state, ignores a stale answer, and reloads",
     assert.equal(r.state(), "loading");
     r.reload();
     // The first reload's answer arrives after the second was asked: ignored.
-    pending[1].resolve({ ok: true, json: async () => ["stale"] });
-    pending[2].resolve({ ok: false, status: 500 });
+    pending[1].resolve(ok(["stale"]));
+    pending[2].resolve(ok(null, 500));
     await new Promise((res) => setTimeout(res, 0));
     await new Promise((res) => setTimeout(res, 0));
     assert.equal(r.state(), "error");
     assert.equal(r.error().message, "HTTP 500");
+    assert.equal(r.error().kind, "status", "and it says what kind of failure it was");
+    assert.equal(r.error().status, 500);
     assert.deepEqual(r.data(), [1, 2], "a stale answer never landed");
   } finally {
     globalThis.fetch = realFetch;
@@ -749,8 +774,8 @@ test("request answers with the parsed body, sends a map body as JSON, and throws
   const realFetch = globalThis.fetch;
   globalThis.fetch = async (url, opts) => {
     calls.push({ url, opts });
-    if (url === "/fail") return { ok: false, status: 404 };
-    return { ok: true, json: async () => ({ rows: [1, 2] }) };
+    if (url === "/fail") return ok(null, 404);
+    return ok({ rows: [1, 2] });
   };
   try {
     const r = await WF.request("/api/rows", { method: "POST", body: { q: "x" } });
@@ -1101,4 +1126,48 @@ test("a router with a transition plays the old page out and the new one in, then
   assert.equal(container.querySelector("p").textContent, "about");
   await new Promise((r) => setImmediate(r));
   assert.deepEqual(seen, ["focus about"], "focus settles once the new page has arrived");
+});
+
+test("the language's own types do the same arithmetic in the browser as at build time", () => {
+  const { WF } = loadRuntime();
+  // The answers are `src/codegen/static_eval.rs`'s, which paints them into
+  // the static HTML: a page must not change when it hydrates.
+  assert.equal(WF.plus("2026-03-14", { days: 5 }), "2026-03-19");
+  assert.equal(WF.plus("2026-01-31", { months: 1 }), "2026-02-28", "a month lands on a real day");
+  assert.equal(WF.minus("2026-03-14", { years: 1 }), "2025-03-14");
+  assert.equal(WF.weekday("2026-03-14"), 6, "Saturday, counted from Monday");
+  assert.equal(WF.year("2026-03-14"), 2026);
+  assert.equal(WF.month("2026-03-14"), 3);
+  assert.equal(WF.day("2026-03-14"), 14);
+  assert.equal(WF.isBefore("2026-03-14", "2026-06-01"), true);
+  assert.equal(WF.isAfter("2026-03-14", "2026-06-01"), false);
+  assert.equal(WF.until("2026-03-14", "2026-03-15"), 86400000);
+  assert.equal(WF.startOfWeek("2026-03-14"), "2026-03-09", "the Monday of its week");
+  assert.equal(WF.startOfMonth("2026-03-14"), "2026-03-01");
+  assert.equal(WF.plus("09:30", { minutes: 45 }), "10:15", "a time stays a time");
+  assert.equal(WF.dateOf("2026-03-14T09:30:00Z"), "2026-03-14");
+  assert.equal(WF.timeOf("2026-03-14T09:30:00Z"), "09:30");
+
+  assert.equal(WF.days(259200000), 3);
+  assert.equal(WF.hours(5400000), 1.5);
+
+  const price = { amount: 1299, currency: "EUR" };
+  assert.deepEqual(WF.times(price, 3), { amount: 3897, currency: "EUR" });
+  assert.deepEqual(WF.plus(price, { amount: 1, currency: "EUR" }), { amount: 1300, currency: "EUR" });
+  assert.deepEqual(WF.convert(price, 1.1, "USD"), { amount: 1429, currency: "USD" });
+  assert.throws(() => WF.plus(price, { amount: 1, currency: "USD" }), /convert/);
+
+  assert.equal(WF.host("https://example.com/a/b?page=2"), "example.com");
+  assert.equal(WF.path("https://example.com/a/b?page=2"), "/a/b");
+  assert.deepEqual(WF.urlQuery("https://example.com/a?page=2"), { page: "2" });
+  assert.equal(WF.urlWith("https://example.com/a?page=2", { query: { page: 3 } }), "https://example.com/a?page=3");
+  assert.equal(WF.domain("ada@example.com"), "example.com");
+
+  assert.equal(WF.mix("#0F766E", "#FFFFFF", 0.2), "#3F918B");
+  assert.equal(WF.contrast("#0F766E", "#FFFFFF"), 5.47);
+  assert.equal(WF.alpha("#0F766E", 0.5), "rgba(15, 118, 110, 0.5)");
+
+  // A value with a method of its own answers for itself: nothing the
+  // language adds takes a name away from a record.
+  assert.equal(WF.plus({ plus: () => "mine" }, {}), "mine");
 });

@@ -7,7 +7,7 @@ page NotFound(path: "/404", description: "That page does not exist.", title: "Pa
             Heading("Page Not Found").h2.center
             Text("The page you are looking for does not exist or has been moved.").muted.center
             Spacer
-            Row(justify: .center) {
+            Row(justify: .center).stacks {
                 Button("Go Home").primary.lg { on click { navigate("/") } }
             }
         }

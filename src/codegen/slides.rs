@@ -8,6 +8,7 @@
 //! from `pdf.rs` rather than extracted to a shared module — see implementation
 //! plan for the rationale.
 
+use crate::codegen::pdf::{EmbeddedImage, embed_image};
 use crate::codegen::style::{
     Background, Color, LinearGradient, StyleProps, gradient_endpoints, luminance,
     parse_color as style_parse_color,
@@ -139,6 +140,24 @@ impl ContentStream {
         self.show_text(text);
         self.end_text();
     }
+    /// `q w 0 0 h x y cm /Im0 Do Q` — a picture, in its box.
+    fn draw_image(&mut self, tag: &str, x: f64, y: f64, width: f64, height: f64) {
+        self.ops.extend_from_slice(b"q\n");
+        self.ops.extend_from_slice(
+            format!(
+                "{} 0 0 {} {} {} cm\n",
+                fmt_f64(width),
+                fmt_f64(height),
+                fmt_f64(x),
+                fmt_f64(y)
+            )
+            .as_bytes(),
+        );
+        self.ops
+            .extend_from_slice(format!("/{tag} Do\n").as_bytes());
+        self.ops.extend_from_slice(b"Q\n");
+    }
+
     fn rect(&mut self, x: f64, y: f64, w: f64, h: f64) {
         self.op(&format!(
             "{} {} {} {} re",
@@ -253,6 +272,10 @@ pub struct SlidesCodegen {
     /// Set per slide while emitting; drives chrome auto-flip.
     current_slide_bg_luminance: f64,
     shadings: Vec<GradientInstance>,
+    /// The pictures this deck draws, each written once.
+    images: Vec<EmbeddedImage>,
+    /// Where to look for a picture's file.
+    asset_root: Option<std::path::PathBuf>,
     warned_styles: HashSet<String>,
     current_slide: usize,
     total_slides: usize,
@@ -287,6 +310,8 @@ impl SlidesCodegen {
             chrome_color_override,
             current_slide_bg_luminance: 1.0,
             shadings: Vec::new(),
+            images: Vec::new(),
+            asset_root: None,
             warned_styles: HashSet::new(),
             current_slide: 0,
             total_slides: 0,
@@ -684,6 +709,11 @@ impl SlidesCodegen {
 
     // ─── Layout: ImageSlide ─────────────────────────────────
 
+    /// Where the pictures are, so a deck shows the chart.
+    pub fn set_asset_root(&mut self, root: std::path::PathBuf) {
+        self.asset_root = Some(root);
+    }
+
     fn emit_image_slide(&mut self, ui: &UIElement) {
         let mut caption = String::new();
         for arg in &ui.args {
@@ -711,24 +741,49 @@ impl SlidesCodegen {
         let img_x = (self.page_width - img_w) / 2.0;
         let img_y = self.margin + caption_h + (avail_h - img_h) / 2.0;
 
-        // Placeholder rectangle (image embedding is a v2 feature, mirrors pdf.rs).
-        self.current_stream.set_color(0.93, 0.93, 0.94);
-        self.current_stream.rect(img_x, img_y, img_w, img_h);
-        self.current_stream.fill();
-
-        // "[Image]" label in the center of the placeholder.
-        let lbl = "[Image]";
-        let lbl_size = 14.0;
-        let lw = text_width(lbl, "Helvetica", lbl_size);
-        let ft = self.font_tag("Helvetica");
-        self.current_stream.set_color(0.55, 0.55, 0.55);
-        self.current_stream.text_at(
-            img_x + (img_w - lw) / 2.0,
-            img_y + img_h / 2.0 - lbl_size * 0.3,
-            &ft,
-            lbl_size,
-            lbl,
-        );
+        // The picture itself, when there is a file to read: fitted inside
+        // the box, keeping its shape, and centred in what is left.
+        let embedded = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(name, Expr::StringLiteral(src)) if name == "src" => Some(src.clone()),
+                _ => None,
+            })
+            .zip(self.asset_root.clone())
+            .and_then(|(src, root)| {
+                let tag = embed_image(&mut self.images, &root, &src)?;
+                let held = self.images.iter().find(|i| i.tag == tag)?;
+                Some((tag, f64::from(held.width), f64::from(held.height)))
+            });
+        if let Some((tag, w, h)) = embedded {
+            let scale = (img_w / w).min(img_h / h);
+            let (drawn_w, drawn_h) = (w * scale, h * scale);
+            self.current_stream.draw_image(
+                &tag,
+                img_x + (img_w - drawn_w) / 2.0,
+                img_y + (img_h - drawn_h) / 2.0,
+                drawn_w,
+                drawn_h,
+            );
+        } else {
+            // Nothing to read: the box, saying what should have been there.
+            self.current_stream.set_color(0.93, 0.93, 0.94);
+            self.current_stream.rect(img_x, img_y, img_w, img_h);
+            self.current_stream.fill();
+            let lbl = "[Image]";
+            let lbl_size = 14.0;
+            let lw = text_width(lbl, "Helvetica", lbl_size);
+            let ft = self.font_tag("Helvetica");
+            self.current_stream.set_color(0.55, 0.55, 0.55);
+            self.current_stream.text_at(
+                img_x + (img_w - lw) / 2.0,
+                img_y + img_h / 2.0 - lbl_size * 0.3,
+                &ft,
+                lbl_size,
+                lbl,
+            );
+        }
 
         if !caption.is_empty() {
             let cw = text_width(&caption, "Helvetica", caption_size);
@@ -1295,19 +1350,35 @@ impl SlidesCodegen {
         for (i, g) in self.shadings.iter().enumerate() {
             shading_entries.push_str(&format!("/{} {} 0 R ", g.tag, shading_dict_start + i));
         }
-        let resources_dict = if shading_entries.is_empty() {
-            format!("<< /Font << {} >> >>", fe)
-        } else {
-            format!(
-                "<< /Font << {} >> /Shading << {} >> >>",
-                fe, shading_entries
+        // The pictures, each its own stream object, named in the resources.
+        let image_start = resources_id + 1;
+        let mut image_entries = String::new();
+        for (i, picture) in self.images.iter().enumerate() {
+            image_entries.push_str(&format!("/{} {} 0 R ", picture.tag, image_start + i));
+            let mut object = format!(
+                "<< /Type /XObject /Subtype /Image /Width {} /Height {} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length {} >>\nstream\n",
+                picture.width,
+                picture.height,
+                picture.data.len()
             )
-        };
+            .into_bytes();
+            object.extend_from_slice(&picture.data);
+            object.extend_from_slice(b"\nendstream");
+            final_objects.push((image_start + i, object));
+        }
+        let mut parts = vec![format!("/Font << {} >>", fe)];
+        if !shading_entries.is_empty() {
+            parts.push(format!("/Shading << {} >>", shading_entries));
+        }
+        if !image_entries.is_empty() {
+            parts.push(format!("/XObject << {} >>", image_entries));
+        }
+        let resources_dict = format!("<< {} >>", parts.join(" "));
         final_objects.push((resources_id, resources_dict.into_bytes()));
 
         // Content streams + Pages (objects come in pairs: stream, then page).
         let mut new_page_ids: Vec<usize> = Vec::new();
-        let mut next_id = resources_id + 1;
+        let mut next_id = image_start + self.images.len();
         let mut i = 0;
         while i + 1 < self.objects.len() {
             let cid = next_id;

@@ -39,7 +39,17 @@ The baseline tokens, by group:
 | Spacing | `spacing-xs`, `spacing-sm`, `spacing-md`, `spacing-lg`, `spacing-xl`, `spacing-2xl`, `spacing-3xl` |
 | Radius | `radius-none`, `radius-sm`, `radius-md`, `radius-lg`, `radius-xl`, `radius-full` |
 | Shadow | `shadow-none`, `shadow-sm`, `shadow-md`, `shadow-lg`, `shadow-xl` |
-| Motion | `transition-fast`, `transition-normal`, `transition-slow` |
+| Motion | `transition-fast`, `transition-normal`, `transition-slow`, `animation-duration-fast/normal/slow`, `animation-easing-default/spring/bounce` |
+| Easing | `ease-standard`, `ease-in`, `ease-out`, `ease-spring` — what `easing: .standard` and `.spring` resolve to ([chapter 13](13-motion.md#the-defaults)) |
+| Breakpoints | `screen-sm`, `screen-md`, `screen-lg`, `screen-xl` — every media query a responsive value or an `@md { }` writes, and what `viewport.md` follows |
+| Code | `syntax-keyword`, `syntax-string`, `syntax-number`, `syntax-comment`, `syntax-function`, `syntax-punct` — the colours `Code` highlights with |
+| Terminal | `term-bg`, `term-ink`, `term-dim` — a `Code` block shown as a shell |
+| Layout | `wf-header-height` — what a fixed `Navbar` reserves, which anchored scrolling offsets by |
+
+That is the whole baseline: 71 tokens, every one a `--custom-property` on
+`:root`, readable from a style block as `$name` and from a stylesheet as
+`var(--name)`. Moving a breakpoint moves every media query the build
+writes with it.
 
 A theme may add tokens of its own (`surface-raised: #131519`); they become
 custom properties like the rest. The contrast lint (`A13`) checks text
@@ -181,25 +191,81 @@ is `"light"`, `"dark"` or `"system"`.
 ## Layout without CSS
 
 Most layout needs no `style` at all: `Stack`, `Row`, `Grid`, `Container`,
-`Spacer` and `Divider` with their `gap:`, `align:`, `justify:`,
-`columns:` props ([chapter 4](04-elements.md#layout)), plus the responsive
-`viewport` values ([chapter 5](05-state-and-reactivity.md#the-browser-as-values)).
+`Spacer` and `Divider` with their `gap:`, `align:`, `justify:` and
+`columns:` props ([chapter 4](04-elements.md#layout-elements)).
 
 ```wf
-page Layout(path: "/") {
+page Layout(path: "/", title: "Layout", description: "A grid of projects.") {
     Container {
         Stack(gap: .lg) {
             Row(justify: .between, align: .center) {
                 Heading("Projects").h2
                 Button("New").primary.sm
             }
-            Grid(columns: if viewport.md { 3 } else { 1 }, gap: .md) {
+            Grid(columns: { base: 1, md: 2, lg: 3 }, gap: .md) {
                 for n in 1..=6 { Card { Text("Project {n}") } }
             }
         }
     }
 }
 ```
+
+## Responsive values
+
+Any layout prop takes **one value per breakpoint**:
+
+```wf
+Grid(columns: { base: 1, md: 2, lg: 3 }, gap: { base: .sm, lg: .lg }) { … }
+Row(direction: { base: .column, md: .row }) { … }
+Column(span: { base: 12, md: 6 }) { … }
+```
+
+That compiles to one class and one media query per step — no JavaScript, no
+resize listener, and **the right layout in the very first paint**, where a
+`viewport` test could only paint one branch and swap after hydration.
+
+The steps are `base`, `sm`, `md`, `lg`, `xl`, and each is a design token —
+`screen-sm` … `screen-xl`. Move one in your theme and every media query
+moves with it, including `viewport.md`:
+
+```wf
+theme Brand { screen-md: 900px }
+```
+
+A step a value omits keeps whatever the step below it said, so
+`{ base: 1, lg: 3 }` is one column until `lg`.
+
+The same names are sugar inside a `style { }` block:
+
+```wf
+Heading("Title").h1 {
+    style {
+        font-size: 24px
+        @md { font-size: 34px }
+    }
+}
+```
+
+### A layout stays as it is written
+
+The engine used to reflow **every** `Row` into a column and **every**
+`Grid` into one column below 768px, with `!important`. It does not any
+more. A layout that should reflow says so:
+
+```wf
+Row.stacks { … }                          // a column on a narrow screen
+Grid.stacks { … }                         // one column on a narrow screen
+Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
+```
+
+`wf migrate` adds `.stacks` to every `Row`, `Grid` and `Column` of a
+WebFluent 2 project, so the old behaviour carries over — written down,
+where you can see it and change it.
+
+`viewport` ([chapter 5](05-state-and-reactivity.md#the-browser-as-values))
+stays for what is genuinely behavioural — a drawer instead of a sidebar —
+and follows `matchMedia`, which fires once when the answer changes rather
+than on every pixel of a drag.
 
 ## What the build emits
 

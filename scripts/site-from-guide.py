@@ -36,8 +36,9 @@ CHAPTERS = {
     "16": ("guide/content", "Content"),
     "17": ("guide/outputs", "Outputs"),
     "18": ("guide/tooling", "Tooling"),
-    "19": ("reference", "Reference"),
-    "20": ("cookbook", "Cookbook"),
+    "19": ("guide/security", "Security"),
+    "20": ("reference", "Reference"),
+    "21": ("cookbook", "Cookbook"),
 }
 
 # The one-line description under each chapter's title, and the sentence the
@@ -79,9 +80,11 @@ BLURBS = {
            "SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node."),
     "18": ("One binary does everything: scaffold, build, serve, format, test, render and describe. A language server brings the checks into the editor.",
            "Every wf command, the dev server, diagnostics, the formatter, tests, the gallery and registry, and editor support."),
-    "19": ("Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry.",
+    "19": ("What the compiler guarantees, what it cannot, and the decisions left to you: URLs, markup, secrets, storage, headers and a deployment checklist.",
+           "The threat model, what WebFluent enforces, authentication patterns, env and secrets, uploads, CSP and headers, and a deployment checklist."),
+    "20": ("Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry.",
            "The components reference: every built-in element, its props, flags, events, slots, parts and attribute families."),
-    "20": ("Three complete applications you can paste into a fresh project, and recipes for the things every site needs.",
+    "21": ("Three complete applications you can paste into a fresh project, and recipes for the things every site needs.",
            "Three complete applications — todos, a static blog, a guarded dashboard — and recipes for search, pagination, forms and more."),
 }
 
@@ -98,6 +101,24 @@ def wf_string(text: str) -> str:
         .replace("\t", "    ")
         .replace("\n", "\\n")
     )
+
+
+def wf_raw(text: str) -> str:
+    """`text` as a whole WebFluent raw string: `#"…"#`, with as many hashes
+    as it takes for the text not to close it.
+
+    A sample of code is written once, not twice — no backslash before every
+    quote and every brace, so what the page shows is what this file holds."""
+    text = text.replace("\t", "    ")
+    hashes = 1
+    while '"' + "#" * hashes in text:
+        hashes += 1
+    fence = "#" * hashes
+    # A raw string cannot end in a quote: nothing would separate it from
+    # the delimiter. Those few go back to the escaped spelling.
+    if text.endswith('"'):
+        return '"' + wf_string(text) + '"'
+    return f'{fence}"{text}"{fence}"'[:-1]
 
 
 def slug(text: str) -> str:
@@ -187,9 +208,9 @@ def emit_code(lang, code, out, ind, num=""):
     else:
         title = LANG_TITLES.get(lang, lang)
         # The reference's untitled blocks are each element's call.
-        if not title and num == "19":
+        if not title and num == "20":
             title = "call"
-        out.append(f'{ind}CodeBlock("{wf_string(code)}", title: "{title}")')
+        out.append(f"{ind}CodeBlock({wf_raw(code)}, title: \"{title}\")")
     out.append("")
 
 
@@ -317,7 +338,7 @@ def main():
         num = f.name[:2]
         # The components reference is drawn from the registry's own data,
         # `site/src/registry.json`, not from its chapter.
-        if num == "19":
+        if num == "20":
             TITLES[num] = "Components reference"
             continue
         converted[num] = (f, convert(num, f.read_text()))

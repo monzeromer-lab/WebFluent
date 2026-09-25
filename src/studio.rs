@@ -106,10 +106,11 @@ pub fn compile_studio(
     // the baseline and let `wf build` be the one that refuses. The reason is
     // handed back rather than swallowed, so the studio can say why the page does
     // not look the way the source says it should.
-    let (tokens, theme_error) = match crate::themes::resolve_tokens(program, &config.theme) {
+    let (mut tokens, theme_error) = match crate::themes::resolve_tokens(program, &config.theme) {
         Ok(tokens) => (tokens, None),
         Err(e) => (crate::themes::tokens::default_tokens(), Some(e.to_string())),
     };
+    crate::themes::apply_motion(&mut tokens, &config.motion);
     let mut css = generate_css_with(&tokens, config.theme.builtin);
     if let Ok(Some(dark)) = crate::themes::resolve_dark_tokens(program, &config.theme) {
         css.push_str(&crate::codegen::dark_css(&dark));

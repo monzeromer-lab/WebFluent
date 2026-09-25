@@ -418,7 +418,10 @@ impl<'a> RenderContext<'a> {
     /// Evaluate an expression against the data context.
     fn eval_expr(&self, expr: &Expr) -> Value {
         match expr {
-            Expr::StringLiteral(s) => Value::String(self.interpolate_string(s)),
+            // What a string says is settled by the parser, which resolved
+            // its escapes and split its splices out; a `{` left in one is
+            // a brace the author wrote.
+            Expr::StringLiteral(s) => Value::String(s.clone()),
             Expr::InterpolatedString(parts) => {
                 let mut result = String::new();
                 for part in parts {
@@ -650,34 +653,6 @@ impl<'a> RenderContext<'a> {
         eval(expr, &Scope::of(names))
             .map(|v| v.to_json())
             .unwrap_or(Value::Null)
-    }
-
-    /// Interpolate `{var}` references in a plain string.
-    fn interpolate_string(&self, s: &str) -> String {
-        // Handle Unicode placeholders from lexer: \u{FFFE} = { , \u{FFFF} = }
-        let s = s.replace('\u{FFFE}', "{").replace('\u{FFFF}', "}");
-
-        let mut result = String::new();
-        let mut chars = s.chars().peekable();
-        while let Some(ch) = chars.next() {
-            if ch == '{' {
-                let mut var_name = String::new();
-                while let Some(&c) = chars.peek() {
-                    if c == '}' {
-                        chars.next();
-                        break;
-                    }
-                    var_name.push(c);
-                    chars.next();
-                }
-                // Resolve dotted paths like "user.name"
-                let val = self.resolve_path(&var_name);
-                result.push_str(&value_to_string(&val));
-            } else {
-                result.push(ch);
-            }
-        }
-        result
     }
 
     /// Resolve a dotted path like "user.address.city" from data context.
@@ -1530,7 +1505,7 @@ fn resolve_expr(expr: &Expr, ctx: &RenderContext) -> Expr {
             }
             Expr::StringLiteral(resolved)
         }
-        Expr::StringLiteral(s) => Expr::StringLiteral(ctx.interpolate_string(s)),
+        Expr::StringLiteral(_) => expr.clone(),
         Expr::BinaryOp(_, _, _) => {
             let val = ctx.eval_expr(expr);
             value_to_expr(&val)
@@ -1693,8 +1668,6 @@ fn html_escape(s: &str) -> String {
         // invariant nothing enforced, and one single-quoted attribute would have
         // turned this into an injection point.
         .replace('\'', "&#x27;")
-        .replace('\u{FFFE}', "{")
-        .replace('\u{FFFF}', "}")
 }
 
 fn camel_to_kebab(s: &str) -> String {

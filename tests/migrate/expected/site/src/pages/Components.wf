@@ -8,7 +8,7 @@ page Components(path: "/components", description: "Every built-in component, wit
     state checkVal = false
     state radioVal = "a"
     state tabActive = "preview"
-    state dateVal = ""
+    state dateVal: Date? = null
 
     Container.fadeIn {
         Spacer
@@ -22,7 +22,7 @@ page Components(path: "/components", description: "Every built-in component, wit
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Row(gap: .sm) {
+                Row(gap: .sm).stacks {
                     Button("Default")
                     Button("Primary").primary
                     Button("Success").success
@@ -31,7 +31,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                     Button("Info").info
                 }
                 Spacer.sm
-                Row(gap: .sm) {
+                Row(gap: .sm).stacks {
                     Button("Small").primary.sm
                     Button("Medium").primary
                     Button("Large").primary.lg
@@ -54,21 +54,21 @@ page Components(path: "/components", description: "Every built-in component, wit
         Heading("Cards").h2
         Text("Cards are surfaces for grouping content. They support Header, Body, and Footer sub-components.")
         Spacer.sm
-        Row(gap: .md) {
-            Column(span: 4) {
+        Row(gap: .md).stacks {
+            Column(span: 4).stacks {
                 Card {
                     Card.Header { Text("Default Card").bold }
                     Card.Body { Text("Basic card with header and body.").muted }
                     Card.Footer { Button("Action").primary.sm { on click { log("clicked") } } }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Header { Text("Elevated").bold }
                     Card.Body { Text("Card with shadow elevation.").muted }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.outlined {
                     Card.Header { Text("Outlined").bold }
                     Card.Body { Text("Card with border only.").muted }
@@ -107,7 +107,7 @@ page Components(path: "/components", description: "Every built-in component, wit
 
                     Divider
 
-                    Row(gap: .lg) {
+                    Row(gap: .lg).stacks {
                         Radio(bind: radioVal, value: "a", label: "Option A")
                         Radio(bind: radioVal, value: "b", label: "Option B")
                         Radio(bind: radioVal, value: "c", label: "Option C")
@@ -153,7 +153,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                     Alert("This is an info alert.").info
                 }
                 Spacer
-                Row(gap: .md, align: .center) {
+                Row(gap: .md, align: .center).stacks {
                     Spinner
                     Spinner.lg
                     Progress(value: sliderVal, max: 100)
@@ -205,7 +205,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                     }
                 }
                 Spacer
-                Row(gap: .md, align: .center) {
+                Row(gap: .md, align: .center).stacks {
                     Avatar(initials: "MO").primary
                     Avatar(initials: "SA")
                     Avatar(initials: "OH")
@@ -229,7 +229,7 @@ page Components(path: "/components", description: "Every built-in component, wit
             Card.Body {
                 Text("Grid with 3 columns:").bold
                 Spacer.sm
-                Grid(columns: 3, gap: .sm) {
+                Grid(columns: 3, gap: .sm).stacks {
                     Card.outlined { Card.Body { Text("Column 1").center } }
                     Card.outlined { Card.Body { Text("Column 2").center } }
                     Card.outlined { Card.Body { Text("Column 3").center } }
@@ -237,11 +237,11 @@ page Components(path: "/components", description: "Every built-in component, wit
                 Spacer
                 Text("Row with Columns (6/6 split):").bold
                 Spacer.sm
-                Row(gap: .sm) {
-                    Column(span: 6) {
+                Row(gap: .sm).stacks {
+                    Column(span: 6).stacks {
                         Card.outlined { Card.Body { Text("Left Half").center } }
                     }
-                    Column(span: 6) {
+                    Column(span: 6).stacks {
                         Card.outlined { Card.Body { Text("Right Half").center } }
                     }
                 }
@@ -267,44 +267,44 @@ page Components(path: "/components", description: "Every built-in component, wit
             Card.Body {
                 Text("Available Icons:").bold
                 Spacer.sm
-                Row(gap: .md) {
+                Row(gap: .md).stacks {
                     Stack(gap: .sm) {
-                        Row(gap: .sm, align: .center) { Icon("home") Text("home").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("search") Text("search").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("user") Text("user").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("settings") Text("settings").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("mail") Text("mail").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("bell") Text("bell").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("home") Text("home").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("search") Text("search").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("user") Text("user").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("settings") Text("settings").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("mail") Text("mail").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("bell") Text("bell").muted.sm }
                     }
                     Stack(gap: .sm) {
-                        Row(gap: .sm, align: .center) { Icon("edit") Text("edit").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("trash") Text("trash").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("plus") Text("plus").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("check") Text("check").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("close") Text("close").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("copy") Text("copy").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("edit") Text("edit").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("trash") Text("trash").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("plus") Text("plus").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("check") Text("check").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("close") Text("close").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("copy") Text("copy").muted.sm }
                     }
                     Stack(gap: .sm) {
-                        Row(gap: .sm, align: .center) { Icon("star") Text("star").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("heart") Text("heart").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("eye") Text("eye").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("download") Text("download").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("upload") Text("upload").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("link") Text("link").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("star") Text("star").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("heart") Text("heart").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("eye") Text("eye").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("download") Text("download").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("upload") Text("upload").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("link") Text("link").muted.sm }
                     }
                     Stack(gap: .sm) {
-                        Row(gap: .sm, align: .center) { Icon("calendar") Text("calendar").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("filter") Text("filter").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("info") Text("info").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("warning") Text("warning").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("logout") Text("logout").muted.sm }
-                        Row(gap: .sm, align: .center) { Icon("menu") Text("menu").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("calendar") Text("calendar").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("filter") Text("filter").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("info") Text("info").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("warning") Text("warning").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("logout") Text("logout").muted.sm }
+                        Row(gap: .sm, align: .center).stacks { Icon("menu") Text("menu").muted.sm }
                     }
                 }
                 Spacer
                 Text("Icon Buttons:").bold
                 Spacer.sm
-                Row(gap: .sm) {
+                Row(gap: .sm).stacks {
                     IconButton(icon: "edit", label: "Edit")
                     IconButton(icon: "trash", label: "Delete").danger
                     IconButton(icon: "plus", label: "Add").primary
@@ -329,7 +329,7 @@ page Components(path: "/components", description: "Every built-in component, wit
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Row(gap: .md) {
+                Row(gap: .md).stacks {
                     Tooltip(text: "This is a primary button") {
                         Button("Hover me").primary
                     }
@@ -358,7 +358,7 @@ page Components(path: "/components", description: "Every built-in component, wit
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Row(gap: .lg) {
+                Row(gap: .lg).stacks {
                     Sidebar {
                         Sidebar.Header { Text("My App").heading }
                         Sidebar.Item(to: "/", icon: "home") { Text("Dashboard") }
@@ -420,7 +420,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                     Skeleton(height: "16px", width: "60%")
                     Skeleton(height: "16px", width: "40%")
                     Spacer.sm
-                    Row(gap: .md, align: .center) {
+                    Row(gap: .md, align: .center).stacks {
                         Skeleton(size: "48px").circle
                         Stack(gap: .sm) {
                             Skeleton(height: "14px", width: "120px")
@@ -446,7 +446,7 @@ page Components(path: "/components", description: "Every built-in component, wit
         Spacer.sm
         Card.outlined {
             Card.Body {
-                Row(gap: .lg) {
+                Row(gap: .lg).stacks {
                     Dropdown(label: "Actions") {
                         Dropdown.Item { Text("Edit") }
                         Dropdown.Item { Text("Duplicate") }
@@ -481,7 +481,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                 Tabs {
                     Tabs.Page("Profile") {
                         Spacer.sm
-                        Row(gap: .md, align: .center) {
+                        Row(gap: .md, align: .center).stacks {
                             Avatar(initials: "MO").primary.lg
                             Stack {
                                 Text("Monzer Omer").bold
@@ -533,7 +533,7 @@ page Components(path: "/components", description: "Every built-in component, wit
 
         Spacer.xl
 
-        Row(gap: .md, justify: .center) {
+        Row(gap: .md, justify: .center).stacks {
             Button("Styling Guide").primary { on click { navigate("/styling") } }
             Button("Animation System") { on click { navigate("/animation") } }
         }
@@ -547,8 +547,8 @@ page Components(path: "/components", description: "Every built-in component, wit
         Text("Several components build more than their markup. You write the component; the browser and the runtime supply the behaviour that makes it usable with a keyboard and a screen reader.")
         Spacer.sm
 
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Modal and Dialog").h3
@@ -560,7 +560,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Tabs").h3
@@ -572,8 +572,8 @@ page Components(path: "/components", description: "Every built-in component, wit
             }
         }
         Spacer.sm
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Sidebar").h3
@@ -581,7 +581,7 @@ page Components(path: "/components", description: "Every built-in component, wit
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Alert, Toast and Dropdown").h3

@@ -9,8 +9,10 @@ store IncidentStore {
     derived closed = incidents.filter(i => i.resolved).length
 
     action resolve(id: Number) {
-        let hit = incidents.filter(i => i.id == id)[0]
-        hit.resolved = true
+        // Assignment is what a signal notices: changing a field of an
+        // item in place leaves the list the same list, and nothing
+        // repaints.
+        incidents = incidents.map(i => if i.id == id { { ...i, resolved: true } } else { i })
     }
 
     action report(title: String) {

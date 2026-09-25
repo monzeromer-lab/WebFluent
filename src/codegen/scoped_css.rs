@@ -26,8 +26,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
 use crate::parser::ast::{
-    ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, StyleBlock,
-    StyleProperty,
+    Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart,
+    StyleBlock, StyleProperty,
 };
 
 /// The class an element carries for its compiled style rules, or `None` when
@@ -41,6 +41,7 @@ pub fn scoped_class(block: &StyleBlock) -> Option<String> {
 /// ready to append to the stylesheet.
 pub fn scoped_rules(program: &Program) -> String {
     let mut rules: BTreeMap<String, String> = BTreeMap::new();
+    let points = breakpoints(program);
     for decl in &program.declarations {
         let body = match decl {
             Declaration::Page(p) => &p.body,
@@ -50,13 +51,15 @@ pub fn scoped_rules(program: &Program) -> String {
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
             | Declaration::Data(_) => continue,
         };
         let mut uses = Uses::default();
-        collect(body, &mut rules, &mut uses);
+        collect_in(body, &mut rules, &mut uses, &points);
     }
     let mut out = animations_css(program);
     for css in rules.values() {
@@ -125,6 +128,7 @@ struct Uses {
 }
 
 pub fn split_rules(program: &Program) -> SplitRules {
+    let points = breakpoints(program);
     let mut rules: BTreeMap<String, String> = BTreeMap::new();
     let mut app = Uses::default();
     let mut pages: Vec<(String, Uses)> = Vec::new();
@@ -133,19 +137,21 @@ pub fn split_rules(program: &Program) -> SplitRules {
         match decl {
             Declaration::Page(p) => {
                 let mut uses = Uses::default();
-                collect(&p.body, &mut rules, &mut uses);
+                collect_in(&p.body, &mut rules, &mut uses, &points);
                 pages.push((p.name.clone(), uses));
             }
             Declaration::Component(c) => {
                 let mut uses = Uses::default();
-                collect(&c.body, &mut rules, &mut uses);
+                collect_in(&c.body, &mut rules, &mut uses, &points);
                 components.insert(c.name.clone(), uses);
             }
-            Declaration::App(a) => collect(&a.body, &mut rules, &mut app),
+            Declaration::App(a) => collect_in(&a.body, &mut rules, &mut app, &points),
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -200,6 +206,19 @@ pub fn split_rules(program: &Program) -> SplitRules {
 }
 
 fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut Uses) {
+    collect_in(stmts, rules, uses, &BTreeMap::new());
+}
+
+/// [`collect`], with the breakpoints a responsive prop is written against.
+fn collect_in(
+    stmts: &[Statement],
+    rules: &mut BTreeMap<String, String>,
+    uses: &mut Uses,
+    points: &BTreeMap<String, String>,
+) {
+    let collect = |stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut Uses| {
+        collect_in(stmts, rules, uses, points)
+    };
     for stmt in stmts {
         match &stmt.kind {
             StatementKind::UIElement(el) => {
@@ -207,7 +226,18 @@ fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut
                     if let Some(class) = scoped_class(block) {
                         rules
                             .entry(class.clone())
-                            .or_insert_with(|| rules_for(&class, block));
+                            .or_insert_with(|| rules_for(&class, block, points));
+                        uses.classes.insert(class);
+                    }
+                }
+                // `Grid(columns: { base: 1, md: 2 })`: one class, one rule
+                // per breakpoint, and the right layout in the first paint.
+                for arg in &el.args {
+                    if let Arg::Named(prop, value) = arg
+                        && is_responsive(value)
+                        && let Some((class, css)) = responsive_rules(prop, value, points)
+                    {
+                        rules.entry(class.clone()).or_insert(css);
                         uses.classes.insert(class);
                     }
                 }
@@ -364,7 +394,7 @@ fn canonical_text(block: &StyleBlock) -> Option<String> {
     (!text.is_empty()).then_some(text)
 }
 
-fn rules_for(class: &str, block: &StyleBlock) -> String {
+fn rules_for(class: &str, block: &StyleBlock, points: &BTreeMap<String, String>) -> String {
     let mut css = String::new();
     let base = base_declarations(block);
     if !base.is_empty() {
@@ -393,7 +423,7 @@ fn rules_for(class: &str, block: &StyleBlock) -> String {
         }
         css.push_str(&format!(
             "{} {{ .{} {{ {} }} }}\n",
-            mq.condition,
+            media_condition(&mq.condition, points),
             class,
             decls.join(" ")
         ));
@@ -412,6 +442,190 @@ fn fnv1a(text: &str) -> u32 {
         hash = hash.wrapping_mul(0x01000193);
     }
     hash
+}
+
+// ─── Responsive values ───────────────────────────────────
+
+/// The `@media` a condition means.
+///
+/// `@md { … }` is the token's query written out — the breakpoint a design
+/// declares, not a number repeated in every style block. Anything else is
+/// passed through as the author wrote it.
+pub fn media_condition(condition: &str, points: &BTreeMap<String, String>) -> String {
+    let word = condition.trim().trim_start_matches('@').trim();
+    match points.get(word) {
+        Some(width) => format!("@media (min-width: {width})"),
+        None => condition.to_string(),
+    }
+}
+
+/// The breakpoints a project uses, read from its theme so a design can move
+/// them, and from the baseline when it does not.
+///
+/// They are resolved here rather than left as `var(--screen-md)` because a
+/// media query cannot read a custom property — that is a rule of CSS, not a
+/// choice.
+pub fn breakpoints(program: &Program) -> BTreeMap<String, String> {
+    let mut out: BTreeMap<String, String> = BTreeMap::new();
+    for (name, value) in crate::themes::tokens::default_tokens() {
+        if let Some(step) = name.strip_prefix("screen-") {
+            out.insert(step.to_string(), value);
+        }
+    }
+    for decl in &program.declarations {
+        let Declaration::Theme(theme) = decl else {
+            continue;
+        };
+        for token in &theme.tokens {
+            if let Some(step) = token.name.strip_prefix("screen-") {
+                // A breakpoint is a length, written as one.
+                let width = match &token.value {
+                    Expr::StringLiteral(text) => text.clone(),
+                    Expr::Identifier(word) => word.clone(),
+                    Expr::NumberLiteral(n) => format!("{n}px"),
+                    _ => continue,
+                };
+                out.insert(step.to_string(), width);
+            }
+        }
+    }
+    out
+}
+
+/// The order the breakpoints are written in, narrowest first, so a later
+/// rule wins for a wider screen.
+const STEPS: &[&str] = &["base", "sm", "md", "lg", "xl"];
+
+/// Whether a value written for a prop is one value per breakpoint:
+/// `{ base: 1, md: 2, lg: 3 }`.
+pub fn is_responsive(value: &Expr) -> bool {
+    let Expr::MapLiteral(pairs) = value else {
+        return false;
+    };
+    !pairs.is_empty()
+        && pairs
+            .iter()
+            .all(|(key, _)| STEPS.contains(&key.trim_matches('"')))
+}
+
+/// The CSS one of a layout prop's values means.
+///
+/// This is the one place a prop becomes a declaration, so a responsive
+/// value and a plain one say the same thing at every width.
+fn declaration_for(prop: &str, value: &Expr) -> Option<String> {
+    let word = |e: &Expr| match e {
+        Expr::EnumCase(case) => Some(case.clone()),
+        Expr::StringLiteral(text) => Some(text.clone()),
+        Expr::Identifier(name) => Some(name.clone()),
+        _ => None,
+    };
+    let number = |e: &Expr| match e {
+        Expr::NumberLiteral(n) => Some(*n),
+        _ => None,
+    };
+    Some(match prop {
+        "columns" => format!(
+            "grid-template-columns: repeat({}, 1fr)",
+            number(value)? as i64
+        ),
+        "gap" => format!("gap: var(--spacing-{})", word(value)?),
+        "direction" => format!("flex-direction: {}", word(value)?),
+        "align" => format!("align-items: {}", flex_word(&word(value)?)),
+        "justify" => format!("justify-content: {}", flex_word(&word(value)?)),
+        "span" => {
+            let n = number(value)?;
+            let percent = n / 12.0 * 100.0;
+            format!("flex: 0 0 {percent:.4}%; max-width: {percent:.4}%")
+        }
+        "width" | "height" | "padding" | "margin" | "font-size" => {
+            format!("{prop}: {}", word(value)?)
+        }
+        _ => return None,
+    })
+}
+
+/// What a flex property calls the word a prop uses: `start` is
+/// `flex-start`, and `between` is `space-between`.
+fn flex_word(word: &str) -> String {
+    match word {
+        "start" => "flex-start".to_string(),
+        "end" => "flex-end".to_string(),
+        "between" => "space-between".to_string(),
+        "around" => "space-around".to_string(),
+        "evenly" => "space-evenly".to_string(),
+        other => other.to_string(),
+    }
+}
+
+/// The class a responsive value compiles to, and the rules under it.
+///
+/// `Grid(columns: { base: 1, md: 2, lg: 3 })` becomes one class with a base
+/// declaration and one media query per step — no JavaScript, no resize
+/// listener, and the right layout in the very first paint.
+pub fn responsive_rules(
+    prop: &str,
+    value: &Expr,
+    points: &BTreeMap<String, String>,
+) -> Option<(String, String)> {
+    let Expr::MapLiteral(pairs) = value else {
+        return None;
+    };
+    let mut written: Vec<(String, String)> = Vec::new();
+    for step in STEPS {
+        let Some((_, at)) = pairs.iter().find(|(key, _)| key.trim_matches('"') == *step) else {
+            continue;
+        };
+        let declaration = declaration_for(prop, at)?;
+        written.push(((*step).to_string(), declaration));
+    }
+    if written.is_empty() {
+        return None;
+    }
+    let class = format!("wf-r{}", hash_of(&format!("{prop}{written:?}")));
+    let mut css = String::new();
+    for (step, declaration) in &written {
+        if step == "base" {
+            // Tripled specificity, as a `style { }` block's base has: it
+            // replaces what the component library says, as an inline style
+            // did.
+            css.push_str(&format!(".{class}.{class}.{class} {{ {declaration}; }}\n"));
+            continue;
+        }
+        let Some(width) = points.get(step.as_str()) else {
+            continue;
+        };
+        css.push_str(&format!(
+            "@media (min-width: {width}) {{ .{class}.{class}.{class} {{ {declaration}; }} }}\n"
+        ));
+    }
+    Some((class, css))
+}
+
+/// The responsive classes an element carries, in the order they were
+/// written. The rules themselves are in `styles.css`; this is only the
+/// name each one is carried by.
+pub fn responsive_classes(ui: &crate::parser::ast::UIElement) -> Vec<String> {
+    let points = BTreeMap::new();
+    ui.args
+        .iter()
+        .filter_map(|arg| match arg {
+            Arg::Named(prop, value) if is_responsive(value) => {
+                responsive_rules(prop, value, &points).map(|(class, _)| class)
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// A short, stable name for a rule, so two elements that say the same thing
+/// share one class and one rule.
+fn hash_of(text: &str) -> String {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    for b in text.as_bytes() {
+        h ^= u64::from(*b);
+        h = h.wrapping_mul(0x1000_0000_01b3);
+    }
+    format!("{h:x}")[..8].to_string()
 }
 
 #[cfg(test)]

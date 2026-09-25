@@ -38,6 +38,10 @@ build-windows:
 run *args:
     cargo run -- {{args}}
 
+# Load every page of every example in a real browser
+browser: release
+    node tests/browser/run.mjs
+
 # Build and serve the docs site locally
 site:
     cargo build --release

@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Components">
     <meta name="twitter:description" content="Declaring components: props, enum props, events, slots and scoped slots, parts, local state and stores.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components","name":"Components","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Declaring components: props, enum props, events, slots and scoped slots, parts, local state and stores."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Components","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/components"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -222,11 +222,11 @@ page Notes(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A component's enum props are written to its root element as <code>data-&lt;prop&gt;=&quot;&lt;case&gt;&quot;</code> — <code>data-tone=&quot;loud&quot;</code> — so a stylesheet can select on them: <code>.note[data-tone=&quot;loud&quot;] ￾ font-weight: 700 ￿</code>.</p>
+<p>A component's enum props are written to its root element as <code>data-&lt;prop&gt;=&quot;&lt;case&gt;&quot;</code> — <code>data-tone=&quot;loud&quot;</code> — so a stylesheet can select on them: <code>.note[data-tone=&quot;loud&quot;] { font-weight: 700 }</code>.</p>
                             </div>
                             <h2 class="wf-heading">Events</h2>
                             <div class="wf-markdown">
-<p>A component declares the events it fires with <code>event name(param: Type)</code>, fires them with <code>emit name(value)</code>, and the caller handles them with <code>on name(value) ￾ ￿</code>:</p>
+<p>A component declares the events it fires with <code>event name(param: Type)</code>, fires them with <code>emit name(value)</code>, and the caller handles them with <code>on name(value) { }</code>:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -264,7 +264,7 @@ page Todos(path: &quot;/&quot;) {
                             </div>
                             <h2 class="wf-heading">Slots</h2>
                             <div class="wf-markdown">
-<p>A component places its caller's block with <code>children</code>, and may declare named slots the caller fills with <code>name ￾ … ￿</code>:</p>
+<p>A component places its caller's block with <code>children</code>, and may declare named slots the caller fills with <code>name { … }</code>:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -410,6 +410,108 @@ page Shop(path: &quot;/&quot;) {
     Text(&quot;{Cart.items.length} in cart&quot;)
 }</code>
                             </div>
+                            <h2 class="wf-heading">Somebody else&#x27;s code</h2>
+                            <div class="wf-markdown">
+<p>A chart, a map, a rich-text editor: a library that wants a DOM node and gives back a handle. Two declarations cover it, and between them there is no <code>window.X</code> and no hoping.</p>
+                            </div>
+                            <h3 class="wf-heading">external — a typed import</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">external Chart from &quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm&quot; {
+    integrity: &quot;sha384-…&quot;
+    fn Chart(canvas: Any, config: Map) -&gt; ChartHandle
+    type ChartHandle {
+        update(data: Map)
+        destroy()
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The compiler cannot read the other side, so <strong>the declaration is the contract</strong>: <code>Chart.Chart(node, config)</code> is checked against it, and a call that does not match is an error where it is written rather than a <code>TypeError</code> in a browser.</p>
+<p>What the build does with it: writes <code>externals.js</code>, a module holding the <code>import</code>s; links it from every page with <code>&lt;script type=&quot;module&quot;&gt;</code>; adds the origin to the Content-Security-Policy, so a declared import is never blocked by the policy shipped beside it; and, where <code>integrity:</code> is given, emits <code>&lt;link rel=&quot;modulepreload&quot; integrity=&quot;…&quot;&gt;</code> — the one place the platform lets subresource integrity reach a module.</p>
+<p>It is a separate file, not part of the bundle, because a module has its own scope and the page chunks a split build writes are classic scripts. Each import is bound to a global there, so the bundle stays what it was.</p>
+<p>A bare specifier — <code>external d3 from &quot;d3&quot;</code> — is a module specifier like any other: it resolves the way the page's import map or your host resolves it.</p>
+                            </div>
+                            <h3 class="wf-heading">Host — a node with a lifetime</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Sales(path: &quot;/sales&quot;, title: &quot;Sales&quot;, description: &quot;How it is going.&quot;) {
+    resource rows = Backend.sales()
+    Host(tag: &quot;canvas&quot;,
+         mount: (node) =&gt; Chart.Chart(node, { type: &quot;bar&quot;, data: rows.data }),
+         update: (chart) =&gt; chart.update(rows.data),
+         cleanup: (chart) =&gt; chart.destroy())
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>mount</code> runs once with the element and gives back whatever the library hands over. <code>update</code> runs again whenever the state it reads changes. <code>cleanup</code> runs when the page, branch or list item that owns it leaves — tied to the same scope as every effect and timer, so it cannot be forgotten. That last part is the reason this exists: the hand-written version is a <code>ref</code>, an <code>effect</code> and a <code>cleanup</code>, and the cleanup is what people leave out.</p>
+<p><code>tag:</code> is the element the library is handed — <code>div</code> by default, and <code>span</code>, <code>canvas</code>, <code>svg</code>, <code>section</code>, <code>figure</code>, <code>pre</code>, <code>p</code>, <code>ul</code> or <code>table</code> where it wants one of those. A library that throws on mount takes itself out; the rest of the page stays.</p>
+                            </div>
+                            <h3 class="wf-heading">Somebody else&#x27;s custom element</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">external element Stripe(&quot;stripe-pricing-table&quot;) {
+    prop publishableKey: String
+    prop pricingTableId: String
+    event ready()
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Stripe(publishableKey: key, pricingTableId: &quot;prctbl_1&quot;) { on ready { loaded = true } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>It is placed like a component. A prop becomes the attribute a framework would write — <code>publishableKey</code> is <code>publishable-key</code> — and follows state like any other value; an event it declares is a DOM event the page hears.</p>
+                            </div>
+                            <h2 class="wf-heading">Publishing yours</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;output_type&quot;: &quot;elements&quot;, &quot;elements&quot;: [&quot;PriceTag&quot;, &quot;Rating&quot;] } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each name becomes a standards-based custom element: <code>PriceTag</code> is <code>&lt;price-tag&gt;</code>, and a one-word component is prefixed so its tag has the hyphen a custom element needs (<code>Rating</code> is <code>&lt;wf-rating&gt;</code>). The build writes <code>elements.js</code>, <code>styles.css</code> and a page listing the tags it published.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">html</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">&lt;script src=&quot;/elements.js&quot; defer&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/styles.css&quot;&gt;
+
+&lt;price-tag label=&quot;Pro&quot; amount=&quot;29&quot; sale&gt;&lt;/price-tag&gt;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>An attribute is a prop, read when the element is connected and again whenever it changes: a <code>Number</code> prop is read as a number, a <code>Map</code> or a list as JSON, and a <code>Bool</code> is true when the attribute is present — as HTML reads <code>disabled</code> — and false when it is <code>=&quot;false&quot;</code>, so a framework that writes the string still works. An event the component declares is dispatched as a <code>CustomEvent</code> that bubbles. What the component created goes when the element leaves the document.</p>
+<p>React, Vue, Svelte, Angular, Rails, WordPress and a plain page can all place a tag. That is the whole reason this is the answer rather than an adapter per framework: <strong>the shared interface between frameworks is the platform.</strong></p>
+                            </div>
                             <h2 class="wf-heading">Components in the static paint</h2>
                             <div class="wf-markdown">
 <p>A static build expands every component call into HTML at build time — its props substituted, its slots filled, its loops and branches over seeded state painted — so a page built from components is a real page before any script runs.</p>
@@ -437,6 +539,8 @@ page Shop(path: &quot;/&quot;) {
                         <a class="wf-link wf-sdae384de" href="#parts">Parts</a>
                         <a class="wf-link wf-sdae384de" href="#local-state-and-actions">Local state and actions</a>
                         <a class="wf-link wf-sdae384de" href="#using-stores-inside-a-component">Using stores inside a component</a>
+                        <a class="wf-link wf-sdae384de" href="#somebody-else-s-code">Somebody else&#x27;s code</a>
+                        <a class="wf-link wf-sdae384de" href="#publishing-yours">Publishing yours</a>
                         <a class="wf-link wf-sdae384de" href="#components-in-the-static-paint">Components in the static paint</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">

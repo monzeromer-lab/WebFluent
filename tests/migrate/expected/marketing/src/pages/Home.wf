@@ -24,7 +24,7 @@ page Home(path: "/", description: "Send an invoice in nine seconds; Ledger chase
                 style { font-size: 1.25rem }
             }
 
-            Row(gap: .sm, justify: .center) {
+            Row(gap: .sm, justify: .center).stacks {
                 Button("Start free").primary.lg.pill
                 Button("Watch the demo").lg.pill.outlined
             }
@@ -39,22 +39,22 @@ page Home(path: "/", description: "Send an invoice in nine seconds; Ledger chase
             }
         }
 
-        Row(gap: .md) {
-            Column(span: 4) {
+        Row(gap: .md).stacks {
+            Column(span: 4).stacks {
                 FeatureCard(
                     title: "Nine seconds",
                     body: "Pick a client, pick a line item, send. No wizard, no six-step flow.",
                     icon: "bolt"
                 )
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 FeatureCard(
                     title: "It chases for you",
                     body: "Polite on day three, firm on day thirty. You never write the email.",
                     icon: "mail"
                 )
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 FeatureCard(
                     title: "Books that reconcile",
                     body: "Every payment lands against the right invoice, first time.",

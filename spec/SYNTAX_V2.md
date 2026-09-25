@@ -123,7 +123,7 @@ the default slot, `trailing` for a named one.
 store Todos {
     state items: [Todo] = []
     derived remaining = items.filter(t => !t.done).length
-    action add(title: String) { items = items.concat([Todo(id: uid(), title: title)]) }
+    action add(title: String) { items = items.concat([Todo(id: uuid(), title: title)]) }
     effect { localStorage.setItem("todos", JSON.stringify(items)) }
 }
 ```
@@ -150,7 +150,7 @@ own, reachable as `$surface-raised`.
 
 ```wf
 app {
-    Navbar(brand: "Acme") { Navbar.Links { Link("Home", to: "/") } }
+    Navbar { Navbar.Links { Link("Home", to: "/") } }
     Router(transition: .fade, duration: "200ms")
 }
 ```

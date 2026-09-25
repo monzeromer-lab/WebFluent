@@ -75,8 +75,8 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
         Text("Written into every page's head, with no further configuration.")
         Spacer.sm
 
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("A canonical URL").h3
@@ -86,7 +86,7 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("A sharing card").h3
@@ -98,8 +98,8 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
             }
         }
         Spacer.sm
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Structured data").h3
@@ -109,7 +109,7 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Language alternates").h3
@@ -185,7 +185,7 @@ page Seo(path: "/seo", description: "Canonical URLs, sharing cards, structured d
         Heading("Static builds rank better").h2
         Text("A crawler that runs no JavaScript sees only what is in the HTML. With SSG on, that is the whole page — including lists built from seeded data, which the compiler resolves at build time rather than leaving to the browser.")
         Spacer.sm
-        Row(gap: .sm) {
+        Row(gap: .sm).stacks {
             Link("Read about SSG", to: "/ssg")
             Link("Read about i18n", to: "/i18n")
         }

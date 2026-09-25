@@ -1,0 +1,31 @@
+// A test that only looks is rendered; a test that acts is run in a
+// browser. Both are `wf test`.
+
+test "the counts follow what the store holds" {
+    use IncidentStore
+    Text("{IncidentStore.open} open, {IncidentStore.closed} closed")
+    expect "2 open, 1 closed"
+}
+
+test "reporting an incident opens one more" {
+    use IncidentStore
+    state draft = ""
+    Text("{IncidentStore.open} open")
+    Input(bind: draft, label: "What happened")
+    Button("Report") { on click { IncidentStore.report(draft) } }
+
+    expect "2 open"
+    type "Queue backing up" into "What happened"
+    click "Report"
+    expect "3 open"
+}
+
+test "a resolved incident leaves the open count" {
+    use IncidentStore
+    Text("{IncidentStore.open} open, {IncidentStore.closed} closed")
+    Button("Resolve the first") { on click { IncidentStore.resolve(1) } }
+
+    expect "2 open, 1 closed"
+    click "Resolve the first"
+    expect "1 open, 2 closed"
+}

@@ -126,9 +126,31 @@ fn code_like(code: &str, keywords: bool) -> String {
             span("cmt", &chars[start..i].iter().collect::<String>(), &mut out);
             continue;
         }
+        // `#"…"#`: a raw string, however many hashes it was written with.
+        if keywords
+            && c == '#'
+            && let Some(end) = raw_string_end(&chars, i)
+        {
+            flush(&mut plain, &mut out);
+            span("str", &chars[i..end].iter().collect::<String>(), &mut out);
+            i = end;
+            continue;
+        }
         if c == '"' {
             flush(&mut plain, &mut out);
             let start = i;
+            // `"""…"""`: a block string, over as many lines as it likes.
+            if keywords && chars.get(i + 1) == Some(&'"') && chars.get(i + 2) == Some(&'"') {
+                i += 3;
+                while i + 2 < chars.len()
+                    && !(chars[i] == '"' && chars[i + 1] == '"' && chars[i + 2] == '"')
+                {
+                    i += 1;
+                }
+                i = (i + 3).min(chars.len());
+                span("str", &chars[start..i].iter().collect::<String>(), &mut out);
+                continue;
+            }
             i += 1;
             while i < chars.len() && chars[i] != '"' {
                 if chars[i] == '\\' {
@@ -210,6 +232,28 @@ fn code_like(code: &str, keywords: bool) -> String {
     }
     flush(&mut plain, &mut out);
     out
+}
+
+/// The index just past the closing `"#…` of the raw string opening at
+/// `at`, when one opens there.
+fn raw_string_end(chars: &[char], at: usize) -> Option<usize> {
+    let mut hashes = 0;
+    let mut i = at;
+    while chars.get(i) == Some(&'#') {
+        hashes += 1;
+        i += 1;
+    }
+    if chars.get(i) != Some(&'"') {
+        return None;
+    }
+    i += 1;
+    while i < chars.len() {
+        if chars[i] == '"' && (1..=hashes).all(|n| chars.get(i + n) == Some(&'#')) {
+            return Some(i + hashes + 1);
+        }
+        i += 1;
+    }
+    Some(chars.len())
 }
 
 /// JSON: a string before `:` is a key, any other a string; numbers,
@@ -321,6 +365,23 @@ mod tests {
         assert_eq!(
             out,
             "<span class=\"wf-tok-kw\">page</span> <span class=\"wf-tok-name\">Home</span>(<span class=\"wf-tok-prop\">path</span>: <span class=\"wf-tok-str\">&quot;/&quot;</span>) { <span class=\"wf-tok-cmt\">// hi</span>\n    <span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">0</span>\n    <span class=\"wf-tok-name\">Button</span>(<span class=\"wf-tok-str\">&quot;Go&quot;</span>, <span class=\"wf-tok-prop\">tone</span>: .primary).lg { <span class=\"wf-tok-kw\">style</span> { <span class=\"wf-tok-prop\">padding</span>: <span class=\"wf-tok-tok\">$md</span>; <span class=\"wf-tok-prop\">color</span>: <span class=\"wf-tok-num\">#FF0</span> } }\n}"
+        );
+    }
+
+    #[test]
+    fn the_raw_and_block_forms_are_one_string_each() {
+        assert_eq!(
+            highlight("const S = #\"a \"b\" c\"#", "wf"),
+            "<span class=\"wf-tok-kw\">const</span> <span class=\"wf-tok-name\">S</span> = <span class=\"wf-tok-str\">#&quot;a &quot;b&quot; c&quot;#</span>"
+        );
+        assert_eq!(
+            highlight("x = \"\"\"\n  a \"b\"\n  \"\"\"", "wf"),
+            "x = <span class=\"wf-tok-str\">&quot;&quot;&quot;\n  a &quot;b&quot;\n  &quot;&quot;&quot;</span>"
+        );
+        // A `#` colour in CSS is still a colour, not a raw string.
+        assert_eq!(
+            highlight("color: #FF0", "css"),
+            "<span class=\"wf-tok-prop\">color</span>: <span class=\"wf-tok-num\">#FF0</span>"
         );
     }
 

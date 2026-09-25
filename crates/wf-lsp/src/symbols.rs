@@ -218,6 +218,66 @@ fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> Do
                 Vec::new(),
             )
         }
+        // Somebody else's code, and what this project says it has.
+        Declaration::External(e) => {
+            let range = index.span_to_range(source, e.span);
+            let mut children: Vec<DocumentSymbol> = Vec::new();
+            for f in &e.functions {
+                let at = index.span_to_range(source, f.span);
+                children.push(symbol(
+                    f.name.clone(),
+                    "fn",
+                    SymbolKind::FUNCTION,
+                    at,
+                    at,
+                    Vec::new(),
+                ));
+            }
+            for t in &e.types {
+                let at = index.span_to_range(source, t.span);
+                children.push(symbol(
+                    t.name.clone(),
+                    "type",
+                    SymbolKind::STRUCT,
+                    at,
+                    at,
+                    Vec::new(),
+                ));
+            }
+            symbol(
+                e.name.clone(),
+                "External",
+                SymbolKind::INTERFACE,
+                range,
+                range,
+                children,
+            )
+        }
+        // A service, and the endpoints it has, so the outline lists them.
+        Declaration::Api(a) => {
+            let range = index.span_to_range(source, a.span);
+            symbol(
+                a.name.clone(),
+                "Api",
+                SymbolKind::INTERFACE,
+                range,
+                range,
+                a.endpoints
+                    .iter()
+                    .map(|e| {
+                        let at = index.span_to_range(source, e.span);
+                        symbol(
+                            e.name.clone(),
+                            &format!("{} {}", e.method, e.path),
+                            SymbolKind::METHOD,
+                            at,
+                            at,
+                            Vec::new(),
+                        )
+                    })
+                    .collect(),
+            )
+        }
         Declaration::Data(d) => {
             let range = index.span_to_range(source, d.span);
             symbol(
@@ -389,6 +449,8 @@ pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformatio
                 "Test",
             ),
             Declaration::Data(d) => (d.name.clone(), SymbolKind::CONSTANT, d.span, "Data"),
+            Declaration::Api(a) => (a.name.clone(), SymbolKind::INTERFACE, a.span, "Api"),
+            Declaration::External(e) => (e.name.clone(), SymbolKind::INTERFACE, e.span, "External"),
             Declaration::App(_) => continue,
         };
         if query.is_empty() || name.to_lowercase().contains(&query) {

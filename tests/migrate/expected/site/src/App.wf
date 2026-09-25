@@ -1,7 +1,7 @@
 app {
     NavBar
 
-    Row {
+    Row.stacks {
         DocSidebar
 
         Router

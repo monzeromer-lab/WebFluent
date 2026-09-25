@@ -157,9 +157,14 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 - Kinds: `Slide { }` freeform; `TitleSlide(title, subtitle:)`;
   `SectionSlide(label).primary/.success/.danger/.warning/.info` full-bleed;
   `TwoColumn { Container { } Container { } }`; `ImageSlide(src:, caption:)`.
-- `slides.size`: `16:9` (default), `4:3`, `A4-landscape`, or `WIDTHxHEIGHT`
-  in points; `show_slide_numbers`, `footer_text` and `chrome_color` add the
-  chrome (the colour auto-flips on a dark background when unset).
+- `slides.size`: `16:9` (default, 960×540pt), `4:3` (720×540), `A4-landscape`
+  (841.89×595.28), or `WIDTHxHEIGHT` in points. `slides.width` and
+  `slides.height` override it outright; `slides.margin` (60pt) is the space
+  round the content, and what runs past it is clipped.
+- `show_slide_numbers`, `footer_text` and `chrome_color` add the chrome
+  (the colour auto-flips between dark and light on the slide's background
+  when unset). `default_font`, `default_font_size` (24pt) and
+  `output_filename` are the deck's own.
 - Backgrounds: `slides.background_color` deck-wide, a `Slide`'s `style {
   background }`, a `Container`'s; hex or a two-stop `linear-gradient`.
 - Inside a slide: `Text`, `Heading` (scaled up), `List`, layout containers,
@@ -167,6 +172,18 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
   and media components are rejected.
 
 `wf init my-deck --template slides` scaffolds one.
+
+## Custom elements
+
+```json
+{ "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }
+```
+
+The project as tags any framework can place, rather than a site. `wf build`
+writes `elements.js`, `styles.css` and a page listing what it published;
+there are no routes, no shell and no pages, because a component is the
+whole of what is published. [Chapter 8](08-components.md#publishing-yours)
+covers how an attribute becomes a prop and an event reaches the host page.
 
 ## Templates: rendering with data on a server
 

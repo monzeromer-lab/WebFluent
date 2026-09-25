@@ -234,6 +234,8 @@ fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declarat
         Declaration::Const(c) => c.name == name,
         Declaration::Animation(a) => a.name == name,
         Declaration::Data(d) => d.name == name,
+        Declaration::Api(a) => a.name == name,
+        Declaration::External(e) => e.name == name,
         Declaration::Test(_) | Declaration::App(_) => false,
     })
 }
@@ -270,6 +272,11 @@ pub fn type_name(ty: &TypeRef) -> String {
         TypeRef::List(inner) => format!("[{}]", type_name(inner)),
         TypeRef::Optional(inner) => format!("{}?", type_name(inner)),
         TypeRef::Named(name) => name.clone(),
+        // The condition reads as it was written: `Number(min: 0, max: 100)`.
+        TypeRef::Refined(inner, args) => {
+            let said: Vec<String> = args.iter().map(|(n, _)| n.clone()).collect();
+            format!("{}({})", type_name(inner), said.join(", "))
+        }
     }
 }
 
@@ -578,6 +585,41 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
             a.name,
             a.name
         ),
+        // A service: where it is, and what it has.
+        Declaration::External(e) => {
+            let what = match e.kind {
+                webfluent::parser::ExternalKind::Module => "module",
+                webfluent::parser::ExternalKind::Element => "element",
+            };
+            format!("**external {}** — the {} `{}`", e.name, what, e.from)
+        }
+        Declaration::Api(a) => {
+            let endpoints: Vec<String> = a
+                .endpoints
+                .iter()
+                .map(|e| {
+                    format!(
+                        "    {} {}{}",
+                        e.method.to_lowercase(),
+                        e.name,
+                        e.returns
+                            .as_ref()
+                            .map(|t| format!(" -> {}", type_name(t)))
+                            .unwrap_or_default()
+                    )
+                })
+                .collect();
+            format!(
+                "**{}** — service\n\n{}```wf\napi {} {{\n{}\n}}\n```",
+                a.name,
+                a.doc
+                    .as_deref()
+                    .map(|d| format!("{d}\n\n"))
+                    .unwrap_or_default(),
+                a.name,
+                endpoints.join("\n")
+            )
+        }
         Declaration::Data(d) => format!(
             "**{}** — data from `{}`{}{}{declared}\n\nRead at build time; a constant everywhere.",
             d.name,
@@ -590,15 +632,27 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
                 .map(|doc| format!("\n\n{doc}"))
                 .unwrap_or_default()
         ),
-        Declaration::Test(t) => format!(
-            "**test \"{}\"** — rendered by `wf test`{}{declared}",
-            t.name,
-            if t.expects.is_empty() {
-                String::new()
-            } else {
-                format!(", held to {} expectation(s)", t.expects.len())
-            }
-        ),
+        Declaration::Test(t) => {
+            let expects = t
+                .steps
+                .iter()
+                .filter(|s| matches!(s, webfluent::parser::Step::Expect { .. }))
+                .count();
+            format!(
+                "**test \"{}\"** — {} by `wf test`{}{declared}",
+                t.name,
+                if t.acts() {
+                    "run in a browser"
+                } else {
+                    "rendered"
+                },
+                if expects == 0 {
+                    String::new()
+                } else {
+                    format!(", held to {expects} expectation(s)")
+                }
+            )
+        }
     }
 }
 

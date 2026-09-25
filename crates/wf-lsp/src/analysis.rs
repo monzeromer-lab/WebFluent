@@ -56,6 +56,8 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
         Declaration::Theme(_)
         | Declaration::Type(_)
         | Declaration::Enum(_)
+        | Declaration::Api(_)
+        | Declaration::External(_)
         | Declaration::Const(_)
         | Declaration::Animation(_)
         | Declaration::Test(_)

@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Types">
     <meta name="twitter:description" content="The type language, records and enums, shapes, inference and narrowing, and every check the compiler makes.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types","name":"Types","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The type language, records and enums, shapes, inference and narrowing, and every check the compiler makes."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Types","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/types"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -182,7 +182,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>&quot;text&quot;</code>, <code>&quot;with ￾interpolation￿&quot;</code></p>
+<p><code>&quot;text&quot;</code>, <code>&quot;with {interpolation}&quot;</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -234,7 +234,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>￾ key: value ￿</code> — an object with unknown keys</p>
+<p><code>{ key: value }</code> — an object with unknown keys</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -310,6 +310,385 @@
     Button(&quot;Go&quot;) { on click { greet(name, count) } }
 }</code>
                             </div>
+                            <h2 class="wf-heading">The types the language brings with it</h2>
+                            <div class="wf-markdown">
+<p>Eleven more come with the language. Each is a <strong>plain JSON value at run time</strong> — no wrapper object — so it crosses a <code>fetch</code>, a <code>persist</code>, the static paint and the template engine unchanged; <code>.native()</code> hands a real platform object to a library that wants one.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The types the language brings with it</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Carried by</th>
+                                        <th scope="col">Written as a literal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Date</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;2026-03-14&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>@2026-03-14</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Time</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;09:30&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>@09:30</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>DateTime</code></p>
+                                            </div>
+                                        </td>
+                                        <td>ISO 8601</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>@2026-03-14T09:30Z</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Duration</code></p>
+                                            </div>
+                                        </td>
+                                        <td>milliseconds</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>3.days</code>, <code>90.minutes</code>, <code>250.ms</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Money</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>{ amount: 1299, currency: &quot;EUR&quot; }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>€12.99</code>, <code>$9.99</code>, <code>£4.50</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Url</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a string</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;https://example.com&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Email</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a string</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;ada@example.com&quot;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Color</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a string</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>#0F766E</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Uuid</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a string</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>uuid()</code> makes a fresh one</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>File</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the browser's <code>File</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>what a <code>FileUpload</code> yields</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Secret</code></p>
+                                            </div>
+                                        </td>
+                                        <td>a string</td>
+                                        <td>—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Money is in <strong>minor units</strong> — cents, pence — so the arithmetic is a whole number's and nothing drifts. A duration is milliseconds, so it adds to a moment. <code>uuid()</code> is where a <code>Uuid</code> comes from: the platform's own generator where there is one, a version-4 layout from the best randomness available where there is not.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Booking {
+    id: Uuid
+    guest: Email
+    from: Date
+    nights: Number(1..=30)
+    total: Money
+}
+
+page Stay(path: &quot;/&quot;, title: &quot;Stay&quot;, description: &quot;One booking.&quot;) {
+    state from: Date = @2026-03-14
+    state nights: Number = 5
+    state total: Money = €249.00
+
+    derived checkout = from.plus(days: nights)
+    derived weekday = checkout.weekday()
+    derived late = now.date().isAfter(checkout)
+
+    Heading(&quot;Your stay&quot;).h1
+    Text(&quot;Out on {checkout}, a weekday of {weekday}&quot;)
+    Text(&quot;Due {format(total)}&quot;)
+    if late { Alert(&quot;Checkout has passed&quot;).warning }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Everything the language <strong>computes</strong> is a call; everything the carrier <strong>already has</strong> is a field. So <code>total.amount</code> and <code>total.currency</code> are fields, and <code>from.year()</code> and <code>checkout.weekday()</code> are calls.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The types the language brings with it</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Date</code> <code>Time</code> <code>DateTime</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.year() .month() .day() .weekday() .hour() .minute() .second()</code>, <code>.plus(days: 3)</code> and <code>.minus(…)</code> (which take <code>years months weeks days hours minutes seconds ms</code>), <code>.isBefore(d) .isAfter(d) .isSame(d)</code>, <code>.until(d)</code> (a <code>Duration</code>), <code>.startOfDay() .startOfWeek() .startOfMonth() .endOfDay()</code>, <code>.native()</code>; <code>DateTime</code> also <code>.date() .time() .inZone(&quot;Europe/Berlin&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Duration</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.days() .hours() .minutes() .seconds() .ms()</code>, <code>.plus(d)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Money</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.plus(m) .minus(m) .times(n) .convert(rate, &quot;USD&quot;)</code>; <code>format(m)</code> needs no style and no currency code</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Url</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.host() .path() .query()</code>, <code>.with(query: { page: 2 })</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Email</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.domain()</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Color</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.mix(other, 0.2) .lighten(0.1) .darken(0.1) .alpha(0.5) .contrast(other)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>File</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.preview()</code> — an object URL, revoked when the scope that made it leaves</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Adding a month lands on a day that exists: <code>@2026-01-31.plus(months: 1)</code> is the 28th of February, not the 3rd of March. All of it runs at build time too, so the static paint shows the answer rather than a blank that fills in when the page hydrates.</p>
+                            </div>
+                            <h3 class="wf-heading">A literal is held to its type</h3>
+                            <div class="wf-markdown">
+<p>A string written where one of these is wanted is read as one, and checked where it is written:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">state site: Url = &quot;https://example.com&quot;     // fine
+state bad: Url = &quot;example&quot;                  // T01: A URL has a scheme</code>
+                            </div>
+                            <h3 class="wf-heading">now</h3>
+                            <div class="wf-markdown">
+<p><code>now</code> is a <code>DateTime</code> that keeps itself current — every minute by default, or as often as a page asks:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Feed(path: &quot;/&quot;, title: &quot;Feed&quot;, description: &quot;What just happened.&quot;) {
+    state posted: DateTime = @2026-03-14T09:30:00Z
+    derived age = posted.until(now)
+    Text(&quot;{ago(posted)} — {age.minutes()} minutes&quot;)
+    Text(&quot;ticking: {now(every: 1.seconds)}&quot;)
+}</code>
+                            </div>
+                            <h3 class="wf-heading">A condition on a type</h3>
+                            <div class="wf-markdown">
+<p>Any type may say what its values must be, and every value the compiler can read is held to it:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 12
+state pass: String(minLength: 8) = &quot;correcthorse&quot;
+state start: Date(after: @2026-01-01) = @2026-03-14</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>min</code>, <code>max</code>, <code>minLength</code>, <code>maxLength</code>, <code>pattern</code>, <code>after</code>, <code>before</code>, and a range (<code>1..=30</code> inclusive, <code>0..10</code> exclusive of the end) for the two ends. A value that arrives at run time is validation's to refuse, from the same condition.</p>
+                            </div>
+                            <h3 class="wf-heading">Secret is not a string</h3>
+                            <div class="wf-markdown">
+<p>A <code>Secret</code> is a string the compiler will not let escape. Each of these is a <code>T12</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">state token: Secret = &quot;&quot;
+Text(token)                     // shown
+Text(&quot;Bearer {token}&quot;)          // in text — which is how it ends up in a URL
+persist token: Secret = &quot;&quot;      // kept in the browser
+log(token)                      // in the console, and often in a log service</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Hold it in <code>state</code>, which the visit ends; what must outlive the visit belongs on the server.</p>
+                            </div>
+                            <h3 class="wf-heading">Your own name wins</h3>
+                            <div class="wf-markdown">
+<p>A <code>type</code> the program declares takes the name back. A project with its own <code>type Color { name: String }</code> means that one everywhere.</p>
+                            </div>
                             <h2 class="wf-heading">Records: type</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -349,8 +728,8 @@ page Records(path: &quot;/&quot;) {
 <ul>
 <li>Fields may be separated by newlines or commas.</li>
 <li>A field with a default may be left out of a construction; a <code>T?</code> field defaults to <code>null</code>.</li>
-<li><code>type Admin = Todo ￾ owner: String ￿</code> extends a record: an <code>Admin</code> has every field of <code>Todo</code> and then its own.</li>
-<li>Records are structural: <code>￾ id: &quot;a&quot;, title: &quot;b&quot; ￿</code> given where a <code>Todo</code> is wanted is a <code>Todo</code>, and its fields are checked against the record's.</li>
+<li><code>type Admin = Todo { owner: String }</code> extends a record: an <code>Admin</code> has every field of <code>Todo</code> and then its own.</li>
+<li>Records are structural: <code>{ id: &quot;a&quot;, title: &quot;b&quot; }</code> given where a <code>Todo</code> is wanted is a <code>Todo</code>, and its fields are checked against the record's.</li>
 <li>A <code>Map</code> fits any record and a record fits a <code>Map</code>: JSON from <code>fetch</code> fits a <code>type</code> it was never declared as.</li>
 </ul>
                             </div>
@@ -388,7 +767,7 @@ page Enums(path: &quot;/&quot;) {
                             </div>
                             <h2 class="wf-heading">Map literals are shapes</h2>
                             <div class="wf-markdown">
-<p>A map literal has the fields it was written with: <code>￾ name: &quot;&quot;, age: 0 ￿</code> is <code>￾ name: String, age: Number ￿</code>, and reading <code>form.nam</code> is <code>T05</code> with the fields it does have. A shape fits a <code>Map</code>, a record with the same fields, and any shape it agrees with. <code>￾￿</code> and a literal with a spread are plain <code>Map</code>s.</p>
+<p>A map literal has the fields it was written with: <code>{ name: &quot;&quot;, age: 0 }</code> is <code>{ name: String, age: Number }</code>, and reading <code>form.nam</code> is <code>T05</code> with the fields it does have. A shape fits a <code>Map</code>, a record with the same fields, and any shape it agrees with. <code>{}</code> and a literal with a spread are plain <code>Map</code>s.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -443,7 +822,7 @@ page Infer(path: &quot;/&quot;) {
 <li><code>if</code>/<code>match</code> as values have the type both arms fit: the same type, <code>T?</code> when one arm is <code>null</code>, else <code>Any</code>.</li>
 <li><code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> are <code>Number</code>; <code>+</code> is a <code>String</code> when either side is one; comparisons and <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> are <code>Bool</code>.</li>
 <li><code>await e</code> on a <code>fetch</code> is <code>Any</code> unless annotated: <code>let r: [Row] = await fetch(…)</code>.</li>
-<li><code>let ￾ a, b ￿ = m</code> and <code>let [x, y] = l</code> bind the fields and items.</li>
+<li><code>let { a, b } = m</code> and <code>let [x, y] = l</code> bind the fields and items.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading">Narrowing optionals</h2>
@@ -611,10 +990,22 @@ page Deploys(path: &quot;/&quot;) {
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>T12</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>Secret</code> where it would escape — shown, spliced into text, logged, or kept with <code>persist</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>Each comes with a hint: a conversion (<code>Number(value)</code>, <code>&quot;￾value￿&quot;</code>), the cases an enum takes, the fields a record has, the unwrapping forms above.</p>
+<p>Each comes with a hint: a conversion (<code>Number(value)</code>, <code>&quot;{value}&quot;</code>), the cases an enum takes, the fields a record has, the unwrapping forms above.</p>
 <p>What the checker does not do: it does not check a lambda's body against a return type, does not change a name's type across assignments (<code>state x = 1</code> stays a <code>Number</code>; assigning a string to it is <code>T01</code>), and does not read the schema of a <code>fetch</code>.</p>
                             </div>
                             <h2 class="wf-heading">In the editor</h2>
@@ -638,6 +1029,7 @@ page Deploys(path: &quot;/&quot;) {
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#the-type-language">The type language</a>
+                        <a class="wf-link wf-sdae384de" href="#the-types-the-language-brings-with-it">The types the language brings with it</a>
                         <a class="wf-link wf-sdae384de" href="#records-type">Records: type</a>
                         <a class="wf-link wf-sdae384de" href="#enums">Enums</a>
                         <a class="wf-link wf-sdae384de" href="#map-literals-are-shapes">Map literals are shapes</a>

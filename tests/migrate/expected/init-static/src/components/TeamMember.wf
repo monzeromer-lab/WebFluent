@@ -1,5 +1,5 @@
 component TeamMember(name: String, role: String, initials: String) {
-    Row(align: .center, gap: .md) {
+    Row(align: .center, gap: .md).stacks {
         Avatar(initials: initials).primary
         Stack {
             Text(name).bold

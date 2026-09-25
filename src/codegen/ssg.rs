@@ -40,6 +40,7 @@ pub fn render_page_html_with_params(
             ty: None,
             value: static_expr(&map),
             persist: false,
+            policy: None,
         }),
         page.span,
     ));
@@ -50,6 +51,7 @@ pub fn render_page_html_with_params(
                 ty: None,
                 value: static_expr(v),
                 persist: false,
+                policy: None,
             }),
             page.span,
         ));
@@ -348,7 +350,7 @@ pub fn render_page_html_studio(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
 {}{}{}    <link rel="stylesheet" href="{}/styles.css">
-{}    <script src="{}/app.js" defer></script>
+{}{}    <script src="{}/app.js" defer></script>
 {}</head>
 <body>
 {}    <div id="app">
@@ -362,6 +364,7 @@ pub fn render_page_html_studio(
         crate::codegen::html::head_links(config, &base),
         base,
         page_sheet,
+        crate::codegen::html::externals_tags(config, program, &base),
         base,
         page_chunk,
         crate::codegen::html::SKIP_LINK,
@@ -531,8 +534,12 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
             StatementKind::Show(show) => {
                 // Render content but hidden
                 let inner = render_statements(&show.body, ctx);
+                // A class, not `style="display:none"`: an inline style is
+                // the one thing a strict `style-src` forbids, and the
+                // runtime sets `display` on this wrapper anyway, which
+                // beats a class.
                 html.push_str(&format!(
-                    "{}<div style=\"display:none\">\n{}{}</div>\n",
+                    "{}<div class=\"wf-hidden\">\n{}{}</div>\n",
                     ctx.indent_str(),
                     inner,
                     ctx.indent_str()
@@ -971,6 +978,28 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 inline_style
             );
         }
+        // `Unsafe.Html(markup)`: the markup, as markup. The paint and the
+        // live page put in the same thing, because `sanitize` runs here as
+        // well — a static article body is not an empty box until the
+        // script loads, which is the point of pre-rendering it.
+        "UnsafeHtml" => {
+            let markup = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Positional(e) => static_attr(e, &ctx.scope),
+                    _ => None,
+                })
+                .unwrap_or_default();
+            return format!(
+                "{}<div class=\"{}\"{}{}>{}</div>\n",
+                ctx.indent_str(),
+                class_str,
+                wf,
+                inline_style,
+                markup
+            );
+        }
         // Markdown known at build time is painted as HTML; the runtime
         // repaints it the same way.
         "Markdown" => {
@@ -1011,6 +1040,22 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             return String::new();
         }
         "Toast" => return String::new(), // Imperative, no SSG output
+        // `Image(hero, …)` where `hero` is an `image` the program declares:
+        // the `<picture>` the build made, painted whole, so the static page
+        // shows the right file at the right size with nothing shifting.
+        "Image" if ui.args.iter().any(|a| matches!(a, Arg::Positional(_))) => {
+            return render_picture(&class_str, ui, ctx);
+        }
+        // A video's captions are a `<track>` inside it, and a player's
+        // transcript a link beneath it.
+        "Video" | "Audio"
+            if ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "captions" || k == "transcript")) =>
+        {
+            return render_media(name, &class_str, ui, ctx);
+        }
         _ => {}
     }
 
@@ -1046,13 +1091,28 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 match key.as_str() {
                     "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
                     | "accept" | "role" | "value" | "width" | "height" | "loading" | "decoding"
-                    | "fetchpriority" => {
+                    | "fetchpriority" | "rows" => {
                         if let Some(s) = static_attr(val, &ctx.scope) {
+                            // A value the browser follows goes through the
+                            // same scheme check the live page applies.
+                            let s = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                                crate::codegen::url::guard(&s).to_string()
+                            } else {
+                                s
+                            };
                             attrs.push(format!("{}=\"{}\"", key, html_escape(&s)));
+                        }
+                    }
+                    // `maxLength` is `maxlength` in HTML, and the paint
+                    // shows the same attribute the live page sets.
+                    "maxLength" => {
+                        if let Some(s) = static_attr(val, &ctx.scope) {
+                            attrs.push(format!("maxlength=\"{}\"", html_escape(&s)));
                         }
                     }
                     "to" => {
                         if let Some(s) = static_attr(val, &ctx.scope) {
+                            let s = crate::codegen::url::guard(&s).to_string();
                             // Use config base_path for absolute links
                             let href = if ctx.link_base.is_empty() {
                                 s.clone()
@@ -1413,6 +1473,163 @@ pub fn static_field(indent: &str, id: &str, control: &str, parts: &FieldParts) -
 ///
 /// The SPA builds exactly this shape, so the static paint has to match it or
 /// hydration reconciles a wrapper against a bare `<input>`.
+/// The `<picture>` an `image` declaration became.
+///
+/// The twin of `WF.picture` in the runtime: the same element, so a page
+/// that hydrates does not repaint what it was already showing.
+/// A `Video` with captions, or an `Audio` with a transcript.
+fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+    let tag = crate::codegen::builtin::builtin_to_html(name).0;
+    let named = |key: &str| {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == key => Some(v),
+            _ => None,
+        })
+    };
+    let mut attrs = vec![format!("class=\"{class}\"")];
+    for key in ["src", "poster", "width", "height"] {
+        if let Some(value) = named(key).and_then(|v| static_attr(v, &ctx.scope)) {
+            attrs.push(format!("{key}=\"{}\"", html_escape(&value)));
+        }
+    }
+    for flag in ["controls", "autoplay", "muted", "loop", "playsinline"] {
+        if named(flag).is_some() || ui.modifiers.iter().any(|m| m == flag) {
+            attrs.push(flag.to_string());
+        }
+    }
+    let mut out = format!("<{tag} {}>", attrs.join(" "));
+    if let Some(captions) = named("captions").and_then(|v| static_attr(v, &ctx.scope)) {
+        out.push_str(&format!(
+            "<track kind=\"captions\" src=\"{}\" srclang=\"{}\" default />",
+            html_escape(&captions),
+            // The captions are in the page's language; the browser reads
+            // the document's own when this says nothing more.
+            "en"
+        ));
+    }
+    out.push_str(&format!("</{tag}>"));
+    if let Some(transcript) = named("transcript").and_then(|v| static_attr(v, &ctx.scope)) {
+        out.push_str(&format!(
+            "<a class=\"wf-transcript\" href=\"{}\">Read the transcript</a>",
+            html_escape(&transcript)
+        ));
+    }
+    out
+}
+
+fn render_picture(class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+    let named = |key: &str| {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == key => Some(v),
+            _ => None,
+        })
+    };
+    let positional = ui.args.iter().find_map(|a| match a {
+        Arg::Positional(v) => Some(v),
+        _ => None,
+    });
+    let Some(asset) = positional
+        .or_else(|| named("source"))
+        .and_then(|v| eval(v, &ctx.scope))
+    else {
+        return String::new();
+    };
+    let field = |name: &str| match &asset {
+        Static::Map(fields) => fields
+            .iter()
+            .find(|(k, _)| k == name)
+            .map(|(_, v)| v.clone()),
+        _ => None,
+    };
+    let text = |name: &str| field(name).map(|v| v.to_text()).unwrap_or_default();
+    let alt = named("alt")
+        .and_then(|v| static_attr(v, &ctx.scope))
+        .unwrap_or_default();
+    let sizes = named("sizes").and_then(|v| static_attr(v, &ctx.scope));
+
+    let mut img = vec![format!("class=\"{class}\"")];
+    img.push(format!("src=\"{}\"", html_escape(&text("src"))));
+    img.push(format!("alt=\"{}\"", html_escape(&alt)));
+    for key in ["width", "height"] {
+        let value = text(key);
+        if !value.is_empty() {
+            img.push(format!("{key}=\"{}\"", value.trim_end_matches(".0")));
+        }
+    }
+    let srcset = text("srcset");
+    if !srcset.is_empty() {
+        img.push(format!("srcset=\"{}\"", html_escape(&srcset)));
+    }
+    if let Some(sizes) = &sizes {
+        img.push(format!("sizes=\"{}\"", html_escape(sizes)));
+    }
+    img.push("decoding=\"async\"".to_string());
+    // The page's first image is the one its largest paint waits for.
+    if ctx.images == 0 {
+        img.push("loading=\"eager\" fetchpriority=\"high\"".to_string());
+    } else {
+        img.push("loading=\"lazy\"".to_string());
+    }
+    ctx.images += 1;
+
+    // What fills the box until the image lands.
+    let placeholder = named("placeholder")
+        .and_then(|v| match v {
+            Expr::EnumCase(case) => Some(case.clone()),
+            _ => None,
+        })
+        .or_else(|| {
+            ui.modifiers
+                .iter()
+                .find(|m| matches!(m.as_str(), "blur" | "color" | "none"))
+                .cloned()
+        });
+    match placeholder.as_deref() {
+        Some("blur") if !text("placeholder").is_empty() => {
+            img.push(format!(
+                "style=\"background: url(&quot;{}&quot;) center / cover no-repeat\"",
+                text("placeholder")
+            ));
+        }
+        Some("color") if !text("color").is_empty() => {
+            img.push(format!("style=\"background: {}\"", text("color")));
+        }
+        _ => {}
+    }
+
+    let img = format!("<img {} />", img.join(" "));
+    let sources = match field("sources") {
+        Some(Static::List(items)) => items,
+        _ => Vec::new(),
+    };
+    if sources.is_empty() {
+        return img;
+    }
+    let mut out = String::from("<picture>");
+    for one in sources {
+        let Static::Map(fields) = one else { continue };
+        let get = |name: &str| {
+            fields
+                .iter()
+                .find(|(k, _)| k == name)
+                .map(|(_, v)| v.to_text())
+                .unwrap_or_default()
+        };
+        out.push_str(&format!(
+            "<source type=\"{}\" srcset=\"{}\"{} />",
+            html_escape(&get("type")),
+            html_escape(&get("srcset")),
+            sizes
+                .as_ref()
+                .map(|s| format!(" sizes=\"{}\"", html_escape(s)))
+                .unwrap_or_default()
+        ));
+    }
+    out.push_str(&img);
+    out.push_str("</picture>");
+    out
+}
+
 fn render_labelled_input(
     name: &str,
     class_str: &str,
@@ -1612,6 +1829,8 @@ fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
         .and_then(crate::codegen::scoped_css::scoped_class)
         .into_iter()
         .collect();
+    // The rules a responsive prop compiled to, carried by name.
+    classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
     if let Some(Arg::Named(_, value)) = ui
         .args
         .iter()
@@ -1709,8 +1928,6 @@ fn html_escape(s: &str) -> String {
         // invariant nothing enforced, and one single-quoted attribute would have
         // turned this into an injection point.
         .replace('\'', "&#x27;")
-        .replace('\u{FFFE}', "{")
-        .replace('\u{FFFF}', "}")
 }
 
 fn camel_to_kebab(s: &str) -> String {

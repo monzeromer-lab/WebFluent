@@ -79,7 +79,44 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
     let mut passed = 0;
     let mut failed = 0;
     let mut written = 0;
+    // A test that acts needs a browser, and a browser is expensive to
+    // start: one is opened for all of them, and only if any test asks.
+    let mut stage = if tests.iter().any(|(_, t)| t.acts()) {
+        match crate::cli::act::Stage::open() {
+            Ok(stage) => Some(stage),
+            Err(e) => {
+                println!(
+                    "  {} test(s) act, and there is no browser to run them in",
+                    tests.iter().filter(|(_, t)| t.acts()).count()
+                );
+                println!("  {e}");
+                return Err(crate::error::WebFluentError::IoError(
+                    "a test that clicks needs a browser".to_string(),
+                ));
+            }
+        }
+    } else {
+        None
+    };
     for (file, test) in &tests {
+        // A test that clicks is run; one that only looks is rendered.
+        if test.acts() {
+            let stage = stage.as_mut().expect("opened above");
+            match stage.run(&shared, test) {
+                Ok(()) => {
+                    passed += 1;
+                    println!("  ok    {} — {} (in a browser)", file, test.name);
+                }
+                Err(reasons) => {
+                    failed += 1;
+                    println!("  FAIL  {} — {}", file, test.name);
+                    for r in reasons {
+                        println!("        {r}");
+                    }
+                }
+            }
+            continue;
+        }
         match run_one(&shared, test, &snapshots, file, update) {
             Ok(Outcome::Passed) => {
                 passed += 1;
@@ -151,6 +188,27 @@ pub fn render_test(shared: &[Declaration], test: &TestDecl) -> Result<String> {
         }
         None => serde_json::Value::Object(Default::default()),
     };
+    // Every store the test can read, as a value: its initial state with
+    // whatever the test's `data` named on top, and its derived values
+    // computed from the result. The template engine reads data, not
+    // declarations, so without this a `Cart.count` in a test rendered as
+    // nothing.
+    if let serde_json::Value::Object(map) = &mut data {
+        let seeds: Vec<(String, serde_json::Value)> = program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Store(store) => Some((
+                    store.name.clone(),
+                    crate::codegen::static_eval::store_as_value(store, map.get(&store.name)),
+                )),
+                _ => None,
+            })
+            .collect();
+        for (name, value) in seeds {
+            map.insert(name, value);
+        }
+    }
     let scope = crate::codegen::static_eval::Scope::from_program(&program, &test.body);
     if let serde_json::Value::Object(map) = &mut data {
         for stmt in &test.body {
@@ -174,13 +232,16 @@ fn run_one(
     let html = render_test(shared, test).map_err(|e| vec![e.to_string()])?;
     let mut reasons = Vec::new();
     let empty = crate::codegen::static_eval::Scope::of([]);
-    for expect in &test.expects {
-        let text = crate::codegen::static_eval::eval(&expect.text, &empty)
+    for step in &test.steps {
+        let crate::parser::ast::Step::Expect { text, negated, .. } = step else {
+            continue; // a test that acts does not come this way
+        };
+        let text = crate::codegen::static_eval::eval(text, &empty)
             .map(|v| v.to_text())
             .unwrap_or_default();
         let found = html.contains(&text);
-        if found == expect.negated {
-            reasons.push(if expect.negated {
+        if found == *negated {
+            reasons.push(if *negated {
                 format!("expected not to find {text:?}, but the render holds it")
             } else {
                 format!("expected {text:?}, which the render does not hold")

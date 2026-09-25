@@ -13,6 +13,8 @@
 //! - [`validate_semantics`] — the studio compile-gate: undefined component refs,
 //!   unknown route targets, duplicate declarations
 
+pub mod secrets;
+pub use secrets::lint_env;
 pub mod accessibility;
 pub mod contrast;
 pub mod pdf_validation;

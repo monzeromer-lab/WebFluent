@@ -6,7 +6,16 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Heading("state", id: "state").h2
 
-        CodeBlock("page Counter(path: \"/\") \{\n    state count = 0                  // inferred: Number\n    state name: String = \"\"          // declared\n    state items: [String] = []       // a list of strings\n    state selected: String? = null   // may be null\n    state user = \{ name: \"Sam\", tags: [\"a\"] \}   // a map literal: its fields are its type\n\n    Text(\"\{name\} has clicked \{count\} times\")\n    Button(\"+\") \{ on click \{ count = count + 1 \} \}\n\}", title: "wf")
+        CodeBlock(#"page Counter(path: "/") {
+    state count = 0                  // inferred: Number
+    state name: String = ""          // declared
+    state items: [String] = []       // a list of strings
+    state selected: String? = null   // may be null
+    state user = { name: "Sam", tags: ["a"] }   // a map literal: its fields are its type
+
+    Text("{name} has clicked {count} times")
+    Button("+") { on click { count = count + 1 } }
+}"#, title: "wf")
 
         Markdown("A `state` is declared at the top of a page, component or store body, with an initial value. Its type is read off the value, or written after a colon; [chapter 10](/docs/guide/types) has the type language. Assigning a value of another type is an error (`T01`).\n\nState is written only in an imperative block — a handler, an action, an effect: `count = count + 1`, `user.name = \"Ann\"`, `items[0] = \"x\"`, or through a method that changes it in place (`items.push(\"x\")`). The static paint seeds every state with its initial value, so a pre-rendered page shows what the first paint would.")
 
@@ -14,7 +23,17 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("A derived value is computed from state and recomputed when any state it read changes:")
 
-        CodeBlock("page Cart(path: \"/\") \{\n    state items = [\{ name: \"Pen\", price: 2.5, qty: 4 \}, \{ name: \"Pad\", price: 6, qty: 1 \}]\n    state taxRate = 0.2\n    derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)\n    derived total = subtotal * (1 + taxRate)\n    derived empty = items.length == 0\n\n    Text(\"Subtotal: \{format(subtotal, .currency)\}\")\n    Text(\"Total: \{format(total, .currency)\}\")\n    if empty \{ Text(\"Your cart is empty.\").muted \}\n\}", title: "wf")
+        CodeBlock(#"page Cart(path: "/") {
+    state items = [{ name: "Pen", price: 2.5, qty: 4 }, { name: "Pad", price: 6, qty: 1 }]
+    state taxRate = 0.2
+    derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+    derived total = subtotal * (1 + taxRate)
+    derived empty = items.length == 0
+
+    Text("Subtotal: {format(subtotal, .currency)}")
+    Text("Total: {format(total, .currency)}")
+    if empty { Text("Your cart is empty.").muted }
+}"#, title: "wf")
 
         Markdown("A derived value may read other derived values and call actions. It is never assigned to. It is seeded in the static paint from the initial state.")
 
@@ -22,7 +41,20 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("An effect runs once, and again whenever a state it read changes. Its `cleanup \{ \}` block runs before the next run and when the page (or the branch the effect lives in) leaves:")
 
-        CodeBlock("page Watch(path: \"/\") \{\n    state query = \"\"\n    state hits = 0\n    effect \{\n        log(\"query is now \{query\}\")\n        hits = hits + 1\n    \}\n    effect \{\n        document.title = \"Search: \{query\}\"\n        cleanup \{ document.title = \"Search\" \}\n    \}\n    Input(bind: query, placeholder: \"Search\")\n    Text(\"\{hits\} runs\")\n\}", title: "wf")
+        CodeBlock(#"page Watch(path: "/") {
+    state query = ""
+    state hits = 0
+    effect {
+        log("query is now {query}")
+        hits = hits + 1
+    }
+    effect {
+        document.title = "Search: {query}"
+        cleanup { document.title = "Search" }
+    }
+    Input(bind: query, placeholder: "Search")
+    Text("{hits} runs")
+}"#, title: "wf")
 
         Markdown("Use effects for the world outside the page — the document title, a third-party widget, a subscription. Keep computation in `derived`.")
 
@@ -30,7 +62,33 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("An action is a named function of the page, component or store. Its body is an imperative block: assignments, `let` locals, calls, `if`, `for`, `try`, `return`, `await`.")
 
-        CodeBlock("page Todos(path: \"/\") \{\n    state items: [String] = []\n    state draft = \"\"\n\n    action add() \{\n        let text = draft.trim()\n        if text == \"\" \{ return \}\n        items.push(text)\n        draft = \"\"\n    \}\n\n    action remove(index: Number) \{\n        items = items.filter((_, i) => i != index)\n    \}\n\n    action load() \{\n        let r = await fetch(\"/api/todos\")\n        let \{ todos \} = r\n        items = todos\n    \}\n\n    Input(bind: draft, placeholder: \"What needs doing?\") \{ on keydown(e) \{ if e.key == \"Enter\" \{ add() \} \} \}\n    Button(\"Add\").primary \{ on click \{ add() \} \}\n    for item, i in items \{\n        Row \{ Text(item)  IconButton(icon: \"trash\", label: \"Remove\") \{ on click \{ remove(i) \} \} \}\n    \}\n\}", title: "wf")
+        CodeBlock(#"page Todos(path: "/") {
+    state items: [String] = []
+    state draft = ""
+
+    action add() {
+        let text = draft.trim()
+        if text == "" { return }
+        items.push(text)
+        draft = ""
+    }
+
+    action remove(index: Number) {
+        items = items.filter((_, i) => i != index)
+    }
+
+    action load() {
+        let r = await fetch("/api/todos")
+        let { todos } = r
+        items = todos
+    }
+
+    Input(bind: draft, placeholder: "What needs doing?") { on keydown(e) { if e.key == "Enter" { add() } } }
+    Button("Add").primary { on click { add() } }
+    for item, i in items {
+        Row { Text(item)  IconButton(icon: "trash", label: "Remove") { on click { remove(i) } } }
+    }
+}"#, title: "wf")
 
         Markdown("- `let x = …` declares a local of the action (or handler). `let \{ a, b \} = m` and `let [x, y] = l` destructure.\n- `await` inside an action makes it asynchronous; `name.pending` is `true` while a call of it runs ([chapter 6](/docs/guide/events-and-forms#pending-actions)).\n- `for item in list \{ \}`, `for item, i in list \{ \}` and `for n in 1..=10 \{ \}` loop; `try \{ \} catch e \{ \}` guards a call that may fail; `return x` leaves with a value.\n- A page's action is called by name, `add()`; a store's through the store, `Todos.add()`.")
 
@@ -38,7 +96,15 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("`persist` is a `state` kept in the browser's storage across visits. It is read back on the next visit and written on every change:")
 
-        CodeBlock("page Prefs(path: \"/\") \{\n    persist theme = \"light\"\n    persist perPage = 20\n    Select(bind: theme, label: \"Theme\") \{\n        Select.Option(\"Light\", value: \"light\")\n        Select.Option(\"Dark\", value: \"dark\")\n    \}\n    Slider(bind: perPage, min: 10, max: 100, step: 10, label: \"Rows per page\")\n\}", title: "wf")
+        CodeBlock(#"page Prefs(path: "/") {
+    persist theme = "light"
+    persist perPage = 20
+    Select(bind: theme, label: "Theme") {
+        Select.Option("Light", value: "light")
+        Select.Option("Dark", value: "dark")
+    }
+    Slider(bind: perPage, min: 10, max: 100, step: 10, label: "Rows per page")
+}"#, title: "wf")
 
         Markdown("It works in a store too, where every page shares it. The key is the owner's name and the state's (`Prefs.theme`), so a page and a store may each have a `theme`. Storage that is blocked or full falls back to the initial value.")
 
@@ -46,7 +112,14 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("`every(ms) \{ \}` repeats; `after(ms) \{ \}` fires once. Both stop when what declared them leaves the page — a branch that closes, a list item that is removed, a route that changes:")
 
-        CodeBlock("page Clock(path: \"/\") \{\n    state seconds = 0\n    state toast: String? = \"Welcome\"\n    every(1000) \{ seconds = seconds + 1 \}\n    after(3000) \{ toast = null \}\n    Text(\"\{seconds\}s on this page\")\n    if let t = toast \{ Alert(t).info \}\n\}", title: "wf")
+        CodeBlock(#"page Clock(path: "/") {
+    state seconds = 0
+    state toast: String? = "Welcome"
+    every(1000) { seconds = seconds + 1 }
+    after(3000) { toast = null }
+    Text("{seconds}s on this page")
+    if let t = toast { Alert(t).info }
+}"#, title: "wf")
 
         Heading("Ownership: what leaves, leaves", id: "ownership-what-leaves-leaves").h2
 
@@ -56,7 +129,13 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("`ref: name` on an element gives you a handle, read as the element itself:")
 
-        CodeBlock("page Search(path: \"/\") \{\n    state q = \"\"\n    Input(bind: q, ref: box, placeholder: \"Search\")\n    Button(\"Focus the box\") \{ on click \{ box.focus() \} \}\n    Button(\"Clear\") \{ on click \{ q = \"\"  box.focus() \} \}\n    on key(\"/\") \{ box.focus() \}\n\}", title: "wf")
+        CodeBlock(#"page Search(path: "/") {
+    state q = ""
+    Input(bind: q, ref: box, placeholder: "Search")
+    Button("Focus the box") { on click { box.focus() } }
+    Button("Clear") { on click { q = ""  box.focus() } }
+    on key("/") { box.focus() }
+}"#, title: "wf")
 
         Markdown("The name is declared by its use; `box.value`, `box.scrollIntoView()`, anything the element has.")
 
@@ -64,7 +143,13 @@ page StateAndReactivity(path: "/docs/guide/state", title: "State and reactivity"
 
         Markdown("Four names are always in scope, kept current by the runtime:")
 
-        CodeBlock("page Where(path: \"/\") \{\n    Text(if viewport.md \{ \"wide\" \} else \{ \"narrow\" \})   // viewport.width, .height, .sm .md .lg .xl\n    derived tab = query.tab ?? \"all\"                      // the URL's ?tab=x\n    Text(\"Tab: \{tab\}\")\n    Text(\"Section: \{hash\}\")                               // the URL's #fragment\n    Text(\"Theme: \{theme\}\")                                // light, dark or system\n\}", title: "wf")
+        CodeBlock(#"page Where(path: "/") {
+    Text(if viewport.md { "wide" } else { "narrow" })   // viewport.width, .height, .sm .md .lg .xl
+    derived tab = query.tab ?? "all"                      // the URL's ?tab=x
+    Text("Tab: {tab}")
+    Text("Section: {hash}")                               // the URL's #fragment
+    Text("Theme: {theme}")                                // light, dark or system
+}"#, title: "wf")
 
         Markdown("Breakpoints: `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px. A `state` you declare with one of these names shadows it. In the static paint they are unknown, so a condition on them renders as its live branch once hydrated.")
 

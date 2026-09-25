@@ -57,6 +57,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ─── Layout ────────────────────────────────────────── */
 .wf-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-md); }
 .wf-container--fluid { max-width: 100%; }
+/* A `show` whose condition is false in the static paint. The runtime
+   sets `display` on the wrapper, which beats this. */
+.wf-hidden { display: none; }
 .wf-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .wf-row { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
 .wf-row--center { align-items: center; }
@@ -411,19 +414,20 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 
 /* ─── Responsive: reflow only, no type scale ────────── */
 @media (max-width: 1024px) {
-  .wf-grid { grid-template-columns: repeat(2, 1fr) !important; }
-  .wf-col--4, .wf-col--3 { flex: 0 0 50%; max-width: 50%; }
+  .wf-grid.wf-stacks { grid-template-columns: repeat(2, 1fr); }
+  .wf-col--4.wf-stacks, .wf-col--3.wf-stacks { flex: 0 0 50%; max-width: 50%; }
 }
 @media (max-width: 768px) {
-  /* A Row does not stack itself here, unlike in the full sheet: in structural
-     mode the author owns layout, and a row that should stack on a phone says
-     so with its own @media. Stacking every row turned a badge, a chip and a
-     segmented control into columns. Grid columns still collapse. */
-  .wf-col, .wf-col--1, .wf-col--2, .wf-col--3, .wf-col--4, .wf-col--5, .wf-col--6,
-  .wf-col--7, .wf-col--8, .wf-col--9, .wf-col--10, .wf-col--11, .wf-col--12 {
+  /* Every reflow here is asked for: `.stacks` on a Row, a Grid or a Column,
+     or a responsive value that says what to do at each width. */
+  .wf-row.wf-stacks { flex-direction: column; }
+  .wf-col.wf-stacks, .wf-col--1.wf-stacks, .wf-col--2.wf-stacks, .wf-col--3.wf-stacks,
+  .wf-col--4.wf-stacks, .wf-col--5.wf-stacks, .wf-col--6.wf-stacks, .wf-col--7.wf-stacks,
+  .wf-col--8.wf-stacks, .wf-col--9.wf-stacks, .wf-col--10.wf-stacks, .wf-col--11.wf-stacks,
+  .wf-col--12.wf-stacks {
     flex: 0 0 100%; max-width: 100%;
   }
-  .wf-grid { grid-template-columns: 1fr !important; }
+  .wf-grid.wf-stacks { grid-template-columns: 1fr; }
   .wf-navbar { flex-wrap: wrap; padding: var(--spacing-sm); }
   .wf-navbar__links { flex-wrap: wrap; gap: var(--spacing-xs); }
   .wf-navbar__brand { width: 100%; }

@@ -212,7 +212,7 @@ page Guide(path: "/guide", description: "The language, end to end: pages, compon
 
         Spacer
 
-        Row(gap: .md) {
+        Row(gap: .md).stacks {
             Button("Components Reference").primary { on click { navigate("/components") } }
             Button("Styling Guide") { on click { navigate("/styling") } }
         }

@@ -1,3 +1,281 @@
+# WebFluent v4.0 Release Notes
+
+Thirteen things the language could not do, or did badly. The runtime is
+now modular and a static page carries **3.7 kB gzipped** of it where it
+used to carry 18.3 kB.
+
+## Breaking
+
+Read this section before upgrading. `wf migrate` does the mechanical part
+and names the rest with the file and the line — run it first:
+
+```bash
+wf migrate .
+```
+
+### `env` splits in two
+
+`env.NAME` is replaced at build time and the value lands in the bundle, so
+only a **public** name may be read from a page, a component, a store or an
+`api` block: one beginning `PUBLIC_`, or one the new `public_env` list
+names. Any other name is a compile error at the line that reads it; the
+values still reach `wf render`, which runs on a server.
+
+`wf migrate` adds every name your pages already read to `public_env`, so
+the build keeps working, and prints the list — **read it**, because an API
+key in there was a leak before and is a leak now.
+
+### An `on*` attribute is a compile error
+
+`Button("x", onclick: expr)` is the one place an attribute value is
+executed. Write `Button("x") { on click { … } }`. No automatic rewrite: the
+old value was a string of JavaScript.
+
+### A URL a browser would run is refused
+
+`href:`, `src:`, `to:`, `poster:` and `navigate()` take `http`, `https`,
+`mailto`, `tel`, `sms`, `ftp` or a relative URL. A literal is refused where
+it is written; a value that only exists at run time is refused at the
+moment it is used. `javascript:`, `data:`, `vbscript:`, `blob:` and
+`file:` have no replacement.
+
+### Stores are built on first read
+
+Nothing is constructed at boot. The order stores are declared in no longer
+matters — a `derived` that read a store declared below it used to read
+`undefined` — and a store nothing reads costs nothing. **If a `derived` of
+yours had a side effect that ran at boot, it now runs when something reads
+it**; `store X(eager: true)` restores the old timing.
+
+### A `persist` value follows the site's other tabs
+
+`localStorage` is shared between tabs, so a write in one now arrives in
+the others. `sync: false` keeps a value to its own tab.
+
+### The runtime surface
+
+`WF.store(def)` is `WF.store(name, define, options)`, and `WF.host(…)` —
+which was a `Url`'s host — no longer builds a `Host`; that is `WF.attach`.
+Only a hand-written script is affected.
+
+### Smaller
+
+- `wf init` writes `"csp": true`. An existing project opts in.
+- The guide renumbered: the components reference is chapter 20 and the
+  cookbook 21, with the new security chapter at 19.
+- A layout no longer reflows on its own below 768px — that landed in the
+  responsive work; `.stacks` is how a `Row`, `Grid` or `Column` asks to,
+  and `wf migrate` adds it.
+
+## Added
+
+### The runtime is modular
+
+28 feature modules, and a build carries only the ones its program reaches
+— read from the bundle it just wrote, so the set cannot fall behind the
+compiler. `wf build --stats` prints what the output weighs and which
+modules it holds. `build.budget` warns over a gzipped size;
+`build.runtime: "full"` ships everything for a program the scan cannot
+see.
+
+### Eleven types the language brings with it
+
+`Date`, `Time`, `DateTime`, `Duration`, `Money`, `Url`, `Email`, `Color`,
+`Uuid`, `File`, `Secret` — each a plain JSON value at run time, with
+`@2026-03-14`, `3.days` and `€12.99` as literals, arithmetic that runs at
+build time as well as in the browser, and refinements (`Number(1..=30)`,
+`String(minLength: 8)`) checked at every literal. `uuid()` is where a
+`Uuid` comes from.
+
+### A service, described once
+
+`api Backend(base:) { … get users(page: Number) -> [User] }` — or
+`api B from "openapi.json"` — compiles to one object of typed, cached,
+cancellable endpoints: typed errors, retry with backoff, SWR caching with
+`ETag` revalidation, dedupe, upload progress, pagination. `socket`,
+`stream` and `channel` for a connection the page holds open, closed by the
+scope that opened it.
+
+### Validation beside the state it guards
+
+`validate email { required  email  async "Taken" { … } }`. The control
+bound to that state shows the message without being told to, with the
+`role="alert"` / `aria-invalid` / `aria-describedby` plumbing. `Form(bind:)`
+gives `valid`, `errors`, `touched`, `pending`, `values`, `reset()`,
+`submit()` and `apply(serverErrors)`.
+
+### A real image pipeline
+
+`image hero = "hero.jpg"` reads the file at build time and writes it at
+every width a page asks for. `Image(hero, sizes:, placeholder: .blur)` is
+a `<picture>` with `width`/`height` from the real file, so nothing shifts.
+PDF and slides embed the picture rather than a grey rectangle.
+
+### Responsive values, without JavaScript
+
+`Grid(columns: { base: 1, md: 2, lg: 3 })` compiles to one class and one
+media query per step, so the right layout is in the first paint. The
+breakpoints are design tokens.
+
+### Motion on the Web Animations API
+
+An interrupted animation gives way to the one that replaced it; a spring
+is sampled into a `linear()` easing. New: `on: .enterView`, `shared:` for
+an element carried across a route change, `.expand` to the height of the
+content, `count:` on a number, and `sequence { step(after: "120ms") { … } }`.
+**Nothing the DOM must end up as depends on an animation finishing** — a
+page that is not painting still opens the box, arrives at the number and
+completes the route change.
+
+### Stores: lifetime, location, and a way to see them
+
+`store Cart(scope: .app | .session | .route)`, and a `persist` policy:
+`in:`, `version:`, `sync:` and `migrate 1 -> 2 { … }`, so a value an older
+build wrote is carried forward rather than discarded. `wf serve` gets a
+**stores** panel: the tree, every action with the state on each side of
+it, and a click to put one back.
+
+### Security, as a subject the language takes seriously
+
+Beside the breaking changes above: `Unsafe.Html(markup)` is the one door
+for markup, `sanitize(html)` is an allow-list that runs at build time and
+in the browser from the same list, `rel="noopener noreferrer"` comes with
+any `target:`, `meta.integrity` emits SRI, and **the build reads its own
+output back and holds it to the policy it ships**. `wf audit` prints every
+`Unsafe.*`, every other origin, everything kept on the reader's machine,
+every `env` name, the policy and the dependency list. A new chapter 19
+covers the threat model and a deployment checklist.
+
+### A test that acts
+
+`wf test` ran a body through the template engine and read the result,
+which meant no test in the language could exercise a button: a click runs
+a handler, which runs an action, which changes a store, which repaints,
+and a renderer does none of that.
+
+A test with an interaction in it is now compiled into a real page,
+served, and run in a headless browser — same compiler, same runtime, same
+output a reader gets.
+
+```wf
+test "reporting an incident opens one more" {
+    use IncidentStore
+    state draft = ""
+    Text("{IncidentStore.open} open")
+    Input(bind: draft, label: "What happened")
+    Button("Report") { on click { IncidentStore.report(draft) } }
+
+    expect "2 open"
+    type "Queue backing up" into "What happened"
+    click "Report"
+    expect "3 open"
+}
+```
+
+`click "Save"`, `type "Ada" into "Name"`, `press "Escape" in "Search"` and
+`expect` run in the order written — which is the whole meaning, since what
+a click did is only visible in the expect that follows it. Everything is
+found the way a reader finds it: a button's text, a control's label, its
+placeholder, its `aria-label` — the same names the accessibility checks
+hold a page to. A handler that throws fails the test even where the
+expects would have passed.
+
+A test that only looks is still rendered and snapshotted, and needs no
+browser.
+
+### `wf verify` — every page, in a real browser
+
+```bash
+wf build && wf verify
+```
+
+It starts a headless Chrome, serves the output and opens every route the
+project has, failing on an uncaught exception, a `console.error`, a file
+that did not arrive, an image that failed or a page that rendered no
+text. It reports the first contentful paint, the node count and the bytes
+each route fetched; `--budget MS` fails a route that paints too slowly
+and `--json` is the same report for a pipeline. It also says which
+built-ins no page drew — the classes the pages carried are the list of
+what actually ran.
+
+The DevTools Protocol client is written here, like the PDF writer and the
+gzip encoder: it speaks to a process the build started, on the loopback
+address, so it needs no TLS, no compression and no fragmentation, and a
+dependency would be larger than the problem.
+
+### Interop, in both directions
+
+`external Chart from "…" { fn … type … }` is a typed import, checked at
+every call site, emitted as a real ESM module with its origin in the
+policy. `Host(mount:, update:, cleanup:)` is a node with a lifetime — the
+`ref` + `effect` + `cleanup` written by hand, with the cleanup impossible
+to forget. `external element` places somebody else's custom element, and
+`output_type: "elements"` publishes yours: `PriceTag` becomes
+`<price-tag>`, usable from React, Vue, Svelte, Rails, WordPress or a plain
+page.
+
+### Strings that do not fight you
+
+Raw strings `#"…"#`, block strings `"""…"""` with the source's indentation
+removed, and formatted splices `{total:.currency}`.
+
+## Fixed
+
+- A `derived` that read a store declared later in the file read
+  `undefined`.
+- A page `state` named `key`, `value`, `event`, `e` or `params` compiled
+  to a bare identifier: it rendered as nothing and never updated.
+- `Input(bind: Store.member)` compiled to a control with no binding at
+  all — a silent no-op.
+- The static paint wrote `style="display:none"` for a hidden `show`, which
+  a strict `style-src` forbids.
+- The documentation site was painting `￾` and `￿` in inline code.
+- `frame-ancestors` was shipped in a `<meta>` tag, where a browser ignores
+  it.
+- An `api` block's `on request` / `on response` / `on error` hooks
+  compiled to empty functions: everything written in one was generated
+  into a string and thrown away.
+- A handler's parameter in an `api` hook and in a `socket`, `stream` or
+  `channel` (`on message(m)`) compiled to `_m()` — a signal that was never
+  made, so the handler threw on the first message.
+- `match` over a `socket`, `stream` or `channel` called the handle as a
+  function, which threw and took the whole page's first paint with it.
+- `if let x = …` inside an action, a handler or an `effect` read the bound
+  name as a signal, so the branch that had just checked it was not null
+  used a name that did not exist.
+- `T06` only held a store to its members where the body wrote `use`, and
+  never inside another store or an `api` block — so `Store.mispelt()` in
+  any of those built without a word.
+- `U04` did not see the reads in an `api` block's `headers { }` or hooks,
+  and reported the store members only those reach as unread.
+- `form.pending`, `form.errors`, `form.touched` and `form.apply(…)` were
+  `T05`: the checker's idea of a form handle was missing half of it.
+
+## Coverage
+
+Every page of every example — the fixtures, both `wf init` templates, the
+documentation site and a real 130-file project — is loaded in a headless
+Chrome on every change: **124 pages, zero errors**, and every one of the
+52 built-ins that can render in a browser is drawn by at least one of
+them. `just browser` runs the sweep; it reports nothing to do where there
+is no browser.
+
+It is also how a real bug in the dashboard fixture's own store was
+found the moment it had a test that clicked: `resolve` changed a field of
+an item in place, so the list stayed the same list and nothing repainted.
+
+That sweep is how three of the fixes above were found: a route change
+that never completed, a box that never opened and a number that never
+moved, each of them waiting on an animation frame that a page which is
+not painting never gets.
+
+## Diagnostics
+
+New codes: `P01`/`P02` (a persisted value's version chain), `P03` (a
+route-scoped store that persists), `V03` (an `Unsafe.Html`, and whether it
+is sanitised), `T12` (a `Secret` where it would escape).
+
+
 # WebFluent v3.2 Release Notes
 
 ## Added

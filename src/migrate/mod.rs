@@ -60,6 +60,10 @@ pub struct ProjectContext {
     /// themes' and the built-in ones. Any other `var(--x)` is a custom
     /// property of the element's own and stays as written.
     pub tokens: std::collections::HashSet<String>,
+    /// The states a `DatePicker` binds. A date picker holds a `Date` now,
+    /// not a string that looks like one, so each of these is annotated and
+    /// its starting value written as a date.
+    pub bound_dates: std::collections::HashSet<String>,
 }
 
 /// Read the whole project once, so a file's rewrite can see what the others
@@ -95,11 +99,34 @@ pub fn project_context(files: &[(PathBuf, String)]) -> ProjectContext {
                 _ => continue,
             };
             collect_positional_calls(body, &mut ctx.positional_components);
+            collect_bound_dates(body, &mut ctx.bound_dates);
         }
     }
     ctx.positional_components.sort();
     ctx.positional_components.dedup();
     ctx
+}
+
+/// The names a `DatePicker(bind: …)` binds, anywhere in the body.
+fn collect_bound_dates(stmts: &[Statement], out: &mut std::collections::HashSet<String>) {
+    for stmt in stmts {
+        for body in child_bodies(stmt) {
+            collect_bound_dates(body, out);
+        }
+        let StatementKind::UIElement(el) = &stmt.kind else {
+            continue;
+        };
+        if !matches!(&el.component, ComponentRef::BuiltIn(n) if n == "DatePicker") {
+            continue;
+        }
+        for arg in &el.args {
+            if let Arg::Named(key, Expr::Identifier(name)) = arg
+                && key == "bind"
+            {
+                out.insert(name.clone());
+            }
+        }
+    }
 }
 
 fn collect_positional_calls(stmts: &[Statement], out: &mut Vec<String>) {
@@ -423,6 +450,8 @@ impl<'a> Rewriter<'a> {
                 Declaration::Theme(t) => self.spell_theme(t),
                 Declaration::Type(_)
                 | Declaration::Enum(_)
+                | Declaration::Api(_)
+                | Declaration::External(_)
                 | Declaration::Const(_)
                 | Declaration::Animation(_)
                 | Declaration::Test(_)
@@ -625,6 +654,36 @@ impl<'a> Rewriter<'a> {
         for stmt in stmts {
             match &stmt.kind {
                 StatementKind::UIElement(el) => self.spell_element(el),
+                // `state when = ""` bound to a date picker is a `Date`:
+                // the type it always held, now written down.
+                StatementKind::State(st)
+                    if !imperative
+                        && st.ty.is_none()
+                        && self.ctx.bound_dates.contains(&st.name) =>
+                {
+                    if let Expr::StringLiteral(text) = &st.value {
+                        let (start, end) = (stmt.span.start as usize, stmt.span.end as usize);
+                        let line = &self.source[start..end];
+                        if let Some(eq) = line.find('=') {
+                            let (ty, value) = if text.is_empty() {
+                                // An empty picker holds nothing.
+                                ("Date?", "null".to_string())
+                            } else {
+                                ("Date", format!("@{text}"))
+                            };
+                            let before = line[..eq].trim_end().len();
+                            self.patch(start + eq + 1, end, format!(" {value}"));
+                            self.patch(start + before, start + before, format!(": {ty}"));
+                            self.note(
+                                stmt.span,
+                                format!(
+                                    "`{}` is bound to a DatePicker, which holds a `{ty}`",
+                                    st.name
+                                ),
+                            );
+                        }
+                    }
+                }
                 StatementKind::State(_) if imperative => {
                     let start = stmt.span.start as usize;
                     if self.source[start..].starts_with("state") {
@@ -847,6 +906,16 @@ impl<'a> Rewriter<'a> {
         }
 
         let (mut flags, mut new_args) = self.lifted.remove(&el.span.start).unwrap_or_default();
+        // A layout used to reflow on a narrow screen whatever the author
+        // wrote — every `Row` a column, every `Grid` one column, with
+        // `!important`. It does not any more, so a project that relied on
+        // it says so: `.stacks` keeps exactly the old behaviour.
+        if let ComponentRef::BuiltIn(name) = &el.component
+            && matches!(name.as_str(), "Row" | "Grid" | "Column")
+            && !el.modifiers.iter().any(|m| m == "stacks")
+        {
+            flags.push(".stacks".to_string());
+        }
         let mut removals: Vec<(usize, usize)> = Vec::new();
 
         // Modifiers → flags.

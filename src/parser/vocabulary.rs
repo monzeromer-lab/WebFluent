@@ -15,6 +15,8 @@
 /// accepts their token types directly, and suggestion machinery ("did you mean
 /// …?") needs them in the table.
 pub const MODIFIER_KEYWORDS: &[&str] = &[
+    // A layout that asks to reflow on a narrow screen.
+    "stacks",
     // Size
     "small",
     "medium",
@@ -108,6 +110,8 @@ pub const MODIFIER_KEYWORDS: &[&str] = &[
     "shake",
     "pulse",
     "spin",
+    "expand",
+    "collapse",
     // Animation speed
     "fast",
     "slow",

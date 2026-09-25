@@ -1,0 +1,879 @@
+{
+  "header": "\"use strict\";\n// WebFluent Runtime v1.0\n// Fine-grained reactivity + DOM helpers + Router + Store + Fetch\n\nconst WF = (() => {\n",
+  "modules": [
+    {
+      "deps": [],
+      "exports": [
+        [
+          "signal",
+          "signal"
+        ],
+        [
+          "effect",
+          "effect"
+        ],
+        [
+          "computed",
+          "computed"
+        ],
+        [
+          "scoped",
+          "scoped"
+        ],
+        [
+          "onCleanup",
+          "onCleanup"
+        ],
+        [
+          "every",
+          "every"
+        ],
+        [
+          "after",
+          "after"
+        ],
+        [
+          "listen",
+          "listen"
+        ],
+        [
+          "onKey",
+          "onKey"
+        ],
+        [
+          "keyIs",
+          "keyIs"
+        ],
+        [
+          "ref",
+          "ref"
+        ],
+        [
+          "safeUrl",
+          "safeUrl"
+        ],
+        [
+          "jsonAttr",
+          "jsonAttr"
+        ],
+        [
+          "el",
+          "el"
+        ],
+        [
+          "text",
+          "text"
+        ],
+        [
+          "props",
+          "props"
+        ],
+        [
+          "onRoot",
+          "onRoot"
+        ],
+        [
+          "mark",
+          "mark"
+        ],
+        [
+          "classes",
+          "classes"
+        ],
+        [
+          "caseOf",
+          "caseOf"
+        ],
+        [
+          "payload",
+          "payload"
+        ],
+        [
+          "emit",
+          "emit"
+        ],
+        [
+          "navigate",
+          "navigate"
+        ],
+        [
+          "setSsgMode",
+          "setSsgMode"
+        ],
+        [
+          "setBasePath",
+          "setBasePath"
+        ],
+        [
+          "theme",
+          "theme"
+        ],
+        [
+          "setTheme",
+          "setTheme"
+        ],
+        [
+          "mount",
+          "mount"
+        ],
+        [
+          "mainOf",
+          "mainOf"
+        ]
+      ],
+      "name": "core",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "animate",
+          "animate"
+        ],
+        [
+          "replay",
+          "replay"
+        ],
+        [
+          "animateIn",
+          "animateIn"
+        ],
+        [
+          "animateOut",
+          "animateOut"
+        ],
+        [
+          "expand",
+          "expand"
+        ],
+        [
+          "countTo",
+          "countTo"
+        ],
+        [
+          "counted",
+          "counted"
+        ],
+        [
+          "onEnterView",
+          "onEnterView"
+        ],
+        [
+          "shared",
+          "shared"
+        ]
+      ],
+      "name": "motion",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "sortBy",
+          "sortBy"
+        ],
+        [
+          "groupBy",
+          "groupBy"
+        ],
+        [
+          "unique",
+          "unique"
+        ],
+        [
+          "take",
+          "take"
+        ],
+        [
+          "range",
+          "range"
+        ],
+        [
+          "first",
+          "first"
+        ],
+        [
+          "last",
+          "last"
+        ],
+        [
+          "capitalize",
+          "capitalize"
+        ],
+        [
+          "truncate",
+          "truncate"
+        ],
+        [
+          "dedent",
+          "dedent"
+        ],
+        [
+          "lines",
+          "lines"
+        ],
+        [
+          "words",
+          "words"
+        ]
+      ],
+      "name": "helpers",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "format",
+          "format"
+        ],
+        [
+          "ago",
+          "ago"
+        ]
+      ],
+      "name": "format",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "year",
+          "year"
+        ],
+        [
+          "month",
+          "month"
+        ],
+        [
+          "day",
+          "day"
+        ],
+        [
+          "weekday",
+          "weekday"
+        ],
+        [
+          "hour",
+          "hour"
+        ],
+        [
+          "minute",
+          "minute"
+        ],
+        [
+          "second",
+          "second"
+        ],
+        [
+          "native",
+          "native"
+        ],
+        [
+          "plus",
+          "plus"
+        ],
+        [
+          "minus",
+          "minus"
+        ],
+        [
+          "isBefore",
+          "isBefore"
+        ],
+        [
+          "isAfter",
+          "isAfter"
+        ],
+        [
+          "isSame",
+          "isSame"
+        ],
+        [
+          "until",
+          "until"
+        ],
+        [
+          "startOfDay",
+          "startOfDay"
+        ],
+        [
+          "startOfWeek",
+          "startOfWeek"
+        ],
+        [
+          "startOfMonth",
+          "startOfMonth"
+        ],
+        [
+          "endOfDay",
+          "endOfDay"
+        ],
+        [
+          "inZone",
+          "inZone"
+        ],
+        [
+          "days",
+          "days"
+        ],
+        [
+          "hours",
+          "hours"
+        ],
+        [
+          "minutes",
+          "minutes"
+        ],
+        [
+          "seconds",
+          "seconds"
+        ],
+        [
+          "ms",
+          "ms"
+        ],
+        [
+          "money",
+          "money"
+        ],
+        [
+          "times",
+          "times"
+        ],
+        [
+          "convert",
+          "convert"
+        ],
+        [
+          "host",
+          "host"
+        ],
+        [
+          "path",
+          "path"
+        ],
+        [
+          "domain",
+          "domain"
+        ],
+        [
+          "mix",
+          "mix"
+        ],
+        [
+          "lighten",
+          "lighten"
+        ],
+        [
+          "darken",
+          "darken"
+        ],
+        [
+          "alpha",
+          "alpha"
+        ],
+        [
+          "contrast",
+          "contrast"
+        ],
+        [
+          "preview",
+          "preview"
+        ],
+        [
+          "uuid",
+          "uuid"
+        ],
+        [
+          "dateOf",
+          "dateOf"
+        ],
+        [
+          "timeOf",
+          "timeOf"
+        ],
+        [
+          "urlWith",
+          "withParts"
+        ],
+        [
+          "urlQuery",
+          "urlQuery"
+        ]
+      ],
+      "name": "scalars",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "announce"
+      ],
+      "exports": [
+        [
+          "form",
+          "form"
+        ],
+        [
+          "validate",
+          "validate"
+        ]
+      ],
+      "name": "form",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "markdown",
+          "markdown"
+        ],
+        [
+          "highlight",
+          "highlight"
+        ]
+      ],
+      "name": "text",
+      "triggers": [
+        "markdown: ",
+        "highlight: { code:"
+      ]
+    },
+    {
+      "deps": [
+        "motion"
+      ],
+      "exports": [
+        [
+          "when",
+          "when"
+        ]
+      ],
+      "name": "when",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "motion"
+      ],
+      "exports": [
+        [
+          "match",
+          "match"
+        ]
+      ],
+      "name": "match",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "motion"
+      ],
+      "exports": [
+        [
+          "slot",
+          "slot"
+        ]
+      ],
+      "name": "slot",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "motion"
+      ],
+      "exports": [
+        [
+          "each",
+          "each"
+        ]
+      ],
+      "name": "each",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "motion"
+      ],
+      "exports": [
+        [
+          "show",
+          "show"
+        ]
+      ],
+      "name": "show",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "viewport",
+          "viewport"
+        ],
+        [
+          "query",
+          "query"
+        ],
+        [
+          "hash",
+          "hash"
+        ],
+        [
+          "now",
+          "now"
+        ],
+        [
+          "network",
+          "network"
+        ]
+      ],
+      "name": "browser",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "motion",
+        "match",
+        "pages",
+        "announce"
+      ],
+      "exports": [
+        [
+          "router",
+          "router"
+        ],
+        [
+          "params",
+          "params"
+        ],
+        [
+          "activeLink",
+          "activeLink"
+        ]
+      ],
+      "name": "router",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "page",
+          "page"
+        ],
+        [
+          "loadPage",
+          "loadPage"
+        ],
+        [
+          "loadSheet",
+          "loadSheet"
+        ]
+      ],
+      "name": "pages",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "attach",
+          "attach"
+        ]
+      ],
+      "name": "host",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "sanitize",
+          "sanitize"
+        ]
+      ],
+      "name": "sanitize",
+      "triggers": [
+        "markup:"
+      ]
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "persist",
+          "persist"
+        ]
+      ],
+      "name": "keep",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "keep"
+      ],
+      "exports": [
+        [
+          "store",
+          "store"
+        ],
+        [
+          "dropRouteStores",
+          "dropRouteStores"
+        ],
+        [
+          "watchStores",
+          "watchStores"
+        ],
+        [
+          "storeSnapshot",
+          "storeSnapshot"
+        ],
+        [
+          "restoreStore",
+          "restoreStore"
+        ]
+      ],
+      "name": "store",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "send",
+          "send"
+        ],
+        [
+          "beacon",
+          "beacon"
+        ],
+        [
+          "invalidate",
+          "invalidate"
+        ]
+      ],
+      "name": "http",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "http"
+      ],
+      "exports": [
+        [
+          "api",
+          "api"
+        ],
+        [
+          "ws",
+          "ws"
+        ],
+        [
+          "sse",
+          "sse"
+        ],
+        [
+          "broadcast",
+          "broadcast"
+        ]
+      ],
+      "name": "api",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "http"
+      ],
+      "exports": [
+        [
+          "resource",
+          "resource"
+        ],
+        [
+          "request",
+          "request"
+        ],
+        [
+          "optimistic",
+          "optimistic"
+        ],
+        [
+          "attempt",
+          "attempt"
+        ],
+        [
+          "fetch",
+          "wfFetch"
+        ]
+      ],
+      "name": "net",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "toast",
+          "toast"
+        ]
+      ],
+      "name": "toast",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "dialog",
+          "dialog"
+        ],
+        [
+          "popup",
+          "popup"
+        ],
+        [
+          "tabs",
+          "tabs"
+        ],
+        [
+          "menu",
+          "menu"
+        ]
+      ],
+      "name": "overlay",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "announce",
+          "announce"
+        ]
+      ],
+      "name": "announce",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "field",
+          "field"
+        ]
+      ],
+      "name": "field",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "tooltip",
+          "tooltip"
+        ]
+      ],
+      "name": "tooltip",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "field"
+      ],
+      "exports": [
+        [
+          "carousel",
+          "carousel"
+        ]
+      ],
+      "name": "carousel",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "drawer",
+          "drawer"
+        ]
+      ],
+      "name": "drawer",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "head",
+          "head"
+        ]
+      ],
+      "name": "head",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "hydrate",
+          "hydrate"
+        ]
+      ],
+      "name": "hydrate",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "format"
+      ],
+      "exports": [
+        [
+          "locales",
+          "locales"
+        ]
+      ],
+      "name": "i18n",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "picture",
+          "picture"
+        ]
+      ],
+      "name": "picture",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [],
+      "name": "icons",
+      "triggers": [
+        "\"data-icon\""
+      ]
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "__debug",
+          "__debug"
+        ],
+        [
+          "__reg",
+          "__reg"
+        ]
+      ],
+      "name": "debug",
+      "triggers": []
+    }
+  ]
+}

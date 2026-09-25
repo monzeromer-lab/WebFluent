@@ -4,8 +4,8 @@ page About(path: "/about", description: "Who we are and what we do.", title: "Ab
 
         Spacer
 
-        Row(gap: .lg) {
-            Column(span: 6) {
+        Row(gap: .lg).stacks {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading(t("about.mission.title")).h2
@@ -16,7 +16,7 @@ page About(path: "/about", description: "Who we are and what we do.", title: "Ab
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card {
                     Card.Body {
                         Heading(t("about.team.title")).h2

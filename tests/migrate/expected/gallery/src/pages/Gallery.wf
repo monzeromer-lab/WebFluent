@@ -13,11 +13,11 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
 
         // ── Layout ──────────────────────────────────
         Heading("Layout").h2
-        Row(gap: .md, align: .center, justify: .between) {
-            Column(span: 4) { Text("Column of four") }
-            Column(span: 8) { Text("Column of eight") }
+        Row(gap: .md, align: .center, justify: .between).stacks {
+            Column(span: 4).stacks { Text("Column of four") }
+            Column(span: 8).stacks { Text("Column of eight") }
         }
-        Grid(columns: 3) {
+        Grid(columns: 3).stacks {
             Card { Text("Grid cell one") }
             Card { Text("Grid cell two") }
             Card { Text("Grid cell three") }
@@ -79,7 +79,7 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
             Text("First list item")
             Text("Second list item")
         }
-        Row(gap: .sm, align: .center) {
+        Row(gap: .sm, align: .center).stacks {
             Badge("New").success
             Badge("Beta").primary.pill
             Tag("design")
@@ -131,7 +131,7 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
 
         // ── Actions ─────────────────────────────────
         Heading("Actions").h2
-        Row(gap: .sm, align: .center) {
+        Row(gap: .sm, align: .center).stacks {
             Button("Default")
             Button("Primary").primary
             Button("Secondary").secondary

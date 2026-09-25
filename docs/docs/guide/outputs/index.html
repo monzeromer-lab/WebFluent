@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Outputs">
     <meta name="twitter:description" content="SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs","name":"Outputs","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"SPA, static site, PDF documents, slide decks, and rendering templates with data from the CLI, Rust and Node."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Outputs","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -322,7 +322,7 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
 <li><code>Document(page_size:)</code> — <code>A4</code>, <code>A3</code>, <code>A5</code>, <code>Letter</code>, <code>Legal</code> — is the root; <code>Header</code> and <code>Footer</code> repeat on every page; <code>Section</code> groups with spacing; <code>Paragraph</code> is a block of text; <code>PageBreak</code> starts a new page.</li>
 <li>Typography, layout containers, <code>Table</code>, <code>List</code>, <code>Badge</code>, <code>Card</code>, <code>Image</code>, <code>Divider</code>, <code>Spacer</code> render; <code>if</code> and <code>for</code> work over static data (<code>const</code>, <code>data</code>, literals).</li>
 <li>Interactive components (<code>Button</code>, <code>Input</code>, <code>Form</code>, <code>Modal</code>, …), navigation, handlers, <code>resource</code>, <code>state</code> that changes, and motion do not belong in a PDF; the PDF validator rejects them before codegen.</li>
-<li>A <code>style ￾ ￿</code> on a container honours a subset: <code>background</code> (colour or a two-stop <code>linear-gradient</code>), <code>padding</code>, <code>border</code>, <code>border-radius</code>, <code>box-shadow</code>, <code>width</code>, <code>height</code> in <code>pt</code> or <code>%</code>. Unknown properties warn once per component and property.</li>
+<li>A <code>style { }</code> on a container honours a subset: <code>background</code> (colour or a two-stop <code>linear-gradient</code>), <code>padding</code>, <code>border</code>, <code>border-radius</code>, <code>box-shadow</code>, <code>width</code>, <code>height</code> in <code>pt</code> or <code>%</code>. Unknown properties warn once per component and property.</li>
 </ul>
 <p><code>wf init my-report --template pdf</code> scaffolds one.</p>
                             </div>
@@ -386,12 +386,26 @@ page Invoice(path: &quot;/&quot;, title: &quot;Invoice&quot;, description: &quot
                             <div class="wf-markdown">
 <ul>
 <li><code>Presentation</code> holds only slides; a slide is one PDF page and never flows onto the next (content past the bottom margin is clipped, with a warning).</li>
-<li>Kinds: <code>Slide ￾ ￿</code> freeform; <code>TitleSlide(title, subtitle:)</code>; <code>SectionSlide(label).primary/.success/.danger/.warning/.info</code> full-bleed; <code>TwoColumn ￾ Container ￾ ￿ Container ￾ ￿ ￿</code>; <code>ImageSlide(src:, caption:)</code>.</li>
-<li><code>slides.size</code>: <code>16:9</code> (default), <code>4:3</code>, <code>A4-landscape</code>, or <code>WIDTHxHEIGHT</code> in points; <code>show_slide_numbers</code>, <code>footer_text</code> and <code>chrome_color</code> add the chrome (the colour auto-flips on a dark background when unset).</li>
-<li>Backgrounds: <code>slides.background_color</code> deck-wide, a <code>Slide</code>'s <code>style ￾ background ￿</code>, a <code>Container</code>'s; hex or a two-stop <code>linear-gradient</code>.</li>
+<li>Kinds: <code>Slide { }</code> freeform; <code>TitleSlide(title, subtitle:)</code>; <code>SectionSlide(label).primary/.success/.danger/.warning/.info</code> full-bleed; <code>TwoColumn { Container { } Container { } }</code>; <code>ImageSlide(src:, caption:)</code>.</li>
+<li><code>slides.size</code>: <code>16:9</code> (default, 960×540pt), <code>4:3</code> (720×540), <code>A4-landscape</code> (841.89×595.28), or <code>WIDTHxHEIGHT</code> in points. <code>slides.width</code> and <code>slides.height</code> override it outright; <code>slides.margin</code> (60pt) is the space round the content, and what runs past it is clipped.</li>
+<li><code>show_slide_numbers</code>, <code>footer_text</code> and <code>chrome_color</code> add the chrome (the colour auto-flips between dark and light on the slide's background when unset). <code>default_font</code>, <code>default_font_size</code> (24pt) and <code>output_filename</code> are the deck's own.</li>
+<li>Backgrounds: <code>slides.background_color</code> deck-wide, a <code>Slide</code>'s <code>style { background }</code>, a <code>Container</code>'s; hex or a two-stop <code>linear-gradient</code>.</li>
 <li>Inside a slide: <code>Text</code>, <code>Heading</code> (scaled up), <code>List</code>, layout containers, <code>Spacer</code>, <code>Divider</code>, <code>if</code>/<code>for</code> over literals. Interactive, navigation and media components are rejected.</li>
 </ul>
 <p><code>wf init my-deck --template slides</code> scaffolds one.</p>
+                            </div>
+                            <h2 class="wf-heading">Custom elements</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;output_type&quot;: &quot;elements&quot;, &quot;elements&quot;: [&quot;PriceTag&quot;, &quot;Rating&quot;] } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The project as tags any framework can place, rather than a site. <code>wf build</code> writes <code>elements.js</code>, <code>styles.css</code> and a page listing what it published; there are no routes, no shell and no pages, because a component is the whole of what is published. <a href="/WebFluent/docs/guide/components#publishing-yours">Chapter 8</a> covers how an attribute becomes a prop and an event reaches the host page.</p>
                             </div>
                             <h2 class="wf-heading">Templates: rendering with data on a server</h2>
                             <div class="wf-markdown">
@@ -507,6 +521,7 @@ res.type(&quot;application/pdf&quot;).send(tpl.renderPdf(invoice));</code>
                         <a class="wf-link wf-sdae384de" href="#spa">SPA</a>
                         <a class="wf-link wf-sdae384de" href="#pdf-documents">PDF documents</a>
                         <a class="wf-link wf-sdae384de" href="#slide-decks">Slide decks</a>
+                        <a class="wf-link wf-sdae384de" href="#custom-elements">Custom elements</a>
                         <a class="wf-link wf-sdae384de" href="#templates-rendering-with-data-on-a-server">Templates: rendering with data on a server</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">

@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Stores">
     <meta name="twitter:description" content="Stores: declaration, use, actions, persistence, loading data, and when to reach for one.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/stores#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/stores","name":"Stores","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Stores: declaration, use, actions, persistence, loading data, and when to reach for one."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/stores#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Stores","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/stores"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -160,7 +160,8 @@
                     <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <div class="wf-markdown">
-<p>A store is state shared by every page and component that uses it: the cart, the signed-in user, the theme, a cache of what was fetched. It holds <code>state</code>, <code>derived</code> values and actions, and it lives for the life of the app.</p>
+<p>A store is state shared by every page and component that uses it: the cart, the signed-in user, the theme, a cache of what was fetched. It holds <code>state</code>, <code>derived</code> values and actions.</p>
+<p><strong>A store is built the first time something reads it.</strong> Declaring one does nothing; the first <code>Cart.items</code>, <code>Cart.count</code> or <code>Cart.add(…)</code> builds it, and everything after that is the same instance. So the order stores are declared in does not matter — a <code>derived</code> may read a store declared below it — and a store nothing reads costs nothing, in time or in bytes.</p>
                             </div>
                             <h2 class="wf-heading">Declaring a store</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
@@ -195,6 +196,23 @@ store Cart {
                             </div>
                             <div class="wf-markdown">
 <p>Inside the store its members are read bare (<code>items</code>, <code>count</code>); outside, a page or component says <code>use Cart</code> and reads them as <code>Cart.items</code>, <code>Cart.count</code>, and calls <code>Cart.add(…)</code>.</p>
+<p>A store may be declared in any <code>.wf</code> file the build reads — <code>src/stores/</code> by convention, and <code>wf generate store Cart</code> puts it there — and is reached by name from anywhere. <code>use</code> says which stores a page reads, for the reader and for the editor; it does not scope anything.</p>
+                            </div>
+                            <h2 class="wf-heading">How long it lives</h2>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart(scope: .app) { … }        // the default: as long as the page is open
+store Session(scope: .session) { … } // this tab&#x27;s
+store Filters(scope: .route) { … }   // this route&#x27;s</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>.route</code> is the natural home for what belongs to one screen — the filters on a list, a wizard's step. When the route changes, what it holds goes with it, and the next read builds it again from its initial values. <code>.session</code> changes where what it keeps is written: the tab's own storage, gone when the tab is.</p>
+<p><code>store X(eager: true)</code> builds it at boot instead, for the rare store whose set-up has to happen whether or not a page reads it. If a <code>derived</code> of yours has a side effect that used to run when the page loaded, this is the switch that keeps it running then.</p>
                             </div>
                             <h2 class="wf-heading">Using a store</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
@@ -282,9 +300,9 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p>A derived value may call one of the store's own actions, and an action may read other stores through their names — stores are global, so no <code>use</code> is needed inside a store.</p>
                             </div>
-                            <h2 class="wf-heading">Persistence</h2>
+                            <h2 class="wf-heading">Keeping a value across visits</h2>
                             <div class="wf-markdown">
-<p><code>persist</code> in a store keeps a member across visits, keyed by the store's name:</p>
+<p><code>persist</code> keeps a member in the browser's storage, keyed by the store's name. It works the same way at the top of a page or a component.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -301,6 +319,32 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
         recent = [path, ...recent.filter(p =&gt; p != path)].take(5)
     }
 }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>By default the value goes in <code>localStorage</code>, and a write in <strong>another tab of the same site arrives here</strong> — <code>localStorage</code> is shared between them, so two tabs that disagree about the theme are a bug, not a feature.</p>
+<p>The block says otherwise:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart {
+    persist items: [Item] = [] {
+        in: .local          // .local (default, across visits) · .session (this tab)
+        version: 2          // the version of the shape this build writes
+        sync: false         // don&#x27;t take what another tab wrote
+        migrate 1 -&gt; 2 { old.map(i =&gt; Item(id: i.id, qty: i.count)) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>A version is a promise.</strong> Once a shape is declared with a <code>version:</code>, a value written by an older build is brought forward one step at a time — each <code>migrate n -&gt; n+1</code> reads the old value as <code>old</code> and returns the new one — so a reader who last visited two deploys ago keeps their cart instead of finding it empty. A gap in the chain is a <code>P01</code> warning, and a step above the declared version a <code>P02</code>: both say the value would be discarded.</p>
+<p>A value written by a <em>newer</em> build is left alone and the initial value used: this build cannot know what a later shape means.</p>
+<p><strong>A <code>.route</code> store that persists is a contradiction.</strong> The route change drops the store, and the next read builds it again — from storage, so the value comes straight back. The build says so (<code>P03</code>). What the route owns is <code>state</code>; what outlives it wants a wider scope.</p>
+<p><strong>A <code>Secret</code> is never written down.</strong> <code>persist token: Secret = &quot;&quot;</code> is a <code>T12</code> — the whole point of the type is that it does not reach a place any script can read.</p>
                             </div>
                             <h2 class="wf-heading">Loading data into a store</h2>
                             <div class="wf-markdown">
@@ -338,10 +382,32 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                             <div class="wf-markdown">
 <p>A pre-rendered page seeds a store's state from its initial values, so <code>Cart.count</code> paints as <code>0</code> and a store seeded with rows paints the rows. A value an action changes at run time is corrected once the page is live.</p>
                             </div>
+                            <h2 class="wf-heading">Looking at one while it runs</h2>
+                            <div class="wf-markdown">
+<p><code>wf serve</code> puts a <strong>stores</strong> button in the corner of the page. It opens on what every store that has been built is holding, and a log of every action that has run — the arguments it was given, and the state on each side of it. Clicking an entry puts the store back to what it held before that action, which is as much time travel as a bug usually needs.</p>
+<p>The same surface is on <code>window.WF</code> for a console or a script: <code>WF.storeSnapshot()</code> for the tree, <code>WF.storeSnapshot(&quot;Cart&quot;)</code> for one, <code>WF.restoreStore(&quot;Cart&quot;, values)</code> to put one back, and <code>WF.watchStores(fn)</code> to be told about every action, which returns the function that stops it. Nothing is recorded while nothing is watching, so a deployed site pays nothing for any of it.</p>
+                            </div>
+                            <h2 class="wf-heading">Testing one</h2>
+                            <div class="wf-markdown">
+<p><code>wf test</code> renders a declaration with the project's stores at hand, and a test's <code>data</code> seeds them by name:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">test &quot;the cart shows what is in it&quot;(data: { Cart: { items: [{ id: &quot;a&quot;, qty: 2 }] } }) {
+    CartSummary()
+    expect &quot;2 items&quot;
+}</code>
+                            </div>
                             <h2 class="wf-heading">When to use a store, when a page&#x27;s state</h2>
                             <div class="wf-markdown">
 <ul>
 <li>Read by more than one page, or must outlive a navigation: a store.</li>
+<li>Belongs to one screen and should go when it does: <code>store X(scope: .route)</code>.</li>
 <li>Read by one page and its components: page <code>state</code>, passed down as props.</li>
 <li>Read by one component: its own <code>state</code>.</li>
 </ul>
@@ -363,11 +429,14 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#declaring-a-store">Declaring a store</a>
+                        <a class="wf-link wf-sdae384de" href="#how-long-it-lives">How long it lives</a>
                         <a class="wf-link wf-sdae384de" href="#using-a-store">Using a store</a>
                         <a class="wf-link wf-sdae384de" href="#actions">Actions</a>
-                        <a class="wf-link wf-sdae384de" href="#persistence">Persistence</a>
+                        <a class="wf-link wf-sdae384de" href="#keeping-a-value-across-visits">Keeping a value across visits</a>
                         <a class="wf-link wf-sdae384de" href="#loading-data-into-a-store">Loading data into a store</a>
                         <a class="wf-link wf-sdae384de" href="#stores-in-the-static-paint">Stores in the static paint</a>
+                        <a class="wf-link wf-sdae384de" href="#looking-at-one-while-it-runs">Looking at one while it runs</a>
+                        <a class="wf-link wf-sdae384de" href="#testing-one">Testing one</a>
                         <a class="wf-link wf-sdae384de" href="#when-to-use-a-store-when-a-page-s-state">When to use a store, when a page&#x27;s state</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">

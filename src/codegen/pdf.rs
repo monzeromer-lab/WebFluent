@@ -101,6 +101,50 @@ struct PdfObj {
     data: Vec<u8>,
 }
 
+/// A picture, decoded once and written into the document as it is drawn.
+pub struct EmbeddedImage {
+    /// The name the content stream draws it by: `/Im0`.
+    pub tag: String,
+    /// Where it came from, so the same file is written once.
+    pub source: String,
+    pub width: u32,
+    pub height: u32,
+    /// The pixels, three bytes each, compressed as the PDF wants them.
+    pub data: Vec<u8>,
+}
+
+/// Read a picture from `root` and hold it, or `None` when there is nothing
+/// to read. Shared by the document and the deck: one decoder, one answer.
+pub fn embed_image(
+    images: &mut Vec<EmbeddedImage>,
+    root: &std::path::Path,
+    source: &str,
+) -> Option<String> {
+    if let Some(held) = images.iter().find(|i| i.source == source) {
+        return Some(held.tag.clone());
+    }
+    let relative = source.trim_start_matches('/');
+    let path = [
+        root.join(relative),
+        root.join("public").join(relative),
+        root.join("src").join(relative),
+    ]
+    .into_iter()
+    .find(|p| p.is_file())?;
+    let bytes = std::fs::read(&path).ok()?;
+    let decoded = image::load_from_memory(&bytes).ok()?.to_rgb8();
+    let (width, height) = (decoded.width(), decoded.height());
+    let tag = format!("Im{}", images.len());
+    images.push(EmbeddedImage {
+        tag: tag.clone(),
+        source: source.to_string(),
+        width,
+        height,
+        data: crate::codegen::gzip::zlib(decoded.as_raw()),
+    });
+    Some(tag)
+}
+
 // ─── Content Stream Builder ─────────────────────────────────────────
 
 struct ContentStream {
@@ -138,6 +182,24 @@ impl ContentStream {
     fn show_text(&mut self, text: &str) {
         self.op(&format!("<{}> Tj", text_to_pdf_hex(text)));
     }
+    /// `q w 0 0 h x y cm /Im0 Do Q` — a picture, in its box.
+    fn draw_image(&mut self, tag: &str, x: f64, y: f64, width: f64, height: f64) {
+        self.ops.extend_from_slice(b"q\n");
+        self.ops.extend_from_slice(
+            format!(
+                "{} 0 0 {} {} {} cm\n",
+                fmt_f64(width),
+                fmt_f64(height),
+                fmt_f64(x),
+                fmt_f64(y)
+            )
+            .as_bytes(),
+        );
+        self.ops
+            .extend_from_slice(format!("/{tag} Do\n").as_bytes());
+        self.ops.extend_from_slice(b"Q\n");
+    }
+
     fn text_at(&mut self, x: f64, y: f64, font_tag: &str, size: f64, text: &str) {
         self.begin_text();
         self.set_font(font_tag, size);
@@ -327,6 +389,12 @@ pub struct PdfCodegen {
     page_has_content: bool,
     current_page_number: usize,
     shadings: Vec<GradientInstance>,
+    /// The pictures this document draws, each written once however many
+    /// times it appears.
+    images: Vec<EmbeddedImage>,
+    /// Where to look for a picture's file: the project directory, when the
+    /// build has one. Without it an image is the box it always was.
+    asset_root: Option<std::path::PathBuf>,
     warned_styles: HashSet<String>,
 }
 
@@ -358,6 +426,8 @@ impl PdfCodegen {
             page_has_content: false,
             current_page_number: 0,
             shadings: Vec::new(),
+            images: Vec::new(),
+            asset_root: None,
             warned_styles: HashSet::new(),
         };
         cg.register_font(&config.default_font);
@@ -456,6 +526,11 @@ impl PdfCodegen {
         );
         let page_obj_id = self.add_object(page_data.as_bytes());
         self.pages.push(page_obj_id);
+    }
+
+    /// Where the pictures are, which a build knows and a template does not.
+    pub fn set_asset_root(&mut self, root: std::path::PathBuf) {
+        self.asset_root = Some(root);
     }
 
     fn add_object(&mut self, data: &[u8]) -> usize {
@@ -1241,6 +1316,39 @@ impl PdfCodegen {
                 }
             }
         }
+        // The picture itself, when there is a file to read and it can be
+        // decoded. A PDF of a report should show the chart, not a box that
+        // says there was one.
+        if let Some(tag) = self.embed(ui) {
+            let (w, h) = {
+                let image = self
+                    .images
+                    .iter()
+                    .find(|i| i.tag == tag)
+                    .expect("just embedded");
+                (f64::from(image.width), f64::from(image.height))
+            };
+            // The box the author asked for, or the picture's own size, and
+            // never wider than the page.
+            let available = self.page_width - self.margin_left - self.margin_right;
+            let mut drawn_w = width.min(available);
+            let mut drawn_h = drawn_w * h / w;
+            if drawn_h > height * 1.5 {
+                drawn_h = height;
+                drawn_w = drawn_h * w / h;
+            }
+            self.check_page_break(drawn_h + 8.0);
+            self.current_stream.draw_image(
+                &tag,
+                self.margin_left,
+                self.cursor_y - drawn_h,
+                drawn_w,
+                drawn_h,
+            );
+            self.cursor_y -= drawn_h + 8.0;
+            self.mark_content();
+            return;
+        }
         self.check_page_break(height + 8.0);
         self.current_stream.set_color(0.93, 0.93, 0.93);
         self.current_stream
@@ -1264,6 +1372,36 @@ impl PdfCodegen {
         );
         self.cursor_y -= height + 8.0;
         self.mark_content();
+    }
+
+    /// Read the picture an `Image` names and hold it for the document, or
+    /// `None` when there is nothing to read.
+    fn embed(&mut self, ui: &UIElement) -> Option<String> {
+        let root = self.asset_root.clone()?;
+        let named = |key: &str| {
+            ui.args.iter().find_map(|a| match a {
+                crate::parser::Arg::Named(k, v) if k == key => Some(v),
+                _ => None,
+            })
+        };
+        // `Image(hero, …)` names an asset; `Image(src: "…")` a file.
+        let source = match ui.args.iter().find_map(|a| match a {
+            crate::parser::Arg::Positional(v) => Some(v),
+            _ => None,
+        }) {
+            Some(Expr::MapLiteral(fields)) => fields
+                .iter()
+                .find(|(k, _)| k.trim_matches('"') == "src")
+                .and_then(|(_, v)| match v {
+                    Expr::StringLiteral(text) => Some(text.clone()),
+                    _ => None,
+                })?,
+            _ => match named("src") {
+                Some(Expr::StringLiteral(text)) => text.clone(),
+                _ => return None,
+            },
+        };
+        embed_image(&mut self.images, &root, &source)
     }
 
     // ─── Card ───────────────────────────────────────────────
@@ -1873,19 +2011,37 @@ impl PdfCodegen {
         for (i, g) in self.shadings.iter().enumerate() {
             shading_entries.push_str(&format!("/{} {} 0 R ", g.tag, shading_dict_start + i));
         }
-        let resources_dict = if shading_entries.is_empty() {
-            format!("<< /Font << {} >> >>", fe)
-        } else {
-            format!(
-                "<< /Font << {} >> /Shading << {} >> >>",
-                fe, shading_entries
+        // The pictures, each its own stream object, named in the resources
+        // so a content stream can draw one by tag.
+        // After the resources object, which names them.
+        let image_start = resources_id + 1;
+        let mut image_entries = String::new();
+        for (i, picture) in self.images.iter().enumerate() {
+            image_entries.push_str(&format!("/{} {} 0 R ", picture.tag, image_start + i));
+            let mut object = format!(
+                "<< /Type /XObject /Subtype /Image /Width {} /Height {} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length {} >>\nstream\n",
+                picture.width,
+                picture.height,
+                picture.data.len()
             )
-        };
+            .into_bytes();
+            object.extend_from_slice(&picture.data);
+            object.extend_from_slice(b"\nendstream");
+            final_objects.push((image_start + i, object));
+        }
+        let mut parts = vec![format!("/Font << {} >>", fe)];
+        if !shading_entries.is_empty() {
+            parts.push(format!("/Shading << {} >>", shading_entries));
+        }
+        if !image_entries.is_empty() {
+            parts.push(format!("/XObject << {} >>", image_entries));
+        }
+        let resources_dict = format!("<< {} >>", parts.join(" "));
         final_objects.push((resources_id, resources_dict.into_bytes()));
 
         // Content streams + Pages
         let mut new_page_ids: Vec<usize> = Vec::new();
-        let mut next_id = resources_id + 1;
+        let mut next_id = image_start + self.images.len();
         let mut i = 0;
         while i + 1 < self.objects.len() {
             let cid = next_id;
@@ -1970,8 +2126,6 @@ fn fmt_f64(v: f64) -> String {
 
 fn char_to_winansi(ch: char) -> u8 {
     match ch {
-        '\u{FFFE}' => b'{',
-        '\u{FFFF}' => b'}',
         '\u{2014}' => 0x97,
         '\u{2013}' => 0x96,
         '\u{2018}' => 0x91,

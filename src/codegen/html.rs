@@ -90,7 +90,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
 {}{}{}{}    <link rel="stylesheet" href="{root}/styles.css">
-{}    <script src="{root}/app.js" defer></script>
+{}{}    <script src="{root}/app.js" defer></script>
 {}</head>
 <body>
 {}    <div id="app"><main id="wf-main"></main></div>
@@ -107,9 +107,44 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         csp_meta(config),
         head_links,
         entry_sheet,
+        externals_tags(config, program, &root),
         entry_chunk,
         SKIP_LINK,
     )
+}
+
+/// The tags a program's `external` modules need: the module that imports
+/// them, and a `modulepreload` carrying the hash for each one that
+/// declared it.
+///
+/// A module script and a deferred classic script run in the order they
+/// appear, so this has finished before `app.js` reads any of it. The
+/// preload is also where subresource integrity can be applied: an ESM
+/// `import` takes no `integrity` attribute, and a `<link rel=modulepreload
+/// integrity>` is the way the platform gives you one.
+pub fn externals_tags(config: &ProjectConfig, program: &Program, root: &str) -> String {
+    let modules = crate::codegen::js::external_modules(program);
+    if modules.is_empty() {
+        return String::new();
+    }
+    let _ = config;
+    let mut out = String::new();
+    for (url, integrity) in &modules {
+        if !url.contains("://") {
+            continue;
+        }
+        let hash = integrity
+            .as_ref()
+            .map(|h| format!(" integrity=\"{h}\" crossorigin=\"anonymous\""))
+            .unwrap_or_default();
+        out.push_str(&format!(
+            "    <link rel=\"modulepreload\" href=\"{url}\"{hash}>\n"
+        ));
+    }
+    out.push_str(&format!(
+        "    <script type=\"module\" src=\"{root}/externals.js\"></script>\n"
+    ));
+    out
 }
 
 /// The `<link>` tags for the fonts and stylesheets the config declares, each
@@ -141,17 +176,30 @@ pub fn head_links(config: &ProjectConfig, base: &str) -> String {
             }
         }
         out.push_str(&format!(
-            "    <link rel=\"stylesheet\" href=\"{}\">\n",
-            href_from(url, base)
+            "    <link rel=\"stylesheet\" href=\"{}\"{}>\n",
+            href_from(url, base),
+            integrity_attrs(config, url)
         ));
     }
     for url in &config.meta.stylesheets {
         out.push_str(&format!(
-            "    <link rel=\"stylesheet\" href=\"{}\">\n",
-            href_from(url, base)
+            "    <link rel=\"stylesheet\" href=\"{}\"{}>\n",
+            href_from(url, base),
+            integrity_attrs(config, url)
         ));
     }
     out
+}
+
+/// The `integrity` and `crossorigin` attributes for a declared asset, when
+/// the config names its hash. A file served from this site needs neither.
+fn integrity_attrs(config: &ProjectConfig, url: &str) -> String {
+    match config.meta.integrity.get(url) {
+        Some(hash) if url.contains("://") => {
+            format!(" integrity=\"{hash}\" crossorigin=\"anonymous\"")
+        }
+        _ => String::new(),
+    }
 }
 
 /// A URL as written, or a site-relative path resolved from `base`.
@@ -174,15 +222,19 @@ pub const SKIP_LINK: &str = "    <a class=\"wf-skip-link\" href=\"#wf-main\">Ski
 /// The generated output is already the shape a strict policy wants: script and
 /// style are external files, handlers bind through `addEventListener`, and
 /// nothing is injected as HTML. That makes `'self'` achievable without any
-/// `'unsafe-inline'` escape hatch — but a policy nobody opted into would break
-/// the first third-party embed someone adds, so it is off by default.
+/// `'unsafe-inline'` escape hatch. `wf init` turns it on; an existing project
+/// opts in, because a policy nobody asked for would break the first
+/// third-party embed someone adds.
+///
+/// `frame-ancestors` is not here: a browser ignores it in a meta tag. It is
+/// in `_headers`, where it is honoured.
 pub fn csp_meta(config: &ProjectConfig) -> String {
     if !config.build.csp {
         return String::new();
     }
     format!(
         "    <meta http-equiv=\"Content-Security-Policy\" content=\"{}\">\n",
-        crate::config::project::csp_policy(&config.meta)
+        crate::config::project::csp_meta_policy(config)
     )
 }
 

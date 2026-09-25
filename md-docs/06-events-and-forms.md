@@ -68,7 +68,7 @@ page Signup(path: "/") {
     state plan = "free"
     state agree = false
     state seats = 1
-    state when = ""
+    state when: Date? = null
 
     Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
     Input(bind: email, label: "Email").email.required
@@ -86,10 +86,14 @@ page Signup(path: "/") {
 }
 ```
 
+`Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` is several
+lines of text; with `maxLength` it shows how much is left, politely.
+
 The checker knows what each control holds: `Checkbox` and `Switch` bind a
-`Bool`, `Slider` a `Number`, the rest a `String` (an `Input.number` holds a
-`Number`). A control needs a `label:` (or a `placeholder:` for an `Input`, or
-an `aria-label:`) — the accessibility lint says so otherwise.
+`Bool`, `Slider` a `Number`, `DatePicker` a [`Date?`](10-types.md#the-types-the-language-brings-with-it)
+(nothing, until one is picked), the rest a `String` (an `Input.number` holds a `Number`). A control needs a
+`label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the
+accessibility lint says so otherwise.
 
 ## Forms
 
@@ -125,15 +129,112 @@ The handle gives:
 
 | | |
 |---|---|
-| `form.valid` | `true` when every control passes its own checks (`required`, `type: email`, `min`/`max`, `pattern`) — kept current as the reader types |
+| `form.valid` | `true` when every control passes its own checks and every `validate` rule holds — kept current as the reader types |
+| `form.errors` | The message of every field that has one, by name |
+| `form.touched` | Which fields the reader has left |
+| `form.pending` | Whether an `async` rule is still asking |
 | `form.values` | A map of the controls' values by their `name:` attribute |
-| `form.reset()` | Clears the form |
+| `form.reset()` | Clears the form, and everything it was showing |
 | `form.submit()` | Submits it in code |
+| `form.apply(errors)` | Shows what the server said, on the fields it named |
 | `form.element` | The `<form>` itself |
 
 A `Button` with `type: .submit` (or `.submit`) submits; the browser's own
 constraint validation runs first, so an invalid form never reaches
 `on submit`.
+
+## What a value must be: `validate`
+
+A `validate` block sits beside the state it guards. Every rule is one
+line, and the control bound to that state shows what they say — there is
+no `error:` to write and no `derived` to compute:
+
+```wf
+page Signup(path: "/join", title: "Join", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state confirm = ""
+
+    validate email {
+        required
+        email
+    }
+    validate password {
+        required
+        minLength(8) "Use at least 8 characters"
+        pattern(/[0-9]/) "Include a number"
+    }
+    validate confirm {
+        matches(password) "The two passwords differ"
+    }
+
+    Heading("Join").h1
+    Form(bind: form) {
+        on submit { log("signing up") }
+        Input(bind: email, label: "Email").email
+        Input(bind: password, label: "Password").password
+        Input(bind: confirm, label: "Confirm").password
+        Button("Join", type: .submit, disabled: !form.valid).primary
+    }
+}
+```
+
+### The rules
+
+| Rule | Holds when |
+|---|---|
+| `required` | Something was given — a non-blank string, a non-empty list, a ticked checkbox |
+| `email`, `url` | It looks like one |
+| `minLength(n)`, `maxLength(n)` | The text is that long |
+| `min(v)`, `max(v)` | The number, date or time is within it |
+| `pattern(/…/)` | The text matches |
+| `matches(other)` | It equals another value, which it follows |
+| `oneOf([…])` | It is one of them |
+| `custom "…" { expr }` | The expression is true |
+| `async "…" { await … }` | The answer, once it arrives |
+
+Each takes an optional message after it. Without one, the rule's own is
+used — and a project with translations replaces it by naming
+`form.required`, `form.email`, `form.minLength` and so on.
+
+Every rule but `required` passes an empty value, so a blank optional field
+shows one message rather than two. An `async` rule is only asked once the
+rest have passed, and once per value — so a server is not asked about every
+keystroke of an address that is not one yet.
+
+### When a message shows
+
+`Form(show:)` says: `.onBlur` (the default — after the reader leaves the
+field), `.onSubmit`, or `.live` as they type. The fault is known either
+way, so `form.valid` is the truth whatever the reader has seen.
+
+A submit that fails shows every message, moves focus to the first field
+that has one and announces it, and does not run `on submit`.
+
+### A refined type validates itself
+
+```wf
+state nights: Number(1..=30) = 2
+validate nights { required }
+```
+
+The range on the type is already a rule; only `required` needed saying.
+See [Types](10-types.md#a-condition-on-a-type).
+
+### What the server said
+
+```wf
+action signUp() {
+    try {
+        await Backend.signUp(email, password)
+    } catch e {
+        form.apply(e.body.errors)     // { email: "That address is taken" }
+    }
+}
+```
+
+Each message is shown on the field it names, and stands until the reader
+changes that value.
 
 ## Pending actions
 

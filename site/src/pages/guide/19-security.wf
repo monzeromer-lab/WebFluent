@@ -1,0 +1,98 @@
+/// Chapter 19 of the guide, written from md-docs/19-security.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page Security(path: "/docs/guide/security", title: "Security", description: "The threat model, what WebFluent enforces, authentication patterns, env and secrets, uploads, CSP and headers, and a deployment checklist.", layout: DocsShell("Security", chapter: "Chapter 19", blurb: "What the compiler guarantees, what it cannot, and the decisions left to you: URLs, markup, secrets, storage, headers and a deployment checklist.", sections: [Anchor(id: "what-the-compiler-guarantees", label: "What the compiler guarantees"), Anchor(id: "what-it-cannot", label: "What it cannot"), Anchor(id: "markup-you-did-not-write", label: "Markup you did not write"), Anchor(id: "sessions-and-tokens", label: "Sessions and tokens"), Anchor(id: "env-and-what-ends-up-in-the-bundle", label: "env, and what ends up in the bundle"), Anchor(id: "uploads", label: "Uploads"), Anchor(id: "content-security-policy", label: "Content-Security-Policy"), Anchor(id: "another-origin-s-files", label: "Another origin's files"), Anchor(id: "wf-audit", label: "wf audit"), Anchor(id: "before-you-deploy", label: "Before you deploy")], prevTo: "/docs/guide/tooling", prevLabel: "18. Tooling", nextTo: "/docs/reference", nextLabel: "20. Components reference")) {
+    Stack(gap: .lg) {
+        Markdown("A web page is a program you hand to a stranger's machine, and the strings in it come from everywhere: a form, a URL, a CMS, a database, another service. Most of what goes wrong is one mistake — a string arriving somewhere it becomes *code* rather than *content*.\n\nThis chapter says what the compiler stops, what it cannot, and what is left for you to decide.")
+
+        Heading("What the compiler guarantees", id: "what-the-compiler-guarantees").h2
+
+        Markdown("These are properties of the output, not advice. You do not opt in.\n\n- **Text is text.** Every string an element shows goes in as a text node. There is no path by which `\"<script>\"` in your data becomes a script. The one exception has `Unsafe` in its name.\n- **No inline handlers.** Events bind through `addEventListener`. Writing `Button(\"x\", onclick: expr)` is a compile error, because that attribute is the one place an attribute value is executed.\n- **No URL a browser would run.** `href:`, `src:`, `to:`, `poster:` and `navigate()` take a URL whose scheme is `http`, `https`, `mailto`, `tel`, `sms`, `ftp` or nothing at all. A literal is refused where it is written; a value that only exists at run time is refused at the moment it is used. `javascript:`, `data:`, `vbscript:`, `blob:` and `file:` are not URLs a page may point at.\n- **No handle on your page.** A link with `target:` carries `rel=\"noopener noreferrer\"`, so the page it opens cannot navigate yours.\n- **Markdown is escaped first.** `Markdown(text)` renders the small Markdown it documents and shows any HTML in the text rather than running it.\n- **A `Secret` cannot escape.** It may not be shown, spliced into a string, logged or persisted — each is a `T12`, at the line that does it.\n- **A non-public `env` name may not be read from a page.** See below.")
+
+        Heading("What it cannot", id: "what-it-cannot").h2
+
+        Markdown("- **What your server does with what you send it.** Injection into a query, a template or a shell is on the other side of the wire.\n- **Whether a reader may see a thing.** `guard:` on a page hides a route; it does not authorise anything. Authorisation is the server's answer and has to be checked there, on every request.\n- **A dependency you add yourself.** A `<script>` in `public/`, a font from another origin, an embed — each is code you are choosing to trust.\n- **Your hosting.** HTTPS, HSTS, cookie flags and rate limits are the host's.")
+
+        Heading("Markup you did not write", id: "markup-you-did-not-write").h2
+
+        Markdown("A CMS body, a Markdown renderer of your own, an email — sometimes the content really is HTML. There is one door:")
+
+        CodeBlock(#"page Post(path: "/p/:slug", title: "Post", slug: String) {
+    resource post = Backend.post(slug: slug)
+    match post {
+        ready(p) { Unsafe.Html(sanitize(p.body)) }
+        else { Skeleton }
+    }
+}"#, title: "wf")
+
+        Markdown("`Unsafe.Html(markup)` puts markup in as markup. It is named so that a review greps for `Unsafe` and finds every one, and the build prints a `V03` at each — including whether it went through `sanitize`.\n\n`sanitize(html)` is an **allow-list**: a fixed set of elements and, per element, a fixed set of attributes. A tag nobody has thought of is dropped rather than permitted. No `<script>`, no `<style>`, no `<iframe>`, no `<form>`, no `on*`, and an `href` or `src` goes through the same scheme check every other URL does. An element that is dropped keeps its text, so removing a `<font>` does not remove the sentence inside it.\n\nIt runs at build time as well as in the browser, from the same allow-list, so a pre-rendered page shows the sanitised body immediately rather than an empty box that fills in when the script loads.\n\n`Unsafe.Html(raw)` without `sanitize` is for markup **your project produced**. Anything that arrived from outside goes through the sanitiser.")
+
+        Heading("Sessions and tokens", id: "sessions-and-tokens").h2
+
+        Markdown("`persist` writes to `localStorage` or `sessionStorage`. **Neither is a place for a session token.** Any script that reaches your page can read both, which is the whole payload of a cross-site scripting bug: without a readable token it is a defacement, with one it is an account takeover.\n\nKeep the session in an **httpOnly cookie**, set by the server:")
+
+        CodeBlock(#"Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600"#, title: "")
+
+        Markdown("`HttpOnly` puts it out of reach of every script, including yours; `SameSite=Lax` stops another site's form from riding on it; `Secure` keeps it off plaintext connections. The browser sends it with each request, so the page needs no token at all:")
+
+        CodeBlock(#"api Backend(base: "/api/v1") {
+    credentials: .sameOrigin      // the cookie goes with every call
+    get me() -> User
+    post signIn(body: Map) -> User
+    post signOut()
+}
+
+store Session {
+    state user: User? = null
+    action load() { user = await Backend.me() }
+    action out() { await Backend.signOut()  user = null  navigate("/") }
+}"#, title: "wf")
+
+        Markdown("What a page *may* keep is what a page may show: a display name, a theme, a preference. If a value would matter to someone who stole it, it belongs behind a request.\n\nThe compiler enforces the part it can: `persist token: Secret = \"\"` is a `T12`. Declaring a token `Secret` is how you ask it to.")
+
+        Heading("env, and what ends up in the bundle", id: "env-and-what-ends-up-in-the-bundle").h2
+
+        Markdown("`env.NAME` is replaced by its value **at build time**, and the value lands in the JavaScript the browser downloads. That is right for an API base and wrong for an API key, and nothing in the spelling said which was which.\n\nNow a name is public when it says so, or when the config says so:")
+
+        CodeBlock(#"{
+  "env": { "PUBLIC_API": "/api/v1", "ANALYTICS_ID": "UA-1", "STRIPE_SECRET": "sk_…" },
+  "public_env": ["ANALYTICS_ID"]
+}"#, title: "json")
+
+        Markdown("`env.PUBLIC_API` and `env.ANALYTICS_ID` may be read from a page. `env.STRIPE_SECRET` read from a page, a component, a store or an `api` block is a compile error naming the file and the line. The value is still there for `wf render`, which runs on a server where a secret is a secret.\n\nA secret that has to reach a third party belongs in a request your server makes, not in a page.")
+
+        Heading("Uploads", id: "uploads").h2
+
+        Markdown("A `File` from `FileUpload` is a handle on a file on the reader's machine. `accept:` and `.size` are conveniences for them, **not** checks: both are the page's, and a page is the attacker's to rewrite. The server decides what it accepts — the type from the bytes rather than the name, a size limit it enforces itself, a filename it generates rather than one it was given, and storage somewhere nothing is served from.")
+
+        Heading("Content-Security-Policy", id: "content-security-policy").h2
+
+        Markdown("`\"build\": \{ \"csp\": true \}` — on for a project `wf init` creates — ships:\n\n- a `<meta http-equiv=\"Content-Security-Policy\">` in every page, and\n- a `_headers` file for hosts that read one (Netlify, Cloudflare Pages, Vercel; others ignore it).\n\n`frame-ancestors` is only in `_headers`, because a browser ignores it in a meta tag — a policy that carried it there would say one thing and deliver another.\n\nThe policy is `'self'` throughout, with no `'unsafe-inline'` for scripts: the compiler writes external files and binds events with `addEventListener`, so nothing needs it. It is widened by exactly the origins `meta.fonts` and `meta.stylesheets` declare, so a declared font is never blocked by the policy shipped beside it.\n\n**The build checks its own output against it.** Every HTML file is read back and held to the policy it carries: an inline `<script>`, a `<style>`, a `style=` attribute, an `on*` attribute, or a script or stylesheet from an origin the policy never named stops the build. A policy is a promise about what a page contains, and this is how the promise is kept — the browser would enforce it and show a blank page.\n\nOne thing is allowed rather than refused: a `style \{ \}` value that **reads state** is written on the element, because there is nowhere else for it to go. Where a build emits one, `style-src` gains `'unsafe-inline'` and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a `style \{ \}` block is already a shared class and costs nothing.")
+
+        Heading("Another origin's files", id: "another-origin-s-files").h2
+
+        Markdown("A stylesheet or a font from somewhere else is code that origin can change after you read it. Declare its hash:")
+
+        CodeBlock(#"{
+  "meta": {
+    "stylesheets": ["https://cdn.example.com/brand.css"],
+    "integrity": { "https://cdn.example.com/brand.css": "sha384-…" }
+  }
+}"#, title: "json")
+
+        Markdown("The build emits `integrity` and `crossorigin=\"anonymous\"`, and warns about a declared external asset that has none. It never fetches the file to work the hash out — that would make a build depend on the network. A Google Fonts stylesheet is exempt: it is written per user-agent, so its bytes differ between readers and no hash can match.")
+
+        Heading("wf audit", id: "wf-audit").h2
+
+        Markdown("One command for the questions a review asks:")
+
+        Terminal(lines: [
+                Line(command: "wf audit")
+            ])
+
+        Markdown("Every `Unsafe.*` and whether it is sanitised, every origin the pages load from, everything written to the reader's machine and where, every `env` name and whether it is public, the policy this build ships, and what the compiler itself depends on. `--json` for a tool. It reports; it never fails a build.")
+
+        Heading("Before you deploy", id: "before-you-deploy").h2
+
+        Markdown("- `wf audit`, and read all of it.\n- `\"csp\": true`, and the build passing its own check.\n- `_headers` reaching your host, or the same headers set another way.\n- HTTPS, with HSTS.\n- Session in an httpOnly, Secure, SameSite cookie — not in `persist`.\n- No non-public `env` name in the bundle (the build refuses one).\n- Every `Unsafe.Html` either sanitised or provably your own markup.\n- Authorisation checked on the server for every request, not by `guard:`.\n- Uploads checked by the server: type from the bytes, a size limit, a generated filename, storage nothing serves from.")
+    }
+}

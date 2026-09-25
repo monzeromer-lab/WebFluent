@@ -12,7 +12,7 @@ page Animation(path: "/animation", description: "Transitions, animation modifier
         Text("Add an animation modifier to any component. It plays when the element appears. Hover each card to replay.")
         Spacer.sm
 
-        Grid(columns: 3, gap: .md) {
+        Grid(columns: 3, gap: .md).stacks {
             Card.outlined.fadeIn {
                 on mouseenter(event) { replayAnimation(event.currentTarget, "fadeIn") }
                 Card.Body { Text("fadeIn").center.bold Text("Fades from transparent").center.muted.sm }
@@ -93,7 +93,7 @@ page Animation(path: "/animation", description: "Transitions, animation modifier
 
         Heading("Speed Variants").h2
         Spacer.sm
-        Grid(columns: 3, gap: .md) {
+        Grid(columns: 3, gap: .md).stacks {
             Card.outlined.fadeIn {
                 on mouseenter(event) { replayAnimation(event.currentTarget, "fadeIn", "150ms") }
                 Card.Body {

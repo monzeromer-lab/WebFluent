@@ -584,3 +584,47 @@ page P(path: "/") {
             (else_pattern)
             (string
               (string_content))))))))
+
+================================================================================
+Raw and block strings, and a formatted splice
+================================================================================
+
+const S = #"page Home(path: "/") { state n = 0 }"#
+const T = ##"a "# inside"##
+const N = """
+    Dear {name},
+      thank you.
+    """
+page P(path: "/") { Text("Total: {total:.currency}") }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (const_declaration
+    (component_identifier)
+    (string (raw_string)))
+  (const_declaration
+    (component_identifier)
+    (string (raw_string)))
+  (const_declaration
+    (component_identifier)
+    (string
+      (block_string
+        (block_string_content)
+        (interpolation (identifier))
+        (block_string_content))))
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name (identifier))
+        (string (string_content))))
+    (block
+      (element
+        (builtin_component)
+        (argument_list
+          (string
+            (string_content)
+            (interpolation
+              (identifier)
+              (format_spec (identifier)))))))))

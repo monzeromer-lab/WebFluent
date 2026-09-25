@@ -80,9 +80,21 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "store",
-        summary: "Shared reactive state: `state`, `derived` and `action`s, reached as `Name.member` after `use Name`.",
-        example: "store CartStore {\n    state items = []\n    derived count = items.length\n    action clear() { items = [] }\n}",
+        summary: "Shared reactive state: `state`, `derived` and `action`s, reached as `Name.member` after `use Name`. It is built the first time something reads it. `store Cart(scope: .route)` drops what it holds when the route changes; `.session` is the tab's; `eager: true` builds it at boot.",
+        example: "store CartStore(scope: .app) {\n    state items = []\n    derived count = items.length\n    action clear() { items = [] }\n}",
         place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "persist",
+        summary: "State kept in the browser's storage across visits. Its block says where (`in: .local` or `.session`), the version of its shape, whether another tab's write is adopted (`sync:`), and how a value an older build wrote is brought forward.",
+        example: "persist items: [Item] = [] {\n    in: .local\n    version: 2\n    migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "migrate",
+        summary: "One step forward for a persisted value: what a value of the older version becomes, reading it as `old`. Each step moves one version on, so every value can be brought forward.",
+        example: "migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }",
+        place: Place::Body,
     },
     KeywordDoc {
         name: "theme",
@@ -178,6 +190,12 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         name: "show",
         summary: "Keeps the block in the page and shows or hides it, where `if` adds and removes it.",
         example: "show expanded {\n    Card { Text(\"Details\") }\n}",
+        place: Place::Body,
+    },
+    KeywordDoc {
+        name: "sequence",
+        summary: "Starts a group of elements on a clock. `after:` is measured from the step before it, and is written onto the step's elements as a `delay:`.",
+        example: "sequence {\n    step { Heading(\"Welcome\").h1.fadeIn }\n    step(after: \"120ms\") { Text(\"What we do.\").slideUp }\n}",
         place: Place::Body,
     },
     KeywordDoc {

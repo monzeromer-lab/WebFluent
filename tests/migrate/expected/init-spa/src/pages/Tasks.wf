@@ -11,7 +11,7 @@ page Tasks(path: "/tasks", description: "Everything on the list, and what is lef
 
         Spacer
 
-        Row(gap: .md) {
+        Row(gap: .md).stacks {
             Input(bind: newTask, placeholder: "What needs to be done?").text.full {
                 on keydown {
                     if key == "Enter" && newTask != "" {

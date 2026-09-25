@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Language basics">
     <meta name="twitter:description" content="Declarations, naming, bodies, the braced and the indented layout, and how strings are written.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/language-basics#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/language-basics","name":"Language basics","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Declarations, naming, bodies, the braced and the indented layout, and how strings are written."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/language-basics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Language basics","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/language-basics"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -328,7 +328,7 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Writing <code>n = n + 1</code> loose inside the page body is an error: <em>&quot;Code that does something goes in <code>on click ￾ … ￿</code>, an <code>action</code> or an <code>effect</code>&quot;</em>.</p>
+<p>Writing <code>n = n + 1</code> loose inside the page body is an error: <em>&quot;Code that does something goes in <code>on click { … }</code>, an <code>action</code> or an <code>effect</code>&quot;</em>.</p>
 <p>Statements on one line are separated by two spaces or a <code>;</code>:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
@@ -345,7 +345,7 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
                             </div>
                             <h2 class="wf-heading">Two layouts: .wf and .wfx</h2>
                             <div class="wf-markdown">
-<p>The same grammar can be written with braces or with indentation. A <code>.wf</code> file opens a block with <code>￾</code> and closes it with <code>￿</code>; a <code>.wfx</code> file opens a block with a line indented deeper than the one before it and closes it with a dedent.</p>
+<p>The same grammar can be written with braces or with indentation. A <code>.wf</code> file opens a block with <code>{</code> and closes it with <code>}</code>; a <code>.wfx</code> file opens a block with a line indented deeper than the one before it and closes it with a dedent.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -399,15 +399,15 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
 <p>Rules of the indented layout:</p>
 <ul>
 <li>Four spaces (or one tab) per level, consistently; a line that lines up with no enclosing block is an error.</li>
-<li>Braces you write yourself are still allowed, and everything inside them is free-form: <code>on click ￾ open = !open ￿</code> on one line, a map literal across several, an argument list across several.</li>
-<li>An empty block is written <code>￾ ￿</code>.</li>
+<li>Braces you write yourself are still allowed, and everything inside them is free-form: <code>on click { open = !open }</code> on one line, a map literal across several, an argument list across several.</li>
+<li>An empty block is written <code>{ }</code>.</li>
 <li>Blank lines and comment lines count for nothing.</li>
 </ul>
 <p>Both layouts compile to the same output, are read by every tool, and a project may mix them. <code>wf fmt --to wfx</code> converts a project one way and <code>--to wf</code> the other, losslessly. This guide writes <code>.wf</code>; every example has an <code>.wfx</code> spelling.</p>
                             </div>
                             <h2 class="wf-heading">Strings</h2>
                             <div class="wf-markdown">
-<p>Strings are double-quoted and interpolate with <code>￾expr￿</code>:</p>
+<p>Strings are double-quoted and interpolate with <code>{expr}</code>:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -424,7 +424,34 @@ component Avatar(_ initials: String) { Text(initials).bold }</code>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Interpolated text is live: when <code>user</code> changes, the text changes.</p>
+<p>Interpolated text is live: when <code>user</code> changes, the text changes. A splice may also say how to show its value — <code>{total:.currency}</code>, <code>{when:.date(long)}</code> — which is <a href="/WebFluent/docs/guide/expressions#showing-a-value-a-particular-way">formatting</a> written where it is read.</p>
+                            </div>
+                            <h3 class="wf-heading">Three ways to write one</h3>
+                            <div class="wf-markdown">
+<p>A plain <code>&quot;…&quot;</code> string reads escapes (<code>\n</code>, <code>\t</code>, <code>\&quot;</code>, <code>\\</code>, <code>\{</code>, <code>\}</code>) and <code>{…}</code> splices. Two other forms exist for text that a plain string makes you spell twice:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">// Raw: no escapes, no splices. The text is what is written.
+const SAMPLE = #&quot;page Home(path: &quot;/&quot;) { state n = 0 }&quot;#
+
+// As many # as the text needs, when it holds a `&quot;#` of its own.
+const TRICKY = ##&quot;a raw string ends with &quot;# — like that&quot;##
+
+// Block: over as many lines as it likes, escapes and splices on, and
+// the indentation the source gave it removed.
+const LETTER = &quot;&quot;&quot;
+    Dear {name},
+      thank you.
+    &quot;&quot;&quot;                       // &quot;Dear Ada,\n  thank you.&quot;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A raw string is for a sample of code, a regular expression, a Windows path — anything with quotes or braces in it. A block string is for a paragraph, a template, a query: the closing <code>&quot;&quot;&quot;</code> says how far the text was indented, and that much comes off every line.</p>
                             </div>
                         </div>
                     </div>

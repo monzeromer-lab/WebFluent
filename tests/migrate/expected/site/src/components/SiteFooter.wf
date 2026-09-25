@@ -2,9 +2,9 @@ component SiteFooter {
     Divider
     Container {
         Spacer
-        Row(align: .center, justify: .between) {
+        Row(align: .center, justify: .between).stacks {
             Text(t("footer.built")).muted.sm
-            Row(gap: .md) {
+            Row(gap: .md).stacks {
                 Link(to: "/") { Text(t("nav.home")).muted.sm }
                 Link(to: "/getting-started") { Text(t("footer.docs")).muted.sm }
             }

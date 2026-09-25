@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Expressions">
     <meta name="twitter:description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions","name":"Expressions","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Expressions","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -160,7 +160,7 @@
                     <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <div class="wf-markdown">
-<p>An expression is a value: a prop's value, a condition, the right side of a <code>state</code> or <code>derived</code>, the inside of <code>￾…￿</code> in a string. This chapter is the full expression language.</p>
+<p>An expression is a value: a prop's value, a condition, the right side of a <code>state</code> or <code>derived</code>, the inside of <code>{…}</code> in a string. This chapter is the full expression language.</p>
                             </div>
                             <h2 class="wf-heading">Literals</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
@@ -188,7 +188,7 @@
                             </div>
                             <h2 class="wf-heading">Interpolation</h2>
                             <div class="wf-markdown">
-<p><code>&quot;￾expr￿&quot;</code> puts a value into a string; anything that shows text accepts one:</p>
+<p><code>&quot;{expr}&quot;</code> puts a value into a string; anything that shows text accepts one:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -207,7 +207,31 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Anything that is an expression goes inside <code>￾…￿</code> — a call, a method chain, an <code>if</code>, even a string of its own: <code>&quot;￾n ?? &quot;none&quot;￿&quot;</code> and <code>&quot;￾if ok ￾ &quot;yes&quot; ￿ else ￾ &quot;no&quot; ￿￿&quot;</code> both work, as long as the group closes on the same line. A brace group that is not an expression (<code>&quot;￾key: value￿&quot;</code> in prose, a fragment of code) stays text. For anything long, a <code>derived</code> reads better, as <code>items</code> above.</p>
+<p>Anything that is an expression goes inside <code>{…}</code> — a call, a method chain, an <code>if</code>, even a string of its own: <code>&quot;{n ?? &quot;none&quot;}&quot;</code> and <code>&quot;{if ok { &quot;yes&quot; } else { &quot;no&quot; }}&quot;</code> both work, as long as the group closes on the same line. A brace group that is not an expression (<code>&quot;{key: value}&quot;</code> in prose, a fragment of code) stays text. For anything long, a <code>derived</code> reads better, as <code>items</code> above.</p>
+                            </div>
+                            <h3 class="wf-heading">Showing a value a particular way</h3>
+                            <div class="wf-markdown">
+<p>A splice may say how to show its value: <code>{value:.style}</code>, or <code>{value:.style(option)}</code>, which is <code>format(value, .style, option)</code> written where it is read.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Receipt(path: &quot;/&quot;) {
+    state total = 1234.5
+    state count = 1235
+    state when = &quot;2026-03-05T10:00:00Z&quot;
+    Text(&quot;Total: {total:.currency}&quot;)            // Total: $1,234.50
+    Text(&quot;{count:.integer} items&quot;)              // 1,235 items
+    Text(&quot;Shipped {when:.date(long)}&quot;)          // Shipped March 5, 2026
+    Text(&quot;Down {0.256:.percent(1)}&quot;)            // — see below
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The styles and their options are <code>format</code>'s, listed under <a href="#format-and-ago"><code>format</code> and <code>ago</code></a>. The value is an expression like any other, so <code>{order.total:.currency}</code> and <code>{sum(rows):.compact}</code> both work — but a splice has to open with a name, a <code>(</code> or a <code>[</code>, so a bare number takes a name first (<code>derived ratio = 0.256</code>, then <code>{ratio:.percent(1)}</code>).</p>
                             </div>
                             <h2 class="wf-heading">Operators</h2>
                             <table class="wf-table">
@@ -263,7 +287,7 @@
                                         <td>Spread</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>[...a, x]</code>, <code>￾ ...m, key: v ￿</code></p>
+<p><code>[...a, x]</code>, <code>{ ...m, key: v }</code></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -350,16 +374,17 @@ page Calls(path: &quot;/&quot;) {
                             </div>
                             <h3 class="wf-heading">String methods</h3>
                             <div class="wf-markdown">
-<p><code>length</code>, <code>trim()</code>, <code>toLowerCase()</code>, <code>toUpperCase()</code>, <code>capitalize()</code>, <code>truncate(n)</code>, <code>includes(s)</code>, <code>startsWith(s)</code>, <code>endsWith(s)</code>, <code>indexOf(s)</code>, <code>slice(a, b)</code>, <code>substring(a, b)</code>, <code>charAt(i)</code>, <code>replace(a, b)</code>, <code>split(sep)</code>, <code>padStart(n, c)</code>, <code>padEnd(n, c)</code>, <code>repeat(n)</code>, <code>match(re)</code>.</p>
+<p><code>length</code>, <code>trim()</code>, <code>trimStart()</code>, <code>trimEnd()</code>, <code>toLowerCase()</code>, <code>toUpperCase()</code>, <code>capitalize()</code>, <code>truncate(n)</code>, <code>dedent()</code>, <code>lines()</code>, <code>words()</code>, <code>includes(s)</code>, <code>startsWith(s)</code>, <code>endsWith(s)</code>, <code>indexOf(s)</code>, <code>lastIndexOf(s)</code>, <code>slice(a, b)</code>, <code>substring(a, b)</code>, <code>charAt(i)</code>, <code>at(i)</code>, <code>replace(a, b)</code>, <code>replaceAll(a, b)</code>, <code>split(sep)</code>, <code>padStart(n, c)</code>, <code>padEnd(n, c)</code>, <code>repeat(n)</code>, <code>normalize()</code>, <code>localeCompare(other)</code>, <code>match(re)</code>, <code>search(re)</code>.</p>
+<p><code>dedent()</code> takes the common indentation off a block of text — what a string carried in from a file or an API keeps and a reader does not want. <code>lines()</code> and <code>words()</code> split it: by line ending, and by runs of whitespace.</p>
                             </div>
                             <h3 class="wf-heading">List methods</h3>
                             <div class="wf-markdown">
 <p><code>length</code>, <code>map(f)</code>, <code>filter(f)</code>, <code>find(f)</code>, <code>findIndex(f)</code>, <code>some(f)</code>, <code>every(f)</code>, <code>includes(x)</code>, <code>indexOf(x)</code>, <code>reduce(f, init)</code>, <code>join(sep)</code>, <code>slice(a, b)</code>, <code>concat(other)</code>, <code>reverse()</code>, <code>sort(f)</code>, <code>sortBy(f)</code>, <code>groupBy(f)</code>, <code>unique()</code>, <code>take(n)</code>, <code>first()</code>, <code>last()</code>, <code>sum()</code>, <code>flatMap(f)</code>, and, in an imperative block, <code>push(x)</code>.</p>
-<p><code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>sum</code>, <code>capitalize</code> and <code>truncate</code> are WebFluent's own; the rest are the browser's.</p>
+<p><code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>sum</code>, <code>capitalize</code>, <code>truncate</code>, <code>dedent</code>, <code>lines</code> and <code>words</code> are WebFluent's own; the rest are the browser's.</p>
                             </div>
                             <h3 class="wf-heading">Number methods</h3>
                             <div class="wf-markdown">
-<p><code>toFixed(n)</code>, <code>toString()</code>. <code>Number(&quot;12&quot;)</code> converts a string; <code>&quot;￾n￿&quot;</code> or <code>String(n)</code> converts a number. <code>Math.round</code>, <code>Math.max</code> and friends are available as <code>Math.*</code>.</p>
+<p><code>toFixed(n)</code>, <code>toString()</code>. <code>Number(&quot;12&quot;)</code> converts a string; <code>&quot;{n}&quot;</code> or <code>String(n)</code> converts a number. <code>Math.round</code>, <code>Math.max</code> and friends are available as <code>Math.*</code>.</p>
                             </div>
                             <h2 class="wf-heading">format and ago</h2>
                             <div class="wf-markdown">
@@ -471,7 +496,7 @@ page Calls(path: &quot;/&quot;) {
                                     <button class="wf-btn wf-s21cc4e75"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">const MAX_ROWS = 50
-const API = env.API_URL ?? &quot;/api&quot;
+const API = env.PUBLIC_API_URL ?? &quot;/api&quot;
 
 page Consts(path: &quot;/&quot;) {
     Text(&quot;Up to {MAX_ROWS} rows from {API}&quot;)
@@ -481,6 +506,9 @@ page Consts(path: &quot;/&quot;) {
 <p><code>const</code> declares a project-wide value; <code>env.NAME</code> reads a variable from the build environment (and <code>.env</code> in the project root). Both are inlined.</p>
                             </div>
                             <h2 class="wf-heading">Built-in functions</h2>
+                            <div class="wf-markdown">
+<p>These are the whole of what the language adds to what the browser already has. Everything else with parentheses after it is a method, an action, a component or one of the browser's own globals.</p>
+                            </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Built-in functions</caption>
                                 <thead>
@@ -506,27 +534,31 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Changes the route (<a href="/WebFluent/docs/guide/pages-and-routing#navigating">chapter 3</a>)</p>
+<p>Changes the route (<a href="/WebFluent/docs/guide/pages-and-routing#links-and-navigation">chapter 3</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>format</code>, <code>ago</code></p>
+<p><code>format(v, .style, opt)</code>, <code>ago(d)</code></p>
                                             </div>
                                         </td>
-                                        <td>Above</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="#format-and-ago">Above</a></p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>t(&quot;key&quot;, args)</code></p>
+<p><code>t(&quot;key&quot;, args)</code>, <code>setLocale(&quot;ar&quot;)</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Translates (<a href="/WebFluent/docs/guide/i18n">chapter 15</a>)</p>
+<p>Translates, and switches locale (<a href="/WebFluent/docs/guide/i18n">chapter 15</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -538,22 +570,14 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Switches the theme (<a href="/WebFluent/docs/guide/styling#dark-mode">chapter 12</a>)</p>
+<p><code>&quot;dark&quot;</code>, <code>&quot;light&quot;</code> or <code>&quot;system&quot;</code>, kept across visits (<a href="/WebFluent/docs/guide/styling#dark-mode">chapter 12</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>Number(x)</code>, <code>String(x)</code></p>
-                                            </div>
-                                        </td>
-                                        <td>Convert</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>every(ms) ￾ ￿</code>, <code>after(ms) ￾ ￿</code></p>
+<p><code>every(ms) { }</code>, <code>after(ms) { }</code></p>
                                             </div>
                                         </td>
                                         <td>
@@ -562,8 +586,71 @@ page Consts(path: &quot;/&quot;) {
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>animate(el, name, ms)</code>, <code>replayAnimation(el, name)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Plays one by hand (<a href="/WebFluent/docs/guide/motion#driving-one-yourself">chapter 13</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>optimistic(holder, change)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Shows a change before the server agrees (<a href="/WebFluent/docs/guide/data#showing-a-change-before-the-server-agrees">chapter 14</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>beacon(url, data)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A send that outlives the page (<a href="/WebFluent/docs/guide/data#a-connection-the-page-holds-open">chapter 14</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>sanitize(html)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Markup, through an allow-list (<a href="/WebFluent/docs/guide/security#markup-you-did-not-write">chapter 19</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>uuid()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A fresh <code>Uuid</code> (<a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it">chapter 10</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
+                            <div class="wf-markdown">
+<p>The browser's own globals need no prefix and compile to themselves: <code>window</code>, <code>document</code>, <code>console</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>clearTimeout</code>, <code>clearInterval</code>, <code>parseInt</code>, <code>parseFloat</code>, <code>Array</code>, <code>Object</code>, <code>String</code>, <code>Number</code>, <code>Boolean</code>, <code>Promise</code>, <code>Error</code>, <code>Map</code>, <code>Set</code>, <code>RegExp</code>, <code>Infinity</code>, <code>NaN</code>, <code>undefined</code>, <code>encodeURIComponent</code>, <code>decodeURIComponent</code>, <code>encodeURI</code>, <code>decodeURI</code>, <code>atob</code>, <code>btoa</code>, <code>fetch</code>, <code>alert</code>, <code>confirm</code>, <code>prompt</code>, <code>requestAnimationFrame</code> and <code>cancelAnimationFrame</code>.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">

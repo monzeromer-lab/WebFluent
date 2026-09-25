@@ -6,7 +6,7 @@ page Home(path: "/", description: "An overview of what needs your attention toda
             Heading(t("hero.title")).h1.center.slideUp
             Text(t("hero.subtitle")).muted.center.fadeIn
             Spacer.sm
-            Row(gap: .md, justify: .center) {
+            Row(gap: .md, justify: .center).stacks {
                 Button(t("hero.cta")).primary.lg { on click { navigate("/contact") } }
                 Button(t("hero.secondary")).lg { on click { navigate("/about") } }
             }
@@ -21,7 +21,7 @@ page Home(path: "/", description: "An overview of what needs your attention toda
 
         Spacer
 
-        Grid(columns: 2, gap: .lg) {
+        Grid(columns: 2, gap: .lg).stacks {
             FeatureCard(title: t("features.speed.title"), description: t("features.speed.desc"), icon: "zap")
             FeatureCard(title: t("features.design.title"), description: t("features.design.desc"), icon: "palette")
             FeatureCard(title: t("features.i18n.title"), description: t("features.i18n.desc"), icon: "globe")

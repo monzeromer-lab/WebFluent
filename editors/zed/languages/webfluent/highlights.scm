@@ -77,6 +77,10 @@
 (resource_declaration name: (_) @variable)
 (let_declaration name: (_) @variable)
 (action_declaration name: (_) @function.definition)
+(external_declaration name: (_) @type.definition)
+(external_fn name: (_) @function.definition)
+(external_type name: (_) @type.definition)
+(external_member name: (_) @function.definition)
 (event_declaration name: (_) @function.definition)
 (slot_declaration name: (identifier) @label)
 (emit_statement event: (_) @function)
@@ -91,6 +95,12 @@
   "in"
   "by"
   "show"
+  "sequence"
+  "step"
+  "migrate"
+  "click"
+  "press"
+  "into"
   "match"
 ] @keyword
 
@@ -175,7 +185,10 @@
 ; ─── Literals ───────────────────────────────────────────────────────────
 
 (string) @string
+(raw_string) @string
+(block_string) @string
 (escape_sequence) @string.escape
+(format_spec) @string.special
 (number) @number
 (boolean) @boolean
 (null) @constant.builtin

@@ -169,13 +169,15 @@ pub fn template_html(src: &str) -> String {
 
 /// The JS the codegen wrote for *this* source, with the embedded runtime removed.
 ///
-/// The runtime is a fixed hand-written blob; scanning it for codegen defects only
-/// produces false positives.
+/// The runtime is hand-written; scanning it for codegen defects only produces
+/// false positives. It is everything up to the close of its closure.
 pub fn spa_generated(src: &str) -> String {
     let js = spa_js(src);
-    js.strip_prefix(webfluent::runtime::RUNTIME_JS)
-        .map(|s| s.to_string())
-        .unwrap_or(js)
+    const END: &str = "\n})();\n";
+    match js.find(END) {
+        Some(at) => js[at + END.len()..].to_string(),
+        None => js,
+    }
 }
 
 /// Raw output of one backend, for hygiene checks that care about text, not structure.

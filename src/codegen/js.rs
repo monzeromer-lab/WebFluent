@@ -68,11 +68,22 @@ fn action_names(body: &[Statement]) -> Vec<String> {
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
+    /// Ship every runtime module rather than the ones the program reaches
+    /// (`build.runtime: "full"`).
+    full_runtime: bool,
+    /// The runtime modules this build kept, and the bytes they came to, for
+    /// `wf build --stats`. Filled by `generate`.
+    runtime_modules: Vec<&'static str>,
+    runtime_report: Vec<runtime::Kept>,
+    runtime_bytes: usize,
     indent: usize,
     /// Track user-defined component names so we can reference them
     components: Vec<String>,
     /// Track store names
     stores: Vec<String>,
+    /// `external element Stripe("stripe-pricing-table")`: the tag each
+    /// one is placed as.
+    external_elements: HashMap<String, String>,
     /// The program's `const` names: plain values, read as written.
     consts: Vec<String>,
     /// `env.NAME` values from the project's config, emitted once.
@@ -85,6 +96,14 @@ pub struct JsCodegen {
     /// The element handles the page or component declares with `ref:`,
     /// and the form handles it declares with `Form(bind: name)`.
     refs: Vec<String>,
+    /// The form handle the body binds, which a `validate` block registers
+    /// into, and which decides when a message is shown.
+    current_form: Option<String>,
+    /// The states a `validate` block guards, so the control bound to one
+    /// shows its message without being told to.
+    validated: Vec<String>,
+    /// The body being emitted, for reading a state's declared condition.
+    current_body: Vec<Statement>,
     /// Every name the page, component or store being emitted declares, at
     /// any depth: a declared `query` is its own, not the browser's.
     own_names: Vec<String>,
@@ -173,12 +192,19 @@ impl JsCodegen {
             consts: Vec::new(),
             env: Default::default(),
             output: String::new(),
+            full_runtime: false,
+            runtime_modules: Vec::new(),
+            runtime_report: Vec::new(),
+            runtime_bytes: 0,
             indent: 0,
             components: Vec::new(),
             stores: Vec::new(),
             current_props: Vec::new(),
             own_actions: Vec::new(),
             refs: Vec::new(),
+            current_form: None,
+            validated: Vec::new(),
+            current_body: Vec::new(),
             own_names: Vec::new(),
             loop_bindings: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
@@ -197,6 +223,7 @@ impl JsCodegen {
             next_var: std::cell::Cell::new(0),
             resources: Vec::new(),
             component_positional: HashMap::new(),
+            external_elements: HashMap::new(),
             component_events: HashMap::new(),
             component_slot_params: HashMap::new(),
             page_params: Vec::new(),
@@ -240,6 +267,22 @@ impl JsCodegen {
 
     /// Enable studio mode and supply the node-identity map. When enabled, each
     /// element's root gets `data-wf-node="<id>"`.
+    /// Ship the whole runtime, for a site whose own scripts reach for `WF`
+    /// in ways a build cannot see.
+    pub fn set_full_runtime(&mut self, full: bool) {
+        self.full_runtime = full;
+    }
+
+    /// The runtime modules the last `generate` kept, and what they weighed.
+    pub fn runtime_stats(&self) -> (&[&'static str], usize) {
+        (&self.runtime_modules, self.runtime_bytes)
+    }
+
+    /// Each kept module, with its size and what reached it.
+    pub fn runtime_report(&self) -> &[runtime::Kept] {
+        &self.runtime_report
+    }
+
     pub fn set_studio(&mut self, node_ids: NodeMap) {
         self.studio = true;
         self.node_ids = node_ids;
@@ -257,10 +300,18 @@ impl JsCodegen {
 
     /// A `WF.signal` or, for `persist`, a `WF.persist` keyed by the owner
     /// and the name, so a page and a store may each have a `theme`.
-    fn state_init(&self, owner: &str, s: &StateDecl, value: &str) -> String {
+    fn state_init(&mut self, owner: &str, s: &StateDecl, value: &str) -> String {
         if s.persist {
             let key = format!("{owner}.{}", s.name);
-            let init = format!("WF.persist(\"{key}\", {value})");
+            // A page's `persist` takes the same policy a store's does:
+            // where it is written, the version of its shape, whether
+            // another tab's write is adopted, and how an older value is
+            // brought forward.
+            let policy = match &s.policy {
+                Some(_) => format!(", {}", self.persist_policy(s)),
+                None => String::new(),
+            };
+            let init = format!("WF.persist(\"{key}\", {value}{policy})");
             if self.studio {
                 format!("WF.__reg(\"{}\", {init})", s.name)
             } else {
@@ -349,10 +400,6 @@ impl JsCodegen {
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
-        // Emit runtime
-        self.emit_line(runtime::RUNTIME_JS);
-        self.emit_line("");
-
         if self.split_pages {
             self.page_sheets = crate::codegen::scoped_css::split_rules(program)
                 .pages
@@ -393,6 +440,18 @@ impl JsCodegen {
                     );
                 }
                 Declaration::Store(s) => self.stores.push(s.name.clone()),
+                // A service is a name in scope like a store's, not a
+                // signal, so it is read as it is written.
+                Declaration::Api(a) => self.stores.push(a.name.clone()),
+                // An import is a name in scope, read as it is written; an
+                // element is a component, placed like one.
+                Declaration::External(e) => match e.kind {
+                    crate::parser::ast::ExternalKind::Module => self.stores.push(e.name.clone()),
+                    crate::parser::ast::ExternalKind::Element => {
+                        self.external_elements
+                            .insert(e.name.clone(), e.from.clone());
+                    }
+                },
                 Declaration::Const(c) => self.consts.push(c.name.clone()),
                 Declaration::Page(p) => {
                     if let Some(title) = &p.title {
@@ -444,6 +503,13 @@ impl JsCodegen {
             if let Declaration::Const(c) = decl {
                 let value = self.emit_expr(&c.value);
                 self.emit_line(&format!("const {} = {};", c.name, value));
+            }
+        }
+
+        // Emit services, which a store's actions may call.
+        for decl in &program.declarations {
+            if let Declaration::Api(a) = decl {
+                self.emit_api(a);
             }
         }
 
@@ -538,14 +604,132 @@ impl JsCodegen {
             }
         }
 
+        // The runtime goes on last, once the program is written: what it
+        // needs is read from the program — every `WF.<name>` in the bundle
+        // and in every page chunk — so the set cannot drift from the places
+        // that emit a call. `full_runtime` ships all of it.
+        let mut reached = self.output.clone();
+        for (_, chunk) in &self.chunks {
+            reached.push_str(chunk);
+        }
+        if self.studio {
+            // The studio drives `WF.__debug` from outside the bundle.
+            reached.push_str("WF.__debug");
+        }
+        self.runtime_report = runtime::report(&reached, self.full_runtime);
+        self.runtime_modules = self.runtime_report.iter().map(|k| k.name).collect();
+        let mut out = runtime::assemble(&reached, self.full_runtime);
+        self.runtime_bytes = out.len();
+        out.push('\n');
+        out.push_str(&self.output);
+        self.output = out;
         self.output.clone()
     }
 
     // ─── Store ───────────────────────────────────────
 
+    /// `api Backend(base: "/api") { … }` — the service as one object of
+    /// callable endpoints, each of which also carries `.invalidate()`,
+    /// `.prefetch()` and `.progress`.
+    fn emit_api(&mut self, api: &ApiDecl) {
+        self.emit_line(&format!("const {} = WF.api({{", api.name));
+        self.indent += 1;
+        self.emit_line(&format!("name: \"{}\",", api.name));
+        for (key, value) in &api.settings {
+            // A setting that reads state is read again on every request.
+            let emitted = match key.as_str() {
+                // `.backoff(times: 3, on: [.network])`, or a plain count.
+                "retry" => self.retry_policy(value),
+                "cache" => self.cache_policy(value),
+                // `.sameOrigin` and the like are what `fetch` calls them.
+                "credentials" | "mode" | "redirect" | "referrer" => match value {
+                    Expr::EnumCase(name) => format!("\"{}\"", fetch_word(name)),
+                    other => self.emit_expr(other),
+                },
+                _ => self.emit_expr(value),
+            };
+            let emitted = if self.is_reactive(&emitted) {
+                format!("() => {emitted}")
+            } else {
+                emitted
+            };
+            self.emit_line(&format!("{}: {emitted},", api_setting(key)));
+        }
+        if !api.headers.is_empty() {
+            self.emit_line("headers: {");
+            self.indent += 1;
+            for (name, value) in &api.headers {
+                // A header is read at the moment of the request, so a token
+                // that has just been refreshed is the one that is sent.
+                let emitted = self.emit_expr(value);
+                self.emit_line(&format!("\"{name}\": () => {emitted},"));
+            }
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+        for hook in &api.hooks {
+            let param = hook.param.clone().unwrap_or_else(|| "r".to_string());
+            let name = match hook.event.as_str() {
+                "request" => "onRequest",
+                "response" => "onResponse",
+                "error" => "onError",
+                other => other,
+            };
+            self.emit_line(&format!("{name}: async ({param}) => {{"));
+            self.indent += 1;
+            // `emit_event_body` hands back what the hook does rather than
+            // writing it, and binds the parameter so `r` is `r` and not the
+            // signal a bare name would otherwise be read as.
+            let body = self.emit_event_body(hook);
+            if !body.is_empty() {
+                self.emit_line(&body);
+            }
+            self.emit_line(&format!("return {param};"));
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+        self.emit_line("endpoints: {");
+        self.indent += 1;
+        for endpoint in &api.endpoints {
+            let mut parts = vec![
+                format!("method: \"{}\"", endpoint.method),
+                format!("path: \"{}\"", endpoint.path),
+            ];
+            for (key, value) in &endpoint.settings {
+                parts.push(format!("{}: {}", api_setting(key), self.emit_expr(value)));
+            }
+            // A file parameter is sent as a form, under its own name.
+            if let Some(file) = endpoint
+                .params
+                .iter()
+                .find(|p| matches!(&p.prop_type, TypeRef::Named(n) if n == "File"))
+            {
+                parts.push(format!("fileField: \"{}\"", file.name));
+            }
+            self.emit_line(&format!("{}: {{ {} }},", endpoint.name, parts.join(", ")));
+        }
+        self.indent -= 1;
+        self.emit_line("},");
+        self.indent -= 1;
+        self.emit_line("});");
+        self.emit_line("");
+    }
+
     fn emit_store(&mut self, store: &StoreDecl) {
         self.own_names = declared_names(&store.body);
-        self.emit_line(&format!("const {} = WF.store({{", store.name));
+        // The definition is a **thunk**: nothing in it is evaluated until
+        // something reads the store. A `state` whose value reads another
+        // store used to be evaluated at module scope, in declaration
+        // order, and read `undefined` from a store declared below it.
+        let options = format!(
+            "{{ scope: \"{}\"{} }}",
+            store.scope.as_str(),
+            if store.eager { ", eager: true" } else { "" }
+        );
+        self.emit_line(&format!(
+            "const {} = WF.store(\"{}\", () => ({{",
+            store.name, store.name
+        ));
         self.indent += 1;
 
         // Every name the store exposes on itself: state, derived and actions.
@@ -585,18 +769,20 @@ impl JsCodegen {
             }
             self.indent -= 1;
             self.emit_line("},");
-            // What is kept across visits, keyed by the store.
-            let persisted: Vec<String> = states
-                .iter()
-                .filter(|s| s.persist)
-                .map(|s| format!("\"{}\"", s.name))
-                .collect();
+            // What is kept across visits, and under what policy: where it
+            // is written, the version of its shape, whether another tab's
+            // write is adopted, and how a value an older build left is
+            // brought forward.
+            let persisted: Vec<&&StateDecl> = states.iter().filter(|s| s.persist).collect();
             if !persisted.is_empty() {
-                self.emit_line(&format!(
-                    "persist: {{ prefix: \"{}\", names: [{}] }},",
-                    store.name,
-                    persisted.join(", ")
-                ));
+                self.emit_line("persist: {");
+                self.indent += 1;
+                for state in persisted {
+                    let policy = self.persist_policy(state);
+                    self.emit_line(&format!("{}: {},", state.name, policy));
+                }
+                self.indent -= 1;
+                self.emit_line("},");
             }
         }
 
@@ -678,8 +864,40 @@ impl JsCodegen {
         }
 
         self.indent -= 1;
-        self.emit_line("});");
+        self.emit_line(&format!("}}), {options});"));
         self.emit_line("");
+    }
+
+    /// What a `persist` says about where its value lives and how an older
+    /// one is brought forward.
+    fn persist_policy(&mut self, state: &StateDecl) -> String {
+        let Some(policy) = &state.policy else {
+            return "{}".to_string();
+        };
+        let mut parts = Vec::new();
+        if let Some(place) = &policy.storage {
+            parts.push(format!("in: \"{place}\""));
+        }
+        if let Some(version) = policy.version {
+            parts.push(format!("version: {version}"));
+        }
+        if let Some(sync) = policy.sync {
+            parts.push(format!("sync: {sync}"));
+        }
+        if !policy.migrations.is_empty() {
+            // `old` is the migration's parameter, not a name of the
+            // page's: bound so it is emitted as itself.
+            let bound = self.loop_bindings.len();
+            self.loop_bindings.push("old".to_string());
+            let steps: Vec<String> = policy
+                .migrations
+                .iter()
+                .map(|m| format!("{}: (old) => {}", m.to, self.emit_expr(&m.body)))
+                .collect();
+            self.loop_bindings.truncate(bound);
+            parts.push(format!("migrate: {{ {} }}", steps.join(", ")));
+        }
+        format!("{{ {} }}", parts.join(", "))
     }
 
     /// Emit expression inside a store context — identifiers that are store state
@@ -689,8 +907,10 @@ impl JsCodegen {
             Expr::Identifier(name) => {
                 if store_states.contains(name) {
                     format!("store.{}", name)
-                } else if matches!(name.as_str(), "viewport" | "query" | "hash" | "theme")
-                    && !self.own_names.contains(name)
+                } else if matches!(
+                    name.as_str(),
+                    "viewport" | "query" | "hash" | "theme" | "now" | "network"
+                ) && !self.own_names.contains(name)
                 {
                     format!("WF.{name}()")
                 } else {
@@ -814,7 +1034,7 @@ impl JsCodegen {
                     "map" => format!("{}.map({})", obj_str, args_str.join(", ")),
                     "sum" => format!("{}.reduce((a,b) => a+b, 0)", obj_str),
                     "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize"
-                    | "truncate" => {
+                    | "truncate" | "dedent" | "lines" | "words" => {
                         let rest = if args_str.is_empty() {
                             String::new()
                         } else {
@@ -847,7 +1067,12 @@ impl JsCodegen {
                 // call, but `parseInt` is a plain function).
                 if store_states.contains(name) {
                     format!("store.{}({})", name, args_str.join(", "))
-                } else if matches!(name.as_str(), "format" | "ago" | "setTheme") {
+                } else if matches!(
+                    name.as_str(),
+                    // The same set a page reaches: a store's action is where
+                    // `optimistic` belongs, and `uuid` where an id is made.
+                    "format" | "ago" | "setTheme" | "beacon" | "optimistic" | "sanitize" | "uuid"
+                ) {
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
                     format!("WF.request({})", args_str.join(", "))
@@ -1103,9 +1328,15 @@ impl JsCodegen {
         // declared here, once, as a form.
         let handles = self.refs.clone();
         for name in crate::sema::types::form_names(&comp.body) {
-            self.emit_line(&format!("const {name} = WF.form();"));
+            self.emit_line(&format!(
+                "const {name} = WF.form({});",
+                form_options(&comp.body)
+            ));
+            self.current_form = Some(name.clone());
             self.refs.push(name);
         }
+        self.validated = validated_names(&comp.body);
+        self.current_body = comp.body.clone();
         // Props are read through `_p.name`, never copied out: a caller passes
         // a value that reads state as a getter, so every read inside the
         // component — a derived, a style value, a condition — tracks the
@@ -1144,11 +1375,8 @@ impl JsCodegen {
         for stmt in &comp.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!(
-                    "const _{} = {};",
-                    s.name,
-                    self.state_init(&comp.name, s, &val)
-                ));
+                let init = self.state_init(&comp.name, s, &val);
+                self.emit_line(&format!("const _{} = {};", s.name, init));
             }
         }
 
@@ -1180,9 +1408,15 @@ impl JsCodegen {
         self.emit_pending_signals(&page.body);
         let handles = self.refs.clone();
         for name in crate::sema::types::form_names(&page.body) {
-            self.emit_line(&format!("const {name} = WF.form();"));
+            self.emit_line(&format!(
+                "const {name} = WF.form({});",
+                form_options(&page.body)
+            ));
+            self.current_form = Some(name.clone());
             self.refs.push(name);
         }
+        self.validated = validated_names(&page.body);
+        self.current_body = page.body.clone();
         if !page.head.is_empty() {
             let tags: Vec<String> = page
                 .head
@@ -1215,11 +1449,8 @@ impl JsCodegen {
         for stmt in &page.body {
             if let StatementKind::State(s) = &stmt.kind {
                 let val = self.emit_expr(&s.value);
-                self.emit_line(&format!(
-                    "const _{} = {};",
-                    s.name,
-                    self.state_init(&page.name, s, &val)
-                ));
+                let init = self.state_init(&page.name, s, &val);
+                self.emit_line(&format!("const _{} = {};", s.name, init));
             }
         }
 
@@ -1363,6 +1594,8 @@ impl JsCodegen {
                         self.wf_node_inline(ui)
                     ));
                     self.emit_style_and_transition(&var, ui);
+                    self.emit_motion(&var, ui);
+                    self.emit_host(&var, ui);
                     self.emit_line(&format!("{}.appendChild({});", parent, var));
                     // Recurse into children
                     self.emit_app_tree(&ui.children, &var, has_router);
@@ -1459,6 +1692,8 @@ impl JsCodegen {
             // migrator, which rewrites it as a resource and a match.
             StatementKind::Fetch(_) => {}
             StatementKind::Resource(r) => self.emit_resource(r),
+            StatementKind::Connection(c) => self.emit_connection(c),
+            StatementKind::Validate(v) => self.emit_validate(v),
             StatementKind::Match(m) => self.emit_match_dom(m, parent),
             StatementKind::Use(_) => {} // Stores are global, no DOM output
             StatementKind::State(_) => {} // Already handled
@@ -1524,8 +1759,19 @@ impl JsCodegen {
                     self.emit_line("try {");
                     self.indent += 1;
                 }
+                // An action that shows something before the server has
+                // agreed takes it back if anything in it throws.
+                let optimistic = shows_optimistically(&a.body);
+                if optimistic {
+                    self.emit_line("return await WF.attempt(async () => {");
+                    self.indent += 1;
+                }
                 for s in &a.body {
                     self.emit_statement(s);
+                }
+                if optimistic {
+                    self.indent -= 1;
+                    self.emit_line("});");
                 }
                 if is_async {
                     self.indent -= 1;
@@ -1600,6 +1846,12 @@ impl JsCodegen {
                 // reach the tag; a class cannot express it.
                 let tag = if name == "Tcell" && self.in_thead {
                     "th"
+                } else if name == "Host" {
+                    // The library asked for a canvas, or a div by default.
+                    crate::codegen::builtin::host_tag(ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, Expr::StringLiteral(t)) if k == "tag" => Some(t.as_str()),
+                        _ => None,
+                    }))
                 } else {
                     element_tag(name, &ui.modifiers)
                 };
@@ -1609,6 +1861,13 @@ impl JsCodegen {
                 let mut link_to: Option<String> = None;
                 let mut link_prefix = false;
                 let mut inner_text: Option<String> = None;
+                // `Text(total, count: "600ms")`: the number counts to its new
+                // value rather than jumping, so its positional is the value
+                // and not the text.
+                let counts = ui
+                    .args
+                    .iter()
+                    .any(|a| matches!(a, Arg::Named(k, _) if k == "count"));
 
                 // Build class string from base class + modifiers
                 let mut classes = vec![class.to_string()];
@@ -1619,10 +1878,18 @@ impl JsCodegen {
 
                 // An `Input` or `Select` with a label, hint or error is wrapped
                 // in a field that carries them.
-                let is_field = matches!(name.as_str(), "Input" | "Select")
-                    && ui.args.iter().any(|a| {
-                        matches!(a, Arg::Named(k, _) if k == "label" || k == "hint" || k == "error")
-                    });
+                let validated = ui.args.iter().any(|a| {
+                    matches!(a, Arg::Named(k, Expr::Identifier(bound))
+                        if k == "bind" && self.validated.contains(bound))
+                });
+                // A control is a field when it is labelled, or when a
+                // `validate` block guards what it binds — which is what
+                // gives it somewhere to show the message.
+                let is_field = matches!(name.as_str(), "Input" | "Select" | "Textarea")
+                    && (validated
+                        || ui.args.iter().any(|a| {
+                            matches!(a, Arg::Named(k, _) if k == "label" || k == "hint" || k == "error")
+                        }));
 
                 // Process named args as HTML attributes
                 for arg in &ui.args {
@@ -1642,12 +1909,46 @@ impl JsCodegen {
                                     }
                                 }
                                 "bind" => {
-                                    if let Expr::Identifier(state_name) = val {
-                                        attrs.push(format!("value: () => _{}()", state_name));
-                                        attrs.push(format!(
-                                            "\"on:input\": (e) => _{}.set(e.target.value)",
-                                            state_name
-                                        ));
+                                    // An empty date picker holds nothing,
+                                    // which is `null` — not the empty
+                                    // string the input reports.
+                                    let read = if name == "DatePicker" {
+                                        "e.target.value || null"
+                                    } else {
+                                        "e.target.value"
+                                    };
+                                    match val {
+                                        Expr::Identifier(state_name) => {
+                                            attrs.push(format!(
+                                                "value: () => _{}() ?? \"\"",
+                                                state_name
+                                            ));
+                                            attrs.push(format!(
+                                                "\"on:input\": (e) => _{state_name}.set({read})"
+                                            ));
+                                        }
+                                        // `bind: Cart.note` — a store's member
+                                        // is a property with a getter and a
+                                        // setter, so it binds like a state.
+                                        // It used to compile to an input with
+                                        // no binding at all.
+                                        Expr::PropertyAccess(base, field) if matches!(base.as_ref(), Expr::Identifier(n) if self.stores.contains(n)) =>
+                                        {
+                                            let holder = self.emit_expr(base);
+                                            attrs.push(format!(
+                                                "value: () => {holder}.{field} ?? \"\""
+                                            ));
+                                            attrs.push(format!(
+                                                "\"on:input\": (e) => {{ {holder}.{field} = {read}; }}"
+                                            ));
+                                        }
+                                        other => {
+                                            // Anything else has no setter, so
+                                            // it cannot be bound; the check
+                                            // reports it where it is written.
+                                            let read = self.emit_expr(other);
+                                            attrs.push(format!("value: () => {read} ?? \"\""));
+                                        }
                                     }
                                 }
                                 "checked" => {
@@ -1672,14 +1973,31 @@ impl JsCodegen {
                                 // A field's label, hint and error are elements
                                 // beside the control, built by `WF.field` below.
                                 "label" | "hint" | "error" if is_field => {}
+                                // Motion the runtime reads, not attributes
+                                // the element carries.
+                                "shared" | "on" | "count" => {}
+                                // `Host(mount:, update:, cleanup:)`: the
+                                // three are a lifetime, emitted below.
+                                "mount" | "update" | "cleanup" | "tag" if name == "Host" => {}
+                                // `maxLength` and `rows` are the textarea's,
+                                // written as HTML writes them.
+                                "maxLength" => {
+                                    let v = self.emit_expr(val);
+                                    attrs.push(format!("maxlength: {v}"));
+                                }
                                 "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max"
                                 | "step" | "accept" | "label" | "required" | "disabled"
                                 | "controls" | "autoplay" | "role" | "width" | "height"
-                                | "loading" | "decoding" | "fetchpriority" => {
+                                | "loading" | "decoding" | "fetchpriority" | "rows" => {
                                     // A value that reads state follows it: a
                                     // `placeholder` or `disabled` bound to a
                                     // store used to be painted once.
-                                    let v = self.emit_expr(val);
+                                    let v =
+                                        if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                                            self.url_value(val)
+                                        } else {
+                                            self.emit_expr(val)
+                                        };
                                     if self.is_reactive(&v) {
                                         attrs.push(format!("{}: () => {}", key, v));
                                     } else {
@@ -1687,7 +2005,7 @@ impl JsCodegen {
                                     }
                                 }
                                 "to" => {
-                                    let v = self.emit_expr(val);
+                                    let v = self.url_value(val);
                                     link_to = Some(v.clone());
                                     if self.ssg_mode {
                                         // SSG: plain links with base path prepended
@@ -1768,8 +2086,15 @@ impl JsCodegen {
                                     // attribute. A hyphenated name (`aria-*`,
                                     // `data-*`) is quoted; a value that reads
                                     // state is a thunk, which the runtime
-                                    // keeps in step with it.
-                                    let v = self.emit_expr(val);
+                                    // keeps in step with it; and one the
+                                    // browser follows goes through the
+                                    // scheme check first.
+                                    let v =
+                                        if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                                            self.url_value(val)
+                                        } else {
+                                            self.emit_expr(val)
+                                        };
                                     let k = if key.contains('-') {
                                         format!("\"{}\"", key)
                                     } else {
@@ -1792,6 +2117,19 @@ impl JsCodegen {
                                     let v = self.emit_expr(expr);
                                     attrs.push(format!("\"data-icon\": {}", v));
                                 }
+                                continue;
+                            }
+                            // `Unsafe.html(markup)`: the markup goes in as
+                            // markup. It is the one element that does, and it
+                            // is named so that a reviewer greps for it.
+                            if name == "UnsafeHtml" {
+                                let v = self.emit_expr(expr);
+                                let getter = if self.is_reactive(&v) {
+                                    format!("() => {v}")
+                                } else {
+                                    v
+                                };
+                                attrs.push(format!("html: {getter}"));
                                 continue;
                             }
                             // Markdown is rendered to HTML by the runtime, and
@@ -1819,6 +2157,11 @@ impl JsCodegen {
                                 continue;
                             }
                             // First positional arg is usually the content/label
+                            // — unless `count:` asked for it to be counted to,
+                            // in which case `WF.counted` writes the text.
+                            if counts {
+                                continue;
+                            }
                             if inner_text.is_none() {
                                 inner_text = Some(self.emit_expr(expr));
                             }
@@ -1961,6 +2304,24 @@ impl JsCodegen {
                 // than returning — applying those blocks only on the generic
                 // path is what used to drop styling on nineteen components.
                 let built_by_special_emitter = match name.as_str() {
+                    // A video's captions are a `<track>` inside it, and a
+                    // player's transcript a link beneath it.
+                    "Video" | "Audio"
+                        if ui.args.iter().any(|a| {
+                            matches!(a, Arg::Named(k, _) if k == "captions" || k == "transcript")
+                        }) =>
+                    {
+                        self.emit_media(name, &var, &attrs_str, ui, parent);
+                        true
+                    }
+                    // An `image` the program declares is a `<picture>`: one
+                    // `<source>` per format, the widths the build wrote, and
+                    // the box already the right size.
+                    "Image" if ui.args.iter().any(|a| matches!(a, Arg::Positional(_))) =>
+                    {
+                        self.emit_picture(&var, ui, parent);
+                        true
+                    }
                     "Modal" | "Dialog" => {
                         self.emit_modal_dialog(name, &var, &attrs_str, ui, parent);
                         true
@@ -2043,6 +2404,8 @@ impl JsCodegen {
 
                 if built_by_special_emitter {
                     self.emit_style_and_transition(&var, ui);
+                    self.emit_motion(&var, ui);
+                    self.emit_host(&var, ui);
                     return;
                 }
 
@@ -2153,6 +2516,17 @@ impl JsCodegen {
 
                 for handler in &ui.events {
                     let body = self.emit_event_body(handler);
+                    // A form asks the rules before it does anything: a
+                    // submit with a fault shows every message, moves focus
+                    // to the first field that has one, and stops there.
+                    let body = if name == "Form"
+                        && handler.event == "submit"
+                        && let Some(form) = &self.current_form
+                    {
+                        format!("if (!{form}.__submitting()) return; {body}")
+                    } else {
+                        body
+                    };
                     self.emit_line(&format!(
                         "{}.addEventListener(\"{}\", {} => {{ {} }});",
                         var,
@@ -2172,6 +2546,8 @@ impl JsCodegen {
                 }
 
                 self.emit_style_and_transition(&var, ui);
+                self.emit_motion(&var, ui);
+                self.emit_host(&var, ui);
 
                 if is_field {
                     let mut opts = Vec::new();
@@ -2188,6 +2564,22 @@ impl JsCodegen {
                                 opts.push(format!("{key}: {v}"));
                             }
                         }
+                    }
+                    // A control bound to a state a `validate` block guards
+                    // shows what the rules say, and marks itself touched
+                    // when the reader leaves it — so a validated field
+                    // needs no `error:` written on it.
+                    if !opts.iter().any(|o| o.starts_with("error:"))
+                        && let Some(Arg::Named(_, Expr::Identifier(bound))) = ui
+                            .args
+                            .iter()
+                            .find(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
+                        && self.validated.contains(bound)
+                    {
+                        opts.push(format!("error: () => _{bound}_check.shown()"));
+                        self.emit_line(&format!(
+                            "WF.listen({var}, \"blur\", () => _{bound}_check.touched.set(true));"
+                        ));
                     }
                     self.emit_line(&format!(
                         "{}.appendChild(WF.field({}, {{ {} }}));",
@@ -2291,9 +2683,53 @@ impl JsCodegen {
                 // A sub-component used to drop its style block and its
                 // handlers; every other element honours both.
                 self.emit_style_and_transition(&var, ui);
+                self.emit_motion(&var, ui);
+                self.emit_host(&var, ui);
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
 
+            ComponentRef::UserDefined(name) if self.external_elements.contains_key(name) => {
+                // Somebody else's custom element: the tag it registered, the
+                // props it declared as attributes, and the events it fires
+                // as listeners. Nothing is guessed — the declaration is the
+                // whole of what the compiler knows about it.
+                let tag = self.external_elements[name].clone();
+                let mut attrs: Vec<String> = Vec::new();
+                for arg in &ui.args {
+                    let Arg::Named(key, value) = arg else {
+                        continue;
+                    };
+                    let attribute = kebab_case(key);
+                    let emitted = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
+                        self.url_value(value)
+                    } else {
+                        self.emit_expr(value)
+                    };
+                    if self.is_reactive(&emitted) {
+                        attrs.push(format!("\"{attribute}\": () => {emitted}"));
+                    } else {
+                        attrs.push(format!("\"{attribute}\": {emitted}"));
+                    }
+                }
+                self.emit_line(&format!(
+                    "const {var} = WF.el(\"{tag}\", {{ {} }});",
+                    attrs.join(", ")
+                ));
+                for handler in &ui.events {
+                    let body = self.emit_event_body(handler);
+                    self.emit_line(&format!(
+                        "WF.onRoot({}, \"{}\", {} => {{ {} }});",
+                        var,
+                        handler.event,
+                        Self::handler_head(handler, "event"),
+                        body
+                    ));
+                }
+                for child in &ui.children {
+                    self.emit_statement_dom(child, &var);
+                }
+                self.emit_line(&format!("{}.appendChild({});", parent, var));
+            }
             ComponentRef::UserDefined(name) => {
                 // A handler for an event the component declares is passed in
                 // as `on: { name: fn }`; a DOM event's handler attaches to the
@@ -2412,6 +2848,116 @@ impl JsCodegen {
         }
     }
 
+    /// A value going where the browser will follow it.
+    ///
+    /// A literal has already been checked by the time codegen runs — the
+    /// check refuses a `javascript:` URL where it is written. Anything
+    /// else is only known at run time, so it goes through the twin of that
+    /// check at the moment it is used.
+    fn url_value(&mut self, val: &Expr) -> String {
+        let emitted = self.emit_expr(val);
+        match val {
+            Expr::StringLiteral(_) => emitted,
+            _ => format!("WF.safeUrl({emitted})"),
+        }
+    }
+
+    /// `Host(mount:, update:, cleanup:)`: the element handed to somebody
+    /// else's code, and given back when what owns it leaves.
+    fn emit_host(&mut self, var: &str, ui: &UIElement) {
+        if !matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Host") {
+            return;
+        }
+        let lambda = |out: &mut Self, key: &str| {
+            ui.args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => Some(out.emit_expr(v)),
+                    _ => None,
+                })
+                .unwrap_or_else(|| "null".to_string())
+        };
+        let mount = lambda(self, "mount");
+        let update = lambda(self, "update");
+        let cleanup = lambda(self, "cleanup");
+        self.emit_line(&format!("WF.attach({var}, {mount}, {update}, {cleanup});"));
+    }
+
+    /// What an element asked of motion beyond its enter animation: when to
+    /// play it, and the name it keeps across a route change.
+    fn emit_motion(&mut self, var: &str, ui: &UIElement) {
+        // The timing props are lowered to `data-wf-*` markers before
+        // codegen sees them, so look under both spellings.
+        let named = |key: &str| {
+            let marker = format!("data-wf-{key}");
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key || *k == marker => Some(v),
+                _ => None,
+            })
+        };
+        // `shared: "cover-{id}"`: the browser carries it from one page to
+        // the next, which is what a View Transition is for.
+        if let Some(name) = named("shared") {
+            let value = self.emit_expr(name);
+            self.emit_line(&format!("WF.shared({var}, {value});"));
+        }
+        // `on: .enterView`: it waits until the reader has scrolled to it.
+        let plays_on = named("on")
+            .and_then(|v| match v {
+                Expr::EnumCase(case) => Some(case.clone()),
+                _ => None,
+            })
+            .or_else(|| {
+                ui.modifiers
+                    .iter()
+                    .find(|m| m.as_str() == "enterView")
+                    .cloned()
+            });
+        // `count: "600ms"`: the number counts to where it has got to.
+        // `format(v, .currency)` is split apart so the count is over the
+        // number and the formatting is applied to each step of it.
+        if let Some(over) = named("count") {
+            let positional = ui.args.iter().find_map(|a| match a {
+                Arg::Positional(e) => Some(e.clone()),
+                _ => None,
+            });
+            if let Some(expr) = positional {
+                let (value, format) = match &expr {
+                    Expr::FunctionCall(f, args) if f == "format" && !args.is_empty() => {
+                        let tail: Vec<String> =
+                            args[1..].iter().map(|a| self.emit_expr(a)).collect();
+                        let call = if tail.is_empty() {
+                            "WF.format(n)".to_string()
+                        } else {
+                            format!("WF.format(n, {})", tail.join(", "))
+                        };
+                        (self.emit_expr(&args[0]), format!("(n) => {call}"))
+                    }
+                    other => (self.emit_expr(other), "null".to_string()),
+                };
+                let over = self.emit_expr(over);
+                self.emit_line(&format!(
+                    "WF.counted({var}, () => {value}, {over}, {format});"
+                ));
+            }
+        }
+        if plays_on.as_deref() == Some("enterView")
+            && let Some(animation) = animation_of(ui)
+        {
+            let timing = |key: &str| {
+                named(key)
+                    .map(|v| self.emit_expr(v))
+                    .unwrap_or_else(|| "null".to_string())
+            };
+            self.emit_line(&format!(
+                "WF.onEnterView({var}, \"{animation}\", {}, {}, {});",
+                timing("duration"),
+                timing("delay"),
+                timing("easing")
+            ));
+        }
+    }
+
     /// The class attribute for a built-in's root: its base class plus every
     /// modifier class.
     ///
@@ -2420,7 +2966,11 @@ impl JsCodegen {
     /// modifier on a `Card` worked.
     fn class_attr(&self, name: &str, ui: &UIElement) -> String {
         let (_, base) = builtin_to_html(name);
-        crate::codegen::builtin::class_list(base, &ui.modifiers).join(" ")
+        let mut classes = crate::codegen::builtin::class_list(base, &ui.modifiers);
+        // `Grid(columns: { base: 1, md: 2 })` carries the class its rules
+        // live under, and nothing else: the widths are the stylesheet's.
+        classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+        classes.join(" ")
     }
 
     /// Apply an element's `style { }` and `transition { }` blocks to `var`.
@@ -4108,6 +4658,75 @@ impl JsCodegen {
     /// `resource rows = fetch(url, opts)`: the request, made once here and
     /// again whenever a URL that reads state changes.
     fn emit_resource(&mut self, r: &ResourceDecl) {
+        // `resource rows = Backend.rows(page: n)`: an endpoint, which
+        // carries its own address, headers, cache and abort. The arguments
+        // are read again on every load, so one that reads state makes the
+        // request again when it changes.
+        if let Expr::MethodCall(object, endpoint, args) = &r.url {
+            let call = format!("{}.{}", self.emit_expr(object), endpoint);
+            let named = args.iter().find_map(|a| match a {
+                Expr::MapLiteral(pairs) => Some(pairs),
+                _ => None,
+            });
+            let positional: Vec<&Expr> = args
+                .iter()
+                .filter(|a| !matches!(a, Expr::MapLiteral(_)))
+                .collect();
+            let mut parts: Vec<String> = Vec::new();
+            // `on:` is the resource's — when to look again — and every
+            // other argument is the request's.
+            let mut refetch = None;
+            let mut paginate = None;
+            let pairs: Vec<(String, Expr)> = named.into_iter().flatten().cloned().collect();
+            for (key, value) in &pairs {
+                let key = key.trim_matches('"');
+                if key == "on" {
+                    refetch = Some(self.refetch_policy(value));
+                    continue;
+                }
+                // `paginate: .page` — `.items` gathers the pages, and
+                // `loadMore()` moves the state the page number came from.
+                if key == "paginate" {
+                    let by = match value {
+                        Expr::EnumCase(name) => name.clone(),
+                        _ => "page".to_string(),
+                    };
+                    let set = pairs
+                        .iter()
+                        .find(|(k, _)| k.trim_matches('"') == by)
+                        .and_then(|(_, v)| match v {
+                            Expr::Identifier(name) => Some(format!(", set: (v) => _{name}.set(v)")),
+                            _ => None,
+                        })
+                        .unwrap_or_default();
+                    paginate = Some(format!("{{ by: \"{by}\"{set} }}"));
+                    continue;
+                }
+                let emitted = match key {
+                    "cache" => self.cache_policy(value),
+                    _ => self.emit_expr(value),
+                };
+                parts.push(format!("{key}: {emitted}"));
+            }
+            // A single positional argument is the one the path names.
+            if let Some(first) = positional.first() {
+                parts.insert(0, format!("id: {}", self.emit_expr(first)));
+            }
+            let on = match refetch {
+                Some(policy) => format!(", on: {policy}"),
+                None => String::new(),
+            };
+            let paging = match paginate {
+                Some(policy) => format!(", paginate: {policy}"),
+                None => String::new(),
+            };
+            self.emit_line(&format!(
+                "const _{} = WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on}{paging} }});",
+                r.name,
+                parts.join(", ")
+            ));
+            return;
+        }
         let url = self.emit_expr(&r.url);
         let url_js = if self.is_reactive(&url) {
             format!("() => {}", url)
@@ -4130,6 +4749,270 @@ impl JsCodegen {
         ));
     }
 
+    /// `.swr(60.seconds)`, `.none`, `.forever`, `.cache(5.minutes)` — how
+    /// long an answer stands, as the engine reads it.
+    fn cache_policy(&self, value: &Expr) -> String {
+        match value {
+            Expr::EnumCase(name) => format!("{{ kind: \"{name}\" }}"),
+            Expr::CaseValue(name, args) => {
+                let ttl = args
+                    .first()
+                    .map(|a| self.emit_expr(a))
+                    .unwrap_or_else(|| "0".to_string());
+                format!("{{ kind: \"{name}\", ttl: {ttl} }}")
+            }
+            other => self.emit_expr(other),
+        }
+    }
+
+    /// `.backoff(times: 3, on: [.network, .status5xx])`, or a plain count —
+    /// how many times to ask again, and for what.
+    fn retry_policy(&self, value: &Expr) -> String {
+        match value {
+            Expr::NumberLiteral(n) => format!("{{ times: {n} }}"),
+            Expr::EnumCase(name) if name == "never" => "{ times: 0 }".to_string(),
+            Expr::CaseValue(_, args) => {
+                let mut parts: Vec<String> = Vec::new();
+                for arg in args {
+                    let Expr::MapLiteral(pairs) = arg else {
+                        continue;
+                    };
+                    for (key, v) in pairs {
+                        let key = key.trim_matches('"');
+                        // The kinds it answers to are words the engine knows.
+                        let emitted = if key == "on" {
+                            match v {
+                                Expr::ListLiteral(items) => format!(
+                                    "[{}]",
+                                    items
+                                        .iter()
+                                        .map(|i| match i {
+                                            Expr::EnumCase(name) => format!("\"{name}\""),
+                                            other => self.emit_expr(other),
+                                        })
+                                        .collect::<Vec<_>>()
+                                        .join(", ")
+                                ),
+                                other => self.emit_expr(other),
+                            }
+                        } else {
+                            self.emit_expr(v)
+                        };
+                        parts.push(format!("{key}: {emitted}"));
+                    }
+                }
+                format!("{{ {} }}", parts.join(", "))
+            }
+            other => self.emit_expr(other),
+        }
+    }
+
+    /// `.focus`, `.reconnect`, `.interval(30.seconds)`, `.never` — when to
+    /// look again.
+    fn refetch_policy(&self, value: &Expr) -> String {
+        let one = |e: &Expr| -> Option<String> {
+            match e {
+                Expr::EnumCase(name) if name == "never" => Some(String::new()),
+                Expr::EnumCase(name) => Some(format!("{name}: true")),
+                Expr::CaseValue(name, args) => Some(format!(
+                    "{name}: {}",
+                    args.first()
+                        .map(|a| self.emit_expr(a))
+                        .unwrap_or_else(|| "0".to_string())
+                )),
+                _ => None,
+            }
+        };
+        let parts: Vec<String> = match value {
+            Expr::ListLiteral(items) => items.iter().filter_map(one).collect(),
+            other => one(other).into_iter().collect(),
+        };
+        if parts.is_empty() {
+            return self.emit_expr(value);
+        }
+        format!("{{ {} }}", parts.join(", "))
+    }
+
+    /// What the state's declared type says its values must be.
+    fn refinement_of(&self, name: &str) -> Vec<(String, Expr)> {
+        refinement_in(&self.current_body, name)
+    }
+
+    /// A `Video` with captions, or an `Audio` with a transcript: what a
+    /// reader who cannot hear it needs, beside it rather than instead.
+    fn emit_media(&mut self, name: &str, var: &str, attrs: &str, ui: &UIElement, parent: &str) {
+        let tag = crate::codegen::builtin::builtin_to_html(name).0;
+        self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {attrs});"));
+        let named = |key: &str| {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v),
+                _ => None,
+            })
+        };
+        if let Some(captions) = named("captions") {
+            let src = self.emit_expr(captions);
+            self.emit_line(&format!(
+                "{var}.appendChild(WF.el(\"track\", {{ kind: \"captions\", src: {src}, srclang: document.documentElement.lang || \"en\", default: true }}));"
+            ));
+        }
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+        if let Some(transcript) = named("transcript") {
+            let href = self.emit_expr(transcript);
+            self.emit_line(&format!(
+                "{parent}.appendChild(WF.el(\"a\", {{ className: \"wf-transcript\", href: {href} }}, \"Read the transcript\"));"
+            ));
+        }
+    }
+
+    /// `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` — the
+    /// picture the build made, at every width it made.
+    fn emit_picture(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let named = |key: &str| {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v),
+                _ => None,
+            })
+        };
+        let positional = ui.args.iter().find_map(|a| match a {
+            Arg::Positional(v) => Some(v),
+            _ => None,
+        });
+        let source = positional
+            .or_else(|| named("source"))
+            .map(|v| self.emit_expr(v))
+            .unwrap_or_default();
+        let mut opts: Vec<String> = Vec::new();
+        for key in ["alt", "sizes", "loading", "className"] {
+            if let Some(value) = named(key) {
+                opts.push(format!("{key}: {}", self.emit_expr(value)));
+            }
+        }
+        // `placeholder: .blur` is a case by the time it is here.
+        let placeholder = named("placeholder")
+            .and_then(|v| match v {
+                Expr::EnumCase(case) => Some(case.clone()),
+                _ => None,
+            })
+            .or_else(|| {
+                ui.modifiers
+                    .iter()
+                    .find(|m| matches!(m.as_str(), "blur" | "color" | "none"))
+                    .cloned()
+            });
+        if let Some(kind) = placeholder {
+            opts.push(format!("placeholder: \"{kind}\""));
+        }
+        let classes = crate::codegen::builtin::builtin_to_html("Image").1;
+        opts.push(format!("className: \"{classes}\""));
+        self.emit_line(&format!(
+            "const {var} = WF.picture({source}, {{ {} }});",
+            opts.join(", ")
+        ));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
+    /// `validate email { required  email }`: the rules, registered against
+    /// the state they guard and the form it is in.
+    ///
+    /// What comes back is the message to show, which the control picks up
+    /// on its own — so a validated field needs no `error:` written on it.
+    fn emit_validate(&mut self, v: &ValidateDecl) {
+        let mut rules: Vec<String> = Vec::new();
+        // A refined type validates itself: `state age: Number(18..=120)`
+        // needs no rule written for the range it already declares.
+        for (name, bound) in self.refinement_of(&v.name) {
+            let rule = match name.as_str() {
+                "min" | "max" | "minLength" | "maxLength" | "pattern" => name.clone(),
+                "below" => "max".to_string(),
+                _ => continue,
+            };
+            rules.push(format!(
+                "{{ name: \"{rule}\", args: [{}] }}",
+                self.emit_expr(&bound)
+            ));
+        }
+        for rule in &v.rules {
+            let mut parts = vec![format!("name: \"{}\"", rule.name)];
+            if !rule.args.is_empty() {
+                let args: Vec<String> = rule
+                    .args
+                    .iter()
+                    .map(|a| {
+                        let emitted = self.emit_expr(a);
+                        // A rule that names another value follows it.
+                        if self.is_reactive(&emitted) {
+                            format!("() => {emitted}")
+                        } else {
+                            emitted
+                        }
+                    })
+                    .collect();
+                parts.push(format!("args: [{}]", args.join(", ")));
+            }
+            if let Some(message) = &rule.message {
+                parts.push(format!("message: () => {}", self.emit_expr(message)));
+            }
+            if let Some(body) = &rule.body {
+                let check = self.emit_expr(body);
+                parts.push(if rule.name == "async" {
+                    format!("check: async () => {check}")
+                } else {
+                    format!("check: () => {check}")
+                });
+            }
+            rules.push(format!("{{ {} }}", parts.join(", ")));
+        }
+        let form = match &self.current_form {
+            Some(name) => format!(", form: {name}"),
+            None => String::new(),
+        };
+        self.emit_line(&format!(
+            "const _{}_check = WF.validate(() => _{}(), [{}], {{ name: \"{}\"{form} }});",
+            v.name,
+            v.name,
+            rules.join(", "),
+            v.name
+        ));
+    }
+
+    /// `socket chat = ws(…)`, `stream t = sse(…)`, `channel c =
+    /// broadcast(…)`: a connection the scope owns, and closes.
+    fn emit_connection(&mut self, c: &ConnectionDecl) {
+        let opener = match c.kind {
+            ConnectionKind::Socket => "ws",
+            ConnectionKind::Stream => "sse",
+            ConnectionKind::Channel => "broadcast",
+        };
+        let url = self.emit_expr(&c.url);
+        let url_js = if self.is_reactive(&url) {
+            format!("() => {url}")
+        } else {
+            url
+        };
+        let mut options: Vec<String> = c
+            .options
+            .iter()
+            .map(|(key, value)| format!("{key}: {}", self.emit_expr(value)))
+            .collect();
+        // `on message(m) { … }`: what arrives, handled where it is opened.
+        for handler in &c.handlers {
+            let param = handler
+                .param
+                .clone()
+                .unwrap_or_else(|| "message".to_string());
+            let body = self.emit_event_body(handler);
+            options.push(format!(
+                "on{}: ({param}) => {{ {body} }}",
+                capitalize_first(&handler.event)
+            ));
+        }
+        self.emit_line(&format!(
+            "const _{} = WF.{opener}({url_js}, {{ {} }});",
+            c.name,
+            options.join(", ")
+        ));
+    }
+
     /// `match x { … }`: one arm shown at a time, chosen by a resource's
     /// state or an enum's case, and re-chosen when it changes.
     fn emit_match_dom(&mut self, m: &MatchStmt, parent: &str) {
@@ -4139,8 +5022,21 @@ impl JsCodegen {
                 ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
             )
         });
+        // A connection is matched by the state it is in, and its arms are
+        // handed what that state carries: the closure, or the failure.
+        let over_connection = m
+            .arms
+            .iter()
+            .any(|a| matches!(a.pattern, ArmPattern::State(_)));
         let subject = self.emit_expr(&m.scrutinee);
-        let (key, arg) = if over_resource {
+        let (key, arg) = if over_connection {
+            (
+                format!("() => {subject}.state()"),
+                format!(
+                    "() => {subject}.state() === \"error\" ? {subject}.error() : {subject}.closure()"
+                ),
+            )
+        } else if over_resource {
             (
                 format!("() => {}.state()", subject),
                 format!(
@@ -4163,6 +5059,7 @@ impl JsCodegen {
                 ArmPattern::Error => "error".to_string(),
                 ArmPattern::Ready => "ready".to_string(),
                 ArmPattern::Case(c) => c.clone(),
+                ArmPattern::State(s) => s.clone(),
                 ArmPattern::Else => "else".to_string(),
             };
             let param = arm.binding.clone().unwrap_or_else(|| "_v".to_string());
@@ -4219,7 +5116,7 @@ impl JsCodegen {
                 self.emit_line(&format!("{}.{}({});", obj, mc.method, args.join(", ")));
             }
             StatementKind::Navigate(expr) => {
-                let path = self.emit_expr(expr);
+                let path = self.url_value(expr);
                 self.emit_line(&format!("WF.navigate({});", path));
             }
             StatementKind::Log(expr) => {
@@ -4248,10 +5145,14 @@ impl JsCodegen {
             StatementKind::If(if_stmt) => {
                 // `if let x = e` binds the value for the branch, which runs
                 // when it is not null.
+                let bound = self.loop_bindings.len();
                 let cond = match &if_stmt.binding {
                     Some(name) => {
                         let value = self.emit_expr(&if_stmt.condition);
                         self.emit_line(&format!("const {} = {};", name, value));
+                        // The branch reads it as a plain name — it is a
+                        // `const` here, not a signal of the body's own.
+                        self.loop_bindings.push(name.clone());
                         format!("{} != null", name)
                     }
                     None => self.emit_expr(&if_stmt.condition),
@@ -4262,6 +5163,7 @@ impl JsCodegen {
                     self.emit_statement(s);
                 }
                 self.indent -= 1;
+                self.loop_bindings.truncate(bound);
                 // An `else if` chain used to be dropped here.
                 for (cond, body) in &if_stmt.else_if_branches {
                     let cond = self.emit_expr(cond);
@@ -4416,6 +5318,8 @@ impl JsCodegen {
 
     fn emit_expr(&self, expr: &Expr) -> String {
         match expr {
+            // A scalar is its carrier: a plain JSON value, and nothing else.
+            Expr::Typed(_, carrier) => self.emit_expr(carrier),
             Expr::StringLiteral(s) => {
                 let escaped = s
                     .replace('\\', "\\\\")
@@ -4511,8 +5415,10 @@ impl JsCodegen {
                 }
                 // The browser as values, kept current by the runtime, unless
                 // the name is the writer's own.
-                if matches!(name.as_str(), "viewport" | "query" | "hash" | "theme")
-                    && !self.own_names.contains(name)
+                if matches!(
+                    name.as_str(),
+                    "viewport" | "query" | "hash" | "theme" | "now" | "network"
+                ) && !self.own_names.contains(name)
                     && !self.current_props.contains(name)
                     && !self.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
@@ -4530,17 +5436,20 @@ impl JsCodegen {
                 if self.page_params.contains(name) {
                     return format!("params.{}", name);
                 }
+                // The names the generated code uses for a route's
+                // parameters, a handler's event and a keyed loop's
+                // bindings. They are read as themselves — unless the page
+                // declared one of them, in which case the declaration
+                // wins: a `state key` used to compile to a bare global,
+                // so it rendered as nothing and never updated.
+                const IMPLICIT: &[&str] = &["params", "value", "key", "event", "e"];
                 if self.stores.contains(name)
                     || self.consts.contains(name)
                     || self.refs.contains(name)
                     || name == "env"
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
-                    || name == "params"
-                    || name == "value"
-                    || name == "key"
-                    || name == "event"
-                    || name == "e"
+                    || (IMPLICIT.contains(&name.as_str()) && !self.own_names.contains(name))
                     || name.starts_with("_")
                 {
                     name.to_string()
@@ -4669,9 +5578,37 @@ impl JsCodegen {
                     "contains" => format!("{}.includes({})", obj_str, args_str.join(", ")),
                     "trim" => format!("{}.trim()", obj_str),
                     "split" => format!("{}.split({})", obj_str, args_str.join(", ")),
+                    // What the language's own types can do: a date's
+                    // arithmetic, money's, a URL's parts, a colour's mixing.
+                    m if scalar_method(m).is_some() => {
+                        let rest = if args_str.is_empty() {
+                            String::new()
+                        } else {
+                            format!(", {}", args_str.join(", "))
+                        };
+                        format!(
+                            "WF.{}({}{})",
+                            scalar_method(m).expect("just checked"),
+                            obj_str,
+                            rest
+                        )
+                    }
                     // The helpers the runtime adds to lists and strings.
+                    m if scalar_method(m).is_some() => {
+                        let rest = if args_str.is_empty() {
+                            String::new()
+                        } else {
+                            format!(", {}", args_str.join(", "))
+                        };
+                        format!(
+                            "WF.{}({}{})",
+                            scalar_method(m).expect("just checked"),
+                            obj_str,
+                            rest
+                        )
+                    }
                     "sortBy" | "groupBy" | "unique" | "take" | "first" | "last" | "capitalize"
-                    | "truncate" => {
+                    | "truncate" | "dedent" | "lines" | "words" => {
                         let rest = if args_str.is_empty() {
                             String::new()
                         } else {
@@ -4713,8 +5650,14 @@ impl JsCodegen {
                 }
                 // `format(n, .currency)`, `ago(date)`: the runtime's, unless
                 // the page declares an action of the name.
-                if matches!(name.as_str(), "format" | "ago" | "setTheme")
-                    && !self.own_actions.contains(name)
+                if matches!(
+                    name.as_str(),
+                    // `beacon(url, data)` outlives the page that sends it,
+                    // which is the whole of why it exists.
+                    // `uuid()` is where a `Uuid` comes from: the platform's
+                    // generator, or a version-4 layout where there is none.
+                    "format" | "ago" | "setTheme" | "beacon" | "optimistic" | "sanitize" | "uuid"
+                ) && !self.own_actions.contains(name)
                 {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                     return format!("WF.{name}({})", args_str.join(", "));
@@ -4859,6 +5802,10 @@ fn resource_names(stmts: &[Statement]) -> Vec<String> {
         for stmt in stmts {
             match &stmt.kind {
                 StatementKind::Resource(r) => names.push(r.name.clone()),
+                // A socket, a stream and a channel are held the same
+                // way: the handle itself, not a signal over one, so
+                // `chat.state()` is what a `match` over it reads.
+                StatementKind::Connection(c) => names.push(c.name.clone()),
                 StatementKind::If(i) => {
                     walk(&i.then_body, names);
                     for (_, b) in &i.else_if_branches {
@@ -4983,6 +5930,228 @@ fn is_reactive_expr(expr_str: &str) -> bool {
     false
 }
 
+/// The runtime function a method of one of the language's own types
+/// compiles to: `due.plus(days: 3)` is `WF.plus(due, { days: 3 })`.
+///
+/// Routed by name, because the value carries its own kind at run time —
+/// and each function leaves a receiver that has a method of that name to
+/// answer for itself, so a record with its own `plus` is never taken over.
+pub fn scalar_method(name: &str) -> Option<&'static str> {
+    Some(match name {
+        "year" => "year",
+        "month" => "month",
+        "day" => "day",
+        "weekday" => "weekday",
+        "hour" => "hour",
+        "minute" => "minute",
+        "second" => "second",
+        "native" => "native",
+        "plus" => "plus",
+        "minus" => "minus",
+        "isBefore" => "isBefore",
+        "isAfter" => "isAfter",
+        "isSame" => "isSame",
+        "until" => "until",
+        "startOfDay" => "startOfDay",
+        "startOfWeek" => "startOfWeek",
+        "startOfMonth" => "startOfMonth",
+        "endOfDay" => "endOfDay",
+        "inZone" => "inZone",
+        "days" => "days",
+        "hours" => "hours",
+        "minutes" => "minutes",
+        "seconds" => "seconds",
+        "ms" => "ms",
+        "times" => "times",
+        "convert" => "convert",
+        "host" => "host",
+        "path" => "path",
+        "domain" => "domain",
+        "mix" => "mix",
+        "lighten" => "lighten",
+        "darken" => "darken",
+        "alpha" => "alpha",
+        "contrast" => "contrast",
+        "preview" => "preview",
+        // Named apart from the browser's own `query`, `date` and `time`.
+        "date" => "dateOf",
+        "time" => "timeOf",
+        "query" => "urlQuery",
+        "with" => "urlWith",
+        _ => return None,
+    })
+}
+
+/// Whether a body shows something before the server has agreed, which is
+/// what makes the action one that can be taken back.
+fn shows_optimistically(stmts: &[Statement]) -> bool {
+    fn in_expr(e: &Expr) -> bool {
+        if matches!(e, Expr::FunctionCall(name, _) if name == "optimistic") {
+            return true;
+        }
+        e.children().into_iter().any(in_expr)
+    }
+    stmts.iter().any(|s| {
+        s.kind.exprs().into_iter().any(in_expr)
+            || s.kind.bodies().iter().any(|b| shows_optimistically(b))
+    })
+}
+
+/// What a `state`'s declared type says its values must be, when it says
+/// anything: `state nights: Number(1..=30)` is a rule before a `validate`
+/// block adds one.
+fn refinement_in(stmts: &[Statement], name: &str) -> Vec<(String, Expr)> {
+    for stmt in stmts {
+        if let StatementKind::State(s) = &stmt.kind
+            && s.name == name
+            && let Some(ty) = &s.ty
+        {
+            return ty.refinement().to_vec();
+        }
+        let found = refinement_in_bodies(stmt, name);
+        if !found.is_empty() {
+            return found;
+        }
+    }
+    Vec::new()
+}
+
+fn refinement_in_bodies(stmt: &Statement, name: &str) -> Vec<(String, Expr)> {
+    for body in stmt.kind.bodies() {
+        let found = refinement_in(body, name);
+        if !found.is_empty() {
+            return found;
+        }
+    }
+    Vec::new()
+}
+
+/// The states a body's `validate` blocks guard.
+fn validated_names(stmts: &[Statement]) -> Vec<String> {
+    let mut out = Vec::new();
+    fn walk(stmts: &[Statement], out: &mut Vec<String>) {
+        for stmt in stmts {
+            if let StatementKind::Validate(v) = &stmt.kind {
+                out.push(v.name.clone());
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, out);
+            }
+        }
+    }
+    walk(stmts, &mut out);
+    out
+}
+
+/// `Form(show: .live)` — when a message is shown — as the runtime takes it.
+fn form_options(stmts: &[Statement]) -> String {
+    fn find(stmts: &[Statement]) -> Option<String> {
+        for stmt in stmts {
+            if let StatementKind::UIElement(el) = &stmt.kind
+                && matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form")
+            {
+                for arg in &el.args {
+                    if let Arg::Named(key, Expr::EnumCase(case)) = arg
+                        && key == "show"
+                    {
+                        return Some(case.clone());
+                    }
+                }
+                // An enum prop written as a flag is a modifier by now.
+                for modifier in &el.modifiers {
+                    if matches!(modifier.as_str(), "onBlur" | "onSubmit" | "live") {
+                        return Some(modifier.clone());
+                    }
+                }
+            }
+            for body in stmt.kind.bodies() {
+                if let Some(found) = find(body) {
+                    return Some(found);
+                }
+            }
+            if let StatementKind::UIElement(el) = &stmt.kind
+                && let Some(found) = find(&el.children)
+            {
+                return Some(found);
+            }
+        }
+        None
+    }
+    match find(stmts) {
+        Some(show) => format!("{{ show: \"{show}\" }}"),
+        None => String::new(),
+    }
+}
+
+/// The enter animation an element asked for, however it was written.
+/// `publishableKey` as an attribute is `publishable-key`: what a custom
+/// element's `observedAttributes` says, and what HTML can carry.
+fn kebab_case(name: &str) -> String {
+    if name.contains('-') {
+        return name.to_string();
+    }
+    let mut out = String::with_capacity(name.len() + 4);
+    for c in name.chars() {
+        if c.is_ascii_uppercase() {
+            if !out.is_empty() {
+                out.push('-');
+            }
+            out.push(c.to_ascii_lowercase());
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+fn animation_of(ui: &UIElement) -> Option<String> {
+    for arg in &ui.args {
+        match arg {
+            // An element that waits to be scrolled to keeps its animation
+            // here, where no class picks it up at the first paint.
+            Arg::Named(key, Expr::StringLiteral(name)) if key == "data-wf-enter" => {
+                return Some(name.clone());
+            }
+            Arg::Named(key, Expr::EnumCase(case)) if key == "animate" => {
+                return Some(case.clone());
+            }
+            _ => {}
+        }
+    }
+    ui.modifiers
+        .iter()
+        .find(|m| crate::themes::prune::ANIMATIONS.contains(&m.as_str()))
+        .cloned()
+}
+
+/// A word with its first letter upper-cased: `message` → `Message`.
+fn capitalize_first(word: &str) -> String {
+    let mut chars = word.chars();
+    match chars.next() {
+        Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
+
+/// The word `fetch` knows a setting's case by: `.sameOrigin` is
+/// `same-origin`, and the rest are themselves.
+fn fetch_word(case: &str) -> String {
+    match case {
+        "sameOrigin" => "same-origin".to_string(),
+        "noCors" => "no-cors".to_string(),
+        "noReferrer" => "no-referrer".to_string(),
+        other => other.to_string(),
+    }
+}
+
+/// The name the runtime knows a service's setting by.
+fn api_setting(key: &str) -> &str {
+    match key {
+        "referrer" => "referrerPolicy",
+        other => other,
+    }
+}
+
 fn to_camel_case(kebab: &str) -> String {
     let mut result = String::new();
     let mut capitalize_next = false;
@@ -5010,6 +6179,57 @@ fn camel_to_kebab(s: &str) -> String {
     result
 }
 
+/// The module a program's `external` declarations compile to.
+///
+/// It is a **separate file**, not part of the bundle, for one reason: a
+/// module has its own scope, and the page chunks a split build writes are
+/// classic scripts that read the bundle's names from the global one. So
+/// the imports live here, each bound to a global, and the bundle stays
+/// what it was. A module script and a deferred classic script run in the
+/// order they appear in the document, so this has run before `app.js`
+/// reads any of it.
+pub fn externals_module(program: &Program) -> Option<String> {
+    let modules: Vec<&crate::parser::ast::ExternalDecl> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::External(e) if e.kind == crate::parser::ast::ExternalKind::Module => {
+                Some(e)
+            }
+            _ => None,
+        })
+        .collect();
+    if modules.is_empty() {
+        return None;
+    }
+    let mut out = String::from("// Somebody else's code, named as this project names it.\n");
+    for e in &modules {
+        out.push_str(&format!(
+            "import * as {} from {};\n",
+            e.name,
+            serde_json::to_string(&e.from).unwrap_or_default()
+        ));
+    }
+    for e in &modules {
+        out.push_str(&format!("globalThis.{0} = {0};\n", e.name));
+    }
+    Some(out)
+}
+
+/// Every module a program imports, with the hash it declared for it.
+pub fn external_modules(program: &Program) -> Vec<(String, Option<String>)> {
+    program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::External(e) if e.kind == crate::parser::ast::ExternalKind::Module => {
+                Some((e.from.clone(), e.integrity.clone()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -5017,6 +6237,58 @@ mod tests {
     fn compile(src: &str) -> String {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         JsCodegen::new().generate(&crate::sema::lower(program))
+    }
+
+    #[test]
+    fn a_services_hook_runs_what_it_says_with_its_parameter_bound() {
+        let out = compile(concat!(
+            "store L { state last = \"\"\n action note(s: String) { last = s } }\n",
+            "api B(base: \"/api\") {\n",
+            "  on request(r) { r.headers[\"X-Id\"] = \"abc\"  L.note(r.url) }\n",
+            "  get me() -> Map\n}\n",
+            "page P(path: \"/\") { resource m = B.me()\n Text(L.last)\n",
+            "  match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        ));
+        // The body is emitted at all, and `r` is the parameter, not a signal.
+        assert!(out.contains("r.headers[\"X-Id\"] = \"abc\""), "{out}");
+        assert!(out.contains("L.note(r.url)"), "{out}");
+        assert!(!out.contains("_r()"), "{out}");
+    }
+
+    #[test]
+    fn a_match_over_a_connection_reads_the_handle_not_a_signal() {
+        let out = compile(concat!(
+            "page P(path: \"/\") {\n",
+            "  socket chat = ws(\"wss://e.com/c\")\n",
+            "  match chat { open { Text(\"on\") } else { Text(\"off\") } } }",
+        ));
+        assert!(out.contains("_chat.state()"), "{out}");
+        assert!(!out.contains("_chat()"), "{out}");
+    }
+
+    #[test]
+    fn an_if_let_in_an_imperative_body_binds_a_plain_name() {
+        let out = compile(concat!(
+            "page P(path: \"/\") {\n",
+            "  state price = 0\n",
+            "  stream ticks = sse(\"/events\")\n",
+            "  effect { if let p = ticks.last(\"price\") { price = p } }\n",
+            "  Text(\"{price}\") }",
+        ));
+        assert!(out.contains("_price.set(p)"), "{out}");
+        assert!(!out.contains("_p()"), "{out}");
+    }
+
+    #[test]
+    fn a_sockets_handler_reads_what_arrived_by_name() {
+        let out = compile(concat!(
+            "store F { state items = []\n action add(m: Map) { items = items.concat([m]) } }\n",
+            "page P(path: \"/\") {\n",
+            "  socket chat = ws(\"wss://e.com/c\") { on message(m) { F.add(m) } }\n",
+            "  Text(\"{F.items.length}\")\n",
+            "  match chat { open { Text(\"on\") } else { Text(\"off\") } } }",
+        ));
+        assert!(out.contains("onMessage: (m) => { F.add(m); }"), "{out}");
     }
 
     // ─── Nodes the new grammar produces, built by hand until it parses ───
@@ -5163,6 +6435,7 @@ mod tests {
                     ty: None,
                     value: Expr::EnumCase("danger".to_string()),
                     persist: false,
+                    policy: None,
                 })),
                 stmt(StatementKind::Match(MatchStmt {
                     scrutinee: Expr::Identifier("tone".to_string()),
@@ -5356,12 +6629,14 @@ mod tests {
                     ty: None,
                     value: Expr::Null,
                     persist: false,
+                    policy: None,
                 })),
                 stmt(StatementKind::State(StateDecl {
                     name: "items".to_string(),
                     ty: None,
                     value: Expr::ListLiteral(Vec::new()),
                     persist: false,
+                    policy: None,
                 })),
                 stmt(StatementKind::If(IfStmt {
                     condition: Expr::Identifier("hint".to_string()),

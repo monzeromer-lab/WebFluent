@@ -6,6 +6,19 @@
 //! runtime touches (element creation, children, attributes, classes, text,
 //! listeners, dispatch), which is enough to assert what the runtime DOES.
 
+/// One of the browser's two storage areas, as much of it as `persist` uses.
+function storageArea() {
+  const held = new Map();
+  return {
+    getItem: (k) => (held.has(k) ? held.get(k) : null),
+    setItem: (k, v) => held.set(k, String(v)),
+    removeItem: (k) => held.delete(k),
+    clear: () => held.clear(),
+    get length() { return held.size; },
+    key: (i) => [...held.keys()][i] ?? null,
+  };
+}
+
 class ClassList {
   constructor(el) { this.el = el; this._set = new Set(); }
   add(...names) { for (const n of names) if (n) this._set.add(n); }
@@ -13,6 +26,46 @@ class ClassList {
   contains(n) { return this._set.has(n); }
   [Symbol.iterator]() { return this._set.values(); }
   toString() { return [...this._set].join(" "); }
+}
+
+/// One running animation, as the Web Animations API hands it back.
+///
+/// The runtime's motion engine is built on `element.animate`, so a test of
+/// it needs an animation it can finish, cancel and inspect. This one runs
+/// on demand: `finish()` resolves it, `cancel()` rejects `finished` and
+/// takes it off the element, which is what a real cancel does.
+class Animation_ {
+  constructor(el, frames, options) {
+    this.id = (options && options.id) || "";
+    this.effect = { target: el, frames, options: options || {} };
+    this.playState = "running";
+    this.committed = false;
+    this.finished = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+    // Nobody is waiting on a cancelled animation: not rejecting loudly is
+    // what the browser does too.
+    this.finished.catch(() => {});
+    // Time does not pass here, so an animation finishes as soon as the
+    // caller has had a chance to do something with it — which is what a
+    // test of what happens *after* an animation needs. A test that drives
+    // one itself sets `el._holdAnimations` first.
+    if (!el._holdAnimations) Promise.resolve().then(() => this.finish());
+  }
+  finish() {
+    if (this.playState !== "running") return;
+    this.playState = "finished";
+    this._resolve(this);
+  }
+  cancel() {
+    if (this.playState !== "running") return;
+    this.playState = "idle";
+    const at = this.effect.target._animations.indexOf(this);
+    if (at >= 0) this.effect.target._animations.splice(at, 1);
+    this._reject(new Error("cancelled"));
+  }
+  commitStyles() { this.committed = true; }
 }
 
 class Node_ {
@@ -79,6 +132,30 @@ class Element extends Node_ {
       set: (t, k, v) => { t._props.set(k, v); return true; },
     });
     this._listeners = new Map();
+    this._animations = [];
+    // An animation finishes on its own unless a test says otherwise.
+    this._holdAnimations = false;
+    // What a layout would have measured. A test sets it; nothing else
+    // in this DOM has a size.
+    this._height = 0;
+    this.scrollHeight = 0;
+  }
+  /// `element.animate(frames, options)` — the whole of the runtime's
+  /// motion engine goes through this.
+  animate(frames, options) {
+    const animation = new Animation_(this, frames, options);
+    this._animations.push(animation);
+    return animation;
+  }
+  getAnimations() { return this._animations.slice(); }
+  getBoundingClientRect() {
+    return { x: 0, y: 0, top: 0, left: 0, right: 0, bottom: this._height,
+             width: 0, height: this._height };
+  }
+  /// What a published custom element does to put its render in place.
+  replaceChildren(...nodes) {
+    for (const child of this.childNodes.splice(0)) child.parentNode = null;
+    for (const n of nodes) this.appendChild(n);
   }
   appendChild(n) {
     this.childNodes.push(...this._adopt(n));
@@ -202,10 +279,21 @@ export function makeDom() {
     querySelectorAll: (s) => document.body.querySelectorAll(s),
     getElementById: (id) => document.body.querySelectorAll(`[id="${id}"]`)[0] || null,
   };
+  // What the page listens for. A test fires one by calling `window._fire`,
+  // which is how a write in another tab arrives.
+  const listeners = new Map();
   const window = {
     document,
-    addEventListener() {},
-    removeEventListener() {},
+    addEventListener(type, fn) {
+      if (!listeners.has(type)) listeners.set(type, []);
+      listeners.get(type).push(fn);
+    },
+    removeEventListener(type, fn) {
+      listeners.set(type, (listeners.get(type) || []).filter((f) => f !== fn));
+    },
+    _fire(type, event) {
+      for (const fn of listeners.get(type) || []) fn(event);
+    },
     location: { pathname: "/", search: "", hash: "" },
     // A push or replace moves the location, as the browser's does.
     history: {
@@ -222,10 +310,68 @@ export function makeDom() {
     requestAnimationFrame: (fn) => fn(),
     queueMicrotask: (fn) => fn(),
     setTimeout: (fn) => fn(),
-    getComputedStyle: () => ({}),
+    // What `persist` writes to. Two areas, as a browser has, each a plain
+    // map: a test seeds one to stand for a value an earlier visit left.
+    localStorage: storageArea(),
+    sessionStorage: storageArea(),
+    // The design tokens the page would have. `window.tokens.set(name,
+    // value)` is how a test says what the stylesheet says.
+    tokens: new Map(),
+    getComputedStyle: () => ({
+      getPropertyValue: (name) => window.tokens.get(name) || "",
+    }),
     matchMedia: () => ({ matches: false, addEventListener() {} }),
     scrollTo: (x, y) => scrolls.push([x, y]),
     scrolls,
   };
-  return { window, document, Element, TextNode, DocumentFragment, Node: Node_ };
+  // The custom-element registry, and the base class a published element
+  // extends. Enough of it to build one, connect it, change an attribute
+  // and take it out again — which is the whole of the contract.
+  const defined = new Map();
+  const customElements = {
+    define: (tag, cls) => defined.set(tag, cls),
+    get: (tag) => defined.get(tag),
+  };
+  /// Make a defined element, as `document.createElement(tag)` would in a
+  /// browser that knows it.
+  const makeCustom = (tag, attrs = {}) => {
+    const Cls = defined.get(tag);
+    if (!Cls) throw new Error(`no custom element ${tag}`);
+    const el = new Cls(tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    el.isConnected = true;
+    el.connectedCallback();
+    return el;
+  };
+
+  // Everything watching for an element to be scrolled to. `seen(el)`
+  // is the scroll.
+  const watchers = [];
+  class IntersectionObserver {
+    constructor(fn) { this.fn = fn; this.targets = []; watchers.push(this); }
+    observe(el) { this.targets.push(el); }
+    disconnect() {
+      this.targets = [];
+      const at = watchers.indexOf(this);
+      if (at >= 0) watchers.splice(at, 1);
+    }
+  }
+  const seen = (el) => {
+    for (const w of watchers.slice()) {
+      if (w.targets.includes(el)) w.fn([{ target: el, isIntersecting: true }]);
+    }
+  };
+  return {
+    window, document, Element, TextNode, DocumentFragment, Node: Node_,
+    HTMLElement: Element, customElements, makeCustom,
+    CustomEvent: class CustomEvent {
+      constructor(type, init) {
+        this.type = type;
+        this.detail = init && init.detail;
+        this.bubbles = !!(init && init.bubbles);
+      }
+    },
+    Animation: Animation_, IntersectionObserver, seen,
+    getComputedStyle: window.getComputedStyle,
+  };
 }

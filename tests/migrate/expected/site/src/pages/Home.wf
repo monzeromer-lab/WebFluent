@@ -13,7 +13,7 @@ page Home(path: "/", description: "WebFluent — the web-first language that com
 
         Spacer
 
-        Row(gap: .md, justify: .center) {
+        Row(gap: .md, justify: .center).stacks {
             Button(t("hero.cta")).primary.lg { on click { navigate("/getting-started") } }
             Button(t("hero.guide")).lg { on click { navigate("/guide") } }
         }
@@ -35,11 +35,11 @@ page Home(path: "/", description: "WebFluent — the web-first language that com
 
         Spacer
 
-        Grid(columns: 2, gap: .lg) {
+        Grid(columns: 2, gap: .lg).stacks {
             Card.elevated.fadeIn {
                 Card.Header { Heading(t("demo.counter")).h2 }
                 Card.Body {
-                    Row(align: .center, gap: .md) {
+                    Row(align: .center, gap: .md).stacks {
                         Button("-").lg { on click { counter = counter - 1 } }
                         Heading("{counter}").h2
                         Button("+").primary.lg { on click { counter = counter + 1 } }
@@ -82,12 +82,12 @@ page Home(path: "/", description: "WebFluent — the web-first language that com
                 Card.Header { Heading(t("demo.components")).h2 }
                 Card.Body {
                     Stack(gap: .sm) {
-                        Row(gap: .sm) {
+                        Row(gap: .sm).stacks {
                             Button("Primary").primary
                             Button("Danger").danger
                             Button("Success").success
                         }
-                        Row(gap: .sm) {
+                        Row(gap: .sm).stacks {
                             Badge("New").primary
                             Badge("Sale").danger
                             Badge("Active").success
@@ -109,7 +109,7 @@ page Home(path: "/", description: "WebFluent — the web-first language that com
 
         Spacer
 
-        Grid(columns: 3, gap: .md) {
+        Grid(columns: 3, gap: .md).stacks {
             FeatureCard(title: t("why.syntax"), description: t("why.syntax.desc"))
             FeatureCard(title: t("why.components"), description: t("why.components.desc"))
             FeatureCard(title: t("why.reactivity"), description: t("why.reactivity.desc"))
@@ -125,7 +125,7 @@ page Home(path: "/", description: "WebFluent — the web-first language that com
 
         Card.elevated {
             Card.Body {
-                Row(align: .center, justify: .between) {
+                Row(align: .center, justify: .between).stacks {
                     Stack {
                         Heading(t("cta.title")).h2
                         Text(t("cta.subtitle")).muted

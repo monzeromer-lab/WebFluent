@@ -1,7 +1,7 @@
 // A sidebar shell with the router nested two levels down — the layout the docs
 // call out as the one that used to lose its router.
 app {
-    Row {
+    Row.stacks {
         style {
             min-height: 100vh
         }

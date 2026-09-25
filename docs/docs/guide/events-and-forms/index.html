@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Events and forms">
     <meta name="twitter:description" content="Event handlers, keyboard shortcuts, bind:, Form handles, pending actions, emitted events, theme switching and overlays.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/events-and-forms#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/events-and-forms","name":"Events and forms","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Event handlers, keyboard shortcuts, bind:, Form handles, pending actions, emitted events, theme switching and overlays."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/events-and-forms#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Events and forms","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/events-and-forms"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -161,7 +161,7 @@
                         <div class="wf-stack wf-gap--lg">
                             <h2 class="wf-heading">Handlers</h2>
                             <div class="wf-markdown">
-<p>A handler is written inside an element's block: <code>on &lt;event&gt; ￾ … ￿</code>, or <code>on &lt;event&gt;(name) ￾ … ￿</code> when the body reads the event object.</p>
+<p>A handler is written inside an element's block: <code>on &lt;event&gt; { … }</code>, or <code>on &lt;event&gt;(name) { … }</code> when the body reads the event object.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -185,7 +185,7 @@
                             </div>
                             <div class="wf-markdown">
 <p>The DOM events every element accepts: <code>click</code>, <code>input</code>, <code>change</code>, <code>submit</code>, <code>focus</code>, <code>blur</code>, <code>keydown</code>, <code>keyup</code>, <code>keypress</code>, <code>mouseenter</code>, <code>mouseleave</code>; a component's own declared events (chapter 8) join them on its calls. A handler's body is an imperative block, so it may assign state, call actions, <code>await</code>, and <code>navigate</code>.</p>
-<p>A handler on a component call — <code>UserCard(&quot;x&quot;) ￾ on click ￾ ￿ ￿</code> — attaches to the component's root element, so a styled button component is clickable wherever it is used.</p>
+<p>A handler on a component call — <code>UserCard(&quot;x&quot;) { on click { } }</code> — attaches to the component's root element, so a styled button component is clickable wherever it is used.</p>
                             </div>
                             <h2 class="wf-heading">Keys</h2>
                             <div class="wf-markdown">
@@ -231,7 +231,7 @@
     state plan = &quot;free&quot;
     state agree = false
     state seats = 1
-    state when = &quot;&quot;
+    state when: Date? = null
 
     Input(bind: name, label: &quot;Name&quot;, placeholder: &quot;Ada Lovelace&quot;).required
     Input(bind: email, label: &quot;Email&quot;).email.required
@@ -249,7 +249,8 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The checker knows what each control holds: <code>Checkbox</code> and <code>Switch</code> bind a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, the rest a <code>String</code> (an <code>Input.number</code> holds a <code>Number</code>). A control needs a <code>label:</code> (or a <code>placeholder:</code> for an <code>Input</code>, or an <code>aria-label:</code>) — the accessibility lint says so otherwise.</p>
+<p><code>Textarea(bind: note, label: &quot;Notes&quot;, rows: 4, maxLength: 200)</code> is several lines of text; with <code>maxLength</code> it shows how much is left, politely.</p>
+<p>The checker knows what each control holds: <code>Checkbox</code> and <code>Switch</code> bind a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, <code>DatePicker</code> a <a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it"><code>Date?</code></a> (nothing, until one is picked), the rest a <code>String</code> (an <code>Input.number</code> holds a <code>Number</code>). A control needs a <code>label:</code> (or a <code>placeholder:</code> for an <code>Input</code>, or an <code>aria-label:</code>) — the accessibility lint says so otherwise.</p>
                             </div>
                             <h2 class="wf-heading">Forms</h2>
                             <div class="wf-markdown">
@@ -305,7 +306,35 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>true</code> when every control passes its own checks (<code>required</code>, <code>type: email</code>, <code>min</code>/<code>max</code>, <code>pattern</code>) — kept current as the reader types</p>
+<p><code>true</code> when every control passes its own checks and every <code>validate</code> rule holds — kept current as the reader types</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>form.errors</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The message of every field that has one, by name</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>form.touched</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Which fields the reader has left</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>form.pending</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Whether an <code>async</code> rule is still asking</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -327,7 +356,7 @@
 <p><code>form.reset()</code></p>
                                             </div>
                                         </td>
-                                        <td>Clears the form</td>
+                                        <td>Clears the form, and everything it was showing</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -336,6 +365,14 @@
                                             </div>
                                         </td>
                                         <td>Submits it in code</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>form.apply(errors)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Shows what the server said, on the fields it named</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -353,6 +390,171 @@
                             </table>
                             <div class="wf-markdown">
 <p>A <code>Button</code> with <code>type: .submit</code> (or <code>.submit</code>) submits; the browser's own constraint validation runs first, so an invalid form never reaches <code>on submit</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">What a value must be: validate</h2>
+                            <div class="wf-markdown">
+<p>A <code>validate</code> block sits beside the state it guards. Every rule is one line, and the control bound to that state shows what they say — there is no <code>error:</code> to write and no <code>derived</code> to compute:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;Make an account.&quot;) {
+    state email = &quot;&quot;
+    state password = &quot;&quot;
+    state confirm = &quot;&quot;
+
+    validate email {
+        required
+        email
+    }
+    validate password {
+        required
+        minLength(8) &quot;Use at least 8 characters&quot;
+        pattern(/[0-9]/) &quot;Include a number&quot;
+    }
+    validate confirm {
+        matches(password) &quot;The two passwords differ&quot;
+    }
+
+    Heading(&quot;Join&quot;).h1
+    Form(bind: form) {
+        on submit { log(&quot;signing up&quot;) }
+        Input(bind: email, label: &quot;Email&quot;).email
+        Input(bind: password, label: &quot;Password&quot;).password
+        Input(bind: confirm, label: &quot;Confirm&quot;).password
+        Button(&quot;Join&quot;, type: .submit, disabled: !form.valid).primary
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">The rules</h3>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The rules</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Rule</th>
+                                        <th scope="col">Holds when</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>required</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Something was given — a non-blank string, a non-empty list, a ticked checkbox</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>email</code>, <code>url</code></p>
+                                            </div>
+                                        </td>
+                                        <td>It looks like one</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>minLength(n)</code>, <code>maxLength(n)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The text is that long</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>min(v)</code>, <code>max(v)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The number, date or time is within it</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>pattern(/…/)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The text matches</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>matches(other)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>It equals another value, which it follows</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>oneOf([…])</code></p>
+                                            </div>
+                                        </td>
+                                        <td>It is one of them</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>custom &quot;…&quot; { expr }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The expression is true</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>async &quot;…&quot; { await … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The answer, once it arrives</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Each takes an optional message after it. Without one, the rule's own is used — and a project with translations replaces it by naming <code>form.required</code>, <code>form.email</code>, <code>form.minLength</code> and so on.</p>
+<p>Every rule but <code>required</code> passes an empty value, so a blank optional field shows one message rather than two. An <code>async</code> rule is only asked once the rest have passed, and once per value — so a server is not asked about every keystroke of an address that is not one yet.</p>
+                            </div>
+                            <h3 class="wf-heading">When a message shows</h3>
+                            <div class="wf-markdown">
+<p><code>Form(show:)</code> says: <code>.onBlur</code> (the default — after the reader leaves the field), <code>.onSubmit</code>, or <code>.live</code> as they type. The fault is known either way, so <code>form.valid</code> is the truth whatever the reader has seen.</p>
+<p>A submit that fails shows every message, moves focus to the first field that has one and announces it, and does not run <code>on submit</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">A refined type validates itself</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 2
+validate nights { required }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The range on the type is already a rule; only <code>required</code> needed saying. See <a href="/WebFluent/docs/guide/types#a-condition-on-a-type">Types</a>.</p>
+                            </div>
+                            <h3 class="wf-heading">What the server said</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">action signUp() {
+    try {
+        await Backend.signUp(email, password)
+    } catch e {
+        form.apply(e.body.errors)     // { email: &quot;That address is taken&quot; }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each message is shown on the field it names, and stands until the reader changes that value.</p>
                             </div>
                             <h2 class="wf-heading">Pending actions</h2>
                             <div class="wf-markdown">
@@ -473,6 +675,7 @@ page Use(path: &quot;/&quot;) {
                         <a class="wf-link wf-sdae384de" href="#keys">Keys</a>
                         <a class="wf-link wf-sdae384de" href="#two-way-binding">Two-way binding</a>
                         <a class="wf-link wf-sdae384de" href="#forms">Forms</a>
+                        <a class="wf-link wf-sdae384de" href="#what-a-value-must-be-validate">What a value must be: validate</a>
                         <a class="wf-link wf-sdae384de" href="#pending-actions">Pending actions</a>
                         <a class="wf-link wf-sdae384de" href="#emitting-events-from-components">Emitting events from components</a>
                         <a class="wf-link wf-sdae384de" href="#switching-the-theme">Switching the theme</a>

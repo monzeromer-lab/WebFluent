@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write md-docs/19-components-reference.md from `wf registry --json`.
+"""Write md-docs/20-components-reference.md from `wf registry --json`.
 
 The registry is the compiler's own description of every built-in, so the
 reference can never drift from what the compiler accepts. Rerun after the
@@ -120,5 +120,5 @@ out.append("## Icons\n")
 out.append("The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.\n")
 out.append(" ".join(f"`{i}`" for i in data["icons"]) + "\n")
 
-(ROOT / "md-docs" / "19-components-reference.md").write_text("\n".join(out))
-print("wrote md-docs/19-components-reference.md")
+(ROOT / "md-docs" / "20-components-reference.md").write_text("\n".join(out))
+print("wrote md-docs/20-components-reference.md")

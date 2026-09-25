@@ -8,25 +8,80 @@ page I18nChapter(path: "/docs/guide/i18n", title: "Internationalisation", descri
 
         Markdown("In `webfluent.app.json`:")
 
-        CodeBlock("\{\n  \"i18n\": \{\n    \"default_locale\": \"en\",\n    \"locales\": [\"en\", \"ar\", \"es\"],\n    \"dir\": \"src/translations\"\n  \}\n\}", title: "json")
+        CodeBlock(#"{
+  "i18n": {
+    "default_locale": "en",
+    "locales": ["en", "ar", "es"],
+    "dir": "src/translations"
+  }
+}"#, title: "json")
 
         Markdown("One file per locale in that directory, flat keys with dots by convention:")
 
-        CodeBlock("\{\n  \"nav.home\": \"Home\",\n  \"nav.about\": \"About\",\n  \"welcome\": \"Welcome, \{name\}!\",\n  \"items.one\": \"\{count\} item\",\n  \"items.other\": \"\{count\} items\",\n  \"actions.save\": \"Save\"\n\}", title: "json")
+        CodeBlock(#"{
+  "nav.home": "Home",
+  "nav.about": "About",
+  "welcome": "Welcome, {name}!",
+  "items.one": "{count} item",
+  "items.other": "{count} items",
+  "actions.save": "Save"
+}"#, title: "json")
 
-        CodeBlock("\{\n  \"nav.home\": \"الرئيسية\",\n  \"nav.about\": \"حول\",\n  \"welcome\": \"أهلاً، \{name\}!\",\n  \"items.zero\": \"لا عناصر\",\n  \"items.one\": \"عنصر واحد\",\n  \"items.two\": \"عنصران\",\n  \"items.few\": \"\{count\} عناصر\",\n  \"items.many\": \"\{count\} عنصراً\",\n  \"items.other\": \"\{count\} عنصر\",\n  \"actions.save\": \"حفظ\"\n\}", title: "json")
+        CodeBlock(#"{
+  "nav.home": "الرئيسية",
+  "nav.about": "حول",
+  "welcome": "أهلاً، {name}!",
+  "items.zero": "لا عناصر",
+  "items.one": "عنصر واحد",
+  "items.two": "عنصران",
+  "items.few": "{count} عناصر",
+  "items.many": "{count} عنصراً",
+  "items.other": "{count} عنصر",
+  "actions.save": "حفظ"
+}"#, title: "json")
 
         Markdown("A missing file is a build warning; a key missing from a locale falls back to the default locale, then to the key itself.")
 
         Heading("t(\"key\")", id: "t-key").h2
 
-        CodeBlock("type User \{ name: String \}\n\npage Home(path: \"/\", title: \"Home\", description: \"The home page.\") \{\n    state user = User(name: \"Sam\")\n    state items: [String] = [\"a\", \"b\", \"c\"]\n    Heading(t(\"welcome\", \{ name: user.name \})).h1\n    Text(t(\"items\", \{ count: items.length \}))\n    Button(t(\"actions.save\")).primary\n\}", title: "wf")
+        CodeBlock(#"type User { name: String }
+
+page Home(path: "/", title: "Home", description: "The home page.") {
+    state user = User(name: "Sam")
+    state items: [String] = ["a", "b", "c"]
+    Heading(t("welcome", { name: user.name })).h1
+    Text(t("items", { count: items.length }))
+    Button(t("actions.save")).primary
+}"#, title: "wf")
 
         Markdown("- `t(\"key\")` is the string for the current locale, reactive: every call re-evaluates when the locale changes.\n- `t(\"key\", \{ name: value \})` fills `\{name\}` placeholders from the map.\n- A `count` picks the plural form: `key.one` when the locale's rules say \"one\", `key.other` otherwise, and `key.zero`, `key.two`, `key.few`, `key.many` when the file has them and the locale calls for them (Arabic has all six; English two). Falls back to `key.other`, then `key`.\n- The static paint resolves `t` for the default locale at build time, so the pre-rendered HTML is already in the default language.")
 
         Heading("Switching the locale", id: "switching-the-locale").h2
 
-        CodeBlock("app \{\n    state chosen = \"en\"\n    Navbar \{\n        Navbar.Brand \{ Link(\"i18n\", to: \"/\") \}\n        Navbar.Links \{\n            Link(t(\"nav.home\"), to: \"/\")\n            Link(t(\"nav.about\"), to: \"/about\")\n        \}\n        Navbar.Actions \{\n            Select(bind: chosen, label: t(\"nav.language\")) \{\n                on change \{ setLocale(chosen) \}\n                Select.Option(\"English\", value: \"en\")\n                Select.Option(\"العربية\", value: \"ar\")\n                Select.Option(\"Español\", value: \"es\")\n            \}\n        \}\n    \}\n    Router\n\}\n\npage Home(path: \"/\") \{\n    Text(\"Locale: \{locale\}, direction: \{dir\}\")\n    if locale == \"ar\" \{ Text(\"النسخة العربية\") \}\n\}", title: "wf")
+        CodeBlock(#"app {
+    state chosen = "en"
+    Navbar {
+        Navbar.Brand { Link("i18n", to: "/") }
+        Navbar.Links {
+            Link(t("nav.home"), to: "/")
+            Link(t("nav.about"), to: "/about")
+        }
+        Navbar.Actions {
+            Select(bind: chosen, label: t("nav.language")) {
+                on change { setLocale(chosen) }
+                Select.Option("English", value: "en")
+                Select.Option("العربية", value: "ar")
+                Select.Option("Español", value: "es")
+            }
+        }
+    }
+    Router
+}
+
+page Home(path: "/") {
+    Text("Locale: {locale}, direction: {dir}")
+    if locale == "ar" { Text("النسخة العربية") }
+}"#, title: "wf")
 
         Markdown("`setLocale(\"ar\")` switches; `locale` is the current code and `dir` is `\"ltr\"` or `\"rtl\"`. On a switch, `<html lang>` and `<html dir>` are set: `ar`, `he`, `fa` and `ur` are right-to-left, everything else left-to-right. The built-ins use logical CSS properties (`margin-inline-start`, not `margin-left`), so layouts mirror without work on your side; do the same in your own `style` blocks.\n\nAn `app` block may declare `state` like a page, as `chosen` above.")
 

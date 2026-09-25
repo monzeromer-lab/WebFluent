@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Components reference">
     <meta name="twitter:description" content="Every built-in element, its props, flags, events, slots and parts — from the compiler&#x27;s own registry.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference","name":"Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every built-in element, its props, flags, events, slots and parts — from the compiler's own registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -88,7 +88,7 @@
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-sf52d8cd0">Components reference</h1>
                         <div class="wf-markdown wf-se4ee4d09">
-<p>62 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
+<p>66 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">
@@ -100,7 +100,7 @@
                             </a>
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/row">
                                 <p class="wf-text wf-s778fc8aa">Row</p>
-                                <p class="wf-text wf-s36513411">Horizontal flex layout.</p>
+                                <p class="wf-text wf-s36513411">Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.</p>
                             </a>
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/column">
                                 <p class="wf-text wf-s778fc8aa">Column</p>
@@ -121,6 +121,10 @@
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/divider">
                                 <p class="wf-text wf-s778fc8aa">Divider</p>
                                 <p class="wf-text wf-s36513411">Horizontal rule.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/host">
+                                <p class="wf-text wf-s778fc8aa">Host</p>
+                                <p class="wf-text wf-s36513411">An element handed to somebody else&#x27;s code, with a lifetime. mount: runs once with the node, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves.</p>
                             </a>
                         </div>
                     </div>
@@ -225,6 +229,10 @@
                                 <p class="wf-text wf-s778fc8aa">Form</p>
                                 <p class="wf-text wf-s36513411">Groups controls; on submit runs when it is submitted, and the page never navigates away.</p>
                             </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/textarea">
+                                <p class="wf-text wf-s778fc8aa">Textarea</p>
+                                <p class="wf-text wf-s36513411">Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.</p>
+                            </a>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">
@@ -286,11 +294,15 @@
                         <div class="wf-grid wf-gap--md wf-s982ede03 entry-grid" data-cols="3">
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/image">
                                 <p class="wf-text wf-s778fc8aa">Image</p>
-                                <p class="wf-text wf-s36513411">Image; alt is required for accessibility (rule A01).</p>
+                                <p class="wf-text wf-s36513411">Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a &lt;picture&gt; with every width the build wrote.</p>
                             </a>
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/video">
                                 <p class="wf-text wf-s778fc8aa">Video</p>
-                                <p class="wf-text wf-s36513411">Video player.</p>
+                                <p class="wf-text wf-s36513411">Video player. Without captions it draws an A09 warning: a video nobody can hear is a video nobody can follow.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/audio">
+                                <p class="wf-text wf-s778fc8aa">Audio</p>
+                                <p class="wf-text wf-s36513411">Audio player. transcript links what was said, which is what a reader who cannot hear it needs.</p>
                             </a>
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/icon">
                                 <p class="wf-text wf-s778fc8aa">Icon</p>
@@ -320,6 +332,10 @@
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/markdown">
                                 <p class="wf-text wf-s778fc8aa">Markdown</p>
                                 <p class="wf-text wf-s36513411">Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/unsafe">
+                                <p class="wf-text wf-s778fc8aa">Unsafe</p>
+                                <p class="wf-text wf-s36513411">The one door for markup a page did not write. It has a single part, Unsafe.Html.</p>
                             </a>
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/blockquote">
                                 <p class="wf-text wf-s778fc8aa">Blockquote</p>
@@ -410,7 +426,7 @@
                             <tbody>
                                 <tr>
                                     <td>animate:</td>
-                                    <td>.fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin</td>
+                                    <td>.fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse</td>
                                     <td>
                                         <div class="wf-markdown">
 <p>Animation played when the element appears</p>
@@ -419,7 +435,7 @@
                                 </tr>
                                 <tr>
                                     <td>exit:</td>
-                                    <td>.fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin</td>
+                                    <td>.fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse</td>
                                     <td>
                                         <div class="wf-markdown">
 <p>Animation played when the element leaves</p>
@@ -455,10 +471,10 @@
                                 </tr>
                                 <tr>
                                     <td>easing:</td>
-                                    <td>String</td>
+                                    <td>.standard .spring .ease .easeIn .easeOut .easeInOut .linear .bouncy .smooth</td>
                                     <td>
                                         <div class="wf-markdown">
-<p>Timing function of the animation, e.g. <code>ease-out</code></p>
+<p>How the animation is paced — a named easing, or any CSS timing function</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -468,6 +484,33 @@
                                     <td>
                                         <div class="wf-markdown">
 <p>Delay added per item of a list, e.g. <code>50ms</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>on:</td>
+                                    <td>.mount .enterView</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>When its animation plays</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>count:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>How long the number it shows takes to count to a new value, e.g. <code>600ms</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>shared:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A name this element keeps across a route change, so the browser carries it from one page to the next</p>
                                         </div>
                                     </td>
                                 </tr>

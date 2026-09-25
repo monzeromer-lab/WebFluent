@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="State and reactivity">
     <meta name="twitter:description" content="state, derived, effect, actions and let, persist, timers, element handles and the browser&#x27;s values.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/state#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/state","name":"State and reactivity","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"state, derived, effect, actions and let, persist, timers, element handles and the browser's values."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/state#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"State and reactivity","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/state"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -213,7 +213,7 @@
                             </div>
                             <h2 class="wf-heading">effect</h2>
                             <div class="wf-markdown">
-<p>An effect runs once, and again whenever a state it read changes. Its <code>cleanup ￾ ￿</code> block runs before the next run and when the page (or the branch the effect lives in) leaves:</p>
+<p>An effect runs once, and again whenever a state it read changes. Its <code>cleanup { }</code> block runs before the next run and when the page (or the branch the effect lives in) leaves:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -281,9 +281,9 @@
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><code>let x = …</code> declares a local of the action (or handler). <code>let ￾ a, b ￿ = m</code> and <code>let [x, y] = l</code> destructure.</li>
+<li><code>let x = …</code> declares a local of the action (or handler). <code>let { a, b } = m</code> and <code>let [x, y] = l</code> destructure.</li>
 <li><code>await</code> inside an action makes it asynchronous; <code>name.pending</code> is <code>true</code> while a call of it runs (<a href="/WebFluent/docs/guide/events-and-forms#pending-actions">chapter 6</a>).</li>
-<li><code>for item in list ￾ ￿</code>, <code>for item, i in list ￾ ￿</code> and <code>for n in 1..=10 ￾ ￿</code> loop; <code>try ￾ ￿ catch e ￾ ￿</code> guards a call that may fail; <code>return x</code> leaves with a value.</li>
+<li><code>for item in list { }</code>, <code>for item, i in list { }</code> and <code>for n in 1..=10 { }</code> loop; <code>try { } catch e { }</code> guards a call that may fail; <code>return x</code> leaves with a value.</li>
 <li>A page's action is called by name, <code>add()</code>; a store's through the store, <code>Todos.add()</code>.</li>
 </ul>
                             </div>
@@ -313,7 +313,7 @@
                             </div>
                             <h2 class="wf-heading">Timers</h2>
                             <div class="wf-markdown">
-<p><code>every(ms) ￾ ￿</code> repeats; <code>after(ms) ￾ ￿</code> fires once. Both stop when what declared them leaves the page — a branch that closes, a list item that is removed, a route that changes:</p>
+<p><code>every(ms) { }</code> repeats; <code>after(ms) { }</code> fires once. Both stop when what declared them leaves the page — a branch that closes, a list item that is removed, a route that changes:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">

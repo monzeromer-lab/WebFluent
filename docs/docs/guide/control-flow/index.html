@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Control flow">
     <meta name="twitter:description" content="if, if let, for … by, show and match, in render blocks and in actions.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow","name":"Control flow","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"if, if let, for … by, show and match, in render blocks and in actions."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Control flow","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -187,7 +187,7 @@
                             </div>
                             <h2 class="wf-heading">if let</h2>
                             <div class="wf-markdown">
-<p><code>if let name = value ￾ ￿</code> binds the non-null value inside the branch — the way to read a <code>T?</code> without the checker objecting:</p>
+<p><code>if let name = value { }</code> binds the non-null value inside the branch — the way to read a <code>T?</code> without the checker objecting:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -209,7 +209,7 @@ page Profile(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>if let x ￾ ￿</code> (no <code>=</code>) is the same for a name already in scope. The narrowing holds inside the branch only; <code>x != null</code> and <code>x &amp;&amp; …</code> narrow the same way.</p>
+<p><code>if let x { }</code> (no <code>=</code>) is the same for a name already in scope. The narrowing holds inside the branch only; <code>x != null</code> and <code>x &amp;&amp; …</code> narrow the same way.</p>
                             </div>
                             <h2 class="wf-heading">for</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">

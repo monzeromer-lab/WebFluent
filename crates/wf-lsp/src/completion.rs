@@ -1184,6 +1184,11 @@ fn type_name(ty: &TypeRef) -> String {
         TypeRef::List(inner) => format!("[{}]", type_name(inner)),
         TypeRef::Optional(inner) => format!("{}?", type_name(inner)),
         TypeRef::Named(name) => name.clone(),
+        // The condition reads as it was written: `Number(min: 0, max: 100)`.
+        TypeRef::Refined(inner, args) => {
+            let said: Vec<String> = args.iter().map(|(n, _)| n.clone()).collect();
+            format!("{}({})", type_name(inner), said.join(", "))
+        }
     }
 }
 
@@ -1340,6 +1345,11 @@ fn keyword_snippet(name: &str) -> String {
         "else" => "else {\n\t$0\n}".into(),
         "for" => "for ${1:item} in ${2:items} by ${1}.${3:id} {\n\t$0\n}".into(),
         "show" => "show ${1:visible} {\n\t$0\n}".into(),
+        "persist" => "persist ${1:name} = ${2:value}".into(),
+        "migrate" => "migrate ${1:1} -> ${2:2} { ${0:old} }".into(),
+        "sequence" => {
+            "sequence {\n\tstep { $0 }\n\tstep(after: \"${1:120ms}\") { }\n}".into()
+        }
         "navigate" => "navigate(\"${1:/}\")".into(),
         "log" => "log(${1:value})".into(),
         "emit" => "emit ${1:event}($0)".into(),

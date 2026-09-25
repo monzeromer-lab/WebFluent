@@ -138,7 +138,10 @@ pub mod layout;
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),
 /// JavaScript ([`codegen::JsCodegen`]), static site generation ([`codegen::render_page_html`]),
 /// and PDF ([`codegen::PdfCodegen`]).
+pub mod browser;
 pub mod codegen;
+pub mod media;
+pub mod openapi;
 
 /// JavaScript runtime — embedded runtime for reactivity, routing, and DOM helpers.
 ///

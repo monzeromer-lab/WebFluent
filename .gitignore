@@ -4,3 +4,9 @@
 .idea/
 /tests/fixtures/*/build/
 /tests/migrate/corpus/*/build/
+.wf-sizes.json
+
+# Python bytecode from the site scripts
+__pycache__/
+*.pyc
+

@@ -1,6 +1,59 @@
 use std::fmt;
 
 /// All token types produced by the WebFluent lexer.
+/// How a string literal was written, which decides what its text means.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKind {
+    /// `"…"` — escapes, and `{…}` splices.
+    Plain,
+    /// `#"…"#` — neither. The text is what is written, which is how a
+    /// sample of code goes in a string without being spelled twice.
+    Raw,
+    /// `"""…"""` — escapes and splices, with the indentation the source
+    /// gave it removed.
+    Block,
+}
+
+/// A string literal as it was written: the spelling between its
+/// delimiters, with nothing resolved, and which delimiters they were.
+///
+/// The escapes are resolved by the parser, in the one pass that also
+/// splits the splices out — so an escaped brace is a brace from the
+/// moment it is understood, and nothing downstream has to know it was
+/// ever written `\{`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StringLit {
+    pub spelling: String,
+    pub kind: StringKind,
+}
+
+impl StringLit {
+    pub fn new(spelling: impl Into<String>, kind: StringKind) -> Self {
+        StringLit {
+            spelling: spelling.into(),
+            kind,
+        }
+    }
+
+    /// A `"…"` literal.
+    pub fn plain(spelling: impl Into<String>) -> Self {
+        StringLit::new(spelling, StringKind::Plain)
+    }
+}
+
+impl From<&str> for StringLit {
+    fn from(s: &str) -> Self {
+        StringLit::plain(s)
+    }
+}
+
+impl From<String> for StringLit {
+    fn from(s: String) -> Self {
+        StringLit::plain(s)
+    }
+}
+
+/// All token types produced by the WebFluent lexer.
 #[derive(Debug, Clone, PartialEq)]
 // `EOF` is the conventional spelling in a lexer, and this enum is public.
 #[allow(clippy::upper_case_acronyms)]
@@ -47,9 +100,16 @@ pub enum TokenType {
     TypeMap,
 
     // Literals
-    StringLiteral(String),
+    StringLiteral(StringLit),
     /// `/pattern/flags`: a regular expression, pattern and flags.
     RegexLiteral(String, String),
+    /// `@2026-03-14`, `@09:30`, `@2026-03-14T09:30Z` — a date, a time or
+    /// both. Which one it is, the parser decides from the text.
+    TemporalLiteral(String),
+    /// `#0F766E` — a colour, written as CSS writes one.
+    ColorLiteral(String),
+    /// `€12.99` — an amount and the currency its symbol names.
+    MoneyLiteral(String, String),
     NumberLiteral(f64),
     BoolLiteral(bool),
     Null,
@@ -93,6 +153,7 @@ pub enum TokenType {
     Radio,
     Switch,
     Slider,
+    Textarea,
     DatePicker,
     FileUpload,
     Form,
@@ -115,6 +176,7 @@ pub enum TokenType {
     // Media components
     Image,
     Video,
+    Audio,
     Icon,
     Carousel,
 
@@ -242,7 +304,10 @@ impl fmt::Display for TokenType {
             TokenType::Loading => write!(f, "loading"),
             TokenType::Error => write!(f, "error"),
             TokenType::Success => write!(f, "success"),
-            TokenType::StringLiteral(s) => write!(f, "\"{}\"", s),
+            TokenType::StringLiteral(s) => write!(f, "\"{}\"", s.spelling),
+            TokenType::TemporalLiteral(t) => write!(f, "@{t}"),
+            TokenType::ColorLiteral(c) => write!(f, "#{c}"),
+            TokenType::MoneyLiteral(symbol, amount) => write!(f, "{symbol}{amount}"),
             TokenType::NumberLiteral(n) => write!(f, "{}", n),
             TokenType::BoolLiteral(b) => write!(f, "{}", b),
             TokenType::Null => write!(f, "null"),
@@ -336,6 +401,7 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Slider",
     "DatePicker",
     "FileUpload",
+    "Textarea",
     "Form",
     // Feedback
     "Alert",
@@ -353,6 +419,7 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     // Media
     "Image",
     "Video",
+    "Audio",
     "Icon",
     "Carousel",
     // Typography
@@ -361,6 +428,12 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Code",
     "Blockquote",
     "Markdown",
+    // A node handed to somebody else's code, with a lifetime.
+    "Host",
+    // `Unsafe.Html(markup)`: the one element whose content is markup.
+    // The part lowers to `UnsafeHtml`, which is an IR name, not one a
+    // program writes.
+    "Unsafe",
     // Document
     "Document",
     "Section",
@@ -424,6 +497,7 @@ pub fn component_name(token: &TokenType) -> Option<&'static str> {
         TokenType::Slider => "Slider",
         TokenType::DatePicker => "DatePicker",
         TokenType::FileUpload => "FileUpload",
+        TokenType::Textarea => "Textarea",
         TokenType::Form => "Form",
         // Feedback
         TokenType::Alert => "Alert",
@@ -441,6 +515,7 @@ pub fn component_name(token: &TokenType) -> Option<&'static str> {
         // Media
         TokenType::Image => "Image",
         TokenType::Video => "Video",
+        TokenType::Audio => "Audio",
         TokenType::Icon => "Icon",
         TokenType::Carousel => "Carousel",
         // Typography
@@ -555,6 +630,7 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "Radio" => TokenType::Radio,
         "Switch" => TokenType::Switch,
         "Slider" => TokenType::Slider,
+        "Textarea" => TokenType::Textarea,
         "DatePicker" => TokenType::DatePicker,
         "FileUpload" => TokenType::FileUpload,
         "Form" => TokenType::Form,
@@ -577,6 +653,7 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         // Media components
         "Image" => TokenType::Image,
         "Video" => TokenType::Video,
+        "Audio" => TokenType::Audio,
         "Icon" => TokenType::Icon,
         "Carousel" => TokenType::Carousel,
 

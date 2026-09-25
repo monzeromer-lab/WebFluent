@@ -44,6 +44,8 @@ impl Usage {
                 | Declaration::Theme(_)
                 | Declaration::Type(_)
                 | Declaration::Enum(_)
+                | Declaration::Api(_)
+                | Declaration::External(_)
                 | Declaration::Const(_)
                 | Declaration::Animation(_)
                 | Declaration::Test(_)
@@ -73,6 +75,8 @@ pub const ANIMATIONS: &[&str] = &[
     "shake",
     "pulse",
     "spin",
+    "expand",
+    "collapse",
 ];
 
 fn walk(stmts: &[Statement], usage: &mut Usage) {

@@ -33,6 +33,10 @@ pub fn registry_json() -> Value {
 }
 
 fn component_json(sig: &'static ComponentSig) -> Value {
+    let (tag, class) = match sig.ir {
+        crate::registry::Ir::BuiltIn(name) => crate::codegen::builtin::builtin_to_html(name),
+        crate::registry::Ir::Sub(..) => ("", ""),
+    };
     let flags: Vec<Value> = sig.all_props().flat_map(|p| flags_of(sig, p)).collect();
     json!({
         "name": sig.name,
@@ -40,6 +44,12 @@ fn component_json(sig: &'static ComponentSig) -> Value {
         "owner": sig.owner,
         "group": sig.group,
         "summary": sig.summary,
+        // The tag and the class its root carries. A tool that looks at a
+        // built page — the studio's inspector, a browser sweep — has to
+        // know which element is which, and guessing the name is how the
+        // guess drifts from what the compiler writes.
+        "tag": tag,
+        "class": class,
         "positional": sig.positional.as_ref().map(|p| prop_json(p, Some(sig))),
         "props": sig.props.iter().map(|p| prop_json(p, Some(sig))).collect::<Vec<_>>(),
         "flags": flags,
@@ -158,6 +168,7 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
     let mut components = Vec::new();
     let mut stores = Vec::new();
     let mut pages = Vec::new();
+    let mut externals: Vec<Value> = Vec::new();
     for (ix, decl) in program.declarations.iter().enumerate() {
         let file = file_of(ix);
         match decl {
@@ -191,6 +202,51 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
                     "default": f.default.as_ref().map(crate::sema::types::expr_text),
                     "doc": f.doc,
                 })).collect::<Vec<_>>(),
+            })),
+            // Somebody else's code, as this project described it — the
+            // studio's inspector needs it for the same reason it needs a
+            // component's: to know what a call site may pass.
+            Declaration::External(e) => externals.push(json!({
+                "name": e.name,
+                "kind": match e.kind {
+                    crate::parser::ast::ExternalKind::Module => "module",
+                    crate::parser::ast::ExternalKind::Element => "element",
+                },
+                "from": e.from,
+                "integrity": e.integrity,
+                "doc": e.doc,
+                "file": file,
+                "line": e.span.line,
+                "functions": e.functions.iter().map(|f| json!({
+                    "name": f.name,
+                    "params": f.params.iter().map(|p| json!({
+                        "name": p.name,
+                        "type": type_ref_json(&p.prop_type),
+                    })).collect::<Vec<_>>(),
+                    "returns": f.returns.as_ref().map(type_ref_json),
+                    "doc": f.doc,
+                })).collect::<Vec<_>>(),
+                "types": e.types.iter().map(|t| json!({
+                    "name": t.name,
+                    "methods": t.methods.iter().map(|m| json!({
+                        "name": m.name,
+                        "params": m.params.iter().map(|p| json!({
+                            "name": p.name,
+                            "type": type_ref_json(&p.prop_type),
+                        })).collect::<Vec<_>>(),
+                        "returns": m.returns.as_ref().map(type_ref_json),
+                    })).collect::<Vec<_>>(),
+                    "fields": t.fields.iter().map(|f| json!({
+                        "name": f.name,
+                        "type": type_ref_json(&f.ty),
+                    })).collect::<Vec<_>>(),
+                })).collect::<Vec<_>>(),
+                "props": e.props.iter().map(|p| json!({
+                    "name": p.name,
+                    "type": type_ref_json(&p.prop_type),
+                    "flag": p.prop_type == TypeRef::Bool,
+                })).collect::<Vec<_>>(),
+                "events": e.events.iter().map(|v| json!(v.name)).collect::<Vec<_>>(),
             })),
             Declaration::Component(c) => {
                 let mut slots: Vec<Value> = c
@@ -267,6 +323,7 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
         "components": components,
         "stores": stores,
         "pages": pages,
+        "externals": externals,
     })
 }
 
@@ -280,6 +337,9 @@ fn type_ref_json(ty: &TypeRef) -> String {
         TypeRef::List(inner) => format!("[{}]", type_ref_json(inner)),
         TypeRef::Optional(inner) => format!("{}?", type_ref_json(inner)),
         TypeRef::Named(name) => name.clone(),
+        // A condition is the editor's to show as a hint, not part of the
+        // type's name.
+        TypeRef::Refined(inner, _) => type_ref_json(inner),
     }
 }
 

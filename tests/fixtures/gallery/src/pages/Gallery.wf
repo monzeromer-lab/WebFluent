@@ -2,6 +2,7 @@
 // If a component regresses, this page is where it shows up first.
 page Gallery(path: "/", description: "Every built-in component, rendered once.", title: "Component Gallery") {
     state query = ""
+    state note = ""
     state agreed = false
     state plan = "pro"
     state volume = 40
@@ -105,6 +106,7 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
             Slider(bind: volume, label: "Volume", min: 0, max: 100, step: 5)
             DatePicker(label: "Start date")
             FileUpload(label: "Attach a file", accept: ".png,.jpg")
+            Textarea(bind: note, label: "Anything else?", rows: 3, maxLength: 200)
             Button("Submit").primary.submit
         }
 
@@ -156,10 +158,14 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
             Text("Archive")
         }
 
+        // A toast is shown where it is written, so the gallery draws one.
+        Toast("Saved").success
+
         // ── Media ───────────────────────────────────
         Heading("Media").h2
         Image(src: "/logo.png", alt: "The project logo").rounded
-        Video(src: "/clip.mp4").controls
+        Video(src: "/clip.mp4", captions: "/clip.en.vtt").controls
+        Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
         Icon("star").lg.primary
         Carousel {
             Image(src: "/one.png", alt: "Slide one")

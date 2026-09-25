@@ -11,10 +11,72 @@ use crate::parser::ast::*;
 /// Every `data` declaration of `program` replaced by a `const` holding
 /// the file's JSON, read relative to `root`, then `root/src`.
 pub fn resolve_data(program: &mut Program, root: &Path) -> Result<()> {
+    resolve_data_with(program, root, None)
+}
+
+/// [`resolve_data`], with somewhere to write the images to.
+///
+/// `media` is the output directory and the settings when the build is one
+/// that writes files; without it an image is read for its size and colour
+/// but nothing is written, which is what the language server and `wf
+/// types` want.
+pub fn resolve_data_with(
+    program: &mut Program,
+    root: &Path,
+    media: Option<(&Path, &crate::media::Settings, &str)>,
+) -> Result<()> {
     for decl in &mut program.declarations {
         let Declaration::Data(d) = decl else {
             continue;
         };
+        // `image hero = "media/hero.jpg"`: the picture itself, at every
+        // width the page will ask for.
+        if d.is_image {
+            let candidates = [
+                root.join(&d.file),
+                root.join("src").join(&d.file),
+                root.join("public").join(&d.file),
+            ];
+            let Some(path) = candidates.iter().find(|p| p.is_file()) else {
+                return Err(WebFluentError::IoError(format!(
+                    "`image {}`: no file `{}` under {}, its src/ or its public/",
+                    d.name,
+                    d.file,
+                    root.display()
+                )));
+            };
+            let (out_dir, settings, base_path) = match media {
+                Some(m) => m,
+                // Nothing to write to: the name still resolves, to the
+                // file as it stands.
+                None => {
+                    *decl = Declaration::Const(ConstDecl {
+                        name: d.name.clone(),
+                        ty: d.ty.clone(),
+                        value: json_expr(&serde_json::json!({ "src": format!("/{}", d.file) })),
+                        doc: d.doc.clone(),
+                        span: d.span,
+                    });
+                    continue;
+                }
+            };
+            let asset = crate::media::process(
+                &d.name,
+                path,
+                out_dir,
+                &root.join(".wf-cache/media"),
+                settings,
+                base_path,
+            )?;
+            *decl = Declaration::Const(ConstDecl {
+                name: d.name.clone(),
+                ty: d.ty.clone(),
+                value: json_expr(&asset.as_json()),
+                doc: d.doc.clone(),
+                span: d.span,
+            });
+            continue;
+        }
         let candidates = [root.join(&d.file), root.join("src").join(&d.file)];
         let Some(path) = candidates.iter().find(|p| p.is_file()) else {
             return Err(WebFluentError::IoError(format!(

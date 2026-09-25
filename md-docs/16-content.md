@@ -70,7 +70,7 @@ component DocsShell {
 
 A docs site is a folder of `.md` files, one layout, and a `.wf` for the
 `app`. (`wf docs` is something else: a gallery of every component the
-project can use — [chapter 18](18-tooling.md#wf-docs).)
+project can use — [chapter 18](18-tooling.md#wf-docs-wf-registry-wf-types).)
 
 ## Static builds
 
@@ -95,7 +95,7 @@ The output also holds:
 | `404.html` | The `path: "*"` page, served by a static host for a route it has no file for |
 | `sitemap.xml`, `robots.txt` | Every indexable route (`meta.sitemap`, on by default; needs `meta.site_url`) |
 | `styles.css`, `pages/*.css` | Shared and per-page stylesheets |
-| `app.js`, `pages/*.js` | The runtime and each page's script, loaded when its route shows |
+| `app.js`, `pages/*.js` | The runtime the program reaches for, and each page's script, loaded when its route shows |
 | `*.gz` | Each text file, precompressed (`build.compress`) |
 | `_headers` | A strict Content-Security-Policy for hosts that read one (`build.csp`) |
 | `public/*` | Copied as they are to the output root |
@@ -185,7 +185,8 @@ page Snippets(path: "/") {
 page Media(path: "/") {
     Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)
     Image(src: "/deco.png", alt: "")
-    Video(src: "/demo.mp4", controls: true)
+    Video(src: "/demo.mp4", captions: "/demo.en.vtt").controls
+    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
 }
 ```
 
@@ -193,6 +194,55 @@ Give every `Image` an `alt:` — empty for a decorative one — and a `width:`
 and `height:` where you know them so the layout does not shift; the first
 image on a page loads eagerly and later ones lazily. Files in `public/`
 are served from the root.
+
+A `Video` without `captions:` and an `Audio` without `transcript:` each
+draw an `A09`: a video nobody can hear is a video nobody can follow.
+`captions:` becomes a `<track>`; `transcript:` a link beneath the player.
+
+### `image`: a picture the build processes
+
+Naming a picture with `image` hands the build the file itself:
+
+```wf
+image hero = "hero.jpg"
+
+page Home(path: "/", title: "Home", description: "The front page.") {
+    Image(hero, alt: "The team at the launch",
+          sizes: "(max-width: 768px) 100vw, 1200px",
+          placeholder: .blur)
+    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
+}
+```
+
+The build reads its real size and its average colour, writes it again at
+every width in `media.widths` smaller than the original, and gives the page
+a `<picture>`:
+
+- a `<source>` per format, each with a `srcset` of the widths, so the
+  browser picks the one it needs for the space `sizes:` describes;
+- `width` and `height` from the file, so the box is the right shape before
+  a byte of the image has arrived and **nothing on the page moves**;
+- a placeholder in the meantime — `.blur` inlines a sixteen-pixel-wide copy
+  as a data URI, `.color` fills the box with the average colour, `.none`
+  does neither;
+- a content hash in every file's name, so a host can cache them forever.
+
+The name is a value: `hero.src`, `.width`, `.height`, `.color`,
+`.placeholder`, `.srcset`.
+
+```json
+{ "build": { "media": {
+    "formats": ["webp"],
+    "widths": [480, 960, 1440, 1920],
+    "quality": 78,
+    "pipeline": true
+} } }
+```
+
+`pipeline: false` copies the file as `public/` always did. The work is
+cached in `.wf-cache/media/`, so a build that changes no image does no
+image work. A PDF or a slide deck embeds the real picture rather than
+drawing a box where one should be.
 
 ## Next
 

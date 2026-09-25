@@ -13,8 +13,8 @@ page Contact(path: "/contact", description: "How to reach us.", title: "Contact"
 
         Spacer
 
-        Row(gap: .lg) {
-            Column(span: 8) {
+        Row(gap: .lg).stacks {
+            Column(span: 8).stacks {
                 Card.elevated {
                     Card.Body {
                         show submitted {
@@ -50,7 +50,7 @@ page Contact(path: "/contact", description: "How to reach us.", title: "Contact"
                     }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card {
                     Card.Body {
                         Heading("Info").h2

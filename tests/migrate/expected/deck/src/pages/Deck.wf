@@ -19,14 +19,14 @@ page Deck(path: "/", description: "Quarterly review, Q3 2026.", title: "Quarterl
         }
 
         TwoColumn {
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Heading("What worked").h3
                 List {
                     Text("Shipping the reminders feature")
                     Text("Cutting onboarding to one screen")
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Heading("What did not").h3
                 List {
                     Text("The pricing experiment")

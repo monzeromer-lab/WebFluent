@@ -21,6 +21,9 @@ a:hover { text-decoration: underline; opacity: 0.85; }
 /* ─── Layout ────────────────────────────────────────── */
 .wf-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-md); }
 .wf-container--fluid { max-width: 100%; }
+/* A `show` whose condition is false in the static paint. The runtime
+   sets `display` on the wrapper, which beats this. */
+.wf-hidden { display: none; }
 .wf-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .wf-row { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
 .wf-row--center { align-items: center; }
@@ -260,6 +263,8 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-input { display: block; width: 100%; padding: var(--spacing-sm) var(--spacing-md); font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .wf-input:focus-visible { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 .wf-input::placeholder { color: var(--color-text-muted); }
+.wf-textarea { min-height: 6rem; resize: vertical; }
+.wf-field__count { display: block; margin-top: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--color-text-muted); text-align: right; }
 .wf-input--small { padding: var(--spacing-xs) var(--spacing-sm); font-size: var(--font-size-sm); }
 .wf-input--large { padding: var(--spacing-md); font-size: var(--font-size-lg); }
 .wf-input--rounded { border-radius: var(--radius-full); }
@@ -446,17 +451,25 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-info { color: var(--color-info); }
 
 /* ─── Responsive ────────────────────────────────────── */
+/* A layout is the author's. `.stacks` is how a Row, a Grid or a Column
+   asks to reflow on a narrow screen; a responsive value —
+   `Grid(columns: { base: 1, md: 3 })` — says exactly what it should do,
+   at every width. The engine used to do this to every layout whatever
+   the author wrote, with `!important`, which took twelve overrides and
+   five `!important`s to undo on one site. */
 @media (max-width: 1024px) {
-  .wf-grid { grid-template-columns: repeat(2, 1fr) !important; }
-  .wf-col--4, .wf-col--3 { flex: 0 0 50%; max-width: 50%; }
+  .wf-grid.wf-stacks { grid-template-columns: repeat(2, 1fr); }
+  .wf-col--4.wf-stacks, .wf-col--3.wf-stacks { flex: 0 0 50%; max-width: 50%; }
 }
 @media (max-width: 768px) {
-  .wf-row { flex-direction: column; }
-  .wf-col, .wf-col--1, .wf-col--2, .wf-col--3, .wf-col--4, .wf-col--5, .wf-col--6,
-  .wf-col--7, .wf-col--8, .wf-col--9, .wf-col--10, .wf-col--11, .wf-col--12 {
+  .wf-row.wf-stacks { flex-direction: column; }
+  .wf-col.wf-stacks, .wf-col--1.wf-stacks, .wf-col--2.wf-stacks, .wf-col--3.wf-stacks,
+  .wf-col--4.wf-stacks, .wf-col--5.wf-stacks, .wf-col--6.wf-stacks, .wf-col--7.wf-stacks,
+  .wf-col--8.wf-stacks, .wf-col--9.wf-stacks, .wf-col--10.wf-stacks, .wf-col--11.wf-stacks,
+  .wf-col--12.wf-stacks {
     flex: 0 0 100%; max-width: 100%;
   }
-  .wf-grid { grid-template-columns: 1fr !important; }
+  .wf-grid.wf-stacks { grid-template-columns: 1fr; }
   .wf-navbar { flex-wrap: wrap; padding: var(--spacing-sm); }
   .wf-navbar__links { flex-wrap: wrap; gap: var(--spacing-xs); font-size: var(--font-size-sm); }
   .wf-navbar__brand { width: 100%; }
@@ -513,6 +526,8 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 @keyframes wf-bounce { 0% { opacity: 0; transform: scale(0.3); } 50% { transform: scale(1.05); } 70% { transform: scale(0.9); } 100% { opacity: 1; transform: none; } }
 @keyframes wf-shake { 0%,100% { transform: none; } 10%,30%,50%,70%,90% { transform: translateX(-4px); } 20%,40%,60%,80% { transform: translateX(4px); } }
 @keyframes wf-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes wf-expand { from { block-size: 0; opacity: 0; } to { block-size: auto; opacity: 1; } }
+@keyframes wf-collapse { from { block-size: auto; opacity: 1; } to { block-size: 0; opacity: 0; } }
 
 /* ─── Animation Utility Classes ─────────────────────── */
 .wf-animate-fadeIn { animation: wf-fadeIn var(--animation-duration-normal) var(--animation-easing-default) both; }
@@ -532,6 +547,12 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-animate-shake { animation: wf-shake var(--animation-duration-normal) var(--animation-easing-default) both; }
 .wf-animate-pulse { animation: wf-pulse var(--animation-duration-slow) var(--animation-easing-default) infinite; }
 .wf-animate-spin { animation: wf-spin 0.6s linear infinite; }
+/* Opening to the height of the content. A browser that understands
+   `interpolate-size` animates the height; one that does not drops the
+   `auto` keyframe and fades instead. `WF.expand` measures and is exact
+   either way, and is what a `show`, an `if` or a list plays. */
+.wf-animate-expand { interpolate-size: allow-keywords; overflow: hidden; animation: wf-expand var(--animation-duration-normal) var(--animation-easing-default) both; }
+.wf-animate-collapse { interpolate-size: allow-keywords; overflow: hidden; animation: wf-collapse var(--animation-duration-normal) var(--animation-easing-default) both; }
 .wf-animate--fast { animation-duration: var(--animation-duration-fast) !important; }
 .wf-animate--slow { animation-duration: var(--animation-duration-slow) !important; }
 

@@ -8,22 +8,22 @@ page Home(path: "/", description: "An overview of what needs your attention toda
 
         Spacer
 
-        Row(gap: .md) {
-            Column(span: 4) {
+        Row(gap: .md).stacks {
+            Column(span: 4).stacks {
                 StatCard(title: "Total Tasks", value: TaskStore.tasks.length, color: "primary")
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 StatCard(title: "Remaining", value: TaskStore.remaining, color: "warning")
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 StatCard(title: "Completed", value: TaskStore.completed, color: "success")
             }
         }
 
         Spacer
 
-        Row(gap: .md) {
-            Column(span: 8) {
+        Row(gap: .md).stacks {
+            Column(span: 8).stacks {
                 Card {
                     Card.Header {
                         Heading("Recent Tasks").h2
@@ -33,8 +33,8 @@ page Home(path: "/", description: "An overview of what needs your attention toda
                             Text("No tasks yet. Go to the Tasks page to add some!").muted.center
                         } else {
                             for task in TaskStore.tasks {
-                                Row(align: .center, justify: .between) {
-                                    Row(align: .center, gap: .md) {
+                                Row(align: .center, justify: .between).stacks {
+                                    Row(align: .center, gap: .md).stacks {
                                         Checkbox(checked: task.done, label: task.title)
                                     }
                                     Badge(task.priority).primary
@@ -45,7 +45,7 @@ page Home(path: "/", description: "An overview of what needs your attention toda
                     }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Header {
                         Heading("Quick Actions").h2

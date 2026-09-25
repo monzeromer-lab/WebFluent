@@ -81,6 +81,8 @@ pub fn lint_vocabulary_with(
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -143,6 +145,8 @@ fn global_names(program: &Program) -> HashSet<String> {
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Animation(_)
             | Declaration::Test(_) => {}
         }

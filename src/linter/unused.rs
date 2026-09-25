@@ -46,6 +46,26 @@ pub fn lint_unused_in(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
     // that `use`s a store, by store.
     let mut store_reads: HashMap<String, HashSet<String>> = HashMap::new();
     for decl in &program.declarations {
+        // An `api` block reads too: its settings, the headers it sends with
+        // every call, and the hooks that run around one.
+        if let Declaration::Api(api) = decl {
+            let mut reads = Reads::default();
+            for (_, e) in api.settings.iter().chain(api.headers.iter()) {
+                read_expr(e, &mut reads);
+            }
+            for endpoint in &api.endpoints {
+                for (_, e) in &endpoint.settings {
+                    read_expr(e, &mut reads);
+                }
+            }
+            for hook in &api.hooks {
+                read_statements(&hook.body, &mut reads);
+            }
+            for (store, member) in reads.members {
+                store_reads.entry(store).or_default().insert(member);
+            }
+            continue;
+        }
         let body = match decl {
             Declaration::Page(p) => &p.body,
             Declaration::Component(c) => &c.body,
@@ -357,5 +377,13 @@ mod tests {
                 "[U04] `S.go` is declared but never read".to_string(),
             ]
         );
+    }
+
+    #[test]
+    fn a_service_reads_a_store_in_its_headers_and_its_hooks() {
+        let found = codes(
+            "store Session { state token = \"\"\n state lang = \"en\"\n action refresh() { token = \"x\" } }\nstore Metrics { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {Session.token}\"\n Accept-Language: Session.lang }\n on response(r) { Metrics.record(r.status) }\n on error(e) { await Session.refresh()  return \"retry\" }\n get me() -> Map }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        );
+        assert!(found.is_empty(), "{found:?}");
     }
 }

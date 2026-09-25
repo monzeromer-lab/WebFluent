@@ -1,10 +1,10 @@
 component TaskItem(title: String, done: Bool, priority: String) {
     Card.outlined {
-        Row(align: .center, justify: .between) {
-            Row(align: .center, gap: .md) {
+        Row(align: .center, justify: .between).stacks {
+            Row(align: .center, gap: .md).stacks {
                 Checkbox(checked: done, label: title)
             }
-            Row(gap: .sm) {
+            Row(gap: .sm).stacks {
                 Badge(priority).primary
                 IconButton(icon: "trash", label: "Delete task").danger.sm
             }

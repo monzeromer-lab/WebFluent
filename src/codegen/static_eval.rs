@@ -86,6 +86,11 @@ impl Static {
 
 /// The compiled form of a regex value, JavaScript's flags mapped to Rust's
 /// (`i`, `m`, `s`; `g` and `u` mean nothing to a single match).
+/// Whether `text` matches the pattern, when the pattern compiles.
+pub fn matches(text: &str, pattern: &str, flags: &str) -> Option<bool> {
+    Some(compile_regex(pattern, flags)?.is_match(text))
+}
+
 fn compile_regex(pattern: &str, flags: &str) -> Option<regex::Regex> {
     let mut prefix = String::new();
     for f in flags.chars() {
@@ -290,7 +295,26 @@ impl Scope {
 /// A store as a value: its seeded state, then its derived values in order,
 /// each evaluated over the fields before it and the store's own actions. A
 /// derived value that cannot be worked out is simply absent.
+/// A store as a value: its state, and the derived values computed from it.
+///
+/// `seed` is what a caller already knows the state to be — a test's `data`,
+/// which stands in for what an action would have put there — and is
+/// applied before the derived values, so they follow it.
+pub fn store_as_value(
+    store: &crate::parser::ast::StoreDecl,
+    seed: Option<&serde_json::Value>,
+) -> serde_json::Value {
+    store_value_with(store, seed).to_json()
+}
+
 fn store_value(store: &crate::parser::ast::StoreDecl) -> Static {
+    store_value_with(store, None)
+}
+
+fn store_value_with(
+    store: &crate::parser::ast::StoreDecl,
+    seed: Option<&serde_json::Value>,
+) -> Static {
     let actions: Vec<&ActionDecl> = store
         .body
         .iter()
@@ -312,7 +336,14 @@ fn store_value(store: &crate::parser::ast::StoreDecl) -> Static {
             StatementKind::Derived(d) => (&d.name, &d.value),
             _ => continue,
         };
-        if let Some(v) = eval(value, &scope) {
+        // What the caller already knows stands in for the initial value.
+        let given = match (&stmt.kind, seed) {
+            (StatementKind::State(_), Some(serde_json::Value::Object(map))) => {
+                map.get(name).map(Static::from_json)
+            }
+            _ => None,
+        };
+        if let Some(v) = given.or_else(|| eval(value, &scope)) {
             scope.set(name, v.clone());
             fields.push((name.clone(), v));
         }
@@ -344,6 +375,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
     fuel.spend()?;
     match expr {
         Expr::StringLiteral(s) => Some(Static::Str(s.clone())),
+        Expr::Typed(_, carrier) => eval_in(carrier, scope, fuel),
         Expr::NumberLiteral(n) => Some(Static::Num(*n)),
         Expr::BoolLiteral(b) => Some(Static::Bool(*b)),
         Expr::Null => Some(Static::Null),
@@ -544,6 +576,14 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 .map(|a| eval_in(a, scope, fuel))
                 .collect::<Option<Vec<_>>>()?;
             match name.as_str() {
+                // `sanitize(html)`: the twin of the runtime's, so the
+                // static paint shows exactly what hydration will.
+                "sanitize" if !scope.functions.contains_key(name) => {
+                    let Some(Static::Str(html)) = args.first() else {
+                        return None;
+                    };
+                    Some(Static::Str(crate::codegen::sanitize::sanitize(html)))
+                }
                 // `format(value, .style, option)` and `ago(date)`, as the
                 // browser would spell them, in the project's locale.
                 "format" | "ago" if !scope.functions.contains_key(name) => {
@@ -552,6 +592,23 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         Static::Str(s) => Some(format::Input::Text(s.clone())),
                         _ => None,
                     };
+                    // Money says what it is, so `format(price)` needs no
+                    // style and no currency code: it carries both.
+                    if let Some(Static::Map(fields)) = args.first()
+                        && let (Some(amount), Some(code)) = (
+                            fields.iter().find(|(k, _)| k == "amount"),
+                            fields.iter().find(|(k, _)| k == "currency"),
+                        )
+                        && let Static::Num(minor) = amount.1
+                    {
+                        return format::format(
+                            &format::Input::Number(minor / 100.0),
+                            Some("currency"),
+                            Some(&format::Input::Text(code.1.to_text())),
+                            &scope.locale(),
+                        )
+                        .map(Static::Str);
+                    }
                     let value = match args.first()? {
                         Static::Null => return Some(Static::Str(String::new())),
                         v => input(v)?,
@@ -645,6 +702,12 @@ fn method_call(
         Static::Num(n) => Some(n),
         _ => None,
     };
+    // What the language's own types can do, done here as well as in the
+    // browser: a page that shows a date's arithmetic shows the answer in
+    // the static paint, not a blank that fills in on hydration.
+    if let Some(result) = scalars::method(receiver, method, &|i| value(i)) {
+        return Some(result);
+    }
     match receiver {
         Static::Regex(p, f) => {
             let re = compile_regex(p, f)?;
@@ -915,6 +978,43 @@ fn method_call(
                 )),
                 _ => None,
             },
+            "dedent" => {
+                let mut rows: Vec<&str> = s.split('\n').collect();
+                while rows.first().is_some_and(|r| r.trim().is_empty()) {
+                    rows.remove(0);
+                }
+                while rows.last().is_some_and(|r| r.trim().is_empty()) {
+                    rows.pop();
+                }
+                let indent = rows
+                    .iter()
+                    .filter(|r| !r.trim().is_empty())
+                    .map(|r| r.len() - r.trim_start().len())
+                    .min()
+                    .unwrap_or(0);
+                Some(Static::Str(
+                    rows.iter()
+                        .map(|r| {
+                            if r.len() >= indent {
+                                &r[indent..]
+                            } else {
+                                r.trim_start()
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                ))
+            }
+            "lines" => Some(Static::List(
+                s.split('\n')
+                    .map(|l| Static::Str(l.trim_end_matches('\r').to_string()))
+                    .collect(),
+            )),
+            "words" => Some(Static::List(
+                s.split_whitespace()
+                    .map(|w| Static::Str(w.to_string()))
+                    .collect(),
+            )),
             "capitalize" => {
                 let mut chars = s.chars();
                 Some(Static::Str(match chars.next() {
@@ -1505,5 +1605,380 @@ mod interpreter_tests {
             }"#,
         );
         assert_eq!(field(&s, "S", "forever"), None);
+    }
+}
+
+/// The language's own types, at build time.
+///
+/// The twin of `src/runtime/modules/scalars.js`: the same carriers, the
+/// same answers. A method this does not know falls through to the ordinary
+/// ones, so a record with its own `plus` is unaffected.
+mod scalars {
+    use super::Static;
+
+    /// Which carrier a value is: `date`, `time`, `datetime`, `money`,
+    /// `duration`, or nothing the language knows.
+    fn kind_of(value: &Static) -> Option<&'static str> {
+        match value {
+            Static::Num(_) => Some("duration"),
+            Static::Map(fields) => {
+                let has = |n: &str| fields.iter().any(|(k, _)| k == n);
+                (has("amount") && has("currency")).then_some("money")
+            }
+            Static::Str(text) => {
+                let digits = |s: &str| s.chars().all(|c| c.is_ascii_digit());
+                let parts: Vec<&str> = text.split('-').collect();
+                if parts.len() == 3
+                    && parts[0].len() == 4
+                    && parts[1].len() == 2
+                    && parts[2].len() == 2
+                    && parts.iter().all(|p| digits(p))
+                {
+                    return Some("date");
+                }
+                if text.len() >= 11 && text.as_bytes().get(10) == Some(&b'T') {
+                    return Some("datetime");
+                }
+                let parts: Vec<&str> = text.split(':').collect();
+                ((2..=3).contains(&parts.len())
+                    && parts[0].len() == 2
+                    && parts[1].len() == 2
+                    && parts
+                        .iter()
+                        .all(|p| digits(p.split('.').next().unwrap_or(p))))
+                .then_some("time")
+            }
+            _ => None,
+        }
+    }
+
+    /// Days since 1970-01-01 for a civil date, and back — the arithmetic a
+    /// calendar needs, without a calendar library.
+    fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
+        let y = y - i64::from(m <= 2);
+        let era = if y >= 0 { y } else { y - 399 } / 400;
+        let yoe = y - era * 400;
+        let mp = (m + 9) % 12;
+        let doy = (153 * mp + 2) / 5 + d - 1;
+        let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+        era * 146097 + doe - 719468
+    }
+
+    fn civil_from_days(z: i64) -> (i64, i64, i64) {
+        let z = z + 719468;
+        let era = if z >= 0 { z } else { z - 146096 } / 146097;
+        let doe = z - era * 146097;
+        let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+        let y = yoe + era * 400;
+        let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+        let mp = (5 * doy + 2) / 153;
+        let d = doy - (153 * mp + 2) / 5 + 1;
+        let m = if mp < 10 { mp + 3 } else { mp - 9 };
+        (y + i64::from(m <= 2), m, d)
+    }
+
+    /// A carrier as milliseconds since the epoch.
+    fn epoch_ms(value: &Static) -> Option<i64> {
+        let text = match value {
+            Static::Str(s) => s.clone(),
+            _ => return None,
+        };
+        let (date, time) = match kind_of(value)? {
+            "date" => (text.clone(), String::new()),
+            "time" => ("1970-01-01".to_string(), text.clone()),
+            "datetime" => {
+                let (d, t) = text.split_once('T')?;
+                (d.to_string(), t.trim_end_matches('Z').to_string())
+            }
+            _ => return None,
+        };
+        let part = |s: &str, n: usize| -> Option<i64> {
+            s.split(['-', ':']).nth(n)?.split('.').next()?.parse().ok()
+        };
+        let days = days_from_civil(part(&date, 0)?, part(&date, 1)?, part(&date, 2)?);
+        let mut ms = days * 86_400_000;
+        if !time.is_empty() {
+            let time = time.split('+').next().unwrap_or(&time);
+            ms += part(time, 0).unwrap_or(0) * 3_600_000;
+            ms += part(time, 1).unwrap_or(0) * 60_000;
+            ms += part(time, 2).unwrap_or(0) * 1_000;
+        }
+        Some(ms)
+    }
+
+    /// Milliseconds back into the carrier `like` was written in.
+    fn carry(ms: i64, like: &Static) -> Static {
+        let days = ms.div_euclid(86_400_000);
+        let rest = ms.rem_euclid(86_400_000);
+        let (y, m, d) = civil_from_days(days);
+        let (hh, mm, ss) = (rest / 3_600_000, (rest / 60_000) % 60, (rest / 1000) % 60);
+        Static::Str(match kind_of(like) {
+            Some("date") => format!("{y:04}-{m:02}-{d:02}"),
+            Some("time") => format!("{hh:02}:{mm:02}"),
+            _ => format!("{y:04}-{m:02}-{d:02}T{hh:02}:{mm:02}:{ss:02}Z"),
+        })
+    }
+
+    fn field(value: &Static, name: &str) -> Option<f64> {
+        match value {
+            Static::Map(fields) => {
+                fields
+                    .iter()
+                    .find(|(k, _)| k == name)
+                    .and_then(|(_, v)| match v {
+                        Static::Num(n) => Some(*n),
+                        _ => None,
+                    })
+            }
+            _ => None,
+        }
+    }
+
+    fn currency(value: &Static) -> String {
+        match value {
+            Static::Map(fields) => fields
+                .iter()
+                .find(|(k, _)| k == "currency")
+                .map(|(_, v)| v.to_text())
+                .unwrap_or_default(),
+            _ => String::new(),
+        }
+    }
+
+    fn money(amount: f64, currency: &str) -> Static {
+        Static::Map(vec![
+            ("amount".to_string(), Static::Num(amount.round())),
+            ("currency".to_string(), Static::Str(currency.to_string())),
+        ])
+    }
+
+    /// `#0F766E` and friends as red, green and blue.
+    fn rgb_of(value: &Static) -> Option<(f64, f64, f64)> {
+        let text = value.to_text();
+        let hex = text.trim().strip_prefix('#')?;
+        let hex: String = match hex.len() {
+            3 | 4 => hex.chars().flat_map(|c| [c, c]).collect(),
+            6 | 8 => hex.to_string(),
+            _ => return None,
+        };
+        let channel = |at: usize| u8::from_str_radix(&hex[at..at + 2], 16).ok().map(f64::from);
+        Some((channel(0)?, channel(2)?, channel(4)?))
+    }
+
+    fn hex(n: f64) -> String {
+        format!("{:02X}", n.round().clamp(0.0, 255.0) as u8)
+    }
+
+    fn mix(a: &Static, b: &Static, t: f64) -> Option<Static> {
+        let (r1, g1, b1) = rgb_of(a)?;
+        let (r2, g2, b2) = rgb_of(b)?;
+        Some(Static::Str(format!(
+            "#{}{}{}",
+            hex(r1 + (r2 - r1) * t),
+            hex(g1 + (g2 - g1) * t),
+            hex(b1 + (b2 - b1) * t)
+        )))
+    }
+
+    fn luminance(value: &Static) -> Option<f64> {
+        let (r, g, b) = rgb_of(value)?;
+        let channel = |c: f64| {
+            let s = c / 255.0;
+            if s <= 0.03928 {
+                s / 12.92
+            } else {
+                ((s + 0.055) / 1.055).powf(2.4)
+            }
+        };
+        Some(0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b))
+    }
+
+    /// The part of a URL after the scheme and before the path, and the path.
+    fn url_parts(text: &str) -> Option<(String, String)> {
+        let rest = text.split_once("://").map(|(_, r)| r).unwrap_or(text);
+        let (host, path) = match rest.find('/') {
+            Some(at) => (&rest[..at], &rest[at..]),
+            None => (rest, "/"),
+        };
+        let path = path.split(['?', '#']).next().unwrap_or(path);
+        Some((host.to_string(), path.to_string()))
+    }
+
+    /// One method of one of the language's own types, or `None` when this
+    /// is not one of them.
+    pub fn method(
+        receiver: &Static,
+        method: &str,
+        arg: &dyn Fn(usize) -> Option<Static>,
+    ) -> Option<Static> {
+        let kind = kind_of(receiver);
+        let moment = matches!(kind, Some("date" | "time" | "datetime"));
+        let number = |i: usize| match arg(i)? {
+            Static::Num(n) => Some(n),
+            _ => None,
+        };
+        let named = |name: &str| match arg(0)? {
+            Static::Map(fields) => {
+                fields
+                    .iter()
+                    .find(|(k, _)| k == name)
+                    .and_then(|(_, v)| match v {
+                        Static::Num(n) => Some(*n),
+                        _ => None,
+                    })
+            }
+            _ => None,
+        };
+        match method {
+            "plus" | "minus" if moment => {
+                let sign = if method == "plus" { 1 } else { -1 };
+                let mut ms = epoch_ms(receiver)?;
+                let by = |name: &str, unit: i64| named(name).unwrap_or(0.0) as i64 * unit;
+                // Months and years move by the calendar, and land on a day
+                // that exists: the 31st plus a month is the 28th, not the
+                // 3rd of the next.
+                let months = sign * (by("months", 1) + by("years", 12));
+                if months != 0 {
+                    let days = ms.div_euclid(86_400_000);
+                    let rest = ms.rem_euclid(86_400_000);
+                    let (y, m, d) = civil_from_days(days);
+                    let total = (y * 12 + m - 1) + months;
+                    let (y2, m2) = (total.div_euclid(12), total.rem_euclid(12) + 1);
+                    let leap = y2 % 4 == 0 && (y2 % 100 != 0 || y2 % 400 == 0);
+                    let last = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][(m2 - 1) as usize]
+                        + i64::from(m2 == 2 && leap);
+                    ms = days_from_civil(y2, m2, d.min(last)) * 86_400_000 + rest;
+                }
+                Some(carry(
+                    ms + sign
+                        * (by("weeks", 604_800_000)
+                            + by("days", 86_400_000)
+                            + by("hours", 3_600_000)
+                            + by("minutes", 60_000)
+                            + by("seconds", 1_000)
+                            + by("ms", 1)),
+                    receiver,
+                ))
+            }
+            "year" | "month" | "day" | "weekday" | "hour" | "minute" | "second" if moment => {
+                let ms = epoch_ms(receiver)?;
+                let days = ms.div_euclid(86_400_000);
+                let rest = ms.rem_euclid(86_400_000);
+                let (y, m, d) = civil_from_days(days);
+                Some(Static::Num(match method {
+                    "year" => y as f64,
+                    "month" => m as f64,
+                    "day" => d as f64,
+                    // Monday is 1 and Sunday 7, as ISO counts them.
+                    "weekday" => ((days + 3).rem_euclid(7) + 1) as f64,
+                    "hour" => (rest / 3_600_000) as f64,
+                    "minute" => ((rest / 60_000) % 60) as f64,
+                    _ => ((rest / 1000) % 60) as f64,
+                }))
+            }
+            "isBefore" | "isAfter" | "isSame" if moment => {
+                let a = epoch_ms(receiver)?;
+                let b = epoch_ms(&arg(0)?)?;
+                Some(Static::Bool(match method {
+                    "isBefore" => a < b,
+                    "isAfter" => a > b,
+                    _ => a == b,
+                }))
+            }
+            "until" if moment => Some(Static::Num(
+                (epoch_ms(&arg(0)?)? - epoch_ms(receiver)?) as f64,
+            )),
+            "date" if kind == Some("datetime") => Some(carry(
+                epoch_ms(receiver)?,
+                &Static::Str("0000-00-00".into()),
+            )),
+            "time" if kind == Some("datetime") => {
+                Some(carry(epoch_ms(receiver)?, &Static::Str("00:00".into())))
+            }
+            "startOfDay" | "startOfWeek" | "startOfMonth" | "endOfDay" if moment => {
+                let ms = epoch_ms(receiver)?;
+                let days = ms.div_euclid(86_400_000);
+                let at = match method {
+                    "startOfDay" => days * 86_400_000,
+                    "endOfDay" => days * 86_400_000 + 86_399_000,
+                    "startOfWeek" => (days - (days + 3).rem_euclid(7)) * 86_400_000,
+                    _ => {
+                        let (y, m, _) = civil_from_days(days);
+                        days_from_civil(y, m, 1) * 86_400_000
+                    }
+                };
+                Some(carry(at, receiver))
+            }
+            // A length of time, read in a unit.
+            "days" | "hours" | "minutes" | "seconds" | "ms" if kind == Some("duration") => {
+                let ms = match receiver {
+                    Static::Num(n) => *n,
+                    _ => return None,
+                };
+                Some(Static::Num(match method {
+                    "days" => ms / 86_400_000.0,
+                    "hours" => ms / 3_600_000.0,
+                    "minutes" => ms / 60_000.0,
+                    "seconds" => ms / 1000.0,
+                    _ => ms,
+                }))
+            }
+            // Money, in minor units, so nothing drifts.
+            "plus" | "minus" if kind == Some("money") => {
+                let sign = if method == "plus" { 1.0 } else { -1.0 };
+                let other = arg(0)?;
+                if currency(&other) != currency(receiver) {
+                    return None;
+                }
+                Some(money(
+                    field(receiver, "amount")? + sign * field(&other, "amount")?,
+                    &currency(receiver),
+                ))
+            }
+            "times" if kind == Some("money") => Some(money(
+                field(receiver, "amount")? * number(0)?,
+                &currency(receiver),
+            )),
+            "convert" if kind == Some("money") => Some(money(
+                field(receiver, "amount")? * number(0)?,
+                &arg(1)?.to_text(),
+            )),
+            // A web address, and an address.
+            "host" | "path" => {
+                let text = receiver.to_text();
+                if !text.contains("://") {
+                    return None;
+                }
+                let (host, path) = url_parts(&text)?;
+                Some(Static::Str(if method == "host" { host } else { path }))
+            }
+            "domain" => {
+                let text = receiver.to_text();
+                let (_, domain) = text.split_once('@')?;
+                (!domain.is_empty() && domain.contains('.'))
+                    .then(|| Static::Str(domain.to_string()))
+            }
+            // Colour.
+            "mix" => mix(receiver, &arg(0)?, number(1).unwrap_or(0.5)),
+            "lighten" => mix(receiver, &Static::Str("#FFFFFF".into()), number(0)?),
+            "darken" => mix(receiver, &Static::Str("#000000".into()), number(0)?),
+            "alpha" => {
+                let (r, g, b) = rgb_of(receiver)?;
+                Some(Static::Str(format!(
+                    "rgba({}, {}, {}, {})",
+                    r.round(),
+                    g.round(),
+                    b.round(),
+                    number(0)?
+                )))
+            }
+            "contrast" => {
+                let a = luminance(receiver)?;
+                let b = luminance(&arg(0)?)?;
+                let ratio = (a.max(b) + 0.05) / (a.min(b) + 0.05);
+                Some(Static::Num((ratio * 100.0).round() / 100.0))
+            }
+            _ => None,
+        }
     }
 }

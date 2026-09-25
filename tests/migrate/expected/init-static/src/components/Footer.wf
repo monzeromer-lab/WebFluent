@@ -2,7 +2,7 @@ component Footer {
     Divider
     Container {
         Spacer
-        Row(align: .center, justify: .between) {
+        Row(align: .center, justify: .between).stacks {
             Text(t("footer.built")).muted.sm
             Text(t("footer.rights")).muted.sm
         }

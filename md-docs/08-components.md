@@ -229,6 +229,118 @@ page Shop(path: "/") {
 }
 ```
 
+## Somebody else's code
+
+A chart, a map, a rich-text editor: a library that wants a DOM node and
+gives back a handle. Two declarations cover it, and between them there is
+no `window.X` and no hoping.
+
+### `external` — a typed import
+
+```wf
+external Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm" {
+    integrity: "sha384-…"
+    fn Chart(canvas: Any, config: Map) -> ChartHandle
+    type ChartHandle {
+        update(data: Map)
+        destroy()
+    }
+}
+```
+
+The compiler cannot read the other side, so **the declaration is the
+contract**: `Chart.Chart(node, config)` is checked against it, and a call
+that does not match is an error where it is written rather than a
+`TypeError` in a browser.
+
+What the build does with it: writes `externals.js`, a module holding the
+`import`s; links it from every page with `<script type="module">`; adds the
+origin to the Content-Security-Policy, so a declared import is never
+blocked by the policy shipped beside it; and, where `integrity:` is given,
+emits `<link rel="modulepreload" integrity="…">` — the one place the
+platform lets subresource integrity reach a module.
+
+It is a separate file, not part of the bundle, because a module has its own
+scope and the page chunks a split build writes are classic scripts. Each
+import is bound to a global there, so the bundle stays what it was.
+
+A bare specifier — `external d3 from "d3"` — is a module specifier like any
+other: it resolves the way the page's import map or your host resolves it.
+
+### `Host` — a node with a lifetime
+
+```wf
+page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
+    resource rows = Backend.sales()
+    Host(tag: "canvas",
+         mount: (node) => Chart.Chart(node, { type: "bar", data: rows.data }),
+         update: (chart) => chart.update(rows.data),
+         cleanup: (chart) => chart.destroy())
+}
+```
+
+`mount` runs once with the element and gives back whatever the library
+hands over. `update` runs again whenever the state it reads changes.
+`cleanup` runs when the page, branch or list item that owns it leaves —
+tied to the same scope as every effect and timer, so it cannot be
+forgotten. That last part is the reason this exists: the hand-written
+version is a `ref`, an `effect` and a `cleanup`, and the cleanup is what
+people leave out.
+
+`tag:` is the element the library is handed — `div` by default, and
+`span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`
+where it wants one of those. A library that throws on mount takes itself
+out; the rest of the page stays.
+
+### Somebody else's custom element
+
+```wf
+external element Stripe("stripe-pricing-table") {
+    prop publishableKey: String
+    prop pricingTableId: String
+    event ready()
+}
+```
+
+```wf
+Stripe(publishableKey: key, pricingTableId: "prctbl_1") { on ready { loaded = true } }
+```
+
+It is placed like a component. A prop becomes the attribute a framework
+would write — `publishableKey` is `publishable-key` — and follows state
+like any other value; an event it declares is a DOM event the page hears.
+
+## Publishing yours
+
+```json
+{ "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }
+```
+
+Each name becomes a standards-based custom element: `PriceTag` is
+`<price-tag>`, and a one-word component is prefixed so its tag has the
+hyphen a custom element needs (`Rating` is `<wf-rating>`). The build writes
+`elements.js`, `styles.css` and a page listing the tags it published.
+
+```html
+<script src="/elements.js" defer></script>
+<link rel="stylesheet" href="/styles.css">
+
+<price-tag label="Pro" amount="29" sale></price-tag>
+```
+
+An attribute is a prop, read when the element is connected and again
+whenever it changes: a `Number` prop is read as a number, a `Map` or a list
+as JSON, and a `Bool` is true when the attribute is present — as HTML reads
+`disabled` — and false when it is `="false"`, so a framework that writes
+the string still works. An event the component declares is dispatched as a
+`CustomEvent` that bubbles. What the component created goes when the
+element leaves the document.
+
+React, Vue, Svelte, Angular, Rails, WordPress and a plain page can all
+place a tag. That is the whole reason this is the answer rather than an
+adapter per framework: **the shared interface between frameworks is the
+platform.**
+
 ## Components in the static paint
 
 A static build expands every component call into HTML at build time — its

@@ -70,7 +70,8 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
   "build": {{
     "output": "./build",
     "minify": true,
-    "ssg": false
+    "ssg": false,
+    "csp": true
   }},
   "dev": {{
     "port": 3000
@@ -579,7 +580,8 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
   "build": {{
     "output": "./build",
     "minify": true,
-    "ssg": true
+    "ssg": true,
+    "csp": true
   }},
   "dev": {{
     "port": 3000

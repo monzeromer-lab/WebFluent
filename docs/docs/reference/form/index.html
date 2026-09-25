@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Components reference">
     <meta name="twitter:description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/form#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference/form","name":"Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/form#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"},{"@type":"ListItem","position":4,"name":"Form","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference/form"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -84,7 +84,7 @@
                         <div class="wf-markdown wf-sa01f76ef">
 <p>Groups controls; <code>on submit</code> runs when it is submitted, and the page never navigates away.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s6f9d6ddc"><span class="wf-tok-name">Form</span>(<span class="wf-tok-prop">bind</span>: …) { … }</code>
+                        <code class="wf-code wf-code--block wf-s6f9d6ddc"><span class="wf-tok-name">Form</span>(<span class="wf-tok-prop">bind</span>: …, <span class="wf-tok-prop">show</span>: …) { … }</code>
                     </div>
                     <div class="wf-row wf-gap--xs wf-s6f09ca9a entry-tabs" role="tablist">
                         <button class="wf-btn active" role="tab" aria-selected="true">Props</button>
@@ -107,7 +107,16 @@
                                     <td>State</td>
                                     <td>
                                         <div class="wf-markdown">
-<p>A handle on the form: <code>form.valid</code>, <code>form.values</code> by field name, <code>form.reset()</code></p>
+<p>A handle on the form: <code>form.valid</code>, <code>form.errors</code>, <code>form.values</code> by field name, <code>form.reset()</code>, <code>form.apply(serverErrors)</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>show:</td>
+                                    <td>.onBlur .onSubmit .live</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>When a <code>validate</code> block's message is shown</p>
                                         </div>
                                     </td>
                                 </tr>

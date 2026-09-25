@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Internationalisation">
     <meta name="twitter:description" content="Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n","name":"Internationalisation","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Translation files, t() with placeholders and plurals, switching the locale, right-to-left and locale-aware formatting."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Internationalisation","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -244,7 +244,7 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The h
                             <div class="wf-markdown">
 <ul>
 <li><code>t(&quot;key&quot;)</code> is the string for the current locale, reactive: every call re-evaluates when the locale changes.</li>
-<li><code>t(&quot;key&quot;, ￾ name: value ￿)</code> fills <code>￾name￿</code> placeholders from the map.</li>
+<li><code>t(&quot;key&quot;, { name: value })</code> fills <code>{name}</code> placeholders from the map.</li>
 <li>A <code>count</code> picks the plural form: <code>key.one</code> when the locale's rules say &quot;one&quot;, <code>key.other</code> otherwise, and <code>key.zero</code>, <code>key.two</code>, <code>key.few</code>, <code>key.many</code> when the file has them and the locale calls for them (Arabic has all six; English two). Falls back to <code>key.other</code>, then <code>key</code>.</li>
 <li>The static paint resolves <code>t</code> for the default locale at build time, so the pre-rendered HTML is already in the default language.</li>
 </ul>

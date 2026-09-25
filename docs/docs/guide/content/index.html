@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Content">
     <meta name="twitter:description" content="The Markdown element, .md pages with front matter, static builds, search and sharing tags, code and media.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/content#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/content","name":"Content","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The Markdown element, .md pages with front matter, static builds, search and sharing tags, code and media."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/content#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Content","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/content"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -234,11 +234,11 @@ Then `wf init my-site`.</code>
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A docs site is a folder of <code>.md</code> files, one layout, and a <code>.wf</code> for the <code>app</code>. (<code>wf docs</code> is something else: a gallery of every component the project can use — <a href="/WebFluent/docs/guide/tooling#wf-docs">chapter 18</a>.)</p>
+<p>A docs site is a folder of <code>.md</code> files, one layout, and a <code>.wf</code> for the <code>app</code>. (<code>wf docs</code> is something else: a gallery of every component the project can use — <a href="/WebFluent/docs/guide/tooling#wf-docs-wf-registry-wf-types">chapter 18</a>.)</p>
                             </div>
                             <h2 class="wf-heading">Static builds</h2>
                             <div class="wf-markdown">
-<p>With <code>&quot;build&quot;: ￾ &quot;ssg&quot;: true ￿</code> every page is pre-rendered to HTML at build time: <code>index.html</code>, <code>about/index.html</code>, <code>posts/hello/index.html</code>, one per route (and one per value in <code>paths:</code> for a <code>:param</code> page). Each file is the page's first paint — text, lists over seeded state, components expanded, the <code>loading</code> arm of every resource — with the app script loading after it. The page is readable before any script runs, and interactive once the script hydrates the paint in place, without repainting it.</p>
+<p>With <code>&quot;build&quot;: { &quot;ssg&quot;: true }</code> every page is pre-rendered to HTML at build time: <code>index.html</code>, <code>about/index.html</code>, <code>posts/hello/index.html</code>, one per route (and one per value in <code>paths:</code> for a <code>:param</code> page). Each file is the page's first paint — text, lists over seeded state, components expanded, the <code>loading</code> arm of every resource — with the app script loading after it. The page is readable before any script runs, and interactive once the script hydrates the paint in place, without repainting it.</p>
 <p>What the static paint knows: literals, <code>state</code> initial values, <code>derived</code> over them, <code>data</code>, <code>const</code>, <code>env</code>, <code>t</code> in the default locale, <code>format</code> and <code>ago</code> with a built-in locale table. What it does not: fetched data, the browser's values (<code>viewport</code>, <code>query</code>, <code>hash</code>, <code>theme</code>), anything read from <code>window</code>. A condition on an unknown renders its live branch once hydrated.</p>
 <p>The output also holds:</p>
                             </div>
@@ -289,7 +289,7 @@ Then `wf init my-site`.</code>
 <p><code>app.js</code>, <code>pages/*.js</code></p>
                                             </div>
                                         </td>
-                                        <td>The runtime and each page&#x27;s script, loaded when its route shows</td>
+                                        <td>The runtime the program reaches for, and each page&#x27;s script, loaded when its route shows</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -360,7 +360,7 @@ Then `wf init my-site`.</code>
 <li><code>hreflang</code> alternates for each locale when the project has several.</li>
 <li><code>&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot;&gt;</code> and no sitemap entry for a <code>noindex: true</code> page.</li>
 </ul>
-<p>A page adds its own tags with <code>head ￾ ￿</code> (<a href="/WebFluent/docs/guide/pages-and-routing#per-page-head-tags">chapter 3</a>).</p>
+<p>A page adds its own tags with <code>head { }</code> (<a href="/WebFluent/docs/guide/pages-and-routing#per-page-head-tags">chapter 3</a>).</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -389,7 +389,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>title:</code> and <code>description:</code> of a <code>:param</code> page are one string for every value, so name the section there (&quot;Blog&quot;) and let the <code>og:title</code> in <code>head ￾ ￿</code> carry each post's own; the runtime keeps the head tags current as the parameter changes.</p>
+<p><code>title:</code> and <code>description:</code> of a <code>:param</code> page are one string for every value, so name the section there (&quot;Blog&quot;) and let the <code>og:title</code> in <code>head { }</code> carry each post's own; the runtime keeps the head tags current as the parameter changes.</p>
                             </div>
                             <h2 class="wf-heading">Code on the page</h2>
                             <div class="wf-markdown">
@@ -419,11 +419,60 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, type: &quot;article&
                                 <code class="wf-code wf-code--block wf-sa8223565">page Media(path: &quot;/&quot;) {
     Image(src: &quot;/hero.jpg&quot;, alt: &quot;The team at the launch&quot;, width: 1200, height: 630)
     Image(src: &quot;/deco.png&quot;, alt: &quot;&quot;)
-    Video(src: &quot;/demo.mp4&quot;, controls: true)
+    Video(src: &quot;/demo.mp4&quot;, captions: &quot;/demo.en.vtt&quot;).controls
+    Audio(src: &quot;/talk.mp3&quot;, transcript: &quot;/talk.txt&quot;).controls
 }</code>
                             </div>
                             <div class="wf-markdown">
 <p>Give every <code>Image</code> an <code>alt:</code> — empty for a decorative one — and a <code>width:</code> and <code>height:</code> where you know them so the layout does not shift; the first image on a page loads eagerly and later ones lazily. Files in <code>public/</code> are served from the root.</p>
+<p>A <code>Video</code> without <code>captions:</code> and an <code>Audio</code> without <code>transcript:</code> each draw an <code>A09</code>: a video nobody can hear is a video nobody can follow. <code>captions:</code> becomes a <code>&lt;track&gt;</code>; <code>transcript:</code> a link beneath the player.</p>
+                            </div>
+                            <h3 class="wf-heading">image: a picture the build processes</h3>
+                            <div class="wf-markdown">
+<p>Naming a picture with <code>image</code> hands the build the file itself:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">image hero = &quot;hero.jpg&quot;
+
+page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The front page.&quot;) {
+    Image(hero, alt: &quot;The team at the launch&quot;,
+          sizes: &quot;(max-width: 768px) 100vw, 1200px&quot;,
+          placeholder: .blur)
+    Text(&quot;It is {hero.width} by {hero.height}, and mostly {hero.color}.&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The build reads its real size and its average colour, writes it again at every width in <code>media.widths</code> smaller than the original, and gives the page a <code>&lt;picture&gt;</code>:</p>
+<ul>
+<li>a <code>&lt;source&gt;</code> per format, each with a <code>srcset</code> of the widths, so the browser picks the one it needs for the space <code>sizes:</code> describes;</li>
+<li><code>width</code> and <code>height</code> from the file, so the box is the right shape before a byte of the image has arrived and <strong>nothing on the page moves</strong>;</li>
+<li>a placeholder in the meantime — <code>.blur</code> inlines a sixteen-pixel-wide copy as a data URI, <code>.color</code> fills the box with the average colour, <code>.none</code> does neither;</li>
+<li>a content hash in every file's name, so a host can cache them forever.</li>
+</ul>
+<p>The name is a value: <code>hero.src</code>, <code>.width</code>, <code>.height</code>, <code>.color</code>, <code>.placeholder</code>, <code>.srcset</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;build&quot;: { &quot;media&quot;: {
+    &quot;formats&quot;: [&quot;webp&quot;],
+    &quot;widths&quot;: [480, 960, 1440, 1920],
+    &quot;quality&quot;: 78,
+    &quot;pipeline&quot;: true
+} } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>pipeline: false</code> copies the file as <code>public/</code> always did. The work is cached in <code>.wf-cache/media/</code>, so a build that changes no image does no image work. A PDF or a slide deck embeds the real picture rather than drawing a box where one should be.</p>
                             </div>
                         </div>
                     </div>

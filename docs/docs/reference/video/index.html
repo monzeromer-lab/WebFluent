@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Components reference">
     <meta name="twitter:description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/video#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference/video","name":"Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/video#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"},{"@type":"ListItem","position":4,"name":"Video","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference/video"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -81,7 +81,7 @@
                             <p class="wf-text pill pill-brand">Media</p>
                         </div>
                         <div class="wf-markdown wf-sa01f76ef">
-<p>Video player.</p>
+<p>Video player. Without <code>captions</code> it draws an <code>A09</code> warning: a video nobody can hear is a video nobody can follow.</p>
                         </div>
                         <code class="wf-code wf-code--block wf-s6f9d6ddc"><span class="wf-tok-name">Video</span>(<span class="wf-tok-prop">src</span>: …, <span class="wf-tok-prop">controls</span>: …, <span class="wf-tok-prop">autoplay</span>: …)</code>
                     </div>
@@ -129,6 +129,51 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <td>poster:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The frame shown before it plays</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>muted:</td>
+                                    <td>Bool</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Start with the sound off</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>loop:</td>
+                                    <td>Bool</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Start again when it ends</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>playsinline:</td>
+                                    <td>Bool</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Play where it sits, rather than full screen</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>captions:</td>
+                                    <td>String</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A WebVTT file of captions, which becomes a <code>&lt;track&gt;</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td>width:</td>
                                     <td>Number</td>
                                     <td>
@@ -169,6 +214,7 @@
                     <div class="wf-stack wf-gap--xs wf-s981f2f27">
                         <p class="wf-text overline">Nearby</p>
                         <a class="wf-link" href="/WebFluent/docs/reference/image">Image</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference/audio">Audio</a>
                         <a class="wf-link" href="/WebFluent/docs/reference/icon">Icon</a>
                         <a class="wf-link" href="/WebFluent/docs/reference/carousel">Carousel</a>
                     </div>

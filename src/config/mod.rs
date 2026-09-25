@@ -2,4 +2,4 @@
 
 pub mod project;
 
-pub use project::ProjectConfig;
+pub use project::{MotionConfig, ProjectConfig, RuntimeMode};

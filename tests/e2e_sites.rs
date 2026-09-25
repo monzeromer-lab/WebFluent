@@ -1032,8 +1032,12 @@ fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
     );
     let root = css.split_once('}').map(|(r, _)| r).unwrap_or("");
     let declared = root.matches("--").count();
+    // `:root` carries the tokens the output names, so this is not the whole
+    // baseline — but it is far more than the handful the theme declares, which
+    // is what would be left if the baseline were replaced rather than layered
+    // under it.
     assert!(
-        declared > 50,
+        declared > 40,
         "only {declared} tokens reached :root — the baseline was not layered under the theme"
     );
 }

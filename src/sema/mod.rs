@@ -113,6 +113,8 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -437,6 +439,37 @@ impl Checker<'_, '_> {
                     }
                 }
                 Arg::Named(key, value) => {
+                    // An `on*` attribute is script written as data: the one
+                    // place in the output where a value becomes something
+                    // the browser runs. It is never an attribute here.
+                    if is_event_attribute(key) {
+                        self.error(
+                            at,
+                            format!("`{key}` on {name} would put script in an attribute"),
+                            &format!(
+                                "Write the handler instead: `{name}(…) {{ on {} {{ … }} }}`",
+                                key.trim_start_matches("on")
+                            ),
+                        );
+                        continue;
+                    }
+                    // A literal where the browser will follow it: checked
+                    // where it is written, so a `javascript:` URL never
+                    // reaches the output. A value only known at run time is
+                    // checked by `WF.safeUrl` at the moment it is used.
+                    if let Expr::StringLiteral(text) = value
+                        && crate::codegen::url::URL_ATTRS.contains(&key.as_str())
+                        && !crate::codegen::url::is_safe(text)
+                    {
+                        self.error(
+                            at,
+                            format!(
+                                "`{key}` on {name} names the `{}` scheme, which a browser runs",
+                                crate::codegen::url::scheme_of(text).unwrap_or_default()
+                            ),
+                            "A URL here may be relative, or name http, https, mailto, tel, sms or ftp",
+                        );
+                    }
                     let Some(prop) = sig.prop(key) else {
                         if !sig.accepts_named(key) {
                             self.warning(
@@ -771,6 +804,8 @@ pub fn lower(mut program: Program) -> Program {
             Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -1286,11 +1321,140 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
         (_, Some(sig)) => lower_builtin(el, sig),
         _ => {}
     }
+    lower_enter_view(el);
+    lower_opener(el);
+    lower_mount_timing(el);
     lower_action_shorthand(el);
 
     lower_statements(&mut el.children, user);
     for fill in &mut el.slot_fills {
         lower_statements(&mut fill.body, user);
+    }
+}
+
+/// A link that opens elsewhere hands the page it opens a handle on this
+/// one — `window.opener`, which can navigate it away to anywhere. Nothing
+/// wants that, so a `target:` brings `rel="noopener noreferrer"` with it
+/// unless the author wrote a `rel` of their own.
+fn lower_opener(el: &mut UIElement) {
+    let named = |key: &str| {
+        el.args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == key))
+    };
+    if !named("target") || named("rel") || !(named("href") || named("to")) {
+        return;
+    }
+    let span = el.arg_spans.last().copied().unwrap_or(el.span);
+    el.args.push(Arg::Named(
+        "rel".to_string(),
+        Expr::StringLiteral("noopener noreferrer".to_string()),
+    ));
+    el.arg_spans.push(span);
+}
+
+/// An enter animation an element plays where it stands is a stylesheet
+/// rule — a class — and its timing has to be one too, or `sequence`'s
+/// delays and a `duration:` beside a `.fadeIn` would be markers nothing
+/// reads until JavaScript has run. Written as style properties they are
+/// in the static paint, which is where the animation starts.
+fn lower_mount_timing(el: &mut UIElement) {
+    let plays_here = el
+        .modifiers
+        .iter()
+        .any(|m| crate::themes::prune::ANIMATIONS.contains(&m.as_str()))
+        || el
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "data-wf-animate"));
+    if !plays_here {
+        return;
+    }
+    let mut added: Vec<StyleProperty> = Vec::new();
+    for arg in &el.args {
+        let Arg::Named(key, Expr::StringLiteral(value)) = arg else {
+            continue;
+        };
+        let property = match key.as_str() {
+            "data-wf-delay" => "animation-delay",
+            "data-wf-duration" => "animation-duration",
+            "data-wf-easing" => "animation-timing-function",
+            _ => continue,
+        };
+        added.push(StyleProperty {
+            name: property.to_string(),
+            value: Expr::StringLiteral(value.clone()),
+            span: el.span,
+            value_span: el.span,
+        });
+    }
+    if added.is_empty() {
+        return;
+    }
+    let block = el.style_block.get_or_insert_with(|| StyleBlock {
+        properties: Vec::new(),
+        media_queries: Vec::new(),
+        pseudo_blocks: Vec::new(),
+        body_span: el.span,
+    });
+    // What the author wrote themselves stays: this only fills the gaps.
+    for property in added {
+        if !block.properties.iter().any(|p| p.name == property.name) {
+            block.properties.push(property);
+        }
+    }
+}
+
+/// An element that waits to be scrolled to does not carry its animation as
+/// a class: the class plays at the first paint, which is the one moment
+/// `on: .enterView` says it should not. The name moves to `data-wf-enter`,
+/// where `WF.onEnterView` reads it and nothing else does.
+fn lower_enter_view(el: &mut UIElement) {
+    let waits = el.args.iter().any(|a| {
+        matches!(a, Arg::Named(k, Expr::EnumCase(c) | Expr::StringLiteral(c))
+            if k == "on" && c == "enterView")
+    }) || el.modifiers.iter().any(|m| m == "enterView");
+    if !waits {
+        return;
+    }
+    let mut enter: Option<String> = None;
+    let keep: Vec<bool> = el
+        .modifiers
+        .iter()
+        .map(|m| {
+            if enter.is_none() && crate::themes::prune::ANIMATIONS.contains(&m.as_str()) {
+                enter = Some(m.clone());
+                return false;
+            }
+            true
+        })
+        .collect();
+    retain_by(&mut el.modifiers, &keep);
+    retain_by(&mut el.modifier_spans, &keep);
+    let keep: Vec<bool> = el
+        .args
+        .iter()
+        .map(|a| match a {
+            Arg::Named(k, Expr::EnumCase(c) | Expr::StringLiteral(c))
+                if k == "animate" || k == "data-wf-animate" =>
+            {
+                if enter.is_none() {
+                    enter = Some(c.clone());
+                }
+                false
+            }
+            _ => true,
+        })
+        .collect();
+    retain_by(&mut el.args, &keep);
+    retain_by(&mut el.arg_spans, &keep);
+    if let Some(name) = enter {
+        let span = el.arg_spans.last().copied().unwrap_or_default();
+        el.args.push(Arg::Named(
+            "data-wf-enter".to_string(),
+            Expr::StringLiteral(name),
+        ));
+        el.arg_spans.push(span);
     }
 }
 
@@ -1352,6 +1516,17 @@ fn is_action_statement(stmt: &Statement) -> bool {
         }
         _ => false,
     }
+}
+
+/// Whether `key` is an `on*` attribute — the shape of every inline
+/// handler a browser accepts, including the ones that do not exist yet.
+fn is_event_attribute(key: &str) -> bool {
+    let lower = key.to_ascii_lowercase();
+    lower.len() > 2
+        && lower.starts_with("on")
+        && lower[2..].chars().all(|c| c.is_ascii_alphabetic())
+        // `once:` is a word, not a handler; so is `only`.
+        && !matches!(lower.as_str(), "once" | "only" | "onto")
 }
 
 fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
@@ -1792,10 +1967,7 @@ mod tests {
             panic!("{:?}", page.body[1].kind)
         };
         let anim = i.animate.as_ref().unwrap();
-        assert_eq!(
-            anim.easing.as_deref(),
-            Some("cubic-bezier(0.175, 0.885, 0.32, 1.275)")
-        );
+        assert_eq!(anim.easing.as_deref(), Some("var(--ease-spring)"));
         let StatementKind::UIElement(card) = &page.body[2].kind else {
             panic!()
         };

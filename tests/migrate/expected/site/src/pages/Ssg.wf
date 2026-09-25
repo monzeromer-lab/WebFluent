@@ -20,8 +20,8 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
         Spacer
 
         Heading("How It Works").h2
-        Row(gap: .md) {
-            Column(span: 4) {
+        Row(gap: .md).stacks {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("1. Build").h2
@@ -29,7 +29,7 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
                     }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("2. Serve").h2
@@ -37,7 +37,7 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
                     }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("3. Hydrate").h2
@@ -52,8 +52,8 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
         Spacer
 
         Heading("Build Output").h2
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.outlined {
                     Card.Body {
                         Text("SPA (default)").bold
@@ -61,7 +61,7 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.outlined {
                     Card.Body {
                         Text("SSG mode").bold
@@ -120,7 +120,7 @@ page Ssg(path: "/ssg", description: "Pre-render every route to static HTML.", ti
         Heading("Sitemap and robots").h2
         Text("Set meta.site_url and the build also writes sitemap.xml and robots.txt, covering every static route.")
         Spacer.sm
-        Row(gap: .sm) {
+        Row(gap: .sm).stacks {
             Link("Read about search and sharing", to: "/seo")
         }
     }

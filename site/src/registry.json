@@ -49,8 +49,8 @@
    "name": "Row",
    "slug": "row",
    "group": "Layout",
-   "summary": "Horizontal flex layout.",
-   "plain": "Horizontal flex layout.",
+   "summary": "Horizontal flex layout. It stays a row at every width unless `.stacks` or a responsive `direction` says otherwise.",
+   "plain": "Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.",
    "signature": "Row(gap: \u2026, align: \u2026, justify: \u2026) { \u2026 }",
    "block": true,
    "props": [
@@ -68,6 +68,16 @@
      "name": "justify:",
      "type": ".start .center .end .between .around .evenly",
      "meaning": "Main-axis distribution"
+    },
+    {
+     "name": "direction:",
+     "type": ".row .column",
+     "meaning": "Which way its children run; takes a value per breakpoint"
+    },
+    {
+     "name": "stacks:",
+     "type": "Bool",
+     "meaning": "Reflow on a narrow screen: a Row becomes a column, a Grid one column"
     }
    ],
    "flags": [
@@ -80,7 +90,10 @@
     ".baseline",
     ".between",
     ".around",
-    ".evenly"
+    ".evenly",
+    ".row",
+    ".column",
+    ".stacks"
    ],
    "events": [],
    "parts": [],
@@ -102,16 +115,23 @@
    "group": "Layout",
    "summary": "A child of the 12-column grid, spanning `span` columns.",
    "plain": "A child of the 12-column grid, spanning span columns.",
-   "signature": "Column(span: \u2026) { \u2026 }",
+   "signature": "Column(span: \u2026, stacks: \u2026) { \u2026 }",
    "block": true,
    "props": [
     {
      "name": "span:",
      "type": "Number",
      "meaning": "How many of the 12 grid columns to span"
+    },
+    {
+     "name": "stacks:",
+     "type": "Bool",
+     "meaning": "Reflow on a narrow screen: a Row becomes a column, a Grid one column"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".stacks"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -154,6 +174,11 @@
      "name": "justify:",
      "type": ".start .center .end .between .around .evenly",
      "meaning": "Main-axis distribution"
+    },
+    {
+     "name": "stacks:",
+     "type": "Bool",
+     "meaning": "Reflow on a narrow screen: a Row becomes a column, a Grid one column"
     }
    ],
    "flags": [
@@ -166,7 +191,8 @@
     ".baseline",
     ".between",
     ".around",
-    ".evenly"
+    ".evenly",
+    ".stacks"
    ],
    "events": [],
    "parts": [],
@@ -1424,16 +1450,25 @@
    "group": "Form",
    "summary": "Groups controls; `on submit` runs when it is submitted, and the page never navigates away.",
    "plain": "Groups controls; on submit runs when it is submitted, and the page never navigates away.",
-   "signature": "Form(bind: \u2026) { \u2026 }",
+   "signature": "Form(bind: \u2026, show: \u2026) { \u2026 }",
    "block": true,
    "props": [
     {
      "name": "bind:",
      "type": "State",
-     "meaning": "A handle on the form: `form.valid`, `form.values` by field name, `form.reset()`"
+     "meaning": "A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)`"
+    },
+    {
+     "name": "show:",
+     "type": ".onBlur .onSubmit .live",
+     "meaning": "When a `validate` block's message is shown"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".onBlur",
+    ".onSubmit",
+    ".live"
+   ],
    "events": [],
    "parts": [],
    "attributes": [
@@ -1441,6 +1476,80 @@
     "aria",
     "data",
     "form"
+   ],
+   "nearby": [
+    "Input",
+    "Select",
+    "Checkbox",
+    "Radio"
+   ]
+  },
+  {
+   "name": "Textarea",
+   "slug": "textarea",
+   "group": "Form",
+   "summary": "Several lines of text. With `label`, `hint` or `error` it is a labelled field; with `maxLength` it counts what is left.",
+   "plain": "Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.",
+   "signature": "Textarea(bind: \u2026, label: \u2026, hint: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Hint shown while the field is empty"
+    },
+    {
+     "name": "rows:",
+     "type": "Number",
+     "meaning": "How many lines it shows"
+    },
+    {
+     "name": "maxLength:",
+     "type": "Number",
+     "meaning": "The most characters it takes"
+    },
+    {
+     "name": "required:",
+     "type": "Bool",
+     "meaning": "Whether the form refuses to submit without it"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "flags": [
+    ".required",
+    ".disabled"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
    ],
    "nearby": [
     "Input",
@@ -1945,15 +2054,30 @@
    "name": "Image",
    "slug": "image",
    "group": "Media",
-   "summary": "Image; `alt` is required for accessibility (rule A01).",
-   "plain": "Image; alt is required for accessibility (rule A01).",
-   "signature": "Image(src: \u2026, alt: \u2026, width: \u2026)",
+   "summary": "Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.",
+   "plain": "Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.",
+   "signature": "Image(source, src: \u2026, sizes: \u2026, placeholder: \u2026)",
    "block": false,
    "props": [
+    {
+     "name": "source",
+     "type": "Any  (positional)",
+     "meaning": "An `image` the program declares, or a URL"
+    },
     {
      "name": "src:",
      "type": "String",
      "meaning": "Image URL"
+    },
+    {
+     "name": "sizes:",
+     "type": "String",
+     "meaning": "How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px`"
+    },
+    {
+     "name": "placeholder:",
+     "type": ".blur .color .none",
+     "meaning": "What fills the box while the image loads"
     },
     {
      "name": "alt:",
@@ -1982,6 +2106,9 @@
     }
    ],
    "flags": [
+    ".blur",
+    ".color",
+    ".none",
     ".lazy",
     ".eager",
     ".rounded",
@@ -1996,6 +2123,7 @@
    ],
    "nearby": [
     "Video",
+    "Audio",
     "Icon",
     "Carousel"
    ]
@@ -2004,8 +2132,8 @@
    "name": "Video",
    "slug": "video",
    "group": "Media",
-   "summary": "Video player.",
-   "plain": "Video player.",
+   "summary": "Video player. Without `captions` it draws an `A09` warning: a video nobody can hear is a video nobody can follow.",
+   "plain": "Video player. Without captions it draws an A09 warning: a video nobody can hear is a video nobody can follow.",
    "signature": "Video(src: \u2026, controls: \u2026, autoplay: \u2026)",
    "block": false,
    "props": [
@@ -2025,6 +2153,31 @@
      "meaning": "Start playing when shown"
     },
     {
+     "name": "poster:",
+     "type": "String",
+     "meaning": "The frame shown before it plays"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Start with the sound off"
+    },
+    {
+     "name": "loop:",
+     "type": "Bool",
+     "meaning": "Start again when it ends"
+    },
+    {
+     "name": "playsinline:",
+     "type": "Bool",
+     "meaning": "Play where it sits, rather than full screen"
+    },
+    {
+     "name": "captions:",
+     "type": "String",
+     "meaning": "A WebVTT file of captions, which becomes a `<track>`"
+    },
+    {
      "name": "width:",
      "type": "Number",
      "meaning": "Intrinsic width"
@@ -2037,7 +2190,10 @@
    ],
    "flags": [
     ".controls",
-    ".autoplay"
+    ".autoplay",
+    ".muted",
+    ".loop",
+    ".playsinline"
    ],
    "events": [],
    "parts": [],
@@ -2049,6 +2205,61 @@
    ],
    "nearby": [
     "Image",
+    "Audio",
+    "Icon",
+    "Carousel"
+   ]
+  },
+  {
+   "name": "Audio",
+   "slug": "audio",
+   "group": "Media",
+   "summary": "Audio player. `transcript` links what was said, which is what a reader who cannot hear it needs.",
+   "plain": "Audio player. transcript links what was said, which is what a reader who cannot hear it needs.",
+   "signature": "Audio(src: \u2026, controls: \u2026, autoplay: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Audio URL"
+    },
+    {
+     "name": "controls:",
+     "type": "Bool",
+     "meaning": "Show the browser's playback controls"
+    },
+    {
+     "name": "autoplay:",
+     "type": "Bool",
+     "meaning": "Start playing when shown"
+    },
+    {
+     "name": "loop:",
+     "type": "Bool",
+     "meaning": "Start again when it ends"
+    },
+    {
+     "name": "transcript:",
+     "type": "String",
+     "meaning": "A link to what was said, shown beneath the player"
+    }
+   ],
+   "flags": [
+    ".controls",
+    ".autoplay",
+    ".loop"
+   ],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Image",
+    "Video",
     "Icon",
     "Carousel"
    ]
@@ -2105,6 +2316,7 @@
    "nearby": [
     "Image",
     "Video",
+    "Audio",
     "Carousel"
    ]
   },
@@ -2154,6 +2366,7 @@
    "nearby": [
     "Image",
     "Video",
+    "Audio",
     "Icon"
    ]
   },
@@ -2250,7 +2463,7 @@
     "Heading",
     "Code",
     "Markdown",
-    "Blockquote"
+    "Unsafe"
    ]
   },
   {
@@ -2306,7 +2519,7 @@
     "Text",
     "Code",
     "Markdown",
-    "Blockquote"
+    "Unsafe"
    ]
   },
   {
@@ -2348,7 +2561,7 @@
     "Text",
     "Heading",
     "Markdown",
-    "Blockquote"
+    "Unsafe"
    ]
   },
   {
@@ -2378,7 +2591,90 @@
     "Text",
     "Heading",
     "Code",
-    "Blockquote"
+    "Unsafe"
+   ]
+  },
+  {
+   "name": "Host",
+   "slug": "host",
+   "group": "Layout",
+   "summary": "An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.",
+   "plain": "An element handed to somebody else's code, with a lifetime. mount: runs once with the node, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves.",
+   "signature": "Host(mount: \u2026, update: \u2026, cleanup: \u2026)",
+   "block": false,
+   "props": [
+    {
+     "name": "mount:",
+     "type": "Any",
+     "meaning": "`(node) => \u2026` \u2014 run once with the element, giving back whatever the library hands over"
+    },
+    {
+     "name": "update:",
+     "type": "Any",
+     "meaning": "`(handle) => \u2026` \u2014 run again whenever the state it reads changes"
+    },
+    {
+     "name": "cleanup:",
+     "type": "Any",
+     "meaning": "`(handle) => \u2026` \u2014 run when what owns it leaves, so nothing is left behind"
+    },
+    {
+     "name": "tag:",
+     "type": "String",
+     "meaning": "The element to make, `div` by default"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ]
+  },
+  {
+   "name": "Unsafe",
+   "slug": "unsafe",
+   "group": "Typography",
+   "summary": "The one door for markup a page did not write. It has a single part, `Unsafe.Html`.",
+   "plain": "The one door for markup a page did not write. It has a single part, Unsafe.Html.",
+   "signature": "Unsafe",
+   "block": false,
+   "props": [],
+   "flags": [],
+   "events": [],
+   "parts": [
+    {
+     "name": "Unsafe.Html",
+     "signature": "Unsafe.Html(markup)",
+     "summary": "Markup, put in as markup. It is **not** sanitised \u2014 the name says so \u2014 and `sanitize(\u2026)` is one call away for anything the project did not write itself.",
+     "props": [
+      {
+       "name": "markup",
+       "type": "String  (positional)",
+       "meaning": "The HTML to insert"
+      }
+     ],
+     "flags": []
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "nearby": [
+    "Text",
+    "Heading",
+    "Code",
+    "Markdown"
    ]
   },
   {
@@ -2861,12 +3157,12 @@
   "props": [
    {
     "name": "animate:",
-    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin",
+    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse",
     "meaning": "Animation played when the element appears"
    },
    {
     "name": "exit:",
-    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin",
+    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse",
     "meaning": "Animation played when the element leaves"
    },
    {
@@ -2886,13 +3182,28 @@
    },
    {
     "name": "easing:",
-    "type": "String",
-    "meaning": "Timing function of the animation, e.g. `ease-out`"
+    "type": ".standard .spring .ease .easeIn .easeOut .easeInOut .linear .bouncy .smooth",
+    "meaning": "How the animation is paced \u2014 a named easing, or any CSS timing function"
    },
    {
     "name": "stagger:",
     "type": "String",
     "meaning": "Delay added per item of a list, e.g. `50ms`"
+   },
+   {
+    "name": "on:",
+    "type": ".mount .enterView",
+    "meaning": "When its animation plays"
+   },
+   {
+    "name": "count:",
+    "type": "String",
+    "meaning": "How long the number it shows takes to count to a new value, e.g. `600ms`"
+   },
+   {
+    "name": "shared:",
+    "type": "String",
+    "meaning": "A name this element keeps across a route change, so the browser carries it from one page to the next"
    },
    {
     "name": "class:",
@@ -2990,5 +3301,5 @@
   "sun",
   "moon"
  ],
- "count": 62
+ "count": 66
 }

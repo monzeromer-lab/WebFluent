@@ -65,6 +65,8 @@ pub fn lint_accessibility_in(
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -73,6 +75,164 @@ pub fn lint_accessibility_in(
     }
 
     warnings.extend(lint_seo(program, file_of));
+    warnings.extend(lint_persistence(program, file_of));
+    warnings.extend(lint_unsafe(program, file_of));
+    warnings
+}
+
+/// Every place markup a page did not write goes in as markup.
+///
+/// It is not a mistake — there is no other way to render a CMS's HTML —
+/// but it is the one place in the output where a string becomes structure,
+/// so every one of them is named in the build, not only greppable.
+fn lint_unsafe(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
+    fn walk(body: &[Statement], file: &str, out: &mut Vec<A11yWarning>) {
+        for stmt in body {
+            match &stmt.kind {
+                StatementKind::UIElement(el) => {
+                    // Written `Unsafe.Html`; lowered to the built-in the
+                    // code generators know it by.
+                    let door = matches!(&el.component, ComponentRef::SubComponent(owner, _) if owner == "Unsafe")
+                        || matches!(&el.component, ComponentRef::BuiltIn(n) if n == "UnsafeHtml");
+                    if door {
+                        let sanitised = el.args.iter().any(|a| {
+                            matches!(a, Arg::Positional(Expr::FunctionCall(f, _)) if f == "sanitize")
+                        });
+                        out.push(A11yWarning::new(
+                            "V03",
+                            "`Unsafe.Html` puts markup in as markup".to_string(),
+                            file,
+                            el.span.line as usize,
+                            el.span.col as usize,
+                            if sanitised {
+                                "It goes through `sanitize`, so this is the reviewed case — keep it that way"
+                            } else {
+                                "Anything the project did not write itself belongs in `sanitize(…)` first"
+                            },
+                        ));
+                    }
+                    walk(&el.children, file, out);
+                    for fill in &el.slot_fills {
+                        walk(&fill.body, file, out);
+                    }
+                }
+                StatementKind::If(i) => {
+                    walk(&i.then_body, file, out);
+                    for (_, b) in &i.else_if_branches {
+                        walk(b, file, out);
+                    }
+                    if let Some(b) = &i.else_body {
+                        walk(b, file, out);
+                    }
+                }
+                StatementKind::For(f) => walk(&f.body, file, out),
+                StatementKind::Show(s) => walk(&s.body, file, out),
+                StatementKind::Match(m) => {
+                    for arm in &m.arms {
+                        walk(&arm.body, file, out);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    let mut out = Vec::new();
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let file = file_of(index);
+        match decl {
+            Declaration::Page(page) => walk(&page.body, &file, &mut out),
+            Declaration::Component(c) => walk(&c.body, &file, &mut out),
+            Declaration::App(a) => walk(&a.body, &file, &mut out),
+            _ => {}
+        }
+    }
+    out
+}
+
+/// What a value kept in the browser's storage says about itself.
+///
+/// A version is a promise that a value an older build wrote still means
+/// something. These two find the places where the promise is not kept.
+fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
+    let mut warnings = Vec::new();
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let file = file_of(index);
+        let (body, route_scoped): (&[Statement], bool) = match decl {
+            Declaration::Store(store) => (
+                &store.body,
+                store.scope == crate::parser::ast::StoreScope::Route,
+            ),
+            Declaration::Page(page) => (&page.body, false),
+            Declaration::Component(component) => (&component.body, false),
+            _ => continue,
+        };
+        for stmt in body {
+            let StatementKind::State(state) = &stmt.kind else {
+                continue;
+            };
+            let (line, col) = (stmt.span.line as usize, stmt.span.col as usize);
+            // P03: the two say opposite things. A `.route` store is
+            // dropped when the route changes, and the next read builds it
+            // again — which reads the persisted value straight back, so
+            // the value outlives the route that was supposed to own it.
+            if route_scoped && state.persist {
+                warnings.push(A11yWarning::new(
+                    "P03",
+                    format!(
+                        "`{}` is persisted in a store scoped to the route",
+                        state.name
+                    ),
+                    &file,
+                    line,
+                    col,
+                    "The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it",
+                ));
+            }
+            let Some(policy) = &state.policy else {
+                continue;
+            };
+            let version = policy.version.unwrap_or(0);
+            // P02: a step that never runs.
+            for step in &policy.migrations {
+                if step.to > version {
+                    warnings.push(A11yWarning::new(
+                        "P02",
+                        format!(
+                            "`migrate {} -> {}` on `{}` is past the declared version",
+                            step.from, step.to, state.name
+                        ),
+                        &file,
+                        line,
+                        col,
+                        if version == 0 {
+                            "Declare the version this build writes: `version: 2`"
+                        } else {
+                            "A step above `version:` never runs; raise the version or drop the step"
+                        },
+                    ));
+                }
+            }
+            // P01: a gap in the chain, so a value from that version is lost.
+            for at in 1..version {
+                if !policy.migrations.iter().any(|m| m.from == at) {
+                    warnings.push(A11yWarning::new(
+                        "P01",
+                        format!(
+                            "`{}` is at version {version}, and nothing brings version {at} forward",
+                            state.name
+                        ),
+                        &file,
+                        line,
+                        col,
+                        format!(
+                            "A reader who last visited then loses what they had. Add `migrate {at} -> {}`",
+                            at + 1
+                        ),
+                    ));
+                }
+            }
+        }
+    }
     warnings
 }
 
@@ -419,7 +579,7 @@ fn lint_ui_element(
             }
 
             // A04: Form control missing label
-            "Checkbox" | "Radio" | "Switch" | "Slider" => {
+            "Checkbox" | "Radio" | "Switch" | "Slider" | "Textarea" => {
                 if !has_accessible_name(&ui.args) {
                     warnings.push(A11yWarning::new(
                         "A04",
@@ -555,7 +715,7 @@ fn lint_ui_element(
                 }
             }
 
-            // A09: Video missing controls
+            // A09: Video missing controls, or captions
             "Video" => {
                 if !has_named_arg(&ui.args, "controls")
                     && !ui.modifiers.contains(&"controls".to_string())
@@ -567,6 +727,42 @@ fn lint_ui_element(
                         line,
                         col,
                         "Add controls: Video(src: \"...\", controls: true)",
+                    ));
+                }
+                // A video nobody can hear is a video nobody can follow.
+                if !has_named_arg(&ui.args, "captions") {
+                    warnings.push(A11yWarning::new(
+                        "A09",
+                        "Video missing \"captions\"",
+                        file,
+                        line,
+                        col,
+                        "Add captions: Video(src: \"...\", captions: \"/captions.en.vtt\")",
+                    ));
+                }
+            }
+            // The same for sound: what was said, in writing.
+            "Audio" => {
+                if !has_named_arg(&ui.args, "controls")
+                    && !ui.modifiers.contains(&"controls".to_string())
+                {
+                    warnings.push(A11yWarning::new(
+                        "A09",
+                        "Audio missing \"controls\" attribute",
+                        file,
+                        line,
+                        col,
+                        "Add controls: Audio(src: \"...\", controls: true)",
+                    ));
+                }
+                if !has_named_arg(&ui.args, "transcript") {
+                    warnings.push(A11yWarning::new(
+                        "A09",
+                        "Audio missing \"transcript\"",
+                        file,
+                        line,
+                        col,
+                        "Add a transcript: Audio(src: \"...\", transcript: \"/talk.txt\")",
                     ));
                 }
             }

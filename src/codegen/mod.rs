@@ -14,7 +14,9 @@
 //! what a `Card` or a `Heading` is.
 
 pub mod builtin;
+pub mod csp;
 pub mod css;
+pub mod elements;
 pub mod format;
 pub mod gzip;
 pub mod highlight;
@@ -25,6 +27,7 @@ pub mod minify;
 pub mod node_id;
 pub mod pdf;
 pub mod project_css;
+pub mod sanitize;
 pub mod scoped_css;
 pub mod seo;
 pub mod slides;
@@ -32,6 +35,7 @@ pub mod ssg;
 pub mod static_eval;
 pub mod style;
 pub mod style_tokens;
+pub mod url;
 
 #[allow(unused_imports)]
 pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};

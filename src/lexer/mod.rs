@@ -11,5 +11,5 @@ pub mod token;
 pub mod v2;
 
 pub use lexer::Lexer;
-pub use token::{Token, TokenType};
+pub use token::{StringKind, StringLit, Token, TokenType};
 pub use v2::LexerV2;

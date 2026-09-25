@@ -52,15 +52,17 @@ const BUILTIN_COMPONENTS = [
   "Avatar", "Tooltip", "Tag",
   // Data input
   "Input", "Select", "Option", "Checkbox", "Radio", "Switch", "Slider",
-  "DatePicker", "FileUpload", "Form",
+  "DatePicker", "FileUpload", "Form", "Textarea",
   // Feedback
   "Alert", "Toast", "Modal", "Dialog", "Spinner", "Progress", "Skeleton",
   // Actions
   "Button", "IconButton", "ButtonGroup", "Dropdown",
   // Media
-  "Image", "Video", "Icon", "Carousel",
+  "Image", "Video", "Audio", "Icon", "Carousel",
   // Typography
-  "Text", "Heading", "Code", "Blockquote", "Markdown",
+  "Text", "Heading", "Code", "Blockquote", "Markdown", "Unsafe",
+  // A node handed to somebody else's code.
+  "Host",
   // Document (PDF)
   "Document", "Section", "Paragraph", "PageBreak", "Header", "Footer",
   // Slides
@@ -120,6 +122,7 @@ module.exports = grammar({
   externals: ($) => [$.style_text, $._indent, $._dedent, $._layout, "{", "}"],
 
   conflicts: ($) => [
+    [$.state_declaration],
     // `Button("x", aria-pressed: on)` versus `Text(a - b)`: after the first
     // word both an attribute name and a subtraction are open until the `:`.
     [$.attribute_name, $._primary_expression],
@@ -154,6 +157,7 @@ module.exports = grammar({
         $.page_declaration,
         $.component_declaration,
         $.store_declaration,
+        $.external_declaration,
         $.theme_declaration,
         $.app_declaration,
         $.type_declaration,
@@ -220,8 +224,61 @@ module.exports = grammar({
         field("body", $.block),
       ),
 
+    // `external Chart from "chart.js" { fn … type … }`, and
+    // `external element Stripe("stripe-pricing-table") { prop … event … }`.
+    external_declaration: ($) =>
+      seq(
+        "external",
+        optional("element"),
+        field("name", $._name),
+        choice(
+          seq("from", field("from", $.string)),
+          seq("(", field("tag", $.string), ")"),
+        ),
+        optional(field("body", $.external_body)),
+      ),
+
+    external_body: ($) =>
+      braced(
+        $,
+        repeat(
+          choice(
+            $.external_fn,
+            $.external_type,
+            $.external_prop,
+            $.event_declaration,
+            seq("integrity", ":", $.string),
+          ),
+        ),
+      ),
+
+    external_fn: ($) =>
+      seq(
+        "fn",
+        field("name", $._name),
+        optional(field("parameters", $.parameter_list)),
+        optional(seq("-", ">", field("returns", $._type))),
+      ),
+
+    external_type: ($) =>
+      seq(
+        "type",
+        field("name", $._name),
+        braced($, repeat(seq(choice($.external_member, $.parameter), optional(",")))),
+      ),
+
+    external_member: ($) => seq(field("name", $._name), field("parameters", $.parameter_list)),
+
+    external_prop: ($) => seq("prop", $.parameter),
+
     store_declaration: ($) =>
-      seq("store", field("name", $._name), field("body", $.block)),
+      seq(
+        "store",
+        field("name", $._name),
+        // `store Cart(scope: .route, eager: true)`
+        optional(field("options", $.arguments)),
+        field("body", $.block),
+      ),
 
     theme_declaration: ($) =>
       seq("theme", field("name", $._name), field("body", $.theme_body)),
@@ -248,6 +305,15 @@ module.exports = grammar({
 
     // `expect "text"`, `expect not "text"` — inside a test.
     expect_statement: ($) => seq("expect", optional("not"), field("text", $._expression)),
+
+    // What a test does, as against what it then expects: `click "Save"`,
+    // `type "Ada" into "Name"`, `press "Escape" in "Search"`.
+    act_statement: ($) =>
+      choice(
+        seq("click", field("target", $._expression)),
+        seq("type", field("text", $.string), "into", field("into", $._expression)),
+        seq("press", field("key", $._expression), optional(seq("in", field("target", $._expression)))),
+      ),
 
     // `color-primary: #6366F1` — a raw CSS value.
     token_declaration: ($) =>
@@ -334,11 +400,13 @@ module.exports = grammar({
         $.cleanup_block,
         $.head_block,
         $.expect_statement,
+        $.act_statement,
         $.let_declaration,
         $.try_statement,
         $.if_statement,
         $.for_statement,
         $.show_statement,
+        $.sequence_statement,
         $.match_statement,
         $.navigate_statement,
         $.log_statement,
@@ -355,7 +423,9 @@ module.exports = grammar({
         $.expression_statement,
       ),
 
-    // `state n = 0`; `persist theme = "light"` is kept across visits.
+    // `state n = 0`; `persist theme = "light"` is kept across visits, and
+    // may say where, at what version, and how an older value is brought
+    // forward.
     state_declaration: ($) =>
       seq(
         choice("state", "persist"),
@@ -363,6 +433,26 @@ module.exports = grammar({
         optional(seq(":", field("type", $._type))),
         "=",
         field("value", $._expression),
+        // Only a `persist` carries one, and the parser knows it from the
+        // keyword; here it is the brace that follows the value.
+        optional(field("policy", $.persist_policy)),
+      ),
+
+    persist_policy: ($) =>
+      braced($, repeat(choice($.persist_option, $.migration))),
+
+    persist_option: ($) =>
+      seq(field("name", $.identifier), ":", field("value", $._expression)),
+
+    // `migrate 1 -> 2 { old.map(…) }`
+    migration: ($) =>
+      seq(
+        "migrate",
+        field("from", $.number),
+        "-",
+        ">",
+        field("to", $.number),
+        braced($, $._expression),
       ),
 
     derived_declaration: ($) =>
@@ -480,6 +570,17 @@ module.exports = grammar({
 
     show_statement: ($) =>
       seq("show", field("condition", $._expression), field("body", $.block)),
+
+    // `sequence { step { … } step(after: "120ms") { … } }` — orchestration,
+    // which the compiler lowers to a `delay:` on each step's elements.
+    sequence_statement: ($) => seq("sequence", braced($, repeat($.step))),
+
+    step: ($) =>
+      seq(
+        "step",
+        optional(seq("(", "after", ":", field("after", $.string), ")")),
+        field("body", $.block),
+      ),
 
     // `match users { loading { } error(e) { } ready(list) { } else { } }`
     match_statement: ($) =>
@@ -622,7 +723,10 @@ module.exports = grammar({
     // `padding: 6px 0`, `--accent: {color}`, `background: $surface;`
     style_property: ($) =>
       seq(
-        field("name", choice($.property_name, $.custom_property_name)),
+        field(
+          "name",
+          choice($.property_name, $.vendor_property_name, $.custom_property_name),
+        ),
         ":",
         field("value", $.style_value),
         optional(";"),
@@ -646,6 +750,11 @@ module.exports = grammar({
         $.identifier,
         repeat(seq("-", choice($.identifier, seq($.number, optional($.identifier))))),
       ),
+
+    // `-webkit-line-clamp`, `-moz-osx-font-smoothing` — a vendor prefix is
+    // a property name that opens with a `-`, which is otherwise a
+    // separator between two words of one.
+    vendor_property_name: (_) => token(seq("-", /[a-zA-Z][a-zA-Z0-9_-]*/)),
 
     // `--hover-bg: hoverColor` — a custom property a nested rule can read.
     custom_property_name: (_) => token(seq("--", /[a-zA-Z_][a-zA-Z0-9_-]*/)),
@@ -869,11 +978,38 @@ module.exports = grammar({
 
     // ─── Literals ───────────────────────────────────────────────────────
 
-    string: ($) =>
+    string: ($) => choice($._quoted_string, $.raw_string, $.block_string),
+
+    _quoted_string: ($) =>
       seq(
         '"',
         repeat(choice($.string_content, $.escape_sequence, $.interpolation)),
         choice('"', alias(token.immediate(/\{"/), '"')),
+      ),
+
+    // `#"…"#`, with as many `#` as the text needs: no escapes, no splices,
+    // so a sample of code goes in whole. One token, since what ends it is
+    // the run of hashes it opened with.
+    raw_string: (_) =>
+      token(
+        choice(
+          seq('#"', repeat(choice(/[^"]/, /"[^#]/)), '"#'),
+          seq('##"', repeat(choice(/[^"]/, /"[^#]/, /"#[^#]/)), '"##'),
+        ),
+      ),
+
+    // `"""…"""` — escapes and splices, over as many lines as it likes.
+    block_string: ($) =>
+      seq(
+        '"""',
+        repeat(choice($.block_string_content, $.escape_sequence, $.interpolation)),
+        '"""',
+      ),
+
+    block_string_content: (_) =>
+      choice(
+        token.immediate(prec(1, /([^"\\{]|"[^"]|""[^"])+/)),
+        token.immediate(/\{[^a-zA-Z_"\\{\[(]/),
       ),
 
     // A `{` opens an interpolation only when a name, a `[` or a `(` follows
@@ -890,7 +1026,17 @@ module.exports = grammar({
     // Its braces are the grammar's own tokens, not the scanner's: inside a
     // string or a style value they are not the writer's block braces.
     interpolation: ($) =>
-      seq(alias(/\{/, "{"), $._expression, alias(/\}/, "}")),
+      seq(alias(/\{/, "{"), $._expression, optional($.format_spec), alias(/\}/, "}")),
+
+    // `{total:.currency}`, `{when:.date(long)}` — how to show the value,
+    // written where it is read.
+    format_spec: ($) =>
+      seq(
+        ":",
+        ".",
+        field("style", $.identifier),
+        optional(seq("(", field("option", choice($.identifier, $.number, $.string)), ")")),
+      ),
 
     number: (_) => /\d+(\.\d+)?/,
 

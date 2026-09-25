@@ -95,7 +95,7 @@ fn flags_and_named_cases_are_the_same_props() {
             Spacer.lg
             Alert("Careful").warning
             Icon("home").lg.muted
-            Row(gap: .md, align: .center, justify: .between) { Text("a") }
+            Row(gap: .md, align: .center, justify: .between).stacks { Text("a") }
         }"#,
     );
 }

@@ -381,7 +381,7 @@ pub fn is_dom_event(name: &str) -> bool {
 mod tests {
     #[test]
     fn the_icon_list_is_the_runtimes() {
-        let runtime = include_str!("../runtime/runtime.js");
+        let runtime = include_str!("../runtime/modules/icons.js");
         let start = runtime.find("const _ICONS = {").expect("the icon table");
         let end = runtime[start..].find("\n  };").expect("its end") + start;
         let mut drawn: Vec<&str> = runtime[start..end]

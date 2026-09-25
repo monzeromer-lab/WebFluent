@@ -23,6 +23,10 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
     match name {
         // ─── Layout ──────────────────────────────────────
         "Container" => ("div", "wf-container"),
+        // A node handed to somebody else's code.
+        "Host" => ("div", "wf-host"),
+        // `Unsafe.html(markup)`: the one element whose content is markup.
+        "UnsafeHtml" => ("div", "wf-html"),
         "Row" => ("div", "wf-row"),
         "Column" => ("div", "wf-col"),
         "Grid" => ("div", "wf-grid"),
@@ -65,6 +69,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Slider" => ("div", "wf-slider"),
         "DatePicker" => ("div", "wf-datepicker"),
         "FileUpload" => ("div", "wf-file-upload"),
+        "Textarea" => ("textarea", "wf-input wf-textarea"),
         "Form" => ("form", "wf-form"),
 
         // ─── Feedback ────────────────────────────────────
@@ -89,6 +94,7 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         // ─── Media ───────────────────────────────────────
         "Image" => ("img", "wf-image"),
         "Video" => ("video", "wf-video"),
+        "Audio" => ("audio", "wf-audio"),
         "Icon" => ("i", "wf-icon"),
         "Carousel" => ("div", "wf-carousel"),
 
@@ -133,7 +139,10 @@ pub fn easing_css(name: &str) -> &str {
         "easeIn" => "ease-in",
         "easeOut" => "ease-out",
         "easeInOut" => "ease-in-out",
-        "spring" => "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        // The named easings are design tokens, so a theme retunes them
+        // once and every animation follows.
+        "spring" => "var(--ease-spring)",
+        "standard" => "var(--ease-standard)",
         "bouncy" => "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
         "smooth" => "cubic-bezier(0.4, 0, 0.2, 1)",
         other => other,
@@ -154,6 +163,11 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "danger" => format!("{}--danger", base_class),
         "warning" => format!("{}--warning", base_class),
         "info" => format!("{}--info", base_class),
+
+        // A layout that asks to reflow on a narrow screen. One class,
+        // shared by every layout, because the rule is the same for all of
+        // them and a reader of the sheet should see it once.
+        "stacks" => "wf-stacks".to_string(),
 
         // ─── Shape ───────────────────────────────────────
         "rounded" => format!("{}--rounded", base_class),
@@ -214,7 +228,9 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         // Pure CSS keyframes, so they apply in static output too. The template
         // renderer used to drop them on the grounds that it emits no JS.
         "fadeIn" | "fadeOut" | "slideUp" | "slideDown" | "slideLeft" | "slideRight" | "scaleIn"
-        | "scaleOut" | "bounce" | "shake" | "pulse" | "spin" => format!("wf-animate-{}", modifier),
+        | "scaleOut" | "bounce" | "shake" | "pulse" | "spin" | "expand" | "collapse" => {
+            format!("wf-animate-{}", modifier)
+        }
         "fast" => "wf-animate--fast".to_string(),
         "slow" => "wf-animate--slow".to_string(),
 
@@ -325,6 +341,26 @@ pub fn element_tag(name: &str, modifiers: &[String]) -> &'static str {
         // the emitter cannot see the enclosing Thead.
         "Tcell" if modifiers.iter().any(|m| m == "header") => "th",
         _ => builtin_to_html(name).0,
+    }
+}
+
+/// The element a `Host(tag: "…")` is made of.
+///
+/// An allow-list, not the author's string: the tag is written into the
+/// document, and a library asking for a `canvas` or an `svg` is the whole
+/// of what this is for. Anything else is a `div`, which is what it was.
+pub fn host_tag(named: Option<&str>) -> &'static str {
+    match named.unwrap_or("div") {
+        "span" => "span",
+        "canvas" => "canvas",
+        "svg" => "svg",
+        "section" => "section",
+        "figure" => "figure",
+        "pre" => "pre",
+        "p" => "p",
+        "ul" => "ul",
+        "table" => "table",
+        _ => "div",
     }
 }
 

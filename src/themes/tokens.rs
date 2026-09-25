@@ -57,6 +57,17 @@ pub fn default_tokens() -> HashMap<String, String> {
         "font-size-3xl".into(),
         "clamp(1.75rem, 1.38rem + 1.88vw, 2.5rem)".into(),
     );
+    // The easings a design names, so a project says `easing: $ease-spring`
+    // rather than repeating a curve. `linear(…)` is how a spring is
+    // written as an easing function: it overshoots and settles, which no
+    // cubic Bézier can say.
+    t.insert("ease-standard".into(), "cubic-bezier(0.2, 0, 0, 1)".into());
+    t.insert("ease-out".into(), "cubic-bezier(0, 0, 0.2, 1)".into());
+    t.insert("ease-in".into(), "cubic-bezier(0.4, 0, 1, 1)".into());
+    t.insert(
+        "ease-spring".into(),
+        "linear(0, 0.006, 0.079, 0.234, 0.44, 0.652, 0.828, 0.947, 1.008, 1.025, 1.016, 1)".into(),
+    );
     t.insert("font-weight-normal".into(), "400".into());
     t.insert("font-weight-medium".into(), "500".into());
     t.insert("font-weight-bold".into(), "700".into());

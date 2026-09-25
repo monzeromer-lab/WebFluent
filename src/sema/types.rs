@@ -58,6 +58,100 @@ pub enum Type {
     Resource(Box<Type>),
     /// A store brought into scope with `use`.
     Store(String),
+    /// A type the language knows and the program did not declare: a date,
+    /// a duration, money, a URL. Each is a plain JSON value at run time.
+    Scalar(Scalar),
+    /// A service declared with `api`.
+    Api(String),
+    /// What a request can fail with: `.offline`, `.timeout`, `.aborted`,
+    /// `.parse`, `.network`, `.status(code, body)` — matched like an enum,
+    /// and read like a record.
+    NetError,
+}
+
+/// The types the language brings with it.
+///
+/// Each is carried by a plain JSON value — a string, a number, a small map
+/// — so it crosses `fetch`, `persist`, the static paint and the template
+/// engine unchanged, and a library that wants the platform's own object
+/// gets one from `.native()`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Scalar {
+    /// `"2026-03-14"`.
+    Date,
+    /// `"09:30"`, or `"09:30:15"`.
+    Time,
+    /// ISO 8601: `"2026-03-14T09:30:00Z"`.
+    DateTime,
+    /// Milliseconds.
+    Duration,
+    /// `{ amount: 1299, currency: "EUR" }` — minor units, so no float drift.
+    Money,
+    /// An absolute URL.
+    Url,
+    /// An address.
+    Email,
+    /// `"#0F766E"`, or any CSS colour.
+    Color,
+    /// `"3f2b…"` — the canonical 8-4-4-4-12 spelling.
+    Uuid,
+    /// What a `FileUpload` yields: the browser's own `File`.
+    File,
+    /// A string that must not be persisted, logged, put in a URL or shown.
+    Secret,
+}
+
+impl Scalar {
+    /// The name it is written with.
+    pub fn name(self) -> &'static str {
+        match self {
+            Scalar::Date => "Date",
+            Scalar::Time => "Time",
+            Scalar::DateTime => "DateTime",
+            Scalar::Duration => "Duration",
+            Scalar::Money => "Money",
+            Scalar::Url => "Url",
+            Scalar::Email => "Email",
+            Scalar::Color => "Color",
+            Scalar::Uuid => "Uuid",
+            Scalar::File => "File",
+            Scalar::Secret => "Secret",
+        }
+    }
+
+    /// The type that name means, when the program declares no type of its own.
+    pub fn of_name(name: &str) -> Option<Scalar> {
+        Some(match name {
+            "Date" => Scalar::Date,
+            "Time" => Scalar::Time,
+            "DateTime" => Scalar::DateTime,
+            "Duration" => Scalar::Duration,
+            "Money" => Scalar::Money,
+            "Url" => Scalar::Url,
+            "Email" => Scalar::Email,
+            "Color" => Scalar::Color,
+            "Uuid" => Scalar::Uuid,
+            "File" => Scalar::File,
+            "Secret" => Scalar::Secret,
+            _ => return None,
+        })
+    }
+
+    /// Whether a string carries it, so a literal may be read as one and the
+    /// value shown wherever text is shown.
+    pub fn is_text(self) -> bool {
+        matches!(
+            self,
+            Scalar::Date
+                | Scalar::Time
+                | Scalar::DateTime
+                | Scalar::Url
+                | Scalar::Email
+                | Scalar::Color
+                | Scalar::Uuid
+                | Scalar::Secret
+        )
+    }
 }
 
 impl Type {
@@ -71,6 +165,8 @@ impl Type {
             TypeRef::List(inner) => Type::List(Box::new(Type::from_ref(inner))),
             TypeRef::Optional(inner) => Type::Optional(Box::new(Type::from_ref(inner))),
             TypeRef::Named(name) => Type::Record(name.clone()),
+            // A condition narrows the values, not the type.
+            TypeRef::Refined(inner, _) => Type::from_ref(inner),
         }
     }
 
@@ -117,6 +213,12 @@ impl Type {
                     .is_none_or(|(_, wanted)| ty.assignable_to(wanted))
             }),
             (Type::Func(..), Type::Func(..)) => true,
+            // A scalar is a plain value at run time, so it shows wherever
+            // text shows — except a `Secret`, which must not be shown at
+            // all, and `Duration`, which is a number of milliseconds.
+            (Type::Scalar(s), Type::String) => s.is_text() && *s != Scalar::Secret,
+            (Type::Scalar(Scalar::Duration), Type::Number) => true,
+            (Type::Number, Type::Scalar(Scalar::Duration)) => true,
             (Type::Resource(a), Type::Resource(b)) => a.assignable_to(b),
             (a, b) => a == b,
         }
@@ -185,6 +287,9 @@ impl std::fmt::Display for Type {
                 }
             }
             Type::Resource(inner) => write!(f, "resource<{inner}>"),
+            Type::Scalar(s) => write!(f, "{}", s.name()),
+            Type::Api(name) => write!(f, "{name}"),
+            Type::NetError => write!(f, "NetworkError"),
         }
     }
 }
@@ -198,9 +303,20 @@ struct World<'p> {
     stores: HashMap<&'p str, HashMap<String, Type>>,
     /// The program's constants, typed.
     consts: HashMap<String, Type>,
+    /// The services the program declares.
+    apis: HashMap<&'p str, &'p ApiDecl>,
 }
 
 impl<'p> World<'p> {
+    /// One endpoint of a service, by name.
+    fn endpoint(&self, api: &str, name: &str) -> Option<&'p Endpoint> {
+        self.apis
+            .get(api)?
+            .endpoints
+            .iter()
+            .find(|e| e.name == name)
+    }
+
     fn record_field(&self, record: &str, field: &str) -> Option<Type> {
         self.record_fields(record)?
             .into_iter()
@@ -218,6 +334,14 @@ impl<'p> World<'p> {
     fn resolve(&self, ty: Type) -> Type {
         match ty {
             Type::Record(name) if self.enums.contains_key(name.as_str()) => Type::Enum(name),
+            // A name the language knows, unless the program declares a type
+            // of its own by that name — which wins, so nothing the language
+            // adds can take a name away.
+            Type::Record(name)
+                if !self.types.contains_key(name.as_str()) && Scalar::of_name(&name).is_some() =>
+            {
+                Type::Scalar(Scalar::of_name(&name).expect("just checked"))
+            }
             Type::List(inner) => Type::list(self.resolve(*inner)),
             Type::Optional(inner) => Type::optional(self.resolve(*inner)),
             other => other,
@@ -281,6 +405,7 @@ pub fn check_in(
         components: HashMap::new(),
         stores: HashMap::new(),
         consts: HashMap::new(),
+        apis: HashMap::new(),
     };
     for decl in &program.declarations {
         match decl {
@@ -289,6 +414,9 @@ pub fn check_in(
             }
             Declaration::Enum(e) => {
                 world.enums.insert(e.name.as_str(), e);
+            }
+            Declaration::Api(a) => {
+                world.apis.insert(a.name.as_str(), a);
             }
             Declaration::Component(c) => {
                 world.components.insert(c.name.as_str(), c);
@@ -417,9 +545,36 @@ pub fn check_in(
                     }
                 }
             }
+            // A service's own code runs like any other: the settings and
+            // headers are expressions, and a hook is a body. The hook's
+            // parameter is the request, the reply or the error, whose shape
+            // the runtime gives it, so it is `Any`.
+            Declaration::Api(a) => {
+                for (_, e) in a.settings.iter().chain(a.headers.iter()) {
+                    cx.current_span = a.span;
+                    cx.infer(e, None);
+                }
+                for endpoint in &a.endpoints {
+                    for (_, e) in &endpoint.settings {
+                        cx.current_span = endpoint.span;
+                        cx.infer(e, None);
+                    }
+                }
+                for hook in &a.hooks {
+                    cx.push_scope();
+                    if let Some(param) = &hook.param {
+                        cx.bind(param, Type::Any, hook.span);
+                    }
+                    cx.returns.push(Vec::new());
+                    cx.statements(&hook.body, Body::Imperative);
+                    cx.returns.pop();
+                    cx.pop_scope();
+                }
+            }
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Enum(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -586,7 +741,22 @@ impl<'a, 'p> Checker<'a, 'p> {
                 StatementKind::Resource(r) => {
                     let inner = match &r.ty {
                         Some(t) => self.world.resolve(Type::from_ref(t)),
-                        None => Type::Any,
+                        // An endpoint says what it returns, so a resource
+                        // over one is typed without an annotation.
+                        None => match &r.url {
+                            Expr::MethodCall(obj, method, _) => {
+                                match (&**obj, self.world.apis.is_empty()) {
+                                    (Expr::Identifier(api), false) => self
+                                        .world
+                                        .endpoint(api, method)
+                                        .and_then(|e| e.returns.as_ref())
+                                        .map(|t| self.world.resolve(Type::from_ref(t)))
+                                        .unwrap_or(Type::Any),
+                                    _ => Type::Any,
+                                }
+                            }
+                            _ => Type::Any,
+                        },
                     };
                     self.bind(&r.name, Type::Resource(Box::new(inner)), stmt.span);
                 }
@@ -644,6 +814,29 @@ impl<'a, 'p> Checker<'a, 'p> {
                 if let Some(declared) = &declared {
                     self.expect(&given, declared, span, &format!("`{}`", s.name));
                 }
+                // A secret must not outlive the visit.
+                if s.persist
+                    && declared.as_ref().map(|t| t.unwrapped())
+                        == Some(Type::Scalar(Scalar::Secret))
+                {
+                    self.error(
+                        span,
+                        "T12",
+                        format!("`{}` is a `Secret`, and `persist` would keep it in the browser", s.name),
+                        "Hold it in `state`, which the visit ends; what must outlive it belongs on the server",
+                    );
+                }
+                // And what the type says its values must be.
+                if let Some(ty) = &s.ty
+                    && let Some(fault) = refinement_fault(ty, &s.value)
+                {
+                    self.error(
+                        span,
+                        "T01",
+                        format!("`{}` {fault}", s.name),
+                        "The type says what its values may be; this one is outside it",
+                    );
+                }
                 if body == Body::Imperative {
                     // A local: bound here, in order.
                     self.bind(&s.name, declared.unwrap_or(given), span);
@@ -654,10 +847,81 @@ impl<'a, 'p> Checker<'a, 'p> {
                 self.narrow(&d.name, ty);
             }
             StatementKind::Resource(r) => {
-                let url = self.infer(&r.url, Some(&Type::String));
-                self.expect(&url, &Type::String, span, "a resource's URL");
+                // An `api` endpoint is a call, not an address.
+                if !matches!(&r.url, Expr::MethodCall(..) | Expr::FunctionCall(..)) {
+                    let url = self.infer(&r.url, Some(&Type::String));
+                    self.expect(&url, &Type::String, span, "a resource's URL");
+                } else {
+                    self.infer(&r.url, None);
+                }
                 for option in &r.options {
                     self.infer(&option.value, None);
+                }
+            }
+            // The rules a value must meet, checked against what it is: a
+            // length on a number, or a match against a name that is not
+            // there, is a fault where it is written.
+            StatementKind::Validate(v) => {
+                let guarded = self.lookup(&v.name);
+                if guarded.is_none() {
+                    self.error(
+                        span,
+                        "T05",
+                        format!("`{}` is not a name this page declares", v.name),
+                        "A `validate` block guards a `state` of the page or component it is in",
+                    );
+                }
+                let ty = guarded.unwrap_or(Type::Any).unwrapped();
+                for rule in &v.rules {
+                    for e in rule.args.iter().chain(rule.message.iter()) {
+                        self.infer(e, None);
+                    }
+                    if let Some(body) = &rule.body {
+                        let checked = self.infer(body, Some(&Type::Bool));
+                        self.expect(&checked, &Type::Bool, rule.span, "a rule's check");
+                    }
+                    let Some(wanted) = rule_wants(&rule.name) else {
+                        self.error(
+                            rule.span,
+                            "T05",
+                            format!("`{}` is not a rule", rule.name),
+                            "The rules are `required`, `email`, `url`, `minLength`, `maxLength`, `min`, `max`, `pattern`, `matches`, `oneOf`, `custom` and `async`",
+                        );
+                        continue;
+                    };
+                    if !ty.is_any() && !wanted.iter().any(|w| ty.assignable_to(w)) {
+                        let names: Vec<String> = wanted.iter().map(|w| w.to_string()).collect();
+                        self.error(
+                            rule.span,
+                            "T01",
+                            format!(
+                                "`{}` is `{ty}`, and `{}` is a rule for {}",
+                                v.name,
+                                rule.name,
+                                names.join(" or ")
+                            ),
+                            "",
+                        );
+                    }
+                }
+            }
+            StatementKind::Connection(c) => {
+                let url = self.infer(&c.url, Some(&Type::String));
+                self.expect(&url, &Type::String, span, "a connection's address");
+                for (_, value) in &c.options {
+                    self.infer(value, None);
+                }
+                for handler in &c.handlers {
+                    self.push_scope();
+                    if let Some(param) = &handler.param {
+                        let ty = match &c.receives {
+                            Some(t) => self.world.resolve(Type::from_ref(t)),
+                            None => Type::Any,
+                        };
+                        self.bind(param, ty, span);
+                    }
+                    self.statements(&handler.body, Body::Imperative);
+                    self.pop_scope();
                 }
             }
             StatementKind::Use(_) => {}
@@ -798,7 +1062,15 @@ impl<'a, 'p> Checker<'a, 'p> {
                 self.expect(&ty, &Type::String, span, "`navigate`'s path");
             }
             StatementKind::Log(e) => {
-                self.infer(e, None);
+                let ty = self.infer(e, None);
+                if ty.unwrapped() == Type::Scalar(Scalar::Secret) {
+                    self.error(
+                        span,
+                        "T12",
+                        format!("`{}` is a `Secret`, and this would log it", expr_text(e)),
+                        "A log line is read by whoever can open the console, and often shipped to a service",
+                    );
+                }
             }
             StatementKind::Return(e) => {
                 let ty = match e {
@@ -917,7 +1189,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                         (ArmPattern::Ready, Some(name)) => {
                             self.bind(name, (**inner).clone(), arm.span)
                         }
-                        (ArmPattern::Error, Some(name)) => self.bind(name, Type::Any, arm.span),
+                        (ArmPattern::Error, Some(name)) => {
+                            self.bind(name, Type::NetError, arm.span)
+                        }
                         (ArmPattern::Case(case), _) => self.error(
                             arm.span,
                             "T11",
@@ -1008,6 +1282,34 @@ impl<'a, 'p> Checker<'a, 'p> {
                     }
                     for bound in &arm.bindings {
                         self.bind(bound, Type::Any, arm.span);
+                    }
+                    self.statements(&arm.body, body);
+                    self.pop_scope();
+                }
+            }
+            // What a request can fail with, matched by its case.
+            Type::NetError => {
+                for arm in &m.arms {
+                    self.push_scope();
+                    if let ArmPattern::Case(case) = &arm.pattern
+                        && !matches!(
+                            case.as_str(),
+                            "offline" | "timeout" | "aborted" | "parse" | "network" | "status"
+                        )
+                    {
+                        self.error(
+                            arm.span,
+                            "T02",
+                            format!("a request cannot fail with `.{case}`"),
+                            "It fails with `.offline`, `.timeout`, `.aborted`, `.parse`, `.network` or `.status(code, body)`",
+                        );
+                    }
+                    if let Some(name) = &arm.binding {
+                        let bound = match &arm.pattern {
+                            ArmPattern::Case(case) if case == "status" => Type::Any,
+                            _ => Type::Any,
+                        };
+                        self.bind(name, bound, arm.span);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
@@ -1272,6 +1574,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         self.in_args = true;
         for (i, arg) in el.args.iter().enumerate() {
             let at = el.arg_spans.get(i).copied().unwrap_or(span);
+            let at_span = at;
             self.current_span = at;
             let prop = match (arg, sig) {
                 (Arg::Positional(_), Some(sig)) => sig.positional.as_ref(),
@@ -1279,10 +1582,73 @@ impl<'a, 'p> Checker<'a, 'p> {
                 _ => None,
             };
             let value = arg_value(arg);
+            // `columns: { base: 1, md: 2 }` is one value per breakpoint,
+            // each checked as the prop itself; the widths are the
+            // stylesheet's, not a type's.
+            if crate::codegen::scoped_css::is_responsive(value)
+                && let Some(prop) = prop
+            {
+                let wanted = match prop.ty {
+                    PropType::Num => Some(Type::Number),
+                    PropType::Str => Some(Type::String),
+                    PropType::Bool => Some(Type::Bool),
+                    _ => None,
+                };
+                if let Expr::MapLiteral(pairs) = value {
+                    for (step, at) in pairs {
+                        let given = self.infer(at, wanted.as_ref());
+                        if let Some(wanted) = &wanted
+                            && !given.assignable_to(wanted)
+                        {
+                            self.error(
+                                at_span,
+                                "T01",
+                                format!(
+                                    "`{}:` at `{}` on `{name}` is `{given}`, but `{wanted}` is wanted",
+                                    prop.name,
+                                    step.trim_matches('"')
+                                ),
+                                "",
+                            );
+                        }
+                    }
+                }
+                continue;
+            }
+            // Nothing the engine draws takes a secret: it would be shown,
+            // or written into an attribute, which is the same thing.
+            if let Expr::Identifier(_) | Expr::PropertyAccess(..) = value
+                && self.infer(value, None).unwrapped() == Type::Scalar(Scalar::Secret)
+            {
+                self.error(
+                    at,
+                    "T12",
+                    format!(
+                        "`{}` is a `Secret`, and `{name}` would show it",
+                        expr_text(value)
+                    ),
+                    "A secret must not reach the page; send it as a value, or show one field of what it unlocks",
+                );
+            }
             let Some(prop) = prop else {
                 self.infer(value, None);
                 continue;
             };
+            // Nothing the engine draws takes a secret: it would be shown,
+            // or written into an attribute, which is the same thing.
+            if matches!(value, Expr::Identifier(_) | Expr::PropertyAccess(..))
+                && self.infer(value, None).unwrapped() == Type::Scalar(Scalar::Secret)
+            {
+                self.error(
+                    at,
+                    "T12",
+                    format!(
+                        "`{}` is a `Secret`, and `{name}` would show it",
+                        expr_text(value)
+                    ),
+                    "A secret must not reach the page; send it as a value, or show one field of what it unlocks",
+                );
+            }
             match (prop.ty, prop.name) {
                 // `bind:` — the control's value type.
                 (PropType::State, "ref") => {
@@ -1353,16 +1719,50 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// The type of `expr`; `expected` guides a case or a lambda.
     fn infer(&mut self, expr: &Expr, expected: Option<&Type>) -> Type {
         match expr {
-            Expr::StringLiteral(_) => Type::String,
+            // A literal written where one of the language's own types is
+            // wanted is read as one, and held to its shape — so a `Url`
+            // that is not a URL is caught where it is written, not where
+            // it is used.
+            Expr::StringLiteral(text) => match expected.map(|t| t.unwrapped()) {
+                Some(Type::Scalar(s)) if s.is_text() => {
+                    if let Some(shape) = ill_formed(s, text) {
+                        let name = s.name();
+                        // "an Email", but "a Url" and "a Uuid": the letter is not the sound.
+                        let article = if name.starts_with('E') { "an" } else { "a" };
+                        self.error_at_current(
+                            "T01",
+                            format!("`\"{text}\"` is not {article} `{name}`"),
+                            &shape,
+                        );
+                    }
+                    Type::Scalar(s)
+                }
+                _ => Type::String,
+            },
             Expr::InterpolatedString(parts) => {
                 for part in parts {
                     if let StringPart::Expression(e) = part {
-                        self.infer(e, None);
+                        let ty = self.infer(e, None);
+                        // A `Secret` in a string is a secret in a URL, in a
+                        // log line, in the page — wherever that string goes.
+                        if ty.unwrapped() == Type::Scalar(Scalar::Secret) {
+                            self.error_at_current(
+                                "T12",
+                                format!("`{}` is a `Secret`, and this puts it in text", expr_text(e)),
+                                "A secret must not be shown, logged or put in a URL; send it as a value, or read one field of what it unlocks",
+                            );
+                        }
                     }
                 }
                 Type::String
             }
             Expr::NumberLiteral(_) => Type::Number,
+            // A literal of one of the language's own types. The carrier is
+            // checked as itself, and the value is what the name says.
+            Expr::Typed(name, carrier) => {
+                self.infer(carrier, None);
+                self.world.resolve(Type::Record(name.clone()))
+            }
             Expr::BoolLiteral(_) => Type::Bool,
             Expr::Null => Type::Null,
             Expr::Token(_) => Type::Token,
@@ -1457,6 +1857,22 @@ impl<'a, 'p> Checker<'a, 'p> {
             Expr::Identifier(name) => self
                 .lookup(name)
                 .or_else(|| self.world.consts.get(name).cloned())
+                // A service, and a store, are reachable by name from
+                // anywhere: the bundle declares each once, at the top. `use`
+                // says a body depends on a store, it does not make the name
+                // visible — so `Store.member` is checked either way.
+                .or_else(|| {
+                    self.world
+                        .apis
+                        .contains_key(name.as_str())
+                        .then(|| Type::Api(name.clone()))
+                })
+                .or_else(|| {
+                    self.world
+                        .stores
+                        .contains_key(name.as_str())
+                        .then(|| Type::Store(name.clone()))
+                })
                 .unwrap_or_else(|| global_type(name)),
             // A plain access after a `?.` in the same chain is short-circuited
             // with it: `a?.b.c` is null when `a` is, never a fault.
@@ -1684,6 +2100,73 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     fn property(&mut self, base_ty: &Type, base: &Expr, field: &str) -> Type {
         match base_ty {
+            // What a failed request says about itself.
+            Type::NetError => match field {
+                "message" => Type::String,
+                "status" => Type::Number,
+                "kind" => Type::String,
+                "body" => Type::Any,
+                "headers" => Type::Map,
+                _ => {
+                    self.error_at_current(
+                        "T05",
+                        format!("a request's error has no field `{field}`"),
+                        "It has `.message`, `.status`, `.kind`, `.body` and `.headers`, and matches `.offline`, `.timeout`, `.aborted`, `.parse`, `.network` and `.status(code, body)`",
+                    );
+                    Type::Any
+                }
+            },
+            // An endpoint of a service.
+            Type::Api(name) => match self.world.endpoint(name, field) {
+                Some(endpoint) => Type::Func(
+                    endpoint
+                        .params
+                        .iter()
+                        .map(|p| self.world.resolve(Type::from_ref(&p.prop_type)))
+                        .collect(),
+                    Box::new(match &endpoint.returns {
+                        Some(ty) => self.world.resolve(Type::from_ref(ty)),
+                        None => Type::Null,
+                    }),
+                ),
+                None => {
+                    let names: Vec<String> = self
+                        .world
+                        .apis
+                        .get(name.as_str())
+                        .map(|a| {
+                            a.endpoints
+                                .iter()
+                                .map(|e| format!("`{}`", e.name))
+                                .collect()
+                        })
+                        .unwrap_or_default();
+                    self.error_at_current(
+                        "T06",
+                        format!("`{name}` has no endpoint `{field}`"),
+                        &format!("Its endpoints are {}", names.join(", ")),
+                    );
+                    Type::Any
+                }
+            },
+            // A scalar's fields are its carrier's: money is an amount and a
+            // currency, a file a name, a size and a type. Everything the
+            // language computes is a call, so nothing here is invented.
+            Type::Scalar(scalar) => match (*scalar, field) {
+                (Scalar::Money, "amount") => Type::Number,
+                (Scalar::Money, "currency") => Type::String,
+                (Scalar::File, "name" | "type") => Type::String,
+                (Scalar::File, "size") => Type::Number,
+                (s, "length") if s.is_text() => Type::Number,
+                (s, _) => {
+                    self.error_at_current(
+                        "T05",
+                        format!("`{}` has no field `{field}`", s.name()),
+                        &scalar_methods_hint(s),
+                    );
+                    Type::Any
+                }
+            },
             Type::Shape(fields) => match fields.iter().find(|(n, _)| n == field) {
                 Some((_, ty)) => ty.clone(),
                 None => {
@@ -1862,6 +2345,92 @@ impl<'a, 'p> Checker<'a, 'p> {
             return Type::join(then_ty, else_ty);
         }
         let obj_ty = self.infer(obj, None);
+        // `Backend.users(page: 2)`: an endpoint of a service, whose
+        // arguments are its parameters and whose value is what it returns.
+        if let Type::Api(name) = &obj_ty {
+            let api = name.clone();
+            return match self.world.endpoint(&api, method) {
+                Some(endpoint) => {
+                    let wanted: Vec<(String, Type)> = endpoint
+                        .params
+                        .iter()
+                        .map(|p| {
+                            (
+                                p.name.clone(),
+                                self.world.resolve(Type::from_ref(&p.prop_type)),
+                            )
+                        })
+                        .collect();
+                    let returns = match &endpoint.returns {
+                        Some(ty) => self.world.resolve(Type::from_ref(ty)),
+                        None => Type::Null,
+                    };
+                    for arg in args {
+                        // The arguments arrive as one map of names.
+                        if let Expr::MapLiteral(pairs) = arg {
+                            for (key, value) in pairs {
+                                let key = key.trim_matches('"');
+                                let want = wanted.iter().find(|(n, _)| n == key).map(|(_, t)| t);
+                                let given = self.infer(value, want);
+                                match want {
+                                    Some(want) if !given.assignable_to(want) => {
+                                        self.error_at_current(
+                                            "T01",
+                                            format!("`{key}:` on `{api}.{method}` is `{given}`, but `{want}` is wanted"),
+                                            "",
+                                        );
+                                    }
+                                    // `cache`, `on`, `timeout` and `signal`
+                                    // are the call's own, not the service's.
+                                    None if !matches!(
+                                        key,
+                                        "cache"
+                                            | "on"
+                                            | "timeout"
+                                            | "signal"
+                                            | "headers"
+                                            | "as"
+                                            | "retry"
+                                    ) =>
+                                    {
+                                        let names: Vec<String> =
+                                            wanted.iter().map(|(n, _)| format!("`{n}`")).collect();
+                                        self.error_at_current(
+                                            "T10",
+                                            format!("`{api}.{method}` has no parameter `{key}`"),
+                                            &format!("It takes {}", names.join(", ")),
+                                        );
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        } else {
+                            self.infer(arg, wanted.first().map(|(_, t)| t));
+                        }
+                    }
+                    returns
+                }
+                None => {
+                    let names: Vec<String> = self
+                        .world
+                        .apis
+                        .get(api.as_str())
+                        .map(|a| {
+                            a.endpoints
+                                .iter()
+                                .map(|e| format!("`{}`", e.name))
+                                .collect()
+                        })
+                        .unwrap_or_default();
+                    self.error_at_current(
+                        "T06",
+                        format!("`{api}` has no endpoint `{method}`"),
+                        &format!("Its endpoints are {}", names.join(", ")),
+                    );
+                    Type::Any
+                }
+            };
+        }
         if let Type::Optional(_) = obj_ty
             && !optional
         {
@@ -2025,15 +2594,36 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.infer(a, None);
                 }
                 match method {
-                    "toLowerCase" | "toUpperCase" | "trim" | "replace" | "replaceAll" | "slice"
-                    | "substring" | "charAt" | "toString" | "padStart" | "padEnd" | "repeat"
-                    | "capitalize" | "truncate" => Type::String,
-                    "indexOf" | "length" | "charCodeAt" | "search" => Type::Number,
+                    "toLowerCase" | "toUpperCase" | "trim" | "trimStart" | "trimEnd"
+                    | "replace" | "replaceAll" | "slice" | "substring" | "charAt" | "at"
+                    | "toString" | "padStart" | "padEnd" | "repeat" | "normalize"
+                    | "capitalize" | "truncate" | "dedent" => Type::String,
+                    "indexOf" | "lastIndexOf" | "length" | "charCodeAt" | "search"
+                    | "localeCompare" => Type::Number,
                     "includes" | "startsWith" | "endsWith" => Type::Bool,
-                    "split" => Type::list(Type::String),
+                    "split" | "lines" | "words" => Type::list(Type::String),
                     // `"x".match(/…/)`: the matches, or null.
                     "match" => Type::optional(Type::list(Type::String)),
                     _ => Type::Any,
+                }
+            }
+            // The language's own types: a date's arithmetic, money's, a
+            // URL's parts, a colour's mixing.
+            Type::Scalar(scalar) => {
+                for a in args {
+                    self.infer(a, None);
+                }
+                let scalar = *scalar;
+                match scalar_method(scalar, method) {
+                    Some(ty) => ty,
+                    None => {
+                        self.error_at_current(
+                            "T05",
+                            format!("`{}` has no method `{method}`", scalar.name()),
+                            &scalar_methods_hint(scalar),
+                        );
+                        Type::Any
+                    }
                 }
             }
             Type::Regex => {
@@ -2159,6 +2749,8 @@ impl<'a, 'p> Checker<'a, 'p> {
                     "String" | "t" => Type::String,
                     "Number" => Type::Number,
                     "Bool" | "Boolean" => Type::Bool,
+                    // Where a `Uuid` comes from.
+                    "uuid" => Type::Scalar(Scalar::Uuid),
                     _ => Type::Any,
                 }
             }
@@ -2313,6 +2905,9 @@ fn bound_type(component: &str) -> Option<Type> {
     match component {
         "Checkbox" | "Switch" => Some(Type::Bool),
         "Slider" => Some(Type::Number),
+        // A date picker picks a date, which is a `Date` — not a string
+        // that happens to look like one. Empty, it holds nothing.
+        "DatePicker" => Some(Type::optional(Type::Scalar(Scalar::Date))),
         "Input" => None, // text or number, by its `type`
         _ => None,
     }
@@ -2372,6 +2967,15 @@ fn global_type(name: &str) -> Type {
         "hash" => Type::String,
         // What the reader chose: `light`, `dark` or `system`.
         "theme" => Type::String,
+        // The moment the page is at, kept current.
+        "now" => Type::Scalar(Scalar::DateTime),
+        // The connection, as the page can read it.
+        "network" => Type::Shape(vec![
+            ("online".to_string(), Type::Bool),
+            ("effectiveType".to_string(), Type::String),
+            ("saveData".to_string(), Type::Bool),
+            ("downlink".to_string(), Type::Number),
+        ]),
         _ => Type::Any,
     }
 }
@@ -2381,6 +2985,12 @@ fn global_type(name: &str) -> Type {
 pub fn form_type() -> Type {
     Type::Shape(vec![
         ("valid".to_string(), Type::Bool),
+        // Whether an async rule is still asking.
+        ("pending".to_string(), Type::Bool),
+        // The message of every field that has one, and the fields the
+        // reader has left, each by the control's name.
+        ("errors".to_string(), Type::Map),
+        ("touched".to_string(), Type::Map),
         ("values".to_string(), Type::Map),
         ("element".to_string(), Type::Any),
         (
@@ -2390,6 +3000,11 @@ pub fn form_type() -> Type {
         (
             "submit".to_string(),
             Type::Func(Vec::new(), Box::new(Type::Null)),
+        ),
+        // What a 422 said, by field name.
+        (
+            "apply".to_string(),
+            Type::Func(vec![Type::Map], Box::new(Type::Null)),
         ),
     ])
 }
@@ -2458,6 +3073,235 @@ fn case_signature(case: &str, fields: &[(String, Type)]) -> String {
     format!(".{case}({})", parts.join(", "))
 }
 
+/// What a rule is a rule for, or `None` when there is no such rule.
+fn rule_wants(name: &str) -> Option<Vec<Type>> {
+    Some(match name {
+        // A value of any type is either there or not.
+        "required" | "custom" | "async" | "matches" | "oneOf" => {
+            vec![Type::Any, Type::String, Type::Number, Type::Bool]
+        }
+        "email" => vec![Type::String, Type::Scalar(Scalar::Email)],
+        "url" => vec![Type::String, Type::Scalar(Scalar::Url)],
+        "minLength" | "maxLength" | "pattern" => vec![Type::String],
+        "min" | "max" => vec![
+            Type::Number,
+            Type::Scalar(Scalar::Date),
+            Type::Scalar(Scalar::DateTime),
+            Type::Scalar(Scalar::Time),
+        ],
+        _ => return None,
+    })
+}
+
+/// Why a literal is not the scalar it was written for, or `None` when it
+/// is one. The message says how the type is written.
+fn ill_formed(scalar: Scalar, text: &str) -> Option<String> {
+    let hex = |s: &str| s.chars().all(|c| c.is_ascii_hexdigit());
+    let fits = match scalar {
+        Scalar::Date => {
+            let p: Vec<&str> = text.split('-').collect();
+            p.len() == 3
+                && p[0].len() == 4
+                && p[1].len() == 2
+                && p[2].len() == 2
+                && p.iter().all(|s| s.chars().all(|c| c.is_ascii_digit()))
+        }
+        Scalar::Time => {
+            let head = text.split(['+', 'Z']).next().unwrap_or(text);
+            let p: Vec<&str> = head.split(':').collect();
+            (2..=3).contains(&p.len())
+                && p[0].len() == 2
+                && p[1].len() == 2
+                && p.iter().all(|s| {
+                    s.split('.')
+                        .next()
+                        .unwrap_or(s)
+                        .chars()
+                        .all(|c| c.is_ascii_digit())
+                })
+        }
+        Scalar::DateTime => match text.split_once('T') {
+            Some((d, t)) => {
+                ill_formed(Scalar::Date, d).is_none() && ill_formed(Scalar::Time, t).is_none()
+            }
+            None => false,
+        },
+        Scalar::Url => text.contains("://") && text.len() > 8,
+        Scalar::Email => match text.split_once('@') {
+            Some((user, host)) => !user.is_empty() && host.contains('.') && !host.starts_with('.'),
+            None => false,
+        },
+        Scalar::Color => {
+            let body = text.trim();
+            match body.strip_prefix('#') {
+                Some(digits) => matches!(digits.len(), 3 | 4 | 6 | 8) && hex(digits),
+                // A CSS colour of any other spelling: a function, or a name.
+                None => body.contains('(') || body.chars().all(|c| c.is_ascii_alphabetic()),
+            }
+        }
+        Scalar::Uuid => {
+            let p: Vec<&str> = text.split('-').collect();
+            p.len() == 5
+                && [8, 4, 4, 4, 12] == [p[0].len(), p[1].len(), p[2].len(), p[3].len(), p[4].len()]
+                && p.iter().all(|s| hex(s))
+        }
+        // Anything may be a secret; a file is never a literal.
+        Scalar::Secret => true,
+        _ => true,
+    };
+    if fits {
+        return None;
+    }
+    Some(
+        match scalar {
+            Scalar::Date => "A date is written `2026-03-14`, or `@2026-03-14`",
+            Scalar::Time => "A time is written `09:30`, or `@09:30`",
+            Scalar::DateTime => {
+                "A moment is written `2026-03-14T09:30:00Z`, or `@2026-03-14T09:30Z`"
+            }
+            Scalar::Url => "A URL has a scheme: `https://example.com`",
+            Scalar::Email => "An address is `name@example.com`",
+            Scalar::Color => "A colour is `#0F766E`, `rgb(15, 118, 110)` or a CSS name",
+            Scalar::Uuid => "A UUID is `3f2b1c4d-5e6f-7081-92a3-b4c5d6e7f809`",
+            _ => "",
+        }
+        .to_string(),
+    )
+}
+
+/// Why a value does not meet its type's condition, when it plainly does
+/// not: `Number(0..=100)` given `120`, `String(minLength: 8)` given `"abc"`.
+///
+/// Only a value the compiler can read is checked — a literal, or an
+/// expression over literals. Anything that arrives at run time is
+/// validation's to refuse, from the same condition.
+pub fn refinement_fault(ty: &TypeRef, value: &Expr) -> Option<String> {
+    use crate::codegen::static_eval::{Scope, Static, eval};
+    let args = ty.refinement();
+    if args.is_empty() {
+        return None;
+    }
+    let scope = Scope::default();
+    let got = eval(value, &scope)?;
+    let number = |v: &Static| match v {
+        Static::Num(n) => Some(*n),
+        _ => None,
+    };
+    for (name, bound) in args {
+        let want = eval(bound, &scope)?;
+        let fault = match name.as_str() {
+            "min" => number(&got)? < number(&want)?,
+            "max" => number(&got)? > number(&want)?,
+            "below" => number(&got)? >= number(&want)?,
+            "minLength" => (got.to_text().chars().count() as f64) < number(&want)?,
+            "maxLength" => (got.to_text().chars().count() as f64) > number(&want)?,
+            "after" => got.to_text().as_str() <= want.to_text().as_str(),
+            "before" => got.to_text().as_str() >= want.to_text().as_str(),
+            "pattern" => match &want {
+                Static::Regex(p, f) => !crate::codegen::static_eval::matches(&got.to_text(), p, f)?,
+                _ => false,
+            },
+            _ => false,
+        };
+        if fault {
+            let said = match name.as_str() {
+                "min" => format!("is below {}", want.to_text()),
+                "max" => format!("is above {}", want.to_text()),
+                "below" => format!("is not below {}", want.to_text()),
+                "minLength" => format!("is shorter than {}", want.to_text()),
+                "maxLength" => format!("is longer than {}", want.to_text()),
+                "after" => format!("is not after {}", want.to_text()),
+                "before" => format!("is not before {}", want.to_text()),
+                _ => format!("does not match {}", want.to_text()),
+            };
+            return Some(said);
+        }
+    }
+    None
+}
+
+/// What a method of one of the language's own types gives back, and
+/// whether it has that method at all.
+fn scalar_method(scalar: Scalar, method: &str) -> Option<Type> {
+    use Scalar::*;
+    let moment = matches!(scalar, Date | Time | DateTime);
+    Some(match method {
+        // Reading a moment apart.
+        "year" | "month" | "day" | "weekday" | "hour" | "minute" | "second" if moment => {
+            Type::Number
+        }
+        "native" if moment => Type::Any,
+        "date" if scalar == DateTime => Type::Scalar(Date),
+        "time" if scalar == DateTime => Type::Scalar(Time),
+        "inZone" if moment => Type::Scalar(DateTime),
+        "startOfDay" | "startOfWeek" | "startOfMonth" | "endOfDay" if moment => {
+            Type::Scalar(scalar)
+        }
+        "isBefore" | "isAfter" | "isSame" if moment => Type::Bool,
+        "until" if moment => Type::Scalar(Duration),
+        // Arithmetic: a moment and money both take `plus` and `minus`, and
+        // each gives back what it was.
+        "plus" | "minus" if moment || matches!(scalar, Money | Duration) => Type::Scalar(scalar),
+        // A length of time, read in a unit.
+        "days" | "hours" | "minutes" | "seconds" | "ms" if scalar == Duration => Type::Number,
+        // Money.
+        "times" if scalar == Money => Type::Scalar(Money),
+        "convert" if scalar == Money => Type::Scalar(Money),
+        // A web address.
+        "host" | "path" if scalar == Url => Type::String,
+        "query" if scalar == Url => Type::Map,
+        "with" if scalar == Url => Type::Scalar(Url),
+        "domain" if scalar == Email => Type::String,
+        // Colour.
+        "mix" | "lighten" | "darken" if scalar == Color => Type::Scalar(Color),
+        "alpha" if scalar == Color => Type::String,
+        "contrast" if scalar == Color => Type::Number,
+        // A file the reader chose.
+        "preview" if scalar == File => Type::String,
+        // Everything a string can do, a string-carried scalar can do.
+        _ if scalar.is_text() => return string_method(method),
+        _ => return None,
+    })
+}
+
+/// What a `String`'s method gives back, `None` when it has none.
+fn string_method(method: &str) -> Option<Type> {
+    Some(match method {
+        "toLowerCase" | "toUpperCase" | "trim" | "trimStart" | "trimEnd" | "replace"
+        | "replaceAll" | "slice" | "substring" | "charAt" | "at" | "toString" | "padStart"
+        | "padEnd" | "repeat" | "normalize" | "capitalize" | "truncate" | "dedent" => Type::String,
+        "indexOf" | "lastIndexOf" | "length" | "charCodeAt" | "search" | "localeCompare" => {
+            Type::Number
+        }
+        "includes" | "startsWith" | "endsWith" => Type::Bool,
+        "split" | "lines" | "words" => Type::list(Type::String),
+        "match" => Type::optional(Type::list(Type::String)),
+        _ => return None,
+    })
+}
+
+/// The methods a scalar has, for the message when one is misspelled.
+fn scalar_methods_hint(scalar: Scalar) -> String {
+    use Scalar::*;
+    let listed: &str = match scalar {
+        Date | Time | DateTime => {
+            "`.year()`, `.month()`, `.day()`, `.weekday()`, `.hour()`, `.minute()`,              `.plus(days: 1)`, `.minus(…)`, `.isBefore(d)`, `.isAfter(d)`, `.until(d)`,              `.startOfDay()`, `.startOfWeek()`, `.startOfMonth()`, `.endOfDay()`,              `.inZone(\"Europe/Berlin\")`, `.native()`"
+        }
+        Duration => "`.days()`, `.hours()`, `.minutes()`, `.seconds()`, `.ms()`, `.plus(d)`",
+        Money => {
+            "`.plus(m)`, `.minus(m)`, `.times(n)`, `.convert(rate, \"USD\")`, and the fields `.amount` and `.currency`"
+        }
+        Url => "`.host()`, `.path()`, `.query()`, `.with(query: { page: 2 })`",
+        Email => "`.domain()`",
+        Color => {
+            "`.mix(other, 0.2)`, `.lighten(0.1)`, `.darken(0.1)`, `.alpha(0.5)`, `.contrast(other)`"
+        }
+        File => "`.preview()`, and the fields `.name`, `.size` and `.type`",
+        Uuid | Secret => "the methods of a string",
+    };
+    format!("It has {listed}")
+}
+
 /// A short rendering of an expression, for a message.
 pub fn expr_text(expr: &Expr) -> String {
     match expr {
@@ -2467,6 +3311,7 @@ pub fn expr_text(expr: &Expr) -> String {
         Expr::NumberLiteral(n) => format!("{n}"),
         Expr::BoolLiteral(b) => b.to_string(),
         Expr::Null => "null".to_string(),
+        Expr::Typed(_, carrier) => expr_text(carrier),
         Expr::Identifier(n) => n.clone(),
         Expr::PropertyAccess(b, f) => format!("{}.{f}", expr_text(b)),
         Expr::IndexAccess(b, i) => format!("{}[{}]", expr_text(b), expr_text(i)),
@@ -2636,6 +3481,38 @@ mod tests {
         );
         clean(
             "store S { state n = 0 action bump() { n = n + 1 } }\npage P(path: \"/\") { use S\n Text(\"{S.n}\")\n Button(\"x\") { on click { S.bump() } } }",
+        );
+    }
+
+    #[test]
+    fn a_store_is_checked_without_use_and_from_another_store() {
+        // `use` says a body depends on a store; the name is reachable either
+        // way, so the members are held to what the store has either way.
+        has(
+            "store S { state n = 0 }\npage P(path: \"/\") { Text(S.count) }",
+            "[T06] `S` has no member `count`",
+        );
+        has(
+            "store A { state n = 0 }\nstore B { action go() { A.bmup() } }\npage P(path: \"/\") { Button(\"x\") { on click { B.go() } } }",
+            "[T06] `A` has no action `bmup`",
+        );
+        clean(
+            "store A { state n = 0 action bump() { n = n + 1 } }\nstore B { action go() { A.bump() } }\npage P(path: \"/\") { Text(\"{A.n}\")\n Button(\"x\") { on click { B.go() } } }",
+        );
+    }
+
+    #[test]
+    fn a_services_headers_and_hooks_are_checked() {
+        has(
+            "store M { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { on response(r) { M.recrd(r.status) }\n get me() -> Map }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+            "[T06] `M` has no action `recrd`",
+        );
+        has(
+            "store S { state token = \"\" }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.tokn}\" }\n get me() -> Map }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+            "[T06] `S` has no member `tokn`",
+        );
+        clean(
+            "store S { state token = \"\"\n action refresh() { token = \"x\" } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.token}\" }\n on request(r) { r.headers[\"X-Id\"] = \"1\" }\n on error(e) { await S.refresh()  return \"retry\" }\n get me() -> Map }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
         );
     }
 

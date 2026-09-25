@@ -49,8 +49,8 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
 
         Heading("Examples").h2
 
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.outlined {
                     Card.Body {
                         Text("Bad (triggers warning)").danger.bold
@@ -58,7 +58,7 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.outlined {
                     Card.Body {
                         Text("Good (no warnings)").success.bold
@@ -77,8 +77,8 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
         Text("The checks above tell you what to fix. Most of the work is already done in the output.")
         Spacer.sm
 
-        Row(gap: .md) {
-            Column(span: 4) {
+        Row(gap: .md).stacks {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Structure").h3
@@ -86,7 +86,7 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
                     }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Keyboard").h3
@@ -94,7 +94,7 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
                     }
                 }
             }
-            Column(span: 4) {
+            Column(span: 4).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Announcements").h3
@@ -104,8 +104,8 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
             }
         }
         Spacer.sm
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Motion and targets").h3
@@ -113,7 +113,7 @@ page Accessibility(path: "/accessibility", description: "The accessibility check
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.elevated {
                     Card.Body {
                         Heading("Contrast, at compile time").h3

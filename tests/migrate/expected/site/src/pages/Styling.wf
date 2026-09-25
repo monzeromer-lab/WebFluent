@@ -13,7 +13,7 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
         Card.outlined {
             Card.Header { Text("Size Modifiers").bold }
             Card.Body {
-                Row(gap: .sm, align: .center) {
+                Row(gap: .sm, align: .center).stacks {
                     Button("Small").primary.sm
                     Button("Medium").primary
                     Button("Large").primary.lg
@@ -24,7 +24,7 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
         Card.outlined {
             Card.Header { Text("Color Modifiers").bold }
             Card.Body {
-                Row(gap: .sm) {
+                Row(gap: .sm).stacks {
                     Button("Primary").primary
                     Button("Secondary").secondary
                     Button("Success").success
@@ -33,7 +33,7 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
                     Button("Info").info
                 }
                 Spacer.sm
-                Row(gap: .sm) {
+                Row(gap: .sm).stacks {
                     Badge("Primary").primary
                     Badge("Success").success
                     Badge("Danger").danger
@@ -45,13 +45,13 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
         Card.outlined {
             Card.Header { Text("Shape and Elevation").bold }
             Card.Body {
-                Row(gap: .sm) {
+                Row(gap: .sm).stacks {
                     Button("Default").primary
                     Button("Rounded").primary.rounded
                     Button("Full Width").primary.full
                 }
                 Spacer
-                Row(gap: .md) {
+                Row(gap: .md).stacks {
                     Card { Card.Body { Text("Default") } }
                     Card.elevated { Card.Body { Text("Elevated") } }
                     Card.outlined { Card.Body { Text("Outlined") } }
@@ -80,8 +80,8 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
         Text("All styling is built on tokens — CSS custom properties. Override any token in your config.")
         Spacer.sm
 
-        Row(gap: .md) {
-            Column(span: 6) {
+        Row(gap: .md).stacks {
+            Column(span: 6).stacks {
                 Card.outlined {
                     Card.Header { Text("Colors").bold }
                     Card.Body {
@@ -97,7 +97,7 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
                     }
                 }
             }
-            Column(span: 6) {
+            Column(span: 6).stacks {
                 Card.outlined {
                     Card.Header { Text("Spacing and Radius").bold }
                     Card.Body {
@@ -135,7 +135,7 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
         Heading("Example themes").h3
         Text("Four starting points ship in examples/themes/. Copy one into your src/ and edit it — they are ordinary source files, not engine settings.")
         Spacer.sm
-        Grid(columns: 2, gap: .md) {
+        Grid(columns: 2, gap: .md).stacks {
             Card {
                 style {
                     background: #ffffff
@@ -143,14 +143,14 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
                     border-radius: 0.75rem
                 }
                 Card.Body {
-                    Row(gap: .sm, align: .center) {
+                    Row(gap: .sm, align: .center).stacks {
                         Badge("baseline").primary
                         Text("Baseline").bold
                     }
                     Spacer.sm
                     Text("What you get with no theme declared: clean, modern, blue primary.").muted.sm
                     Spacer.sm
-                    Row(gap: .sm) {
+                    Row(gap: .sm).stacks {
                         Button("Primary").primary.sm
                         Button("Success").success.sm
                         Badge("Tag").info
@@ -169,14 +169,14 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
                     border-radius: 0.75rem
                 }
                 Card.Body {
-                    Row(gap: .sm, align: .center) {
+                    Row(gap: .sm, align: .center).stacks {
                         Badge("dark").secondary
                         Text("Dark").bold
                     }
                     Spacer.sm
                     Text("Dark backgrounds with light text and vibrant accents.").sm
                     Spacer.sm
-                    Row(gap: .sm) {
+                    Row(gap: .sm).stacks {
                         Button("Primary").primary.sm
                         Button("Danger").danger.sm
                         Badge("Live").success
@@ -194,14 +194,14 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
                     border-radius: 0
                 }
                 Card.Body {
-                    Row(gap: .sm, align: .center) {
+                    Row(gap: .sm, align: .center).stacks {
                         Badge("minimal")
                         Text("Minimal").bold
                     }
                     Spacer.sm
                     Text("Black and white. No shadows, no border-radius. Pure content.").sm
                     Spacer.sm
-                    Row(gap: .sm) {
+                    Row(gap: .sm).stacks {
                         Button("Action").sm
                         Badge("Note")
                     }
@@ -220,14 +220,14 @@ page Styling(path: "/styling", description: "Themes, design tokens and style blo
                     font-family: monospace
                 }
                 Card.Body {
-                    Row(gap: .sm, align: .center) {
+                    Row(gap: .sm, align: .center).stacks {
                         Badge("brutalist").danger
                         Text("Brutalist").bold
                     }
                     Spacer.sm
                     Text("Monospace font, bold red primary, hard offset shadows.").sm
                     Spacer.sm
-                    Row(gap: .sm) {
+                    Row(gap: .sm).stacks {
                         Button("Action").danger.sm
                         Badge("Alert").danger
                     }

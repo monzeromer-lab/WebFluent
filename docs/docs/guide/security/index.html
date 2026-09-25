@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security</title>
+    <meta name="description" content="The threat model, what WebFluent enforces, authentication patterns, env and secrets, uploads, CSP and headers, and a deployment checklist.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/security">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/security?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/security?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/security">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Security">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The threat model, what WebFluent enforces, authentication patterns, env and secrets, uploads, CSP and headers, and a deployment checklist.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/security">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Security">
+    <meta name="twitter:description" content="The threat model, what WebFluent enforces, authentication patterns, env and secrets, uploads, CSP and headers, and a deployment checklist.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/security#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/security","name":"Security","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The threat model, what WebFluent enforces, authentication patterns, env and secrets, uploads, CSP and headers, and a deployment checklist."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/security#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Security","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/security"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/Security.js" data-wf-page="Security" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">3.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s782ff52c">
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <p class="wf-text group-label">Behaviour</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Events and forms</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Surface and output</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Outputs</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Tooling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 19</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Security</h1>
+                        <p class="wf-text wf-s38239618">What the compiler guarantees, what it cannot, and the decisions left to you: URLs, markup, secrets, storage, headers and a deployment checklist.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>A web page is a program you hand to a stranger's machine, and the strings in it come from everywhere: a form, a URL, a CMS, a database, another service. Most of what goes wrong is one mistake — a string arriving somewhere it becomes <em>code</em> rather than <em>content</em>.</p>
+<p>This chapter says what the compiler stops, what it cannot, and what is left for you to decide.</p>
+                            </div>
+                            <h2 class="wf-heading">What the compiler guarantees</h2>
+                            <div class="wf-markdown">
+<p>These are properties of the output, not advice. You do not opt in.</p>
+<ul>
+<li><strong>Text is text.</strong> Every string an element shows goes in as a text node. There is no path by which <code>&quot;&lt;script&gt;&quot;</code> in your data becomes a script. The one exception has <code>Unsafe</code> in its name.</li>
+<li><strong>No inline handlers.</strong> Events bind through <code>addEventListener</code>. Writing <code>Button(&quot;x&quot;, onclick: expr)</code> is a compile error, because that attribute is the one place an attribute value is executed.</li>
+<li><strong>No URL a browser would run.</strong> <code>href:</code>, <code>src:</code>, <code>to:</code>, <code>poster:</code> and <code>navigate()</code> take a URL whose scheme is <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, <code>sms</code>, <code>ftp</code> or nothing at all. A literal is refused where it is written; a value that only exists at run time is refused at the moment it is used. <code>javascript:</code>, <code>data:</code>, <code>vbscript:</code>, <code>blob:</code> and <code>file:</code> are not URLs a page may point at.</li>
+<li><strong>No handle on your page.</strong> A link with <code>target:</code> carries <code>rel=&quot;noopener noreferrer&quot;</code>, so the page it opens cannot navigate yours.</li>
+<li><strong>Markdown is escaped first.</strong> <code>Markdown(text)</code> renders the small Markdown it documents and shows any HTML in the text rather than running it.</li>
+<li><strong>A <code>Secret</code> cannot escape.</strong> It may not be shown, spliced into a string, logged or persisted — each is a <code>T12</code>, at the line that does it.</li>
+<li><strong>A non-public <code>env</code> name may not be read from a page.</strong> See below.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">What it cannot</h2>
+                            <div class="wf-markdown">
+<ul>
+<li><strong>What your server does with what you send it.</strong> Injection into a query, a template or a shell is on the other side of the wire.</li>
+<li><strong>Whether a reader may see a thing.</strong> <code>guard:</code> on a page hides a route; it does not authorise anything. Authorisation is the server's answer and has to be checked there, on every request.</li>
+<li><strong>A dependency you add yourself.</strong> A <code>&lt;script&gt;</code> in <code>public/</code>, a font from another origin, an embed — each is code you are choosing to trust.</li>
+<li><strong>Your hosting.</strong> HTTPS, HSTS, cookie flags and rate limits are the host's.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Markup you did not write</h2>
+                            <div class="wf-markdown">
+<p>A CMS body, a Markdown renderer of your own, an email — sometimes the content really is HTML. There is one door:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Post(path: &quot;/p/:slug&quot;, title: &quot;Post&quot;, slug: String) {
+    resource post = Backend.post(slug: slug)
+    match post {
+        ready(p) { Unsafe.Html(sanitize(p.body)) }
+        else { Skeleton }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>Unsafe.Html(markup)</code> puts markup in as markup. It is named so that a review greps for <code>Unsafe</code> and finds every one, and the build prints a <code>V03</code> at each — including whether it went through <code>sanitize</code>.</p>
+<p><code>sanitize(html)</code> is an <strong>allow-list</strong>: a fixed set of elements and, per element, a fixed set of attributes. A tag nobody has thought of is dropped rather than permitted. No <code>&lt;script&gt;</code>, no <code>&lt;style&gt;</code>, no <code>&lt;iframe&gt;</code>, no <code>&lt;form&gt;</code>, no <code>on*</code>, and an <code>href</code> or <code>src</code> goes through the same scheme check every other URL does. An element that is dropped keeps its text, so removing a <code>&lt;font&gt;</code> does not remove the sentence inside it.</p>
+<p>It runs at build time as well as in the browser, from the same allow-list, so a pre-rendered page shows the sanitised body immediately rather than an empty box that fills in when the script loads.</p>
+<p><code>Unsafe.Html(raw)</code> without <code>sanitize</code> is for markup <strong>your project produced</strong>. Anything that arrived from outside goes through the sanitiser.</p>
+                            </div>
+                            <h2 class="wf-heading">Sessions and tokens</h2>
+                            <div class="wf-markdown">
+<p><code>persist</code> writes to <code>localStorage</code> or <code>sessionStorage</code>. <strong>Neither is a place for a session token.</strong> Any script that reaches your page can read both, which is the whole payload of a cross-site scripting bug: without a readable token it is a defacement, with one it is an account takeover.</p>
+<p>Keep the session in an <strong>httpOnly cookie</strong>, set by the server:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872"></p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>HttpOnly</code> puts it out of reach of every script, including yours; <code>SameSite=Lax</code> stops another site's form from riding on it; <code>Secure</code> keeps it off plaintext connections. The browser sends it with each request, so the page needs no token at all:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api/v1&quot;) {
+    credentials: .sameOrigin      // the cookie goes with every call
+    get me() -&gt; User
+    post signIn(body: Map) -&gt; User
+    post signOut()
+}
+
+store Session {
+    state user: User? = null
+    action load() { user = await Backend.me() }
+    action out() { await Backend.signOut()  user = null  navigate(&quot;/&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What a page <em>may</em> keep is what a page may show: a display name, a theme, a preference. If a value would matter to someone who stole it, it belongs behind a request.</p>
+<p>The compiler enforces the part it can: <code>persist token: Secret = &quot;&quot;</code> is a <code>T12</code>. Declaring a token <code>Secret</code> is how you ask it to.</p>
+                            </div>
+                            <h2 class="wf-heading">env, and what ends up in the bundle</h2>
+                            <div class="wf-markdown">
+<p><code>env.NAME</code> is replaced by its value <strong>at build time</strong>, and the value lands in the JavaScript the browser downloads. That is right for an API base and wrong for an API key, and nothing in the spelling said which was which.</p>
+<p>Now a name is public when it says so, or when the config says so:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;env&quot;: { &quot;PUBLIC_API&quot;: &quot;/api/v1&quot;, &quot;ANALYTICS_ID&quot;: &quot;UA-1&quot;, &quot;STRIPE_SECRET&quot;: &quot;sk_…&quot; },
+  &quot;public_env&quot;: [&quot;ANALYTICS_ID&quot;]
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code> may be read from a page. <code>env.STRIPE_SECRET</code> read from a page, a component, a store or an <code>api</code> block is a compile error naming the file and the line. The value is still there for <code>wf render</code>, which runs on a server where a secret is a secret.</p>
+<p>A secret that has to reach a third party belongs in a request your server makes, not in a page.</p>
+                            </div>
+                            <h2 class="wf-heading">Uploads</h2>
+                            <div class="wf-markdown">
+<p>A <code>File</code> from <code>FileUpload</code> is a handle on a file on the reader's machine. <code>accept:</code> and <code>.size</code> are conveniences for them, <strong>not</strong> checks: both are the page's, and a page is the attacker's to rewrite. The server decides what it accepts — the type from the bytes rather than the name, a size limit it enforces itself, a filename it generates rather than one it was given, and storage somewhere nothing is served from.</p>
+                            </div>
+                            <h2 class="wf-heading">Content-Security-Policy</h2>
+                            <div class="wf-markdown">
+<p><code>&quot;build&quot;: { &quot;csp&quot;: true }</code> — on for a project <code>wf init</code> creates — ships:</p>
+<ul>
+<li>a <code>&lt;meta http-equiv=&quot;Content-Security-Policy&quot;&gt;</code> in every page, and</li>
+<li>a <code>_headers</code> file for hosts that read one (Netlify, Cloudflare Pages, Vercel; others ignore it).</li>
+</ul>
+<p><code>frame-ancestors</code> is only in <code>_headers</code>, because a browser ignores it in a meta tag — a policy that carried it there would say one thing and deliver another.</p>
+<p>The policy is <code>'self'</code> throughout, with no <code>'unsafe-inline'</code> for scripts: the compiler writes external files and binds events with <code>addEventListener</code>, so nothing needs it. It is widened by exactly the origins <code>meta.fonts</code> and <code>meta.stylesheets</code> declare, so a declared font is never blocked by the policy shipped beside it.</p>
+<p><strong>The build checks its own output against it.</strong> Every HTML file is read back and held to the policy it carries: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, or a script or stylesheet from an origin the policy never named stops the build. A policy is a promise about what a page contains, and this is how the promise is kept — the browser would enforce it and show a blank page.</p>
+<p>One thing is allowed rather than refused: a <code>style { }</code> value that <strong>reads state</strong> is written on the element, because there is nowhere else for it to go. Where a build emits one, <code>style-src</code> gains <code>'unsafe-inline'</code> and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a <code>style { }</code> block is already a shared class and costs nothing.</p>
+                            </div>
+                            <h2 class="wf-heading">Another origin&#x27;s files</h2>
+                            <div class="wf-markdown">
+<p>A stylesheet or a font from somewhere else is code that origin can change after you read it. Declare its hash:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;meta&quot;: {
+    &quot;stylesheets&quot;: [&quot;https://cdn.example.com/brand.css&quot;],
+    &quot;integrity&quot;: { &quot;https://cdn.example.com/brand.css&quot;: &quot;sha384-…&quot; }
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The build emits <code>integrity</code> and <code>crossorigin=&quot;anonymous&quot;</code>, and warns about a declared external asset that has none. It never fetches the file to work the hash out — that would make a build depend on the network. A Google Fonts stylesheet is exempt: it is written per user-agent, so its bytes differ between readers and no hash can match.</p>
+                            </div>
+                            <h2 class="wf-heading">wf audit</h2>
+                            <div class="wf-markdown">
+<p>One command for the questions a review asks:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every <code>Unsafe.*</code> and whether it is sanitised, every origin the pages load from, everything written to the reader's machine and where, every <code>env</code> name and whether it is public, the policy this build ships, and what the compiler itself depends on. <code>--json</code> for a tool. It reports; it never fails a build.</p>
+                            </div>
+                            <h2 class="wf-heading">Before you deploy</h2>
+                            <div class="wf-markdown">
+<ul>
+<li><code>wf audit</code>, and read all of it.</li>
+<li><code>&quot;csp&quot;: true</code>, and the build passing its own check.</li>
+<li><code>_headers</code> reaching your host, or the same headers set another way.</li>
+<li>HTTPS, with HSTS.</li>
+<li>Session in an httpOnly, Secure, SameSite cookie — not in <code>persist</code>.</li>
+<li>No non-public <code>env</code> name in the bundle (the build refuses one).</li>
+<li>Every <code>Unsafe.Html</code> either sanitised or provably your own markup.</li>
+<li>Authorisation checked on the server for every request, not by <code>guard:</code>.</li>
+<li>Uploads checked by the server: type from the bytes, a size limit, a generated filename, storage nothing serves from.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/tooling">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">18. Tooling</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/reference">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">20. Components reference</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#what-the-compiler-guarantees">What the compiler guarantees</a>
+                        <a class="wf-link wf-sdae384de" href="#what-it-cannot">What it cannot</a>
+                        <a class="wf-link wf-sdae384de" href="#markup-you-did-not-write">Markup you did not write</a>
+                        <a class="wf-link wf-sdae384de" href="#sessions-and-tokens">Sessions and tokens</a>
+                        <a class="wf-link wf-sdae384de" href="#env-and-what-ends-up-in-the-bundle">env, and what ends up in the bundle</a>
+                        <a class="wf-link wf-sdae384de" href="#uploads">Uploads</a>
+                        <a class="wf-link wf-sdae384de" href="#content-security-policy">Content-Security-Policy</a>
+                        <a class="wf-link wf-sdae384de" href="#another-origin-s-files">Another origin&#x27;s files</a>
+                        <a class="wf-link wf-sdae384de" href="#wf-audit">wf audit</a>
+                        <a class="wf-link wf-sdae384de" href="#before-you-deploy">Before you deploy</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

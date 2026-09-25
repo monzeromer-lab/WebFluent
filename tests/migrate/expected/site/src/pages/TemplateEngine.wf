@@ -37,7 +37,7 @@ page TemplateEngine(path: "/template-engine", description: "Render .wf templates
         Text("Templates use standard .wf syntax. Data is passed as a JSON object — top-level keys become template variables.")
 
         Spacer.sm
-        Grid(columns: 2, gap: .lg) {
+        Grid(columns: 2, gap: .lg).stacks {
             Card.outlined {
                 Card.Header { Badge("Template").primary Text("invoice.wf").bold }
                 Card.Body {
@@ -113,21 +113,21 @@ page TemplateEngine(path: "/template-engine", description: "Render .wf templates
         Text("Templates support the static, data-driven subset of WebFluent.")
         Spacer.sm
 
-        Grid(columns: 2, gap: .md) {
+        Grid(columns: 2, gap: .md).stacks {
             Card.elevated {
                 Card.Header { Heading("Supported").h3 }
                 Card.Body {
                     Stack(gap: .sm) {
-                        Row(gap: .sm) { Badge("Yes").success Text("All layout components") }
-                        Row(gap: .sm) { Badge("Yes").success Text("Typography (Text, Heading, Code)") }
-                        Row(gap: .sm) { Badge("Yes").success Text("Data display (Card, Table, List, Badge)") }
-                        Row(gap: .sm) { Badge("Yes").success Text("for loops over data arrays") }
-                        Row(gap: .sm) { Badge("Yes").success Text("if/else conditionals") }
-                        Row(gap: .sm) { Badge("Yes").success Text("String interpolation \{var\}") }
-                        Row(gap: .sm) { Badge("Yes").success Text("Nested access (user.name)") }
-                        Row(gap: .sm) { Badge("Yes").success Text("Design tokens and themes") }
-                        Row(gap: .sm) { Badge("Yes").success Text("Style blocks") }
-                        Row(gap: .sm) { Badge("Yes").success Text("PDF components") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("All layout components") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("Typography (Text, Heading, Code)") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("Data display (Card, Table, List, Badge)") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("for loops over data arrays") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("if/else conditionals") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("String interpolation \{var\}") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("Nested access (user.name)") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("Design tokens and themes") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("Style blocks") }
+                        Row(gap: .sm).stacks { Badge("Yes").success Text("PDF components") }
                     }
                 }
             }
@@ -136,13 +136,13 @@ page TemplateEngine(path: "/template-engine", description: "Render .wf templates
                 Card.Header { Heading("Not Supported").h3 }
                 Card.Body {
                     Stack(gap: .sm) {
-                        Row(gap: .sm) { Badge("No").danger Text("state / derived / effect") }
-                        Row(gap: .sm) { Badge("No").danger Text("Events (on:click, on:submit)") }
-                        Row(gap: .sm) { Badge("No").danger Text("Navigation / Router") }
-                        Row(gap: .sm) { Badge("No").danger Text("Stores (shared state)") }
-                        Row(gap: .sm) { Badge("No").danger Text("fetch (data loading)") }
-                        Row(gap: .sm) { Badge("No").danger Text("Animations") }
-                        Row(gap: .sm) { Badge("No").danger Text("Toast (imperative)") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("state / derived / effect") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("Events (on:click, on:submit)") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("Navigation / Router") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("Stores (shared state)") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("fetch (data loading)") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("Animations") }
+                        Row(gap: .sm).stacks { Badge("No").danger Text("Toast (imperative)") }
                     }
                 }
             }
@@ -154,7 +154,7 @@ page TemplateEngine(path: "/template-engine", description: "Render .wf templates
 
         Heading("Use Cases").h2
         Spacer.sm
-        Grid(columns: 3, gap: .md) {
+        Grid(columns: 3, gap: .md).stacks {
             Card.elevated {
                 Card.Body {
                     Heading("Server-Rendered Pages").h3

@@ -1,9 +1,11 @@
 # 14. Data
 
-Three ways to get data onto a page: `resource` for something fetched while
-the page shows, `await fetch` inside an action for something fetched on
-demand, and `data` for a file read at build time. Plus `const` and `env`
-for values that are the same for the whole build.
+Ways to get data onto a page: `api` for a service described once and called
+everywhere, `resource` for something fetched while the page shows, `await
+fetch` inside an action for something fetched on demand, and `data` for a
+file read at build time. Plus `const` and `env` for values that are the
+same for the whole build, and `socket`, `stream` and `channel` for a
+connection the page holds open.
 
 ## `resource`
 
@@ -87,6 +89,186 @@ page PostPage(path: "/posts/:slug", slug: String) {
 
 Debounce a fast-changing URL by deriving it from a slower value, or by
 keeping the query in state and copying it to a `submitted` state on Enter.
+
+## `api`: a service, described once
+
+An address, how it is reached, and what it has — in one place, so every
+call site is typed, cached and cancellable:
+
+```wf
+type User { id: String, name: String }
+
+api Backend(base: "/api/v1") {
+    credentials: .sameOrigin      // the session cookie goes with every call
+    timeout: 10.seconds
+    retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
+
+    get    users(page: Number = 1, q: String?) -> [User]
+    get    user(id: String) at "users/:id"     -> User
+    post   createUser(body: Map)               -> User
+        errors { 422 -> Map }
+    delete removeUser(id: String) at "users/:id"
+}
+
+page Users(path: "/users", title: "Users", description: "Everyone.") {
+    state page: Number = 1
+    resource rows = Backend.users(page: page, cache: .swr(60.seconds), on: .focus)
+
+    Heading("Users").h1
+    match rows {
+        loading { Skeleton(height: "20px") }
+        error(e) {
+            match e {
+                .offline { Alert("You are offline.").warning }
+                .timeout { Alert("The server took too long.").warning }
+                else     { Alert(e.message).danger }
+            }
+            Button("Try again") { on click { rows.reload() } }
+        }
+        ready(list) { for u in list by u.id { Text(u.name) } }
+    }
+}
+```
+
+A parameter the path names goes in the path; every other goes in the query.
+`->` says what comes back, and a `resource` over the endpoint is typed by
+it — `u.nam` is `T05`, before the page ever runs.
+
+### Headers, and what happens around a call
+
+A `headers { }` block names what every call carries. Each value is read
+**at the moment of the request**, not when the service is declared — so a
+token that has just been refreshed is the one that is sent:
+
+```wf
+api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+    headers {
+        Authorization: "Bearer {Session.token}"
+        Accept-Language: Session.language
+    }
+
+    on request(r)  { r.headers["X-Request-Id"] = uuid() }
+    on response(r) { Metrics.record(r.status) }
+    on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
+
+    get me() -> User
+}
+```
+
+The three hooks run around every call the service makes:
+
+| Hook | When it runs | What it gets | What returning does |
+|---|---|---|---|
+| `on request(r)` | Before the request is sent, after `headers { }` | `r.url`, `r.method`, `r.headers`, `r.body` — change them in place | The changed request is what goes out |
+| `on response(r)` | After a reply arrives, before it is decoded | `r.status`, `r.headers`, `r.url` | Nothing; it is for recording |
+| `on error(e)` | After every retry the policy allows has failed | The error, as the table below describes it | `return "retry"` runs the call once more — which is how a 401 refreshes a token and carries on; anything else lets the error through |
+
+A hook may `await`. One that throws fails the call it was watching.
+
+### What each call gets
+
+| | |
+|---|---|
+| Abort | when the scope leaves, when an argument that reads state changes, on `.cancel()`, on timeout |
+| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — with `.message`, `.status`, `.body` and `.headers` to read |
+| Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` |
+| Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, revalidated with `ETag` |
+| Dedupe | two readers of one address make one request |
+| Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` |
+| Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
+| Progress | a `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
+
+And beside each endpoint: `Backend.users.invalidate()`, `.prefetch(args)`,
+`.url(args)`, `.key(args)`.
+
+### From a specification
+
+```wf
+api Backend from "openapi.json" (base: env.PUBLIC_API)
+```
+
+Every endpoint, parameter, response type and error shape is read from the
+file at build time, and each named schema becomes a `type` the program can
+name. The day the server changes its contract, the build says so.
+
+### Showing a change before the server agrees
+
+```wf
+action rename(id: String, name: String) {
+    optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
+    await Backend.updateUser(id, { name: name })
+    Backend.users.invalidate()
+}
+```
+
+The change shows at once. If anything later in the action throws, what was
+shown is taken back.
+
+## A connection the page holds open
+
+A socket, a stream of server-sent events, or a channel every tab of the
+origin hears. Each is closed when the page that opened it leaves.
+
+```wf
+page Chat(path: "/chat", title: "Chat", description: "Talk.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        on message(m) { log(m) }
+    }
+
+    Heading("Chat").h1
+    match chat {
+        connecting { Spinner.sm }
+        open       { for m in chat.messages by m.id { Text(m.text) } }
+        closed(c)  { Alert("Disconnected ({c.code})").warning }
+        error(e)   { Alert(e.message).danger }
+    }
+    Input(bind: draft, label: "Message").text
+    Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
+}
+```
+
+A socket reconnects with backoff, keeps itself alive with a heartbeat, and
+holds what was sent while it was down.
+
+```wf
+stream ticks = sse("/events", events: ["price"])
+channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+beacon("/analytics", { event: "checkout" })     // survives the page unloading
+```
+
+`ticks` and `cart` are handles too — a `match` reads the state, and an
+`effect` reads what arrived:
+
+```wf
+effect { if let p = ticks.last("price") { price = p } }
+Button("Sync") { on click { cart.post({ items: Cart.count }) } }
+```
+
+What each handle holds:
+
+| | `socket` | `stream` | `channel` |
+|---|---|---|---|
+| `.state` | `connecting` `open` `closed` `error` — the arms of a `match` | the same | `open` or `closed` |
+| `.messages` | every message, in order | every message, in order | — |
+| `.last(kind)` | the last message, or the last of a kind | the last under an event's name | the last posted |
+| `.error` | the failure, which the `error(e)` arm is handed | the same | — |
+| `.closure` | the close, which `closed(c)` is handed: `.code`, `.reason` | — | — |
+| Sending | `.send(value)` — queued while the line is down | — | `.post(value)` |
+| `.close()` | closes it early | the same | the same |
+
+A `match` over one takes `connecting`, `open`, `closed(c)` and `error(e)`,
+and an `else` for the rest. The page closing closes the connection, so a
+route change cannot leak one.
+
+## The network as a value
+
+```wf
+if !network.online { Alert("You are offline — changes are queued.").warning }
+```
+
+`network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink`
+— live, so a page can say what it does on a slow line or none at all.
 
 ## `await fetch` in an action
 
@@ -202,8 +384,8 @@ them: `paths: pairs.map(x => { year: x.y, slug: x.s })`. Routes not in
 
 ```wf
 const PAGE_SIZE = 25
-const API = env.API_URL ?? "/api"
-const FEATURES = { billing: env.BILLING == "on", beta: false }
+const API = env.PUBLIC_API_URL ?? "/api"
+const FEATURES = { billing: env.PUBLIC_BILLING == "on", beta: false }
 
 page Rows(path: "/") {
     resource rows = fetch("{API}/rows?limit={PAGE_SIZE}")
@@ -216,10 +398,16 @@ page Rows(path: "/") {
 }
 ```
 
-`env.NAME` reads the build environment — the shell's variables and a
-`.env` file in the project root — and is `null` when unset. Everything
-here is inlined into the bundle, so a secret does not belong in `env`
-reads; only what a browser may see.
+`env.NAME` reads the build environment — the shell's variables, a `.env`
+file in the project root and the config's own `env` map — and is `null`
+when unset.
+
+Everything a page reads is **inlined into the bundle**, so the compiler
+only lets a page, a component, a store or an `api` read a name that says
+it may be read: one beginning `PUBLIC_`, or one the config's `public_env`
+lists. Any other name there is a compile error, not a warning
+([chapter 19](19-security.md#env-and-what-ends-up-in-the-bundle)). Build
+scripts and the config itself may read any name.
 
 ## Where data lands in the static paint
 

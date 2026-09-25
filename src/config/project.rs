@@ -17,6 +17,13 @@ pub enum OutputType {
     Pdf,
     /// PDF slide deck output — one Slide = one page, no flow pagination.
     Slides,
+    /// Standards-based custom elements: each component `build.elements`
+    /// names becomes a `<kebab-case>` tag, usable from React, Vue,
+    /// Svelte, Rails, WordPress or a plain HTML page.
+    ///
+    /// The shared interface between frameworks is the platform, so this is
+    /// one output rather than an adapter per framework.
+    Elements,
 }
 
 fn default_output_type() -> OutputType {
@@ -41,10 +48,64 @@ pub struct ProjectConfig {
     pub meta: MetaConfig,
     #[serde(default)]
     pub i18n: Option<I18nConfig>,
+    /// What every animation does when nothing says otherwise.
+    #[serde(default)]
+    pub motion: MotionConfig,
     /// Values the program reads as `env.NAME`: an API base, a public key,
     /// a feature switch — set per build, never hard-coded in a page.
+    ///
+    /// **A value here that the page reads is in the bundle.** Anyone who
+    /// opens the site can read it, so only the names this build calls
+    /// public may be read from a page, a component, a store or an `api`
+    /// block; the rest reach `wf render` and nothing the browser is sent.
     #[serde(default)]
     pub env: std::collections::BTreeMap<String, serde_json::Value>,
+    /// The `env` names a page may read, beyond every name that begins
+    /// `PUBLIC_`. Anything else is a compile error where it is written,
+    /// rather than a key in the bundle nobody noticed.
+    #[serde(default)]
+    pub public_env: Vec<String>,
+}
+
+/// How long an animation runs and how it is paced, when the element does
+/// not say.
+///
+/// It is shorthand for two design tokens, so a project that would rather
+/// write them in its theme still can — and so a style block reads the same
+/// values as `$animation-duration-normal` and `$animation-easing-default`.
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct MotionConfig {
+    /// `"180ms"` — the length of an animation with no `duration:` of its own.
+    #[serde(default)]
+    pub duration: Option<String>,
+    /// `"$ease-standard"`, or any CSS timing function — the pacing of an
+    /// animation with no `easing:` of its own.
+    #[serde(default)]
+    pub easing: Option<String>,
+}
+
+impl MotionConfig {
+    /// The token overrides this asks for, if any.
+    ///
+    /// `$name` is written as a token, as it is in a style value, and
+    /// resolved against the tokens already settled.
+    pub fn tokens(&self, resolved: &HashMap<String, String>) -> Vec<(String, String)> {
+        let value = |v: &String| match v.strip_prefix('$') {
+            Some(name) => resolved
+                .get(name)
+                .cloned()
+                .unwrap_or_else(|| format!("var(--{name})")),
+            None => v.clone(),
+        };
+        let mut out = Vec::new();
+        if let Some(d) = &self.duration {
+            out.push(("animation-duration-normal".to_string(), value(d)));
+        }
+        if let Some(e) = &self.easing {
+            out.push(("animation-easing-default".to_string(), value(e)));
+        }
+        out
+    }
 }
 
 /// Theme configuration — name, mode, custom design tokens, and how much of the
@@ -78,6 +139,27 @@ pub struct ThemeConfig {
 /// Build pipeline configuration — output directory, minification, SSG, and PDF settings.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BuildConfig {
+    /// The components `output_type: "elements"` publishes, by name. Each
+    /// becomes a custom element whose tag is its name in kebab-case:
+    /// `PriceTag` is `<price-tag>`.
+    #[serde(default)]
+    pub elements: Vec<String>,
+    /// Whether this build's pages carry a `style=` attribute — a style
+    /// value that reads state, which has nowhere else to go.
+    ///
+    /// Not a setting: it is answered from the program before anything is
+    /// rendered (`codegen::csp::writes_inline_styles`) and read by the
+    /// policy, so what a page ships says what that page contains. It is
+    /// skipped by serde for that reason.
+    #[serde(skip)]
+    pub inline_styles: bool,
+    /// The origins this build's `external` modules are imported from.
+    ///
+    /// Not a setting either: it is read from the program, and the policy
+    /// names them under `script-src` so a declared import is never blocked
+    /// by the policy shipped beside it.
+    #[serde(skip)]
+    pub script_origins: Vec<String>,
     #[serde(default = "default_output_dir")]
     pub output: String,
     #[serde(default = "default_true")]
@@ -107,6 +189,24 @@ pub struct BuildConfig {
     /// Apache `MultiViews`, most CDNs). `wf serve` sends it too.
     #[serde(default = "default_true")]
     pub compress: bool,
+    /// A size a named output must stay under, gzipped — `{ "app.js": "40 kB" }`.
+    ///
+    /// Advisory: a build over budget prints a warning and goes on. A build
+    /// that fails on size is a decision for a project's own CI, which can read
+    /// the same numbers from `wf build --stats`.
+    #[serde(default)]
+    pub budget: std::collections::BTreeMap<String, String>,
+    /// Which runtime modules ship: `"auto"` (the default) carries only the
+    /// features the program reaches — `each` for a `for`, `router` for more
+    /// than one page, `icons` for an `Icon` — and `"full"` carries every one.
+    ///
+    /// `"full"` is for a site whose own `<script>` calls `WF` in ways a build
+    /// cannot see; `wf build --stats` prints what `"auto"` kept and dropped.
+    #[serde(default)]
+    pub runtime: RuntimeMode,
+    /// What the build does with the images the program names.
+    #[serde(default)]
+    pub media: MediaConfig,
     /// Output type: "spa" (default), "static", "pdf", or "slides"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
@@ -116,6 +216,69 @@ pub struct BuildConfig {
     /// Slides-specific configuration
     #[serde(default)]
     pub slides: SlidesConfig,
+}
+
+/// What the build does with the images a program names.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MediaConfig {
+    /// The formats to write, best first.
+    #[serde(default = "default_formats")]
+    pub formats: Vec<String>,
+    /// The widths to write, for a page that does not say.
+    #[serde(default = "default_widths")]
+    pub widths: Vec<u32>,
+    /// 1–100, for the formats that take one.
+    #[serde(default = "default_quality")]
+    pub quality: u8,
+    /// Off, an image is copied as it always was.
+    #[serde(default = "default_true")]
+    pub pipeline: bool,
+}
+
+fn default_formats() -> Vec<String> {
+    vec!["webp".to_string()]
+}
+
+fn default_widths() -> Vec<u32> {
+    vec![480, 960, 1440, 1920]
+}
+
+fn default_quality() -> u8 {
+    78
+}
+
+impl Default for MediaConfig {
+    fn default() -> Self {
+        MediaConfig {
+            formats: default_formats(),
+            widths: default_widths(),
+            quality: default_quality(),
+            pipeline: true,
+        }
+    }
+}
+
+impl MediaConfig {
+    /// The settings, as the pipeline takes them.
+    pub fn settings(&self) -> crate::media::Settings {
+        crate::media::Settings {
+            formats: self.formats.clone(),
+            widths: self.widths.clone(),
+            quality: self.quality,
+            pipeline: self.pipeline,
+        }
+    }
+}
+
+/// How much of the JavaScript runtime a build ships.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum RuntimeMode {
+    /// Only the modules the program reaches.
+    #[default]
+    Auto,
+    /// Every module.
+    Full,
 }
 
 /// PDF output configuration — page size, margins, fonts.
@@ -261,6 +424,16 @@ pub struct DevConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetaConfig {
+    /// The subresource-integrity hash of each external asset, by its URL:
+    /// `"https://cdn/x.css": "sha384-…"`.
+    ///
+    /// A stylesheet or font from somewhere else is code that origin can
+    /// change after you have read it. A hash makes the browser check that
+    /// it has not. The build never fetches the file to work the hash out —
+    /// that would make a build depend on the network — so it is declared,
+    /// and a declared asset without one draws a warning.
+    #[serde(default)]
+    pub integrity: HashMap<String, String>,
     #[serde(default)]
     pub title: String,
     #[serde(default)]
@@ -339,8 +512,28 @@ fn asset_origins(url: &str) -> Vec<String> {
 ///
 /// A policy that ignored `meta.fonts` would block the very stylesheet the
 /// config asked for, and the failure would show up as a silent fallback font.
-pub fn csp_policy(meta: &MetaConfig) -> String {
+/// The policy a `<meta>` tag may carry.
+///
+/// `frame-ancestors` is **ignored** in a meta tag — a browser only honours
+/// it in a response header — so leaving it there is a policy that says one
+/// thing and delivers another. It is written to `_headers` instead, where
+/// it works, and left out here so nothing claims otherwise.
+pub fn csp_meta_policy(config: &ProjectConfig) -> String {
+    csp_policy(config)
+        .split("; ")
+        .filter(|d| !d.starts_with("frame-ancestors"))
+        .collect::<Vec<_>>()
+        .join("; ")
+}
+
+pub fn csp_policy(config: &ProjectConfig) -> String {
+    let meta = &config.meta;
     let mut style: Vec<String> = Vec::new();
+    // A style value that reads state is written on the element; a policy
+    // that forbade it would be one the pages break.
+    if config.build.inline_styles {
+        style.push("'unsafe-inline'".to_string());
+    }
     let mut font: Vec<String> = Vec::new();
     for url in meta.fonts.iter().chain(meta.stylesheets.iter()) {
         for origin in asset_origins(url) {
@@ -364,6 +557,22 @@ pub fn csp_policy(meta: &MetaConfig) -> String {
         policy = policy.replace(
             "font-src 'self';",
             &format!("font-src 'self' {};", font.join(" ")),
+        );
+    }
+    // And the origins a program's `external` modules are imported from,
+    // which the config cannot know because they are in the source.
+    let mut origins: Vec<&str> = config
+        .build
+        .script_origins
+        .iter()
+        .map(String::as_str)
+        .collect();
+    origins.sort();
+    origins.dedup();
+    if !origins.is_empty() {
+        policy = policy.replace(
+            "script-src 'self';",
+            &format!("script-src 'self' {};", origins.join(" ")),
         );
     }
     policy
@@ -418,6 +627,9 @@ fn default_lang() -> String {
 impl Default for BuildConfig {
     fn default() -> Self {
         Self {
+            elements: Vec::new(),
+            inline_styles: false,
+            script_origins: Vec::new(),
             output: default_output_dir(),
             minify: true,
             sourcemap: false,
@@ -426,6 +638,9 @@ impl Default for BuildConfig {
             csp: false,
             split: true,
             compress: true,
+            budget: Default::default(),
+            media: MediaConfig::default(),
+            runtime: RuntimeMode::Auto,
             output_type: OutputType::Spa,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
@@ -445,6 +660,7 @@ impl Default for DevConfig {
 impl Default for MetaConfig {
     fn default() -> Self {
         Self {
+            integrity: HashMap::new(),
             title: String::new(),
             description: String::new(),
             favicon: String::new(),
@@ -460,6 +676,15 @@ impl Default for MetaConfig {
 }
 
 impl ProjectConfig {
+    /// Whether a page may read `env.NAME`.
+    ///
+    /// Everything a page reads is in the bundle, so the rule is a list,
+    /// not a judgement: a name that begins `PUBLIC_` says so in its own
+    /// spelling, and `public_env` names the rest.
+    pub fn env_is_public(&self, name: &str) -> bool {
+        name.starts_with("PUBLIC_") || self.public_env.iter().any(|n| n == name)
+    }
+
     pub fn load(project_dir: &Path) -> Result<Self> {
         let config_path = project_dir.join("webfluent.app.json");
         if !config_path.exists() {
@@ -483,6 +708,8 @@ impl ProjectConfig {
             build: BuildConfig::default(),
             dev: DevConfig::default(),
             i18n: None,
+            public_env: Vec::new(),
+            motion: MotionConfig::default(),
             meta: MetaConfig {
                 title: name.to_string(),
                 ..Default::default()
@@ -496,12 +723,14 @@ impl ProjectConfig {
 mod head_asset_tests {
     use super::*;
 
-    fn meta(fonts: &[&str], sheets: &[&str]) -> MetaConfig {
-        MetaConfig {
+    fn meta(fonts: &[&str], sheets: &[&str]) -> ProjectConfig {
+        let mut config = ProjectConfig::default_config("t");
+        config.meta = MetaConfig {
             fonts: fonts.iter().map(|s| s.to_string()).collect(),
             stylesheets: sheets.iter().map(|s| s.to_string()).collect(),
             ..MetaConfig::default()
-        }
+        };
+        config
     }
 
     #[test]

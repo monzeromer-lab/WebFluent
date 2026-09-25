@@ -55,6 +55,32 @@ pub fn gzip(data: &[u8]) -> Vec<u8> {
     out
 }
 
+/// The same compressor, in the wrapper a PDF wants.
+///
+/// `FlateDecode` is zlib, not gzip: a two-byte header, the deflate stream,
+/// and Adler-32 over the original. The deflate in the middle is the one
+/// above, so an image embedded in a PDF and a file served precompressed go
+/// through the same code.
+pub fn zlib(data: &[u8]) -> Vec<u8> {
+    // 0x78 0x01: deflate, 32K window, no preset dictionary.
+    let out = vec![0x78, 0x01];
+    let mut bits = BitWriter { out, acc: 0, n: 0 };
+    deflate(data, &mut bits);
+    let mut out = bits.finish();
+    out.extend_from_slice(&adler32(data).to_be_bytes());
+    out
+}
+
+/// Adler-32, which is what a zlib stream ends with.
+fn adler32(data: &[u8]) -> u32 {
+    let (mut a, mut b) = (1u32, 0u32);
+    for byte in data {
+        a = (a + u32::from(*byte)) % 65521;
+        b = (b + a) % 65521;
+    }
+    (b << 16) | a
+}
+
 /// Whether a file of this type is worth precompressing.
 pub fn is_text_extension(ext: &str) -> bool {
     matches!(
@@ -604,7 +630,8 @@ mod tests {
 
     #[test]
     fn the_runtime_round_trips_and_shrinks() {
-        let src = crate::runtime::RUNTIME_JS.as_bytes();
+        let full = crate::runtime::full();
+        let src = full.as_bytes();
         let gz = gzip(src);
         assert_eq!(round_trip(src), src);
         assert!(

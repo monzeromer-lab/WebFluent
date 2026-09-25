@@ -323,7 +323,7 @@ impl Lexer {
 
         self.advance(); // skip closing "
         Ok(Token::new(
-            TokenType::StringLiteral(value),
+            TokenType::StringLiteral(value.into()),
             start_line,
             start_col,
         ))

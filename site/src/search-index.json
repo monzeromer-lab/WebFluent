@@ -290,6 +290,12 @@
  {
   "chapter": "06",
   "title": "Events and forms",
+  "section": "What a value must be: validate",
+  "route": "/docs/guide/events-and-forms#what-a-value-must-be-validate"
+ },
+ {
+  "chapter": "06",
+  "title": "Events and forms",
   "section": "Pending actions",
   "route": "/docs/guide/events-and-forms#pending-actions"
  },
@@ -410,6 +416,18 @@
  {
   "chapter": "08",
   "title": "Components",
+  "section": "Somebody else's code",
+  "route": "/docs/guide/components#somebody-else-s-code"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
+  "section": "Publishing yours",
+  "route": "/docs/guide/components#publishing-yours"
+ },
+ {
+  "chapter": "08",
+  "title": "Components",
   "section": "Components in the static paint",
   "route": "/docs/guide/components#components-in-the-static-paint"
  },
@@ -428,6 +446,12 @@
  {
   "chapter": "09",
   "title": "Stores",
+  "section": "How long it lives",
+  "route": "/docs/guide/stores#how-long-it-lives"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
   "section": "Using a store",
   "route": "/docs/guide/stores#using-a-store"
  },
@@ -440,8 +464,8 @@
  {
   "chapter": "09",
   "title": "Stores",
-  "section": "Persistence",
-  "route": "/docs/guide/stores#persistence"
+  "section": "Keeping a value across visits",
+  "route": "/docs/guide/stores#keeping-a-value-across-visits"
  },
  {
   "chapter": "09",
@@ -454,6 +478,18 @@
   "title": "Stores",
   "section": "Stores in the static paint",
   "route": "/docs/guide/stores#stores-in-the-static-paint"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Looking at one while it runs",
+  "route": "/docs/guide/stores#looking-at-one-while-it-runs"
+ },
+ {
+  "chapter": "09",
+  "title": "Stores",
+  "section": "Testing one",
+  "route": "/docs/guide/stores#testing-one"
  },
  {
   "chapter": "09",
@@ -472,6 +508,12 @@
   "title": "Types",
   "section": "The type language",
   "route": "/docs/guide/types#the-type-language"
+ },
+ {
+  "chapter": "10",
+  "title": "Types",
+  "section": "The types the language brings with it",
+  "route": "/docs/guide/types#the-types-the-language-brings-with-it"
  },
  {
   "chapter": "10",
@@ -650,6 +692,12 @@
  {
   "chapter": "12",
   "title": "Styling",
+  "section": "Responsive values",
+  "route": "/docs/guide/styling#responsive-values"
+ },
+ {
+  "chapter": "12",
+  "title": "Styling",
   "section": "What the build emits",
   "route": "/docs/guide/styling#what-the-build-emits"
  },
@@ -686,6 +734,42 @@
  {
   "chapter": "13",
   "title": "Motion",
+  "section": "Opening to the height of the content",
+  "route": "/docs/guide/motion#opening-to-the-height-of-the-content"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "A number that counts",
+  "route": "/docs/guide/motion#a-number-that-counts"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "The same element across a route change",
+  "route": "/docs/guide/motion#the-same-element-across-a-route-change"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Orchestration",
+  "route": "/docs/guide/motion#orchestration"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "Driving one yourself",
+  "route": "/docs/guide/motion#driving-one-yourself"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
+  "section": "The defaults",
+  "route": "/docs/guide/motion#the-defaults"
+ },
+ {
+  "chapter": "13",
+  "title": "Motion",
   "section": "Transitions on state",
   "route": "/docs/guide/motion#transitions-on-state"
  },
@@ -718,6 +802,24 @@
   "title": "Data",
   "section": "resource",
   "route": "/docs/guide/data#resource"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "api: a service, described once",
+  "route": "/docs/guide/data#api-a-service-described-once"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "A connection the page holds open",
+  "route": "/docs/guide/data#a-connection-the-page-holds-open"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
+  "section": "The network as a value",
+  "route": "/docs/guide/data#the-network-as-a-value"
  },
  {
   "chapter": "14",
@@ -854,6 +956,12 @@
  {
   "chapter": "17",
   "title": "Outputs",
+  "section": "Custom elements",
+  "route": "/docs/guide/outputs#custom-elements"
+ },
+ {
+  "chapter": "17",
+  "title": "Outputs",
   "section": "Templates: rendering with data on a server",
   "route": "/docs/guide/outputs#templates-rendering-with-data-on-a-server"
  },
@@ -868,6 +976,18 @@
   "title": "Tooling",
   "section": "The commands",
   "route": "/docs/guide/tooling#the-commands"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf verify",
+  "route": "/docs/guide/tooling#wf-verify"
+ },
+ {
+  "chapter": "18",
+  "title": "Tooling",
+  "section": "wf migrate",
+  "route": "/docs/guide/tooling#wf-migrate"
  },
  {
   "chapter": "18",
@@ -925,120 +1045,186 @@
  },
  {
   "chapter": "19",
+  "title": "Security",
+  "section": "",
+  "route": "/docs/guide/security"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "What the compiler guarantees",
+  "route": "/docs/guide/security#what-the-compiler-guarantees"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "What it cannot",
+  "route": "/docs/guide/security#what-it-cannot"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "Markup you did not write",
+  "route": "/docs/guide/security#markup-you-did-not-write"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "Sessions and tokens",
+  "route": "/docs/guide/security#sessions-and-tokens"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "env, and what ends up in the bundle",
+  "route": "/docs/guide/security#env-and-what-ends-up-in-the-bundle"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "Uploads",
+  "route": "/docs/guide/security#uploads"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "Content-Security-Policy",
+  "route": "/docs/guide/security#content-security-policy"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "Another origin's files",
+  "route": "/docs/guide/security#another-origin-s-files"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "wf audit",
+  "route": "/docs/guide/security#wf-audit"
+ },
+ {
+  "chapter": "19",
+  "title": "Security",
+  "section": "Before you deploy",
+  "route": "/docs/guide/security#before-you-deploy"
+ },
+ {
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "",
   "route": "/docs/reference"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Layout",
   "route": "/docs/reference#layout"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Navigation",
   "route": "/docs/reference#navigation"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Data display",
   "route": "/docs/reference#data-display"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Form",
   "route": "/docs/reference#form"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Feedback",
   "route": "/docs/reference#feedback"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Actions",
   "route": "/docs/reference#actions"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Media",
   "route": "/docs/reference#media"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Typography",
   "route": "/docs/reference#typography"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "PDF",
   "route": "/docs/reference#pdf"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Slides",
   "route": "/docs/reference#slides"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Routing",
   "route": "/docs/reference#routing"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "On every element",
   "route": "/docs/reference#on-every-element"
  },
  {
-  "chapter": "19",
+  "chapter": "20",
   "title": "Built-in components \u2014 reference",
   "section": "Icons",
   "route": "/docs/reference#icons"
  },
  {
-  "chapter": "20",
+  "chapter": "21",
   "title": "Cookbook",
   "section": "",
   "route": "/docs/cookbook"
  },
  {
-  "chapter": "20",
+  "chapter": "21",
   "title": "Cookbook",
   "section": "App 1: Todos",
   "route": "/docs/cookbook#app-1-todos"
  },
  {
-  "chapter": "20",
+  "chapter": "21",
   "title": "Cookbook",
   "section": "App 2: A blog, statically built",
   "route": "/docs/cookbook#app-2-a-blog-statically-built"
  },
  {
-  "chapter": "20",
+  "chapter": "21",
   "title": "Cookbook",
   "section": "App 3: A dashboard behind a login",
   "route": "/docs/cookbook#app-3-a-dashboard-behind-a-login"
  },
  {
-  "chapter": "20",
+  "chapter": "21",
   "title": "Cookbook",
   "section": "Recipes",
   "route": "/docs/cookbook#recipes"
  },
  {
-  "chapter": "20",
+  "chapter": "21",
   "title": "Cookbook",
   "section": "Where to go next",
   "route": "/docs/cookbook#where-to-go-next"

@@ -23,7 +23,7 @@ page GettingStarted(path: "/getting-started", description: "Install WebFluent an
 
         Heading("Create a Project").h2
         Spacer.sm
-        Grid(columns: 3, gap: .md) {
+        Grid(columns: 3, gap: .md).stacks {
             Card.elevated {
                 Card.Body {
                     Badge("SPA").primary
@@ -82,7 +82,7 @@ page GettingStarted(path: "/getting-started", description: "Install WebFluent an
 
         Spacer
 
-        Row(gap: .md) {
+        Row(gap: .md).stacks {
             Button("Read the Guide").primary { on click { navigate("/guide") } }
             Button("Browse Components") { on click { navigate("/components") } }
         }

@@ -82,6 +82,17 @@ pub fn resolve_tokens(program: &Program, config: &ThemeConfig) -> Result<HashMap
     Ok(tokens)
 }
 
+/// Fold `motion` from the config into the tokens a build emits.
+///
+/// It sets what an animation does when the element says nothing, so it
+/// goes on top of the theme for the same reason `theme.tokens` does: it is
+/// the build's decision, not the design's.
+pub fn apply_motion(tokens: &mut HashMap<String, String>, motion: &crate::config::MotionConfig) {
+    for (name, value) in motion.tokens(tokens) {
+        tokens.insert(name, value);
+    }
+}
+
 /// The tokens of the dark theme the config names, as written: what the
 /// sheet overrides when the reader prefers dark, or asked for it.
 pub fn resolve_dark_tokens(

@@ -11,13 +11,13 @@ page Invoice(path: "/", description: "Invoice INV-0042.", title: "Invoice INV-00
         Section {
             Heading("Invoice INV-0042").h1
 
-            Row {
-                Column(span: 6) {
+            Row.stacks {
+                Column(span: 6).stacks {
                     Text("Billed to").bold
                     Text("Beit Qahwa Roasters")
                     Text("3 Mill Lane, Bristol")
                 }
-                Column(span: 6) {
+                Column(span: 6).stacks {
                     Text("Issued").bold
                     Text("4 August 2026")
                     Text("Due 3 September 2026")

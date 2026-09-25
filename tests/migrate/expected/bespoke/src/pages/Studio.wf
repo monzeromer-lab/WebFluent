@@ -12,7 +12,7 @@ page Studio(path: "/", description: "One thing, made slowly, eleven times a year
             background: #FAF9F6
         }
 
-        Row(align: .center, justify: .between) {
+        Row(align: .center, justify: .between).stacks {
             style {
                 padding: 2rem 0
                 border-bottom: 1px solid #1C1917
@@ -76,7 +76,7 @@ page Studio(path: "/", description: "One thing, made slowly, eleven times a year
             }
         }
 
-        Grid(columns: 2) {
+        Grid(columns: 2).stacks {
             style {
                 gap: 1px
                 background: #1C1917

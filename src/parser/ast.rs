@@ -83,6 +83,115 @@ pub enum Declaration {
     Type(TypeDecl),
     /// An enumeration: `enum Tone { neutral, info, danger }`.
     Enum(EnumDecl),
+    /// A service, described once: `api Backend(base: "/api") { … }`.
+    Api(ApiDecl),
+    /// Somebody else's code, described so the compiler can check every use
+    /// of it: `external Chart from "chart.js" { fn Chart(…) -> Handle }`.
+    External(ExternalDecl),
+}
+
+// ─── Somebody else's code ────────────────────────────────
+
+/// `external Name from "specifier" { … }` — a module the build imports, or
+/// `external element Name("tag-name") { … }` — a custom element the page
+/// places.
+///
+/// Either way it is a **description**: the compiler cannot read the other
+/// side, so what is written here is what every call site is checked
+/// against. It is the difference between reaching another library and
+/// reaching for `window.X` and hoping.
+#[derive(Debug, Clone)]
+pub struct ExternalDecl {
+    pub name: String,
+    /// What the declaration is of.
+    pub kind: ExternalKind,
+    /// The module specifier, or the custom element's tag name.
+    pub from: String,
+    /// `integrity: "sha384-…"` for a module served from another origin.
+    pub integrity: Option<String>,
+    /// `fn name(args) -> T` — what the module has.
+    pub functions: Vec<ExternalFn>,
+    /// `type Handle { m(a: T), field: T }` — the shapes it hands back.
+    pub types: Vec<ExternalType>,
+    /// `prop name: T` — what a custom element takes.
+    pub props: Vec<PropDecl>,
+    /// `event name(args)` — what a custom element fires.
+    pub events: Vec<EventDecl>,
+    pub doc: Option<String>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExternalKind {
+    /// A module the build imports.
+    Module,
+    /// A custom element the page places by its tag name.
+    Element,
+}
+
+/// `fn Chart(canvas: Any, config: Map) -> ChartHandle`
+#[derive(Debug, Clone)]
+pub struct ExternalFn {
+    pub name: String,
+    pub params: Vec<PropDecl>,
+    pub returns: Option<TypeRef>,
+    pub doc: Option<String>,
+    pub span: Span,
+}
+
+/// `type ChartHandle { update(data: Map), destroy() }`
+#[derive(Debug, Clone)]
+pub struct ExternalType {
+    pub name: String,
+    /// The methods it has, and what each gives back.
+    pub methods: Vec<ExternalFn>,
+    /// The fields it has.
+    pub fields: Vec<FieldDecl>,
+    pub span: Span,
+}
+
+// ─── A service ───────────────────────────────────────────
+
+/// `api Backend(base: env.API) { … }` — where a service is, how it is
+/// reached, and what it has.
+///
+/// One declaration, so every call site is typed, cached and cancellable,
+/// and the day the server changes its contract the build says so.
+#[derive(Debug, Clone)]
+pub struct ApiDecl {
+    pub name: String,
+    /// `base:`, and the other settings written in the header.
+    pub settings: Vec<(String, Expr)>,
+    /// `headers { Authorization: "…" }`.
+    pub headers: Vec<(String, Expr)>,
+    /// `on request(r) { … }`, `on response(r)`, `on error(e)`.
+    pub hooks: Vec<EventHandler>,
+    pub endpoints: Vec<Endpoint>,
+    pub doc: Option<String>,
+    pub span: Span,
+    /// The file it is read from, when the surface is imported: `api B from
+    /// "openapi.json"`.
+    pub from: Option<String>,
+}
+
+/// One thing a service has: `get users(page: Number = 1) -> [User]`.
+#[derive(Debug, Clone)]
+pub struct Endpoint {
+    /// `get`, `post`, `put`, `patch`, `delete`, `head`, `options`.
+    pub method: String,
+    pub name: String,
+    /// The path, with `:name` where a parameter goes. Written after the
+    /// name when it differs from it: `get user(id: String) at "users/:id"`.
+    pub path: String,
+    pub params: Vec<PropDecl>,
+    /// What comes back, and how to read it.
+    pub returns: Option<TypeRef>,
+    /// `errors { 422 -> ValidationErrors }`: the body of a failure, typed.
+    pub errors: Vec<(u16, TypeRef)>,
+    /// What the endpoint says about itself: `cache`, `as`, `progress`.
+    pub settings: Vec<(String, Expr)>,
+    pub doc: Option<String>,
+    pub span: Span,
 }
 
 // ─── Types ───────────────────────────────────────────────
@@ -177,7 +286,7 @@ impl EnumDecl {
 }
 
 /// A reference to a type, as written after a colon.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum TypeRef {
     String,
     Number,
@@ -191,6 +300,52 @@ pub enum TypeRef {
     Optional(Box<TypeRef>),
     /// A declared `type` or `enum`, by name.
     Named(String),
+    /// A type with a condition on its values: `Number(0..=100)`,
+    /// `String(minLength: 8)`, `Date(after: @2026-01-01)`.
+    ///
+    /// The condition is what the checker holds a literal to, and what
+    /// validation reads to say why a value was refused.
+    Refined(Box<TypeRef>, Vec<(String, Expr)>),
+}
+
+/// Two types are the same type when they are written the same way; a
+/// condition's values are expressions, which compare by how they read.
+impl PartialEq for TypeRef {
+    fn eq(&self, other: &TypeRef) -> bool {
+        match (self, other) {
+            (TypeRef::String, TypeRef::String)
+            | (TypeRef::Number, TypeRef::Number)
+            | (TypeRef::Bool, TypeRef::Bool)
+            | (TypeRef::Map, TypeRef::Map)
+            | (TypeRef::Any, TypeRef::Any) => true,
+            (TypeRef::List(a), TypeRef::List(b)) | (TypeRef::Optional(a), TypeRef::Optional(b)) => {
+                a == b
+            }
+            (TypeRef::Named(a), TypeRef::Named(b)) => a == b,
+            (TypeRef::Refined(a, x), TypeRef::Refined(b, y)) => {
+                a == b && x.len() == y.len() && x.iter().zip(y).all(|((n, _), (m, _))| n == m)
+            }
+            _ => false,
+        }
+    }
+}
+
+impl TypeRef {
+    /// The type without its condition.
+    pub fn base(&self) -> &TypeRef {
+        match self {
+            TypeRef::Refined(inner, _) => inner.base(),
+            other => other,
+        }
+    }
+
+    /// What it says about its values, innermost last.
+    pub fn refinement(&self) -> &[(String, Expr)] {
+        match self {
+            TypeRef::Refined(_, args) => args,
+            _ => &[],
+        }
+    }
 }
 
 // ─── Themes ──────────────────────────────────────────────
@@ -230,6 +385,9 @@ pub struct DataDecl {
     pub file: String,
     pub doc: Option<String>,
     pub span: Span,
+    /// Whether it is `image hero = "media/hero.jpg"` rather than `data`:
+    /// read as a picture at build time, not as JSON.
+    pub is_image: bool,
 }
 
 /// `animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }`: keyframes
@@ -259,16 +417,51 @@ pub struct TestDecl {
     /// The data the body renders over, a map literal.
     pub data: Option<Expr>,
     pub body: Vec<Statement>,
-    pub expects: Vec<Expect>,
+    /// What the test does and what it expects, in the order written.
+    ///
+    /// A test that only expects is rendered; one that acts is run in a
+    /// browser, because a click is not something a renderer can do.
+    pub steps: Vec<Step>,
     pub span: Span,
 }
 
-/// `expect "text"` or `expect not "text"` in a test.
+impl TestDecl {
+    /// Whether this test does something, rather than only looking.
+    pub fn acts(&self) -> bool {
+        self.steps.iter().any(|s| !matches!(s, Step::Expect { .. }))
+    }
+}
+
+/// One line of a test: what it does, or what it expects to see.
 #[derive(Debug, Clone)]
-pub struct Expect {
-    pub text: Expr,
-    pub negated: bool,
-    pub span: Span,
+pub enum Step {
+    /// `expect "text"`, or `expect not "text"`.
+    Expect {
+        text: Expr,
+        negated: bool,
+        span: Span,
+    },
+    /// `click "Save"` — whatever carries that name.
+    Click { target: Expr, span: Span },
+    /// `type "Ada" into "Name"` — into the control that label names.
+    Type { text: Expr, into: Expr, span: Span },
+    /// `press "Enter"`, or `press "Escape" in "Search"`.
+    Press {
+        key: Expr,
+        target: Option<Expr>,
+        span: Span,
+    },
+}
+
+impl Step {
+    pub fn span(&self) -> Span {
+        match self {
+            Step::Expect { span, .. }
+            | Step::Click { span, .. }
+            | Step::Type { span, .. }
+            | Step::Press { span, .. } => *span,
+        }
+    }
 }
 
 /// One design token: `token color-primary: "#0F766E"`.
@@ -407,6 +600,10 @@ pub struct SlotDecl {
 #[derive(Debug, Clone)]
 pub struct StoreDecl {
     pub name: String,
+    /// `store Cart(scope: .route)` — how long what it holds lives.
+    pub scope: StoreScope,
+    /// `store Cart(eager: true)` — built at boot rather than on first read.
+    pub eager: bool,
     pub body: Vec<Statement>,
 
     // ── Source spans (additive) ──
@@ -470,6 +667,10 @@ pub enum StatementKind {
     Return(Option<Expr>),
     /// `resource rows = fetch("/api")`: an async value, rendered with `match`.
     Resource(ResourceDecl),
+    /// `socket chat = ws(…)`, `stream ticks = sse(…)`, `channel c = broadcast(…)`.
+    Connection(ConnectionDecl),
+    /// `validate email { required  email }`.
+    Validate(ValidateDecl),
     /// `match rows { loading { … } error(e) { … } ready(v) { … } }`.
     Match(MatchStmt),
     /// `emit toggle(id)`: fire a declared event.
@@ -493,6 +694,58 @@ pub struct ResourceDecl {
     pub ty: Option<TypeRef>,
     pub url: Expr,
     pub options: Vec<FetchOption>,
+}
+
+/// What a value must be for a form to accept it, declared beside the state
+/// it guards.
+#[derive(Debug, Clone)]
+pub struct ValidateDecl {
+    /// The state it guards.
+    pub name: String,
+    pub rules: Vec<Rule>,
+    pub span: Span,
+}
+
+/// One rule: `required`, `minLength(8) "Use at least 8"`, `custom "…" { expr }`.
+#[derive(Debug, Clone)]
+pub struct Rule {
+    /// `required`, `email`, `url`, `minLength`, `maxLength`, `min`, `max`,
+    /// `pattern`, `matches`, `oneOf`, `custom`, `async`.
+    pub name: String,
+    pub args: Vec<Expr>,
+    /// The message shown when it does not hold; the rule's own when none
+    /// is written, which the project's translations may replace.
+    pub message: Option<Expr>,
+    /// What `custom` and `async` check.
+    pub body: Option<Expr>,
+    pub span: Span,
+}
+
+/// What a connection is: a socket, a stream of events, or a channel every
+/// tab of the origin hears.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConnectionKind {
+    /// `socket chat = ws("wss://…") { … }`.
+    Socket,
+    /// `stream ticks = sse("/events")`.
+    Stream,
+    /// `channel cart = broadcast("cart")`.
+    Channel,
+}
+
+/// A connection the page holds open, closed when the page leaves.
+#[derive(Debug, Clone)]
+pub struct ConnectionDecl {
+    pub kind: ConnectionKind,
+    pub name: String,
+    pub url: Expr,
+    /// `protocols:`, `reconnect:`, `heartbeat:`, `events:`, `resume:`.
+    pub options: Vec<(String, Expr)>,
+    /// `send Outgoing` and `receive Incoming`, when they are declared.
+    pub sends: Option<TypeRef>,
+    pub receives: Option<TypeRef>,
+    /// `on message(m) { … }`: what arrives, handled where it is opened.
+    pub handlers: Vec<EventHandler>,
 }
 
 /// A `match` over a resource's states or an enum's cases.
@@ -523,6 +776,8 @@ pub enum ArmPattern {
     Case(String),
     /// `else { … }`.
     Else,
+    /// A state a connection is in: `connecting`, `open`, `closed(c)`.
+    State(String),
 }
 
 #[derive(Debug, Clone)]
@@ -541,6 +796,59 @@ pub struct StateDecl {
     pub value: Expr,
     /// `persist name = value`: kept in the browser's storage across visits.
     pub persist: bool,
+    /// The block a `persist` may carry: where it is written, what version
+    /// its shape is, whether other tabs are followed, and how a value an
+    /// older build left is brought forward.
+    pub policy: Option<PersistPolicy>,
+}
+
+/// How long a store's state lives.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum StoreScope {
+    /// Built once, for as long as the page is open. The default.
+    #[default]
+    App,
+    /// This tab's: what it keeps defaults to the tab's own storage.
+    Session,
+    /// The route's: dropped when the route changes, built again empty.
+    Route,
+}
+
+impl StoreScope {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            StoreScope::App => "app",
+            StoreScope::Session => "session",
+            StoreScope::Route => "route",
+        }
+    }
+}
+
+/// `persist items = [] { in: .session  version: 2  migrate 1 -> 2 { … } }`
+#[derive(Debug, Clone, Default)]
+pub struct PersistPolicy {
+    /// `.local` (the default, or the store's scope) or `.session`.
+    pub storage: Option<String>,
+    /// The version of the shape this build writes. Without one, the value
+    /// is stored as it stands and no migration is possible.
+    pub version: Option<u32>,
+    /// Whether a write in another tab is adopted here. On by default for
+    /// `.local`, which is shared between tabs by definition.
+    pub sync: Option<bool>,
+    /// `migrate 1 -> 2 { old.map(…) }`, in the order written.
+    pub migrations: Vec<Migration>,
+    /// The whole block, for an editor.
+    pub span: Span,
+}
+
+/// One step forward: what a value of `from` becomes at `to`, reading the
+/// old value as `old`.
+#[derive(Debug, Clone)]
+pub struct Migration {
+    pub from: u32,
+    pub to: u32,
+    pub body: Expr,
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
@@ -891,6 +1199,14 @@ pub enum Expr {
     Token(String),
     /// `await expr`, inside an action or a handler.
     Await(Box<Expr>),
+    /// A literal of one of the language's own types: `@2026-03-14` is a
+    /// `Date` carried by `"2026-03-14"`, `3.days` a `Duration` carried by
+    /// `259200000`, `€12.99` a `Money` carried by a small map.
+    ///
+    /// The name is the type; the expression inside is the carrier, and is
+    /// what every backend emits — so a scalar is a plain JSON value
+    /// wherever it goes, and only the checker knows more.
+    Typed(String, Box<Expr>),
 }
 
 impl Expr {
@@ -909,9 +1225,11 @@ impl Expr {
                 vec![base, index]
             }
             Expr::BinaryOp(l, _, r) => vec![l, r],
-            Expr::UnaryOp(_, e) | Expr::Lambda(_, e) | Expr::Await(e) | Expr::Spread(e) => {
-                vec![e]
-            }
+            Expr::UnaryOp(_, e)
+            | Expr::Lambda(_, e)
+            | Expr::Await(e)
+            | Expr::Spread(e)
+            | Expr::Typed(_, e) => vec![e],
             Expr::Range(a, b, _) => vec![a, b],
             Expr::MethodCall(obj, _, args) | Expr::OptionalMethod(obj, _, args) => {
                 std::iter::once(&**obj).chain(args).collect()
@@ -948,9 +1266,11 @@ impl Expr {
                 vec![base, index]
             }
             Expr::BinaryOp(l, _, r) => vec![l, r],
-            Expr::UnaryOp(_, e) | Expr::Lambda(_, e) | Expr::Await(e) | Expr::Spread(e) => {
-                vec![e]
-            }
+            Expr::UnaryOp(_, e)
+            | Expr::Lambda(_, e)
+            | Expr::Await(e)
+            | Expr::Spread(e)
+            | Expr::Typed(_, e) => vec![e],
             Expr::Range(a, b, _) => vec![a, b],
             Expr::MethodCall(obj, _, args) | Expr::OptionalMethod(obj, _, args) => {
                 std::iter::once(&mut **obj).chain(args).collect()
@@ -1014,6 +1334,8 @@ impl StatementKind {
             StatementKind::Action(a) => vec![&a.body],
             StatementKind::EventHandler(h) => vec![&h.body],
             StatementKind::Try(t) => vec![&t.body, &t.catch_body],
+            // What a connection does with what arrives.
+            StatementKind::Connection(c) => c.handlers.iter().map(|h| h.body.as_slice()).collect(),
             _ => Vec::new(),
         }
     }
@@ -1040,6 +1362,14 @@ impl StatementKind {
             StatementKind::Return(e) => e.iter().collect(),
             StatementKind::Resource(r) => std::iter::once(&r.url)
                 .chain(r.options.iter().map(|o| &o.value))
+                .collect(),
+            StatementKind::Connection(c) => std::iter::once(&c.url)
+                .chain(c.options.iter().map(|(_, v)| v))
+                .collect(),
+            StatementKind::Validate(v) => v
+                .rules
+                .iter()
+                .flat_map(|r| r.args.iter().chain(r.message.iter()).chain(r.body.iter()))
                 .collect(),
             StatementKind::Match(m) => vec![&m.scrutinee],
             StatementKind::Emit(e) => e.args.iter().collect(),
@@ -1169,6 +1499,27 @@ pub fn walk_exprs_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut Expr)) {
                 r.url.walk_mut(f);
                 for o in &mut r.options {
                     o.value.walk_mut(f);
+                }
+            }
+            StatementKind::Validate(v) => {
+                for rule in &mut v.rules {
+                    for e in rule
+                        .args
+                        .iter_mut()
+                        .chain(rule.message.iter_mut())
+                        .chain(rule.body.iter_mut())
+                    {
+                        e.walk_mut(f);
+                    }
+                }
+            }
+            StatementKind::Connection(c) => {
+                c.url.walk_mut(f);
+                for (_, v) in &mut c.options {
+                    v.walk_mut(f);
+                }
+                for h in &mut c.handlers {
+                    walk_exprs_mut(&mut h.body, f);
                 }
             }
             StatementKind::Match(m) => {

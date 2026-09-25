@@ -37,6 +37,138 @@ page Typed(path: "/") {
 }
 ```
 
+## The types the language brings with it
+
+Eleven more come with the language. Each is a **plain JSON value at run
+time** — no wrapper object — so it crosses a `fetch`, a `persist`, the
+static paint and the template engine unchanged; `.native()` hands a real
+platform object to a library that wants one.
+
+| Type | Carried by | Written as a literal |
+|---|---|---|
+| `Date` | `"2026-03-14"` | `@2026-03-14` |
+| `Time` | `"09:30"` | `@09:30` |
+| `DateTime` | ISO 8601 | `@2026-03-14T09:30Z` |
+| `Duration` | milliseconds | `3.days`, `90.minutes`, `250.ms` |
+| `Money` | `{ amount: 1299, currency: "EUR" }` | `€12.99`, `$9.99`, `£4.50` |
+| `Url` | a string | `"https://example.com"` |
+| `Email` | a string | `"ada@example.com"` |
+| `Color` | a string | `#0F766E` |
+| `Uuid` | a string | `uuid()` makes a fresh one |
+| `File` | the browser's `File` | what a `FileUpload` yields |
+| `Secret` | a string | — |
+
+Money is in **minor units** — cents, pence — so the arithmetic is a whole
+number's and nothing drifts. A duration is milliseconds, so it adds to a
+moment. `uuid()` is where a `Uuid` comes from: the platform's own
+generator where there is one, a version-4 layout from the best randomness
+available where there is not.
+
+```wf
+type Booking {
+    id: Uuid
+    guest: Email
+    from: Date
+    nights: Number(1..=30)
+    total: Money
+}
+
+page Stay(path: "/", title: "Stay", description: "One booking.") {
+    state from: Date = @2026-03-14
+    state nights: Number = 5
+    state total: Money = €249.00
+
+    derived checkout = from.plus(days: nights)
+    derived weekday = checkout.weekday()
+    derived late = now.date().isAfter(checkout)
+
+    Heading("Your stay").h1
+    Text("Out on {checkout}, a weekday of {weekday}")
+    Text("Due {format(total)}")
+    if late { Alert("Checkout has passed").warning }
+}
+```
+
+Everything the language **computes** is a call; everything the carrier
+**already has** is a field. So `total.amount` and `total.currency` are
+fields, and `from.year()` and `checkout.weekday()` are calls.
+
+| | |
+|---|---|
+| `Date` `Time` `DateTime` | `.year() .month() .day() .weekday() .hour() .minute() .second()`, `.plus(days: 3)` and `.minus(…)` (which take `years months weeks days hours minutes seconds ms`), `.isBefore(d) .isAfter(d) .isSame(d)`, `.until(d)` (a `Duration`), `.startOfDay() .startOfWeek() .startOfMonth() .endOfDay()`, `.native()`; `DateTime` also `.date() .time() .inZone("Europe/Berlin")` |
+| `Duration` | `.days() .hours() .minutes() .seconds() .ms()`, `.plus(d)` |
+| `Money` | `.plus(m) .minus(m) .times(n) .convert(rate, "USD")`; `format(m)` needs no style and no currency code |
+| `Url` | `.host() .path() .query()`, `.with(query: { page: 2 })` |
+| `Email` | `.domain()` |
+| `Color` | `.mix(other, 0.2) .lighten(0.1) .darken(0.1) .alpha(0.5) .contrast(other)` |
+| `File` | `.preview()` — an object URL, revoked when the scope that made it leaves |
+
+Adding a month lands on a day that exists: `@2026-01-31.plus(months: 1)` is
+the 28th of February, not the 3rd of March. All of it runs at build time
+too, so the static paint shows the answer rather than a blank that fills in
+when the page hydrates.
+
+### A literal is held to its type
+
+A string written where one of these is wanted is read as one, and checked
+where it is written:
+
+```wf
+state site: Url = "https://example.com"     // fine
+state bad: Url = "example"                  // T01: A URL has a scheme
+```
+
+### `now`
+
+`now` is a `DateTime` that keeps itself current — every minute by default,
+or as often as a page asks:
+
+```wf
+page Feed(path: "/", title: "Feed", description: "What just happened.") {
+    state posted: DateTime = @2026-03-14T09:30:00Z
+    derived age = posted.until(now)
+    Text("{ago(posted)} — {age.minutes()} minutes")
+    Text("ticking: {now(every: 1.seconds)}")
+}
+```
+
+### A condition on a type
+
+Any type may say what its values must be, and every value the compiler can
+read is held to it:
+
+```wf
+state nights: Number(1..=30) = 12
+state pass: String(minLength: 8) = "correcthorse"
+state start: Date(after: @2026-01-01) = @2026-03-14
+```
+
+`min`, `max`, `minLength`, `maxLength`, `pattern`, `after`, `before`, and a
+range (`1..=30` inclusive, `0..10` exclusive of the end) for the two ends.
+A value that arrives at run time is validation's to refuse, from the same
+condition.
+
+### `Secret` is not a string
+
+A `Secret` is a string the compiler will not let escape. Each of these is a
+`T12`:
+
+```wf
+state token: Secret = ""
+Text(token)                     // shown
+Text("Bearer {token}")          // in text — which is how it ends up in a URL
+persist token: Secret = ""      // kept in the browser
+log(token)                      // in the console, and often in a log service
+```
+
+Hold it in `state`, which the visit ends; what must outlive the visit
+belongs on the server.
+
+### Your own name wins
+
+A `type` the program declares takes the name back. A project with its own
+`type Color { name: String }` means that one everywhere.
+
 ## Records: `type`
 
 ```wf
@@ -242,6 +374,7 @@ The checker trusts the annotation; it does not read the server's schema.
 | `T09` | An `emit` whose arguments do not match the event's |
 | `T10` | A call with the wrong number of arguments |
 | `T11` | A `match` on something that is neither a resource nor an enum, or an arm the value cannot take |
+| `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
 
 Each comes with a hint: a conversion (`Number(value)`, `"{value}"`), the
 cases an enum takes, the fields a record has, the unwrapping forms above.

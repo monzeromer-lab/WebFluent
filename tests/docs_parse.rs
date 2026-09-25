@@ -36,6 +36,8 @@ fn wf_blocks(markdown: &str) -> Vec<(usize, String, bool)> {
 }
 
 const DECLARATIONS: &[&str] = &[
+    "api",
+    "external",
     "page",
     "component",
     "store",
@@ -58,21 +60,89 @@ fn starts_declaration(line: &str) -> bool {
         && (line.len() == word.len() || !line.as_bytes()[word.len()].is_ascii_alphanumeric())
 }
 
+/// A line with its comment and its string literals taken out, so the
+/// brackets left in it are the ones that open and close blocks.
+///
+/// `open` says a `"""` block string was still open when the line began,
+/// and what comes back says whether it still is.
+fn code_of(line: &str, open: bool) -> (String, bool) {
+    let chars: Vec<char> = line.chars().collect();
+    let mut out = String::new();
+    let mut block = open;
+    let mut i = 0;
+    while i < chars.len() {
+        if block {
+            if chars[i] == '"' && chars.get(i + 1) == Some(&'"') && chars.get(i + 2) == Some(&'"') {
+                block = false;
+                i += 3;
+                continue;
+            }
+            i += 1;
+            continue;
+        }
+        // A comment ends the line.
+        if chars[i] == '/' && chars.get(i + 1) == Some(&'/') {
+            break;
+        }
+        // `#"…"#`, however many hashes.
+        if chars[i] == '#' {
+            let mut hashes = 0;
+            let mut j = i;
+            while chars.get(j) == Some(&'#') {
+                hashes += 1;
+                j += 1;
+            }
+            if chars.get(j) == Some(&'"') {
+                j += 1;
+                while j < chars.len() {
+                    if chars[j] == '"' && (1..=hashes).all(|n| chars.get(j + n) == Some(&'#')) {
+                        j += hashes + 1;
+                        break;
+                    }
+                    j += 1;
+                }
+                i = j;
+                continue;
+            }
+        }
+        if chars[i] == '"' {
+            if chars.get(i + 1) == Some(&'"') && chars.get(i + 2) == Some(&'"') {
+                block = true;
+                i += 3;
+                continue;
+            }
+            i += 1;
+            while i < chars.len() && chars[i] != '"' {
+                if chars[i] == '\\' {
+                    i += 1;
+                }
+                i += 1;
+            }
+            i += 1;
+            continue;
+        }
+        out.push(chars[i]);
+        i += 1;
+    }
+    (out, block)
+}
+
 /// The block split into its declarations and the lines outside them.
 fn split(block: &str) -> (String, String) {
     let mut declarations = String::new();
     let mut loose = String::new();
     let mut depth = 0i32;
     let mut in_declaration = false;
+    let mut in_block_string = false;
     // Doc comments go with whatever follows them.
     let mut docs = String::new();
     for line in block.lines() {
-        if depth == 0 && line.trim_start().starts_with("///") {
+        if depth == 0 && !in_block_string && line.trim_start().starts_with("///") {
             docs.push_str(line);
             docs.push('\n');
             continue;
         }
-        if depth == 0 {
+        if depth == 0 && !in_block_string {
             in_declaration = starts_declaration(line);
         }
         let into = if in_declaration {
@@ -83,16 +153,19 @@ fn split(block: &str) -> (String, String) {
         into.push_str(&std::mem::take(&mut docs));
         into.push_str(line);
         into.push('\n');
-        // A declaration runs to its closing bracket of any kind: a `const`
-        // list or a call may span lines as well as a block.
-        for c in line.split("//").next().unwrap_or("").chars() {
+        // A declaration runs to its closing bracket of any kind — a `const`
+        // list or a call may span lines as well as a block — and a block
+        // string runs to its closing delimiter, brackets and all.
+        let (code, still_open) = code_of(line, in_block_string);
+        in_block_string = still_open;
+        for c in code.chars() {
             match c {
                 '{' | '[' | '(' => depth += 1,
                 '}' | ']' | ')' => depth -= 1,
                 _ => {}
             }
         }
-        if depth <= 0 {
+        if depth <= 0 && !in_block_string {
             depth = 0;
             in_declaration = false;
         }
@@ -128,7 +201,10 @@ const OLD_ANYWHERE: &[&str] = &[
     ", h3)",
     ", primary)",
     ", primary,",
-    "animate(",
+    // The original grammar's clause, `if open, animate(fadeIn, fast) {`.
+    // `animate(node, "pulse")` is the handle the runtime gives back, and
+    // is current — so the comma is what tells them apart.
+    ", animate(",
     ", large)",
     ", small)",
 ];
@@ -167,6 +243,33 @@ fn check(path: &str) -> Vec<String> {
     check_until(path, None)
 }
 
+/// A page may only read an `env` name that says anyone may: one beginning
+/// `PUBLIC_`, or one the config's `public_env` lists. A guide cannot show
+/// the second — the block carries no config — so every `env.NAME` it
+/// writes must be a `PUBLIC_` one, or a reader copying it gets a compile
+/// error the page they copied it from did not have.
+fn public_env(path: &str, markdown: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for (line, block, _) in wf_blocks(markdown) {
+        for (n, _) in block.match_indices("env.") {
+            let rest = &block[n + 4..];
+            let name: String = rest
+                .chars()
+                .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+                .collect();
+            // `env.NAME` in prose about the rule itself, and a method call
+            // on something a program called `env`, are not reads.
+            if name.is_empty() || name == "NAME" || name == "X" || name.starts_with("PUBLIC_") {
+                continue;
+            }
+            out.push(format!(
+                "{path}:{line}: `env.{name}` is a name no page may read —                  every `env` a guide shows must begin `PUBLIC_`"
+            ));
+        }
+    }
+    out
+}
+
 /// [`check`], and every block that is whole declarations is also held to
 /// the semantic and type checks: a guide's examples must build, not only
 /// parse. A block that names something another block declares is written
@@ -189,6 +292,7 @@ fn check_strictly(path: &str) -> Vec<String> {
     let mut failures = check(path);
     let markdown =
         std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(path)).unwrap();
+    failures.extend(public_env(path, &markdown));
     for (line, block, wfx) in wf_blocks(&markdown) {
         if abbreviates(&block) {
             continue;
@@ -282,13 +386,13 @@ fn check_until(path: &str, stop: Option<&str>) -> Vec<String> {
 
 #[test]
 fn the_agents_guide_parses() {
-    let failures = check("AGENTS.md");
+    let failures = check_strictly("AGENTS.md");
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
 }
 
 #[test]
 fn the_readme_parses() {
-    let failures = check("README.md");
+    let failures = check_strictly("README.md");
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
 }
 
@@ -305,7 +409,14 @@ fn the_specs_parse() {
     for entry in std::fs::read_dir(dir).unwrap().flatten() {
         let name = entry.file_name().to_string_lossy().to_string();
         if name.ends_with(".md") {
-            failures.extend(check(&format!("spec/{name}")));
+            // `SYNTAX_V2.md` is the design record of the 3.0 grammar, not a
+            // guide: its blocks quote one another's declarations, so they
+            // are held to the grammar and not to the checker.
+            if name == "SYNTAX_V2.md" {
+                failures.extend(check(&format!("spec/{name}")));
+            } else {
+                failures.extend(check_strictly(&format!("spec/{name}")));
+            }
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
@@ -327,4 +438,32 @@ fn the_guide_parses() {
         failures.extend(check_strictly(&format!("md-docs/{name}")));
     }
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
+}
+
+/// Every baseline design token is in the styling chapter's table. A token
+/// nobody can find is a token nobody uses, and the table is written by
+/// hand — so this is what keeps it from drifting behind `default_tokens`.
+#[test]
+fn every_design_token_is_documented() {
+    let chapter = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/12-styling.md"),
+    )
+    .unwrap();
+    let mut missing = Vec::new();
+    for name in webfluent::themes::tokens::default_tokens().keys() {
+        // A family written as a range (`font-size-xs … font-size-3xl`) or
+        // with a slash (`animation-duration-fast/normal/slow`) covers its
+        // members: the reader finds them either way.
+        let family = name.rsplit_once('-').map(|(head, _)| head).unwrap_or(name);
+        if chapter.contains(name.as_str()) || chapter.contains(&format!("{family}-")) {
+            continue;
+        }
+        missing.push(name.clone());
+    }
+    missing.sort();
+    assert!(
+        missing.is_empty(),
+        "md-docs/12-styling.md does not name: {}",
+        missing.join(", ")
+    );
 }

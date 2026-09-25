@@ -69,7 +69,7 @@ takes — there is no shared vocabulary of modifiers to guess from.
 Every element also takes the universal motion props (`animate:`, `exit:`,
 `delay:`, `stagger:`, `speed:`, `duration:`, `easing:`) and their flags
 (`.fadeIn`, `.fast`), `class:` for your own stylesheet classes, and `ref:`
-(chapter 5). See the [reference](19-components-reference.md) for every
+(chapter 5). See the [reference](20-components-reference.md) for every
 element's props.
 
 ## Attributes
@@ -170,7 +170,7 @@ reader and a search engine can follow.
 - Handlers name a DOM event or one of the component's declared events.
 - Slot fills name a declared slot.
 - An `Icon("name")` or `icon:` names one of the icons the runtime draws
-  ([the list](19-components-reference.md#icons)); any other name shows as
+  ([the list](20-components-reference.md#icons)); any other name shows as
   the word.
 - Accessibility: an `Image` has `alt:`, an `IconButton` has `label:`, a control
   has a label, a `Modal` a title, a `Table` a `Table.Head` (`A01`–`A10`).

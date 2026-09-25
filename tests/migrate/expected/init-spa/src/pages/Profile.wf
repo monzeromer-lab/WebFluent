@@ -8,8 +8,8 @@ page Profile(path: "/profile", description: "Your details and how they appear to
 
         Spacer
 
-        Row(gap: .md) {
-            Column(span: 4) {
+        Row(gap: .md).stacks {
+            Column(span: 4).stacks {
                 Card.elevated.scaleIn {
                     Card.Body {
                         Stack(gap: .md) {
@@ -25,10 +25,10 @@ page Profile(path: "/profile", description: "Your details and how they appear to
                     }
                 }
             }
-            Column(span: 8) {
+            Column(span: 8).stacks {
                 Card {
                     Card.Header {
-                        Row(align: .center, justify: .between) {
+                        Row(align: .center, justify: .between).stacks {
                             Heading("Details").h2
                             Button("Edit").primary.sm { on click { editing = !editing } }
                         }
@@ -45,7 +45,7 @@ page Profile(path: "/profile", description: "Your details and how they appear to
                                 Spacer.sm
                                 Input(placeholder: "Bio", label: "Bio").text
                                 Spacer
-                                Row(gap: .sm) {
+                                Row(gap: .sm).stacks {
                                     Button("Save").primary { on click { editing = false } }
                                     Button("Cancel") { on click { editing = false } }
                                 }
@@ -53,19 +53,19 @@ page Profile(path: "/profile", description: "Your details and how they appear to
                             }
                         } else {
                             Stack(gap: .md) {
-                                Row {
+                                Row.stacks {
                                     Text("Name:").bold
                                     Text("Demo User")
                                 }
-                                Row {
+                                Row.stacks {
                                     Text("Email:").bold
                                     Text("user@demo.com")
                                 }
-                                Row {
+                                Row.stacks {
                                     Text("Bio:").bold
                                     Text("WebFluent developer")
                                 }
-                                Row {
+                                Row.stacks {
                                     Text("Joined:").bold
                                     Text("March 2026")
                                 }

@@ -19,7 +19,7 @@
     <meta name="twitter:title" content="Styling">
     <meta name="twitter:description" content="Design tokens and themes, style blocks with splices and nesting, transitions, classes, dark mode and layout.">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/styling#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/styling","name":"Styling","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Design tokens and themes, style blocks with splices and nesting, transitions, classes, dark mode and layout."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/styling#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Styling","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/styling"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -160,7 +160,7 @@
                     <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <div class="wf-markdown">
-<p>Every built-in ships styled, and a theme changes the whole site by changing its tokens. When you need more, an element takes a <code>style ￾ ￿</code> block of real CSS, scoped to that element, with tokens and live values spliced in.</p>
+<p>Every built-in ships styled, and a theme changes the whole site by changing its tokens. When you need more, an element takes a <code>style { }</code> block of real CSS, scoped to that element, with tokens and live values spliced in.</p>
                             </div>
                             <h2 class="wf-heading">Design tokens and the theme</h2>
                             <div class="wf-markdown">
@@ -189,7 +189,7 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A project with one theme uses it; with several, <code>webfluent.app.json</code> chooses: <code>&quot;theme&quot;: ￾ &quot;name&quot;: &quot;Brand&quot; ￿</code>. Values are raw CSS to the end of the line.</p>
+<p>A project with one theme uses it; with several, <code>webfluent.app.json</code> chooses: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Brand&quot; }</code>. Values are raw CSS to the end of the line.</p>
 <p>The baseline tokens, by group:</p>
                             </div>
                             <table class="wf-table">
@@ -288,11 +288,11 @@
 <ul>
 <li>A style block holds CSS declarations, one per line or <code>;</code>-separated. No quotes around values — <code>padding: 2rem</code>, not <code>&quot;2rem&quot;</code>.</li>
 <li><code>$token</code> names a token. A short name is resolved by the property: <code>padding: $lg</code> is <code>spacing-lg</code>, <code>color: $primary</code> is <code>color-primary</code>, <code>border-radius: $lg</code> is <code>radius-lg</code>, <code>box-shadow: $md</code> is <code>shadow-md</code>, <code>font-size: $xl</code> is <code>font-size-xl</code>, <code>transition: $fast</code>. A full name (<code>$color-primary</code>, <code>$surface-raised</code>) works anywhere. A token the theme does not have is an error.</li>
-<li><code>￾expr￿</code> splices a live value; the declaration updates when the value changes. A whole value or a part of one (<code>￾n￿px</code>).</li>
-<li><code>&amp;:hover</code>, <code>&amp;:focus-visible</code>, <code>&amp;.active</code>, <code>&amp; &gt; p</code>, <code>&amp;[aria-current]</code> nest as CSS nesting does; <code>@media (…) ￾ ￿</code> nests too.</li>
+<li><code>{expr}</code> splices a live value; the declaration updates when the value changes. A whole value or a part of one (<code>{n}px</code>).</li>
+<li><code>&amp;:hover</code>, <code>&amp;:focus-visible</code>, <code>&amp;.active</code>, <code>&amp; &gt; p</code>, <code>&amp;[aria-current]</code> nest as CSS nesting does; <code>@media (…) { }</code> nests too.</li>
 <li>The block is scoped: it becomes a class on that element alone, written to the page's stylesheet at build time. Splices become custom properties set by the runtime.</li>
 </ul>
-<p>The static parts of every <code>style ￾ ￿</code> are compiled to CSS; the linter warns when a declaration is invalid CSS.</p>
+<p>The static parts of every <code>style { }</code> are compiled to CSS; the linter warns when a declaration is invalid CSS.</p>
                             </div>
                             <h2 class="wf-heading">transition { }</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
@@ -313,7 +313,7 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>transition ￾ prop: duration easing ￿</code> sets CSS transitions for the element; a <code>$fast/$normal/$slow</code> token or a raw value. Reduced-motion readers get none (<a href="/WebFluent/docs/guide/motion">chapter 13</a>).</p>
+<p><code>transition { prop: duration easing }</code> sets CSS transitions for the element; a <code>$fast/$normal/$slow</code> token or a raw value. Reduced-motion readers get none (<a href="/WebFluent/docs/guide/motion">chapter 13</a>).</p>
                             </div>
                             <h2 class="wf-heading">Classes and your own stylesheet</h2>
                             <div class="wf-markdown">
@@ -351,7 +351,7 @@
                             </div>
                             <h2 class="wf-heading">Dark mode</h2>
                             <div class="wf-markdown">
-<p>A second <code>theme</code> declaration named in <code>webfluent.app.json</code> as <code>&quot;theme&quot;: ￾ &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; ￿</code> stands in for dark mode. Its tokens override the light theme's under the reader's system preference (<code>prefers-color-scheme: dark</code>) and whenever <code>setTheme(&quot;dark&quot;)</code> was called; <code>setTheme(&quot;light&quot;)</code> forces light, <code>setTheme(&quot;system&quot;)</code> follows the system again. The choice is remembered across visits and applied before the first paint, so a dark reader never sees a light flash.</p>
+<p>A second <code>theme</code> declaration named in <code>webfluent.app.json</code> as <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code> stands in for dark mode. Its tokens override the light theme's under the reader's system preference (<code>prefers-color-scheme: dark</code>) and whenever <code>setTheme(&quot;dark&quot;)</code> was called; <code>setTheme(&quot;light&quot;)</code> forces light, <code>setTheme(&quot;system&quot;)</code> follows the system again. The choice is remembered across visits and applied before the first paint, so a dark reader never sees a light flash.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -387,7 +387,7 @@ page Prefs(path: &quot;/&quot;) {
                             </div>
                             <h2 class="wf-heading">Layout without CSS</h2>
                             <div class="wf-markdown">
-<p>Most layout needs no <code>style</code> at all: <code>Stack</code>, <code>Row</code>, <code>Grid</code>, <code>Container</code>, <code>Spacer</code> and <code>Divider</code> with their <code>gap:</code>, <code>align:</code>, <code>justify:</code>, <code>columns:</code> props (<a href="/WebFluent/docs/guide/elements#layout">chapter 4</a>), plus the responsive <code>viewport</code> values (<a href="/WebFluent/docs/guide/state#the-browser-as-values">chapter 5</a>).</p>
+<p>Most layout needs no <code>style</code> at all: <code>Stack</code>, <code>Row</code>, <code>Grid</code>, <code>Container</code>, <code>Spacer</code> and <code>Divider</code> with their <code>gap:</code>, <code>align:</code>, <code>justify:</code> and <code>columns:</code> props (<a href="/WebFluent/docs/guide/elements#layout-elements">chapter 4</a>).</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -396,23 +396,88 @@ page Prefs(path: &quot;/&quot;) {
                                     </div>
                                     <button class="wf-btn wf-s21cc4e75"></button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Layout(path: &quot;/&quot;) {
+                                <code class="wf-code wf-code--block wf-sa8223565">page Layout(path: &quot;/&quot;, title: &quot;Layout&quot;, description: &quot;A grid of projects.&quot;) {
     Container {
         Stack(gap: .lg) {
             Row(justify: .between, align: .center) {
                 Heading(&quot;Projects&quot;).h2
                 Button(&quot;New&quot;).primary.sm
             }
-            Grid(columns: if viewport.md { 3 } else { 1 }, gap: .md) {
+            Grid(columns: { base: 1, md: 2, lg: 3 }, gap: .md) {
                 for n in 1..=6 { Card { Text(&quot;Project {n}&quot;) } }
             }
         }
     }
 }</code>
                             </div>
+                            <h2 class="wf-heading">Responsive values</h2>
+                            <div class="wf-markdown">
+<p>Any layout prop takes <strong>one value per breakpoint</strong>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Grid(columns: { base: 1, md: 2, lg: 3 }, gap: { base: .sm, lg: .lg }) { … }
+Row(direction: { base: .column, md: .row }) { … }
+Column(span: { base: 12, md: 6 }) { … }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>That compiles to one class and one media query per step — no JavaScript, no resize listener, and <strong>the right layout in the very first paint</strong>, where a <code>viewport</code> test could only paint one branch and swap after hydration.</p>
+<p>The steps are <code>base</code>, <code>sm</code>, <code>md</code>, <code>lg</code>, <code>xl</code>, and each is a design token — <code>screen-sm</code> … <code>screen-xl</code>. Move one in your theme and every media query moves with it, including <code>viewport.md</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">theme Brand { screen-md: 900px }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A step a value omits keeps whatever the step below it said, so <code>{ base: 1, lg: 3 }</code> is one column until <code>lg</code>.</p>
+<p>The same names are sugar inside a <code>style { }</code> block:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Heading(&quot;Title&quot;).h1 {
+    style {
+        font-size: 24px
+        @md { font-size: 34px }
+    }
+}</code>
+                            </div>
+                            <h3 class="wf-heading">A layout stays as it is written</h3>
+                            <div class="wf-markdown">
+<p>The engine used to reflow <strong>every</strong> <code>Row</code> into a column and <strong>every</strong> <code>Grid</code> into one column below 768px, with <code>!important</code>. It does not any more. A layout that should reflow says so:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Row.stacks { … }                          // a column on a narrow screen
+Grid.stacks { … }                         // one column on a narrow screen
+Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>wf migrate</code> adds <code>.stacks</code> to every <code>Row</code>, <code>Grid</code> and <code>Column</code> of a WebFluent 2 project, so the old behaviour carries over — written down, where you can see it and change it.</p>
+<p><code>viewport</code> (<a href="/WebFluent/docs/guide/state#the-browser-as-values">chapter 5</a>) stays for what is genuinely behavioural — a drawer instead of a sidebar — and follows <code>matchMedia</code>, which fires once when the answer changes rather than on every pixel of a drag.</p>
+                            </div>
                             <h2 class="wf-heading">What the build emits</h2>
                             <div class="wf-markdown">
-<p><code>styles.css</code> holds the tokens (<code>:root ￾ --color-primary: … ￿</code>), the dark overrides, the structural and baseline CSS of the built-ins you used (and only those), and your bundled stylesheets. Each page's own <code>style</code> blocks go to <code>pages/&lt;Name&gt;.css</code>, loaded with the page. Unused built-in CSS is pruned.</p>
+<p><code>styles.css</code> holds the tokens (<code>:root { --color-primary: … }</code>), the dark overrides, the structural and baseline CSS of the built-ins you used (and only those), and your bundled stylesheets. Each page's own <code>style</code> blocks go to <code>pages/&lt;Name&gt;.css</code>, loaded with the page. Unused built-in CSS is pruned.</p>
                             </div>
                         </div>
                     </div>
@@ -437,6 +502,7 @@ page Prefs(path: &quot;/&quot;) {
                         <a class="wf-link wf-sdae384de" href="#enum-props-as-hooks">Enum props as hooks</a>
                         <a class="wf-link wf-sdae384de" href="#dark-mode">Dark mode</a>
                         <a class="wf-link wf-sdae384de" href="#layout-without-css">Layout without CSS</a>
+                        <a class="wf-link wf-sdae384de" href="#responsive-values">Responsive values</a>
                         <a class="wf-link wf-sdae384de" href="#what-the-build-emits">What the build emits</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">

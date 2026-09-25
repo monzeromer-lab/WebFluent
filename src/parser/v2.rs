@@ -24,7 +24,7 @@
 
 use crate::error::{Diagnostic, Result, WebFluentError};
 use crate::lexer::v2::LexerV2;
-use crate::lexer::{Token, TokenType};
+use crate::lexer::{StringKind, StringLit, Token, TokenType};
 use crate::parser::ast::*;
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
@@ -101,6 +101,9 @@ const CLAUSE_WORDS: &[&str] = &["style", "transition", "on"];
 const STATEMENT_WORDS: &[&str] = &[
     "state", "persist", "derived", "effect", "action", "use", "resource", "event", "slot", "part",
     "if", "for", "show", "match", "children", "let", "return", "navigate", "log", "emit", "else",
+    // `sequence { step { … } }` is orchestration, not a slot fill: it is a
+    // lowercase word before a block, which is what a fill looks like.
+    "sequence",
 ];
 
 impl ParserV2 {
@@ -165,6 +168,14 @@ impl ParserV2 {
     }
 
     /// Whether the current token is the identifier `word`.
+    /// Whether the token `ahead` of the cursor is a string literal.
+    ///
+    /// `type "Ada" into "Name"` is a step; `type Todo { … }` is a
+    /// declaration, and the difference is what follows the word.
+    fn is_string_at(&self, ahead: usize) -> bool {
+        matches!(self.kind_at(ahead), TokenType::StringLiteral(_))
+    }
+
     fn is_word(&self, word: &str) -> bool {
         matches!(self.kind(), TokenType::Identifier(w) if w == word)
     }
@@ -218,7 +229,7 @@ impl ParserV2 {
     fn describe(&self) -> String {
         match self.kind() {
             TokenType::Identifier(w) => format!("`{w}`"),
-            TokenType::StringLiteral(s) => format!("the string \"{s}\""),
+            TokenType::StringLiteral(s) => format!("the string \"{}\"", s.spelling),
             TokenType::NumberLiteral(n) => format!("the number {n}"),
             TokenType::EOF => "the end of the file".to_string(),
             TokenType::OpenBrace => "`{`".to_string(),
@@ -296,12 +307,22 @@ impl ParserV2 {
                 "app" => self.parse_app()?,
                 "type" => self.parse_type_decl(doc)?,
                 "enum" => self.parse_enum_decl(doc)?,
+                "api" => self.parse_api(doc)?,
+                "external" => self.parse_external(doc)?,
                 "const" => self.parse_const_decl(doc)?,
                 "animation" => self.parse_animation_decl(doc)?,
                 "test" if matches!(self.kind_at(1), TokenType::StringLiteral(_)) => {
                     self.parse_test_decl()?
                 }
                 "data" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
+                    self.parse_data_decl(doc)?
+                }
+                // `image hero = "media/hero.jpg"`: read at build time for
+                // its size, its colour and every width the page asks for.
+                "image"
+                    if matches!(self.kind_at(1), TokenType::Identifier(_))
+                        && matches!(self.kind_at(2), TokenType::Equals | TokenType::Colon) =>
+                {
                     self.parse_data_decl(doc)?
                 }
                 "Page" | "Component" | "Store" | "App" | "Theme" => {
@@ -459,7 +480,7 @@ impl ParserV2 {
     fn expect_string(&mut self, what: &str) -> Result<String> {
         match self.kind() {
             TokenType::StringLiteral(s) => {
-                let s = s.clone();
+                let s = string_text(s);
                 self.advance();
                 Ok(s)
             }
@@ -584,6 +605,41 @@ impl ParserV2 {
                 _ => TypeRef::Named(name),
             }
         };
+        // `Number(0..=100)`, `String(minLength: 8)`, `Date(after: @2026-01-01)`
+        // — what the values of this type must be, checked at every
+        // assignment and read by validation to say why one was refused.
+        let base = if self.eat(&TokenType::OpenParen) {
+            let mut args: Vec<(String, Expr)> = Vec::new();
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                if let TokenType::Identifier(name) = self.kind().clone()
+                    && matches!(self.kind_at(1), TokenType::Colon)
+                {
+                    self.advance();
+                    self.advance();
+                    args.push((name, self.parse_expression()?));
+                } else {
+                    // A range is the two ends: `0..=100` is `min` and `max`.
+                    match self.parse_expression()? {
+                        Expr::Range(from, to, inclusive) => {
+                            args.push(("min".to_string(), *from));
+                            args.push(if inclusive {
+                                ("max".to_string(), *to)
+                            } else {
+                                ("below".to_string(), *to)
+                            });
+                        }
+                        other => args.push(("is".to_string(), other)),
+                    }
+                }
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)` to close the condition")?;
+            TypeRef::Refined(Box::new(base), args)
+        } else {
+            base
+        };
         Ok(if self.eat(&TokenType::QuestionMark) {
             TypeRef::Optional(Box::new(base))
         } else {
@@ -595,10 +651,13 @@ impl ParserV2 {
         let mark = self.mark();
         self.expect_word("store")?;
         let name = self.expect_ident("the store's name")?;
+        let (scope, eager) = self.parse_store_options()?;
         let header_span = self.span_since(mark);
         let (body, body_span) = self.parse_render_block(Body::Store)?;
         Ok(Declaration::Store(StoreDecl {
             name,
+            scope,
+            eager,
             body,
             span: self.span_since(mark),
             header_span,
@@ -735,10 +794,21 @@ impl ParserV2 {
     }
 
     /// `data posts = "posts.json"`, `data posts: [Post] = "content/posts.json"`.
+    /// `data posts = "posts.json"`, and `image hero = "media/hero.jpg"` —
+    /// both a constant whose value the build reads from a file.
     fn parse_data_decl(&mut self, doc: Option<String>) -> Result<Declaration> {
         let mark = self.mark();
-        self.expect_word("data")?;
-        let name = self.expect_ident("the data's name")?;
+        let is_image = self.is_word("image");
+        if is_image {
+            self.advance();
+        } else {
+            self.expect_word("data")?;
+        }
+        let name = self.expect_ident(if is_image {
+            "the image's name"
+        } else {
+            "the data's name"
+        })?;
         let ty = if self.eat(&TokenType::Colon) {
             Some(self.parse_type_ref()?)
         } else {
@@ -748,7 +818,7 @@ impl ParserV2 {
         let file = match self.kind().clone() {
             TokenType::StringLiteral(f) => {
                 self.advance();
-                f
+                string_text(&f)
             }
             _ => {
                 return Err(self.error_with_hint(
@@ -757,7 +827,15 @@ impl ParserV2 {
                 ));
             }
         };
-        if !file.ends_with(".json") {
+        if is_image {
+            let known = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"];
+            if !known.iter().any(|e| file.to_lowercase().ends_with(e)) {
+                return Err(self.error_with_hint(
+                    format!("`{file}` is not an image"),
+                    "An image is a .png, .jpg, .webp, .gif or .svg file",
+                ));
+            }
+        } else if !file.ends_with(".json") {
             return Err(self.error_with_hint(
                 format!("`{file}` is not a JSON file"),
                 "A data file is JSON: a list, a map, or a value",
@@ -769,6 +847,7 @@ impl ParserV2 {
             file,
             doc,
             span: self.span_since(mark),
+            is_image,
         }))
     }
 
@@ -779,7 +858,7 @@ impl ParserV2 {
         let name = match self.kind().clone() {
             TokenType::StringLiteral(s) => {
                 self.advance();
-                s
+                string_text(&s)
             }
             _ => return Err(self.error("Expected the test's name, in quotes".into())),
         };
@@ -805,39 +884,63 @@ impl ParserV2 {
         }
         let (statements, _) = self.parse_render_block(Body::Test)?;
         let mut body = Vec::new();
-        let mut expects = Vec::new();
+        let mut steps = Vec::new();
         for stmt in statements {
-            match &stmt.kind {
-                StatementKind::UIElement(el) if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "__Expect") =>
-                {
-                    let text = el
-                        .args
-                        .iter()
-                        .find_map(|a| match a {
-                            Arg::Positional(e) => Some(e.clone()),
-                            Arg::Named(..) => None,
-                        })
-                        .unwrap_or(Expr::StringLiteral(String::new()));
-                    expects.push(Expect {
-                        text,
-                        negated: el.modifiers.iter().any(|m| m == "not"),
-                        span: stmt.span,
-                    });
-                }
+            let StatementKind::UIElement(el) = &stmt.kind else {
+                body.push(stmt);
+                continue;
+            };
+            let ComponentRef::BuiltIn(marker) = &el.component else {
+                body.push(stmt);
+                continue;
+            };
+            // The steps are parsed as markers so they keep their place
+            // among the elements: what a test does and what it then
+            // expects only mean anything in the order they were written.
+            let positional = |n: usize| {
+                el.args
+                    .iter()
+                    .filter_map(|a| match a {
+                        Arg::Positional(e) => Some(e.clone()),
+                        Arg::Named(..) => None,
+                    })
+                    .nth(n)
+            };
+            let span = stmt.span;
+            match marker.as_str() {
+                "__Expect" => steps.push(Step::Expect {
+                    text: positional(0).unwrap_or(Expr::StringLiteral(String::new())),
+                    negated: el.modifiers.iter().any(|m| m == "not"),
+                    span,
+                }),
+                "__Click" => steps.push(Step::Click {
+                    target: positional(0).unwrap_or(Expr::StringLiteral(String::new())),
+                    span,
+                }),
+                "__Type" => steps.push(Step::Type {
+                    text: positional(0).unwrap_or(Expr::StringLiteral(String::new())),
+                    into: positional(1).unwrap_or(Expr::StringLiteral(String::new())),
+                    span,
+                }),
+                "__Press" => steps.push(Step::Press {
+                    key: positional(0).unwrap_or(Expr::StringLiteral(String::new())),
+                    target: positional(1),
+                    span,
+                }),
                 _ => body.push(stmt),
             }
         }
-        if expects.is_empty() {
+        if !steps.iter().any(|s| matches!(s, Step::Expect { .. })) {
             return Err(self.error_with_hint(
                 format!("test \"{name}\" expects nothing"),
-                "End it with what the render must show: `expect \"text\"`, or `expect not \"text\"`",
+                "End it with what the page must show: `expect \"text\"`, or `expect not \"text\"`",
             ));
         }
         Ok(Declaration::Test(TestDecl {
             name,
             data,
             body,
-            expects,
+            steps,
             span: self.span_since(mark),
         }))
     }
@@ -919,7 +1022,7 @@ impl ParserV2 {
         let open = self.expect(&TokenType::OpenBrace, "`{`")?;
         let mut statements = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
-            statements.push(self.parse_render_statement(body)?);
+            self.push_render_statement(body, &mut statements)?;
         }
         let close = self.expect(&TokenType::CloseBrace, "`}`")?;
         let span = Span::new(
@@ -1024,7 +1127,7 @@ impl ParserV2 {
                 });
                 continue;
             }
-            statements.push(self.parse_render_statement(Body::Component)?);
+            self.push_render_statement(Body::Component, &mut statements)?;
         }
         let close = self.expect(&TokenType::CloseBrace, "`}`")?;
         let span = Span::new(
@@ -1040,6 +1143,93 @@ impl ParserV2 {
             slots,
             parts,
         })
+    }
+
+    /// One statement of a render block — or, where it says `sequence`, the
+    /// several a sequence spells out.
+    fn push_render_statement(&mut self, body: Body, out: &mut Vec<Statement>) -> Result<()> {
+        if self.is_word("sequence") && matches!(self.kind_at(1), TokenType::OpenBrace) {
+            out.extend(self.parse_sequence()?);
+            return Ok(());
+        }
+        out.push(self.parse_render_statement(body)?);
+        Ok(())
+    }
+
+    /// `sequence { step { … } step(after: "120ms") { … } }` — the elements
+    /// of each step, with the sequence's clock written onto them as a
+    /// `delay:`.
+    ///
+    /// It is orchestration and nothing else: the steps are the elements
+    /// themselves, so everything downstream — the linters, the static
+    /// paint, the template engine — sees the program it would have seen
+    /// had the delays been written by hand. `after:` is measured from the
+    /// step before it; a step without one starts when that step does.
+    fn parse_sequence(&mut self) -> Result<Vec<Statement>> {
+        self.advance();
+        self.expect(&TokenType::OpenBrace, "`{`")?;
+        let mut out = Vec::new();
+        let mut clock = 0f64;
+        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            if !self.is_word("step") {
+                return Err(self.error_with_hint(
+                    format!("A sequence holds steps, and this is {}", self.describe()),
+                    "Write `sequence { step { … } step(after: \"120ms\") { … } }`",
+                ));
+            }
+            let at = self.mark();
+            self.advance();
+            if self.check(&TokenType::OpenParen) {
+                self.advance();
+                if !self.is_word("after") {
+                    return Err(self.error_with_hint(
+                        format!("A step takes `after:`, and this is {}", self.describe()),
+                        "`step(after: \"120ms\")` starts it that long after the step before",
+                    ));
+                }
+                self.advance();
+                self.expect(&TokenType::Colon, "`:`")?;
+                let TokenType::StringLiteral(lit) = self.current().token_type.clone() else {
+                    return Err(self.error_with_hint(
+                        format!(
+                            "`after:` is a length of time, and this is {}",
+                            self.describe()
+                        ),
+                        "Write it as a string: `step(after: \"120ms\")`",
+                    ));
+                };
+                let text = lit.spelling.clone();
+                let Some(ms) = duration_ms(&text) else {
+                    return Err(self.error_with_hint(
+                        format!("`after: \"{text}\"` is not a length of time"),
+                        "Write milliseconds or seconds: `\"120ms\"`, `\"0.4s\"`",
+                    ));
+                };
+                self.advance();
+                self.expect(&TokenType::CloseParen, "`)`")?;
+                clock += ms;
+            }
+            let (stmts, _) = self.parse_render_block(Body::Nested)?;
+            let span = self.span_since(at);
+            for mut stmt in stmts {
+                if clock > 0.0
+                    && let StatementKind::UIElement(el) = &mut stmt.kind
+                    && !el
+                        .args
+                        .iter()
+                        .any(|a| matches!(a, Arg::Named(k, _) if k == "delay"))
+                {
+                    el.args.push(Arg::Named(
+                        "delay".to_string(),
+                        Expr::StringLiteral(format!("{}ms", clock.round() as i64)),
+                    ));
+                    el.arg_spans.push(span);
+                }
+                out.push(stmt);
+            }
+        }
+        self.expect(&TokenType::CloseBrace, "`}`")?;
+        Ok(out)
     }
 
     fn parse_render_statement(&mut self, body: Body) -> Result<Statement> {
@@ -1116,6 +1306,40 @@ impl ParserV2 {
                 }
                 Ok(StatementKind::UIElement(el))
             }
+            // `click "Save"` — whatever carries that name: a button, a
+            // link, a control with that label. A test names what a reader
+            // would name, because that is what the page promises.
+            "click" if body == Body::Test => {
+                self.advance();
+                let target = self.parse_expression()?;
+                let mut el = self.blank_element(ComponentRef::BuiltIn("__Click".to_string()));
+                el.args.push(Arg::Positional(target));
+                Ok(StatementKind::UIElement(el))
+            }
+            // `type "Ada" into "Name"`.
+            "type" if body == Body::Test && self.is_string_at(1) => {
+                self.advance();
+                let text = self.parse_expression()?;
+                self.expect_word("into")?;
+                let into = self.parse_expression()?;
+                let mut el = self.blank_element(ComponentRef::BuiltIn("__Type".to_string()));
+                el.args.push(Arg::Positional(text));
+                el.args.push(Arg::Positional(into));
+                Ok(StatementKind::UIElement(el))
+            }
+            // `press "Enter"`, or `press "Escape" in "Search"`.
+            "press" if body == Body::Test => {
+                self.advance();
+                let key = self.parse_expression()?;
+                let mut el = self.blank_element(ComponentRef::BuiltIn("__Press".to_string()));
+                el.args.push(Arg::Positional(key));
+                if self.is_word("in") {
+                    self.advance();
+                    let target = self.parse_expression()?;
+                    el.args.push(Arg::Positional(target));
+                }
+                Ok(StatementKind::UIElement(el))
+            }
             "state" => self.parse_state(false),
             // `persist theme = "light"`: state kept across visits.
             "persist" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
@@ -1174,6 +1398,19 @@ impl ParserV2 {
                 Ok(StatementKind::Use(UseDecl { store_name }))
             }
             "resource" => self.parse_resource(),
+            // `validate email { required  email }`: what the value must be
+            // for a form to accept it, said beside the state it guards.
+            "validate" if matches!(self.kind_at(2), TokenType::OpenBrace) => self.parse_validate(),
+            // A connection the page holds open, and the scope closes.
+            "socket" if matches!(self.kind_at(2), TokenType::Equals) => {
+                self.parse_connection(ConnectionKind::Socket)
+            }
+            "stream" if matches!(self.kind_at(2), TokenType::Equals) => {
+                self.parse_connection(ConnectionKind::Stream)
+            }
+            "channel" if matches!(self.kind_at(2), TokenType::Equals) => {
+                self.parse_connection(ConnectionKind::Channel)
+            }
             "if" => self.parse_if(false),
             "for" => self.parse_for(false),
             "show" => {
@@ -1377,12 +1614,177 @@ impl ParserV2 {
         };
         self.expect(&TokenType::Equals, "`=` and an initial value")?;
         let value = self.parse_expression()?;
+        // `persist items = [] { in: .session  version: 2  migrate 1 -> 2 { … } }`
+        let policy = if persist && self.check(&TokenType::OpenBrace) {
+            Some(self.parse_persist_policy()?)
+        } else {
+            None
+        };
         Ok(StatementKind::State(StateDecl {
             name,
             ty,
             value,
             persist,
+            policy,
         }))
+    }
+
+    /// `store Cart(scope: .route, eager: true)` — the header's options.
+    fn parse_store_options(&mut self) -> Result<(StoreScope, bool)> {
+        let mut scope = StoreScope::App;
+        let mut eager = false;
+        if !self.check(&TokenType::OpenParen) {
+            return Ok((scope, eager));
+        }
+        self.advance();
+        while !self.check(&TokenType::CloseParen) && !self.at_end() {
+            let key = self.expect_ident("`scope` or `eager`")?;
+            self.expect(&TokenType::Colon, "`:`")?;
+            match key.as_str() {
+                "scope" => {
+                    self.expect(&TokenType::Dot, "a case: `.app`, `.session` or `.route`")?;
+                    let case = self.expect_ident("a case")?;
+                    scope = match case.as_str() {
+                        "app" => StoreScope::App,
+                        "session" => StoreScope::Session,
+                        "route" => StoreScope::Route,
+                        other => {
+                            return Err(self.error_with_hint(
+                                format!("A store has no scope `.{other}`"),
+                                "It is `.app` (the default), `.session` or `.route`",
+                            ));
+                        }
+                    };
+                }
+                "eager" => {
+                    eager = match self.current().token_type.clone() {
+                        TokenType::BoolLiteral(b) => b,
+                        TokenType::Identifier(w) if w == "true" => true,
+                        TokenType::Identifier(w) if w == "false" => false,
+                        _ => {
+                            return Err(self.error_with_hint(
+                                format!(
+                                    "`eager:` is true or false, and this is {}",
+                                    self.describe()
+                                ),
+                                "`store X(eager: true)` builds it at boot instead of on first read",
+                            ));
+                        }
+                    };
+                    self.advance();
+                }
+                other => {
+                    return Err(self.error_with_hint(
+                        format!("A store takes no `{other}:`"),
+                        "It takes `scope:` (`.app`, `.session`, `.route`) and `eager:`",
+                    ));
+                }
+            }
+            if !self.eat(&TokenType::Comma) {
+                break;
+            }
+        }
+        self.expect(&TokenType::CloseParen, "`)`")?;
+        Ok((scope, eager))
+    }
+
+    /// The block a `persist` may carry: where the value is written, the
+    /// version of its shape, whether other tabs are followed, and how a
+    /// value an older build left is brought forward.
+    fn parse_persist_policy(&mut self) -> Result<PersistPolicy> {
+        let mark = self.mark();
+        self.expect(&TokenType::OpenBrace, "`{`")?;
+        let mut policy = PersistPolicy::default();
+        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            let at = self.mark();
+            if self.is_word("migrate") {
+                self.advance();
+                let from = self.expect_version("the version it is coming from")?;
+                if !(self.eat(&TokenType::Minus) && self.eat(&TokenType::GreaterThan)) {
+                    return Err(self.error_with_hint(
+                        format!("Expected `->`, got {}", self.describe()),
+                        "A step is written `migrate 1 -> 2 { … }`",
+                    ));
+                }
+                let to = self.expect_version("the version it is going to")?;
+                if to != from + 1 {
+                    return Err(self.error_with_hint(
+                        format!("`migrate {from} -> {to}` skips a version"),
+                        "Each step moves one version on, so every value can be brought forward",
+                    ));
+                }
+                self.expect(&TokenType::OpenBrace, "`{` and what the value becomes")?;
+                let body = self.parse_expression()?;
+                self.expect(&TokenType::CloseBrace, "`}`")?;
+                policy.migrations.push(Migration {
+                    from,
+                    to,
+                    body,
+                    span: self.span_since(at),
+                });
+                continue;
+            }
+            let key = self.expect_ident("`in`, `version`, `sync` or `migrate`")?;
+            self.expect(&TokenType::Colon, "`:`")?;
+            match key.as_str() {
+                "in" => {
+                    self.expect(&TokenType::Dot, "`.local` or `.session`")?;
+                    let case = self.expect_ident("a case")?;
+                    if !matches!(case.as_str(), "local" | "session") {
+                        return Err(self.error_with_hint(
+                            format!("There is nowhere called `.{case}` to keep it"),
+                            "It is `.local` (across visits) or `.session` (this tab only)",
+                        ));
+                    }
+                    policy.storage = Some(case);
+                }
+                "version" => policy.version = Some(self.expect_version("a version")?),
+                "sync" => {
+                    policy.sync = Some(match self.current().token_type.clone() {
+                        TokenType::BoolLiteral(b) => b,
+                        TokenType::Identifier(w) if w == "true" => true,
+                        TokenType::Identifier(w) if w == "false" => false,
+                        _ => {
+                            return Err(self.error_with_hint(
+                                format!(
+                                    "`sync:` is true or false, and this is {}",
+                                    self.describe()
+                                ),
+                                "`sync: false` keeps the value this tab's own",
+                            ));
+                        }
+                    });
+                    self.advance();
+                }
+                other => {
+                    return Err(self.error_with_hint(
+                        format!("A `persist` block takes no `{other}:`"),
+                        "It takes `in:`, `version:`, `sync:` and `migrate n -> n+1 { … }`",
+                    ));
+                }
+            }
+        }
+        self.expect(&TokenType::CloseBrace, "`}`")?;
+        policy.span = self.span_since(mark);
+        Ok(policy)
+    }
+
+    /// A whole number, as a version is written.
+    fn expect_version(&mut self, what: &str) -> Result<u32> {
+        let TokenType::NumberLiteral(n) = self.current().token_type.clone() else {
+            return Err(self.error_with_hint(
+                format!("Expected {what}, got {}", self.describe()),
+                "A version is a whole number: `version: 2`",
+            ));
+        };
+        if n < 1.0 || n.fract() != 0.0 {
+            return Err(self.error_with_hint(
+                format!("`{n}` is not a version"),
+                "A version is a whole number from 1 up",
+            ));
+        }
+        self.advance();
+        Ok(n as u32)
     }
 
     fn parse_derived(&mut self) -> Result<StatementKind> {
@@ -1433,6 +1835,467 @@ impl ParserV2 {
     }
 
     /// `resource name[: Type] = fetch(url, key: value, …)`.
+    /// `api Backend(base: "/api/v1") { … }` — one place a service is
+    /// described, so every call site is typed, cached and cancellable.
+    /// `external Chart from "chart.js" { fn Chart(…) -> Handle  type Handle { … } }`
+    /// and `external element Stripe("stripe-pricing-table") { prop … event … }`.
+    ///
+    /// The compiler cannot read the other side, so the declaration **is**
+    /// the contract: every call site is checked against what is written
+    /// here, and nothing else about the module is assumed.
+    fn parse_external(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("external")?;
+        let element = self.is_word("element");
+        if element {
+            self.advance();
+        }
+        let name = self.expect_ident("the name this project calls it by")?;
+        let (kind, from) = if element {
+            self.expect(&TokenType::OpenParen, "`(` and the element's tag name")?;
+            let tag = self.expect_string("the custom element's tag name")?;
+            if !tag.contains('-') {
+                return Err(self.error_with_hint(
+                    format!("`{tag}` is not a custom element's name"),
+                    "A custom element's tag holds a hyphen: `stripe-pricing-table`",
+                ));
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+            (ExternalKind::Element, tag)
+        } else {
+            self.expect_word("from")?;
+            (
+                ExternalKind::Module,
+                self.expect_string("the module it comes from")?,
+            )
+        };
+
+        let mut decl = ExternalDecl {
+            name,
+            kind,
+            from,
+            integrity: None,
+            functions: Vec::new(),
+            types: Vec::new(),
+            props: Vec::new(),
+            events: Vec::new(),
+            doc,
+            span: Span::default(),
+        };
+        if self.eat(&TokenType::OpenBrace) {
+            while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                let doc = self.take_docs();
+                let word = self.ident().map(str::to_string).unwrap_or_default();
+                match word.as_str() {
+                    "fn" => {
+                        self.advance();
+                        decl.functions.push(self.parse_external_fn(doc)?);
+                    }
+                    "type" => {
+                        self.advance();
+                        decl.types.push(self.parse_external_type()?);
+                    }
+                    "prop" => {
+                        self.advance();
+                        decl.props.push(self.parse_prop_decl(false)?);
+                    }
+                    "event" => {
+                        let at = self.mark();
+                        self.advance();
+                        let name = self.expect_ident("the event's name")?;
+                        let params = if self.check(&TokenType::OpenParen) {
+                            self.parse_params()?
+                        } else {
+                            Vec::new()
+                        };
+                        decl.events.push(EventDecl {
+                            name,
+                            params,
+                            doc,
+                            span: self.span_since(at),
+                        });
+                    }
+                    // `integrity: "sha384-…"` for a module from another origin.
+                    "integrity" => {
+                        self.advance();
+                        self.expect(&TokenType::Colon, "`:`")?;
+                        decl.integrity = Some(self.expect_string("the hash")?);
+                    }
+                    other => {
+                        return Err(self.error_with_hint(
+                            format!("`{other}` is not part of an `external`"),
+                            "It holds `fn`, `type`, `prop`, `event` and `integrity:`",
+                        ));
+                    }
+                }
+            }
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+        }
+        decl.span = self.span_since(mark);
+        Ok(Declaration::External(decl))
+    }
+
+    /// `fn Chart(canvas: Any, config: Map) -> ChartHandle`, and the same
+    /// shape for a type's method.
+    fn parse_external_fn(&mut self, doc: Option<String>) -> Result<ExternalFn> {
+        let mark = self.mark();
+        let name = self.expect_ident("the function's name")?;
+        let mut params = Vec::new();
+        if self.eat(&TokenType::OpenParen) {
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                params.push(self.parse_prop_decl(false)?);
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+        let returns = if self.eat(&TokenType::Minus) {
+            self.expect(&TokenType::GreaterThan, "`->` and what it gives back")?;
+            Some(self.parse_type_ref()?)
+        } else {
+            None
+        };
+        Ok(ExternalFn {
+            name,
+            params,
+            returns,
+            doc,
+            span: self.span_since(mark),
+        })
+    }
+
+    /// `type ChartHandle { update(data: Map), destroy(), width: Number }`
+    fn parse_external_type(&mut self) -> Result<ExternalType> {
+        let mark = self.mark();
+        let name = self.expect_ident("the type's name")?;
+        let mut methods = Vec::new();
+        let mut fields = Vec::new();
+        self.expect(&TokenType::OpenBrace, "`{` and what it has")?;
+        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            let doc = self.take_docs();
+            // A method takes arguments; a field takes a type.
+            if matches!(self.kind_at(1), TokenType::OpenParen) {
+                methods.push(self.parse_external_fn(doc)?);
+            } else {
+                let at = self.mark();
+                let field = self.expect_ident("a method or a field")?;
+                self.expect(&TokenType::Colon, "`:` and the field's type")?;
+                let ty = self.parse_type_ref()?;
+                fields.push(FieldDecl {
+                    name: field,
+                    ty,
+                    default: None,
+                    doc,
+                    span: self.span_since(at),
+                });
+            }
+            self.eat(&TokenType::Comma);
+        }
+        self.expect(&TokenType::CloseBrace, "`}`")?;
+        Ok(ExternalType {
+            name,
+            methods,
+            fields,
+            span: self.span_since(mark),
+        })
+    }
+
+    fn parse_api(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("api")?;
+        let name = self.expect_ident("the service's name")?;
+        // `api Backend from "openapi.json" (base: …)`: the surface is read
+        // from a specification, and every endpoint comes from it.
+        let from = if self.is_word("from") {
+            self.advance();
+            Some(self.expect_string("the specification's file")?)
+        } else {
+            None
+        };
+        let mut settings = Vec::new();
+        if self.eat(&TokenType::OpenParen) {
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                let key = self.expect_ident("a setting (`base`, `timeout`, `retry`)")?;
+                self.expect(&TokenType::Colon, "`:`")?;
+                settings.push((key, self.parse_expression()?));
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+
+        let mut headers = Vec::new();
+        let mut hooks = Vec::new();
+        let mut endpoints = Vec::new();
+        if self.eat(&TokenType::OpenBrace) {
+            while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                let doc = self.take_docs();
+                let word = self.ident().map(str::to_string).unwrap_or_default();
+                match word.as_str() {
+                    // `headers { Authorization: "Bearer {token}" }`.
+                    "headers" => {
+                        self.advance();
+                        self.expect(&TokenType::OpenBrace, "`{` after `headers`")?;
+                        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                            let key = self.header_name()?;
+                            self.expect(&TokenType::Colon, "`:`")?;
+                            headers.push((key, self.parse_expression()?));
+                            self.eat(&TokenType::Comma);
+                        }
+                        self.expect(&TokenType::CloseBrace, "`}`")?;
+                    }
+                    // `on request(r) { … }`, `on response(r)`, `on error(e)`.
+                    "on" => hooks.push(self.parse_handler()?),
+                    m if is_http_method(m) => {
+                        endpoints.push(self.parse_endpoint(doc)?);
+                    }
+                    // Anything else is a setting, written as `timeout: 10.seconds`.
+                    _ if !word.is_empty() => {
+                        let key = self.expect_ident("a setting")?;
+                        self.expect(&TokenType::Colon, "`:`")?;
+                        settings.push((key, self.parse_expression()?));
+                        self.eat(&TokenType::Comma);
+                    }
+                    _ => {
+                        return Err(self.error_with_hint(
+                            format!("Expected a setting or an endpoint, got {}", self.describe()),
+                            "An endpoint is `get users(page: Number) -> [User]`",
+                        ));
+                    }
+                }
+            }
+            self.expect(&TokenType::CloseBrace, "`}` to close the service")?;
+        }
+        Ok(Declaration::Api(ApiDecl {
+            name,
+            settings,
+            headers,
+            hooks,
+            endpoints,
+            doc,
+            span: self.span_since(mark),
+            from,
+        }))
+    }
+
+    /// `get users(page: Number = 1, q: String?) -> [User]`, with the path
+    /// after `at` when it is not the name, and the failures it declares.
+    fn parse_endpoint(&mut self, doc: Option<String>) -> Result<Endpoint> {
+        let mark = self.mark();
+        let method = self.expect_ident("an HTTP method")?.to_uppercase();
+        let name = self.expect_ident("the endpoint's name")?;
+        let mut params = Vec::new();
+        if self.eat(&TokenType::OpenParen) {
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                params.push(self.parse_prop_decl(params.is_empty())?);
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+        // `at "users/:id"` when the path is not the name.
+        let path = if self.is_word("at") {
+            self.advance();
+            self.expect_string("the endpoint's path")?
+        } else {
+            name.clone()
+        };
+        let returns = if self.eat(&TokenType::Minus) && self.eat(&TokenType::GreaterThan) {
+            Some(self.parse_type_ref()?)
+        } else {
+            None
+        };
+        let mut settings = Vec::new();
+        let mut errors = Vec::new();
+        loop {
+            if self.is_word("errors") {
+                self.advance();
+                self.expect(&TokenType::OpenBrace, "`{` after `errors`")?;
+                while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                    let code = match self.kind().clone() {
+                        TokenType::NumberLiteral(n) => {
+                            self.advance();
+                            n as u16
+                        }
+                        _ => return Err(self.error("Expected a status code".into())),
+                    };
+                    self.expect(&TokenType::Minus, "`->`")?;
+                    self.expect(&TokenType::GreaterThan, "`->`")?;
+                    errors.push((code, self.parse_type_ref()?));
+                    self.eat(&TokenType::Comma);
+                }
+                self.expect(&TokenType::CloseBrace, "`}`")?;
+                continue;
+            }
+            // `cache: .swr(60.seconds)`, `as: .blob`, `.progress`.
+            if let TokenType::Identifier(word) = self.kind().clone()
+                && matches!(self.kind_at(1), TokenType::Colon)
+                && matches!(word.as_str(), "cache" | "as" | "errorAs" | "fileField")
+            {
+                self.advance();
+                self.advance();
+                settings.push((word, self.parse_expression()?));
+                continue;
+            }
+            break;
+        }
+        Ok(Endpoint {
+            method,
+            name,
+            path,
+            params,
+            returns,
+            errors,
+            settings,
+            doc,
+            span: self.span_since(mark),
+        })
+    }
+
+    /// A header's name, which may be hyphenated: `X-Request-Id`.
+    fn header_name(&mut self) -> Result<String> {
+        if let TokenType::StringLiteral(s) = self.kind().clone() {
+            self.advance();
+            return Ok(string_text(&s));
+        }
+        let mut name = self.expect_ident("a header's name")?;
+        while self.check(&TokenType::Minus) && matches!(self.kind_at(1), TokenType::Identifier(_)) {
+            self.advance();
+            name.push('-');
+            name.push_str(&self.expect_ident("the rest of the header's name")?);
+        }
+        Ok(name)
+    }
+
+    /// `validate email { required  minLength(8) "Use at least 8" }`.
+    fn parse_validate(&mut self) -> Result<StatementKind> {
+        let mark = self.mark();
+        self.expect_word("validate")?;
+        let name = self.expect_ident("the state to validate")?;
+        self.expect(&TokenType::OpenBrace, "`{` and the rules")?;
+        let mut rules = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            let at = self.mark();
+            let rule = self.expect_ident("a rule")?;
+            let mut args = Vec::new();
+            if self.eat(&TokenType::OpenParen) {
+                args = self.parse_expr_list(&TokenType::CloseParen)?;
+            }
+            // The message, when the rule's own is not the one wanted.
+            let message = match self.kind().clone() {
+                TokenType::StringLiteral(text) => {
+                    self.advance();
+                    Some(self.string_expr(&text)?)
+                }
+                _ => None,
+            };
+            // `custom { expr }` and `async { await … }` say what to check.
+            let body = if self.check(&TokenType::OpenBrace) {
+                self.advance();
+                let expr = self.parse_expression()?;
+                self.expect(&TokenType::CloseBrace, "`}`")?;
+                Some(expr)
+            } else {
+                None
+            };
+            rules.push(Rule {
+                name: rule,
+                args,
+                message,
+                body,
+                span: self.span_since(at),
+            });
+        }
+        self.expect(&TokenType::CloseBrace, "`}` to close the rules")?;
+        Ok(StatementKind::Validate(ValidateDecl {
+            name,
+            rules,
+            span: self.span_since(mark),
+        }))
+    }
+
+    /// `socket chat = ws("wss://…") { … }`, `stream t = sse("/events")`,
+    /// `channel c = broadcast("cart")`.
+    fn parse_connection(&mut self, kind: ConnectionKind) -> Result<StatementKind> {
+        let word = match kind {
+            ConnectionKind::Socket => "socket",
+            ConnectionKind::Stream => "stream",
+            ConnectionKind::Channel => "channel",
+        };
+        self.expect_word(word)?;
+        let name = self.expect_ident("the connection's name")?;
+        self.expect(&TokenType::Equals, "`=`")?;
+        let opener = match kind {
+            ConnectionKind::Socket => "ws",
+            ConnectionKind::Stream => "sse",
+            ConnectionKind::Channel => "broadcast",
+        };
+        if !self.is_word(opener) {
+            return Err(self.error_with_hint(
+                format!(
+                    "A `{word}` opens with `{opener}(…)`, got {}",
+                    self.describe()
+                ),
+                &format!("Write `{word} name = {opener}(\"…\")`"),
+            ));
+        }
+        self.advance();
+        self.expect(&TokenType::OpenParen, "`(`")?;
+        let url = self.parse_expression()?;
+        let mut options = Vec::new();
+        while self.eat(&TokenType::Comma) {
+            if self.check(&TokenType::CloseParen) {
+                break;
+            }
+            let key = self.expect_ident("an option name")?;
+            self.expect(&TokenType::Colon, "`:`")?;
+            options.push((key, self.parse_expression()?));
+        }
+        self.expect(&TokenType::CloseParen, "`)`")?;
+
+        // `{ send Outgoing  receive Incoming  on message(m) { … } }`.
+        let mut sends = None;
+        let mut receives = None;
+        let mut handlers = Vec::new();
+        if self.eat(&TokenType::OpenBrace) {
+            while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                let word = self.ident().map(str::to_string).unwrap_or_default();
+                match word.as_str() {
+                    "send" => {
+                        self.advance();
+                        sends = Some(self.parse_type_ref()?);
+                    }
+                    "receive" => {
+                        self.advance();
+                        receives = Some(self.parse_type_ref()?);
+                    }
+                    // `on message(m) { … }` — what arrives, handled here.
+                    "on" => handlers.push(self.parse_handler()?),
+                    _ if !word.is_empty() => {
+                        let key = self.expect_ident("an option name")?;
+                        self.expect(&TokenType::Colon, "`:`")?;
+                        options.push((key, self.parse_expression()?));
+                        self.eat(&TokenType::Comma);
+                    }
+                    _ => return Err(self.error("Expected an option".into())),
+                }
+            }
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+        }
+        Ok(StatementKind::Connection(ConnectionDecl {
+            kind,
+            name,
+            url,
+            options,
+            sends,
+            receives,
+            handlers,
+        }))
+    }
+
     fn parse_resource(&mut self) -> Result<StatementKind> {
         self.expect_word("resource")?;
         let name = self.expect_ident("the resource's name")?;
@@ -1442,10 +2305,24 @@ impl ParserV2 {
             None
         };
         self.expect(&TokenType::Equals, "`=`")?;
+        // `resource rows = Backend.rows(page: n)`: an endpoint of a
+        // declared service, which carries its own address and settings.
         if !self.is_word("fetch") {
+            if self.is_capitalized() {
+                let call = self.parse_expression()?;
+                return Ok(StatementKind::Resource(ResourceDecl {
+                    name,
+                    ty,
+                    url: call,
+                    options: Vec::new(),
+                }));
+            }
             return Err(self.error_with_hint(
-                format!("A resource is a `fetch(…)`, got {}", self.describe()),
-                "Write `resource rows = fetch(\"/api/rows\")`",
+                format!(
+                    "A resource is a `fetch(…)` or an endpoint, got {}",
+                    self.describe()
+                ),
+                "Write `resource rows = fetch(\"/api/rows\")`, or `resource rows = Backend.rows()`",
             ));
         }
         self.advance();
@@ -1595,13 +2472,16 @@ impl ParserV2 {
             let case = self.expect_ident("a case name after `.`")?;
             return Ok((ArmPattern::Case(case), None, self.parse_arm_bindings()?));
         }
-        let word =
-            self.expect_ident("a match arm: `loading`, `error(e)`, `ready(v)`, `.case` or `else`")?;
+        let word = self.expect_ident(
+            "a match arm: `loading`, `error(e)`, `ready(v)`, `.case`, a connection's state, or `else`",
+        )?;
         let pattern = match word.as_str() {
             "loading" => ArmPattern::Loading,
             "error" => ArmPattern::Error,
             "ready" => ArmPattern::Ready,
             "else" => ArmPattern::Else,
+            // The states a connection is in.
+            "connecting" | "open" | "closed" => ArmPattern::State(word.clone()),
             other => {
                 return Err(self.error_with_hint(
                     format!("`{other}` is not a match arm"),
@@ -1819,7 +2699,7 @@ impl ParserV2 {
                         ));
                     }
                     at(self, Stage::Children)?;
-                    el.children.push(self.parse_render_statement(Body::Nested)?);
+                    self.push_render_statement(Body::Nested, &mut el.children)?;
                 }
             }
         }
@@ -1846,7 +2726,7 @@ impl ParserV2 {
                 match self.kind().clone() {
                     TokenType::StringLiteral(spelling) => {
                         self.advance();
-                        key = Some(spelling);
+                        key = Some(string_text(&spelling));
                     }
                     _ => {
                         return Err(self.error_with_hint(
@@ -1953,6 +2833,7 @@ impl ParserV2 {
                 ty: None,
                 value,
                 persist: false,
+                policy: None,
             }),
             span,
         )];
@@ -1971,6 +2852,7 @@ impl ParserV2 {
                     ty: None,
                     value: read,
                     persist: false,
+                    policy: None,
                 }),
                 span,
             ));
@@ -2003,6 +2885,7 @@ impl ParserV2 {
                     ty,
                     value,
                     persist: false,
+                    policy: None,
                 }))
             }
             "if" => self.parse_if(true),
@@ -2504,8 +3387,20 @@ impl ParserV2 {
                 // `.name` or `.name(args)`; a `.` before a case is a primary.
                 self.advance();
                 let name = self.expect_ident("a property or method name")?;
+                // `3.days`, `90.minutes`, `250.ms` — a length of time, which
+                // is the only thing a number's `.name` can mean.
+                if let Expr::NumberLiteral(n) = expr
+                    && let Some(ms) = duration_unit(&name)
+                    && !self.check(&TokenType::OpenParen)
+                {
+                    expr = Expr::Typed(
+                        "Duration".to_string(),
+                        Box::new(Expr::NumberLiteral(n * ms)),
+                    );
+                    continue;
+                }
                 if self.eat(&TokenType::OpenParen) {
-                    let args = self.parse_expr_list(&TokenType::CloseParen)?;
+                    let args = self.parse_argument_exprs()?;
                     expr = Expr::MethodCall(Box::new(expr), name, args);
                 } else {
                     expr = Expr::PropertyAccess(Box::new(expr), name);
@@ -2523,7 +3418,7 @@ impl ParserV2 {
                 } else {
                     let name = self.expect_ident("a property or method name after `?.`")?;
                     if self.eat(&TokenType::OpenParen) {
-                        let args = self.parse_expr_list(&TokenType::CloseParen)?;
+                        let args = self.parse_argument_exprs()?;
                         expr = Expr::OptionalMethod(Box::new(expr), name, args);
                     } else {
                         expr = Expr::OptionalProperty(Box::new(expr), name);
@@ -2534,6 +3429,37 @@ impl ParserV2 {
             }
         }
         Ok(expr)
+    }
+
+    /// A call's arguments: expressions, and `name: value` pairs, which are
+    /// gathered into one map and passed last.
+    ///
+    /// `due.plus(days: 3, months: 1)` reads as it means, and arrives as the
+    /// one map the runtime takes.
+    fn parse_argument_exprs(&mut self) -> Result<Vec<Expr>> {
+        let mut args = Vec::new();
+        let mut named: Vec<(String, Expr)> = Vec::new();
+        while !self.check(&TokenType::CloseParen) && !self.at_end() {
+            if let TokenType::Identifier(name) = self.kind().clone()
+                && matches!(self.kind_at(1), TokenType::Colon)
+            {
+                self.advance();
+                self.advance();
+                named.push((name, self.parse_expression()?));
+            } else if self.eat(&TokenType::Ellipsis) {
+                args.push(Expr::Spread(Box::new(self.parse_expression()?)));
+            } else {
+                args.push(self.parse_expression()?);
+            }
+            if !self.check(&TokenType::CloseParen) {
+                self.expect(&TokenType::Comma, "`,`")?;
+            }
+        }
+        self.expect(&TokenType::CloseParen, "`)`")?;
+        if !named.is_empty() {
+            args.push(Expr::MapLiteral(named));
+        }
+        Ok(args)
     }
 
     /// Comma-separated expressions up to `close`, which is consumed.
@@ -2558,20 +3484,52 @@ impl ParserV2 {
         match self.kind().clone() {
             TokenType::StringLiteral(s) => {
                 self.advance();
-                if has_interpolation(&s) {
-                    let parts = self.parse_interpolated(&s)?;
-                    if parts.iter().all(|p| matches!(p, StringPart::Literal(_))) {
-                        // Every brace group was prose: the string as written.
-                        return Ok(Expr::StringLiteral(s));
-                    }
-                    Ok(Expr::InterpolatedString(parts))
-                } else {
-                    Ok(Expr::StringLiteral(s))
-                }
+                self.string_expr(&s)
             }
             TokenType::NumberLiteral(n) => {
                 self.advance();
                 Ok(Expr::NumberLiteral(n))
+            }
+            TokenType::TemporalLiteral(text) => {
+                self.advance();
+                let Some(kind) = temporal_kind(&text) else {
+                    return Err(self.error_with_hint(
+                        format!("`@{text}` is not a date, a time or both"),
+                        "Write `@2026-03-14`, `@09:30` or `@2026-03-14T09:30Z`",
+                    ));
+                };
+                Ok(Expr::Typed(
+                    kind.to_string(),
+                    Box::new(Expr::StringLiteral(text)),
+                ))
+            }
+            TokenType::ColorLiteral(digits) => {
+                self.advance();
+                Ok(Expr::Typed(
+                    "Color".to_string(),
+                    Box::new(Expr::StringLiteral(format!("#{digits}"))),
+                ))
+            }
+            TokenType::MoneyLiteral(symbol, amount) => {
+                self.advance();
+                let currency = match symbol.as_str() {
+                    "€" => "EUR",
+                    "£" => "GBP",
+                    "¥" => "JPY",
+                    _ => "USD",
+                };
+                // Minor units, so the arithmetic is a whole number's.
+                let minor = (amount.parse::<f64>().unwrap_or(0.0) * 100.0).round();
+                Ok(Expr::Typed(
+                    "Money".to_string(),
+                    Box::new(Expr::MapLiteral(vec![
+                        ("amount".to_string(), Expr::NumberLiteral(minor)),
+                        (
+                            "currency".to_string(),
+                            Expr::StringLiteral(currency.to_string()),
+                        ),
+                    ])),
+                ))
             }
             TokenType::RegexLiteral(pattern, flags) => {
                 self.advance();
@@ -2592,9 +3550,10 @@ impl ParserV2 {
             TokenType::Dot => {
                 self.advance();
                 let case = self.expect_ident("a case name after `.`")?;
-                // `.failed("x")`: the case with its payload.
+                // `.failed("x")`, `.backoff(times: 3)`: the case with its
+                // payload, named or not.
                 if self.eat(&TokenType::OpenParen) {
-                    let args = self.parse_expr_list(&TokenType::CloseParen)?;
+                    let args = self.parse_argument_exprs()?;
                     return Ok(Expr::CaseValue(case, args));
                 }
                 Ok(Expr::EnumCase(case))
@@ -2666,7 +3625,7 @@ impl ParserV2 {
             self.expect(&TokenType::CloseParen, "`)`")?;
             return Ok(Expr::Record(name, fields));
         }
-        let args = self.parse_expr_list(&TokenType::CloseParen)?;
+        let args = self.parse_argument_exprs()?;
         Ok(Expr::FunctionCall(name, args))
     }
 
@@ -2836,7 +3795,7 @@ impl ParserV2 {
                 }
                 TokenType::StringLiteral(s) => {
                     self.advance();
-                    format!("\"{s}\"")
+                    format!("\"{}\"", string_text(&s))
                 }
                 _ => return Err(self.error(format!("Expected a map key, got {}", self.describe()))),
             };
@@ -2851,86 +3810,357 @@ impl ParserV2 {
         Ok(Expr::MapLiteral(pairs))
     }
 
-    fn parse_interpolated(&self, s: &str) -> Result<Vec<StringPart>> {
-        let mut parts = Vec::new();
+    /// A string literal as an expression: its escapes resolved, the
+    /// indentation of a block form gone, and each `{…}` splice parsed.
+    ///
+    /// This is the only place a literal becomes text, so an escaped brace
+    /// is a brace from the moment it is understood and nothing after here
+    /// has to know it was written `\{`.
+    fn string_expr(&self, lit: &StringLit) -> Result<Expr> {
+        let mut parts: Vec<StringPart> = Vec::new();
         let mut literal = String::new();
-        let chars: Vec<char> = s.chars().collect();
-        let mut i = 0;
-        while i < chars.len() {
-            if chars[i] == '{' {
-                if !literal.is_empty() {
-                    parts.push(StringPart::Literal(std::mem::take(&mut literal)));
-                }
-                let mut depth = 1;
-                let mut inner = String::new();
-                i += 1;
-                while i < chars.len() {
-                    match chars[i] {
-                        '{' => depth += 1,
-                        '}' => {
-                            depth -= 1;
-                            if depth == 0 {
-                                break;
-                            }
+        for piece in pieces(lit) {
+            match piece {
+                Piece::Text(text) => literal.push_str(&text),
+                Piece::Splice(source) => match self.splice_expr(&source)? {
+                    Some(expr) => {
+                        if !literal.is_empty() {
+                            parts.push(StringPart::Literal(std::mem::take(&mut literal)));
                         }
-                        _ => {}
+                        parts.push(StringPart::Expression(expr));
                     }
-                    inner.push(chars[i]);
-                    i += 1;
-                }
-                match self.parse_sub_expression(&inner) {
-                    Ok(expr) => parts.push(StringPart::Expression(expr)),
-                    // A brace group with a `:` or a `,` that is not an
-                    // expression — `{name: value}` in prose, a fragment of
-                    // code — is text; one without is a splice with a slip
-                    // in it, and says so.
-                    Err(_) if inner.contains([':', ',']) => {
+                    // A brace group that is prose, not a splice.
+                    None => {
                         literal.push('{');
-                        literal.push_str(&inner);
+                        literal.push_str(&source);
                         literal.push('}');
                     }
-                    Err(e) => return Err(e),
-                }
-                i += 1;
-            } else {
-                literal.push(chars[i]);
-                i += 1;
+                },
             }
+        }
+        if parts.is_empty() {
+            return Ok(Expr::StringLiteral(literal));
         }
         if !literal.is_empty() {
             parts.push(StringPart::Literal(literal));
         }
-        Ok(parts)
+        Ok(Expr::InterpolatedString(parts))
+    }
+
+    /// One splice's source as an expression, `None` when the group is
+    /// prose — `{name: value}` written in text — rather than a slip.
+    ///
+    /// `{total:.currency}` is the formatted form: the value, then how to
+    /// show it, which is `format(total, .currency)` written where it is
+    /// read.
+    fn splice_expr(&self, source: &str) -> Result<Option<Expr>> {
+        if let Some((value, spec)) = split_format_spec(source) {
+            let value = self.parse_sub_expression(value)?;
+            let (style, option) = match spec.split_once('(') {
+                Some((style, rest)) => (style, Some(rest.trim_end_matches(')').trim())),
+                None => (spec, None),
+            };
+            let mut args = vec![value, Expr::EnumCase(style.trim().to_string())];
+            if let Some(option) = option.filter(|o| !o.is_empty()) {
+                args.push(match option.parse::<f64>() {
+                    Ok(n) => Expr::NumberLiteral(n),
+                    Err(_) => Expr::StringLiteral(option.trim_matches('"').to_string()),
+                });
+            }
+            return Ok(Some(Expr::FunctionCall("format".to_string(), args)));
+        }
+        match self.parse_sub_expression(source) {
+            Ok(expr) => Ok(Some(expr)),
+            // A brace group with a `:` or a `,` that is not an expression —
+            // `{name: value}` in prose, a fragment of code — is text; one
+            // without is a splice with a slip in it, and says so.
+            Err(_) if source.contains([':', ',']) => Ok(None),
+            Err(e) => Err(e),
+        }
     }
 }
 
-/// Whether a string literal holds a `{name…}` splice: a `{` followed by a
-/// name, a `[` or a `(`, and closed on the same line.
-fn has_interpolation(s: &str) -> bool {
-    let chars: Vec<char> = s.chars().collect();
+/// Whether a word names an HTTP method.
+fn is_http_method(word: &str) -> bool {
+    matches!(
+        word,
+        "get" | "post" | "put" | "patch" | "delete" | "head" | "options"
+    )
+}
+
+/// The milliseconds one of the units a number may carry is worth.
+fn duration_unit(name: &str) -> Option<f64> {
+    Some(match name {
+        "ms" => 1.0,
+        "second" | "seconds" => 1_000.0,
+        "minute" | "minutes" => 60_000.0,
+        "hour" | "hours" => 3_600_000.0,
+        "day" | "days" => 86_400_000.0,
+        "week" | "weeks" => 604_800_000.0,
+        _ => return None,
+    })
+}
+
+/// Which of the three a `@…` literal is, read from its shape.
+fn temporal_kind(text: &str) -> Option<&'static str> {
+    let date = |s: &str| {
+        let parts: Vec<&str> = s.split('-').collect();
+        parts.len() == 3
+            && parts[0].len() == 4
+            && parts[1].len() == 2
+            && parts[2].len() == 2
+            && parts.iter().all(|p| p.chars().all(|c| c.is_ascii_digit()))
+    };
+    let time = |s: &str| {
+        let s = s.trim_end_matches('Z');
+        let s = s.split(['+']).next().unwrap_or(s);
+        let parts: Vec<&str> = s.split(':').collect();
+        (2..=3).contains(&parts.len())
+            && parts[0].len() == 2
+            && parts[1].len() == 2
+            && parts
+                .iter()
+                .all(|p| p.chars().all(|c| c.is_ascii_digit() || c == '.'))
+    };
+    match text.split_once('T') {
+        Some((d, t)) if date(d) && time(t) => Some("DateTime"),
+        None if date(text) => Some("Date"),
+        None if time(text) => Some("Time"),
+        _ => None,
+    }
+}
+
+/// One piece of a string literal: text as it will be shown, or the source
+/// of a `{…}` splice.
+enum Piece {
+    Text(String),
+    Splice(String),
+}
+
+/// A literal's pieces: what the text says, and where the splices are.
+///
+/// A raw literal is one piece of text, whatever is in it. A block literal
+/// loses the indentation the source gave it first, and is then read like
+/// any other: escapes resolved, splices split out.
+fn pieces(lit: &StringLit) -> Vec<Piece> {
+    match lit.kind {
+        StringKind::Raw => vec![Piece::Text(lit.spelling.clone())],
+        StringKind::Block => split_pieces(&dedent(&lit.spelling)),
+        StringKind::Plain => split_pieces(&lit.spelling),
+    }
+}
+
+/// The escapes resolved and the splices taken out, in one pass.
+fn split_pieces(spelling: &str) -> Vec<Piece> {
+    let chars: Vec<char> = spelling.chars().collect();
+    let mut out: Vec<Piece> = Vec::new();
+    let mut text = String::new();
     let mut i = 0;
     while i < chars.len() {
-        if chars[i] == '{'
-            && chars
-                .get(i + 1)
-                .is_some_and(|c| c.is_alphabetic() || matches!(*c, '_' | '[' | '('))
-        {
-            let mut j = i + 2;
-            let mut valid = true;
-            while j < chars.len() && chars[j] != '}' {
-                if chars[j] == '\n' {
-                    valid = false;
-                    break;
+        match chars[i] {
+            '\\' if i + 1 < chars.len() => {
+                match chars[i + 1] {
+                    'n' => text.push('\n'),
+                    't' => text.push('\t'),
+                    'r' => text.push('\r'),
+                    '\\' => text.push('\\'),
+                    '"' => text.push('"'),
+                    '{' => text.push('{'),
+                    '}' => text.push('}'),
+                    c => {
+                        text.push('\\');
+                        text.push(c);
+                    }
                 }
-                j += 1;
+                i += 2;
             }
-            if valid && j < chars.len() {
-                return true;
+            '{' => match splice_end(&chars, i) {
+                Some(end) => {
+                    if !text.is_empty() {
+                        out.push(Piece::Text(std::mem::take(&mut text)));
+                    }
+                    out.push(Piece::Splice(splice_source(&chars[i + 1..end - 1])));
+                    i = end;
+                }
+                None => {
+                    text.push('{');
+                    i += 1;
+                }
+            },
+            c => {
+                text.push(c);
+                i += 1;
+            }
+        }
+    }
+    if !text.is_empty() {
+        out.push(Piece::Text(text));
+    }
+    out
+}
+
+/// A splice's source is code, not text, so the escapes a string needs are
+/// undone: `{a ?? \"x\"}` is the older way to write `{a ?? "x"}`, and both
+/// mean the same expression.
+fn splice_source(chars: &[char]) -> String {
+    let mut out = String::with_capacity(chars.len());
+    let mut i = 0;
+    while i < chars.len() {
+        match (chars[i], chars.get(i + 1)) {
+            ('\\', Some('"')) => {
+                out.push('"');
+                i += 2;
+            }
+            ('\\', Some('\\')) => {
+                out.push('\\');
+                i += 2;
+            }
+            (c, _) => {
+                out.push(c);
+                i += 1;
+            }
+        }
+    }
+    out
+}
+
+/// The index just past the `}` closing the splice that opens at `at`: a
+/// `{` followed by a name, a `[` or a `(`, balanced and closed on the
+/// same line, with any string inside it kept whole. A lone `{` is a
+/// character like any other.
+fn splice_end(chars: &[char], at: usize) -> Option<usize> {
+    let opener = *chars.get(at + 1)?;
+    if !(opener.is_alphabetic() || matches!(opener, '_' | '[' | '(')) {
+        return None;
+    }
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut i = at;
+    while i < chars.len() {
+        let c = chars[i];
+        if in_string {
+            match c {
+                '\\' => i += 1,
+                '"' => in_string = false,
+                '\n' => return None,
+                _ => {}
+            }
+        } else {
+            match c {
+                '"' => in_string = true,
+                '{' => depth += 1,
+                '}' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        return Some(i + 1);
+                    }
+                }
+                '\n' => return None,
+                _ => {}
             }
         }
         i += 1;
     }
-    false
+    None
+}
+
+/// A splice written `value:.style` or `value:.style(option)`, split into
+/// the two. The `:` is the last one outside brackets and strings, so
+/// `{a ?? "x:y":.currency}` reads the way it looks.
+fn split_format_spec(source: &str) -> Option<(&str, &str)> {
+    let chars: Vec<char> = source.chars().collect();
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut found = None;
+    let mut i = 0;
+    while i < chars.len() {
+        let c = chars[i];
+        if in_string {
+            match c {
+                '\\' => i += 1,
+                '"' => in_string = false,
+                _ => {}
+            }
+        } else {
+            match c {
+                '"' => in_string = true,
+                '(' | '[' | '{' => depth += 1,
+                ')' | ']' | '}' => depth = depth.saturating_sub(1),
+                ':' if depth == 0 => found = Some(i),
+                _ => {}
+            }
+        }
+        i += 1;
+    }
+    let at = found?;
+    let (value, rest) = source.split_at(byte_of(&chars, at));
+    let spec = rest.strip_prefix(':')?.trim();
+    // Only `.style` is a format; anything else is a `:` in prose.
+    let style = spec.strip_prefix('.')?;
+    let head = style.split('(').next().unwrap_or(style).trim();
+    if head.is_empty() || !head.chars().all(|c| c.is_ascii_alphabetic()) {
+        return None;
+    }
+    (!value.trim().is_empty()).then_some((value.trim(), style))
+}
+
+/// The byte offset of the `n`th character.
+fn byte_of(chars: &[char], n: usize) -> usize {
+    chars[..n].iter().map(|c| c.len_utf8()).sum()
+}
+
+/// A block literal without the indentation the source gave it.
+///
+/// The line the opening delimiter sat on goes, and so does the
+/// whitespace the closing delimiter stands in — which is what says how
+/// far the text was indented.
+fn dedent(spelling: &str) -> String {
+    let mut lines: Vec<&str> = spelling.split('\n').collect();
+    if lines.first().is_some_and(|l| l.trim().is_empty()) {
+        lines.remove(0);
+    }
+    let indent: String = match lines.last() {
+        Some(last) if last.trim().is_empty() && lines.len() > 1 => {
+            let indent = last.to_string();
+            lines.pop();
+            indent
+        }
+        _ => lines
+            .iter()
+            .filter(|l| !l.trim().is_empty())
+            .map(|l| &l[..l.len() - l.trim_start().len()])
+            .min_by_key(|w| w.len())
+            .unwrap_or("")
+            .to_string(),
+    };
+    lines
+        .iter()
+        .map(|l| l.strip_prefix(indent.as_str()).unwrap_or(l.trim_start()))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// The text of a string literal that is not an expression — a route, a
+/// title, a file's name, a key. A splice in one of those is text.
+fn string_text(lit: &StringLit) -> String {
+    pieces(lit)
+        .into_iter()
+        .map(|p| match p {
+            Piece::Text(t) => t,
+            Piece::Splice(s) => format!("{{{s}}}"),
+        })
+        .collect()
+}
+
+/// `"120ms"`, `"0.4s"` — milliseconds, or nothing where it is neither.
+fn duration_ms(text: &str) -> Option<f64> {
+    let text = text.trim();
+    let (number, scale) = match text.strip_suffix("ms") {
+        Some(n) => (n, 1.0),
+        None => (text.strip_suffix('s')?, 1000.0),
+    };
+    let n: f64 = number.trim().parse().ok()?;
+    (n >= 0.0).then_some(n * scale)
 }
 
 #[cfg(test)]

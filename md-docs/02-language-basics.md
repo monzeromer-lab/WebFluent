@@ -162,7 +162,37 @@ page P(path: "/") {
 }
 ```
 
-Interpolated text is live: when `user` changes, the text changes.
+Interpolated text is live: when `user` changes, the text changes. A
+splice may also say how to show its value — `{total:.currency}`,
+`{when:.date(long)}` — which is
+[formatting](11-expressions.md#showing-a-value-a-particular-way)
+written where it is read.
+
+### Three ways to write one
+
+A plain `"…"` string reads escapes (`\n`, `\t`, `\"`, `\\`, `\{`, `\}`)
+and `{…}` splices. Two other forms exist for text that a plain string
+makes you spell twice:
+
+```wf
+// Raw: no escapes, no splices. The text is what is written.
+const SAMPLE = #"page Home(path: "/") { state n = 0 }"#
+
+// As many # as the text needs, when it holds a `"#` of its own.
+const TRICKY = ##"a raw string ends with "# — like that"##
+
+// Block: over as many lines as it likes, escapes and splices on, and
+// the indentation the source gave it removed.
+const LETTER = """
+    Dear {name},
+      thank you.
+    """                       // "Dear Ada,\n  thank you."
+```
+
+A raw string is for a sample of code, a regular expression, a Windows
+path — anything with quotes or braces in it. A block string is for a
+paragraph, a template, a query: the closing `"""` says how far the text
+was indented, and that much comes off every line.
 
 ## Next
 

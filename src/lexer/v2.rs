@@ -24,7 +24,7 @@
 //! Spans are byte offsets, lines and columns count from 1, columns in
 //! characters — the same three coordinate systems as the original lexer.
 
-use super::token::{Token, TokenType};
+use super::token::{StringKind, StringLit, Token, TokenType};
 use crate::error::{Diagnostic, Result, WebFluentError};
 
 /// How a file writes its blocks.
@@ -259,6 +259,16 @@ impl LexerV2 {
         };
         Ok(match ch {
             '"' => self.read_string()?,
+            // `#"…"#` is a raw string; `#0F766E` is a colour.
+            '#' if self.raw_string_ahead() => self.read_raw_string()?,
+            '#' if self.color_ahead() => self.read_color(),
+            // `@2026-03-14`, `@09:30`, `@2026-03-14T09:30Z`.
+            '@' if self.peek().is_some_and(|c| c.is_ascii_digit()) => self.read_temporal(),
+            // `€12.99`, `$12.99` — an amount in the currency the symbol names.
+            '€' | '£' | '¥' if self.peek().is_some_and(|c| c.is_ascii_digit()) => {
+                self.read_money()
+            }
+            '$' if self.peek().is_some_and(|c| c.is_ascii_digit()) => self.read_money(),
             '0'..='9' => self.read_number()?,
             'a'..='z' | 'A'..='Z' | '_' => self.read_word(),
             '$' => self.read_token_name()?,
@@ -582,29 +592,29 @@ impl LexerV2 {
 
     // ─── Shared pieces ───────────────────────────────────
 
+    /// A string literal: `"…"`, the block form `"""…"""`, or the raw form
+    /// `#"…"#`.
+    ///
+    /// What comes back is the spelling between the delimiters, exactly as
+    /// written — the escapes are the parser's to resolve, in the one pass
+    /// that also splits the splices out.
     fn read_string(&mut self) -> Result<Token> {
+        if self.peek() == Some('"') && self.source.get(self.pos + 2) == Some(&'"') {
+            return self.read_block_string();
+        }
         let (line, column) = (self.line, self.column);
         self.advance();
         let mut value = String::new();
         while self.pos < self.source.len() && self.current() != '"' {
             if self.current() == '\\' {
+                // Kept whole: `\"` does not end the string, and what the
+                // escape means is decided once, in the parser.
+                value.push('\\');
                 self.advance();
                 if self.pos >= self.source.len() {
                     break;
                 }
-                match self.current() {
-                    'n' => value.push('\n'),
-                    't' => value.push('\t'),
-                    'r' => value.push('\r'),
-                    '\\' => value.push('\\'),
-                    '"' => value.push('"'),
-                    '{' => value.push('\u{FFFE}'),
-                    '}' => value.push('\u{FFFF}'),
-                    c => {
-                        value.push('\\');
-                        value.push(c);
-                    }
-                }
+                value.push(self.current());
             } else if self.current() == '{' {
                 // A splice may hold a string of its own — `{a ?? "none"}` —
                 // so a balanced brace group on this line is taken whole,
@@ -633,7 +643,176 @@ impl LexerV2 {
             )));
         }
         self.advance();
-        Ok(Token::new(TokenType::StringLiteral(value), line, column))
+        Ok(Token::new(
+            TokenType::StringLiteral(StringLit::new(value, StringKind::Plain)),
+            line,
+            column,
+        ))
+    }
+
+    /// `"""…"""`: everything between the delimiters, newlines and all. The
+    /// parser takes the indentation off, since only it knows where the
+    /// closing delimiter sat.
+    fn read_block_string(&mut self) -> Result<Token> {
+        let (line, column) = (self.line, self.column);
+        for _ in 0..3 {
+            self.advance();
+        }
+        let start = self.pos;
+        loop {
+            if self.pos + 2 >= self.source.len() {
+                return Err(WebFluentError::LexerError(Diagnostic::new(
+                    "Unterminated block string: no closing `\"\"\"`",
+                    &self.file,
+                    line,
+                    column,
+                )));
+            }
+            if self.current() == '"'
+                && self.source[self.pos + 1] == '"'
+                && self.source[self.pos + 2] == '"'
+            {
+                break;
+            }
+            self.advance();
+        }
+        let value: String = self.source[start..self.pos].iter().collect();
+        for _ in 0..3 {
+            self.advance();
+        }
+        Ok(Token::new(
+            TokenType::StringLiteral(StringLit::new(value, StringKind::Block)),
+            line,
+            column,
+        ))
+    }
+
+    /// Whether a colour opens here: `#` and three to eight hex digits that
+    /// a word does not run on from.
+    fn color_ahead(&self) -> bool {
+        let mut n = 0;
+        while self
+            .source
+            .get(self.pos + 1 + n)
+            .is_some_and(|c| c.is_ascii_hexdigit())
+        {
+            n += 1;
+        }
+        matches!(n, 3 | 4 | 6 | 8)
+            && !self
+                .source
+                .get(self.pos + 1 + n)
+                .is_some_and(|c| c.is_alphanumeric() || *c == '_' || *c == '-')
+    }
+
+    /// `#0F766E` — the hex digits, without the hash.
+    fn read_color(&mut self) -> Token {
+        let (line, column) = (self.line, self.column);
+        self.advance();
+        let mut digits = String::new();
+        while self.pos < self.source.len() && self.current().is_ascii_hexdigit() {
+            digits.push(self.current());
+            self.advance();
+        }
+        Token::new(TokenType::ColorLiteral(digits), line, column)
+    }
+
+    /// `@2026-03-14`, `@09:30:15`, `@2026-03-14T09:30:00Z` — everything a
+    /// date, a time or both can be written with, in one token.
+    fn read_temporal(&mut self) -> Token {
+        let (line, column) = (self.line, self.column);
+        self.advance(); // `@`
+        let mut text = String::new();
+        while self.pos < self.source.len() {
+            let c = self.current();
+            let part = match c {
+                c if c.is_ascii_digit() => true,
+                // Fractional seconds; a `.` before anything else is the
+                // method the literal is about to be asked for.
+                '.' => self.peek().is_some_and(|n| n.is_ascii_digit()),
+                // `T` joins a date to a time, and only there.
+                'T' => text.contains('-'),
+                '-' | ':' | 'Z' | '+' => true,
+                _ => false,
+            };
+            if !part {
+                break;
+            }
+            text.push(c);
+            self.advance();
+        }
+        Token::new(TokenType::TemporalLiteral(text), line, column)
+    }
+
+    /// `€12.99` — the symbol says the currency, the digits the amount.
+    fn read_money(&mut self) -> Token {
+        let (line, column) = (self.line, self.column);
+        let symbol = self.current().to_string();
+        self.advance();
+        let mut amount = String::new();
+        while self.pos < self.source.len()
+            && (self.current().is_ascii_digit() || self.current() == '.')
+        {
+            amount.push(self.current());
+            self.advance();
+        }
+        Token::new(TokenType::MoneyLiteral(symbol, amount), line, column)
+    }
+
+    /// Whether a raw string opens here: `#`s and then a quote.
+    fn raw_string_ahead(&self) -> bool {
+        let mut i = self.pos;
+        while self.source.get(i) == Some(&'#') {
+            i += 1;
+        }
+        self.source.get(i) == Some(&'"')
+    }
+
+    /// `#"…"#`, with as many `#` as the text needs: no escapes, no
+    /// splices, so a sample of code goes in whole.
+    fn read_raw_string(&mut self) -> Result<Token> {
+        let (line, column) = (self.line, self.column);
+        let mut hashes = 0usize;
+        while self.pos < self.source.len() && self.current() == '#' {
+            hashes += 1;
+            self.advance();
+        }
+        if self.pos >= self.source.len() || self.current() != '"' {
+            return Err(WebFluentError::LexerError(Diagnostic::new(
+                "Expected `\"` after `#`: a raw string is written `#\"…\"#`",
+                &self.file,
+                line,
+                column,
+            )));
+        }
+        self.advance();
+        let start = self.pos;
+        let closes = |lexer: &Self| {
+            if lexer.current() != '"' {
+                return false;
+            }
+            (1..=hashes).all(|n| lexer.source.get(lexer.pos + n) == Some(&'#'))
+        };
+        while self.pos < self.source.len() && !closes(self) {
+            self.advance();
+        }
+        if self.pos >= self.source.len() {
+            return Err(WebFluentError::LexerError(Diagnostic::new(
+                "Unterminated raw string",
+                &self.file,
+                line,
+                column,
+            )));
+        }
+        let value: String = self.source[start..self.pos].iter().collect();
+        for _ in 0..=hashes {
+            self.advance();
+        }
+        Ok(Token::new(
+            TokenType::StringLiteral(StringLit::new(value, StringKind::Raw)),
+            line,
+            column,
+        ))
     }
 
     /// The index just past the `}` that closes the splice opening at the
@@ -969,7 +1148,7 @@ mod tests {
             kinds(src)
                 .into_iter()
                 .filter_map(|t| match t {
-                    TokenType::StringLiteral(s) => Some(s),
+                    TokenType::StringLiteral(s) => Some(s.spelling),
                     _ => None,
                 })
                 .collect()
@@ -986,8 +1165,9 @@ mod tests {
         // string ends at the next quote as it always did.
         assert_eq!(strings("\"a { b\" \"c\""), vec!["a { b", "c"]);
         assert_eq!(strings("\"{\" \"d\""), vec!["{", "d"]);
-        // A group with a `\"` inside it, the older spelling, still lexes.
-        assert_eq!(strings("\"{a ?? \\\"x\\\"}\""), vec!["{a ?? \"x\"}"]);
+        // A group with a `\"` inside it, the older spelling, still lexes;
+        // the escape is the parser's to resolve, so the token keeps it.
+        assert_eq!(strings("\"{a ?? \\\"x\\\"}\""), vec!["{a ?? \\\"x\\\"}"]);
     }
 
     fn kinds(src: &str) -> Vec<TokenType> {
@@ -1171,7 +1351,16 @@ mod tests {
 
     #[test]
     fn a_stray_css_character_outside_a_style_block_is_an_error() {
-        let err = LexerV2::new("Text(#fff)", "<t>").tokenize().unwrap_err();
+        // `#fff` is a colour, wherever it is written; a `#` that opens
+        // neither a colour nor a raw string is the stray one.
+        let err = LexerV2::new("Text(#zz)", "<t>").tokenize().unwrap_err();
         assert!(err.to_string().contains("style { }"), "{err}");
+        let ok = LexerV2::new("Text(#0F766E)", "<t>")
+            .tokenize()
+            .expect("a colour");
+        assert!(ok.iter().any(|t| matches!(
+            &t.token_type,
+            TokenType::ColorLiteral(c) if c == "0F766E"
+        )));
     }
 }

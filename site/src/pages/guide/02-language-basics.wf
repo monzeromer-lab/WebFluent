@@ -6,7 +6,17 @@ page LanguageBasics(path: "/docs/guide/language-basics", title: "Language basics
 
         Markdown("Every `.wf` file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are eleven kinds:")
 
-        CodeBlock("page Home(path: \"/\", title: \"Home\", description: \"The front page.\") \{ Text(\"hi\") \}\ncomponent Chip(_ label: String, tone: Tone = .calm) \{ Badge(label) \}\nstore Cart \{ state items = []  derived count = items.length \}\ntheme Brand \{ color-primary: #0F766E  radius-md: 14px \}\napp \{ Navbar \{ Text(\"Shop\").heading \}  Router \}\ntype Todo \{ id: String, title: String, done: Bool = false \}\nenum Tone \{ calm, loud \}\nconst API = \"/api/v1\"\ndata posts = \"posts.json\"\nanimation Pulse \{ from \{ opacity: 1 \} to \{ opacity: 0.5 \} \}\ntest \"chip shows its label\" \{ Chip(\"Beta\")  expect \"Beta\" \}", title: "wf")
+        CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
+component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
+store Cart { state items = []  derived count = items.length }
+theme Brand { color-primary: #0F766E  radius-md: 14px }
+app { Navbar { Text("Shop").heading }  Router }
+type Todo { id: String, title: String, done: Bool = false }
+enum Tone { calm, loud }
+const API = "/api/v1"
+data posts = "posts.json"
+animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
+test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
 
         Table(caption: "A file is a list of declarations") {
             Table.Head {
@@ -73,27 +83,67 @@ page LanguageBasics(path: "/docs/guide/language-basics", title: "Language basics
 
         Heading("Comments", id: "comments").h2
 
-        CodeBlock("// A line comment.\n/* A block\n   comment. */\n/// A doc comment: attaches to the declaration that follows it.\ncomponent Avatar(_ initials: String) \{ Text(initials).bold \}", title: "wf")
+        CodeBlock(#"// A line comment.
+/* A block
+   comment. */
+/// A doc comment: attaches to the declaration that follows it.
+component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Heading("Bodies", id: "bodies").h2
 
         Markdown("A declaration's body is a **render block**: elements, and the statements that shape them (`state`, `derived`, `if`, `for`, …). A handler or an action's body is an **imperative block**: statements that do something (assignments, calls, `let`, `if`, `for`, `try`). The two are separate grammars, and the compiler tells you when a statement is in the wrong kind of block:")
 
-        CodeBlock("page P(path: \"/\") \{\n    state n = 0\n    Text(\"\{n\}\")                          // an element: fine in a render block\n    Button(\"+\") \{\n        on click \{ n = n + 1 \}           // an assignment: fine in a handler\n    \}\n\}", title: "wf")
+        CodeBlock(#"page P(path: "/") {
+    state n = 0
+    Text("{n}")                          // an element: fine in a render block
+    Button("+") {
+        on click { n = n + 1 }           // an assignment: fine in a handler
+    }
+}"#, title: "wf")
 
         Markdown("Writing `n = n + 1` loose inside the page body is an error: *\"Code that does something goes in `on click \{ … \}`, an `action` or an `effect`\"*.\n\nStatements on one line are separated by two spaces or a `;`:")
 
-        CodeBlock("page P(path: \"/\") \{\n    state a = 1  state b = 2\n    Button(\"x\") \{ on click \{ a = a + 1; b = b + 1 \} \}\n\}", title: "wf")
+        CodeBlock(#"page P(path: "/") {
+    state a = 1  state b = 2
+    Button("x") { on click { a = a + 1; b = b + 1 } }
+}"#, title: "wf")
 
         Heading("Two layouts: .wf and .wfx", id: "two-layouts-wf-and-wfx").h2
 
         Markdown("The same grammar can be written with braces or with indentation. A `.wf` file opens a block with `\{` and closes it with `\}`; a `.wfx` file opens a block with a line indented deeper than the one before it and closes it with a dedent.")
 
-        CodeBlock("page Home(path: \"/\") \{\n    state open = true\n    Row(gap: .sm) \{\n        style \{\n            padding: 6px 0\n            &:hover \{ background: $surface-hover \}\n        \}\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    \}\n    if open \{\n        Spinner\n    \} else \{\n        Text(\"b\")\n    \}\n\}", title: "wf")
+        CodeBlock(#"page Home(path: "/") {
+    state open = true
+    Row(gap: .sm) {
+        style {
+            padding: 6px 0
+            &:hover { background: $surface-hover }
+        }
+        on click { open = !open }
+        Text("a").bold
+    }
+    if open {
+        Spinner
+    } else {
+        Text("b")
+    }
+}"#, title: "wf")
 
         Markdown("The same in `.wfx`:")
 
-        CodeBlock("page Home(path: \"/\")\n    state open = true\n    Row(gap: .sm)\n        style\n            padding: 6px 0\n            &:hover\n                background: $surface-hover\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    if open\n        Spinner\n    else\n        Text(\"b\")", title: "wfx")
+        CodeBlock(#"page Home(path: "/")
+    state open = true
+    Row(gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click { open = !open }
+        Text("a").bold
+    if open
+        Spinner
+    else
+        Text("b")"#, title: "wfx")
 
         Markdown("Rules of the indented layout:\n\n- Four spaces (or one tab) per level, consistently; a line that lines up with no enclosing block is an error.\n- Braces you write yourself are still allowed, and everything inside them is free-form: `on click \{ open = !open \}` on one line, a map literal across several, an argument list across several.\n- An empty block is written `\{ \}`.\n- Blank lines and comment lines count for nothing.\n\nBoth layouts compile to the same output, are read by every tool, and a project may mix them. `wf fmt --to wfx` converts a project one way and `--to wf` the other, losslessly. This guide writes `.wf`; every example has an `.wfx` spelling.")
 
@@ -101,8 +151,21 @@ page LanguageBasics(path: "/docs/guide/language-basics", title: "Language basics
 
         Markdown("Strings are double-quoted and interpolate with `\{expr\}`:")
 
-        CodeBlock("page P(path: \"/\") \{\n    state user = \{ name: \"Sam\", age: 41 \}\n    Text(\"Hello, \{user.name\}! You are \{user.age * 12\} months old.\")\n    Text(\"A literal brace: \\\{ and \\\}\")\n    Text(\"A literal dollar: $\{user.age\}\")     // `$` alone is plain text\n\}", title: "wf")
+        CodeBlock(#"page P(path: "/") {
+    state user = { name: "Sam", age: 41 }
+    Text("Hello, {user.name}! You are {user.age * 12} months old.")
+    Text("A literal brace: \{ and \}")
+    Text("A literal dollar: ${user.age}")     // `$` alone is plain text
+}"#, title: "wf")
 
-        Markdown("Interpolated text is live: when `user` changes, the text changes.")
+        Markdown("Interpolated text is live: when `user` changes, the text changes. A splice may also say how to show its value — `\{total:.currency\}`, `\{when:.date(long)\}` — which is [formatting](/docs/guide/expressions#showing-a-value-a-particular-way) written where it is read.")
+
+        Heading("Three ways to write one", id: "three-ways-to-write-one").h3
+
+        Markdown("A plain `\"…\"` string reads escapes (`\\n`, `\\t`, `\\\"`, `\\\\`, `\\\{`, `\\\}`) and `\{…\}` splices. Two other forms exist for text that a plain string makes you spell twice:")
+
+        CodeBlock("// Raw: no escapes, no splices. The text is what is written.\nconst SAMPLE = #\"page Home(path: \"/\") \{ state n = 0 \}\"#\n\n// As many # as the text needs, when it holds a `\"#` of its own.\nconst TRICKY = ##\"a raw string ends with \"# — like that\"##\n\n// Block: over as many lines as it likes, escapes and splices on, and\n// the indentation the source gave it removed.\nconst LETTER = \"\"\"\n    Dear \{name\},\n      thank you.\n    \"\"\"                       // \"Dear Ada,\\n  thank you.\"", title: "wf")
+
+        Markdown("A raw string is for a sample of code, a regular expression, a Windows path — anything with quotes or braces in it. A block string is for a paragraph, a template, a query: the closing `\"\"\"` says how far the text was indented, and that much comes off every line.")
     }
 }

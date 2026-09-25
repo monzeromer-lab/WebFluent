@@ -63,6 +63,8 @@ pub fn validate_semantics_in(
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
+            | Declaration::Api(_)
+            | Declaration::External(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -90,6 +92,13 @@ fn name_set(program: &Program, kind: DeclKind) -> HashSet<&str> {
         .filter_map(|d| match (kind, d) {
             (DeclKind::Page, Declaration::Page(p)) => Some(p.name.as_str()),
             (DeclKind::Component, Declaration::Component(c)) => Some(c.name.as_str()),
+            // An `external element` is placed like a component; the
+            // declaration is what its call sites are checked against.
+            (DeclKind::Component, Declaration::External(e))
+                if e.kind == crate::parser::ast::ExternalKind::Element =>
+            {
+                Some(e.name.as_str())
+            }
             _ => None,
         })
         .collect()

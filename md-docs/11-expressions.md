@@ -46,6 +46,30 @@ on the same line. A brace group that is not an expression (`"{key: value}"`
 in prose, a fragment of code) stays text. For anything long, a `derived`
 reads better, as `items` above.
 
+### Showing a value a particular way
+
+A splice may say how to show its value: `{value:.style}`, or
+`{value:.style(option)}`, which is `format(value, .style, option)` written
+where it is read.
+
+```wf
+page Receipt(path: "/") {
+    state total = 1234.5
+    state count = 1235
+    state when = "2026-03-05T10:00:00Z"
+    Text("Total: {total:.currency}")            // Total: $1,234.50
+    Text("{count:.integer} items")              // 1,235 items
+    Text("Shipped {when:.date(long)}")          // Shipped March 5, 2026
+    Text("Down {0.256:.percent(1)}")            // — see below
+}
+```
+
+The styles and their options are `format`'s, listed under
+[`format` and `ago`](#format-and-ago). The value is an expression like any
+other, so `{order.total:.currency}` and `{sum(rows):.compact}` both work —
+but a splice has to open with a name, a `(` or a `[`, so a bare number
+takes a name first (`derived ratio = 0.256`, then `{ratio:.percent(1)}`).
+
 ## Operators
 
 | Kind | Operators |
@@ -121,10 +145,18 @@ type comes from what the method expects.
 
 ### String methods
 
-`length`, `trim()`, `toLowerCase()`, `toUpperCase()`, `capitalize()`,
-`truncate(n)`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`,
-`slice(a, b)`, `substring(a, b)`, `charAt(i)`, `replace(a, b)`, `split(sep)`,
-`padStart(n, c)`, `padEnd(n, c)`, `repeat(n)`, `match(re)`.
+`length`, `trim()`, `trimStart()`, `trimEnd()`, `toLowerCase()`,
+`toUpperCase()`, `capitalize()`, `truncate(n)`, `dedent()`, `lines()`,
+`words()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`,
+`lastIndexOf(s)`, `slice(a, b)`, `substring(a, b)`, `charAt(i)`, `at(i)`,
+`replace(a, b)`, `replaceAll(a, b)`, `split(sep)`, `padStart(n, c)`,
+`padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`,
+`match(re)`, `search(re)`.
+
+`dedent()` takes the common indentation off a block of text — what a
+string carried in from a file or an API keeps and a reader does not want.
+`lines()` and `words()` split it: by line ending, and by runs of
+whitespace.
 
 ### List methods
 
@@ -134,8 +166,9 @@ type comes from what the method expects.
 `groupBy(f)`, `unique()`, `take(n)`, `first()`, `last()`, `sum()`,
 `flatMap(f)`, and, in an imperative block, `push(x)`.
 
-`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `sum`, `capitalize`
-and `truncate` are WebFluent's own; the rest are the browser's.
+`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `sum`, `capitalize`,
+`truncate`, `dedent`, `lines` and `words` are WebFluent's own; the rest are
+the browser's.
 
 ### Number methods
 
@@ -240,7 +273,7 @@ form.
 
 ```wf
 const MAX_ROWS = 50
-const API = env.API_URL ?? "/api"
+const API = env.PUBLIC_API_URL ?? "/api"
 
 page Consts(path: "/") {
     Text("Up to {MAX_ROWS} rows from {API}")
@@ -252,15 +285,32 @@ build environment (and `.env` in the project root). Both are inlined.
 
 ## Built-in functions
 
+These are the whole of what the language adds to what the browser already
+has. Everything else with parentheses after it is a method, an action, a
+component or one of the browser's own globals.
+
 | Name | Does |
 |---|---|
 | `log(x, …)` | Prints to the console |
-| `navigate(path)` | Changes the route ([chapter 3](03-pages-and-routing.md#navigating)) |
-| `format`, `ago` | Above |
-| `t("key", args)` | Translates ([chapter 15](15-i18n.md)) |
-| `setTheme("dark")` | Switches the theme ([chapter 12](12-styling.md#dark-mode)) |
-| `Number(x)`, `String(x)` | Convert |
+| `navigate(path)` | Changes the route ([chapter 3](03-pages-and-routing.md#links-and-navigation)) |
+| `format(v, .style, opt)`, `ago(d)` | [Above](#format-and-ago) |
+| `t("key", args)`, `setLocale("ar")` | Translates, and switches locale ([chapter 15](15-i18n.md)) |
+| `setTheme("dark")` | `"dark"`, `"light"` or `"system"`, kept across visits ([chapter 12](12-styling.md#dark-mode)) |
 | `every(ms) { }`, `after(ms) { }` | Timers ([chapter 5](05-state-and-reactivity.md#timers)) |
+| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays one by hand ([chapter 13](13-motion.md#driving-one-yourself)) |
+| `optimistic(holder, change)` | Shows a change before the server agrees ([chapter 14](14-data.md#showing-a-change-before-the-server-agrees)) |
+| `beacon(url, data)` | A send that outlives the page ([chapter 14](14-data.md#a-connection-the-page-holds-open)) |
+| `sanitize(html)` | Markup, through an allow-list ([chapter 19](19-security.md#markup-you-did-not-write)) |
+| `uuid()` | A fresh `Uuid` ([chapter 10](10-types.md#the-types-the-language-brings-with-it)) |
+
+The browser's own globals need no prefix and compile to themselves:
+`window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`,
+`Math`, `Date`, `setTimeout`, `setInterval`, `clearTimeout`,
+`clearInterval`, `parseInt`, `parseFloat`, `Array`, `Object`, `String`,
+`Number`, `Boolean`, `Promise`, `Error`, `Map`, `Set`, `RegExp`,
+`Infinity`, `NaN`, `undefined`, `encodeURIComponent`, `decodeURIComponent`,
+`encodeURI`, `decodeURI`, `atob`, `btoa`, `fetch`, `alert`, `confirm`,
+`prompt`, `requestAnimationFrame` and `cancelAnimationFrame`.
 
 ## Next
 

@@ -32,8 +32,9 @@ what compiles; the cookbook's applications build and run.
 | 16 | [Content](16-content.md) | `Markdown`, `.md` pages with front matter, static builds, search and sharing tags, code and media |
 | 17 | [Outputs](17-outputs.md) | SPA, static site, PDF documents, slide decks, rendering templates with data (CLI, Rust, Node) |
 | 18 | [Tooling](18-tooling.md) | Every `wf` command, `wf serve`, diagnostics by family, `wf fmt`, `wf test`, `wf docs`/`registry`/`types`, the language server and editors |
-| 19 | [Components reference](19-components-reference.md) | Every built-in with its props, cases, flags, events, slots and parts (generated from the compiler) |
-| 20 | [Cookbook](20-cookbook.md) | Three complete applications, and recipes for the things every site needs |
+| 19 | [Security](19-security.md) | What the compiler guarantees, what it cannot, sessions, `env`, CSP, headers and a deployment checklist |
+| 20 | [Components reference](20-components-reference.md) | Every built-in with its props, cases, flags, events, slots and parts (generated from the compiler) |
+| 21 | [Cookbook](21-cookbook.md) | Three complete applications, and recipes for the things every site needs |
 
 ## How to read it
 
@@ -41,8 +42,8 @@ what compiles; the cookbook's applications build and run.
 - Coming from React, Vue or Svelte: skim 2 and 4, then read 5, 8 and 9 — the
   reactivity model is signals, the components are declared and typed, and the
   compiler checks what you write against what the components declare.
-- Looking something up: chapter 19 is the reference, chapter 18 has the
-  diagnostics codes, chapter 10 the type checks, and chapter 20 the recipes.
+- Looking something up: chapter 20 is the reference, chapter 18 has the
+  diagnostics codes, chapter 10 the type checks, and chapter 21 the recipes.
 
 ## The five ideas
 

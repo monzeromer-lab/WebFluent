@@ -386,6 +386,8 @@ impl Parser {
         let (body, body_span) = body?;
         Ok(StoreDecl {
             name,
+            scope: StoreScope::default(),
+            eager: false,
             body,
             span: self.span_since(decl_mark),
             header_span,
@@ -499,6 +501,7 @@ impl Parser {
             ty: None,
             value,
             persist: false,
+            policy: None,
         }))
     }
 
@@ -979,6 +982,7 @@ impl Parser {
     fn parse_fetch_url_primary(&mut self) -> Result<Expr> {
         match self.current_type().clone() {
             TokenType::StringLiteral(s) => {
+                let s = s.spelling;
                 let s = s.clone();
                 self.advance();
                 if has_interpolation(&s) {
@@ -1588,7 +1592,7 @@ impl Parser {
             let tok = self.current_type().clone();
             let text = match &tok {
                 TokenType::Identifier(s) => s.clone(),
-                TokenType::StringLiteral(s) => format!("\"{}\"", s),
+                TokenType::StringLiteral(s) => format!("\"{}\"", s.spelling),
                 TokenType::NumberLiteral(n) => {
                     if *n == (*n as i64) as f64 {
                         format!("{}", *n as i64)
@@ -1679,6 +1683,7 @@ impl Parser {
             // Duration: next token should be a string like "200ms" or an identifier like "fast"
             let duration = match self.current_type().clone() {
                 TokenType::StringLiteral(s) => {
+                    let s = s.spelling;
                     self.advance();
                     s
                 }
@@ -2098,6 +2103,7 @@ impl Parser {
     fn parse_primary(&mut self) -> Result<Expr> {
         match self.current_type().clone() {
             TokenType::StringLiteral(s) => {
+                let s = s.spelling;
                 let s = s.clone();
                 self.advance();
                 // Check for interpolation: only if { is followed by an identifier char
@@ -2395,6 +2401,7 @@ impl Parser {
     fn expect_map_key(&mut self) -> Result<String> {
         // String literal keys
         if let TokenType::StringLiteral(s) = self.current_type().clone() {
+            let s = s.spelling;
             self.advance();
             // Wrap in quotes to distinguish from identifier keys during codegen
             return Ok(format!("\"{}\"", s));
@@ -2421,6 +2428,7 @@ impl Parser {
     fn expect_string(&mut self) -> Result<String> {
         match self.current_type().clone() {
             TokenType::StringLiteral(s) => {
+                let s = s.spelling;
                 self.advance();
                 Ok(s)
             }
@@ -2794,6 +2802,8 @@ mod span_tests {
                 | Declaration::Theme(_)
                 | Declaration::Type(_)
                 | Declaration::Enum(_)
+                | Declaration::Api(_)
+                | Declaration::External(_)
                 | Declaration::Const(_)
                 | Declaration::Animation(_)
                 | Declaration::Test(_)
