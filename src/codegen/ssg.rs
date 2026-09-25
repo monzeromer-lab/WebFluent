@@ -207,6 +207,10 @@ pub fn render_page_html_studio(
 
     let link_base = config.build.base_path.clone();
 
+    let scope = Scope::from_program_with_env(program, &page.body, &site.config.env)
+        .with_locale(default_locale)
+        .with_messages(&default_messages);
+
     let mut ctx = SsgContext {
         images: 0,
         fields: 0,
@@ -217,8 +221,7 @@ pub fn render_page_html_studio(
         studio,
         node_map: node_map.clone(),
         components: components.clone(),
-        scope: Scope::from_program_with_env(program, &page.body, &site.config.env)
-            .with_locale(default_locale),
+        scope,
         depth: 0,
         in_thead: false,
         current_path: page.path.clone(),

@@ -340,3 +340,62 @@ fn remove_on_a_state_list_goes_through_the_signal_so_the_view_repaints() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// `t(…)` was resolved by the static paint only when it was the whole of a
+/// text. Spliced into a string, added to one, compared, or held in a prop a
+/// component then spliced, the evaluator had never heard of it — the value
+/// came back unknown and the element painted empty until the script ran, for
+/// a reader without JavaScript and for a crawler. The documentation site's
+/// chapter breadcrumbs and prev/next links could not be translated because of
+/// it.
+#[test]
+fn a_translation_paints_wherever_it_is_written() {
+    let dir = scratch("t-anywhere");
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::write(
+        dir.join("src/translations/en.json"),
+        r#"{ "name": "Ada", "chapter": "Chapter {n}", "items.one": "{count} item", "items.other": "{count} items" }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        r#"component Shell(chapter: String = "", label: String = "") {
+    slot
+    Container {
+        Text("crumb:{chapter}")
+        if label != "" { Text("cond:{label}") }
+        children
+    }
+}
+
+page Home(path: "/", title: "Home", description: "d", layout: Shell(chapter: t("chapter", { n: "19" }), label: t("name"))) {
+    Heading("h").h1
+    Text("splice:{t("name")}")
+    Text("plus:" + t("name"))
+    Text("plural:{t("items", { count: 2 })}")
+}
+"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "scratch", "entry": "src/App.wf", "output": "build", "build": { "ssg": true }, "i18n": { "default_locale": "en", "locales": ["en"] } }"#,
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["build"]);
+    assert!(ok, "{out}");
+    let html = std::fs::read_to_string(dir.join("build/index.html")).unwrap();
+    for want in [
+        ">splice:Ada<",
+        ">plus:Ada<",
+        ">plural:2 items<",
+        ">crumb:Chapter 19<",
+        ">cond:Ada<",
+    ] {
+        assert!(
+            html.contains(want),
+            "the static paint should carry `{want}`: {html}"
+        );
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

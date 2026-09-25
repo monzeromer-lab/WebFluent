@@ -271,6 +271,41 @@ impl Scope {
         self
     }
 
+    /// The scope with the default locale's messages, so `t(…)` resolves
+    /// wherever it is written. It used to resolve only as the whole of a
+    /// text — `Text(t("k"))` — and anywhere else the evaluator had never
+    /// heard of it: spliced into a string, added to one, or held in a prop
+    /// the component then spliced, the whole value came back unknown and the
+    /// static paint left the element empty until the script ran.
+    pub fn with_messages(mut self, messages: &HashMap<String, String>) -> Self {
+        if let Some(frame) = self.frames.first_mut() {
+            frame.insert(
+                "__messages".to_string(),
+                Static::Map(
+                    messages
+                        .iter()
+                        .map(|(k, v)| (k.clone(), Static::Str(v.clone())))
+                        .collect(),
+                ),
+            );
+        }
+        self
+    }
+
+    /// The messages at hand, empty when the project has none.
+    fn messages(&self) -> HashMap<String, String> {
+        match self.get("__messages") {
+            Some(Static::Map(entries)) => entries
+                .iter()
+                .filter_map(|(k, v)| match v {
+                    Static::Str(s) => Some((k.clone(), s.clone())),
+                    _ => None,
+                })
+                .collect(),
+            _ => HashMap::new(),
+        }
+    }
+
     /// The locale at hand: the project's, a `locale` in the data, or English.
     fn locale(&self) -> String {
         match self.get("__locale").or_else(|| self.get("locale")) {
@@ -576,6 +611,25 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 .map(|a| eval_in(a, scope, fuel))
                 .collect::<Option<Vec<_>>>()?;
             match name.as_str() {
+                // `t("key")` and `t("key", { count: n, name: x })`: the
+                // message in the default locale, its plural picked by
+                // `count` and its placeholders filled — what the top-level
+                // text path already did, now wherever `t` is written.
+                "t" if !scope.functions.contains_key(name) => {
+                    let Some(Static::Str(key)) = args.first() else {
+                        return None;
+                    };
+                    let params = match args.get(1) {
+                        None => Vec::new(),
+                        Some(Static::Map(params)) => params.clone(),
+                        Some(_) => return None,
+                    };
+                    Some(Static::Str(crate::i18n::message(
+                        &scope.messages(),
+                        key,
+                        &params,
+                    )))
+                }
                 // `sanitize(html)`: the twin of the runtime's, so the
                 // static paint shows exactly what hydration will.
                 "sanitize" if !scope.functions.contains_key(name) => {
