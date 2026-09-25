@@ -51,7 +51,7 @@ component SiteHeader(docs: Bool = false) {
                         }
                     }
                     Text("WebFluent") { style { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -0.004em } }
-                    Text("3.0") {
+                    Text("4.0") {
                         style {
                             margin: 0
                             font-family: $font-family-mono

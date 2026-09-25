@@ -46,7 +46,8 @@ component DocSidebar {
 
         Text(t("nav.group.reference"), class: "group-label")
         Sidebar.Item(to: "/docs/guide/tooling") { Text("18", class: "num")  Text(t("ch.18")) }
-        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("19", class: "num")  Text(t("ch.19")) }
-        Sidebar.Item(to: "/docs/cookbook") { Text("20", class: "num")  Text(t("ch.20")) }
+        Sidebar.Item(to: "/docs/guide/security") { Text("19", class: "num")  Text(t("ch.19")) }
+        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("20", class: "num")  Text(t("ch.20")) }
+        Sidebar.Item(to: "/docs/cookbook") { Text("21", class: "num")  Text(t("ch.21")) }
     }
 }

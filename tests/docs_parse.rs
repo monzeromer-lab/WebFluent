@@ -525,3 +525,71 @@ fn every_design_token_is_documented() {
         missing.join(", ")
     );
 }
+
+/// The guide's pages are generated from `md-docs/` by
+/// `scripts/site-from-guide.py`, but the sidebar that links them is written
+/// by hand in `site/src/components/DocSidebar.wf`. They drifted: chapter 19,
+/// Security, was added to the guide and never to the sidebar, so the page
+/// built, deployed and answered its URL while being reachable from no
+/// navigation at all — and the two chapters after it were left a number
+/// short, numbering the components reference 19 and the cookbook 20.
+#[test]
+fn the_sidebar_lists_every_chapter_of_the_guide() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+    // The chapters, from the directory the guide actually is.
+    let mut chapters: Vec<(String, String)> = std::fs::read_dir(root.join("md-docs"))
+        .expect("md-docs")
+        .filter_map(|e| e.ok())
+        .filter_map(|e| {
+            let name = e.file_name().to_string_lossy().to_string();
+            let (num, rest) = name.split_once('-')?;
+            if num.len() != 2 || !num.chars().all(|c| c.is_ascii_digit()) {
+                return None;
+            }
+            Some((num.to_string(), rest.trim_end_matches(".md").to_string()))
+        })
+        .collect();
+    chapters.sort();
+    assert!(chapters.len() > 15, "expected the whole guide, got {chapters:?}");
+
+    let sidebar = std::fs::read_to_string(root.join("site/src/components/DocSidebar.wf"))
+        .expect("DocSidebar.wf");
+
+    for (num, stem) in &chapters {
+        // Every chapter is numbered in the rail, and its number is the one
+        // the file carries.
+        assert!(
+            sidebar.contains(&format!("Text(\"{num}\", class: \"num\")")),
+            "chapter {num} ({stem}) is not in the sidebar"
+        );
+        assert!(
+            sidebar.contains(&format!("t(\"ch.{num}\")")),
+            "chapter {num} ({stem}) has no title in the sidebar"
+        );
+    }
+
+    // And nothing beyond them: a number the guide does not have means the
+    // rail was renumbered without the guide.
+    let highest: u32 = chapters.last().unwrap().0.parse().unwrap();
+    for over in (highest + 1)..=(highest + 3) {
+        assert!(
+            !sidebar.contains(&format!("t(\"ch.{over:02}\")")),
+            "the sidebar names chapter {over:02}, which the guide does not have"
+        );
+    }
+
+    // Both locales have to carry every title, or the rail is blank in one.
+    for locale in ["en", "ar"] {
+        let table = std::fs::read_to_string(
+            root.join(format!("site/src/translations/{locale}.json")),
+        )
+        .expect("translations");
+        for (num, stem) in &chapters {
+            assert!(
+                table.contains(&format!("\"ch.{num}\"")),
+                "{locale}.json has no title for chapter {num} ({stem})"
+            );
+        }
+    }
+}

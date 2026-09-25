@@ -59,7 +59,7 @@ component SiteFooter {
                         Text(t("footer.reference"), class: "overline")
                         Link(t("footer.builtins"), to: "/docs/reference")
                         Link(t("footer.diagnostics"), to: "/docs/guide/tooling#diagnostics")
-                        Link(t("ch.20"), to: "/docs/cookbook")
+                        Link(t("ch.21"), to: "/docs/cookbook")
                     }
 
                     Stack(gap: .xs) {

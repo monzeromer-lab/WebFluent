@@ -10,11 +10,11 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
         Row(align: .center, gap: .xs, class: "crumbs") {
             Text(t("ref.chapter"))
             Text("/")
-            Text(t("ch.19")) { style { color: $color-text-muted } }
+            Text(t("ch.20")) { style { color: $color-text-muted } }
         }
         Stack(gap: .sm) {
             style { gap: 12px; max-width: 680px }
-            Heading(t("ch.19")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
+            Heading(t("ch.20")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
             Markdown(t("ref.intro", { count: registry.count })) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
         }
 
@@ -227,7 +227,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Compone
 
         } else {
             Heading(t("notfound.title")).h2
-            Link(t("ch.19"), to: "/docs/reference")
+            Link(t("ch.20"), to: "/docs/reference")
         }
     }
 }

@@ -25,8 +25,8 @@
   "ch.16": "Content",
   "ch.17": "Outputs",
   "ch.18": "Tooling",
-  "ch.19": "Components reference",
-  "ch.20": "Cookbook",
+  "ch.19": "Security",
+  "ch.20": "Components reference",
   "docs.onthispage": "On this page",
   "docs.edit": "Edit this page",
   "docs.reference": "Components reference",
@@ -109,7 +109,7 @@
   "hero.serve": "wf serve · localhost:3000",
   "footer.builtins": "Built-in components",
   "footer.diagnostics": "Diagnostics",
-  "ref.chapter": "Chapter 19",
+  "ref.chapter": "Chapter 20",
   "ref.index": "Components",
   "ref.filter": "Filter {count} built-ins",
   "ref.intro": "{count} built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written `Name(positional, prop: value).flag { block }`.",
@@ -135,5 +135,6 @@
   "ref.universal.body": "Every element takes these props, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).",
   "ref.events": "Events",
   "ref.icons": "Icons",
-  "ref.icons.body": "The names Icon(…), IconButton(icon:) and Sidebar.Item(icon:) draw; any other name shows as the word, and the compiler warns."
+  "ref.icons.body": "The names Icon(…), IconButton(icon:) and Sidebar.Item(icon:) draw; any other name shows as the word, and the compiler warns.",
+  "ch.21": "Cookbook"
 }
