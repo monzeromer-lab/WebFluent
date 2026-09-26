@@ -198,7 +198,17 @@
     return Promise.race([
       animation.finished.then(stop, () => {}),
       new Promise((done) => setTimeout(done, ms + 50)).then(() => {
-        if (animation.playState !== "idle") stop();
+        if (animation.playState === "idle") return;
+        // The page painted no frame, so the animation is still at its
+        // first one. Finish it before committing, or the element keeps the
+        // state it was meant to arrive *from* — a fade-in would commit
+        // `opacity: 0` and stay invisible for good.
+        try {
+          animation.finish();
+        } catch (e) {
+          /* an animation with no end to jump to */
+        }
+        stop();
       }),
     ]);
   }

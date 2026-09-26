@@ -58,12 +58,15 @@ class Animation_ {
     this.playState = "finished";
     this._resolve(this);
   }
+  /// A real `cancel()` works whatever state the animation is in: it takes
+  /// it off the element and leaves it idle, finished or not.
   cancel() {
-    if (this.playState !== "running") return;
+    if (this.playState === "idle") return;
+    const finished = this.playState === "finished";
     this.playState = "idle";
     const at = this.effect.target._animations.indexOf(this);
     if (at >= 0) this.effect.target._animations.splice(at, 1);
-    this._reject(new Error("cancelled"));
+    if (!finished) this._reject(new Error("cancelled"));
   }
   commitStyles() { this.committed = true; }
 }

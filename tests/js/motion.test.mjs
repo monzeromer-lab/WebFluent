@@ -278,3 +278,19 @@ test("`show` with `.expand` opens the box itself", async () => {
   open.set(true);
   assert.deepEqual(wrapper.getAnimations()[0].effect.frames, [{ height: "0px" }, { height: "90px" }]);
 });
+
+test("an animation the page never painted settles at its end, not its start", async () => {
+  const { WF, document } = run();
+  const el = document.createElement("div");
+  // A background tab, a prerender, a headless browser: the animation is
+  // created and never gets a frame.
+  el._holdAnimations = true;
+
+  const done = WF.animateIn(el, "fadeIn", "20ms");
+  const [animation] = el.getAnimations();
+  assert.equal(animation.playState, "running", "started, and waiting for a frame");
+
+  await done;
+  assert.equal(animation.committed, true, "the end state was written to the element");
+  assert.equal(animation.playState, "idle", "and the animation was taken off it");
+});
