@@ -15,24 +15,26 @@ component ReferenceShell(current: String = "") {
             style {
                 flex: 1 1 0
                 min-width: 0
-                gap: 24px
-                padding: 32px 40px
+                gap: 20px
+                padding: 24px 16px 88px
                 background: $color-surface
                 text-align: start
-                @media (max-width: 768px) { padding: 24px 16px }
+                @md { gap: 24px; padding: 32px 32px 48px }
+                @lg { padding: 32px 40px }
             }
             children
         }
 
         Stack(gap: .lg, class: "reference-rail") {
             style {
+                display: none
                 width: 240px
                 flex-shrink: 0
                 gap: 20px
                 padding: 32px 20px
                 border-inline-start: 1px solid $border
                 background: $color-background
-                @media (max-width: 1100px) { display: none }
+                @media (min-width: 1100px) { display: flex }
             }
             rail
         }

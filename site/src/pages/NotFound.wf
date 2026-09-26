@@ -1,10 +1,10 @@
 page NotFound(path: "*", title: "Not found", description: "The address you followed does not match any page.", noindex: true) {
     SiteHeader
     Container {
-        style { max-width: 680px; padding: 96px 40px }
+        style { max-width: 680px; padding: 48px 16px; @md { padding: 96px 40px } }
         Stack(gap: .md) {
             Text("404") { style { margin: 0; font-family: $font-family-mono; font-size: 12px; color: $accent-ink } }
-            Heading(t("notfound.title")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; letter-spacing: -0.016em } }
+            Heading(t("notfound.title")).h1 { style { margin: 0; font-size: 28px; line-height: 34px; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
             Text(t("notfound.body")) { style { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } }
             Row(gap: .sm) {
                 Link(t("notfound.cta"), to: "/", class: "site-button site-button-primary")

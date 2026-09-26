@@ -187,7 +187,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("A plain `\"…\"` string reads escapes (`\\n`, `\\t`, `\\\"`, `\\\\`, `\\\{`, `\\\}`) and `\{…\}` splices. Two other forms exist for text that a plain string makes you spell twice:")
 
-        CodeBlock("// Raw: no escapes, no splices. The text is what is written.\nconst SAMPLE = #\"page Home(path: \"/\") \{ state n = 0 \}\"#\n\n// As many # as the text needs, when it holds a `\"#` of its own.\nconst TRICKY = ##\"a raw string ends with \"# — like that\"##\n\n// Block: over as many lines as it likes, escapes and splices on, and\n// the indentation the source gave it removed.\nconst LETTER = \"\"\"\n    Dear \{name\},\n      thank you.\n    \"\"\"                       // \"Dear Ada,\\n  thank you.\"", title: "wf")
+        CodeBlock("// Raw: no escapes, no splices. The text is what is written.\nconst SAMPLE = #\"page Home(path: \"/\") \{ state n = 0 \}\"#\n\n// As many # as the text needs, when it holds a `\"#` of its own.\nconst TRICKY = ##\"a raw string ends with \"# — like that\"##\n\n// Block: over as many lines as it likes, escapes and splices on, and\n// the indentation the source gave it removed.\nconst name = \"Ada\"\nconst LETTER = \"\"\"\n    Dear \{name\},\n      thank you.\n    \"\"\"                       // \"Dear Ada,\\n  thank you.\"", title: "wf")
 
         Markdown("A raw string is for a sample of code, a regular expression, a Windows path — anything with quotes or braces in it. A block string is for a paragraph, a template, a query: the closing `\"\"\"` says how far the text was indented, and that much comes off every line.")
     }

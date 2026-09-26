@@ -24,11 +24,12 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
         Row(align: .center, justify: .between) {
             style {
                 flex-wrap: nowrap
-                height: 32px
-                padding: 0 12px
+                gap: 12px
+                height: 40px
+                padding: 0 8px 0 12px
                 background: $color-background
                 border-bottom: 1px solid $border
-                @media (max-width: 768px) { flex-direction: row }
+                @md { height: 32px; padding: 0 12px }
             }
             Row(align: .center, gap: .sm) {
                 style { flex-wrap: nowrap; min-width: 0; & p { margin: 0 } }
@@ -39,8 +40,9 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
             }
             Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy")) {
                 style {
-                    height: 22px
-                    padding: 0 8px
+                    flex-shrink: 0
+                    height: 30px
+                    padding: 0 10px
                     background: transparent
                     border: 1px solid $border
                     border-radius: 4px
@@ -49,6 +51,7 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
                     font-size: 12px
                     line-height: 18px
                     font-weight: 400
+                    @md { height: 22px; padding: 0 8px }
                     &:hover { color: $color-text; border-color: $border-strong; background: transparent }
                 }
                 on click { copy() }

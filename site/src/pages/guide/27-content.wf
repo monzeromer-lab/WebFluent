@@ -93,7 +93,7 @@ page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.
     }
 }"#, title: "wf")
 
-        Markdown("The `title:` and `description:` of a `:param` page may name its parameters — `title: \"\{slug\} — Blog\"` — and each pre-rendered file, and the live page's tab, has that route's value. A title that comes from the data rather than the address goes in `head \{ \}` as `og:title`, as above; the runtime keeps the head tags current as the parameter changes.")
+        Markdown("The `title:` and `description:` of a `:param` page may name its parameters — `title: \"\{slug\} — Blog\"` — and each pre-rendered file, and the live page's tab, has that route's value. The title may also splice an expression over the parameters and the program's constants and data — `title: \"\{posts.find(p => p.slug == slug)?.title ?? slug\} — Blog\"` — which the build works out for each file and the router again on each visit. Anything else the head should say about the entry goes in `head \{ \}`, as above; the runtime keeps those tags current as the parameter changes.")
 
         Heading("A checklist for being found", id: "a-checklist-for-being-found").h2
 

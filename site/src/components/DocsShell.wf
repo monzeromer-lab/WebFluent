@@ -16,10 +16,11 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
             style {
                 flex: 1 1 0
                 min-width: 0
-                gap: 28px
-                padding: 40px 48px
+                gap: 24px
+                padding: 24px 16px 88px
                 background: $color-surface
-                @media (max-width: 768px) { padding: 24px 16px }
+                @md { gap: 28px; padding: 32px 32px 48px }
+                @lg { padding: 40px 48px }
             }
 
             Row(align: .center, gap: .xs, aria-label: "Breadcrumb", role: "navigation", class: "crumbs") {
@@ -33,16 +34,16 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
 
             Stack(gap: .sm) {
                 style { gap: 12px; max-width: 680px }
-                Heading(heading).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
+                Heading(heading).h1 { style { margin: 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.016em; overflow-wrap: anywhere; @md { font-size: 34px; line-height: 38px } } }
                 if blurb != "" {
-                    Text(blurb) { style { margin: 0; font-size: 17px; line-height: 26px; color: $color-text-muted } }
+                    Text(blurb) { style { margin: 0; font-size: 16px; line-height: 24px; color: $color-text-muted; @md { font-size: 17px; line-height: 26px } } }
                 }
             }
 
             // The chapters are written in English; they keep their direction
             // when the site's chrome switches to Arabic.
             Stack(gap: .lg, dir: "ltr", class: "docs-article") {
-                style { gap: 28px; max-width: 680px; text-align: start }
+                style { gap: 24px; max-width: 680px; min-width: 0; text-align: start; @md { gap: 28px } }
                 children
             }
 

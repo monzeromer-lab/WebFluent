@@ -1,12 +1,23 @@
 /// The site's top bar as the design draws it: the mark, the three places to
 /// read, then — on a docs page — search, and everywhere the theme, GitHub and
-/// the locale. On a phone the places to read fold behind a menu button.
+/// the locale. Written for a phone first: there the places to read and the
+/// search fold behind a menu button; from `md` up the search sits in the
+/// bar, and from `lg` up the places to read do too.
 component SiteHeader(docs: Bool = false) {
     state q = ""
     state menu = false
     derived query = q.trim().toLowerCase()
     // A heading that matches comes first; a section whose text mentions the
     // term after it.
+    state guideIndex: [SearchRow] = []
+    state asked = false
+    // The index is a file of its own, fetched once, when the reader first
+    // reaches for the search.
+    action loadIndex() {
+        if asked { return }
+        asked = true
+        try { guideIndex = await fetch(SEARCH_INDEX) } catch e { asked = false }
+    }
     derived named = guideIndex.filter(r => query != "" && "{r.title} {r.section}".toLowerCase().includes(query))
     derived mentioned = guideIndex.filter(r => query != "" && !"{r.title} {r.section}".toLowerCase().includes(query) && r.words.includes(query))
     derived hits = [...named, ...mentioned].take(10)
@@ -20,24 +31,24 @@ component SiteHeader(docs: Bool = false) {
 
     Row(align: .center, justify: .between, role: "banner", class: "site-header") {
         style {
-            height: 60px
-            padding: 0 24px
-            gap: 24px
+            height: 56px
+            padding: 0 16px
+            gap: 12px
             flex-wrap: nowrap
             border-bottom: 1px solid $border
             background: $color-background
             position: sticky
             top: 0
             z-index: 100
-            @media (max-width: 768px) { height: 56px; padding: 0 16px; flex-direction: row }
+            @md { height: 60px; padding: 0 24px; gap: 24px }
         }
 
         Row(align: .center, gap: .lg) {
-            style { flex-wrap: nowrap; min-width: 0; @media (max-width: 768px) { flex-direction: row } }
+            style { flex-wrap: nowrap; min-width: 0 }
 
             Link(to: "/") {
                 Row(align: .center, gap: .sm) {
-                    style { flex-wrap: nowrap; color: $color-text; @media (max-width: 768px) { flex-direction: row } }
+                    style { flex-wrap: nowrap; color: $color-text }
                     Text("wf") {
                         style {
                             display: inline-flex
@@ -55,8 +66,9 @@ component SiteHeader(docs: Bool = false) {
                         }
                     }
                     Text("WebFluent") { style { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -0.004em } }
-                    Text("4.0") {
+                    Text(VERSION) {
                         style {
+                            display: none
                             margin: 0
                             font-family: $font-family-mono
                             font-size: 12px
@@ -65,7 +77,7 @@ component SiteHeader(docs: Bool = false) {
                             border: 1px solid $border
                             border-radius: 999px
                             padding: 1px 8px
-                            @media (max-width: 480px) { display: none }
+                            @sm { display: inline-block }
                         }
                     }
                 }
@@ -73,11 +85,12 @@ component SiteHeader(docs: Bool = false) {
 
             Row(align: .center, gap: .xs, role: "navigation", aria-label: "Site", class: "site-nav") {
                 style {
+                    display: none
                     flex-wrap: nowrap
                     & a { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 4px; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none; white-space: nowrap }
                     & a:hover { color: $color-text; background: $surface-hover; text-decoration: none }
                     & a.active { background: $surface-raised; color: $color-text; font-weight: 600 }
-                    @media (max-width: 768px) { display: none }
+                    @lg { display: flex }
                 }
                 Link(t("nav.guide"), to: "/docs/guide", active: .prefix)
                 Link(t("nav.reference"), to: "/docs/reference", active: .prefix)
@@ -86,13 +99,14 @@ component SiteHeader(docs: Bool = false) {
         }
 
         Row(align: .center, gap: .sm) {
-            style { flex-wrap: nowrap; position: relative; @media (max-width: 768px) { flex-direction: row } }
+            style { flex-wrap: nowrap; position: relative; gap: 6px; @sm { gap: 8px } }
 
             if docs {
                 Row(align: .center, gap: .sm, class: "site-search") {
                     style {
+                        display: none
                         flex-wrap: nowrap
-                        width: 300px
+                        width: 220px
                         height: 34px
                         padding: 0 12px
                         background: $color-surface
@@ -101,11 +115,14 @@ component SiteHeader(docs: Bool = false) {
                         &:focus-within { border-color: $brand-ring }
                         & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }
                         & input { flex-grow: 1; min-width: 0; background: transparent; border: 0; outline: none; color: $color-text; font-family: inherit; font-size: 13px; line-height: 20px; padding: 0 }
-                        @media (max-width: 1100px) { width: 220px }
-                        @media (max-width: 768px) { display: none }
+                        @md { display: flex }
+                        @media (min-width: 1100px) { width: 300px }
                     }
                     Icon("search")
-                    Input(bind: q, ref: search, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search")
+                    Input(bind: q, ref: search, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search") {
+                        on focus { loadIndex() }
+                        on input { loadIndex() }
+                    }
                     Text("/") {
                         style {
                             margin: 0
@@ -120,13 +137,15 @@ component SiteHeader(docs: Bool = false) {
                     }
                 }
                 if hits.length > 0 {
-                    Card(role: "listbox", aria-label: "Search results", animate: .fadeIn, exit: .fadeOut) {
+                    Card(role: "listbox", aria-label: t("search.results"), animate: .fadeIn, exit: .fadeOut) {
                         style {
+                            display: none
+                            @md { display: block }
                             position: absolute
                             top: 40px
                             inset-inline-end: 0
                             width: 420px
-                            max-width: 90vw
+                            max-width: calc(100vw - 32px)
                             padding: 6px
                             background: $surface-overlay
                             border: 1px solid $border
@@ -134,29 +153,7 @@ component SiteHeader(docs: Bool = false) {
                             box-shadow: $shadow-lg
                             z-index: 200
                         }
-                        for hit in hits by hit.route {
-                            Link(to: hit.route) {
-                                style {
-                                    display: flex
-                                    align-items: baseline
-                                    gap: 10px
-                                    padding: 8px 10px
-                                    border-radius: 4px
-                                    text-decoration: none
-                                    color: $color-text
-                                    &:hover { background: $surface-hover; text-decoration: none }
-                                }
-                                on click { q = "" }
-                                Text(hit.chapter) { style { margin: 0; font-family: $font-family-mono; font-size: 12px; color: $ink-subtle; width: 20px; flex-shrink: 0 } }
-                                Stack(gap: .xs) {
-                                    style { gap: 1px; min-width: 0 }
-                                    Text(if hit.section != "" { hit.section } else { hit.title }) { style { margin: 0; font-size: 13px; line-height: 20px; font-weight: 500 } }
-                                    if hit.section != "" {
-                                        Text(hit.title) { style { margin: 0; font-size: 12px; line-height: 16px; color: $ink-subtle } }
-                                    }
-                                }
-                            }
-                        }
+                        SearchHits(hits: hits) { on pick { q = "" } }
                     }
                 }
             }
@@ -166,12 +163,12 @@ component SiteHeader(docs: Bool = false) {
             }
 
             Link(t("nav.source"), href: REPO, class: "site-button site-button-outlined") {
-                style { @media (max-width: 480px) { display: none } }
+                style { display: none; @sm { display: inline-flex } }
             }
 
             if !docs {
                 Link(t("nav.read"), to: "/docs/guide/getting-started", class: "site-button site-button-primary") {
-                    style { @media (max-width: 768px) { display: none } }
+                    style { display: none; @md { display: inline-flex } }
                 }
             }
 
@@ -180,7 +177,7 @@ component SiteHeader(docs: Bool = false) {
             }
 
             IconButton(icon: if menu { "close" } else { "menu" }, label: t("nav.menu"), class: "site-icon-button site-menu-button", aria-expanded: menu) {
-                style { display: none; @media (max-width: 768px) { display: inline-flex } }
+                style { @lg { display: none } }
                 on click { menu = !menu }
             }
         }
@@ -189,16 +186,81 @@ component SiteHeader(docs: Bool = false) {
     if menu {
         Stack(gap: .xs, role: "navigation", aria-label: "Site", animate: .slideDown, exit: .fadeOut) {
             style {
+                position: sticky
+                top: 56px
+                z-index: 99
+                max-height: calc(100vh - 56px)
+                overflow-y: auto
                 padding: 8px 16px 16px
                 border-bottom: 1px solid $border
                 background: $color-background
+                box-shadow: $shadow-md
+                @md { top: 60px; max-height: calc(100vh - 60px) }
+                @lg { display: none }
                 & a { display: flex; align-items: center; height: 44px; padding: 0 10px; border-radius: 4px; font-size: 14px; line-height: 20px; font-weight: 500; color: $color-text-muted; text-decoration: none }
                 & a.active { background: $surface-raised; color: $color-text }
+            }
+            if docs {
+                Row(align: .center, gap: .sm, class: "site-search") {
+                    style {
+                        flex-wrap: nowrap
+                        height: 44px
+                        margin-bottom: 8px
+                        @md { display: none }
+                        padding: 0 12px
+                        background: $color-surface
+                        border: 1px solid $border
+                        border-radius: 4px
+                        &:focus-within { border-color: $brand-ring }
+                        & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }
+                        & input { flex-grow: 1; min-width: 0; background: transparent; border: 0; outline: none; color: $color-text; font-family: inherit; font-size: 16px; line-height: 20px; padding: 0 }
+                    }
+                    Icon("search")
+                    Input(bind: q, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search") {
+                        on focus { loadIndex() }
+                        on input { loadIndex() }
+                    }
+                }
+                if hits.length > 0 {
+                    Stack(role: "listbox", aria-label: t("search.results")) {
+                        style { gap: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid $border; & a { height: auto; min-height: 44px; padding: 8px 10px } @md { display: none } }
+                        SearchHits(hits: hits) { on pick { q = ""  menu = false } }
+                    }
+                }
             }
             Link(t("nav.guide"), to: "/docs/guide", active: .prefix) { on click { menu = false } }
             Link(t("nav.reference"), to: "/docs/reference", active: .prefix) { on click { menu = false } }
             Link(t("nav.cookbook"), to: "/docs/cookbook", active: .prefix) { on click { menu = false } }
             Link(t("nav.source"), href: REPO)
+        }
+    }
+}
+
+/// What the search found: a heading's chapter number, then the section and
+/// the chapter it is in. `pick` fires when the reader follows one.
+component SearchHits(hits: [SearchRow]) {
+    event pick()
+    for hit in hits by hit.route {
+        Link(to: hit.route) {
+            style {
+                display: flex
+                align-items: baseline
+                gap: 10px
+                padding: 8px 10px
+                border-radius: 4px
+                text-decoration: none
+                color: $color-text
+                &:hover { background: $surface-hover; text-decoration: none }
+            }
+            on click { emit pick() }
+            Text(hit.chapter) { style { margin: 0; font-family: $font-family-mono; font-size: 12px; color: $ink-subtle; width: 20px; flex-shrink: 0 } }
+            Stack(gap: .xs) {
+                style { gap: 1px; min-width: 0 }
+                Text(if hit.section != "" { hit.section } else { hit.title }) { style { margin: 0; font-size: 13px; line-height: 20px; font-weight: 500 } }
+                if hit.section != "" {
+                    Text(hit.title) { style { margin: 0; font-size: 12px; line-height: 16px; color: $ink-subtle } }
+                }
+            }
         }
     }
 }

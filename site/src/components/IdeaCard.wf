@@ -15,7 +15,7 @@ component IdeaCard(_ title: String, number: String = "", body: String = "", code
             & .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted }
             &.idea-card-highlight .wf-markdown p { color: $color-text }
             & .wf-markdown code { font-size: 12px; color: $brand-ink }
-            & a { font-size: 13px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none }
+            & a { display: inline-flex; align-items: center; min-height: 32px; font-size: 13px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none }
         }
         if number != "" {
             Text(number) { style { margin: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }

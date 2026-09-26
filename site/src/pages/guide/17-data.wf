@@ -111,14 +111,22 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
         Markdown("A `headers \{ \}` block names what every call carries. Each value is read **at the moment of the request**, not when the service is declared — so a token that has just been refreshed is the one that is sent:")
 
-        CodeBlock(#"api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+        CodeBlock(#"type User { id: String, name: String }
+
+store Session {
+    state token = ""
+    state language = "en"
+    action refresh() { token = await fetch("/api/token") }
+}
+
+api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     headers {
         Authorization: "Bearer {Session.token}"
         Accept-Language: Session.language
     }
 
     on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { Metrics.record(r.status) }
+    on response(r) { log("{r.status} {r.url}") }
     on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
 
     get me() -> User

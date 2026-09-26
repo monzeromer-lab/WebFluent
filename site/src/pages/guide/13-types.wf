@@ -438,6 +438,10 @@ page Deploys(path: "/") {
                     Table.Cell { Markdown("`T12`") }
                     Table.Cell { Markdown("A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist`") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`T13`") }
+                    Table.Cell("A name, or a function called, that nothing declares — which the browser would throw on")
+                }
             }
         }
 

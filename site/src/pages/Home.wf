@@ -12,22 +12,23 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
     // ------------------------------------------------------------------ hero
     Row(gap: .xl, align: .start, id: "top", class: "landing-section") {
         style {
-            gap: 48px
+            flex-direction: column
+            gap: 32px
             flex-wrap: nowrap
             max-width: 1280px
             margin: 0 auto
-            padding: 96px 40px 80px
+            padding: 40px 16px 32px
             border-bottom: 1px solid $border
-            @media (max-width: 960px) { flex-direction: column; padding: 48px 24px }
-            @media (max-width: 768px) { padding: 40px 16px 32px }
+            @md { padding: 64px 24px 56px }
+            @media (min-width: 960px) { flex-direction: row; gap: 48px; padding: 96px 40px 80px }
         }
 
         Stack(gap: .lg) {
-            style { gap: 24px; width: 560px; max-width: 100%; flex-shrink: 0; @media (max-width: 960px) { width: 100% } }
+            style { gap: 24px; width: 100%; max-width: 100%; flex-shrink: 0; @media (min-width: 960px) { width: 560px } }
 
             Text(t("hero.eyebrow"), class: "overline accent")
             Heading(t("hero.title")).h1 {
-                style { margin: 0; font-size: 56px; line-height: 56px; font-weight: 800; letter-spacing: -0.022em; @media (max-width: 768px) { font-size: 40px; line-height: 44px; letter-spacing: -0.02em } }
+                style { margin: 0; font-size: 40px; line-height: 44px; font-weight: 800; letter-spacing: -0.02em; @md { font-size: 56px; line-height: 56px; letter-spacing: -0.022em } }
             }
             Text(t("hero.sub")) { style { margin: 0; max-width: 520px; font-size: 17px; line-height: 26px; color: $color-text-muted } }
 
@@ -35,14 +36,14 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
                 style {
                     gap: 12px
                     flex-wrap: nowrap
-                    height: 46px
-                    padding: 0 14px
+                    height: 44px
+                    padding: 0 12px
                     max-width: 520px
                     background: $term-bg
                     border: 1px solid $border
                     border-radius: 6px
                     & p { margin: 0 }
-                    @media (max-width: 768px) { flex-direction: row; height: 44px; padding: 0 12px }
+                    @md { height: 46px; padding: 0 14px }
                 }
                 Text("$") { style { font-family: $font-family-mono; font-size: 13px; line-height: 20px; color: $term-dim } }
                 Text(INSTALL) { style { flex-grow: 1; min-width: 0; font-family: $font-family-mono; font-size: 13px; line-height: 20px; color: $term-ink; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
@@ -65,13 +66,13 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
             }
 
             Row(align: .center, gap: .sm) {
-                style { gap: 8px; flex-wrap: wrap; & a { height: 42px; padding: 0 18px } @media (max-width: 768px) { flex-direction: column; align-items: stretch } }
+                style { flex-direction: column; align-items: stretch; gap: 8px; flex-wrap: wrap; @sm { flex-direction: row; align-items: center } }
                 Link(t("hero.cta"), to: "/docs/guide/getting-started", class: "site-button site-button-primary")
                 Link(t("hero.reference"), to: "/docs/reference", class: "site-button site-button-outlined")
             }
 
             Row(align: .center, gap: .md) {
-                style { gap: 20px; padding-top: 8px; flex-wrap: nowrap; & p { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } @media (max-width: 768px) { flex-direction: row; gap: 12px; font-size: 12px } @media (max-width: 400px) { display: none } }
+                style { display: none; gap: 12px; padding-top: 8px; flex-wrap: nowrap; & p { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } @media (min-width: 400px) { display: flex } @md { gap: 20px } }
                 Text(t("hero.platforms"))
                 Divider { style { width: 1px; height: 14px; margin: 0; border: 0; background: $border } }
                 Text(t("hero.nodeps"))
@@ -81,7 +82,7 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
         Stack(class: "hero-editor") {
             style {
                 gap: 0
-                flex: 1 1 0
+                flex: none
                 min-width: 0
                 width: 100%
                 border: 1px solid $border
@@ -89,14 +90,15 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
                 overflow: hidden
                 background: $term-bg
                 box-shadow: $shadow-md
+                @media (min-width: 960px) { flex: 1 1 0 }
             }
             Row(align: .center, justify: .between) {
-                style { flex-wrap: nowrap; height: 36px; padding: 0 12px; background: $color-surface; border-bottom: 1px solid $border; & p { margin: 0 } @media (max-width: 768px) { flex-direction: row } }
+                style { flex-wrap: nowrap; height: 36px; padding: 0 12px; background: $color-surface; border-bottom: 1px solid $border; & p { margin: 0 } }
                 Text("src/pages/Home.wf") { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text } }
-                Text(t("hero.serve")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle; @media (max-width: 480px) { display: none } } }
+                Text(t("hero.serve")) { style { display: none; font-size: 12px; line-height: 18px; color: $ink-subtle; @media (min-width: 480px) { display: block } } }
             }
             Code("page Home(path: \"/\", title: \"Hello\") \{\n    state count = 0\n\n    Container \{\n        Heading(\"Hello, world\").h1\n        Text(\"You have clicked \{count\} times.\")\n\n        Button(\"Click me\").primary \{\n            on click \{ count = count + 1 \}\n        \}\n    \}\n\}", language: "wf").block {
-                style { margin: 0; padding: 20px; background: $term-bg; color: $syntax-punct; font-size: 13px; line-height: 22px; white-space: pre; overflow-x: auto; border-radius: 0; @media (max-width: 768px) { font-size: 11px; line-height: 19px; padding: 14px } }
+                style { margin: 0; padding: 14px; background: $term-bg; color: $syntax-punct; font-size: 12px; line-height: 20px; white-space: pre; overflow-x: auto; border-radius: 0; @md { font-size: 13px; line-height: 22px; padding: 20px } }
             }
             Stack(gap: .xs) {
                 style { gap: 6px; padding: 14px 20px; border-top: 1px solid $border; background: $color-surface; & p { margin: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px } }
@@ -108,14 +110,14 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
 
     // ------------------------------------------------------------ five ideas
     Stack(gap: .lg, class: "landing-section") {
-        style { gap: 32px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }
         Stack(gap: .xs) {
             style { gap: 10px }
             Text(t("ideas.eyebrow"), class: "overline")
-            Heading(t("ideas.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            Heading(t("ideas.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
         }
-        Grid(columns: 3, gap: .lg, class: "ideas-grid") {
-            style { gap: 24px; @media (max-width: 768px) { gap: 16px } }
+        Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .lg, class: "ideas-grid") {
+            style { gap: 16px; @md { gap: 24px } }
             IdeaCard(t("idea.1.title"), number: "01", body: t("idea.1.body"))
             IdeaCard(t("idea.2.title"), number: "02", body: t("idea.2.body"), code: "Button(\"Save\", tone: .primary).lg")
             IdeaCard(t("idea.3.title"), number: "03", body: t("idea.3.body"))
@@ -127,14 +129,14 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
 
     // ------------------------------------------------------------ batteries
     Stack(gap: .lg, class: "landing-section") {
-        style { gap: 32px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 32px } }
         Stack(gap: .xs) {
             style { gap: 10px }
             Text(t("batteries.eyebrow"), class: "overline")
-            Heading(t("batteries.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            Heading(t("batteries.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
         }
-        Grid(columns: 3, gap: .lg, class: "ideas-grid") {
-            style { gap: 24px; @media (max-width: 768px) { gap: 16px } }
+        Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .lg, class: "ideas-grid") {
+            style { gap: 16px; @md { gap: 24px } }
             IdeaCard(t("bat.api.title"), body: t("bat.api.body"), link: t("bat.more"), linkTo: "/docs/guide/data")
             IdeaCard(t("bat.forms.title"), body: t("bat.forms.body"), link: t("bat.more"), linkTo: "/docs/guide/forms")
             IdeaCard(t("bat.realtime.title"), body: t("bat.realtime.body"), link: t("bat.more"), linkTo: "/docs/guide/realtime")
@@ -146,18 +148,18 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
 
     // --------------------------------------------------------------- outputs
     Stack(gap: .lg, id: "outputs", class: "landing-section") {
-        style { gap: 28px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 28px } }
         Row(align: .end, justify: .between, gap: .lg) {
             style { gap: 24px; flex-wrap: wrap }
             Stack(gap: .xs) {
                 style { gap: 10px }
                 Text(t("outputs.eyebrow"), class: "overline")
-                Heading(t("outputs.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+                Heading(t("outputs.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
             }
             Markdown(t("outputs.lede")) { style { max-width: 420px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
         }
-        Grid(columns: 4, gap: .lg, class: "outputs-grid") {
-            style { gap: 24px; @media (max-width: 768px) { gap: 12px } }
+        Grid(columns: { base: 1, sm: 2, lg: 4 }, gap: .lg, class: "outputs-grid") {
+            style { gap: 12px; @md { gap: 24px } }
             OutputCard(t("output.spa.title"), value: "\"spa\"", body: t("output.spa.body"))
             OutputCard(t("output.static.title"), value: "\"spa\" + ssg", body: t("output.static.body"))
             OutputCard(t("output.pdf.title"), value: "\"pdf\"", body: t("output.pdf.body"))
@@ -167,15 +169,15 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
 
     // ----------------------------------------------------------- two layouts
     Stack(gap: .lg, class: "landing-section") {
-        style { gap: 28px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        style { gap: 16px; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $border; @md { padding: 64px 24px; gap: 24px } @lg { padding: 80px 40px; gap: 28px } }
         Stack(gap: .xs) {
             style { gap: 10px; max-width: 680px }
             Text(t("layouts.eyebrow"), class: "overline")
-            Heading(t("layouts.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            Heading(t("layouts.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
             Markdown(t("layouts.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
         }
-        Grid(columns: 2, gap: .lg) {
-            style { gap: 24px }
+        Grid(columns: { base: 1, lg: 2 }, gap: .lg) {
+            style { gap: 16px; @md { gap: 24px } }
             CodeBlock("page Home(path: \"/\") \{\n    state open = true\n    Row(gap: .sm) \{\n        style \{\n            padding: 6px 0\n            &:hover \{ background: $surface-hover \}\n        \}\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    \}\n    if open \{\n        Spinner\n    \} else \{\n        Text(\"b\")\n    \}\n\}", title: "wf", note: t("layouts.braces"))
             CodeBlock("page Home(path: \"/\")\n    state open = true\n    Row(gap: .sm)\n        style\n            padding: 6px 0\n            &:hover\n                background: $surface-hover\n        on click \{ open = !open \}\n        Text(\"a\").bold\n    if open\n        Spinner\n    else\n        Text(\"b\")", title: "wfx", note: t("layouts.indent"))
         }
@@ -183,11 +185,11 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
 
     // ------------------------------------------------- what a build produces
     Row(gap: .xl, align: .start, class: "landing-section") {
-        style { gap: 48px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 960px) { flex-direction: column } @media (max-width: 768px) { padding: 32px 16px; gap: 24px } }
+        style { flex-direction: column; gap: 24px; flex-wrap: nowrap; max-width: 1280px; margin: 0 auto; padding: 32px 16px; border-bottom: 1px solid $border; @md { padding: 64px 24px } @media (min-width: 960px) { flex-direction: row; gap: 48px } @lg { padding: 80px 40px } }
         Stack(gap: .md) {
-            style { gap: 16px; width: 440px; max-width: 100%; flex-shrink: 0; @media (max-width: 960px) { width: 100% } }
+            style { gap: 16px; width: 100%; max-width: 100%; flex-shrink: 0; @media (min-width: 960px) { width: 440px } }
             Text(t("build.eyebrow"), class: "overline")
-            Heading(t("build.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+            Heading(t("build.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
             Text(t("build.body")) { style { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } }
             Stack(gap: .xs) {
                 style { gap: 10px; padding-top: 4px; & .wf-row { flex-wrap: nowrap; gap: 10px } & .dot { width: 6px; height: 6px; margin: 0; border: 0; border-radius: 50%; background: $color-success; flex-shrink: 0 } & p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted } }
@@ -197,7 +199,7 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
             }
         }
         Stack {
-            style { flex: 1 1 0; min-width: 0; width: 100% }
+            style { flex: none; min-width: 0; width: 100%; @media (min-width: 960px) { flex: 1 1 0 } }
             CodeBlock("build/\n  index.html          # the page, pre-rendered\n  about/index.html    # one directory per route\n  app.js              # the runtime, stores, components\n  pages/Home.js       # loaded when its route shows\n  pages/Home.css      # the styles that page reaches\n  styles.css          # tokens + built-ins you used\n  sitemap.xml, robots.txt\n  *.gz                # pre-compressed copies", title: "wf build")
         }
     }
@@ -206,14 +208,14 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
     Stack(id: "install", class: "landing-cta") {
         style { background: $color-surface; border-bottom: 1px solid $border }
         Row(align: .center, justify: .between, gap: .xl) {
-            style { gap: 48px; flex-wrap: wrap; max-width: 1280px; margin: 0 auto; padding: 64px 40px; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+            style { gap: 16px; flex-wrap: wrap; max-width: 1280px; margin: 0 auto; padding: 32px 16px; @md { padding: 48px 24px; gap: 32px } @lg { padding: 64px 40px; gap: 48px } }
             Stack(gap: .xs) {
-                style { gap: 10px; max-width: 560px }
-                Heading(t("cta.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 22px; line-height: 28px } } }
+                style { gap: 10px; max-width: 560px; min-width: 0 }
+                Heading(t("cta.title")).h2 { style { margin: 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
                 Markdown(t("cta.body")) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
             }
             Stack(gap: .xs) {
-                style { gap: 10px; width: 460px; max-width: 100%; flex-shrink: 0 }
+                style { gap: 10px; width: 100%; min-width: 0; @md { width: 460px; flex-shrink: 0 } }
                 Terminal(lines: [
                         Line(command: "wf init hello"),
                         Line(command: "cd hello"),

@@ -32,7 +32,7 @@ page PagesAndRoutingGuide(path: "/docs/guide/pages-and-routing", title: "Pages a
                 Table.Row {
                     Table.Cell { Markdown("`title:`") }
                     Table.Cell("strongly")
-                    Table.Cell { Markdown("The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `\"\{slug\} — Blog\"`") }
+                    Table.Cell { Markdown("The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `\"\{slug\} — Blog\"`, or splice an expression over them and the program's constants") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`description:`") }

@@ -31,32 +31,32 @@
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
-                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+            <div class="wf-row wf-align--center wf-justify--between wf-sb6c28c28 site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
                     <a class="wf-link" href="/WebFluent/">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s81483e57">4.0</p>
+                            <p class="wf-text wf-sd8bfcedd">4.1</p>
                         </div>
                     </a>
-                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
                         <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                     </div>
                 </div>
-                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
-                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s502e2922 site-search">
                         <i class="wf-icon" data-icon="search"></i>
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button"></button>
-                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -261,17 +261,17 @@
                         <p class="wf-text">Contributing</p>
                     </a>
                 </aside>
-                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
                         <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 16</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
-                        <h1 class="wf-heading wf-sf52d8cd0">Forms and validation</h1>
-                        <p class="wf-text wf-s38239618">Controls bound to state, forms with a handle, validation rules that show their own messages, files, and what the server said.</p>
+                        <h1 class="wf-heading wf-sb0d6632a">Forms and validation</h1>
+                        <p class="wf-text wf-sfd35f593">Controls bound to state, forms with a handle, validation rules that show their own messages, files, and what the server said.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <div class="wf-markdown">
 <p>A form in WebFluent is controls bound to state, a <code>Form</code> that knows whether they are valid, and <code>validate</code> blocks that say what each value must be. The accessible plumbing — labels, <code>aria-describedby</code>, <code>aria-invalid</code>, announced errors, focus on the first problem — is written for you.</p>
@@ -281,11 +281,11 @@
 <p><code>bind: stateName</code> on a control keeps the state and the control in step, both ways:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/&quot;) {
     state name = &quot;&quot;
@@ -319,11 +319,11 @@
 <p>Every control takes <code>label:</code>, <code>hint:</code> and <code>error:</code>. With any of them the control is wrapped in a field: the label is a real <code>&lt;label for&gt;</code>, the hint and the error are linked with <code>aria-describedby</code>, and an error — a string, empty when there is none — is announced as it appears and sets <code>aria-invalid</code>.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Handle(path: &quot;/&quot;, title: &quot;Handle&quot;, description: &quot;Pick a handle.&quot;) {
     state handle = &quot;&quot;
@@ -340,11 +340,11 @@
 <p>A <code>Form</code> groups controls; <code>on submit</code> runs when it is submitted, and the page never navigates away. <code>Form(bind: name)</code> hands you a handle on the form:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Contact(path: &quot;/&quot;) {
     state name = &quot;&quot;
@@ -479,11 +479,11 @@
 <p>A <code>validate</code> block sits beside the state it guards. Every rule is one line, and the control bound to that state shows what they say — there is no <code>error:</code> to write and no <code>derived</code> to compute:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;Make an account.&quot;) {
     state email = &quot;&quot;
@@ -608,11 +608,11 @@
                             </div>
                             <h3 class="wf-heading">A refined type validates itself</h3>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 2
 validate nights { required }</code>
@@ -622,11 +622,11 @@ validate nights { required }</code>
                             </div>
                             <h3 class="wf-heading">What the server said</h3>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">action signUp() {
     try {
@@ -644,11 +644,11 @@ validate nights { required }</code>
 <p><code>FileUpload</code> is a file input; the files arrive in its <code>change</code> event. Each is a <code>File</code> — <code>.name</code>, <code>.size</code>, <code>.type</code>, and <code>.preview()</code>, an object URL for showing an image before it is uploaded, revoked when the page leaves.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api&quot;) {
     post avatar(id: String, file: File) at &quot;users/:id/avatar&quot;
@@ -686,11 +686,11 @@ page Avatar(path: &quot;/avatar&quot;, title: &quot;Your picture&quot;, descript
 <p>Describe the service once with <code>api</code>, call it from the submit handler, and hand what a <code>422</code> said back to the form:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api&quot;) {
     post signUp(body: Map) -&gt; Map
@@ -732,11 +732,11 @@ page Join(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;M
 <p>An action that <code>await</code>s exposes <code>name.pending</code>, <code>true</code> while a call of it runs — for a disabled button or a spinner:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Api {
     state saved = 0
@@ -779,7 +779,7 @@ page Save(path: &quot;/&quot;) {
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                <div class="wf-stack wf-gap--lg wf-s45d5a4d4" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#controls-and-bind">Controls and bind:</a>
@@ -809,25 +809,25 @@ page Save(path: &quot;/&quot;) {
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s61ad603d">
+        <footer class="wf-footer wf-s1c61e8fb">
             <div class="wf-stack wf-gap--lg wf-sc70179bd">
-                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
                     <div class="wf-stack wf-gap--sm wf-s1f90318e">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
                         <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
-                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
-                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s460dafcd footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
                         </div>
-                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Reference</p>
                             <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
@@ -835,7 +835,7 @@ page Save(path: &quot;/&quot;) {
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
                             <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                         </div>
-                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>

@@ -27,8 +27,11 @@ button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mo
 .chip { display: inline-flex; align-items: center; height: 26px; margin: 0; padding: 0 10px; border-radius: 4px; background: var(--color-background); border: 1px solid var(--color-border); font-family: var(--font-family-mono); font-size: 12px; line-height: 18px; color: var(--color-text); }
 .crumbs { gap: 8px; font-size: 12px; line-height: 18px; color: var(--ink-subtle); flex-direction: row !important; flex-wrap: nowrap; }
 .crumbs p { margin: 0; }
-.crumbs a { color: var(--ink-subtle); text-decoration: none; }
+.crumbs a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-subtle); text-decoration: none; }
 .crumbs a:hover { color: var(--color-text); }
+
+/* A search box is the whole row to the pointer: its input fills the height. */
+.site-search input { align-self: stretch; }
 
 /* The guide's prose, rendered from Markdown. */
 .docs-article { font-size: 15px; line-height: 23px; }
@@ -45,6 +48,9 @@ button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mo
   font-size: 13px;
   color: var(--color-text);
 }
+/* A long run of code with nowhere to break — `a/b/c/d` — breaks anywhere
+   rather than pushing a phone's page sideways. */
+.wf-markdown :not(pre) > code { overflow-wrap: anywhere; }
 .wf-markdown a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 2px; }
 .wf-markdown a:hover { color: var(--color-primary); }
 .wf-markdown ul, .wf-markdown ol { padding-inline-start: 1.4em; }
@@ -76,35 +82,44 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 /* Breadcrumb text sits on the line. */
 .wf-breadcrumb p { margin: 0; display: inline; }
 
-/* The chapter list and the component index are drawers on a phone; their
-   toggle sits bottom-right, clear of the header's menu button. */
-@media (max-width: 768px) {
-  .wf-sidebar__toggle {
-    top: auto;
-    inset-inline-start: auto;
-    bottom: var(--spacing-md);
-    inset-inline-end: var(--spacing-md);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius-full);
-  }
-  .wf-sidebar { width: min(320px, 85vw); overflow-y: auto; }
-  .outputs-grid.wf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .landing-section .site-button { height: 46px; justify-content: center; font-size: 15px; }
+/* Written for a phone first; the min-width rules below add to it.
+
+   The chapter list and the component index are drawers on a phone (the
+   engine's Sidebar does that below `md`); their toggle sits bottom-right,
+   clear of the header's menu button and under the thumb. A link in a drawer
+   is a full 44px target; from `md` up the sidebar is a list you point at. */
+.wf-sidebar__toggle {
+  top: auto;
+  inset-inline-start: auto;
+  bottom: var(--spacing-md);
+  inset-inline-end: var(--spacing-md);
+  width: 48px;
+  height: 48px;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-full);
 }
-@media (max-width: 1024px) {
-  .entry-grid.wf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .events-grid.wf-grid { grid-template-columns: 1fr !important; }
+.wf-sidebar .wf-sidebar__item { min-height: 44px; }
+.wf-sidebar .site-search { min-height: 44px; }
+.wf-sidebar .site-search input { font-size: 16px !important; }  /* under 16px, iOS zooms in on focus */
+.landing-section .site-button { height: 46px; justify-content: center; font-size: 15px; padding: 0 18px; }
+@media (min-width: 640px) {
+  .landing-section .site-button { height: 42px; font-size: 14px; }
+}
+@media (min-width: 768px) {
+  .wf-sidebar .wf-sidebar__item { min-height: 0; }
+  .wf-sidebar .site-search { min-height: 0; }
+  .wf-sidebar .site-search input { font-size: 13px !important; }
 }
 
 /* A heading reached by its anchor clears the sticky header. */
 .docs-main [id], .reference-main [id] { scroll-margin-top: 76px; }
 
-/* On a phone: the search stays a row, the entry's title row wraps, and a
-   wide table scrolls inside its own box rather than the page. */
-@media (max-width: 768px) {
-  .site-search.wf-row, .entry-title.wf-row, .code-block .wf-row, .install-line.wf-row { flex-direction: row !important; }
-  .entry-title.wf-row { flex-wrap: wrap; }
-  .docs-article .wf-table, .props-table.wf-table { display: block; overflow-x: auto; max-width: 100%; }
-  .docs-article .wf-table thead, .props-table.wf-table thead { display: table-header-group; }
-  .docs-article .wf-table tbody, .props-table.wf-table tbody { display: table-row-group; }
+/* A wide table scrolls inside its own box rather than widening the page;
+   from `lg` up, where the article has room, it is an ordinary table. */
+.docs-article .wf-table, .props-table.wf-table { display: block; overflow-x: auto; max-width: 100%; }
+.docs-article .wf-table thead, .props-table.wf-table thead { display: table-header-group; }
+.docs-article .wf-table tbody, .props-table.wf-table tbody { display: table-row-group; }
+.entry-title.wf-row { flex-wrap: wrap; }
+@media (min-width: 1024px) {
+  .docs-article .wf-table, .props-table.wf-table { display: table; overflow-x: visible; }
 }

@@ -5,8 +5,10 @@
   --json` — one entry per built-in with its signature, props, flags,
   parts, events and the group it belongs to. The reference pages read it
   as `data registry`.
-- `site/src/search-index.json`: every chapter and every section of the
-  guide, from `md-docs/`, for the header's search.
+- `site/public/search-index.json`: every chapter, section, component and
+  diagnostic code, with the terms each section is about, for the header's
+  search. It is a file the site fetches the first time the search box is
+  used, not part of every page's bundle.
 
 Rerun after the registry or the guide changes: `python3 scripts/site-data.py`.
 """
@@ -111,7 +113,7 @@ def registry():
 STOP = set("""about after again also always another because before being between both cannot could does doesn during each either every first from have here into itself just like made make many more most much must need never only other over same should since some such than that their them then there these they this those through under until very what when where which while with within without would your yours""".split())
 
 
-def terms(text: str, cap: int = 14) -> str:
+def terms(text: str, cap: int = 24) -> str:
     """The words in a section a reader might search for: what is written as
     code, capitalised names, and longer words — each once, in order, up to
     `cap`. The index is part of the site's bundle, so it stays short."""
@@ -169,5 +171,8 @@ def search_index():
 
 if __name__ == "__main__":
     (SITE / "registry.json").write_text(json.dumps(registry(), indent=1) + "\n")
-    (SITE / "search-index.json").write_text(json.dumps(search_index(), indent=1) + "\n")
-    print(f"wrote registry.json and search-index.json to {SITE}")
+    # Fetched on demand, so it is written compact, into `public/`.
+    public = SITE if os.environ.get("WF_SITE_DATA_OUT") else ROOT / "site" / "public"
+    public.mkdir(parents=True, exist_ok=True)
+    (public / "search-index.json").write_text(json.dumps(search_index(), separators=(",", ":"), ensure_ascii=False) + "\n")
+    print(f"wrote {SITE / 'registry.json'} and {public / 'search-index.json'}")

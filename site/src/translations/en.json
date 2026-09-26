@@ -79,6 +79,7 @@
   "nav.chapters": "Chapters",
   "search.placeholder": "Search the guide",
   "search.label": "Search the guide",
+  "search.results": "Search results",
   "theme.light": "Switch to the light theme",
   "theme.dark": "Switch to the dark theme",
   "code.copy": "Copy",

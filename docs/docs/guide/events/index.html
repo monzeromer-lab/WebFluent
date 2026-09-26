@@ -31,32 +31,32 @@
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
-                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+            <div class="wf-row wf-align--center wf-justify--between wf-sb6c28c28 site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
                     <a class="wf-link" href="/WebFluent/">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s81483e57">4.0</p>
+                            <p class="wf-text wf-sd8bfcedd">4.1</p>
                         </div>
                     </a>
-                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
                         <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
                         <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
                         <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                     </div>
                 </div>
-                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
-                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s502e2922 site-search">
                         <i class="wf-icon" data-icon="search"></i>
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button"></button>
-                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
                     <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -261,28 +261,28 @@
                         <p class="wf-text">Contributing</p>
                     </a>
                 </aside>
-                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
                         <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
                         <p class="wf-text">/</p>
                         <p class="wf-text wf-s8c71c534">Chapter 9</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
-                        <h1 class="wf-heading wf-sf52d8cd0">Events</h1>
-                        <p class="wf-text wf-s38239618">Handlers on elements, keyboard shortcuts, the events components fire, and the overlays a page opens.</p>
+                        <h1 class="wf-heading wf-sb0d6632a">Events</h1>
+                        <p class="wf-text wf-sfd35f593">Handlers on elements, keyboard shortcuts, the events components fire, and the overlays a page opens.</p>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <h2 class="wf-heading">Handlers</h2>
                             <div class="wf-markdown">
 <p>A handler is written inside an element's block: <code>on &lt;event&gt; { … }</code>, or <code>on &lt;event&gt;(name) { … }</code> when the body reads the event object.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Clicks(path: &quot;/&quot;) {
     state n = 0
@@ -305,11 +305,11 @@
 <p>Name a parameter to read the event: <code>on keydown(e) { … }</code>. Without one, the event is still in scope as <code>event</code>. It is the browser's own event object, so <code>e.key</code>, <code>e.target.value</code>, <code>e.clientX</code>, <code>e.preventDefault()</code> and <code>e.stopPropagation()</code> are all there.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Drop(path: &quot;/&quot;, title: &quot;Drop&quot;, description: &quot;A place to drop files.&quot;) {
     state names: [String] = []
@@ -332,11 +332,11 @@
 <p><code>on key(&quot;…&quot;)</code> answers to one key, with modifiers:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Keys(path: &quot;/&quot;) {
     state open = false
@@ -359,11 +359,11 @@
 <p>A component declares the events it fires and fires them with <code>emit</code>; the caller handles them like DOM events. <a href="/WebFluent/docs/guide/components#events">Chapter 11</a> covers it:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Counter(_ start: Number) {
     event change(value: Number)
@@ -383,11 +383,11 @@ page Use(path: &quot;/&quot;) {
                             </div>
                             <h2 class="wf-heading">Overlays: modals, dialogs, toasts and menus</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Overlays(path: &quot;/&quot;, title: &quot;Overlays&quot;, description: &quot;What a page opens.&quot;) {
     state confirm = false
@@ -423,11 +423,11 @@ page Use(path: &quot;/&quot;) {
 <p>A handler on an element hears that element. For the window or the document — a resize, a scroll of the page, a message from another window — use an <code>effect</code> with a <code>cleanup</code>, which removes the listener when the page leaves. An action named without parentheses is the function itself, so it can be handed to the browser:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Scrolled(path: &quot;/&quot;, title: &quot;Scrolled&quot;, description: &quot;How far down the reader is.&quot;) {
     state y = 0
@@ -456,7 +456,7 @@ page Use(path: &quot;/&quot;) {
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                <div class="wf-stack wf-gap--lg wf-s45d5a4d4" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#handlers">Handlers</a>
@@ -483,25 +483,25 @@ page Use(path: &quot;/&quot;) {
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s61ad603d">
+        <footer class="wf-footer wf-s1c61e8fb">
             <div class="wf-stack wf-gap--lg wf-sc70179bd">
-                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
                     <div class="wf-stack wf-gap--sm wf-s1f90318e">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
                         <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
-                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
-                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s460dafcd footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
                         </div>
-                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Reference</p>
                             <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
                             <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
@@ -509,7 +509,7 @@ page Use(path: &quot;/&quot;) {
                             <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
                             <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                         </div>
-                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Project</p>
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
                             <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>

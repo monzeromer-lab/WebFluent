@@ -128,7 +128,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
     }
 }"#, title: "wf")
 
-        Markdown("- `paths:` must be knowable at build time: a `data` file, a `const`, a literal list.\n- For a route with several parameters, each value is a map naming them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- Each value is seeded as the parameter (and `params.slug`), painted, and listed in the sitemap.\n- `title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. For a title that comes from the data rather than the address, set `og:title` in `head \{ \}`, as above ([Content](/docs/guide/content#search-and-sharing)).\n- A value that is not in `paths:` has no file, so a static host answers with `404.html`. In a single-page build `paths:` is not needed at all.")
+        Markdown("- `paths:` must be knowable at build time: a `data` file, a `const`, a literal list.\n- For a route with several parameters, each value is a map naming them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- Each value is seeded as the parameter (and `params.slug`), painted, and listed in the sitemap.\n- `title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. A title may also look the entry up — `title: \"\{posts.find(p => p.slug == slug)?.title ?? slug\} — Blog\"` ([Content](/docs/guide/content#search-and-sharing)).\n- A value that is not in `paths:` has no file, so a static host answers with `404.html`. In a single-page build `paths:` is not needed at all.")
 
         Heading("The 404 page", id: "the-404-page").h2
 

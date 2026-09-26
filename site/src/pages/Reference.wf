@@ -14,7 +14,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
         }
         Stack(gap: .sm) {
             style { gap: 12px; max-width: 680px }
-            Heading(t("ch.36")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
+            Heading(t("ch.36")).h1 { style { margin: 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
             Markdown(t("ref.intro", { count: registry.count })) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
         }
 
@@ -22,7 +22,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
             Stack(gap: .sm, id: group.toLowerCase().replace(" ", "-")) {
                 style { gap: 12px }
                 Heading(group).h2 { style { margin: 8px 0 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.008em } }
-                Grid(columns: 3, gap: .md, class: "entry-grid") {
+                Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .md, class: "entry-grid") {
                     style { gap: 12px }
                     for c in components by c.name {
                         if c.group == group {
@@ -55,7 +55,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
             Markdown(t("ref.universal.body")) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
             PropsTable(rows: registry.universal.props, caption: t("ref.universal.title"))
             Heading(t("ref.events")).h3 { style { margin: 8px 0 0; font-size: 18px; line-height: 24px; font-weight: 600 } }
-            Grid(columns: 2, gap: .sm, class: "events-grid") {
+            Grid(columns: { base: 1, xl: 2 }, gap: .sm, class: "events-grid") {
                 for e in registry.universal.events by e.name {
                     Row(align: .baseline, gap: .sm) {
                         style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
@@ -80,7 +80,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
     }
 }
 
-page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{slug} — Components reference", description: "One built-in element: its signature, props, flags, events and parts, from the compiler's registry.", paths: registry.components.map(c => c.slug)) {
+page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{registry.components.find(c => c.slug == slug)?.name ?? slug} — Components reference", description: "One built-in element: its signature, props, flags, events and parts, from the compiler's registry.", paths: registry.components.map(c => c.slug)) {
     state tab = "props"
     derived entry = registry.components.find(c => c.slug == slug)
     derived events = registry.universal.events
@@ -127,7 +127,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{slug} 
                 }
                 Row(align: .center, gap: .sm, class: "entry-title") {
                     style { gap: 12px; flex-wrap: wrap }
-                    Heading(c.name).h1 { style { margin: 0; font-family: $font-family-mono; font-size: 28px; line-height: 34px; font-weight: 500 } }
+                    Heading(c.name).h1 { style { margin: 0; font-family: $font-family-mono; font-size: 24px; line-height: 30px; font-weight: 500; overflow-wrap: anywhere; @md { font-size: 28px; line-height: 34px } } }
                     Text(c.group, class: "pill pill-brand")
                     if c.block { Text(t("ref.block"), class: "pill pill-accent") }
                 }
@@ -154,7 +154,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{slug} 
                     & button { height: 36px; padding: 0 14px; background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; font-family: inherit; font-size: 14px; line-height: 20px; font-weight: 500; color: $color-text-muted; cursor: pointer }
                     & button:hover { background: transparent; color: $color-text }
                     & button.active { color: $color-text; font-weight: 600; border-bottom-color: $color-primary }
-                    @media (max-width: 768px) { flex-direction: row; overflow-x: auto }
+                    overflow-x: auto
                 }
                 Button(t("ref.tab.props"), role: "tab", class: if tab == "props" { "active" } else { "" }, aria-selected: tab == "props") { on click { tab = "props" } }
                 Button(t("ref.tab.flags"), role: "tab", class: if tab == "flags" { "active" } else { "" }, aria-selected: tab == "flags") { on click { tab = "flags" } }
@@ -193,7 +193,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{slug} 
                 Stack(gap: .sm, role: "tabpanel", id: "events") {
                     style { gap: 12px }
                     Markdown(t("ref.events.body")) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
-                    Grid(columns: 2, gap: .sm, class: "events-grid") {
+                    Grid(columns: { base: 1, xl: 2 }, gap: .sm, class: "events-grid") {
                         for e in c.events by e.name {
                             Row(align: .baseline, gap: .sm) {
                                 style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
