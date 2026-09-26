@@ -339,6 +339,12 @@ struct HeadingTracker {
     components: std::collections::HashMap<String, ComponentDecl>,
     /// Components being expanded, so a component that calls itself stops.
     expanding: Vec<String>,
+    /// While a component is expanded: its `Bool` props, resolved from the
+    /// call's flags and arguments over the component's own defaults. An
+    /// `if` on one of them takes the branch that call really renders, so a
+    /// card that is an `h2` under a page title and an `h3` inside a section
+    /// is judged as each caller uses it.
+    props: std::collections::HashMap<String, bool>,
     /// While a page's layout is walked: the page's body, placed where the
     /// layout's `children` is, and the warnings it produces there.
     page_body: Option<(Vec<Statement>, String)>,
@@ -353,6 +359,7 @@ impl HeadingTracker {
             checks_outline: true,
             components: std::collections::HashMap::new(),
             expanding: Vec::new(),
+            props: std::collections::HashMap::new(),
             page_body: None,
             page_warnings: Vec::new(),
         }
@@ -382,6 +389,29 @@ impl HeadingTracker {
     /// component or the app on its own.
     fn component(&self, name: &str) -> Option<ComponentDecl> {
         self.components.get(name).cloned()
+    }
+
+    /// The one branch of an `if` a call renders, when its condition is a
+    /// `Bool` prop this expansion knows. `None` when it cannot be resolved,
+    /// and the branches are judged as alternatives.
+    fn taken_branch<'a>(&self, if_stmt: &'a IfStmt) -> Option<&'a [Statement]> {
+        if self.props.is_empty() || !if_stmt.else_if_branches.is_empty() {
+            return None;
+        }
+        let (name, negated) = match &if_stmt.condition {
+            Expr::Identifier(n) => (n, false),
+            Expr::UnaryOp(UnaryOp::Not, inner) => match inner.as_ref() {
+                Expr::Identifier(n) => (n, true),
+                _ => return None,
+            },
+            _ => return None,
+        };
+        let value = *self.props.get(name.as_str())? != negated;
+        if value {
+            Some(&if_stmt.then_body)
+        } else {
+            Some(if_stmt.else_body.as_deref().unwrap_or(&[]))
+        }
     }
 
     fn record(&mut self, level: u8) {
@@ -485,12 +515,16 @@ fn lint_statements(
             // alternatives rather than a sequence: an `h1` in the `if` and
             // another in the `else` is one `h1`, not two.
             StatementKind::If(if_stmt) => {
-                let mut bodies: Vec<&[Statement]> = vec![&if_stmt.then_body];
-                bodies.extend(if_stmt.else_if_branches.iter().map(|(_, b)| b.as_slice()));
-                if let Some(else_body) = &if_stmt.else_body {
-                    bodies.push(else_body);
+                if let Some(taken) = heading_tracker.taken_branch(if_stmt) {
+                    lint_statements(taken, file, warnings, heading_tracker);
+                } else {
+                    let mut bodies: Vec<&[Statement]> = vec![&if_stmt.then_body];
+                    bodies.extend(if_stmt.else_if_branches.iter().map(|(_, b)| b.as_slice()));
+                    if let Some(else_body) = &if_stmt.else_body {
+                        bodies.push(else_body);
+                    }
+                    lint_alternatives(&bodies, file, warnings, heading_tracker);
                 }
-                lint_alternatives(&bodies, file, warnings, heading_tracker);
             }
             StatementKind::For(for_stmt) => {
                 lint_statements(&for_stmt.body, file, warnings, heading_tracker);
@@ -845,8 +879,10 @@ fn lint_ui_element(
         if !heading_tracker.expanding.contains(name) {
             if let Some(comp) = heading_tracker.component(name) {
                 heading_tracker.expanding.push(name.clone());
+                let outer = std::mem::replace(&mut heading_tracker.props, bool_props(&comp, ui));
                 let mut quiet = Vec::new();
                 lint_statements(&comp.body, file, &mut quiet, heading_tracker);
+                heading_tracker.props = outer;
                 // Only the outline findings from inside the expansion matter
                 // here — and they are about this page's outline.
                 warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
@@ -1138,6 +1174,37 @@ fn has_accessible_name(args: &[Arg]) -> bool {
         || has_named_arg(args, "aria-labelledby")
 }
 
+/// The `Bool` props of `comp` as this call sets them: its declared
+/// defaults, then a flag written on the call, then a literal argument.
+/// A value that is not known at build time leaves the prop out, and an
+/// `if` on it is judged as alternatives.
+fn bool_props(comp: &ComponentDecl, ui: &UIElement) -> std::collections::HashMap<String, bool> {
+    let mut props = std::collections::HashMap::new();
+    for prop in &comp.props {
+        if let Some(Expr::BoolLiteral(b)) = &prop.default {
+            props.insert(prop.name.clone(), *b);
+        }
+    }
+    for flag in &ui.modifiers {
+        if comp.props.iter().any(|p| &p.name == flag) {
+            props.insert(flag.clone(), true);
+        }
+    }
+    for arg in &ui.args {
+        if let Arg::Named(name, value) = arg {
+            match value {
+                Expr::BoolLiteral(b) => {
+                    props.insert(name.clone(), *b);
+                }
+                _ => {
+                    props.remove(name);
+                }
+            }
+        }
+    }
+    props
+}
+
 fn has_named_arg(args: &[Arg], name: &str) -> bool {
     args.iter()
         .any(|a| matches!(a, Arg::Named(n, _) if n == name))
@@ -1213,6 +1280,40 @@ mod naming_tests {
             !r.contains(&"A11".to_string()),
             "the h2 inside Opener bridges h1 and h3: {r:?}"
         );
+    }
+
+    /// A card that titles itself `h2` under a page title and `h3` inside a
+    /// section renders one of the two, chosen by the caller. Walking both
+    /// branches reported the `h3` one against a page whose call says `h2`.
+    #[test]
+    fn a_branch_on_a_bool_prop_is_resolved_from_the_call() {
+        let src = r#"
+            component Plan(name: String, top: Bool = false) {
+                if top { Heading(name).h2 } else { Heading(name).h3 }
+            }
+            page P(path: "/", title: "t", description: "d") {
+                Heading("Page").h1
+                Plan(name: "Hobby", top: true)
+            }"#;
+        let r = rules(src);
+        assert!(
+            !r.contains(&"A11".to_string()),
+            "top: true renders the h2: {r:?}"
+        );
+    }
+
+    /// The same card called the other way really does skip.
+    #[test]
+    fn a_branch_on_a_bool_prop_still_warns_when_the_call_takes_it() {
+        let src = r#"
+            component Plan(name: String, top: Bool = false) {
+                if top { Heading(name).h2 } else { Heading(name).h3 }
+            }
+            page P(path: "/", title: "t", description: "d") {
+                Heading("Page").h1
+                Plan(name: "Hobby")
+            }"#;
+        assert!(rules(src).contains(&"A11".to_string()));
     }
 
     #[test]
