@@ -338,3 +338,29 @@ fn now_with_a_period_is_the_runtimes_clock() {
     );
     assert!(js.contains("WF.now("), "{js}");
 }
+
+/// `Grid(columns: { base: 1, md: 2, lg: 3 })` was painted with its
+/// responsive class, and the page script then drew it again without one —
+/// with `data-cols="[object Object]"` instead — so every responsive grid
+/// fell back to one column the moment the page hydrated.
+#[test]
+fn a_responsive_layout_keeps_its_class_on_the_live_page() {
+    let js = spa_generated(
+        "page P(path: \"/\", title: \"T\", description: \"D\") {\n\
+         \x20   Heading(\"T\").h1\n\
+         \x20   Grid(columns: { base: 1, md: 2, lg: 3 }, gap: .md) { style { gap: 12px } Text(\"a\") }\n\
+         \x20   Row(direction: { base: .column, md: .row }) { Text(\"b\") }\n\
+         }\n",
+    );
+    let grid = js.find("className: \"wf-grid").expect("the grid is drawn");
+    let line = &js[grid..grid + js[grid..].find('\n').unwrap_or(200)];
+    assert!(
+        line.contains(" wf-r"),
+        "the grid carries its responsive class: {line}"
+    );
+    assert!(
+        !js.contains("\"data-cols\""),
+        "a map is not an attribute: {js}"
+    );
+    assert!(!js.contains("direction:"), "nor is `direction`: {js}");
+}

@@ -138,6 +138,12 @@ pub fn split_rules(program: &Program) -> SplitRules {
             Declaration::Page(p) => {
                 let mut uses = Uses::default();
                 collect_in(&p.body, &mut rules, &mut uses, &points);
+                // The component that frames the page is drawn with it: a
+                // rule it shares with one page's body is not that page's
+                // alone.
+                if let Some(layout) = &p.layout {
+                    uses.components.insert(layout.name.clone());
+                }
                 pages.push((p.name.clone(), uses));
             }
             Declaration::Component(c) => {
@@ -796,6 +802,31 @@ mod tests {
             }"#;
         let css = scoped_rules(&program(src));
         assert!(css.contains(":hover { color: red !important; }"), "{css}");
+    }
+
+    /// A chapter framed by `layout: Shell` drew a heading whose rule was
+    /// written to the one page that also wrote that block in its own body,
+    /// so every other chapter's heading lost its style.
+    #[test]
+    fn a_layout_counts_as_something_its_page_reaches() {
+        let src = r#"
+            component Shell { slot  Heading("h").h1 { style { font-size: 34px } }  children }
+            page Index(path: "/") { Heading("i").h1 { style { font-size: 34px } } }
+            page Chapter(path: "/c", layout: Shell) { Text("c") }
+            page Other(path: "/o", layout: Shell) { Text("o") }
+        "#;
+        let split = split_rules(&program(src));
+        assert!(
+            split.shared.contains("font-size: 34px"),
+            "the Shell's rule is shared with the pages it frames: {}",
+            split.shared
+        );
+        assert!(
+            !split
+                .pages
+                .get("Index")
+                .is_some_and(|c| c.contains("font-size: 34px"))
+        );
     }
 
     #[test]

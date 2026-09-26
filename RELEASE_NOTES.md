@@ -1,3 +1,25 @@
+# WebFluent v4.1.1 Release Notes
+
+## Fixed
+
+### A responsive layout on the live page
+
+`Grid(columns: { base: 1, md: 2, lg: 3 })` was pre-rendered with the class
+its breakpoints live under, and the page script then drew the grid again
+without it — with `data-cols="[object Object]"` in its place — so every
+responsive grid fell back to one column the moment the page hydrated. The
+same went for `direction:`, `gap:` and the other layout props written per
+breakpoint. The live page carries the class, and no map is written as an
+attribute.
+
+### A style shared with a page's layout
+
+A page that names `layout: Shell` did not count `Shell` as something it
+draws, so a `style { }` block written the same way in `Shell` and in one
+page's body was put in that page's own stylesheet — and every other page
+framed by `Shell` drew the element unstyled. A layout is part of its
+page now, and such a rule is shared.
+
 # WebFluent v4.1 Release Notes
 
 ## Security

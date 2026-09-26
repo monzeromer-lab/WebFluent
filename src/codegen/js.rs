@@ -1622,6 +1622,7 @@ impl JsCodegen {
                         classes.push(format!("{}--{}", class, m));
                     }
                     classes.extend(layout_arg_classes(&ui.args));
+                    classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
                     self.emit_line(&format!(
                         "const {} = WF.el(\"{}\", {{ className: \"{}\"{} }});",
                         var,
@@ -1939,6 +1940,11 @@ impl JsCodegen {
                 // Process named args as HTML attributes
                 for arg in &ui.args {
                     match arg {
+                        // A value per breakpoint is carried by its class
+                        // (`responsive_classes`, below), not an attribute.
+                        Arg::Named(key, val)
+                            if key != "class" && crate::codegen::scoped_css::is_responsive(val) => {
+                        }
                         Arg::Named(key, val) => {
                             match key.as_str() {
                                 // The handle takes the element once drawn.
@@ -2215,6 +2221,10 @@ impl JsCodegen {
                 }
 
                 classes.extend(layout_arg_classes(&ui.args));
+                // `Grid(columns: { base: 1, md: 2 })`: the class its rules
+                // live under, as the pre-rendered page carries it. Without
+                // it, hydrating the page took the layout away.
+                classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
 
                 // Handle input type modifiers
                 for m in &ui.modifiers {
