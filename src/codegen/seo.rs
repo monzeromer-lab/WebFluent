@@ -51,8 +51,22 @@ fn json_str(value: &str) -> String {
 }
 
 /// The site origin with any trailing slash removed, or `None` if unset.
+///
+/// `site_url` may be the host alone or the site's whole address, subpath
+/// and all — `https://x.github.io/docs` beside a `base_path` of `/docs`.
+/// Every absolute URL adds the base path, so one already at the end of
+/// `site_url` is read without it: written either way it is one address, not
+/// `/docs/docs`, which is what a canonical link, a preview and the sitemap
+/// said before. The base path begins with `/`, so only a whole segment
+/// matches.
 pub fn site_origin(config: &ProjectConfig) -> Option<&str> {
     let url = config.meta.site_url.trim_end_matches('/');
+    let base = config.build.base_path.trim_end_matches('/');
+    let url = if base.is_empty() {
+        url
+    } else {
+        url.strip_suffix(base).unwrap_or(url)
+    };
     if url.is_empty() { None } else { Some(url) }
 }
 
@@ -727,6 +741,34 @@ mod tests {
         assert!(
             txt.contains("Sitemap: https://ledger.example/sitemap.xml"),
             "{txt}"
+        );
+    }
+
+    #[test]
+    fn a_site_url_that_ends_with_the_base_path_is_not_given_it_twice() {
+        for site_url in [
+            "https://l.example/docs",
+            "https://l.example/docs/",
+            "https://l.example",
+        ] {
+            let config: ProjectConfig = serde_json::from_str(&format!(
+                r#"{{"name":"L","meta":{{"site_url":"{site_url}"}},"build":{{"base_path":"/docs"}}}}"#
+            ))
+            .unwrap();
+            assert_eq!(
+                absolute_url(&config, "/guide").as_deref(),
+                Some("https://l.example/docs/guide"),
+                "{site_url}"
+            );
+        }
+        // Only a whole segment: `/mydocs` is not `/docs`.
+        let config: ProjectConfig = serde_json::from_str(
+            r#"{"name":"L","meta":{"site_url":"https://l.example/mydocs"},"build":{"base_path":"/docs"}}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            absolute_url(&config, "/").as_deref(),
+            Some("https://l.example/mydocs/docs/")
         );
     }
 

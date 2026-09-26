@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://monzeromer-lab.github.io/WebFluent/WebFluent/sitemap.xml
+Sitemap: https://monzeromer-lab.github.io/WebFluent/sitemap.xml

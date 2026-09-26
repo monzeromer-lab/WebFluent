@@ -36,6 +36,13 @@ pages in a real Chrome in CI (`tests/browser/peer.mjs`).
 
 ## Fixed
 
+### A `site_url` with the subpath in it
+
+`meta.site_url` written as the site's whole address — `https://x.github.io/docs`
+beside a `base_path` of `/docs` — gave every canonical link, link preview and
+sitemap entry the base path twice: `/docs/docs/`. It is read once now, so
+either spelling means one address.
+
 ### A browser value in text
 
 `Text("{viewport.width}")`, a clock on `now`, `network.online` — any text
