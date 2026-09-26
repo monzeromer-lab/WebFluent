@@ -1117,7 +1117,7 @@ checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
 
 [[package]]
 name = "webfluent"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "clap",
  "image",
@@ -1135,7 +1135,7 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 
 [[package]]
 name = "wf-lsp"
-version = "4.0.1"
+version = "4.1.0"
 dependencies = [
  "dashmap 6.1.0",
  "serde_json",

@@ -57,6 +57,41 @@ compiled, every page example is run and clicked through, every diagnostic
 example draws its code, every link lands, and a test fails when the language
 has something the guide does not name.
 
+### A name nothing declares is a compile error
+
+`Button(huge)` and `on click { cuont = count + 1 }` built, and threw a
+`ReferenceError` in the browser the first time the page ran. A name that no
+`state`, `const`, prop, action, store, `api`, `external` or browser global
+declares is now `T13`, reported where it is written, with the spelling to
+check. A template's names are its data's, so `wf render` is not held to it.
+
+### `wf render` is held to what a build is
+
+A template that named a component nothing declares rendered
+`<!-- unknown component -->`, and a flag a component does not take was
+dropped, both with exit status 0 — an invoice with a typo went out that way.
+The render now stops on everything a build stops on except `T13`. It also
+takes `--token NAME=VALUE` for a design token over the theme's, reads an
+indented `.wfx` template, and finds a `data` file beside the template, as
+the guide always said it did.
+
+### The Node binding, as `webfluent` on npm
+
+`npm install webfluent` — a thin wrapper around `wf render`, at the
+compiler's version, published by the release once the repository has an npm
+token. `withTokens()` reached nothing before and does now; `withTheme()` is
+only sent when set, instead of naming a `default` theme; `renderSlides()` is
+new; a template that does not compile throws what `wf` said. Its tests run
+in CI against the `wf` the job built.
+
+### A title that looks its entry up
+
+`title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"` was
+written into every file as those characters: only a bare parameter name was
+filled in. A title may splice any expression over the route's parameters
+and the program's constants and data; the build works it out for each file
+and the router again on each visit.
+
 ### `env` from a `.env` file and the shell
 
 `env.NAME` reads the config's `env` map, then a `.env` file beside it, then
@@ -88,6 +123,14 @@ build now warns and names the key it meant (`default_locale`). `wf init
   description.
 
 ## Fixed
+
+### A sidebar's items on a phone, and in Arabic
+
+A `Sidebar` is a column of fixed height that scrolls, and its items shrank
+to fit instead: with more than a screenful, every link was squeezed to 18px,
+too small to tap. They keep their size and the column scrolls. On a phone a
+closed sidebar waits off its own edge — in a right-to-left page it slid the
+wrong way and covered half the screen.
 
 ### An action's parameters
 
@@ -161,6 +204,16 @@ Behind these, three checks: every method's value at build time is compared
 with the runtime's, in Node, for 61 samples — anything the build cannot
 know says why; every runtime function the compiler can call must exist;
 and no two runtime modules may declare the same name.
+
+## The documentation site
+
+Written for a phone first: every rule is the phone's, and `md`, `lg` and
+`xl` add to it. The search is in the phone's menu, every link and control a
+reader taps is at least 24px (44px in a drawer), a wide table or code block
+scrolls inside its own box, and no page scrolls sideways at any width from
+320px to 1920px, in English or Arabic — each checked on every route in a
+real browser. The search index is its own file, fetched the first time the
+search box is used, instead of 20 kB carried by every page.
 
 ## Editors
 
