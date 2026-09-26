@@ -109,14 +109,14 @@
                     <h2 class="wf-heading wf-s9201e08b">Everything else follows from these</h2>
                 </div>
                 <div class="wf-grid wf-gap--lg wf-s5804ae86 wf-r4f2ac013 ideas-grid">
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <p class="wf-text wf-se6051429">01</p>
                         <h3 class="wf-heading">A file is a list of declarations</h3>
                         <div class="wf-markdown">
 <p>Fourteen kinds — <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>external</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code>, <code>test</code>. Pages own their routes; there is no separate route table.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <p class="wf-text wf-se6051429">02</p>
                         <h3 class="wf-heading">An element is a typed call</h3>
                         <div class="wf-markdown">
@@ -124,28 +124,28 @@
                         </div>
                         <code class="wf-code wf-code--block wf-s632d2bef"><span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Save&quot;</span>, <span class="wf-tok-prop">tone</span>: .primary).lg</code>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <p class="wf-text wf-se6051429">03</p>
                         <h3 class="wf-heading">State is a signal</h3>
                         <div class="wf-markdown">
 <p><code>state count = 0</code> — anything that reads it follows it. Derived values recompute, effects re-run, the DOM updates. No dependency arrays.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <p class="wf-text wf-se6051429">04</p>
                         <h3 class="wf-heading">Styles are CSS, written where the element is</h3>
                         <div class="wf-markdown">
 <p>Raw values, design tokens with <code>$</code>, nested rules as CSS nesting spells them. One sheet, pruned to what you used.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <p class="wf-text wf-se6051429">05</p>
                         <h3 class="wf-heading">The build is the whole site</h3>
                         <div class="wf-markdown">
 <p>HTML pre-rendered per page, a small runtime, a sitemap, Open Graph tags, content-security headers — from <code>wf build</code>, with nothing to configure.</p>
                         </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card idea-card-highlight">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card idea-card-highlight">
                         <h3 class="wf-heading">Coming from React, Vue or Svelte?</h3>
                         <div class="wf-markdown">
 <p>Start with the map from what you know: state is a signal, components are declared and typed, stores replace context, and the compiler checks what you write against what the components declare.</p>
@@ -160,42 +160,42 @@
                     <h2 class="wf-heading wf-s9201e08b">What a real site needs, in the language</h2>
                 </div>
                 <div class="wf-grid wf-gap--lg wf-s5804ae86 wf-r4f2ac013 ideas-grid">
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <h3 class="wf-heading">A service, described once</h3>
                         <div class="wf-markdown">
 <p><code>api Backend { get users() -&gt; [User] }</code> — every call typed, cached, retried and cancellable; or read the whole surface from an OpenAPI file.</p>
                         </div>
                         <a class="wf-link" href="/WebFluent/docs/guide/data">Read the chapter →</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <h3 class="wf-heading">Forms that validate themselves</h3>
                         <div class="wf-markdown">
 <p><code>validate email { required  email }</code> beside the state; the field shows its message accessibly, and a failed submit focuses the problem.</p>
                         </div>
                         <a class="wf-link" href="/WebFluent/docs/guide/forms">Read the chapter →</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <h3 class="wf-heading">Sockets, streams and peers</h3>
                         <div class="wf-markdown">
 <p>WebSockets that reconnect, server-sent events, a channel every tab hears, and WebRTC straight to another page — each closed when its page leaves.</p>
                         </div>
                         <a class="wf-link" href="/WebFluent/docs/guide/realtime">Read the chapter →</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <h3 class="wf-heading">Works offline</h3>
                         <div class="wf-markdown">
 <p>Name <code>offline</code> in the config: a service worker stores the site, writes wait for the connection, and a new version is offered, not forced.</p>
                         </div>
                         <a class="wf-link" href="/WebFluent/docs/guide/offline">Read the chapter →</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <h3 class="wf-heading">Tests that click</h3>
                         <div class="wf-markdown">
 <p><code>click &quot;Save&quot;</code> then <code>expect &quot;Saved&quot;</code> runs in headless Chrome, and <code>wf verify</code> loads every page of the build.</p>
                         </div>
                         <a class="wf-link" href="/WebFluent/docs/guide/testing">Read the chapter →</a>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-sf713c042 idea-card">
+                    <div class="wf-stack wf-gap--sm wf-sfbf83d5d idea-card">
                         <h3 class="wf-heading">Safe by construction</h3>
                         <div class="wf-markdown">
 <p>Text is always text, no inline handlers, no <code>javascript:</code> URLs, private <code>env</code> names kept out of the bundle, and a CSP the build holds itself to.</p>
@@ -378,7 +378,7 @@
                         </div>
                         <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
-                    <div class="wf-row wf-gap--xl wf-align--start wf-s460dafcd footer-columns">
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>

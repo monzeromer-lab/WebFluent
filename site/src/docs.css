@@ -27,7 +27,7 @@ button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mo
 .chip { display: inline-flex; align-items: center; height: 26px; margin: 0; padding: 0 10px; border-radius: 4px; background: var(--color-background); border: 1px solid var(--color-border); font-family: var(--font-family-mono); font-size: 12px; line-height: 18px; color: var(--color-text); }
 .crumbs { gap: 8px; font-size: 12px; line-height: 18px; color: var(--ink-subtle); flex-direction: row !important; flex-wrap: nowrap; }
 .crumbs p { margin: 0; }
-.crumbs a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-subtle); text-decoration: none; }
+.crumbs a { display: inline-flex; align-items: center; color: var(--ink-subtle); text-decoration: none; }
 .crumbs a:hover { color: var(--color-text); }
 
 /* A search box is the whole row to the pointer: its input fills the height. */
@@ -102,10 +102,14 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 .wf-sidebar .site-search { min-height: 44px; }
 .wf-sidebar .site-search input { font-size: 16px !important; }  /* under 16px, iOS zooms in on focus */
 .landing-section .site-button { height: 46px; justify-content: center; font-size: 15px; padding: 0 18px; }
+/* A link on a phone is a finger's height; from `md` up, a line's. */
+.idea-card a, .footer-columns a { min-height: 32px; }
+.crumbs a { min-height: 24px; }
 @media (min-width: 640px) {
   .landing-section .site-button { height: 42px; font-size: 14px; }
 }
 @media (min-width: 768px) {
+  .idea-card a, .footer-columns a, .crumbs a { min-height: 0; }
   .wf-sidebar .wf-sidebar__item { min-height: 0; }
   .wf-sidebar .site-search { min-height: 0; }
   .wf-sidebar .site-search input { font-size: 13px !important; }

@@ -323,7 +323,7 @@ component DocSidebar {
             width: 280px
             flex-shrink: 0
             padding: 24px 16px
-            gap: 18px
+            gap: 6px
             border-inline-end: 1px solid $border
             background: $color-background
             overflow-y: auto
@@ -334,7 +334,7 @@ component DocSidebar {
             & .wf-sidebar__item.active .num { color: $brand-ink }
             & .wf-sidebar__item p { margin: 0 }
             & .wf-sidebar__divider { display: none }
-            & .group-label { margin: 8px 0 4px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
+            & .group-label { margin: 20px 0 16px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
             & .group-label:first-child { margin-top: 0 }
         }
 """

@@ -11,14 +11,15 @@ component ReferenceIndex(current: String = "") {
             width: 280px
             flex-shrink: 0
             padding: 20px 16px
-            gap: 16px
+            gap: 6px
             border-inline-end: 1px solid $border
             background: $color-background
             & .wf-sidebar__item { height: 28px; padding: 0 10px; gap: 8px; border-radius: 4px; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text-muted }
             & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
             & .wf-sidebar__item.active { background: $brand-subtle; color: $brand-ink; font-weight: 500 }
             & .wf-sidebar__item p { margin: 0 }
-            & .group-label { margin: 14px 0 4px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
+            & .site-search + .group-label { margin-top: 10px }
+            & .group-label { margin: 24px 0 14px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
         }
 
         Row(align: .center, gap: .sm, class: "site-search") {

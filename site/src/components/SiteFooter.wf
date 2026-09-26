@@ -41,7 +41,7 @@ component SiteFooter {
                     style {
                         gap: 24px 32px
                         flex-wrap: wrap
-                        & a { display: inline-flex; align-items: center; min-height: 32px; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none }
+                        & a { display: inline-flex; align-items: center; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none }
                         & a:hover { color: $color-text }
                         @md { gap: 64px }
                     }
