@@ -686,7 +686,113 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                 <code class="wf-code wf-code--block wf-sa8223565">if !network.online { Alert(&quot;You are offline — changes are queued.&quot;).warning }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>network.online</code>, <code>.effectiveType</code> (<code>4g</code>, <code>3g</code>, …), <code>.saveData</code>, <code>.downlink</code> — live, so a page can say what it does on a slow line or none at all.</p>
+<p><code>network.online</code>, <code>.effectiveType</code> (<code>4g</code>, <code>3g</code>, …), <code>.saveData</code>, <code>.downlink</code> — live, so a page can say what it does on a slow line or none at all — and <code>.queued</code>, the writes waiting for the connection when the site works offline.</p>
+                            </div>
+                            <h2 class="wf-heading">Working offline</h2>
+                            <div class="wf-markdown">
+<p>Name <code>offline</code> in <code>webfluent.app.json</code> and the build writes a service worker, <code>sw.js</code>, that stores the site for when the network is gone:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;offline&quot;: {
+    &quot;precache&quot;: [&quot;/&quot;, &quot;/docs/*&quot;],
+    &quot;fallback&quot;: &quot;/offline&quot;,
+    &quot;cache&quot;: { &quot;/api/*&quot;: &quot;network-first&quot; },
+    &quot;sync&quot;: true
+} }</code>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Working offline</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">What it does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>precache</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The routes a first visit stores, as globs — <code>&quot;/&quot;</code> by default. Each is stored with its own chunk and sheet, and the shell with them.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>fallback</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A page's <code>path</code>, shown for a route that was not stored.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>cache</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>How a path the build did not write is fetched: <code>network-first</code>, <code>cache-first</code>, <code>stale-while-revalidate</code> or <code>network-only</code>. A path not named passes through.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>sync</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A write made with no network is kept and sent later (below).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A stored route loads with no network at all. When there is one, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.</p>
+                            </div>
+                            <h3 class="wf-heading">A write made offline</h3>
+                            <div class="wf-markdown">
+<p>With <code>sync</code>, a write — any method but <code>GET</code> and <code>HEAD</code>, through <code>fetch</code> or an <code>api</code> — that fails because the network is gone is kept instead of thrown, and the call resolves with nothing, so what the page showed stays shown. The writes are sent in order when the connection returns: by Background Sync where the browser has it, so a closed tab still sends them, and by the page otherwise. A server that answers has the write, even if it refuses it; one that is down or asks to wait keeps it for later. A <code>File</code> body is not kept, and its call fails as before.</p>
+<p><code>network.queued</code> is how many wait.</p>
+                            </div>
+                            <h3 class="wf-heading">A new version</h3>
+                            <div class="wf-markdown">
+<p>The worker is versioned by a hash of everything the build wrote, so any deploy that changes a byte is a new version. It installs beside the old one and waits for the page to take it:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The front page.&quot;) {
+    if update.available {
+        Button(&quot;A new version is ready — reload&quot;) { on click { update.apply() } }
+    }
+    if network.queued &gt; 0 {
+        Text(&quot;{network.queued} change(s) will be sent when you are back online&quot;).muted
+    }
+    Heading(&quot;Home&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>update.apply()</code> takes it and reloads the page once: never on the first install, which only takes over a page that already works, and never twice for one update. The old version's store is deleted when the new one takes over.</p>
+<p>Under <code>wf serve</code> the worker takes itself away: a page answered from its own store would hide every edit you make.</p>
                             </div>
                             <h2 class="wf-heading">await fetch in an action</h2>
                             <div class="wf-markdown">
@@ -905,6 +1011,7 @@ page Rows(path: &quot;/&quot;) {
                         <a class="wf-link wf-sdae384de" href="#api-a-service-described-once">api: a service, described once</a>
                         <a class="wf-link wf-sdae384de" href="#a-connection-the-page-holds-open">A connection the page holds open</a>
                         <a class="wf-link wf-sdae384de" href="#the-network-as-a-value">The network as a value</a>
+                        <a class="wf-link wf-sdae384de" href="#working-offline">Working offline</a>
                         <a class="wf-link wf-sdae384de" href="#await-fetch-in-an-action">await fetch in an action</a>
                         <a class="wf-link wf-sdae384de" href="#data-a-file-at-build-time">data: a file at build time</a>
                         <a class="wf-link wf-sdae384de" href="#const-and-env">const and env</a>

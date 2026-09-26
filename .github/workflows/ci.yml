@@ -68,6 +68,34 @@ jobs:
 
       - run: npx vsce package --out webfluent.vsix
 
+  # A service worker is nothing without a browser, so `offline` is driven in
+  # a real Chrome: the site stored, served with the server gone, a write kept
+  # and sent once, an update taken with one reload — pre-rendered and as a
+  # single page. The runner has Chrome; `puppeteer-core` drives it.
+  browser:
+    name: Offline in a real browser
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo build --release
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tests/browser/package-lock.json
+
+      - name: Install
+        working-directory: tests/browser
+        run: npm ci --no-audit --no-fund
+
+      - name: Offline
+        working-directory: tests/browser
+        run: node offline.mjs
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest

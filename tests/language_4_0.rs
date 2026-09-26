@@ -1779,3 +1779,31 @@ fn an_escape_inside_a_splices_own_string_is_that_strings() {
         "{js}"
     );
 }
+
+/// A browser value read in text is drawn live. Only conditions were: the
+/// check that decides whether a text follows its values knew signals and
+/// translations and none of the browser's values, so `Text("{viewport.width}")`,
+/// a clock on `now` and `network.online` were computed once and never moved.
+#[test]
+fn a_browser_value_in_text_follows_it() {
+    for (source, runtime) in [
+        ("viewport.width", "WF.viewport()"),
+        ("network.online", "WF.network()"),
+        ("now", "WF.now("),
+        ("query.tab", "WF.query()"),
+        ("hash", "WF.hash()"),
+        ("theme", "WF.theme()"),
+    ] {
+        let js = spa_generated(&page(&format!("Text(\"v: {{{source}}}\")")));
+        let at = js
+            .find(runtime)
+            .unwrap_or_else(|| panic!("{source} reads {runtime}: {js}"));
+        let before = &js[..at];
+        let text_start = before.rfind("`v: ").expect("the text");
+        assert!(
+            before[..text_start].trim_end().ends_with("=>"),
+            "`{source}` in text should be a function the runtime can run again: {}",
+            &js[text_start.saturating_sub(40)..(at + 30).min(js.len())]
+        );
+    }
+}

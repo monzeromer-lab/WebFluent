@@ -245,6 +245,21 @@
       "deps": [],
       "exports": [
         [
+          "offline",
+          "offline"
+        ],
+        [
+          "update",
+          "update"
+        ]
+      ],
+      "name": "offline",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
           "year",
           "year"
         ],

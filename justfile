@@ -42,6 +42,10 @@ run *args:
 browser: release
     node tests/browser/run.mjs
 
+# `offline` in a real Chrome: stored, served offline, writes kept, updates
+browser-offline: release
+    cd tests/browser && npm ci --no-audit --no-fund --silent && node offline.mjs
+
 # Build and serve the docs site locally
 site:
     cargo build --release

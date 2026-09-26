@@ -113,7 +113,11 @@
       const c = (typeof navigator !== "undefined" && navigator.connection) || null;
       if (c && c.addEventListener) c.addEventListener("change", update);
     }
-    return _network();
+    // `queued`: the writes kept for when the connection returns, which the
+    // offline module counts when the config asks for `sync`.
+    return Object.assign({}, _network(), {
+      get queued() { return offlineQueued ? offlineQueued() : 0; },
+    });
   }
 
   // ─── The moment ──────────────────────────────────────

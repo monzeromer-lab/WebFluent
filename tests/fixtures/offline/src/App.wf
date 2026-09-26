@@ -1,0 +1,43 @@
+/// A site that keeps working without the network: `tests/browser/offline.mjs`
+/// drives it in Chrome — a stored route with the server gone, the fallback
+/// for one that is not stored, a write kept and sent later, and an update
+/// taken with one reload.
+
+app {
+    Router
+}
+
+page Home(path: "/", title: "Home", description: "The front page.") {
+    state saved = "nothing yet"
+
+    Container {
+        Heading("Offline test").h1
+        Text("queued:{network.queued}", id: "queued")
+        Text("saved:{saved}", id: "saved")
+        if update.available {
+            Button("Update", id: "update") { on click { update.apply() } }
+        }
+        Button("Save", id: "save") {
+            on click {
+                await fetch("/api/save", method: "POST", body: { note: "written while offline" })
+                saved = "sent or kept"
+            }
+        }
+        Link("About", to: "/about")
+    }
+}
+
+page About(path: "/about", title: "About", description: "Who we are.") {
+    Container { Heading("About Us").h1 }
+}
+
+page Contact(path: "/contact", title: "Contact", description: "How to reach us.") {
+    Container { Heading("Contact").h1 }
+}
+
+page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
+    Container {
+        Heading("You are offline").h1
+        Text("This page was not stored. It will load when the connection returns.")
+    }
+}

@@ -799,3 +799,49 @@ fn the_editor_grammar_corpus_is_current_with_the_guide() {
          `WF_WRITE_GUIDE_CORPUS=1 cargo test --test docs_parse the_editor_grammar_corpus`: {stale:?}"
     );
 }
+
+/// The documentation site's search and its components reference are written
+/// by `scripts/site-data.py`, from the guide and from `wf registry --json`,
+/// and nothing held the committed files to what it writes — so a section
+/// added to the guide was missing from the site's search until someone
+/// remembered to rerun it. This runs it into a scratch directory, with the
+/// binary this test run just built, and compares.
+#[test]
+fn the_sites_search_and_registry_are_current() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    if std::process::Command::new("python3")
+        .arg("--version")
+        .output()
+        .is_err()
+    {
+        eprintln!("skipped: the generator needs python3");
+        return;
+    }
+    let out = std::env::temp_dir().join(format!("wf-site-data-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&out);
+    std::fs::create_dir_all(&out).unwrap();
+    let run = std::process::Command::new("python3")
+        .arg(root.join("scripts/site-data.py"))
+        .env("WF_SITE_DATA_OUT", &out)
+        .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
+        .output()
+        .expect("run the generator");
+    assert!(
+        run.status.success(),
+        "the generator failed: {}",
+        String::from_utf8_lossy(&run.stderr)
+    );
+    let mut stale = Vec::new();
+    for name in ["search-index.json", "registry.json"] {
+        let want = std::fs::read_to_string(out.join(name)).unwrap();
+        let have = std::fs::read_to_string(root.join("site/src").join(name)).unwrap_or_default();
+        if want != have {
+            stale.push(name);
+        }
+    }
+    let _ = std::fs::remove_dir_all(&out);
+    assert!(
+        stale.is_empty(),
+        "these are behind the guide or the registry; run `python3 scripts/site-data.py`: {stale:?}"
+    );
+}

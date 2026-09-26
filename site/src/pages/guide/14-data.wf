@@ -1,6 +1,6 @@
 /// Chapter 14 of the guide, written from md-docs/14-data.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page DataChapter(path: "/docs/guide/data", title: "Data", description: "resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.", layout: DocsShell("Data", chapter: t("guide.chapter", { n: "14" }), blurb: "Three ways to get data onto a page: resource, await fetch, and data files read at build time.", sections: [Anchor(id: "resource", label: "resource"), Anchor(id: "api-a-service-described-once", label: "api: a service, described once"), Anchor(id: "a-connection-the-page-holds-open", label: "A connection the page holds open"), Anchor(id: "the-network-as-a-value", label: "The network as a value"), Anchor(id: "await-fetch-in-an-action", label: "await fetch in an action"), Anchor(id: "data-a-file-at-build-time", label: "data: a file at build time"), Anchor(id: "const-and-env", label: "const and env"), Anchor(id: "where-data-lands-in-the-static-paint", label: "Where data lands in the static paint")], prevTo: "/docs/guide/motion", prevLabel: "13. {t("ch.13")}", nextTo: "/docs/guide/i18n", nextLabel: "15. {t("ch.15")}")) {
+page DataChapter(path: "/docs/guide/data", title: "Data", description: "resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.", layout: DocsShell("Data", chapter: t("guide.chapter", { n: "14" }), blurb: "Three ways to get data onto a page: resource, await fetch, and data files read at build time.", sections: [Anchor(id: "resource", label: "resource"), Anchor(id: "api-a-service-described-once", label: "api: a service, described once"), Anchor(id: "a-connection-the-page-holds-open", label: "A connection the page holds open"), Anchor(id: "the-network-as-a-value", label: "The network as a value"), Anchor(id: "working-offline", label: "Working offline"), Anchor(id: "await-fetch-in-an-action", label: "await fetch in an action"), Anchor(id: "data-a-file-at-build-time", label: "data: a file at build time"), Anchor(id: "const-and-env", label: "const and env"), Anchor(id: "where-data-lands-in-the-static-paint", label: "Where data lands in the static paint")], prevTo: "/docs/guide/motion", prevLabel: "13. {t("ch.13")}", nextTo: "/docs/guide/i18n", nextLabel: "15. {t("ch.15")}")) {
     Stack(gap: .lg) {
         Markdown("Ways to get data onto a page: `api` for a service described once and called everywhere, `resource` for something fetched while the page shows, `await fetch` inside an action for something fetched on demand, and `data` for a file read at build time. Plus `const` and `env` for values that are the same for the whole build, and `socket`, `stream` and `channel` for a connection the page holds open.")
 
@@ -317,7 +317,67 @@ Button("Sync") { on click { cart.post({ items: Cart.count }) } }"#, title: "wf")
 
         CodeBlock(#"if !network.online { Alert("You are offline — changes are queued.").warning }"#, title: "wf")
 
-        Markdown("`network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink` — live, so a page can say what it does on a slow line or none at all.")
+        Markdown("`network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink` — live, so a page can say what it does on a slow line or none at all — and `.queued`, the writes waiting for the connection when the site works offline.")
+
+        Heading("Working offline", id: "working-offline").h2
+
+        Markdown("Name `offline` in `webfluent.app.json` and the build writes a service worker, `sw.js`, that stores the site for when the network is gone:")
+
+        CodeBlock(#"{ "offline": {
+    "precache": ["/", "/docs/*"],
+    "fallback": "/offline",
+    "cache": { "/api/*": "network-first" },
+    "sync": true
+} }"#, title: "json")
+
+        Table(caption: "Working offline") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("What it does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`precache`") }
+                    Table.Cell { Markdown("The routes a first visit stores, as globs — `\"/\"` by default. Each is stored with its own chunk and sheet, and the shell with them.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`fallback`") }
+                    Table.Cell { Markdown("A page's `path`, shown for a route that was not stored.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cache`") }
+                    Table.Cell { Markdown("How a path the build did not write is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sync`") }
+                    Table.Cell("A write made with no network is kept and sent later (below).")
+                }
+            }
+        }
+
+        Markdown("A stored route loads with no network at all. When there is one, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.")
+
+        Heading("A write made offline", id: "a-write-made-offline").h3
+
+        Markdown("With `sync`, a write — any method but `GET` and `HEAD`, through `fetch` or an `api` — that fails because the network is gone is kept instead of thrown, and the call resolves with nothing, so what the page showed stays shown. The writes are sent in order when the connection returns: by Background Sync where the browser has it, so a closed tab still sends them, and by the page otherwise. A server that answers has the write, even if it refuses it; one that is down or asks to wait keeps it for later. A `File` body is not kept, and its call fails as before.\n\n`network.queued` is how many wait.")
+
+        Heading("A new version", id: "a-new-version").h3
+
+        Markdown("The worker is versioned by a hash of everything the build wrote, so any deploy that changes a byte is a new version. It installs beside the old one and waits for the page to take it:")
+
+        CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") {
+    if update.available {
+        Button("A new version is ready — reload") { on click { update.apply() } }
+    }
+    if network.queued > 0 {
+        Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    Heading("Home").h1
+}"#, title: "wf")
+
+        Markdown("`update.apply()` takes it and reloads the page once: never on the first install, which only takes over a page that already works, and never twice for one update. The old version's store is deleted when the new one takes over.\n\nUnder `wf serve` the worker takes itself away: a page answered from its own store would hide every edit you make.")
 
         Heading("await fetch in an action", id: "await-fetch-in-an-action").h2
 

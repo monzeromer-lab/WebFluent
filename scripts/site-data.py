@@ -11,13 +11,17 @@
 Rerun after the registry or the guide changes: `python3 scripts/site-data.py`.
 """
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SITE = ROOT / "site" / "src"
-wf = ROOT / "target" / "debug" / "wf"
+# `WF_SITE_DATA_OUT` and `WF_BIN` let `tests/docs_parse.rs` write these into a
+# scratch directory with the binary it just built, and hold the committed
+# files to the result.
+SITE = Path(os.environ["WF_SITE_DATA_OUT"]) if os.environ.get("WF_SITE_DATA_OUT") else ROOT / "site" / "src"
+wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
 
@@ -118,4 +122,4 @@ def search_index():
 if __name__ == "__main__":
     (SITE / "registry.json").write_text(json.dumps(registry(), indent=1) + "\n")
     (SITE / "search-index.json").write_text(json.dumps(search_index(), indent=1) + "\n")
-    print("wrote site/src/registry.json and site/src/search-index.json")
+    print(f"wrote registry.json and search-index.json to {SITE}")

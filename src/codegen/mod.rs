@@ -25,6 +25,7 @@ pub mod js;
 pub mod markdown;
 pub mod minify;
 pub mod node_id;
+pub mod offline;
 pub mod pdf;
 pub mod project_css;
 pub mod sanitize;

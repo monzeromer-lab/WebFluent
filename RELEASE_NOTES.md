@@ -1,6 +1,35 @@
-# WebFluent v4.0.2 Release Notes
+# WebFluent v4.1 Release Notes
+
+## Added
+
+### Offline
+
+Name `offline` in the config and `wf build` writes a service worker that
+stores the site for when the network is gone — the shell, the routes
+`precache` names with their own chunks, and a `fallback` page for the rest —
+and fetches what it did not write by the policies `cache` names. It is
+versioned by a hash of everything the build wrote, so a deploy that changes a
+byte is a new version; the page reads `update.available` and calls
+`update.apply()`, which takes it and reloads **once**. With `sync`, a write
+made with no network is kept in IndexedDB and sent in order when the
+connection returns — by Background Sync where the browser has it, so a
+closed tab still sends it — and `network.queued` says how many wait. Under
+`wf serve` the worker takes itself away.
+
+It is held to a real Chrome in CI (`tests/browser/offline.mjs`, 24 checks
+across a pre-rendered and a single-page build): the site stored, a stored
+route served with the server gone and the fallback for one that is not, a
+write kept, counted and received exactly once, and an update offered and
+taken with one reload.
 
 ## Fixed
+
+### A browser value in text
+
+`Text("{viewport.width}")`, a clock on `now`, `network.online` — any text
+that read one of the browser's values was computed once and never moved.
+Only conditions were drawn live: the check that decides whether a text
+follows its values knew signals and translations and none of these.
 
 ### `text.lines()` on a live page
 

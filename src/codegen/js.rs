@@ -68,6 +68,9 @@ fn action_names(body: &[Statement]) -> Vec<String> {
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
+    /// `Some(sync)` when the config names `offline`: the service worker is
+    /// registered at boot, and `sync` keeps writes made offline.
+    offline: Option<bool>,
     /// Ship every runtime module rather than the ones the program reaches
     /// (`build.runtime: "full"`).
     full_runtime: bool,
@@ -189,6 +192,7 @@ impl Default for JsCodegen {
 impl JsCodegen {
     pub fn new() -> Self {
         Self {
+            offline: None,
             consts: Vec::new(),
             env: Default::default(),
             output: String::new(),
@@ -261,6 +265,12 @@ impl JsCodegen {
     }
 
     /// The values `env.NAME` reads, from the project's config.
+    /// Register the service worker `offline` in the config asks for, and
+    /// whether writes made offline are kept (`sync`).
+    pub fn set_offline(&mut self, sync: bool) {
+        self.offline = Some(sync);
+    }
+
     pub fn set_env(&mut self, env: std::collections::BTreeMap<String, serde_json::Value>) {
         self.env = env;
     }
@@ -486,6 +496,10 @@ impl JsCodegen {
         // Emit base path and SSG mode flag
         if !self.base_path.is_empty() {
             self.emit_line(&format!("WF.setBasePath(\"{}\");", self.base_path));
+        }
+        // The service worker, when the config names `offline`.
+        if let Some(sync) = self.offline {
+            self.emit_line(&format!("WF.offline({{ sync: {sync} }});"));
         }
         if self.ssg_mode {
             self.emit_line("WF.setSsgMode(true);");
@@ -907,10 +921,7 @@ impl JsCodegen {
             Expr::Identifier(name) => {
                 if store_states.contains(name) {
                     format!("store.{}", name)
-                } else if matches!(
-                    name.as_str(),
-                    "viewport" | "query" | "hash" | "theme" | "now" | "network"
-                ) && !self.own_names.contains(name)
+                } else if BROWSER_VALUES.contains(&name.as_str()) && !self.own_names.contains(name)
                 {
                     format!("WF.{name}()")
                 } else {
@@ -5404,10 +5415,8 @@ impl JsCodegen {
                 }
                 // The browser as values, kept current by the runtime, unless
                 // the name is the writer's own.
-                if matches!(
-                    name.as_str(),
-                    "viewport" | "query" | "hash" | "theme" | "now" | "network"
-                ) && !self.own_names.contains(name)
+                if BROWSER_VALUES.contains(&name.as_str())
+                    && !self.own_names.contains(name)
                     && !self.current_props.contains(name)
                     && !self.page_params.contains(name)
                     && !self.loop_bindings.contains(name)
@@ -5872,8 +5881,20 @@ fn is_reactive_expr(expr_str: &str) -> bool {
     {
         return true;
     }
-    false
+    // The browser as values — each a signal the runtime keeps current. Only
+    // conditions were drawn live without this, so `Text("{viewport.width}")`,
+    // a clock reading `now` or `network.online` in text was computed once
+    // and never moved.
+    BROWSER_VALUES
+        .iter()
+        .any(|name| expr_str.contains(&format!("WF.{name}(")))
 }
+
+/// The names the language reads from the browser, each a live value:
+/// `viewport.md`, `query.tab`, `now`, `network.online`, `update.available`.
+pub const BROWSER_VALUES: &[&str] = &[
+    "viewport", "query", "hash", "theme", "now", "network", "update",
+];
 
 /// The runtime function a method of one of the language's own types
 /// compiles to: `due.plus(days: 3)` is `WF.plus(due, { days: 3 })`.

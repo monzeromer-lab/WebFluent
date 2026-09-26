@@ -310,6 +310,10 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     js_codegen.set_split_pages(config.build.split);
     js_codegen.set_full_runtime(config.build.runtime == crate::config::RuntimeMode::Full);
     js_codegen.set_env(config.env.clone());
+    if let Some(offline) = &config.offline {
+        check_offline(offline, &config, &program)?;
+        js_codegen.set_offline(offline.sync);
+    }
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
@@ -556,6 +560,12 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // The token block last, once everything that could name a token is on
     // disk — including whatever `public/` brought with it.
     let tokens_dropped = prune_root_tokens(&output_dir)?;
+
+    // The service worker last of all, since its version is a hash of
+    // everything else the build wrote.
+    if let Some(offline) = &config.offline {
+        write_service_worker(&output_dir, &config, offline, &program, &written_html)?;
+    }
 
     // A `.gz` beside every text file, for a host that serves one when it has
     // it: compressed once here, harder than a server can afford per request.
@@ -1141,14 +1151,21 @@ fn check_csp(
 /// so a site that only carries the CSP in its HTML is still framable and still
 /// subject to MIME sniffing.
 fn headers_file(config: &ProjectConfig) -> String {
-    format!(
+    let mut out = format!(
         "/*\n\
          \x20 Content-Security-Policy: {}\n\
          \x20 X-Content-Type-Options: nosniff\n\
          \x20 Referrer-Policy: strict-origin-when-cross-origin\n\
          \x20 X-Frame-Options: DENY\n",
         crate::config::project::csp_policy(config)
-    )
+    );
+    // A browser checks the worker for a new version on every visit; a host
+    // that let it be cached would keep a deploy from reaching anyone.
+    if config.offline.is_some() {
+        let base = config.build.base_path.trim_end_matches('/');
+        out.push_str(&format!("\n{base}/sw.js\n  Cache-Control: no-cache\n"));
+    }
+    out
 }
 
 /// The pages this build wrote that carry a `style=` attribute, as the
@@ -1166,4 +1183,217 @@ fn inline_styled_pages(output_dir: &Path, written: &[PathBuf]) -> Vec<String> {
         .collect();
     out.sort();
     out
+}
+
+/// What `offline` in the config asks for, refused where it cannot mean it.
+fn check_offline(
+    offline: &crate::config::OfflineConfig,
+    config: &ProjectConfig,
+    program: &crate::parser::ast::Program,
+) -> Result<()> {
+    let mut problems = Vec::new();
+    if !matches!(config.build.output_type, OutputType::Spa) {
+        problems.push("`offline` is for a web build; this one writes a document".to_string());
+    }
+    for (path, strategy) in &offline.cache {
+        if !crate::config::OFFLINE_STRATEGIES.contains(&strategy.as_str()) {
+            problems.push(format!(
+                "`offline.cache` asks for `{strategy}` on `{path}`; the policies are {}",
+                crate::config::OFFLINE_STRATEGIES
+                    .iter()
+                    .map(|s| format!("`{s}`"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ));
+        }
+    }
+    if let Some(fallback) = &offline.fallback {
+        let known = program
+            .declarations
+            .iter()
+            .any(|d| matches!(d, crate::parser::ast::Declaration::Page(p) if &p.path == fallback));
+        if !known {
+            problems.push(format!(
+                "`offline.fallback` is `{fallback}`, which no page's `path` is; \
+                 declare `page Offline(path: \"{fallback}\")` or name a page that exists"
+            ));
+        }
+    }
+    if problems.is_empty() {
+        return Ok(());
+    }
+    Err(WebFluentError::ConfigError(problems.join("\n")))
+}
+
+/// The page a route a static build wrote belongs to: its own `path`, or the
+/// `:param` pattern it was rendered from.
+fn page_for_route<'a>(
+    program: &'a crate::parser::ast::Program,
+    route: &str,
+) -> Option<&'a crate::parser::ast::PageDecl> {
+    let segments: Vec<&str> = route.split('/').filter(|s| !s.is_empty()).collect();
+    program.declarations.iter().find_map(|d| {
+        let crate::parser::ast::Declaration::Page(page) = d else {
+            return None;
+        };
+        let pattern: Vec<&str> = page.path.split('/').filter(|s| !s.is_empty()).collect();
+        let fits = pattern.len() == segments.len()
+            && pattern
+                .iter()
+                .zip(&segments)
+                .all(|(p, s)| p.starts_with(':') || p == s);
+        fits.then_some(page)
+    })
+}
+
+/// Write `sw.js`: what a first visit stores — the shell, each route
+/// `offline.precache` names with its own chunk and sheet, the fallback — and
+/// the version that says when it has all changed.
+fn write_service_worker(
+    output_dir: &Path,
+    config: &ProjectConfig,
+    offline: &crate::config::OfflineConfig,
+    program: &crate::parser::ast::Program,
+    written_html: &[PathBuf],
+) -> Result<()> {
+    use crate::codegen::offline::{Worker, route_matches, service_worker, version_of};
+    let base = config.build.base_path.trim_end_matches('/').to_string();
+    let site = |rel: &str| format!("{base}/{}", rel.trim_start_matches('/'));
+    let exists = |rel: &str| output_dir.join(rel).is_file();
+
+    let mut precache: Vec<String> = Vec::new();
+    let add = |rel: &str, list: &mut Vec<String>| {
+        let url = site(rel);
+        if !list.contains(&url) {
+            list.push(url);
+        }
+    };
+    for shell in ["app.js", "styles.css", "externals.js"] {
+        if exists(shell) {
+            add(shell, &mut precache);
+        }
+    }
+    let chunks_of = |page: &crate::parser::ast::PageDecl, list: &mut Vec<String>| {
+        for ext in ["js", "css"] {
+            let rel = format!("pages/{}.{ext}", page.name);
+            if exists(&rel) {
+                let url = site(&rel);
+                if !list.contains(&url) {
+                    list.push(url);
+                }
+            }
+        }
+    };
+
+    let mut routes: Vec<(String, String)> = Vec::new();
+    let mut shell = None;
+    let mut fallback = None;
+    let mut matched = 0usize;
+    if config.build.ssg {
+        for html in written_html {
+            let Ok(rel) = html.strip_prefix(output_dir) else {
+                continue;
+            };
+            let rel = rel.to_string_lossy().replace('\\', "/");
+            if rel == "404.html" {
+                continue;
+            }
+            let route = match rel.strip_suffix("index.html") {
+                Some("") => "/".to_string(),
+                Some(dir) => format!("/{}", dir.trim_end_matches('/')),
+                None => continue,
+            };
+            let wanted = route_matches(&offline.precache, &route);
+            let is_fallback = offline.fallback.as_deref() == Some(route.as_str());
+            if !wanted && !is_fallback {
+                continue;
+            }
+            matched += usize::from(wanted);
+            add(&rel, &mut precache);
+            if let Some(page) = page_for_route(program, &route) {
+                chunks_of(page, &mut precache);
+            }
+            routes.push((route.clone(), site(&rel)));
+            if is_fallback {
+                fallback = Some(site(&route));
+            }
+        }
+    } else {
+        // One shell renders every route; a route's chunk is what it needs.
+        add("index.html", &mut precache);
+        shell = Some(site("index.html"));
+        for d in &program.declarations {
+            let crate::parser::ast::Declaration::Page(page) = d else {
+                continue;
+            };
+            if page.path.contains(':') || page.path == "*" {
+                continue;
+            }
+            let wanted = route_matches(&offline.precache, &page.path);
+            let is_fallback = offline.fallback.as_deref() == Some(page.path.as_str());
+            if wanted || is_fallback {
+                matched += usize::from(wanted);
+                chunks_of(page, &mut precache);
+                // The shell answers a stored route; the worker has to know
+                // which those are, or it sends them to the fallback too.
+                routes.push((page.path.clone(), site("index.html")));
+            }
+            if is_fallback {
+                fallback = Some(site(&page.path));
+            }
+        }
+    }
+    if matched == 0 {
+        println!(
+            "  Warning: `offline.precache` ({}) names no route this build writes; only the shell is stored",
+            offline.precache.join(", ")
+        );
+    }
+
+    // Everything on disk but the worker and the compressed copies.
+    let mut files = Vec::new();
+    collect_files(output_dir, output_dir, &mut files)?;
+    let version = version_of(&files);
+
+    let worker = Worker {
+        version: &version,
+        base: &base,
+        precache,
+        routes,
+        shell,
+        fallback,
+        policies: offline
+            .cache
+            .iter()
+            .map(|(g, s)| (g.clone(), s.clone()))
+            .collect(),
+        sync: offline.sync,
+    };
+    fs::write(output_dir.join("sw.js"), service_worker(&worker))?;
+    println!(
+        "  Offline: sw.js, {} file(s) stored, version {}",
+        worker.precache.len(),
+        &version[..8]
+    );
+    Ok(())
+}
+
+fn collect_files(root: &Path, dir: &Path, out: &mut Vec<(String, Vec<u8>)>) -> Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.is_dir() {
+            collect_files(root, &path, out)?;
+            continue;
+        }
+        let rel = path
+            .strip_prefix(root)
+            .unwrap_or(&path)
+            .to_string_lossy()
+            .replace('\\', "/");
+        if rel == "sw.js" || rel.ends_with(".gz") {
+            continue;
+        }
+        out.push((rel, fs::read(&path)?));
+    }
+    Ok(())
 }

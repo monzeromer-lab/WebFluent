@@ -1,0 +1,12 @@
+{
+  "name": "webfluent-browser-tests",
+  "private": true,
+  "description": "What only a real browser can check: `offline`'s service worker. Run with `node offline.mjs`.",
+  "type": "module",
+  "scripts": {
+    "test": "node offline.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

@@ -2975,6 +2975,16 @@ fn global_type(name: &str) -> Type {
             ("effectiveType".to_string(), Type::String),
             ("saveData".to_string(), Type::Bool),
             ("downlink".to_string(), Type::Number),
+            // The writes kept for when the connection returns (`offline.sync`).
+            ("queued".to_string(), Type::Number),
+        ]),
+        // A new version of the site, installed and waiting (`offline`).
+        "update" => Type::Shape(vec![
+            ("available".to_string(), Type::Bool),
+            (
+                "apply".to_string(),
+                Type::Func(Vec::new(), Box::new(Type::Null)),
+            ),
         ]),
         _ => Type::Any,
     }

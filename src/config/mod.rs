@@ -2,4 +2,4 @@
 
 pub mod project;
 
-pub use project::{MotionConfig, ProjectConfig, RuntimeMode};
+pub use project::{MotionConfig, OFFLINE_STRATEGIES, OfflineConfig, ProjectConfig, RuntimeMode};

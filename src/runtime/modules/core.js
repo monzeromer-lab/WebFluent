@@ -174,6 +174,11 @@
   function lateHook(name, fn) { lateHooks[name] = fn; }
   // The studio's signal registry, set by the debug module when it is built in.
   let __regHook = null;
+  // Set by the offline module when the config asks for `sync`: what the
+  // request engine hands a write that failed for want of a network, and how
+  // many such writes wait. Empty in a build without it.
+  let offlineWrites = null;
+  let offlineQueued = null;
   // The project's translations, set by `locales()` when i18n is built in.
   // `format` and a field's labels read it without depending on i18n.
   let i18nInstance = null;

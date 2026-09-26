@@ -466,6 +466,46 @@ follow the rest:
   left to the author's own transport — the language supplies the channel, not a
   server.
 
+#### Offline, as built (4.1)
+
+Opted into in the config; nothing changes for a project that does not name it.
+
+```json
+{ "offline": {
+    "precache": ["/", "/docs/*"],
+    "fallback": "/offline",
+    "cache": { "/api/*": "network-first", "/media/*": "cache-first" },
+    "sync": true
+} }
+```
+
+- **`sw.js`**, written by `wf build` last, versioned by a hash of everything
+  else it wrote — so every deploy that changes a byte is a new version, and
+  one that changes nothing is not. It stores the shell (`index.html`,
+  `app.js`, `styles.css`) and each route `precache` names (a glob per
+  route; default `/`) with the page's own chunk and sheet, and the
+  `fallback` page. A navigation goes to the network first and falls back to
+  what is stored, then to `fallback`; a stored asset is served from the
+  store; a path `cache` names follows its policy — `network-first`,
+  `cache-first`, `stale-while-revalidate` or `network-only`; everything
+  else passes through untouched. Activating a version deletes the stores of
+  the versions before it.
+- **The update flow.** A new version installs and waits; the page reads
+  `update.available` and calls `update.apply()`, which activates it and
+  reloads **once** — not on the first install, not twice on one update: the
+  double-refresh problem is the page reloading on every `controllerchange`.
+- **`sync: true`.** A write — any method but `GET` and `HEAD`, through the
+  request engine — that fails because the network is gone is queued in
+  IndexedDB rather than thrown, and the call resolves with nothing:
+  optimistic changes stay shown. `network.queued` is how many wait. They are
+  sent in order when the connection returns — by the worker's Background
+  Sync where the browser has it, so a closed page still sends them, and by
+  the page otherwise — and a write the server refuses is dropped, not
+  retried forever. A body that cannot be stored (a `File`) is not queued.
+- **Under `wf serve`** the worker unregisters itself: a page kept from the
+  network by its own cache would hide every edit.
+
+
 ### Touches
 New `ast::ApiDecl`, `SocketDecl`, `StreamDecl`, `ChannelDecl` and parser support;
 `src/sema/types.rs` (endpoint signatures, the error union, `Stream<T>`);

@@ -193,6 +193,13 @@
             continue;
           }
         }
+        // A write made with no network, where the config asks for `sync`: it
+        // is kept and sent later, and this call resolves with nothing.
+        if (wrapped.kind === "offline" && offlineWrites && wrapped.request
+            && !/^(GET|HEAD)$/.test(wrapped.request.method)) {
+          const kept = offlineWrites(wrapped.request);
+          if (kept) return kept;
+        }
         throw wrapped;
       }
     }
@@ -200,9 +207,6 @@
 
   /// One attempt: the request as the browser makes it.
   async function once(url, opts, entry) {
-    if (typeof navigator !== "undefined" && navigator.onLine === false) {
-      throw netError("offline", "You are offline");
-    }
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
     let timedOut = false;
     let timer = null;
@@ -244,6 +248,17 @@
     };
     if (opts.onRequest) request = (await opts.onRequest(request)) || request;
 
+    // After the request is made up, so an offline write can be kept whole.
+    const offlineError = (message) => {
+      if (timer) clearTimeout(timer);
+      const error = netError("offline", message);
+      error.request = { url: request.url, method: request.method, headers: request.headers, body: request.body };
+      return error;
+    };
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      throw offlineError("You are offline");
+    }
+
     let response;
     try {
       // An upload only reports its progress through XHR, so a request that
@@ -266,7 +281,7 @@
       if (e && (e.name === "AbortError" || e.kind === "aborted")) {
         throw netError("aborted", "The request was cancelled");
       }
-      throw netError("offline", (e && e.message) || "The request could not be made");
+      throw offlineError((e && e.message) || "The request could not be made");
     }
     if (timer) clearTimeout(timer);
 

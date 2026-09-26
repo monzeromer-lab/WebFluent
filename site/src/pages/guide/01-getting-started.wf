@@ -160,7 +160,8 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
   "theme": { "name": null, "dark": null, "builtin": "full", "tokens": {} },
   "i18n": { "default_locale": "en", "locales": ["en"], "dir": "src/translations" },
   "env": {},
-  "public_env": []
+  "public_env": [],
+  "offline": { "precache": ["/"], "fallback": null, "cache": {}, "sync": false }
 }"#, title: "json")
 
         Heading("The project", id: "the-project").h3
@@ -409,6 +410,25 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
                     Table.Cell { Markdown("`public_env`") }
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("The `env` names a page may read, beyond every name beginning `PUBLIC_`. **Anything a page reads is in the bundle**, so this list is the difference between a setting and a leak ([chapter 19](/docs/guide/security#env-and-what-ends-up-in-the-bundle)).") }
+                }
+            }
+        }
+
+        Heading("offline", id: "offline").h3
+
+        Table(caption: "offline") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`offline`") }
+                    Table.Cell("absent")
+                    Table.Cell { Markdown("A service worker that stores the site for when the network is gone; absent, none is written. `precache` (routes, as globs), `fallback` (a page for a route not stored), `cache` (policies by path) and `sync` (keep writes made offline) — [chapter 14](/docs/guide/data#working-offline).") }
                 }
             }
         }

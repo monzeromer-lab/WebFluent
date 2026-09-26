@@ -1058,7 +1058,57 @@ if !network.online { Alert("You are offline — changes are queued.").warning }
 Image(hero, alt: "…", loading: if network.saveData { "lazy" } else { "eager" })
 ```
 
-`network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink`.
+`network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink`,
+and `.queued` — the writes waiting for the connection (see Offline).
+
+### Offline
+
+Name `offline` in the config and `wf build` writes a service worker, `sw.js`,
+that stores the site for when the network is gone:
+
+```json
+{ "offline": {
+    "precache": ["/", "/docs/*"],
+    "fallback": "/offline",
+    "cache": { "/api/*": "network-first" },
+    "sync": true
+} }
+```
+
+- `precache` — the routes a first visit stores, as globs (default `"/"`),
+  each with its own chunk and sheet, and the shell with them. A stored route
+  loads with no network; a navigation goes to the network first when there is
+  one, so a page that changed is not served stale.
+- `fallback` — a page's `path`, shown for a route that was not stored.
+- `cache` — how a path the build did not write is fetched: `network-first`,
+  `cache-first`, `stale-while-revalidate` or `network-only`. Anything not
+  named passes through untouched.
+- `sync` — a write (any method but `GET` and `HEAD`, through `fetch` or an
+  `api`) that fails for want of a network is kept and sent, in order, when
+  the connection returns — by Background Sync where the browser has it, so a
+  closed page still sends it. The call resolves with nothing, so what it
+  showed stays shown. A server that answers has the write, even to refuse
+  it; one that is down or asks to wait keeps it for later. A `File` body is
+  not kept.
+
+The worker is versioned by a hash of everything the build wrote, so a
+deploy that changes a byte is a new version. It installs and waits:
+
+```wf
+page Home(path: "/", title: "Home", description: "The front page.") {
+    if update.available {
+        Button("A new version is ready — reload") { on click { update.apply() } }
+    }
+    if network.queued > 0 {
+        Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    Heading("Home").h1
+}
+```
+
+`update.apply()` takes the new version and reloads the page once — not on
+the first install, and not twice for one update. Under `wf serve` the
+worker takes itself away, so an edit is never hidden behind its own cache.
 
 ### Showing a change before the server agrees
 
@@ -1843,6 +1893,7 @@ build/
 ├── styles.css            # tokens, only the component rules the project uses,
 │                         # the project's own .css files, and the compiled
 │                         # style { } rules more than one page shares
+├── sw.js                 # with "offline" in the config: the service worker
 ├── *.gz                  # every text file above, gzipped, beside itself
 └── …                     # public/ copied to the root, sitemap.xml, robots.txt
 ```
@@ -2455,6 +2506,12 @@ site's other tabs, and `WF.store`/`WF.host` were renamed.
     },
     "env": {},
     "public_env": [],
+    "offline": {
+        "precache": ["/"],
+        "fallback": null,
+        "cache": {},
+        "sync": false
+    },
     "i18n": {
         "defaultLocale": "en",
         "locales": ["en"],

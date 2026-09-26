@@ -65,7 +65,56 @@ pub struct ProjectConfig {
     /// rather than a key in the bundle nobody noticed.
     #[serde(default)]
     pub public_env: Vec<String>,
+    /// A service worker, and what it keeps for when the network is gone.
+    /// Absent, nothing is registered and no `sw.js` is written.
+    #[serde(default)]
+    pub offline: Option<OfflineConfig>,
 }
+
+/// `"offline": { … }` — the site working without the network.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OfflineConfig {
+    /// The routes a first visit stores, as globs over page paths:
+    /// `"/"`, `"/docs/*"`, `"*"` for every route a static build writes.
+    #[serde(default = "default_precache")]
+    pub precache: Vec<String>,
+    /// The page shown for a route that is not stored, when the network is
+    /// gone: a page's `path`, stored with the rest.
+    #[serde(default)]
+    pub fallback: Option<String>,
+    /// How a path the build did not write is fetched, by glob:
+    /// `network-first`, `cache-first`, `stale-while-revalidate` or
+    /// `network-only`. A path none of these name passes through untouched.
+    #[serde(default)]
+    pub cache: std::collections::BTreeMap<String, String>,
+    /// Queue a write made while offline — any method but `GET` and `HEAD`,
+    /// through the request engine — and send it when the connection returns.
+    #[serde(default)]
+    pub sync: bool,
+}
+
+fn default_precache() -> Vec<String> {
+    vec!["/".to_string()]
+}
+
+impl Default for OfflineConfig {
+    fn default() -> Self {
+        OfflineConfig {
+            precache: default_precache(),
+            fallback: None,
+            cache: Default::default(),
+            sync: false,
+        }
+    }
+}
+
+/// The ways a path `offline.cache` names may be fetched.
+pub const OFFLINE_STRATEGIES: &[&str] = &[
+    "network-first",
+    "cache-first",
+    "stale-while-revalidate",
+    "network-only",
+];
 
 /// How long an animation runs and how it is paced, when the element does
 /// not say.
@@ -715,6 +764,7 @@ impl ProjectConfig {
                 ..Default::default()
             },
             env: Default::default(),
+            offline: None,
         }
     }
 }

@@ -225,7 +225,8 @@ here is the default, so a key you never write behaves as it reads:
   "theme": { "name": null, "dark": null, "builtin": "full", "tokens": {} },
   "i18n": { "default_locale": "en", "locales": ["en"], "dir": "src/translations" },
   "env": {},
-  "public_env": []
+  "public_env": [],
+  "offline": { "precache": ["/"], "fallback": null, "cache": {}, "sync": false }
 }
 ```
 
@@ -289,6 +290,12 @@ here is the default, so a key you never write behaves as it reads:
 | `i18n.default_locale`, `i18n.locales`, `i18n.dir` | `"en"`, `["en"]`, `"src/translations"` | Translations ([chapter 15](15-i18n.md)). |
 | `env` | `{}` | Values read in code as `env.NAME`, fixed at build time. |
 | `public_env` | `[]` | The `env` names a page may read, beyond every name beginning `PUBLIC_`. **Anything a page reads is in the bundle**, so this list is the difference between a setting and a leak ([chapter 19](19-security.md#env-and-what-ends-up-in-the-bundle)). |
+
+### `offline`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `offline` | absent | A service worker that stores the site for when the network is gone; absent, none is written. `precache` (routes, as globs), `fallback` (a page for a route not stored), `cache` (policies by path) and `sync` (keep writes made offline) — [chapter 14](14-data.md#working-offline). |
 
 ## Next
 

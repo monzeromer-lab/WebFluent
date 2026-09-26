@@ -268,7 +268,72 @@ if !network.online { Alert("You are offline — changes are queued.").warning }
 ```
 
 `network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink`
-— live, so a page can say what it does on a slow line or none at all.
+— live, so a page can say what it does on a slow line or none at all — and
+`.queued`, the writes waiting for the connection when the site works offline.
+
+## Working offline
+
+Name `offline` in `webfluent.app.json` and the build writes a service worker,
+`sw.js`, that stores the site for when the network is gone:
+
+```json
+{ "offline": {
+    "precache": ["/", "/docs/*"],
+    "fallback": "/offline",
+    "cache": { "/api/*": "network-first" },
+    "sync": true
+} }
+```
+
+| Key | What it does |
+|---|---|
+| `precache` | The routes a first visit stores, as globs — `"/"` by default. Each is stored with its own chunk and sheet, and the shell with them. |
+| `fallback` | A page's `path`, shown for a route that was not stored. |
+| `cache` | How a path the build did not write is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through. |
+| `sync` | A write made with no network is kept and sent later (below). |
+
+A stored route loads with no network at all. When there is one, a
+navigation still goes to it first, so a page that changed is never served
+stale while the server is there to ask.
+
+### A write made offline
+
+With `sync`, a write — any method but `GET` and `HEAD`, through `fetch` or
+an `api` — that fails because the network is gone is kept instead of
+thrown, and the call resolves with nothing, so what the page showed stays
+shown. The writes are sent in order when the connection returns: by
+Background Sync where the browser has it, so a closed tab still sends them,
+and by the page otherwise. A server that answers has the write, even if it
+refuses it; one that is down or asks to wait keeps it for later. A `File`
+body is not kept, and its call fails as before.
+
+`network.queued` is how many wait.
+
+### A new version
+
+The worker is versioned by a hash of everything the build wrote, so any
+deploy that changes a byte is a new version. It installs beside the old one
+and waits for the page to take it:
+
+```wf
+page Home(path: "/", title: "Home", description: "The front page.") {
+    if update.available {
+        Button("A new version is ready — reload") { on click { update.apply() } }
+    }
+    if network.queued > 0 {
+        Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    Heading("Home").h1
+}
+```
+
+`update.apply()` takes it and reloads the page once: never on the first
+install, which only takes over a page that already works, and never twice
+for one update. The old version's store is deleted when the new one takes
+over.
+
+Under `wf serve` the worker takes itself away: a page answered from its own
+store would hide every edit you make.
 
 ## `await fetch` in an action
 

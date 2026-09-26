@@ -142,6 +142,17 @@ page Doc(path: "/") {
 }
 
 // md-docs/14-data.md
+page Home(path: "/", title: "Home", description: "The front page.") {
+    if update.available {
+        Button("A new version is ready — reload") { on click { update.apply() } }
+    }
+    if network.queued > 0 {
+        Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    Heading("Home").h1
+}
+
+// md-docs/14-data.md
 type Todo { id: String, title: String, done: Bool = false }
 page Todos(path: "/") {
     state todos: [Todo] = []

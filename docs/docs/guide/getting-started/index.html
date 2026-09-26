@@ -408,7 +408,8 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
   &quot;theme&quot;: { &quot;name&quot;: null, &quot;dark&quot;: null, &quot;builtin&quot;: &quot;full&quot;, &quot;tokens&quot;: {} },
   &quot;i18n&quot;: { &quot;default_locale&quot;: &quot;en&quot;, &quot;locales&quot;: [&quot;en&quot;], &quot;dir&quot;: &quot;src/translations&quot; },
   &quot;env&quot;: {},
-  &quot;public_env&quot;: []
+  &quot;public_env&quot;: [],
+  &quot;offline&quot;: { &quot;precache&quot;: [&quot;/&quot;], &quot;fallback&quot;: null, &quot;cache&quot;: {}, &quot;sync&quot;: false }
 }</code>
                             </div>
                             <h3 class="wf-heading">The project</h3>
@@ -1011,6 +1012,32 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                                         <td>
                                             <div class="wf-markdown">
 <p>The <code>env</code> names a page may read, beyond every name beginning <code>PUBLIC_</code>. <strong>Anything a page reads is in the bundle</strong>, so this list is the difference between a setting and a leak (<a href="/WebFluent/docs/guide/security#env-and-what-ends-up-in-the-bundle">chapter 19</a>).</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h3 class="wf-heading">offline</h3>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">offline</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Default</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>offline</code></p>
+                                            </div>
+                                        </td>
+                                        <td>absent</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A service worker that stores the site for when the network is gone; absent, none is written. <code>precache</code> (routes, as globs), <code>fallback</code> (a page for a route not stored), <code>cache</code> (policies by path) and <code>sync</code> (keep writes made offline) — <a href="/WebFluent/docs/guide/data#working-offline">chapter 14</a>.</p>
                                             </div>
                                         </td>
                                     </tr>

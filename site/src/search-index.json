@@ -824,6 +824,12 @@
  {
   "chapter": "14",
   "title": "Data",
+  "section": "Working offline",
+  "route": "/docs/guide/data#working-offline"
+ },
+ {
+  "chapter": "14",
+  "title": "Data",
   "section": "await fetch in an action",
   "route": "/docs/guide/data#await-fetch-in-an-action"
  },
