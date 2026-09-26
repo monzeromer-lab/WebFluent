@@ -155,6 +155,32 @@ test("a select's value is applied once its options exist, and follows a signal",
   assert.equal(select.value, "region");
 });
 
+test("a select's value takes once options appended after it arrive", async () => {
+  const { WF, document } = loadRuntime();
+  const create = document.createElement.bind(document);
+  document.createElement = (tag) => {
+    const el = create(tag);
+    if (tag === "select") {
+      let current = "";
+      Object.defineProperty(el, "value", {
+        get: () => current,
+        set: (v) => {
+          const options = el.childNodes.map((o) => o.value);
+          if (options.includes(v)) current = v;
+        },
+      });
+    }
+    return el;
+  };
+  // What codegen emits: the element first, its options as later statements.
+  const select = WF.el("select", { value: "b" });
+  select.appendChild(WF.el("option", { value: "a" }, "A"));
+  select.appendChild(WF.el("option", { value: "b" }, "B"));
+  assert.equal(select.value, "", "nothing to select yet");
+  await Promise.resolve();
+  assert.equal(select.value, "b", "taken once the options are there");
+});
+
 test("an icon button draws its glyph once", () => {
   const { WF, document } = loadRuntime();
   // The fake DOM ignores markup assigned to innerHTML; count the assignments.

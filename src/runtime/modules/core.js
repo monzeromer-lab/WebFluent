@@ -263,10 +263,22 @@
     }
     appendChildren(el, children);
     if (iconName !== undefined && lateHooks["data-icon"]) lateHooks["data-icon"](el, iconName);
+    // A select ignores a value it has no option for. The options may be
+    // passed as children here, or appended by the statements that follow
+    // this call; when the assignment does not take, try again once they are.
+    const applySelectValue = (v) => {
+      if (v == null) return;
+      el.value = v;
+      if (el.value !== String(v)) {
+        queueMicrotask(() => {
+          el.value = v;
+        });
+      }
+    };
     if (typeof selectValue === "function") {
-      effect(() => { const v = selectValue(); if (v != null) el.value = v; });
-    } else if (selectValue != null) {
-      el.value = selectValue;
+      effect(() => applySelectValue(selectValue()));
+    } else {
+      applySelectValue(selectValue);
     }
     if (tag === "img" && !el.hasAttribute("loading")) _imageDefaults(el);
     return el;
