@@ -2563,10 +2563,23 @@ impl<'a, 'p> Checker<'a, 'p> {
                         };
                         Type::list(ret)
                     }
-                    "filter" | "slice" | "concat" | "reverse" | "sort" => {
+                    "filter" | "slice" | "concat" | "reverse" => {
                         for (i, _) in args.iter().enumerate() {
                             self.infer_arg(args, i, Some(&lambda(Type::Bool)));
                         }
+                        Type::list(item)
+                    }
+                    // A comparator is handed two elements, not an element and
+                    // an index: `(a, b) => a.age - b.age`.
+                    "sort" => {
+                        self.infer_arg(
+                            args,
+                            0,
+                            Some(&Type::Func(
+                                vec![item.clone(), item.clone()],
+                                Box::new(Type::Number),
+                            )),
+                        );
                         Type::list(item)
                     }
                     "find" => {
@@ -3508,6 +3521,21 @@ mod tests {
                 None => d.message.clone(),
             })
             .collect()
+    }
+
+    /// `sort` hands its comparator two elements. Typed like `map`'s
+    /// `(element, index)`, the second parameter read as a `Number`.
+    #[test]
+    fn a_sort_comparator_takes_two_elements() {
+        let src = r#"
+            type Row { age: Number }
+            store S {
+                state rows: [Row] = []
+                derived oldest = rows.slice().sort((a, b) => b.age - a.age)
+            }
+            page P(path: "/") { use S  Text("{S.oldest.length}") }
+        "#;
+        assert_eq!(errors(src), Vec::<String>::new());
     }
 
     /// A store's members are mutually visible. Inferring each derived value
