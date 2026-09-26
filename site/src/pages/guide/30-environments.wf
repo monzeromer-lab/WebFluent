@@ -1,0 +1,67 @@
+/// Chapter 30 of the guide, written from md-docs/30-environments.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page EnvironmentsGuide(path: "/docs/guide/environments", title: "Environments", description: "env values from the config, a .env file and the shell; their precedence; public and private names; and a build per environment.", layout: DocsShell("Environments", chapter: t("guide.chapter", { n: "30" }), blurb: "Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read.", source: "md-docs/30-environments.md", sections: [Anchor(id: "where-values-come-from", label: "Where values come from"), Anchor(id: "public-and-private-names", label: "Public and private names"), Anchor(id: "a-build-per-environment", label: "A build per environment"), Anchor(id: "other-settings-that-change-per-deploy", label: "Other settings that change per deploy"), Anchor(id: "what-a-review-asks", label: "What a review asks")], prevTo: "/docs/guide/deploying", prevLabel: "29. {t("ch.29")}", nextTo: "/docs/guide/performance", nextLabel: "31. {t("ch.31")}")) {
+    Stack(gap: .lg) {
+        Markdown("A site usually needs a few values that differ between your machine, staging and production: the API's address, an analytics key, a feature switch. In WebFluent they are read as `env.NAME` and fixed **at build time** — the build writes the value into the output, so there is nothing to configure on the host.")
+
+        CodeBlock(#"const API = env.PUBLIC_API ?? "/api"
+const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
+
+page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
+    resource rows = fetch("{API}/rows")
+    Heading("Rows").h1
+    if FEATURES.billing { Link("Billing", to: "/billing") }
+    match rows {
+        loading { Spinner }
+        error(e) { Text(e.message).danger }
+        ready(r) { Text("{r.length} rows") }
+    }
+}"#, title: "wf")
+
+        Markdown("A name nothing sets reads as nothing, so `??` supplies a default.")
+
+        Heading("Where values come from", id: "where-values-come-from").h2
+
+        Markdown("Three places, later ones winning:\n\n1. **The config's `env` map**, committed with the project:\n\n   ```json \{ \"env\": \{ \"PUBLIC_API\": \"/api\", \"PUBLIC_BILLING\": \"off\" \} \} ```\n\n2. **A `.env` file** beside the config — `NAME=value` lines, `#` comments, an optional `export ` and quotes. Not committed (`wf init` puts it in `.gitignore`):\n\n   ```bash PUBLIC_API=http://localhost:8080/api PUBLIC_BILLING=on ```\n\n3. **The shell** the build runs in — for CI and one-off builds:\n\n   ```bash PUBLIC_API=https://api.example.com wf build ```\n\n   The shell supplies a name the config or `.env` already declares, or any name that is public (below). It does not bring in every variable the build happens to run with.\n\n**4.1.** Earlier versions read only the config's `env` map.")
+
+        Heading("Public and private names", id: "public-and-private-names").h2
+
+        Markdown("`env.NAME` is replaced by its value in the JavaScript and HTML every reader downloads. That is right for an API address and wrong for an API key — so a page, a component, a store or an `api` block may only read a name that says it is public:\n\n- a name beginning **`PUBLIC_`**, or\n- a name listed in the config's **`public_env`**:")
+
+        CodeBlock(#"{
+  "env": { "PUBLIC_API": "/api/v1", "ANALYTICS_ID": "UA-1", "STRIPE_SECRET": "sk_…" },
+  "public_env": ["ANALYTICS_ID"]
+}"#, title: "json")
+
+        Markdown("`env.PUBLIC_API` and `env.ANALYTICS_ID` may be read from a page; `env.STRIPE_SECRET` read from one is a **compile error**, naming the file and the line. A private value is still there for [server rendering](/docs/guide/server-rendering), which runs where a secret stays secret — and it never reaches the bundle: the build writes only public values into it.\n\nA secret a third party needs belongs in a request your server makes, not in a page ([Security](/docs/guide/security#sessions-and-tokens)).")
+
+        Heading("A build per environment", id: "a-build-per-environment").h2
+
+        Markdown("The same source, different values:")
+
+        Terminal(lines: [
+                Line(command: "wf build                                              # .env on your machine"),
+                Line(command: "PUBLIC_API=https://staging.example.com/api wf build   # staging"),
+                Line(command: "PUBLIC_API=https://api.example.com wf build           # production")
+            ])
+
+        Markdown("In CI, set the variables in the job:")
+
+        CodeBlock(#"- run: ~/.webfluent/bin/wf build
+  env:
+    PUBLIC_API: https://api.example.com
+    PUBLIC_ANALYTICS_ID: ${{ vars.ANALYTICS_ID }}"#, title: "yaml")
+
+        Heading("Other settings that change per deploy", id: "other-settings-that-change-per-deploy").h2
+
+        Markdown("- **`build.base_path`** — the sub-path the site is served under. Every link, asset and route is prefixed ([Deploying](/docs/guide/deploying)).\n- **`meta.site_url`** — the absolute address, for canonical links, the sitemap and sharing tags.\n- **`theme.tokens`** — design tokens a pipeline supplies, on top of the theme: `\{ \"theme\": \{ \"tokens\": \{ \"color-primary\": \"#8B5CF6\" \} \} \}`.\n\nThese live in `webfluent.app.json`. There is no separate config per environment; a pipeline that needs one writes the file before building.")
+
+        Heading("What a review asks", id: "what-a-review-asks").h2
+
+        Terminal(lines: [
+                Line(command: "wf audit")
+            ])
+
+        Markdown("lists every `env` name the project has, where it is read, and whether it is public — beside every other thing the site trusts ([Security](/docs/guide/security#wf-audit)).")
+    }
+}

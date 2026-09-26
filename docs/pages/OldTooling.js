@@ -1,0 +1,2 @@
+function Page_OldTooling(params){const _root=document.createDocumentFragment();const _e428=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.37"));_root.appendChild(_e428);const _e429=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/cli"},()=>WF.i18n.t("ch.37"));WF.activeLink(_e429,"/docs/guide/cli",false);_root.appendChild(_e429);return _root;}
+WF.page("OldTooling",Page_OldTooling);

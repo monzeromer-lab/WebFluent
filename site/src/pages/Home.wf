@@ -121,7 +121,26 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
             IdeaCard(t("idea.3.title"), number: "03", body: t("idea.3.body"))
             IdeaCard(t("idea.4.title"), number: "04", body: t("idea.4.body"))
             IdeaCard(t("idea.5.title"), number: "05", body: t("idea.5.body"))
-            IdeaCard(t("ideas.react.title"), body: t("ideas.react.body"), link: t("ideas.react.link"), linkTo: "/docs/guide/state", highlight: true)
+            IdeaCard(t("ideas.react.title"), body: t("ideas.react.body"), link: t("ideas.react.link"), linkTo: "/docs/guide/coming-from", highlight: true)
+        }
+    }
+
+    // ------------------------------------------------------------ batteries
+    Stack(gap: .lg, class: "landing-section") {
+        style { gap: 32px; max-width: 1280px; margin: 0 auto; padding: 80px 40px; border-bottom: 1px solid $border; @media (max-width: 768px) { padding: 32px 16px; gap: 16px } }
+        Stack(gap: .xs) {
+            style { gap: 10px }
+            Text(t("batteries.eyebrow"), class: "overline")
+            Heading(t("batteries.title")).h2 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em; @media (max-width: 768px) { font-size: 26px; line-height: 32px } } }
+        }
+        Grid(columns: 3, gap: .lg, class: "ideas-grid") {
+            style { gap: 24px; @media (max-width: 768px) { gap: 16px } }
+            IdeaCard(t("bat.api.title"), body: t("bat.api.body"), link: t("bat.more"), linkTo: "/docs/guide/data")
+            IdeaCard(t("bat.forms.title"), body: t("bat.forms.body"), link: t("bat.more"), linkTo: "/docs/guide/forms")
+            IdeaCard(t("bat.realtime.title"), body: t("bat.realtime.body"), link: t("bat.more"), linkTo: "/docs/guide/realtime")
+            IdeaCard(t("bat.offline.title"), body: t("bat.offline.body"), link: t("bat.more"), linkTo: "/docs/guide/offline")
+            IdeaCard(t("bat.tests.title"), body: t("bat.tests.body"), link: t("bat.more"), linkTo: "/docs/guide/testing")
+            IdeaCard(t("bat.security.title"), body: t("bat.security.body"), link: t("bat.more"), linkTo: "/docs/guide/security")
         }
     }
 

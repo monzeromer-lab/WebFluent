@@ -1,6 +1,8 @@
-/// The guide's chapter nav, as the design draws it: 280px, three groups
-/// under overline labels, each chapter with its number in mono; the one
-/// whose `to` matches the route carries the rail, the wash and the bold.
+/// The guide's chapter nav, written from the chapters' own metadata by
+/// scripts/site-from-guide.py; edit the guide, not this file. 280px, a group
+/// per part of the guide under an overline label, each chapter with its
+/// number in mono; the one whose `to` matches the route carries the rail,
+/// the wash and the bold.
 component DocSidebar {
     Sidebar(aria-label: t("nav.chapters")) {
         style {
@@ -10,6 +12,7 @@ component DocSidebar {
             gap: 18px
             border-inline-end: 1px solid $border
             background: $color-background
+            overflow-y: auto
             & .wf-sidebar__item { height: 32px; padding: 0 10px; gap: 10px; border-radius: 4px; font-size: 13px; line-height: 20px; color: $color-text-muted }
             & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
             & .wf-sidebar__item.active { padding-inline-start: 7px; border-inline-start: 3px solid $color-primary; border-radius: 0 4px 4px 0; background: $brand-subtle; color: $color-text; font-weight: 600 }
@@ -21,33 +24,64 @@ component DocSidebar {
             & .group-label:first-child { margin-top: 0 }
         }
 
+        Text(t("nav.group.start"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/introduction") { Text("01", class: "num")  Text(t("ch.01")) }
+        Sidebar.Item(to: "/docs/guide/getting-started") { Text("02", class: "num")  Text(t("ch.02")) }
+        Sidebar.Item(to: "/docs/guide/tutorial") { Text("03", class: "num")  Text(t("ch.03")) }
+        Sidebar.Item(to: "/docs/guide/coming-from") { Text("04", class: "num")  Text(t("ch.04")) }
+
         Text(t("nav.group.basics"), class: "group-label")
-        Sidebar.Item(to: "/docs/guide/getting-started") { Text("01", class: "num")  Text(t("ch.01")) }
-        Sidebar.Item(to: "/docs/guide/language-basics") { Text("02", class: "num")  Text(t("ch.02")) }
-        Sidebar.Item(to: "/docs/guide/pages-and-routing") { Text("03", class: "num")  Text(t("ch.03")) }
-        Sidebar.Item(to: "/docs/guide/elements") { Text("04", class: "num")  Text(t("ch.04")) }
+        Sidebar.Item(to: "/docs/guide/language-basics") { Text("05", class: "num")  Text(t("ch.05")) }
+        Sidebar.Item(to: "/docs/guide/pages-and-routing") { Text("06", class: "num")  Text(t("ch.06")) }
+        Sidebar.Item(to: "/docs/guide/elements") { Text("07", class: "num")  Text(t("ch.07")) }
+        Sidebar.Item(to: "/docs/guide/state") { Text("08", class: "num")  Text(t("ch.08")) }
+        Sidebar.Item(to: "/docs/guide/events") { Text("09", class: "num")  Text(t("ch.09")) }
+        Sidebar.Item(to: "/docs/guide/control-flow") { Text("10", class: "num")  Text(t("ch.10")) }
+        Sidebar.Item(to: "/docs/guide/components") { Text("11", class: "num")  Text(t("ch.11")) }
+        Sidebar.Item(to: "/docs/guide/stores") { Text("12", class: "num")  Text(t("ch.12")) }
+        Sidebar.Item(to: "/docs/guide/types") { Text("13", class: "num")  Text(t("ch.13")) }
+        Sidebar.Item(to: "/docs/guide/expressions") { Text("14", class: "num")  Text(t("ch.14")) }
 
-        Text(t("nav.group.behaviour"), class: "group-label")
-        Sidebar.Item(to: "/docs/guide/state") { Text("05", class: "num")  Text(t("ch.05")) }
-        Sidebar.Item(to: "/docs/guide/events-and-forms") { Text("06", class: "num")  Text(t("ch.06")) }
-        Sidebar.Item(to: "/docs/guide/control-flow") { Text("07", class: "num")  Text(t("ch.07")) }
-        Sidebar.Item(to: "/docs/guide/components") { Text("08", class: "num")  Text(t("ch.08")) }
-        Sidebar.Item(to: "/docs/guide/stores") { Text("09", class: "num")  Text(t("ch.09")) }
-        Sidebar.Item(to: "/docs/guide/types") { Text("10", class: "num")  Text(t("ch.10")) }
-        Sidebar.Item(to: "/docs/guide/expressions") { Text("11", class: "num")  Text(t("ch.11")) }
+        Text(t("nav.group.building"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/styling") { Text("15", class: "num")  Text(t("ch.15")) }
+        Sidebar.Item(to: "/docs/guide/forms") { Text("16", class: "num")  Text(t("ch.16")) }
+        Sidebar.Item(to: "/docs/guide/data") { Text("17", class: "num")  Text(t("ch.17")) }
+        Sidebar.Item(to: "/docs/guide/realtime") { Text("18", class: "num")  Text(t("ch.18")) }
+        Sidebar.Item(to: "/docs/guide/offline") { Text("19", class: "num")  Text(t("ch.19")) }
+        Sidebar.Item(to: "/docs/guide/motion") { Text("20", class: "num")  Text(t("ch.20")) }
+        Sidebar.Item(to: "/docs/guide/i18n") { Text("21", class: "num")  Text(t("ch.21")) }
+        Sidebar.Item(to: "/docs/guide/accessibility") { Text("22", class: "num")  Text(t("ch.22")) }
+        Sidebar.Item(to: "/docs/guide/security") { Text("23", class: "num")  Text(t("ch.23")) }
+        Sidebar.Item(to: "/docs/guide/testing") { Text("24", class: "num")  Text(t("ch.24")) }
 
-        Text(t("nav.group.surface"), class: "group-label")
-        Sidebar.Item(to: "/docs/guide/styling") { Text("12", class: "num")  Text(t("ch.12")) }
-        Sidebar.Item(to: "/docs/guide/motion") { Text("13", class: "num")  Text(t("ch.13")) }
-        Sidebar.Item(to: "/docs/guide/data") { Text("14", class: "num")  Text(t("ch.14")) }
-        Sidebar.Item(to: "/docs/guide/i18n") { Text("15", class: "num")  Text(t("ch.15")) }
-        Sidebar.Item(to: "/docs/guide/content") { Text("16", class: "num")  Text(t("ch.16")) }
-        Sidebar.Item(to: "/docs/guide/outputs") { Text("17", class: "num")  Text(t("ch.17")) }
+        Text(t("nav.group.shipping"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/project-structure") { Text("25", class: "num")  Text(t("ch.25")) }
+        Sidebar.Item(to: "/docs/guide/static-and-spa") { Text("26", class: "num")  Text(t("ch.26")) }
+        Sidebar.Item(to: "/docs/guide/content") { Text("27", class: "num")  Text(t("ch.27")) }
+        Sidebar.Item(to: "/docs/guide/media") { Text("28", class: "num")  Text(t("ch.28")) }
+        Sidebar.Item(to: "/docs/guide/deploying") { Text("29", class: "num")  Text(t("ch.29")) }
+        Sidebar.Item(to: "/docs/guide/environments") { Text("30", class: "num")  Text(t("ch.30")) }
+        Sidebar.Item(to: "/docs/guide/performance") { Text("31", class: "num")  Text(t("ch.31")) }
+        Sidebar.Item(to: "/docs/guide/interop") { Text("32", class: "num")  Text(t("ch.32")) }
+        Sidebar.Item(to: "/docs/guide/pdf-and-slides") { Text("33", class: "num")  Text(t("ch.33")) }
+        Sidebar.Item(to: "/docs/guide/server-rendering") { Text("34", class: "num")  Text(t("ch.34")) }
+        Sidebar.Item(to: "/docs/cookbook") { Text("35", class: "num")  Text(t("ch.35")) }
 
         Text(t("nav.group.reference"), class: "group-label")
-        Sidebar.Item(to: "/docs/guide/tooling") { Text("18", class: "num")  Text(t("ch.18")) }
-        Sidebar.Item(to: "/docs/guide/security") { Text("19", class: "num")  Text(t("ch.19")) }
-        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("20", class: "num")  Text(t("ch.20")) }
-        Sidebar.Item(to: "/docs/cookbook") { Text("21", class: "num")  Text(t("ch.21")) }
+        Sidebar.Item(to: "/docs/reference", active: .prefix) { Text("36", class: "num")  Text(t("ch.36")) }
+        Sidebar.Item(to: "/docs/guide/cli") { Text("37", class: "num")  Text(t("ch.37")) }
+        Sidebar.Item(to: "/docs/guide/config") { Text("38", class: "num")  Text(t("ch.38")) }
+        Sidebar.Item(to: "/docs/guide/diagnostics") { Text("39", class: "num")  Text(t("ch.39")) }
+        Sidebar.Item(to: "/docs/guide/built-ins") { Text("40", class: "num")  Text(t("ch.40")) }
+        Sidebar.Item(to: "/docs/guide/tokens") { Text("41", class: "num")  Text(t("ch.41")) }
+        Sidebar.Item(to: "/docs/guide/runtime") { Text("42", class: "num")  Text(t("ch.42")) }
+        Sidebar.Item(to: "/docs/guide/grammar") { Text("43", class: "num")  Text(t("ch.43")) }
+
+        Text(t("nav.group.help"), class: "group-label")
+        Sidebar.Item(to: "/docs/guide/troubleshooting") { Text("44", class: "num")  Text(t("ch.44")) }
+        Sidebar.Item(to: "/docs/guide/upgrading") { Text("45", class: "num")  Text(t("ch.45")) }
+        Sidebar.Item(to: "/docs/guide/browser-support") { Text("46", class: "num")  Text(t("ch.46")) }
+        Sidebar.Item(to: "/docs/guide/glossary") { Text("47", class: "num")  Text(t("ch.47")) }
+        Sidebar.Item(to: "/docs/guide/contributing") { Text("48", class: "num")  Text(t("ch.48")) }
     }
 }

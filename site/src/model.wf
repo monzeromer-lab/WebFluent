@@ -15,7 +15,8 @@ type SearchRow {
     chapter: String,
     title: String,
     section: String,
-    route: String
+    route: String,
+    words: String = ""
 }
 
 /// Where the source lives. Used by the nav, the footer and every "edit this page" link.

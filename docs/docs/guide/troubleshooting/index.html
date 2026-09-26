@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting</title>
+    <meta name="description" content="Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Troubleshooting">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Troubleshooting">
+    <meta name="twitter:description" content="Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting","name":"Troubleshooting","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Troubleshooting","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/TroubleshootingGuide.js" data-wf-page="TroubleshootingGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">4.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/troubleshooting" aria-current="page">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 44</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Troubleshooting</h1>
+                        <p class="wf-text wf-s38239618">The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>Every diagnostic has its own entry in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>; search it for the code in brackets. This chapter covers what goes wrong without one.</p>
+                            </div>
+                            <h2 class="wf-heading">Installing</h2>
+                            <div class="wf-markdown">
+<p><strong><code>wf: command not found</code> after installing.</strong> Open a new terminal: the installer added <code>~/.webfluent/bin</code> to your shell's startup file, which the open session read before. Or run it by its full path, <code>~/.webfluent/bin/wf</code>.</p>
+<p><strong>The installer says it cannot find the latest version.</strong> GitHub's API limits unauthenticated requests. Pin one: <code>WF_VERSION=v4.0.1</code>.</p>
+<p><strong>Linux on ARM (a Raspberry Pi, an ARM server).</strong> There is no prebuilt binary yet: <code>cargo install webfluent</code>.</p>
+<p><strong><code>wf-lsp</code> not found by the editor.</strong> It is a separate binary; see <a href="/WebFluent/docs/guide/getting-started#set-up-your-editor">Getting started</a>.</p>
+                            </div>
+                            <h2 class="wf-heading">Building</h2>
+                            <div class="wf-markdown">
+<p><strong>&quot;is not an element or a statement a render block can hold&quot;.</strong> Code that does something — <code>n = n + 1</code>, a call that is not a store's set-up — was written loose in a page. Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code>.</p>
+<p><strong>&quot;Only the first argument may be positional&quot;.</strong> An element takes one unnamed value; name the rest: <code>Card(&quot;Laptop&quot;, price: 999)</code>.</p>
+<p><strong>&quot;a WebFluent 2 declaration&quot;.</strong> The file uses the old grammar (<code>Page</code>, <code>Component</code>). Run <code>wf migrate</code>.</p>
+<p><strong>A warning I do not understand.</strong> Every code is in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a> with an example and a fix. A named argument written to the element &quot;as an attribute&quot; is almost always a misspelled prop.</p>
+<p><strong>The build is slow.</strong> The first build resizes every <code>image</code>; later builds reuse <code>.wf-cache/</code>. Do not delete it in CI if you can cache it.</p>
+                            </div>
+                            <h2 class="wf-heading">In the browser</h2>
+                            <div class="wf-markdown">
+<p><strong>The page is blank after deploying, but works locally.</strong> The site is served under a sub-path and the build does not know it. Set <code>build.base_path</code> to the path (<code>&quot;/my-repo&quot;</code> on GitHub Pages) and rebuild.</p>
+<p><strong>Reloading any page but the home page is a 404.</strong> A single-page build needs the host to answer every path with <code>index.html</code> (<a href="/WebFluent/docs/guide/deploying">Deploying</a>), or build static with <code>build.ssg: true</code>.</p>
+<p><strong>&quot;Refused to load the script&quot; / &quot;violates the following Content Security Policy&quot;.</strong> <code>build.csp</code> ships a strict policy. A script from another origin has to be declared: load a module through <code>external</code>, fonts and stylesheets through <code>meta.fonts</code> and <code>meta.stylesheets</code> — each widens the policy for exactly that origin. An inline <code>&lt;script&gt;</code> in <code>public/</code> HTML is never allowed; move it to a file.</p>
+<p><strong>An icon shows as a word.</strong> Its name is not one of the 32 built-in icons (<a href="/WebFluent/docs/guide/media#icons">Media</a>), or it is built at run time, which the build cannot see — set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code> or name it literally.</p>
+<p><strong><code>WF.something is not a function</code> from my own script.</strong> The build left that runtime module out because nothing in your <code>.wf</code> code uses it. Set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>.</p>
+<p><strong>The page shows old content after a deploy.</strong> Either an HTTP cache held <code>app.js</code> (serve it with <code>Cache-Control: no-cache</code>), or — on a site with <code>offline</code> — the service worker is serving its store until the new version is taken. Show an update button (<code>update.available</code>), or reload twice.</p>
+<p><strong>My changes do not show under <code>wf serve</code>.</strong> Check the terminal: a failed build keeps the last good page and draws the error over it. An old service worker from a production build on the same port can also hold pages; <code>wf serve</code> removes it on the next load.</p>
+<p><strong>A layout that is right after the page loads jumps first.</strong> Something depends on <code>viewport</code>, which is unknown until the script runs. Use <a href="/WebFluent/docs/guide/styling#responsive-values">responsive values</a> for layout.</p>
+                            </div>
+                            <h2 class="wf-heading">Styling</h2>
+                            <div class="wf-markdown">
+<p><strong>My <code>style { }</code> does not apply.</strong> Check the property name (a style block is real CSS) and the token (<code>$brand-colour</code> that no theme defines resolves to nothing). Values end at a newline, a <code>;</code>, or two spaces before the next declaration.</p>
+<p><strong>My stylesheet does not override a built-in.</strong> Your <code>.css</code> files come after the built-ins' rules, so on equal specificity they win — but <code>.wf-btn--primary</code> beats <code>.button</code>. Match the built-in's selector, or change the tokens it reads, or use <code>style { }</code> on the element.</p>
+<p><strong>Dark mode does not switch.</strong> Name the dark theme in the config: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code>. A colour written raw instead of a token does not change with the theme.</p>
+                            </div>
+                            <h2 class="wf-heading">Data</h2>
+                            <div class="wf-markdown">
+<p><strong>A request fails with a CORS error.</strong> The API is on another origin and does not allow this one. Allow it on the server, or serve the API from the same origin (<a href="/WebFluent/docs/guide/data#an-api-on-another-origin">Data</a>).</p>
+<p><strong><code>env.MY_VALUE</code> is a compile error.</strong> A page may only read public names: rename it <code>PUBLIC_MY_VALUE</code> or list it in <code>public_env</code> — only if anyone may see it (<a href="/WebFluent/docs/guide/environments">Environments</a>).</p>
+<p><strong>A value from <code>.env</code> or the shell is not used.</strong> Values are fixed at build time: rebuild after changing them. The shell supplies only names the config or <code>.env</code> declares, or <code>PUBLIC_</code> ones.</p>
+                            </div>
+                            <h2 class="wf-heading">Questions people ask</h2>
+                            <div class="wf-markdown">
+<p><strong>Can I use npm packages?</strong> A JavaScript module, yes, through <code>external</code> from a CDN or your import map (<a href="/WebFluent/docs/guide/interop">JavaScript interop</a>). There is no package manager for WebFluent code itself.</p>
+<p><strong>Can I use it with React or Vue?</strong> Publish components as custom elements and place the tags (<a href="/WebFluent/docs/guide/interop#publishing-your-components-as-custom-elements">chapter 32</a>).</p>
+<p><strong>Is there server-side rendering?</strong> Pages are pre-rendered at build time (<code>build.ssg</code>). Per-request HTML is <a href="/WebFluent/docs/guide/server-rendering">server rendering</a> of templates, from your own server.</p>
+<p><strong>Does it support TypeScript?</strong> It has its own type checker, gradual and built in (<a href="/WebFluent/docs/guide/types">Types</a>). There is nothing to configure.</p>
+<p><strong>Can I write CSS the normal way?</strong> Yes: any <code>.css</code> file under <code>src/</code> is bundled, and <code>class:</code> adds its classes to an element.</p>
+<p><strong>How big is it?</strong> A page of static text ships about 4 kB of script, gzipped; a full application a few tens of kilobytes. <code>wf build --stats</code> shows yours.</p>
+<p><strong>Which browsers?</strong> The current versions of Chrome, Edge, Firefox and Safari (<a href="/WebFluent/docs/guide/browser-support">Browser support</a>).</p>
+<p><strong>Where do I report a bug?</strong> <a href="https://github.com/monzeromer-lab/WebFluent/issues">GitHub issues</a>, with the smallest <code>.wf</code> file that shows it and the output of <code>wf --version</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/grammar">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">43. Grammar</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/upgrading">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">45. Upgrading</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#installing">Installing</a>
+                        <a class="wf-link wf-sdae384de" href="#building">Building</a>
+                        <a class="wf-link wf-sdae384de" href="#in-the-browser">In the browser</a>
+                        <a class="wf-link wf-sdae384de" href="#styling">Styling</a>
+                        <a class="wf-link wf-sdae384de" href="#data">Data</a>
+                        <a class="wf-link wf-sdae384de" href="#questions-people-ask">Questions people ask</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/44-troubleshooting.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link active" href="/WebFluent/docs/guide/troubleshooting" aria-current="page">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

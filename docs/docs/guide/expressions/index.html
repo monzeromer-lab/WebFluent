@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expressions</title>
-    <meta name="description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
+    <meta name="description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions?lang=ar">
@@ -12,20 +12,20 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Expressions">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
+    <meta property="og:description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions">
     <meta property="og:locale" content="en">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Expressions">
-    <meta name="twitter:description" content="Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env.">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions","name":"Expressions","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Literals, interpolation, operators, if and match as values, lambdas, methods, format and ago, regexes, tokens, await, const and env."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Expressions","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions"}]}]}</script>
+    <meta name="twitter:description" content="Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions","name":"Expressions","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Expressions","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/expressions"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="../../../styles.css">
     <script src="../../../app.js" defer></script>
-    <script src="../../../pages/Expressions.js" data-wf-page="Expressions" defer></script>
+    <script src="../../../pages/ExpressionsGuide.js" data-wf-page="ExpressionsGuide" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -61,105 +61,215 @@
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s782ff52c" aria-label="Chapters">
-                    <p class="wf-text group-label">The basics</p>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
                         <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
                         <p class="wf-text">Getting started</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
-                        <p class="wf-text num">02</p>
+                        <p class="wf-text num">05</p>
                         <p class="wf-text">Language basics</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
-                        <p class="wf-text num">03</p>
+                        <p class="wf-text num">06</p>
                         <p class="wf-text">Pages and routing</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
-                        <p class="wf-text num">04</p>
+                        <p class="wf-text num">07</p>
                         <p class="wf-text">Elements</p>
                     </a>
-                    <p class="wf-text group-label">Behaviour</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
-                        <p class="wf-text num">05</p>
+                        <p class="wf-text num">08</p>
                         <p class="wf-text">State and reactivity</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
-                        <p class="wf-text num">06</p>
-                        <p class="wf-text">Events and forms</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
-                        <p class="wf-text num">07</p>
+                        <p class="wf-text num">10</p>
                         <p class="wf-text">Control flow</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
-                        <p class="wf-text num">08</p>
+                        <p class="wf-text num">11</p>
                         <p class="wf-text">Components</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
-                        <p class="wf-text num">09</p>
+                        <p class="wf-text num">12</p>
                         <p class="wf-text">Stores</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
-                        <p class="wf-text num">10</p>
+                        <p class="wf-text num">13</p>
                         <p class="wf-text">Types</p>
                     </a>
                     <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/expressions" aria-current="page">
-                        <p class="wf-text num">11</p>
+                        <p class="wf-text num">14</p>
                         <p class="wf-text">Expressions</p>
                     </a>
-                    <p class="wf-text group-label">Surface and output</p>
+                    <p class="wf-text group-label">Building</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
-                        <p class="wf-text num">12</p>
+                        <p class="wf-text num">15</p>
                         <p class="wf-text">Styling</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
-                        <p class="wf-text num">13</p>
-                        <p class="wf-text">Motion</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
-                        <p class="wf-text num">14</p>
+                        <p class="wf-text num">17</p>
                         <p class="wf-text">Data</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
-                        <p class="wf-text num">15</p>
+                        <p class="wf-text num">21</p>
                         <p class="wf-text">Internationalisation</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
-                        <p class="wf-text num">16</p>
-                        <p class="wf-text">Content</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
-                        <p class="wf-text num">17</p>
-                        <p class="wf-text">Outputs</p>
-                    </a>
-                    <p class="wf-text group-label">Reference</p>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
-                        <p class="wf-text num">18</p>
-                        <p class="wf-text">Tooling</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
-                        <p class="wf-text num">19</p>
+                        <p class="wf-text num">23</p>
                         <p class="wf-text">Security</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
-                        <p class="wf-text num">20</p>
-                        <p class="wf-text">Components reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
-                        <p class="wf-text num">21</p>
+                        <p class="wf-text num">35</p>
                         <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
                     </a>
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
                         <p class="wf-text">/</p>
-                        <p class="wf-text wf-s8c71c534">Chapter 11</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 14</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-sf52d8cd0">Expressions</h1>
-                        <p class="wf-text wf-s38239618">The full expression language: literals, interpolation, operators, values that choose, calls, formatting and await.</p>
+                        <p class="wf-text wf-s38239618">The whole expression language: literals, interpolation, operators, values that choose, calls, methods, formatting and await.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
                         <div class="wf-stack wf-gap--lg">
@@ -188,7 +298,26 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Strings are double-quoted; <code>\&quot;</code>, <code>\\</code>, <code>\n</code> and <code>\t</code> escape. Lists and map literals may span lines and take a trailing comma.</p>
+<p>Strings are double-quoted and read the escapes <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\\</code>, <code>\&quot;</code>, <code>\{</code> and <code>\}</code>; a raw string <code>#&quot;…&quot;#</code> and a block string <code>&quot;&quot;&quot;…&quot;&quot;&quot;</code> are in <a href="/WebFluent/docs/guide/language-basics#three-ways-to-write-one">Language basics</a>. Lists and map literals may span lines and take a trailing comma.</p>
+<p>The language's own types have literals of their own (<a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it">Types</a>):</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Typed(path: &quot;/&quot;, title: &quot;Typed&quot;, description: &quot;Literals of the built-in types.&quot;) {
+    state due: Date = @2026-03-14             // a Date
+    state opens: Time = @09:30                // a Time
+    state at: DateTime = @2026-03-14T09:30Z   // a DateTime
+    state wait: Duration = 90.minutes         // a Duration: ms, seconds, minutes, hours, days, weeks
+    state price: Money = €12.99               // Money, in minor units; $ and £ too
+    state brand: Color = #0F766E              // a Color
+    Heading(&quot;Typed&quot;).h1
+    Text(&quot;{due} {opens} {at} {wait.minutes()} {format(price)} {brand}&quot;)
+}</code>
                             </div>
                             <h2 class="wf-heading">Interpolation</h2>
                             <div class="wf-markdown">
@@ -306,7 +435,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><code>+</code> joins strings when either side is a <code>String</code>, and adds numbers otherwise. <code>==</code> compares values; two records with the same fields are not <code>==</code> unless they are the same object, so compare ids. Precedence is the usual: <code>!</code> and unary <code>-</code>, then <code>* / %</code>, <code>+ -</code>, comparisons, <code>&amp;&amp;</code>, <code>||</code>, <code>??</code>.</p>
+<p><code>+</code> joins strings when either side is a <code>String</code>, and adds numbers otherwise. <code>==</code> compares values; two records with the same fields are not <code>==</code> unless they are the same object, so compare ids. Precedence, strongest first: <code>!</code> and unary <code>-</code>, then <code>* / %</code>, <code>+ -</code>, comparisons, equality, <code>&amp;&amp;</code>, <code>||</code>, <code>??</code>, and ranges last (<a href="/WebFluent/docs/guide/grammar#expressions">Grammar</a>).</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -447,7 +576,7 @@ page Calls(path: &quot;/&quot;) {
                             </div>
                             <h2 class="wf-heading">Tokens as values</h2>
                             <div class="wf-markdown">
-<p><code>$name</code> names a design token from the theme (<a href="/WebFluent/docs/guide/styling">chapter 12</a>). In a style it becomes the CSS variable; as a value it is the variable reference, so a prop that takes a color takes a token:</p>
+<p><code>$name</code> names a design token from the theme (<a href="/WebFluent/docs/guide/styling">chapter 15</a>). In a style it becomes the CSS variable; as a value it is the variable reference, so a prop that takes a color takes a token:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -479,19 +608,18 @@ page Calls(path: &quot;/&quot;) {
     state rows: [Map] = []
     state note = &quot;&quot;
     action load() {
-        let r = await fetch(&quot;/api/rows&quot;)
-        rows = r.rows
-        let text = await fetch(&quot;/api/note&quot;, { method: &quot;GET&quot; })
-        note = text.note
+        rows = await fetch(&quot;/api/rows&quot;)
+        let answer = await fetch(&quot;/api/note&quot;, { method: &quot;GET&quot; })
+        note = answer.text ?? &quot;&quot;
     }
     Button(&quot;Load&quot;, disabled: load.pending) { on click { load() } }
     Text(&quot;{rows.length} rows, note: {note}&quot;)
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>fetch(url, options)</code> returns the parsed JSON body (or throws on a failed response); <code>options</code> is a map with <code>method</code>, <code>headers</code>, <code>body</code> (a map is sent as JSON). <a href="/WebFluent/docs/guide/data">Chapter 14</a> has <code>resource</code>, the declarative form.</p>
+<p><code>fetch(url, options)</code> returns the parsed JSON body (or throws on a failed response); <code>options</code> is a map with <code>method</code>, <code>headers</code>, <code>body</code> (a map is sent as JSON). <a href="/WebFluent/docs/guide/data">Chapter 17</a> has <code>resource</code>, the declarative form.</p>
                             </div>
-                            <h2 class="wf-heading">Constants and environment</h2>
+                            <h2 class="wf-heading">Constants</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -507,7 +635,7 @@ page Consts(path: &quot;/&quot;) {
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p><code>const</code> declares a project-wide value; <code>env.NAME</code> reads a variable from the build environment (and <code>.env</code> in the project root). Both are inlined.</p>
+<p><code>const</code> declares a project-wide value, read by name everywhere and inlined into the bundle. It may carry a type: <code>const PAGE_SIZE: Number = 20</code>. <code>env.NAME</code> reads a value fixed at build time — from the config's <code>env</code> map, a <code>.env</code> file, or the shell — and only a public name may be read from a page; <a href="/WebFluent/docs/guide/environments">Environments</a> has the rules.</p>
                             </div>
                             <h2 class="wf-heading">Built-in functions</h2>
                             <div class="wf-markdown">
@@ -538,7 +666,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Changes the route (<a href="/WebFluent/docs/guide/pages-and-routing#links-and-navigation">chapter 3</a>)</p>
+<p>Changes the route (<a href="/WebFluent/docs/guide/pages-and-routing#links-and-navigation">chapter 6</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -562,7 +690,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Translates, and switches locale (<a href="/WebFluent/docs/guide/i18n">chapter 15</a>)</p>
+<p>Translates, and switches locale (<a href="/WebFluent/docs/guide/i18n">chapter 21</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -574,7 +702,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>&quot;dark&quot;</code>, <code>&quot;light&quot;</code> or <code>&quot;system&quot;</code>, kept across visits (<a href="/WebFluent/docs/guide/styling#dark-mode">chapter 12</a>)</p>
+<p><code>&quot;dark&quot;</code>, <code>&quot;light&quot;</code> or <code>&quot;system&quot;</code>, kept across visits (<a href="/WebFluent/docs/guide/styling#dark-mode">chapter 15</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -586,7 +714,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Timers (<a href="/WebFluent/docs/guide/state#timers">chapter 5</a>)</p>
+<p>Timers (<a href="/WebFluent/docs/guide/state#timers">chapter 8</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -598,7 +726,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Plays one by hand (<a href="/WebFluent/docs/guide/motion#driving-one-yourself">chapter 13</a>)</p>
+<p>Plays one by hand (<a href="/WebFluent/docs/guide/motion#driving-one-yourself">chapter 20</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -610,7 +738,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Shows a change before the server agrees (<a href="/WebFluent/docs/guide/data#showing-a-change-before-the-server-agrees">chapter 14</a>)</p>
+<p>Shows a change before the server agrees (<a href="/WebFluent/docs/guide/data#showing-a-change-before-the-server-agrees">chapter 17</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -622,7 +750,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A send that outlives the page (<a href="/WebFluent/docs/guide/data#a-connection-the-page-holds-open">chapter 14</a>)</p>
+<p>A send that outlives the page (<a href="/WebFluent/docs/guide/realtime">chapter 18</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -634,7 +762,7 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Markup, through an allow-list (<a href="/WebFluent/docs/guide/security#markup-you-did-not-write">chapter 19</a>)</p>
+<p>Markup, through an allow-list (<a href="/WebFluent/docs/guide/security#markup-you-did-not-write">chapter 23</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -646,25 +774,49 @@ page Consts(path: &quot;/&quot;) {
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A fresh <code>Uuid</code> (<a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it">chapter 10</a>)</p>
+<p>A fresh <code>Uuid</code> (<a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it">chapter 13</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>fetch(url, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A request, through the same engine as <code>api</code> (<a href="/WebFluent/docs/guide/data#await-fetch-in-an-action">Data</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ws(…)</code>, <code>sse(…)</code>, <code>broadcast(…)</code>, <code>rtc(…)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Open a socket, a stream, a channel or a peer, after <code>socket x =</code> and the rest (<a href="/WebFluent/docs/guide/realtime">Real-time</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>The browser's own globals need no prefix and compile to themselves: <code>window</code>, <code>document</code>, <code>console</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>clearTimeout</code>, <code>clearInterval</code>, <code>parseInt</code>, <code>parseFloat</code>, <code>Array</code>, <code>Object</code>, <code>String</code>, <code>Number</code>, <code>Boolean</code>, <code>Promise</code>, <code>Error</code>, <code>Map</code>, <code>Set</code>, <code>RegExp</code>, <code>Infinity</code>, <code>NaN</code>, <code>undefined</code>, <code>encodeURIComponent</code>, <code>decodeURIComponent</code>, <code>encodeURI</code>, <code>decodeURI</code>, <code>atob</code>, <code>btoa</code>, <code>fetch</code>, <code>alert</code>, <code>confirm</code>, <code>prompt</code>, <code>requestAnimationFrame</code> and <code>cancelAnimationFrame</code>.</p>
+<p>The browser's own globals need no prefix and compile to themselves: <code>window</code>, <code>document</code>, <code>console</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>JSON</code>, <code>Math</code>, <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>clearTimeout</code>, <code>clearInterval</code>, <code>parseInt</code>, <code>parseFloat</code>, <code>Array</code>, <code>Object</code>, <code>String</code>, <code>Number</code>, <code>Boolean</code>, <code>Promise</code>, <code>Error</code>, <code>Map</code>, <code>Set</code>, <code>RegExp</code>, <code>Infinity</code>, <code>NaN</code>, <code>undefined</code>, <code>encodeURIComponent</code>, <code>decodeURIComponent</code>, <code>encodeURI</code>, <code>decodeURI</code>, <code>atob</code>, <code>btoa</code>, <code>fetch</code>, <code>alert</code>, <code>confirm</code>, <code>prompt</code>, <code>requestAnimationFrame</code>, <code>cancelAnimationFrame</code>, <code>navigator</code>, <code>location</code> and the other platform names <a href="/WebFluent/docs/guide/built-ins#browser-globals">Built-ins</a> lists.</p>
                             </div>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
                         <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/types">
                             <p class="wf-text wf-s3e0c6c38">Previous</p>
-                            <p class="wf-text wf-s2c78daf6">10. Types</p>
+                            <p class="wf-text wf-s2c78daf6">13. Types</p>
                         </a>
                         <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/styling">
                             <p class="wf-text wf-s3e0c6c38">Next</p>
-                            <p class="wf-text wf-s2c78daf6">12. Styling</p>
+                            <p class="wf-text wf-s2c78daf6">15. Styling</p>
                         </a>
                     </div>
                 </div>
@@ -680,12 +832,12 @@ page Consts(path: &quot;/&quot;) {
                         <a class="wf-link wf-sdae384de" href="#regular-expressions">Regular expressions</a>
                         <a class="wf-link wf-sdae384de" href="#tokens-as-values">Tokens as values</a>
                         <a class="wf-link wf-sdae384de" href="#await">await</a>
-                        <a class="wf-link wf-sdae384de" href="#constants-and-environment">Constants and environment</a>
+                        <a class="wf-link wf-sdae384de" href="#constants">Constants</a>
                         <a class="wf-link wf-sdae384de" href="#built-in-functions">Built-in functions</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">
-                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/14-expressions.md">
                             <i class="wf-icon" data-icon="edit"></i>
                             <p class="wf-text wf-s5c9c3c02">Edit this page</p>
                         </a>
@@ -709,19 +861,22 @@ page Consts(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Reference</p>
                             <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
                             <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
@@ -733,7 +888,7 @@ page Consts(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
-                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>
             </div>

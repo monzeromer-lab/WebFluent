@@ -33,7 +33,7 @@
     ]
   },
   "i18n": {
-    "defaultLocale": "en",
+    "default_locale": "en",
     "locales": [
       "en",
       "ar"

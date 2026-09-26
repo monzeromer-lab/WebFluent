@@ -1,0 +1,101 @@
+/// Chapter 25 of the guide, written from md-docs/25-project-structure.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page ProjectStructureGuide(path: "/docs/guide/project-structure", title: "Project structure", description: "Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and growing a project.", layout: DocsShell("Project structure", chapter: t("guide.chapter", { n: "25" }), blurb: "Where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost.", source: "md-docs/25-project-structure.md", sections: [Anchor(id: "the-layout", label: "The layout"), Anchor(id: "one-program-no-imports", label: "One program, no imports"), Anchor(id: "files-that-are-not-wf", label: "Files that are not .wf"), Anchor(id: "starting-files-wf-generate", label: "Starting files: wf generate"), Anchor(id: "what-to-commit", label: "What to commit"), Anchor(id: "as-a-project-grows", label: "As a project grows")], prevTo: "/docs/guide/testing", prevLabel: "24. {t("ch.24")}", nextTo: "/docs/guide/static-and-spa", nextLabel: "26. {t("ch.26")}")) {
+    Stack(gap: .lg) {
+        Heading("The layout", id: "the-layout").h2
+
+        CodeBlock(#"my-site/
+├── webfluent.app.json      the config (chapter 38)
+├── .env                    build-time values, not committed (chapter 30)
+├── src/
+│   ├── App.wf              the app shell and the Router
+│   ├── theme.wf            themes
+│   ├── types.wf            shared types, enums, constants, data
+│   ├── api.wf              services
+│   ├── pages/              one page per file
+│   ├── components/         components
+│   ├── stores/             stores
+│   ├── styles.css          your own stylesheets, anywhere under src/
+│   ├── translations/       en.json, ar.json (with "i18n" in the config)
+│   ├── posts.json          data files a `data` declaration reads
+│   └── about.md            Markdown pages
+├── public/                 copied to the build's root: favicon, fonts, images
+├── tests/                  `test` declarations, and __snapshots__/
+└── build/                  what `wf build` writes (not committed)"#, title: "text")
+
+        Markdown("Only `webfluent.app.json` and one `.wf` or `.wfx` file under `src/` are required. The folders are convention: the compiler does not care where a declaration lives.")
+
+        Heading("One program, no imports", id: "one-program-no-imports").h2
+
+        Markdown("Every `.wf` and `.wfx` file under `src/` is read and merged into a single program. A page uses a component declared in another file, and a component a store, by name, with nothing to import. `App.wf` is read first; the rest in path order, which matters for nothing but the order of equal things in the output.\n\nThat makes the namespace global: two components, two pages, two stores, two types or two constants with one name is an error, naming both places.\n\n- **Names that declare** — pages, components, stores, types, enums, themes, services, externals, animations — are PascalCase.\n- **Constants** are conventionally UPPER_SNAKE: `API`, `PAGE_SIZE`.\n- **A page's name is its identity, not its title.** Suffix it when it would collide with a component: `page PostPage` beside `component Post`.\n- **A component used by one page** can live in that page's file.\n\n`use Store` at the top of a page or component says it reads that store. It is documentation for the reader and the editor; it scopes nothing.")
+
+        Heading("Files that are not .wf", id: "files-that-are-not-wf").h2
+
+        Table(caption: "Files that are not .wf") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("File").header
+                    Table.Cell("Where").header
+                    Table.Cell("Becomes").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`*.css`") }
+                    Table.Cell { Markdown("anywhere under `src/`") }
+                    Table.Cell { Markdown("bundled into `styles.css`, in path order, after the built-ins' rules") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`*.md`") }
+                    Table.Cell { Markdown("under `src/`") }
+                    Table.Cell { Markdown("a page ([Content](/docs/guide/content#md-pages))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`*.json`") }
+                    Table.Cell { Markdown("named by a `data` declaration") }
+                    Table.Cell("a constant, read at build time")
+                }
+                Table.Row {
+                    Table.Cell("images")
+                    Table.Cell { Markdown("named by an `image` declaration") }
+                    Table.Cell { Markdown("resized, hashed files and a `<picture>` ([Media](/docs/guide/media))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`translations/*.json`") }
+                    Table.Cell { Markdown("the `i18n.dir`") }
+                    Table.Cell("the locale tables")
+                }
+                Table.Row {
+                    Table.Cell("anything")
+                    Table.Cell { Markdown("`public/`") }
+                    Table.Cell { Markdown("copied as it is to the build's root: `public/favicon.svg` is `/favicon.svg`") }
+                }
+            }
+        }
+
+        Heading("Starting files: wf generate", id: "starting-files-wf-generate").h2
+
+        Terminal(lines: [
+                Line(command: "wf generate page Pricing"),
+                Line(command: "wf generate component PriceCard"),
+                Line(command: "wf generate store Cart")
+            ])
+
+        Markdown("Each writes a starter declaration in the conventional folder — `src/pages/Pricing.wf` with `path: \"/pricing\"`, a title, a description and an `h1`; `src/components/PriceCard.wf`; `src/stores/Cart.wf` — in `.wfx` when the project is written that way. It never overwrites a file.")
+
+        Heading("What to commit", id: "what-to-commit").h2
+
+        Markdown("Commit `webfluent.app.json`, `src/`, `public/`, `tests/` (with `__snapshots__/`). Do not commit:")
+
+        CodeBlock(#"build/
+.wf-cache/
+.wf-sizes.json
+.env"#, title: "text")
+
+        Markdown("`.wf-cache/` holds resized images between builds; `.wf-sizes.json` what the last build weighed, for `wf build --stats` to compare against.")
+
+        Heading("As a project grows", id: "as-a-project-grows").h2
+
+        Markdown("- **Group by feature once folders get long.** `src/billing/` holding the billing pages, components, store and types reads better than four folders each holding a slice of it. The compiler does not mind either way.\n- **Put a service in one place.** One `api` per backend, in its own file, with the types its endpoints return beside it.\n- **Keep shared types together**, in a `types.wf` per area, so the editor's go-to-definition lands somewhere predictable.\n- **Write docs as you declare.** A `///` comment above a component, a prop, an event or a type is shown on hover and in `wf docs`, the gallery of everything the project declares.\n- **Hold it to the formatter.** `wf fmt --check` in CI keeps every file in one layout.")
+    }
+}

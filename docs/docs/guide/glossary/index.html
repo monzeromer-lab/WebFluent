@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glossary</title>
+    <meta name="description" content="The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Glossary">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Glossary">
+    <meta name="twitter:description" content="The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary","name":"Glossary","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The terms this guide uses — signal, static paint, hydration, flag, part, slot, registry, scope and more — each in a sentence."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Glossary","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/GlossaryGuide.js" data-wf-page="GlossaryGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">4.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/glossary" aria-current="page">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 47</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Glossary</h1>
+                        <p class="wf-text wf-s38239618">The words this guide uses, each in a sentence, with where to read more.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p><strong>Action.</strong> A named function of a page, component or store, whose body does things: <code>action add() { … }</code>. <a href="/WebFluent/docs/guide/state#actions-and-locals">Chapter 8</a>.</p>
+<p><strong>App shell.</strong> The <code>app { }</code> declaration: what every page renders inside, with a <code>Router</code> where the page goes. <a href="/WebFluent/docs/guide/pages-and-routing#the-app-shell">Chapter 6</a>.</p>
+<p><strong>Block.</strong> The <code>{ … }</code> after an element: its style, handlers, slot fills and children, in that order. <a href="/WebFluent/docs/guide/elements">Chapter 7</a>.</p>
+<p><strong>Built-in.</strong> An element the language provides, such as <code>Button</code> or <code>Card</code>, known to the compiler through the registry. <a href="/WebFluent/docs/reference">Components</a>.</p>
+<p><strong>Case.</strong> One value of an <code>enum</code>, written with a dot: <code>.primary</code>, <code>.failed(&quot;x&quot;)</code>. <a href="/WebFluent/docs/guide/types#enums">Chapter 13</a>.</p>
+<p><strong>Chunk.</strong> A page's own script and stylesheet, written separately and loaded when its route first shows (<code>build.split</code>).</p>
+<p><strong>Component.</strong> An element you declare, with typed props, events, slots and parts: <code>component UserCard(…) { … }</code>. <a href="/WebFluent/docs/guide/components">Chapter 11</a>.</p>
+<p><strong>Declaration.</strong> A top-level statement of a file: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>external</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> or <code>test</code>. <a href="/WebFluent/docs/guide/language-basics">Chapter 5</a>.</p>
+<p><strong>Derived.</strong> A value computed from state, recomputed when what it read changes: <code>derived total = …</code>.</p>
+<p><strong>Design token.</strong> A named value a theme sets and every built-in reads, written <code>$name</code> in a style. <a href="/WebFluent/docs/guide/tokens">Chapter 41</a>.</p>
+<p><strong>Effect.</strong> Code that runs when a page shows and again when a state it read changes, with a <code>cleanup { }</code> for what it set up.</p>
+<p><strong>Flag.</strong> A word after a dot that sets a <code>Bool</code> prop or picks an enum case: <code>Button(&quot;Save&quot;).primary.lg</code>. <a href="/WebFluent/docs/guide/elements#props-cases-and-flags">Chapter 7</a>.</p>
+<p><strong>Handler.</strong> <code>on click { … }</code> — code run when an event happens. <a href="/WebFluent/docs/guide/events">Chapter 9</a>.</p>
+<p><strong>Hydration.</strong> The script taking over a pre-rendered page in place, without drawing it again. <a href="/WebFluent/docs/guide/static-and-spa#hydration">Chapter 26</a>.</p>
+<p><strong>Imperative block.</strong> The body of an action, handler or effect: statements that do things. Its opposite is a render block.</p>
+<p><strong>Part.</strong> A sub-element called under its owner's name: <code>Card.Header</code>, <code>Panel.Footer</code>. <a href="/WebFluent/docs/guide/components#parts">Chapter 11</a>.</p>
+<p><strong>Persist.</strong> A state kept in the browser's storage across visits. <a href="/WebFluent/docs/guide/stores#keeping-a-value-across-visits">Chapter 12</a>.</p>
+<p><strong>Positional argument.</strong> The one value an element takes without a name — a button's label, a heading's text.</p>
+<p><strong>Registry.</strong> The compiler's table of every built-in's props, cases, flags, events, slots and parts; the checker, the linters, the editor and the reference all read it. <code>wf registry --json</code> prints it.</p>
+<p><strong>Render block.</strong> The body of a page, component or element: what to show, and the state behind it.</p>
+<p><strong>Resource.</strong> A request a page makes and a <code>match</code> shows: <code>resource rows = …</code>. <a href="/WebFluent/docs/guide/data">Chapter 17</a>.</p>
+<p><strong>Runtime.</strong> The JavaScript at the head of <code>app.js</code> that compiled pages call, reachable as <code>window.WF</code>. <a href="/WebFluent/docs/guide/runtime">Chapter 42</a>.</p>
+<p><strong>Scope.</strong> What owns the effects, timers and connections created inside it — a page, a branch, a list item — and disposes of them when it leaves.</p>
+<p><strong>Signal.</strong> A reactive value: what <code>state</code> is. Whatever reads it follows it.</p>
+<p><strong>Slot.</strong> A place in a component its caller fills: the default slot (<code>children</code>), a named slot, or a scoped slot that hands values to its fill. <a href="/WebFluent/docs/guide/components#slots">Chapter 11</a>.</p>
+<p><strong>Static paint.</strong> The HTML the build pre-renders for a page, from everything it can know at build time. <a href="/WebFluent/docs/guide/static-and-spa#what-the-static-paint-knows">Chapter 26</a>.</p>
+<p><strong>Store.</strong> Shared state with actions, built the first time something reads it. <a href="/WebFluent/docs/guide/stores">Chapter 12</a>.</p>
+<p><strong>Theme.</strong> A <code>theme</code> declaration: the design tokens it changes. <a href="/WebFluent/docs/guide/styling">Chapter 15</a>.</p>
+<p><strong><code>.wfx</code>.</strong> A source file whose blocks are written by indentation instead of braces. <a href="/WebFluent/docs/guide/language-basics#two-layouts-wf-and-wfx">Chapter 5</a>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/browser-support">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">46. Browser support</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/contributing">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">48. Contributing</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/47-glossary.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

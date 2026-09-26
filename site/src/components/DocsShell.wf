@@ -2,7 +2,7 @@
 /// header with search, the chapter nav on one side, the article on the
 /// surface at a reading measure, the headings rail on the other, and the
 /// pair of links to the chapters either side.
-component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
+component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", source: String = "md-docs", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
     slot
 
     SiteHeader(docs: true)
@@ -24,7 +24,7 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
 
             Row(align: .center, gap: .xs, aria-label: "Breadcrumb", role: "navigation", class: "crumbs") {
                 style { gap: 8px; font-size: 12px; line-height: 18px; color: $ink-subtle; & a { color: $ink-subtle; text-decoration: none } & a:hover { color: $color-text } & p { margin: 0 } }
-                Link(t("nav.guide"), to: "/docs/guide/getting-started")
+                Link(t("nav.guide"), to: "/docs/guide/introduction")
                 Text("/")
                 if chapter != "" {
                     Text(chapter) { style { color: $color-text-muted } }
@@ -94,6 +94,6 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
             }
         }
 
-        OnThisPage(sections: sections)
+        OnThisPage(sections: sections, source: source)
     }
 }

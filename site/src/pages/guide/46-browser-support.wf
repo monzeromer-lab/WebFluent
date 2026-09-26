@@ -1,0 +1,85 @@
+/// Chapter 46 of the guide, written from md-docs/46-browser-support.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page BrowserSupportGuide(path: "/docs/guide/browser-support", title: "Browser support", description: "The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it.", layout: DocsShell("Browser support", chapter: t("guide.chapter", { n: "46" }), blurb: "Which browsers a WebFluent site targets, and what each newer platform feature falls back to where it is missing.", source: "md-docs/46-browser-support.md", sections: [Anchor(id: "features-with-a-fallback", label: "Features with a fallback"), Anchor(id: "dialogs-and-forms", label: "Dialogs and forms")], prevTo: "/docs/guide/upgrading", prevLabel: "45. {t("ch.45")}", nextTo: "/docs/guide/glossary", nextLabel: "47. {t("ch.47")}")) {
+    Stack(gap: .lg) {
+        Markdown("A WebFluent site targets the current versions of **Chrome, Edge, Firefox and Safari**, on desktop and mobile — the browsers that update themselves. The output is plain HTML, CSS and modern JavaScript (ES2020); there is no polyfill and no legacy build.\n\nA static build's pages are readable with no JavaScript at all; everything interactive needs it.")
+
+        Heading("Features with a fallback", id: "features-with-a-fallback").h2
+
+        Table(caption: "Features with a fallback") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Feature").header
+                    Table.Cell("Used for").header
+                    Table.Cell("Where it is missing").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("View Transitions API")
+                    Table.Cell { Markdown("`Router(transition: …)`, `shared:` elements") }
+                    Table.Cell { Markdown("The class-based transition plays instead; `shared:` does nothing") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`linear()` easing") }
+                    Table.Cell { Markdown("`easing: .spring`, `.bouncy`") }
+                    Table.Cell("The browser ignores it and uses its default easing")
+                }
+                Table.Row {
+                    Table.Cell("Web Animations API")
+                    Table.Cell { Markdown("enter, exit, list moves, `count:`") }
+                    Table.Cell("Everywhere current; without it, elements appear and leave without motion")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`IntersectionObserver`") }
+                    Table.Cell { Markdown("`on: .enterView`") }
+                    Table.Cell("The animation plays at once")
+                }
+                Table.Row {
+                    Table.Cell("Background Sync")
+                    Table.Cell("writes kept offline, sent after the tab closes")
+                    Table.Cell("The page sends them the next time it is open and online")
+                }
+                Table.Row {
+                    Table.Cell("Service workers")
+                    Table.Cell { Markdown("`offline`") }
+                    Table.Cell("The site works online as usual")
+                }
+                Table.Row {
+                    Table.Cell("WebRTC")
+                    Table.Cell { Markdown("`peer`") }
+                    Table.Cell { Markdown("The peer reads `error`: \"WebRTC is not available in this browser\"") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`BroadcastChannel`") }
+                    Table.Cell { Markdown("`channel`") }
+                    Table.Cell { Markdown("The channel reads `closed`") }
+                }
+                Table.Row {
+                    Table.Cell("Network Information API")
+                    Table.Cell { Markdown("`network.effectiveType`, `.saveData`, `.downlink`") }
+                    Table.Cell { Markdown("`null`; `network.online` works everywhere") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Intl`") }
+                    Table.Cell { Markdown("`format`, `ago`, plural forms") }
+                    Table.Cell("The build's own table for the common locales")
+                }
+                Table.Row {
+                    Table.Cell("Container queries")
+                    Table.Cell { Markdown("`@container` in a style block") }
+                    Table.Cell("Passed through as written; the rule does not apply")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`:focus-visible`") }
+                    Table.Cell("focus rings")
+                    Table.Cell("Focus rings on every focus")
+                }
+            }
+        }
+
+        Heading("Dialogs and forms", id: "dialogs-and-forms").h2
+
+        Markdown("`Modal` and `Dialog` use the `<dialog>` element and `showModal()`, which every current browser has. Validation uses the browser's constraint validation alongside the language's rules.")
+    }
+}

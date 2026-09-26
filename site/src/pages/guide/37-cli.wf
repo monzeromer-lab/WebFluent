@@ -1,0 +1,245 @@
+/// Chapter 37 of the guide, written from md-docs/37-cli.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", description: "The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.", layout: DocsShell("Command line and editors", chapter: t("guide.chapter", { n: "37" }), blurb: "Every wf command and flag, the dev server, and the language server in each editor.", source: "md-docs/37-cli.md", sections: [Anchor(id: "the-commands", label: "The commands"), Anchor(id: "creating-and-building", label: "Creating and building"), Anchor(id: "checking", label: "Checking"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing", label: "Describing"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors")], prevTo: "/docs/reference", prevLabel: "36. {t("ch.36")}", nextTo: "/docs/guide/config", nextLabel: "38. {t("ch.38")}")) {
+    Stack(gap: .lg) {
+        Markdown("One binary, `wf`, scaffolds, builds, serves, formats, tests, renders and describes a project. A second, `wf-lsp`, brings the same checks into your editor. `wf --help` lists the commands and `wf <command> --help` each one's flags; `wf --version` prints the version.\n\nEvery command that takes a project runs in the current directory unless told otherwise, and exits non-zero on failure, so each is a CI step as it is.")
+
+        Heading("The commands", id: "the-commands").h2
+
+        Table(caption: "The commands") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Command").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`wf init NAME [-t, --template spa|static|pdf|slides]`") }
+                    Table.Cell("Creates a project from a template")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf build [-d, --dir DIR] [--stats]`") }
+                    Table.Cell("Compiles the project; fails on errors, prints warnings")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf serve [-d, --dir DIR]`") }
+                    Table.Cell { Markdown("Builds, serves on `dev.port`, rebuilds and reloads on every save") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf test [PATH] [--update]`") }
+                    Table.Cell { Markdown("Runs the project's `test` declarations") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS]`") }
+                    Table.Cell("Loads every built page in headless Chrome")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf fmt [PATH] [--check] [--stdout] [--to wf|wfx]`") }
+                    Table.Cell("Formats sources, or switches their layout")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf generate page|component|store NAME [-d, --dir DIR]`") }
+                    Table.Cell("Writes a starter file")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME]`") }
+                    Table.Cell("Renders a template with data")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf migrate [PATH] [--check] [--stdout] [--wfx]`") }
+                    Table.Cell("Carries a WebFluent 2 or 3 project forward")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf audit [PATH] [--json]`") }
+                    Table.Cell("Lists what the project trusts")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf docs [-d, --dir DIR] [-o, --out OUT]`") }
+                    Table.Cell("Writes a gallery of every component")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf registry [--json]`") }
+                    Table.Cell("Describes every built-in")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf types [PATH] [--json]`") }
+                    Table.Cell("Describes what the project declares")
+                }
+            }
+        }
+
+        Heading("Creating and building", id: "creating-and-building").h2
+
+        Heading("wf init", id: "wf-init").h3
+
+        Terminal(lines: [
+                Line(command: "wf init my-site -t static")
+            ])
+
+        Markdown("Makes a directory `NAME` with a config, a `.gitignore` and a small working application for the template: `spa` (the default — an interactive app), `static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a deck). It refuses a directory that already exists.")
+
+        Heading("wf build", id: "wf-build").h3
+
+        Markdown("Runs the whole pipeline — parse, semantic checks, type checks, linters, code generation — and writes `build.output` (`./build`). Errors stop the build with the file, line, column, message and a hint; warnings print and the build goes on. `-d DIR` builds another directory.\n\n`--stats` prints what the build weighs: every text file with its gzipped size and how it moved since the last build, the runtime modules it kept and what reached each, and the design tokens it left out. [Performance](/docs/guide/performance) reads it.")
+
+        Heading("wf serve", id: "wf-serve").h3
+
+        Markdown("The development loop. It builds once, serves the output on `dev.port` (3000), watches `src/`, `public/` and the config, rebuilds on a change and reloads every open tab. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at `/__wf/dev.js`, the build's state at `/__wf/status` (JSON).\n\nEvery page it serves also carries a **stores** button: what each store holds, a log of every action with the state on each side of it, and a click to put a store back ([Stores](/docs/guide/stores#looking-at-one-while-it-runs)). An offline site's service worker is removed under `wf serve`, so an edit is never hidden behind its cache.")
+
+        Heading("wf generate", id: "wf-generate").h3
+
+        Terminal(lines: [
+                Line(command: "wf generate page Pricing"),
+                Line(command: "wf generate component PriceCard"),
+                Line(command: "wf generate store Cart")
+            ])
+
+        Markdown("Writes a starter declaration in `src/pages/`, `src/components/` or `src/stores/` — in `.wfx` when the project is written that way — and never overwrites a file. A page gets a path from its name (`/pricing`), a title, a description and an `h1`.")
+
+        Heading("Checking", id: "checking").h2
+
+        Heading("wf test", id: "wf-test").h3
+
+        Terminal(lines: [
+                Line(command: "wf test"),
+                Line(command: "wf test tests/cart.wf"),
+                Line(command: "wf test --update")
+            ])
+
+        Markdown("Runs every `test \"…\" \{ \}` under `tests/` (and in `src/`), or those in one file; `--update` rewrites the snapshots. A test that clicks or types runs in headless Chrome. [Testing](/docs/guide/testing) covers writing them.")
+
+        Heading("wf verify", id: "wf-verify").h3
+
+        Markdown("A build says what the compiler wrote. This says what a browser does with it.")
+
+        Terminal(lines: [
+                Line(command: "wf build && wf verify")
+            ])
+
+        Markdown("It starts a headless Chrome, serves the output, and opens every route the project has. A route fails on an uncaught exception, a `console.error`, a file that did not arrive, an image that failed to load, or a page that rendered no text — the things a compiler cannot see and a reader always can.")
+
+        CodeBlock(#"  16 route(s) in http://127.0.0.1:39785
+    ok   /                                    236ms     613 nodes    447.0 kB   11 req
+    ok   /app/deployments                      68ms     657 nodes    360.6 kB   10 req
+
+  16 page(s), 0 problem(s)"#, title: "")
+
+        Markdown("The numbers are the first contentful paint, the elements in the document once it settled, the bytes the page fetched and the requests it made. `--budget 400` fails a route that takes longer than that to paint. `--json` is the same report for a pipeline.\n\nIt also says **which built-ins no page drew**. A component can be in the registry, in the tests and in the documentation and still be broken in a page; the classes the pages carried are the list of what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all — it is a fact about coverage, not a failure.\n\nIt needs a Chrome or Chromium on the machine, or `WF_CHROME` pointing at one, and says so plainly when there is none.")
+
+        Heading("wf audit", id: "wf-audit").h3
+
+        Terminal(lines: [
+                Line(command: "wf audit"),
+                Line(command: "wf audit --json")
+            ])
+
+        Markdown("Prints what a security review asks for: every `Unsafe.*` and whether it is sanitised, every other origin the pages load from, everything kept on the reader's machine, every `env` name and whether it is public, the policy the build ships, and what the compiler depends on. It reports and never fails. [Security](/docs/guide/security#wf-audit).")
+
+        Heading("Formatting", id: "formatting").h2
+
+        Heading("wf fmt", id: "wf-fmt").h3
+
+        Terminal(lines: [
+                Line(command: "wf fmt"),
+                Line(command: "wf fmt --check"),
+                Line(command: "wf fmt src/pages/Home.wf --stdout"),
+                Line(command: "wf fmt --to wfx")
+            ])
+
+        Markdown("Formats every `.wf` and `.wfx` under a path, or one file, in place: four spaces a level, a line that closes a block one level out, trailing spaces gone, tabs made spaces, runs of blank lines folded to one, a brace one space from what it opens (`Row\{` → `Row \{`, `\}else` → `\} else`). A line carried on by a trailing comma is left as written, and comments stay where they are. The result is held to the file's own tokens, so formatting never changes what a file says.\n\n- `--check` writes nothing and fails when a file would change — for CI.\n- `--stdout` prints one file instead of writing it.\n- `--to wfx` rewrites a project's `.wf` files in the indented layout, and `--to wf` the other way. It is a change of layout and nothing else; it refuses a file whose indentation does not already follow its braces.")
+
+        Heading("Rendering", id: "rendering").h2
+
+        Heading("wf render", id: "wf-render").h3
+
+        Terminal(lines: [
+                Line(command: "wf render invoice.wf --data invoice.json -f pdf -o invoice.pdf"),
+                Line(command: "echo '\{\"name\":\"Ada\"\}' | wf render greeting.wf")
+            ])
+
+        Markdown("Renders one template with JSON data: `-f` / `--format` is `html` (a whole document, the default), `html-fragment` (the body only), `pdf` or `slides`; `-o` writes a file instead of printing; `--theme` picks one of several themes the template declares; without `--data` the JSON is read from stdin. [Server rendering](/docs/guide/server-rendering).")
+
+        Heading("Upgrading", id: "upgrading").h2
+
+        Heading("wf migrate", id: "wf-migrate").h3
+
+        Markdown("Two things, in one command.\n\n**2 → 3** rewrites every `.wf` under `src/` in place, with a note for anything that needed a decision. It is a change of spelling: the migrated project builds to what it built before.\n\n**3 → 4** is a change of what the compiler allows, so it runs over the project rather than the files. It adds every `env` name your pages already read to `public_env` — preserving what the project did, and printing the list, because *public* means anyone who opens the site may read the value. Then it names, with file and line, everything 4 refuses that 3 allowed: an `on*` attribute, a `javascript:` or `data:` URL. Those have no automatic rewrite; the old value was a string of JavaScript or a link that ran one. Finally it states the changes that need no edit: a store is built on first read rather than at boot, a `persist` value follows the site's other tabs, and `WF.store`/`WF.host` were renamed.\n\n`--check` writes nothing and tells you what it would do.")
+
+        Heading("Describing", id: "describing").h2
+
+        Heading("wf docs, wf registry, wf types", id: "wf-docs-wf-registry-wf-types").h3
+
+        Markdown("`wf docs` writes `docs/index.html` (or `-o OUT`): a self-contained gallery of every built-in — props, cases, flags, events, slots, parts — and of every component, enum, type, store and page the project declares, with their `///` docs.\n\n`wf registry` describes every built-in, and `wf types` what a project declares, externals included; with `--json` each prints the data a tool reads:")
+
+        Terminal(lines: [
+                Line(command: "wf registry --json | jq '.components[] | select(.name == \"Button\") | .props[].name'")
+            ])
+
+        Markdown("The registry is the compiler's own table: what it prints is exactly what the checker accepts.")
+
+        Heading("Environment variables", id: "environment-variables").h2
+
+        Table(caption: "Environment variables") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Variable").header
+                    Table.Cell("Read by").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`WF_INSTALL_DIR`") }
+                    Table.Cell { Markdown("`install.sh`, `install.ps1`") }
+                    Table.Cell { Markdown("Where the binary is installed (default `~/.webfluent/bin`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`WF_VERSION`") }
+                    Table.Cell { Markdown("`install.sh`, `install.ps1`") }
+                    Table.Cell { Markdown("The release to install, `v4.0.1`, instead of the latest") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`WF_CHROME`") }
+                    Table.Cell { Markdown("`wf test`, `wf verify`") }
+                    Table.Cell("The Chrome or Chromium to drive, when it is not found on its own")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`WF_BIN`") }
+                    Table.Cell("the Node binding")
+                    Table.Cell { Markdown("The `wf` binary to call") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("any `PUBLIC_…` name") }
+                    Table.Cell { Markdown("`wf build`") }
+                    Table.Cell { Markdown("A value for `env.NAME` ([Environments](/docs/guide/environments))") }
+                }
+            }
+        }
+
+        Heading("Editors", id: "editors").h2
+
+        Markdown("`wf-lsp` is the language server. Get the binary from a [release](https://github.com/monzeromer-lab/WebFluent/releases) (`wf-lsp-<version>-<arch>-<os>.tar.gz`) and put it on your `PATH`, or build it from a clone with `cargo install --path crates/wf-lsp`. It gives:\n\n- Diagnostics as you type — every check `wf build` runs.\n- Completion: components and their props after `(`, flags and parts after `.`, enum cases after `:`, events after `on `, `$` tokens, `match` arms, slot names, fields of a record, methods of a string or a list.\n- Hover: a component's doc and signature, a name's inferred type.\n- Go to definition, find references, rename across the project.\n- Document symbols and the outline.\n- Quick fixes — \"Change to `…`\" on a misspelt name — and `Extract component` on a selection.\n\n**Zed**: the extension is in `editors/zed`; install it with `zed: install dev extension` pointing at that folder (it is not in Zed's extension registry yet). It brings Tree-sitter highlighting, outline, brackets, indentation, snippets and the language server (found on `PATH` or downloaded from the latest release), for `.wf` and `.wfx`.\n\n**VS Code**: `editors/vscode` — TextMate highlighting and the language server. Until it is on the Marketplace, run `npm ci && npm run package` in that folder and install the `.vsix` with *Extensions: Install from VSIX*.\n\n**Neovim** (0.11 or later):")
+
+        CodeBlock(#"vim.filetype.add({ extension = { wf = "webfluent", wfx = "webfluent" } })
+vim.lsp.config("wf_lsp", {
+  cmd = { "wf-lsp" },
+  filetypes = { "webfluent" },
+  root_markers = { "webfluent.app.json" },
+})
+vim.lsp.enable("wf_lsp")"#, title: "lua")
+
+        Markdown("**Helix** — in `languages.toml`:")
+
+        CodeBlock("[[language]]\nname = \"webfluent\"\nscope = \"source.webfluent\"\nfile-types = [\"wf\", \"wfx\"]\nroots = [\"webfluent.app.json\"]\ncomment-token = \"//\"\nindent = \{ tab-width = 4, unit = \"    \" \}\nlanguage-servers = [\"wf-lsp\"]\n\n[language-server.wf-lsp]\ncommand = \"wf-lsp\"", title: "toml")
+
+        Markdown("**Emacs** (with Eglot):")
+
+        CodeBlock(#"(define-derived-mode webfluent-mode prog-mode "WebFluent")
+(add-to-list 'auto-mode-alist '("\\.wfx?\\'" . webfluent-mode))
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))"#, title: "elisp")
+
+        Markdown("Any other editor with LSP support runs `wf-lsp` over stdio; the project root is the folder holding `webfluent.app.json`. The Tree-sitter grammars in `editors/tree-sitter-webfluent` (braces) and `editors/tree-sitter-webfluentx` (indentation) give highlighting to an editor that reads Tree-sitter.")
+    }
+}

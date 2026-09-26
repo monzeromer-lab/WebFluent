@@ -1,0 +1,190 @@
+/// Chapter 4 of the guide, written from md-docs/04-coming-from.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page ComingFromGuide(path: "/docs/guide/coming-from", title: "Coming from React, Vue or Svelte", description: "A map from React, Vue, Svelte and HTMX concepts to WebFluent: state, effects, components, props, slots, context, routing, fetching and styling.", layout: DocsShell("Coming from React, Vue or Svelte", chapter: t("guide.chapter", { n: "4" }), blurb: "What you already know, mapped to what is here — and the few places WebFluent works differently.", source: "md-docs/04-coming-from.md", sections: [Anchor(id: "the-map", label: "The map"), Anchor(id: "the-same-component-three-ways", label: "The same component, three ways"), Anchor(id: "what-is-genuinely-different", label: "What is genuinely different"), Anchor(id: "things-you-might-look-for", label: "Things you might look for")], prevTo: "/docs/guide/tutorial", prevLabel: "3. {t("ch.03")}", nextTo: "/docs/guide/language-basics", nextLabel: "5. {t("ch.05")}")) {
+    Stack(gap: .lg) {
+        Markdown("If you have built with a JavaScript framework, most of WebFluent will feel familiar: components with props, reactive state, a router, a store. This chapter maps those ideas across, then lists what is genuinely different.")
+
+        Heading("The map", id: "the-map").h2
+
+        Table(caption: "The map") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("You know").header
+                    Table.Cell("In WebFluent").header
+                    Table.Cell("Chapter").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`useState`, `ref()`, `let x` (Svelte)") }
+                    Table.Cell { Markdown("`state count = 0`") }
+                    Table.Cell { Markdown("[State](/docs/guide/state)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`useMemo`, `computed()`, `$:` / `$derived`") }
+                    Table.Cell { Markdown("`derived total = …`") }
+                    Table.Cell { Markdown("[State](/docs/guide/state#derived)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`useEffect`, `watchEffect`, `$effect`") }
+                    Table.Cell { Markdown("`effect \{ … cleanup \{ … \} \}`") }
+                    Table.Cell { Markdown("[State](/docs/guide/state#effect)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`useRef` on an element") }
+                    Table.Cell { Markdown("`Input(ref: box)`, then `box.focus()`") }
+                    Table.Cell { Markdown("[State](/docs/guide/state#element-handles)") }
+                }
+                Table.Row {
+                    Table.Cell("a component function / SFC")
+                    Table.Cell { Markdown("`component Name(props) \{ … \}`") }
+                    Table.Cell { Markdown("[Components](/docs/guide/components)") }
+                }
+                Table.Row {
+                    Table.Cell("props")
+                    Table.Cell { Markdown("typed props: `component Card(_ title: String, tone: Tone = .calm)`") }
+                    Table.Cell { Markdown("[Components](/docs/guide/components)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`children`, default slot") }
+                    Table.Cell { Markdown("`slot` + `children`") }
+                    Table.Cell { Markdown("[Components](/docs/guide/components#slots)") }
+                }
+                Table.Row {
+                    Table.Cell("named slots, render props")
+                    Table.Cell { Markdown("`slot trailing`, scoped slots `slot row(item: T)`") }
+                    Table.Cell { Markdown("[Components](/docs/guide/components#slots)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("callback props, `$emit`, `createEventDispatcher`") }
+                    Table.Cell { Markdown("`event change(value: Number)` + `emit change(n)`") }
+                    Table.Cell { Markdown("[Components](/docs/guide/components#events)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`v-model`, `bind:value`") }
+                    Table.Cell { Markdown("`Input(bind: name)`") }
+                    Table.Cell { Markdown("[Forms](/docs/guide/forms)") }
+                }
+                Table.Row {
+                    Table.Cell("context, provide/inject, a global store")
+                    Table.Cell { Markdown("`store Cart \{ … \}`, read as `Cart.items`") }
+                    Table.Cell { Markdown("[Stores](/docs/guide/stores)") }
+                }
+                Table.Row {
+                    Table.Cell("Redux / Pinia / Zustand")
+                    Table.Cell { Markdown("a `store` with `action`s; `wf serve` shows every action") }
+                    Table.Cell { Markdown("[Stores](/docs/guide/stores)") }
+                }
+                Table.Row {
+                    Table.Cell("React Router / Vue Router / SvelteKit routes")
+                    Table.Cell { Markdown("`page Name(path: \"/users/:id\")` — pages own their routes") }
+                    Table.Cell { Markdown("[Pages](/docs/guide/pages-and-routing)") }
+                }
+                Table.Row {
+                    Table.Cell("layouts")
+                    Table.Cell { Markdown("`page P(layout: Shell)`") }
+                    Table.Cell { Markdown("[Pages](/docs/guide/pages-and-routing#layouts)") }
+                }
+                Table.Row {
+                    Table.Cell("route guards")
+                    Table.Cell { Markdown("`page P(guard: Auth.loggedIn, redirect: \"/login\")`") }
+                    Table.Cell { Markdown("[Pages](/docs/guide/pages-and-routing#guards)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\{cond && <X/>\}`, `v-if`, `\{#if\}`") }
+                    Table.Cell { Markdown("`if cond \{ X \}`") }
+                    Table.Cell { Markdown("[Control flow](/docs/guide/control-flow)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.map()` in JSX, `v-for`, `\{#each\}`") }
+                    Table.Cell { Markdown("`for item in items by item.id \{ … \}`") }
+                    Table.Cell { Markdown("[Control flow](/docs/guide/control-flow#for)") }
+                }
+                Table.Row {
+                    Table.Cell("TanStack Query / SWR")
+                    Table.Cell { Markdown("`resource` and `api` with cache, retry, dedupe") }
+                    Table.Cell { Markdown("[Data](/docs/guide/data)") }
+                }
+                Table.Row {
+                    Table.Cell("TypeScript")
+                    Table.Cell("a built-in, gradual type checker; types are optional")
+                    Table.Cell { Markdown("[Types](/docs/guide/types)") }
+                }
+                Table.Row {
+                    Table.Cell("CSS modules / scoped styles")
+                    Table.Cell { Markdown("`style \{ \}` on the element, with tokens and nesting") }
+                    Table.Cell { Markdown("[Styling](/docs/guide/styling)") }
+                }
+                Table.Row {
+                    Table.Cell("Tailwind utility classes")
+                    Table.Cell { Markdown("flags (`.primary.lg`), layout props, design tokens") }
+                    Table.Cell { Markdown("[Styling](/docs/guide/styling)") }
+                }
+                Table.Row {
+                    Table.Cell("Framer Motion / transitions")
+                    Table.Cell { Markdown("`animate:`, `exit:`, `stagger:`, route transitions") }
+                    Table.Cell { Markdown("[Motion](/docs/guide/motion)") }
+                }
+                Table.Row {
+                    Table.Cell("react-i18next / vue-i18n")
+                    Table.Cell { Markdown("`t(\"key\", \{ name: x \})`, `setLocale(\"ar\")`") }
+                    Table.Cell { Markdown("[i18n](/docs/guide/i18n)") }
+                }
+                Table.Row {
+                    Table.Cell("Next.js static export / Astro")
+                    Table.Cell { Markdown("`build.ssg: true`") }
+                    Table.Cell { Markdown("[Static or SPA](/docs/guide/static-and-spa)") }
+                }
+                Table.Row {
+                    Table.Cell("Testing Library + Playwright")
+                    Table.Cell { Markdown("`test \"…\" \{ … click \"Save\"  expect \"Saved\" \}`") }
+                    Table.Cell { Markdown("[Testing](/docs/guide/testing)") }
+                }
+                Table.Row {
+                    Table.Cell("ESLint a11y plugin")
+                    Table.Cell("accessibility checks on every build")
+                    Table.Cell { Markdown("[Accessibility](/docs/guide/accessibility)") }
+                }
+            }
+        }
+
+        Heading("The same component, three ways", id: "the-same-component-three-ways").h2
+
+        Markdown("React:")
+
+        CodeBlock(#"function Counter({ start = 0, onChange }) {
+  const [n, setN] = useState(start);
+  const even = useMemo(() => n % 2 === 0, [n]);
+  return (
+    <div className="row">
+      <button onClick={() => { setN(n + 1); onChange?.(n + 1); }}>+</button>
+      <span>{n}</span>
+      {even && <span className="badge">even</span>}
+    </div>
+  );
+}"#, title: "jsx")
+
+        Markdown("WebFluent:")
+
+        CodeBlock(#"component Counter(start: Number = 0) {
+    event change(value: Number)
+    state n = start
+    derived even = n % 2 == 0
+    Row(gap: .sm, align: .center) {
+        Button("+") { on click { n = n + 1  emit change(n) } }
+        Text("{n}")
+        if even { Badge("even").info }
+    }
+}"#, title: "wf")
+
+        Markdown("What changed: no hooks and no dependency arrays — `derived` knows what it read. No setter — you assign. No `className` — `Badge` is designed, and `.info` is a flag the compiler checks. The event is declared, so a caller handling `on chnage` is an error, not a handler that never runs.")
+
+        Heading("What is genuinely different", id: "what-is-genuinely-different").h2
+
+        Markdown("**It is a compiler, not a library.** There is no virtual DOM and no re-render of a component. Each text, attribute or style that reads a state subscribes to it and updates alone. A component's body runs once, when it is placed.\n\n**The markup is typed.** A built-in's props, flags, events and slots are known to the compiler, and so are yours. `Button(\"Save\").primray` does not build. There is no \"any prop goes through to the DOM\" — an unknown named argument becomes an HTML attribute with a warning, unless it is `aria-*`, `data-*` or a global attribute.\n\n**Pages own their routes.** There is no route table or file-system routing: each `page` names its `path:` and the router is built from them, ordered by specificity.\n\n**No imports.** Every file under `src/` is one program. A component declared anywhere is usable everywhere; two declarations with one name are an error.\n\n**Styling lives on the element.** A `style \{ \}` block is real CSS scoped to that element; `$token` reads a design token. There is no separate CSS-in-JS runtime — static rules are compiled into the stylesheet.\n\n**The build is the site.** Pre-rendering, code splitting, precompression, image resizing, a sitemap, Open Graph, a CSP — all from `wf build`, with no plugins to choose.\n\n**Safe by construction.** Text is always text; the only way to inject markup is `Unsafe.Html(…)`, which the build flags every time. Inline handlers and `javascript:` URLs do not compile. See [Security](/docs/guide/security).")
+
+        Heading("Things you might look for", id: "things-you-might-look-for").h2
+
+        Markdown("- **npm packages.** There is no package manager for WebFluent code. A JavaScript library is used through `external` — a typed declaration of what you call — and `Host`, which gives it a DOM node with a lifetime. [JavaScript interop](/docs/guide/interop) shows a chart library end to end.\n- **Server components / SSR per request.** Not here: a WebFluent site is static files plus a browser runtime, served by any host, talking to your API. For HTML generated on a server — emails, invoices, fragments — see [Server rendering](/docs/guide/server-rendering).\n- **Using WebFluent inside an existing React or Vue app.** Publish components as custom elements and place the tags: [Custom elements](/docs/guide/interop#publishing-your-components-as-custom-elements).\n- **Coming from HTMX.** The closest thing to `hx-get` is a `resource` whose URL reads state, and to `hx-post` an action that `await`s an `api` endpoint. The page stays static HTML until its script arrives, then updates in place.")
+    }
+}

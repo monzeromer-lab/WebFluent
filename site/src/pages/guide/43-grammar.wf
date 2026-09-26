@@ -1,0 +1,346 @@
+/// Chapter 43 of the guide, written from md-docs/43-grammar.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page GrammarGuide(path: "/docs/guide/grammar", title: "Grammar", description: "The WebFluent grammar on one page: declarations, statements, element blocks, components, services, tests, styles, operators, literals.", layout: DocsShell("Grammar", chapter: t("guide.chapter", { n: "43" }), blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals.", source: "md-docs/43-grammar.md", sections: [Anchor(id: "words", label: "Words"), Anchor(id: "keywords", label: "Keywords"), Anchor(id: "declarations", label: "Declarations"), Anchor(id: "render-blocks", label: "Render blocks"), Anchor(id: "component-bodies", label: "Component bodies"), Anchor(id: "element-blocks", label: "Element blocks"), Anchor(id: "imperative-blocks", label: "Imperative blocks"), Anchor(id: "style-blocks-and-themes", label: "Style blocks and themes"), Anchor(id: "test-steps", label: "Test steps"), Anchor(id: "expressions", label: "Expressions"), Anchor(id: "literals", label: "Literals"), Anchor(id: "comments", label: "Comments"), Anchor(id: "layout", label: "Layout")], prevTo: "/docs/guide/runtime", prevLabel: "42. {t("ch.42")}", nextTo: "/docs/guide/troubleshooting", nextLabel: "44. {t("ch.44")}")) {
+    Stack(gap: .lg) {
+        Markdown("A compact map of what the parser accepts. The chapters say what each form means; this page says where it may be written.")
+
+        Heading("Words", id: "words").h2
+
+        Markdown("No word is reserved. `page`, `state`, `type` and the rest are keywords only where a statement starts, so every one of them is also usable as a map key (`\{ action: \"approve\", type: \"a\" \}`), a field name or a parameter. Declarations are lowercase; elements and the names declarations introduce are capitalised; everything else is camelCase.")
+
+        Heading("Keywords", id: "keywords").h2
+
+        Markdown("Where a statement starts, these words have meaning: `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `external`, `const`, `data`, `image`, `animation` and `test` at the top of a file; `state`, `persist`, `derived`, `effect`, `cleanup`, `action`, `use`, `resource`, `validate`, `socket`, `stream`, `channel`, `peer`, `every`, `after`, `on key`, `head`, `if`, `if let`, `for`, `show`, `match`, `sequence` and `step` in a render block; `slot`, `event`, `part` and `children` in a component; `let`, `return`, `try`, `catch`, `await` and `emit` in an action; `expect`, `click`, `type`, `press` in a test. Everywhere else they are ordinary names.")
+
+        Heading("Declarations", id: "declarations").h2
+
+        Markdown("At the top of a file, and nowhere else:")
+
+        CodeBlock(#"page Name(path: "/", title: …, description: …, image: …, type: …, noindex: …,
+          layout: Component(…), guard: expr, redirect: "/…", paths: expr,
+          param: Type, …) { render block }
+component Name(_ positional: Type, prop: Type = default, …) { component body }
+store Name(scope: .app | .session | .route, eager: Bool) { store body }
+app { render block }
+theme Name { token: value … }
+type Name { field: Type = default, … }        type Name = Other { … }
+enum Name { case, case(part: Type, …), … }
+api Name(base: expr, …) { settings  headers { … }  on request|response|error(x) { … }  endpoints }
+api Name from "spec.json" (base: expr)
+external Name from "module" { integrity: "…"  fn f(params) -> Type  type T { method(params) -> Type  field: Type } }
+external element Name("tag-name") { prop name: Type  event name(params) }
+const NAME: Type = expr
+data name: Type = "file.json"
+image name = "picture.jpg"
+animation Name { from { css } 50% { css } to { css } }
+test "name"(data: { … }) { render block and test steps }"#, title: "text")
+
+        Markdown("A `///` comment before a declaration, a prop, a field, an event or an endpoint is its documentation.")
+
+        Heading("Render blocks", id: "render-blocks").h2
+
+        Markdown("A page, a component, the app, a test and every element's children:")
+
+        Table(caption: "Render blocks") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Statement").header
+                    Table.Cell("Form").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("state")
+                    Table.Cell { Markdown("`state name: Type = expr`") }
+                }
+                Table.Row {
+                    Table.Cell("persisted state")
+                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}`") }
+                }
+                Table.Row {
+                    Table.Cell("derived")
+                    Table.Cell { Markdown("`derived name = expr`") }
+                }
+                Table.Row {
+                    Table.Cell("effect")
+                    Table.Cell { Markdown("`effect \{ imperative  cleanup \{ imperative \} \}`") }
+                }
+                Table.Row {
+                    Table.Cell("action")
+                    Table.Cell { Markdown("`action name(param: Type, …) \{ imperative \}`") }
+                }
+                Table.Row {
+                    Table.Cell("store")
+                    Table.Cell { Markdown("`use Store`") }
+                }
+                Table.Row {
+                    Table.Cell("resource")
+                    Table.Cell { Markdown("`resource name: Type = fetch(url, options)` or `= Api.endpoint(args)`") }
+                }
+                Table.Row {
+                    Table.Cell("validation")
+                    Table.Cell { Markdown("`validate name \{ rule(args) \"message\"  custom \"message\" \{ expr \}  async \"message\" \{ expr \} \}`") }
+                }
+                Table.Row {
+                    Table.Cell("connection")
+                    Table.Cell { Markdown("`socket name = ws(url, …) \{ send T  receive T  on message(m) \{ … \}  on open \{ … \} \}`, `stream name = sse(…)`, `channel name = broadcast(…)`, `peer name = rtc(signal: …, …)`") }
+                }
+                Table.Row {
+                    Table.Cell("timer")
+                    Table.Cell { Markdown("`every(interval) \{ imperative \}`, `after(interval) \{ imperative \}`") }
+                }
+                Table.Row {
+                    Table.Cell("key")
+                    Table.Cell { Markdown("`on key(\"ctrl+k\", e) \{ imperative \}`") }
+                }
+                Table.Row {
+                    Table.Cell("head")
+                    Table.Cell { Markdown("`head \{ meta(…)  link(…)  script(…) \}` — a page only") }
+                }
+                Table.Row {
+                    Table.Cell("conditional")
+                    Table.Cell { Markdown("`if cond \{ … \} else if cond \{ … \} else \{ … \}`, `if let x = expr \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("loop")
+                    Table.Cell { Markdown("`for item, index in list by key \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("visibility")
+                    Table.Cell { Markdown("`show cond \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("choice")
+                    Table.Cell { Markdown("`match expr \{ .case(a) \{ … \}  loading \{ … \}  error(e) \{ … \}  ready(v) \{ … \}  else \{ … \} \}`") }
+                }
+                Table.Row {
+                    Table.Cell("orchestration")
+                    Table.Cell { Markdown("`sequence \{ step(after: \"120ms\") \{ … \} \}`") }
+                }
+                Table.Row {
+                    Table.Cell("set-up")
+                    Table.Cell { Markdown("`Store.action(args)` — a call, run once") }
+                }
+                Table.Row {
+                    Table.Cell("element")
+                    Table.Cell { Markdown("`Name(positional, prop: value).flag.flag \{ block \}`") }
+                }
+                Table.Row {
+                    Table.Cell("slot use")
+                    Table.Cell { Markdown("`children`, `slotName`, `slotName(value: expr)` — a component only") }
+                }
+            }
+        }
+
+        Heading("Component bodies", id: "component-bodies").h2
+
+        Markdown("A component's body is a render block, plus:")
+
+        CodeBlock(#"slot                                  the default slot, placed with `children`
+slot name                             a named slot
+slot name(value: Type, …)             a scoped slot
+event name(param: Type, …)            an event it fires with `emit`
+part Name(props) { render block }     a part, called as `Component.Name`"#, title: "text")
+
+        Heading("Element blocks", id: "element-blocks").h2
+
+        Markdown("In this order, each optional:")
+
+        CodeBlock(#"Name(…).flags {
+    style { declarations }
+    transition { property: duration easing … }
+    on event(e) { imperative }
+    slotName(params) { render block }      a slot fill, on a component call
+    children
+}"#, title: "text")
+
+        Heading("Imperative blocks", id: "imperative-blocks").h2
+
+        Markdown("Actions, handlers, effects, timers and hooks:")
+
+        Table(caption: "Imperative blocks") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Statement").header
+                    Table.Cell("Form").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("assignment")
+                    Table.Cell { Markdown("`name = expr`, `a.b = expr`, `list[i] = expr`") }
+                }
+                Table.Row {
+                    Table.Cell("local")
+                    Table.Cell { Markdown("`let name: Type = expr`, `let \{ a, b \} = expr`, `let [x, y] = expr`") }
+                }
+                Table.Row {
+                    Table.Cell("call")
+                    Table.Cell { Markdown("`f(args)`, `Store.action(args)`, `list.push(x)`, `navigate(\"/…\")`, `log(…)`") }
+                }
+                Table.Row {
+                    Table.Cell("emit")
+                    Table.Cell { Markdown("`emit event(args)` — a component only") }
+                }
+                Table.Row {
+                    Table.Cell("return")
+                    Table.Cell { Markdown("`return`, `return expr`") }
+                }
+                Table.Row {
+                    Table.Cell("conditional")
+                    Table.Cell { Markdown("`if … else …`, `if let …`") }
+                }
+                Table.Row {
+                    Table.Cell("loop")
+                    Table.Cell { Markdown("`for x in list \{ … \}`, `for x, i in list \{ … \}`, `for n in 1..=10 \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("error handling")
+                    Table.Cell { Markdown("`try \{ … \} catch e \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("waiting")
+                    Table.Cell { Markdown("`await expr` — makes the action asynchronous") }
+                }
+            }
+        }
+
+        Heading("Style blocks and themes", id: "style-blocks-and-themes").h2
+
+        CodeBlock(#"style {
+    property: raw css value               to the end of the line, a `;`, or two spaces and the next declaration
+    property: {expr}px $token             a live value, a design token
+    --custom-property: value
+    &:hover { declarations }              nested rules, as CSS nesting writes them
+    @media (…) { declarations }           and `@md { }` for a breakpoint, `@container (…) { }`
+}"#, title: "text")
+
+        Markdown("A theme's body is the same declarations, without nesting.")
+
+        Heading("Test steps", id: "test-steps").h2
+
+        Markdown("In a `test`, beside render statements: `expect \"text\"`, `expect not \"text\"`, `click \"name\"`, `type \"text\" into \"name\"`, `press \"Key\"`, `press \"Key\" in \"name\"`.")
+
+        Heading("Expressions", id: "expressions").h2
+
+        Markdown("From weakest to strongest binding:")
+
+        Table(caption: "Expressions") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Level").header
+                    Table.Cell("Operators").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("1")
+                    Table.Cell { Markdown("`..` `..=` (ranges)") }
+                }
+                Table.Row {
+                    Table.Cell("2")
+                    Table.Cell { Markdown("`??`") }
+                }
+                Table.Row {
+                    Table.Cell("3")
+                    Table.Cell { Markdown("`||`") }
+                }
+                Table.Row {
+                    Table.Cell("4")
+                    Table.Cell { Markdown("`&&`") }
+                }
+                Table.Row {
+                    Table.Cell("5")
+                    Table.Cell { Markdown("`==` `!=` (`!==` too)") }
+                }
+                Table.Row {
+                    Table.Cell("6")
+                    Table.Cell { Markdown("`<` `<=` `>` `>=`") }
+                }
+                Table.Row {
+                    Table.Cell("7")
+                    Table.Cell { Markdown("`+` `-`") }
+                }
+                Table.Row {
+                    Table.Cell("8")
+                    Table.Cell { Markdown("`*` `/` `%`") }
+                }
+                Table.Row {
+                    Table.Cell("9")
+                    Table.Cell { Markdown("unary `!` `-`, `await`") }
+                }
+                Table.Row {
+                    Table.Cell("10")
+                    Table.Cell { Markdown("calls `f(…)`, fields `a.b`, `a?.b`, indexes `a[i]`, `a?.[i]`, flags") }
+                }
+            }
+        }
+
+        Markdown("So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.\n\nValues that are expressions: `if c \{ a \} else \{ b \}`, `if let x = v \{ a \} else \{ b \}`, `match v \{ .case \{ a \} else \{ b \} \}`, lambdas `x => expr`, `(a, b) => expr`, `() => expr`, spreads `...x` in a list or map.")
+
+        Heading("Literals", id: "literals").h2
+
+        Table(caption: "Literals") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Kind").header
+                    Table.Cell("Written").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("String")
+                    Table.Cell { Markdown("`\"text \{splice\} \{value:.style(option)\}\"`, raw `#\"…\"#`, block `\"\"\"…\"\"\"`") }
+                }
+                Table.Row {
+                    Table.Cell("Number")
+                    Table.Cell { Markdown("`42`, `3.14`") }
+                }
+                Table.Row {
+                    Table.Cell("Bool, null")
+                    Table.Cell { Markdown("`true`, `false`, `null`") }
+                }
+                Table.Row {
+                    Table.Cell("List, map")
+                    Table.Cell { Markdown("`[a, b]`, `\{ key: value, \"Quoted-Key\": value, ...other \}`") }
+                }
+                Table.Row {
+                    Table.Cell("Regex")
+                    Table.Cell { Markdown("`/pattern/flags`") }
+                }
+                Table.Row {
+                    Table.Cell("Date, time")
+                    Table.Cell { Markdown("`@2026-03-14`, `@09:30`, `@2026-03-14T09:30Z`") }
+                }
+                Table.Row {
+                    Table.Cell("Duration")
+                    Table.Cell { Markdown("`250.ms`, `5.seconds`, `90.minutes`, `2.hours`, `3.days`, `1.weeks`") }
+                }
+                Table.Row {
+                    Table.Cell("Money")
+                    Table.Cell { Markdown("`€12.99`, `$9.99`, `£4.50`") }
+                }
+                Table.Row {
+                    Table.Cell("Colour")
+                    Table.Cell { Markdown("`#0F766E`") }
+                }
+                Table.Row {
+                    Table.Cell("Enum case")
+                    Table.Cell { Markdown("`.name`, `.name(payload)`") }
+                }
+                Table.Row {
+                    Table.Cell("Design token")
+                    Table.Cell { Markdown("`$name`") }
+                }
+            }
+        }
+
+        Heading("Comments", id: "comments").h2
+
+        Markdown("`// to the end of the line`, `/* across lines */`, and `///` documentation.")
+
+        Heading("Layout", id: "layout").h2
+
+        Markdown("A `.wf` file writes blocks in braces. A `.wfx` file writes them by indentation: a line indented deeper than the one before opens a block, a dedent closes it, and braces written by hand still work inside a line ([chapter 5](/docs/guide/language-basics#two-layouts-wf-and-wfx)). Statements need no separator; on one line, a `;` or two spaces reads best.")
+    }
+}

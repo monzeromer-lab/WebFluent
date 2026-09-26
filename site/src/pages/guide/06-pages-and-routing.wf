@@ -1,0 +1,261 @@
+/// Chapter 6 of the guide, written from md-docs/06-pages-and-routing.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page PagesAndRoutingGuide(path: "/docs/guide/pages-and-routing", title: "Pages and routing", description: "Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.", layout: DocsShell("Pages and routing", chapter: t("guide.chapter", { n: "6" }), blurb: "A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them.", source: "md-docs/06-pages-and-routing.md", sections: [Anchor(id: "declaring-a-page", label: "Declaring a page"), Anchor(id: "the-app-shell", label: "The app shell"), Anchor(id: "links-and-navigation", label: "Links and navigation"), Anchor(id: "route-parameters", label: "Route parameters"), Anchor(id: "query-strings-and-fragments", label: "Query strings and fragments"), Anchor(id: "layouts", label: "Layouts"), Anchor(id: "guards", label: "Guards"), Anchor(id: "per-page-head-tags", label: "Per-page head tags"), Anchor(id: "the-catch-all-page", label: "The catch-all page"), Anchor(id: "set-up-code-what-runs-when-a-page-opens", label: "Set-up code: what runs when a page opens")], prevTo: "/docs/guide/language-basics", prevLabel: "5. {t("ch.05")}", nextTo: "/docs/guide/elements", nextLabel: "7. {t("ch.07")}")) {
+    Stack(gap: .lg) {
+        Markdown("A page is a route and what it shows. Pages own their paths: there is no route table to keep in step with them.")
+
+        Heading("Declaring a page", id: "declaring-a-page").h2
+
+        CodeBlock(#"page About(path: "/about", title: "About us", description: "Who we are and why we build this.") {
+    Container {
+        Heading("About us").h1
+        Paragraph("We are three people and a dog.")
+    }
+}"#, title: "wf")
+
+        Markdown("The header takes these attributes:")
+
+        Table(caption: "Declaring a page") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Attribute").header
+                    Table.Cell("Required").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`path:`") }
+                    Table.Cell("yes")
+                    Table.Cell { Markdown("The route: `\"/\"`, `\"/about\"`, `\"/posts/:slug\"`, or `\"*\"` for the catch-all") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`title:`") }
+                    Table.Cell("strongly")
+                    Table.Cell { Markdown("The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `\"\{slug\} — Blog\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`description:`") }
+                    Table.Cell("strongly")
+                    Table.Cell("The meta description and the snippet a search result and a link preview show (~150 characters)")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`image:`") }
+                    Table.Cell("")
+                    Table.Cell("The image a shared link previews with, site-relative or absolute")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type:`") }
+                    Table.Cell("")
+                    Table.Cell { Markdown("`og:type` — `website` (default) or `article`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`noindex:`") }
+                    Table.Cell("")
+                    Table.Cell { Markdown("`true` keeps the page out of search results and the sitemap") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`layout:`") }
+                    Table.Cell("")
+                    Table.Cell("The component that frames the page (below)")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`guard:`") }
+                    Table.Cell("")
+                    Table.Cell("An expression that must hold for the route to render")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`redirect:`") }
+                    Table.Cell("")
+                    Table.Cell { Markdown("Where the reader goes when the guard fails (default `/`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`paths:`") }
+                    Table.Cell("")
+                    Table.Cell { Markdown("The values a static build renders a `:param` page for ([chapter 26](/docs/guide/static-and-spa#static-paths))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name: Type`") }
+                    Table.Cell("")
+                    Table.Cell("A route parameter, typed (below)")
+                }
+            }
+        }
+
+        Markdown("A page without a `title` or `description` builds with a warning (`S01`, `S02`); the compiler cannot write those for you, and a page without them ships unshareable.")
+
+        Heading("The app shell", id: "the-app-shell").h2
+
+        Markdown("`app` declares what every page renders inside — a navbar, a footer, the `Router` where the current page goes:")
+
+        CodeBlock(#"app {
+    Navbar {
+        Navbar.Brand { Link("Acme", to: "/") }
+        Navbar.Links {
+            Link("Docs", to: "/docs").prefix
+            Link("Pricing", to: "/pricing")
+        }
+        Navbar.Actions { Button("Sign in").sm { on click { navigate("/login") } } }
+    }
+    Router
+    Footer { Text("© Acme").muted.sm }
+}"#, title: "wf")
+
+        Markdown("`Router` is bare — it takes no children — and the table is built from every page's `path`, ordered by specificity (static segments before `:params`, `*` last), so declaration order can never shadow a route. A project with no `app` declaration gets a bare router.\n\n`Router(transition: .fade, duration: \"200ms\")` animates page changes ([chapter 20](/docs/guide/motion#route-transitions)).")
+
+        Heading("Links and navigation", id: "links-and-navigation").h2
+
+        CodeBlock(#"page Nav(path: "/nav") {
+    Link("Home", to: "/")                       // an <a>; the router handles the click
+    Link("Guide", to: "/docs").prefix           // also active on /docs/anything
+    Button("Go") { on click { navigate("/about") } }
+}"#, title: "wf")
+
+        Markdown("The link whose `to:` matches the current route carries the class `.active` and `aria-current=\"page\"`; `.prefix` makes a section link active for the routes beneath it. `navigate(path)` moves in code. Write paths from the site's root — `\"/about\"` — even when the site is served under a sub-path: with `build.base_path` set to `\"/docs\"`, every `Link`, `navigate` and asset is prefixed for you. In a static build, links are real page loads and `navigate` is too; in a single-page app they swap pages without a reload, move focus to the new page's heading, reset the scroll and announce the title.")
+
+        Heading("Route parameters", id: "route-parameters").h2
+
+        Markdown("A `:name` segment is declared as a typed parameter of the page and read as a plain name, or as `params.name`:")
+
+        CodeBlock(#"type Post { slug: String, title: String, body: String }
+
+store Posts {
+    state all: [Post] = [
+        Post(slug: "hello", title: "Hello", body: "First post."),
+        Post(slug: "again", title: "Again", body: "Second post.")
+    ]
+}
+
+page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
+    use Posts
+    derived post = Posts.all.find(p => p.slug == slug)
+    if let p = post {
+        Heading(p.title).h1
+        Paragraph(p.body)
+    } else {
+        Heading("No such post").h1
+        Text("Nothing lives at /posts/{params.slug}.")
+    }
+}"#, title: "wf")
+
+        Markdown("A parameter is a `String` unless you say otherwise (`id: Number`). A static build renders a `:param` page once per value named in `paths:` — see [Data](/docs/guide/static-and-spa#static-paths).")
+
+        Heading("Query strings and fragments", id: "query-strings-and-fragments").h2
+
+        Markdown("`query` is the URL's query string as a map, and `hash` its `#fragment`; both are kept current by the runtime, so a page that reads them follows the address:")
+
+        CodeBlock(#"page Products(path: "/products", title: "Products", description: "Everything we sell.") {
+    derived tab = query.tab ?? "all"
+    derived sort = query.sort ?? "name"
+    Heading("Products").h1
+    Row(gap: .sm) {
+        Link("All", to: "/products?tab=all")
+        Link("On sale", to: "/products?tab=sale")
+    }
+    Text("Showing {tab}, sorted by {sort}; section: {hash}")
+}"#, title: "wf")
+
+        Markdown("A query string is not part of the route: `/products?tab=sale` is the `/products` page. To change it from code, `navigate(\"/products?tab=sale\")`. In the static paint `query` and `hash` are unknown, so what depends on them is drawn once the page is live.")
+
+        Heading("Layouts", id: "layouts").h2
+
+        Markdown("A `layout:` is a component with a default slot; the page renders in it. Use it for a section's own chrome — a docs sidebar, an app rail — where the `app` shell is the site's.")
+
+        CodeBlock(#"component DocsShell(_ crumb: String) {
+    slot
+    Row(gap: .lg) {
+        Sidebar {
+            Sidebar.Item(to: "/docs") { Text("Guide") }
+            Sidebar.Item(to: "/docs/reference") { Text("Reference") }
+        }
+        Stack {
+            Breadcrumb {
+                Breadcrumb.Item(to: "/docs") { Text("Docs") }
+                Breadcrumb.Item { Text(crumb) }
+            }
+            children
+        }
+    }
+}
+
+page Guide(path: "/docs", title: "Guide", description: "The guide.", layout: DocsShell("Guide")) {
+    Heading("Guide").h1
+}
+
+page Reference(path: "/docs/reference", title: "Reference", description: "The reference.", layout: DocsShell("Reference")) {
+    Heading("Reference").h1
+}"#, title: "wf")
+
+        Markdown("The layout's arguments are checked like any component call. The layout component is required to declare a `slot` (its default slot); a layout without one is an error, since the page would have nowhere to go.")
+
+        Heading("Guards", id: "guards").h2
+
+        Markdown("`guard:` names an expression — usually a store's derived value — that must be true for the route to render; otherwise the reader is sent to `redirect:`.")
+
+        CodeBlock(#"store Auth {
+    state user = null
+    derived loggedIn = user != null
+    action login() { user = { name: "Sam" } }
+    action logout() { user = null }
+}
+
+page Account(path: "/account", title: "Your account", description: "Your account.", guard: Auth.loggedIn, redirect: "/login") {
+    use Auth
+    Heading("Welcome back").h1
+    Button("Sign out") { on click { Auth.logout() } }
+}
+
+page Login(path: "/login", title: "Sign in", description: "Sign in.") {
+    use Auth
+    Button("Sign in").primary { on click { Auth.login()  navigate("/account") } }
+}"#, title: "wf")
+
+        Markdown("The guard is evaluated on every navigation, in the browser. A static build still pre-renders the page's HTML (the guard is a client-side gate, not a secret), so keep anything private behind an API the page fetches.")
+
+        Heading("Per-page head tags", id: "per-page-head-tags").h2
+
+        Markdown("A page may add tags of its own to the document's `<head>`; they are painted at build time where the value is known, kept current on the live page, and gone when the page is:")
+
+        CodeBlock(#"page Share(path: "/share", title: "Share", description: "A page with its own tags.") {
+    state image = "/og-share.png"
+    head {
+        meta(property: "og:image", content: image)
+        link(rel: "canonical", href: "https://example.com/share")
+        script(src: "/analytics.js", defer: true)
+    }
+    Heading("Share").h1
+}"#, title: "wf")
+
+        Markdown("`title` and `description` are page attributes, not head tags; the compiler writes the standard tags (charset, viewport, description, canonical, Open Graph, Twitter card, JSON-LD) from them and the config.")
+
+        Heading("The catch-all page", id: "the-catch-all-page").h2
+
+        Markdown("`path: \"*\"` is the page a static host serves as `404.html` and the router shows for a route no page claims:")
+
+        CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives here.", noindex: true) {
+    Container {
+        Heading("Nothing here").h1
+        Link("Back home", to: "/")
+    }
+}"#, title: "wf")
+
+        Heading("Set-up code: what runs when a page opens", id: "set-up-code-what-runs-when-a-page-opens").h2
+
+        Markdown("A page's body is a render block: it declares state, derived values and actions, and lists what to show. Everything at the top of the body runs once when the page renders; a call at the top — `Store.load(id)` — is set-up code.")
+
+        CodeBlock(#"store Deploys {
+    state rows = []
+    action load(id: String) { rows = [{ id: id, ok: true }] }
+}
+
+page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", id: String) {
+    use Deploys
+    Deploys.load(id)
+    for row in Deploys.rows by row.id {
+        Text("{row.id}: {row.ok}")
+    }
+}"#, title: "wf")
+
+        Markdown("The life of a page, in order:\n\n1. The route matches, the page's chunk loads (in a split build) and its stylesheet with it.\n2. The body runs **once**: `state`s take their initial values, set-up calls run, elements are created. There is no re-render after this — what reads a state updates on its own.\n3. `effect`s run, and run again when what they read changes; timers start.\n4. The page is placed. In a single-page app, focus moves to its heading, the scroll goes to the top and the title is announced.\n5. When the route changes, everything the page created — effects, timers, listeners, connections, `.route` stores — is disposed of, and their `cleanup \{ \}` blocks run.\n\nThere is no `onMount` to write: set-up code runs at step 2, an `effect` at step 3, and `after(0) \{ … \}` once the page is on screen.")
+    }
+}

@@ -1,0 +1,237 @@
+/// Chapter 7 of the guide, written from md-docs/07-elements.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page ElementsGuide(path: "/docs/guide/elements", title: "Elements", description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.", layout: DocsShell("Elements", chapter: t("guide.chapter", { n: "7" }), blurb: "Everything on screen is an element: a call with one positional value, named props, flags, and a block.", source: "md-docs/07-elements.md", sections: [Anchor(id: "the-call-shape", label: "The call shape"), Anchor(id: "props-cases-and-flags", label: "Props, cases and flags"), Anchor(id: "attributes", label: "Attributes"), Anchor(id: "parts", label: "Parts"), Anchor(id: "text-and-headings", label: "Text and headings"), Anchor(id: "layout-elements", label: "Layout elements"), Anchor(id: "the-families-of-built-ins", label: "The families of built-ins"), Anchor(id: "what-an-element-renders", label: "What an element renders"), Anchor(id: "what-the-compiler-checks-on-every-element", label: "What the compiler checks on every element")], prevTo: "/docs/guide/pages-and-routing", prevLabel: "6. {t("ch.06")}", nextTo: "/docs/guide/state", nextLabel: "8. {t("ch.08")}")) {
+    Stack(gap: .lg) {
+        Markdown("Everything a page shows is an element: a built-in such as `Button`, or a component you declare. Every element is written the same way.")
+
+        Heading("The call shape", id: "the-call-shape").h2
+
+        CodeBlock(#"Name(positional, prop: value, prop: value).flag.flag { block }"#, title: "text")
+
+        Markdown("- **`Name`** — PascalCase. A built-in (`Card`), a part of one (`Card.Header`), or a component of the project (`UserCard`, `Panel.Footer`).\n- **One positional argument**, first, unnamed — the element's own thing: a button's label, a heading's text, an icon's name. Every other value is passed by name. A second positional argument is an error (`Card(\"Laptop\", 999)` — name it: `Card(\"Laptop\", price: 999)`).\n- **Named props** `name: value`, in any order, any expression as the value.\n- **Flags** `.name`, written tight against the closing parenthesis (or the name, when there are no parentheses): `Button(\"Save\").primary.lg`, `Spacer.sm`, `Card.elevated \{ … \}`.\n- **The block** `\{ … \}`, in a fixed order: `style \{ \}` · `transition \{ \}` · `on … \{ \}` handlers · slot fills · children.")
+
+        CodeBlock(#"page P(path: "/") {
+    Button("Save", disabled: false).primary.lg {
+        style { min-width: 120px }
+        transition { background: 150ms ease-out }
+        on click { log("saved") }
+        Icon("check")
+    }
+}"#, title: "wf")
+
+        Heading("Props, cases and flags", id: "props-cases-and-flags").h2
+
+        Markdown("A prop has a type the compiler knows: `String`, `Number`, `Bool`, a state binding, a path, or an **enum** — a fixed set of cases. An enum prop takes a case written with a leading dot:")
+
+        CodeBlock(#"page P(path: "/") {
+    Row(gap: .md, align: .center, justify: .between) {
+        Text("left")
+        Text("right")
+    }
+}"#, title: "wf")
+
+        Markdown("A **flag** is shorthand for two things: a `Bool` prop set to `true`, or a case of exactly one of the element's enum props:")
+
+        CodeBlock(#"page P(path: "/") {
+    Button("Danger").danger            // tone: .danger
+    Button("Wide").full.outlined       // width: .full, outlined: true
+    Input(bind: q).search.required     // type: .search, required: true
+    state q = ""
+}"#, title: "wf")
+
+        Markdown("The two spellings are equivalent; `.md` on a `Row` is `gap: .md` because `gap` is the only prop of `Row` with an `md` case. When two props share a case name the flag is ambiguous and the compiler asks you to name the prop. A flag the element does not declare is an error, with the list of what it takes — there is no shared vocabulary of modifiers to guess from.\n\nEvery element also takes the **universal props**, which are not listed on each one:")
+
+        Table(caption: "Props, cases and flags") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Prop").header
+                    Table.Cell("Does").header
+                    Table.Cell("Chapter").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`class:`") }
+                    Table.Cell("Adds classes from your own stylesheets (it adds, it never replaces)")
+                    Table.Cell { Markdown("[15](/docs/guide/styling#classes-and-your-own-stylesheet)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ref:`") }
+                    Table.Cell { Markdown("Names a handle on the element: `box.focus()`") }
+                    Table.Cell { Markdown("[8](/docs/guide/state#element-handles)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animate:` or a flag (`.fadeIn`)") }
+                    Table.Cell("The animation it enters with")
+                    Table.Cell { Markdown("[20](/docs/guide/motion)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`exit:`") }
+                    Table.Cell("The animation it leaves with")
+                    Table.Cell { Markdown("[20](/docs/guide/motion#exit-animations)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:`") }
+                    Table.Cell("How the animation is timed")
+                    Table.Cell { Markdown("[20](/docs/guide/motion)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`stagger:`") }
+                    Table.Cell { Markdown("Inside a `for`, each item's delay grows by this much") }
+                    Table.Cell { Markdown("[20](/docs/guide/motion#lists)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on:`") }
+                    Table.Cell { Markdown("When the animation plays: `.mount` (default) or `.enterView`") }
+                    Table.Cell { Markdown("[20](/docs/guide/motion#playing-when-it-is-scrolled-to)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`shared:`") }
+                    Table.Cell("A name the element keeps across a route change")
+                    Table.Cell { Markdown("[20](/docs/guide/motion#the-same-element-across-a-route-change)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`count:`") }
+                    Table.Cell("A number in its text counts to its new value")
+                    Table.Cell { Markdown("[20](/docs/guide/motion#a-number-that-counts)") }
+                }
+            }
+        }
+
+        Markdown("The [components reference](/docs/reference) lists every element's own props.")
+
+        Heading("Attributes", id: "attributes").h2
+
+        Markdown("Named arguments that are not props are HTML attributes, checked against the families the element accepts: the global attributes (`id`, `title`, `role`, `tabindex`, `lang`, …), `aria-*`, `data-*`, and per element the input, anchor, media, form and table attributes. A hyphenated name is written as-is:")
+
+        CodeBlock(#"page P(path: "/") {
+    Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
+    Input(bind: name, id: "name", autocomplete: "name", maxlength: 40)
+    state name = ""
+}"#, title: "wf")
+
+        Markdown("An attribute value that reads state is kept in step with it; `aria-*` keeps a `false` value (it means something), other attributes drop it.")
+
+        Heading("Parts", id: "parts").h2
+
+        Markdown("Some built-ins are made of parts, written under their owner's name:")
+
+        CodeBlock(#"page P(path: "/") {
+    Card.elevated {
+        Card.Header { Heading("Title").h3 }
+        Card.Body { Text("Body") }
+        Card.Footer { Button("OK").primary }
+    }
+    Table(caption: "Regions") {
+        Table.Head { Table.Row { Table.Cell("Region").header  Table.Cell("Latency").header } }
+        Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("34 ms") } }
+    }
+    Select(bind: region, label: "Region") {
+        Select.Option("Frankfurt", value: "fra1")
+        Select.Option("Iowa", value: "iad1")
+    }
+    Tabs {
+        Tabs.Page("One") { Text("first") }
+        Tabs.Page("Two") { Text("second") }
+    }
+    state region = "fra1"
+}"#, title: "wf")
+
+        Markdown("A part belongs inside its owner: `Card.Body` is drawn as a card's body section, and outside a `Card` it is only a section with no card around it. Your own components may declare parts too (chapter 11).")
+
+        Heading("Text and headings", id: "text-and-headings").h2
+
+        CodeBlock(#"page P(path: "/") {
+    Heading("Title").h1                       // a real <h1>; .h2 is the default
+    Text("Plain, {count} live").bold.muted   // an inline run of text
+    Paragraph("Prose, as a <p>.")
+    Code("let x = 1").block
+    Blockquote("A quotation.")
+    Markdown("**Bold** and a [link](/docs)")  // chapter 27
+    state count = 3
+}"#, title: "wf")
+
+        Markdown("Headings form an outline the compiler checks: one `h1` per page, no skipped levels (`A11`, `A12`).")
+
+        Heading("Layout elements", id: "layout-elements").h2
+
+        CodeBlock(#"page P(path: "/") {
+    Container {                                  // centred, max-width
+        Row(gap: .md, align: .center) {          // horizontal flex
+            Column(span: 8) { Text("main") }     // 12-column grid child
+            Column(span: 4) { Text("aside") }
+        }
+        Grid(columns: 3, gap: .lg) { Card { Text("a") }  Card { Text("b") }  Card { Text("c") } }
+        Stack(gap: .sm) { Text("one")  Text("two") }   // vertical flex
+        Spacer.lg
+        Divider
+    }
+    Header { Text("a page region") }
+    Section { Text("another") }
+    Footer { Text("the last") }
+}"#, title: "wf")
+
+        Markdown("`Header`, `Section` and `Footer` are real landmarks (`<header>`, `<section>`, `<footer>`); use them for page regions so the page has an outline a screen reader and a search engine can follow.")
+
+        Heading("The families of built-ins", id: "the-families-of-built-ins").h2
+
+        Table(caption: "The families of built-ins") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Family").header
+                    Table.Cell("Elements").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Layout")
+                    Table.Cell { Markdown("`Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `Host`") }
+                }
+                Table.Row {
+                    Table.Cell("Navigation")
+                    Table.Cell { Markdown("`Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`") }
+                }
+                Table.Row {
+                    Table.Cell("Data display")
+                    Table.Cell { Markdown("`Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`") }
+                }
+                Table.Row {
+                    Table.Cell("Forms")
+                    Table.Cell { Markdown("`Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](/docs/guide/forms))") }
+                }
+                Table.Row {
+                    Table.Cell("Feedback")
+                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Spinner`, `Progress`, `Skeleton` ([Events](/docs/guide/events#overlays-modals-dialogs-toasts-and-menus))") }
+                }
+                Table.Row {
+                    Table.Cell("Actions")
+                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `Dropdown`") }
+                }
+                Table.Row {
+                    Table.Cell("Media")
+                    Table.Cell { Markdown("`Image`, `Video`, `Audio`, `Icon`, `Carousel` ([Media](/docs/guide/media))") }
+                }
+                Table.Row {
+                    Table.Cell("Typography")
+                    Table.Cell { Markdown("`Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html`") }
+                }
+                Table.Row {
+                    Table.Cell("Documents and decks")
+                    Table.Cell { Markdown("`Document`, `PageBreak`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](/docs/guide/pdf-and-slides))") }
+                }
+                Table.Row {
+                    Table.Cell("Routing")
+                    Table.Cell { Markdown("`Router` ([Pages](/docs/guide/pages-and-routing#the-app-shell))") }
+                }
+            }
+        }
+
+        Heading("What an element renders", id: "what-an-element-renders").h2
+
+        Markdown("Each built-in renders real, semantic HTML — a `Button` is a `<button>`, a `Link` an `<a>`, a `Heading(…).h2` an `<h2>`, a `Table` a `<table>` with `<th scope=\"col\">` in its head — and carries a stable class named `wf-<name>`, with modifier classes for its flags: `Button(\"Save\").primary.lg` is `<button class=\"wf-btn wf-btn--primary wf-btn--large\">`. The classes are part of the public surface and stable across releases, so your own stylesheet may target them ([Styling](/docs/guide/styling#classes-and-your-own-stylesheet)). The reference names each element's class.")
+
+        Heading("What the compiler checks on every element", id: "what-the-compiler-checks-on-every-element").h2
+
+        Markdown("- The name is a built-in, a part in its owner, or a declared component.\n- The positional argument is one the element takes; there is at most one.\n- Every named prop exists, with a value of its type; an enum prop's case exists.\n- Every flag resolves to one prop.\n- Handlers name a DOM event or one of the component's declared events.\n- Slot fills name a declared slot.\n- An `Icon(\"name\")` or `icon:` names one of the icons the runtime draws ([the list](/docs/reference#icons)); any other name shows as the word.\n- Accessibility: an `Image` has `alt:`, an `IconButton` has `label:`, a control has a label, a `Modal` a title, a `Table` a `Table.Head` (`A01`–`A10`).")
+    }
+}

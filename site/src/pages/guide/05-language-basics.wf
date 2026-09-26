@@ -1,0 +1,194 @@
+/// Chapter 5 of the guide, written from md-docs/05-language-basics.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page LanguageBasicsGuide(path: "/docs/guide/language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.", layout: DocsShell("Language basics", chapter: t("guide.chapter", { n: "5" }), blurb: "A file is a list of declarations. This chapter covers all fourteen kinds, naming, comments, bodies, strings and the two layouts.", source: "md-docs/05-language-basics.md", sections: [Anchor(id: "a-file-is-a-list-of-declarations", label: "A file is a list of declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings")], prevTo: "/docs/guide/coming-from", prevLabel: "4. {t("ch.04")}", nextTo: "/docs/guide/pages-and-routing", nextLabel: "6. {t("ch.06")}")) {
+    Stack(gap: .lg) {
+        Heading("A file is a list of declarations", id: "a-file-is-a-list-of-declarations").h2
+
+        Markdown("Every `.wf` file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are fourteen kinds:")
+
+        CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
+component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
+store Cart { state items = []  derived count = items.length }
+theme Brand { color-primary: #0F766E  radius-md: 14px }
+app { Navbar { Text("Shop").heading }  Router }
+type Todo { id: String, title: String, done: Bool = false }
+enum Tone { calm, loud }
+api Backend(base: "/api/v1") { get todos() -> [Todo] }
+external Confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/+esm" { fn confetti(options: Map) }
+const API = "/api/v1"
+data posts = "posts.json"
+image hero = "hero.jpg"
+animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
+test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
+
+        Table(caption: "A file is a list of declarations") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Declaration").header
+                    Table.Cell("What it is").header
+                    Table.Cell("Chapter").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`page`") }
+                    Table.Cell("A route and what it shows")
+                    Table.Cell { Markdown("[6](/docs/guide/pages-and-routing)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`component`") }
+                    Table.Cell("A reusable element with typed props, events, slots and parts")
+                    Table.Cell { Markdown("[11](/docs/guide/components)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`store`") }
+                    Table.Cell("State shared across pages")
+                    Table.Cell { Markdown("[12](/docs/guide/stores)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`theme`") }
+                    Table.Cell("Design tokens: colours, spacing, radii, fonts")
+                    Table.Cell { Markdown("[15](/docs/guide/styling)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`app`") }
+                    Table.Cell { Markdown("The shell every page renders inside, with the `Router`") }
+                    Table.Cell { Markdown("[6](/docs/guide/pages-and-routing#the-app-shell)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type`, `enum`") }
+                    Table.Cell("Records and enumerations the checker enforces")
+                    Table.Cell { Markdown("[13](/docs/guide/types)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`api`") }
+                    Table.Cell("An HTTP service: its address, its endpoints and what they return")
+                    Table.Cell { Markdown("[17](/docs/guide/data#api-a-service-described-once)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`external`") }
+                    Table.Cell("A JavaScript module or custom element, typed")
+                    Table.Cell { Markdown("[32](/docs/guide/interop)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`const`") }
+                    Table.Cell("A value read everywhere")
+                    Table.Cell { Markdown("[14](/docs/guide/expressions#constants)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`data`") }
+                    Table.Cell("A JSON file read at build time, as a constant")
+                    Table.Cell { Markdown("[17](/docs/guide/data#data-a-file-at-build-time)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`image`") }
+                    Table.Cell { Markdown("A picture the build resizes and hands to `Image`") }
+                    Table.Cell { Markdown("[28](/docs/guide/media)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animation`") }
+                    Table.Cell("Keyframes")
+                    Table.Cell { Markdown("[20](/docs/guide/motion#custom-animations)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`test`") }
+                    Table.Cell("A render held to expectations and a snapshot")
+                    Table.Cell { Markdown("[24](/docs/guide/testing)") }
+                }
+            }
+        }
+
+        Markdown("Inside a body there are more statements — `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and the rest. [Grammar](/docs/guide/grammar) lists every keyword and where it may appear.\n\nAll the files under `src/` merge into one program, so a component declared in `components/Chip.wf` is usable from every page. `App.wf` is read first; the rest in name order.")
+
+        Heading("Naming", id: "naming").h2
+
+        Markdown("- Declaration keywords are lowercase: `page`, `component`, `store`.\n- The names they declare, and every element, are **PascalCase**: `Home`, `UserCard`, `Button`, `Table.Row`.\n- State, props, actions, variables and flags are **camelCase**: `count`, `isOpen`, `save`, `.primary`.\n- Enum cases are written with a leading dot: `.calm`, `.md`.\n- Design tokens are written with a dollar: `$primary`, `$spacing-md`.\n- A `///` comment above a declaration, a prop or an event is its documentation, shown on hover in the editor and in `wf docs`.\n\nNothing resolves silently. A name the compiler does not know — a misspelled element, a flag the element lacks, a case the enum lacks — is an error with a hint, never a no-op.")
+
+        Heading("Comments", id: "comments").h2
+
+        CodeBlock(#"// A line comment.
+/* A block
+   comment. */
+/// A doc comment: attaches to the declaration that follows it.
+component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
+
+        Heading("Bodies", id: "bodies").h2
+
+        Markdown("A declaration's body is a **render block**: elements, and the statements that shape them (`state`, `derived`, `if`, `for`, …). A handler or an action's body is an **imperative block**: statements that do something (assignments, calls, `let`, `if`, `for`, `try`). The two are separate grammars, and the compiler tells you when a statement is in the wrong kind of block:")
+
+        CodeBlock(#"page P(path: "/") {
+    state n = 0
+    Text("{n}")                          // an element: fine in a render block
+    Button("+") {
+        on click { n = n + 1 }           // an assignment: fine in a handler
+    }
+}"#, title: "wf")
+
+        Markdown("Writing `n = n + 1` loose inside the page body is an error: *\"Code that does something goes in `on click \{ … \}`, an `action` or an `effect`\"*.\n\nStatements need no separator. A newline is usual; on one line, a `;` or nothing at all works — two spaces is the house style, because it reads:")
+
+        CodeBlock(#"page P(path: "/") {
+    state a = 1  state b = 2
+    Button("x") { on click { a = a + 1; b = b + 1 } }
+}"#, title: "wf")
+
+        Heading("Two layouts: .wf and .wfx", id: "two-layouts-wf-and-wfx").h2
+
+        Markdown("The same grammar can be written with braces or with indentation. A `.wf` file opens a block with `\{` and closes it with `\}`; a `.wfx` file opens a block with a line indented deeper than the one before it and closes it with a dedent.")
+
+        CodeBlock(#"page Home(path: "/") {
+    state open = true
+    Row(gap: .sm) {
+        style {
+            padding: 6px 0
+            &:hover { background: $surface-hover }
+        }
+        on click { open = !open }
+        Text("a").bold
+    }
+    if open {
+        Spinner
+    } else {
+        Text("b")
+    }
+}"#, title: "wf")
+
+        Markdown("The same in `.wfx`:")
+
+        CodeBlock(#"page Home(path: "/")
+    state open = true
+    Row(gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click { open = !open }
+        Text("a").bold
+    if open
+        Spinner
+    else
+        Text("b")"#, title: "wfx")
+
+        Markdown("Rules of the indented layout:\n\n- Four spaces (or one tab) per level, consistently; a line that lines up with no enclosing block is an error.\n- Braces you write yourself are still allowed, and everything inside them is free-form: `on click \{ open = !open \}` on one line, a map literal across several, an argument list across several.\n- An empty block is written `\{ \}`.\n- Blank lines and comment lines count for nothing.\n\nBoth layouts compile to the same output, are read by every tool, and a project may mix them. `wf fmt --to wfx` converts a project one way and `--to wf` the other, losslessly. This guide writes `.wf`; every example has an `.wfx` spelling.")
+
+        Heading("Strings", id: "strings").h2
+
+        Markdown("Strings are double-quoted and interpolate with `\{expr\}`:")
+
+        CodeBlock(#"page P(path: "/") {
+    state user = { name: "Sam", age: 41 }
+    Text("Hello, {user.name}! You are {user.age * 12} months old.")
+    Text("A literal brace: \{ and \}")
+    Text("A literal dollar: ${user.age}")     // `$` alone is plain text
+}"#, title: "wf")
+
+        Markdown("Interpolated text is live: when `user` changes, the text changes. A splice may also say how to show its value — `\{total:.currency\}`, `\{when:.date(long)\}` — which is [formatting](/docs/guide/expressions#showing-a-value-a-particular-way) written where it is read.")
+
+        Heading("Three ways to write one", id: "three-ways-to-write-one").h3
+
+        Markdown("A plain `\"…\"` string reads escapes (`\\n`, `\\t`, `\\\"`, `\\\\`, `\\\{`, `\\\}`) and `\{…\}` splices. Two other forms exist for text that a plain string makes you spell twice:")
+
+        CodeBlock("// Raw: no escapes, no splices. The text is what is written.\nconst SAMPLE = #\"page Home(path: \"/\") \{ state n = 0 \}\"#\n\n// As many # as the text needs, when it holds a `\"#` of its own.\nconst TRICKY = ##\"a raw string ends with \"# — like that\"##\n\n// Block: over as many lines as it likes, escapes and splices on, and\n// the indentation the source gave it removed.\nconst LETTER = \"\"\"\n    Dear \{name\},\n      thank you.\n    \"\"\"                       // \"Dear Ada,\\n  thank you.\"", title: "wf")
+
+        Markdown("A raw string is for a sample of code, a regular expression, a Windows path — anything with quotes or braces in it. A block string is for a paragraph, a template, a query: the closing `\"\"\"` says how far the text was indented, and that much comes off every line.")
+    }
+}

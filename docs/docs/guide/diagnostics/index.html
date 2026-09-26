@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostics</title>
+    <meta name="description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Diagnostics">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Diagnostics">
+    <meta name="twitter:description" content="Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics","name":"Diagnostics","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Diagnostics","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/DiagnosticsGuide.js" data-wf-page="DiagnosticsGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">4.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/diagnostics" aria-current="page">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 39</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Diagnostics</h1>
+                        <p class="wf-text wf-s38239618">Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p><code>wf build</code>, <code>wf serve</code> and your editor report the same findings. Each names the file, the line and the column, says what is wrong in a sentence, and usually offers a fix on the line under it:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/pages/Profile.wf:12:10
+  Unwrap it first: `if let x = value { … }`, `value ?? fallback`, …</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong>Errors</strong> stop the build: the program cannot mean what it says.</li>
+<li><strong>Warnings</strong> print and the build goes on: it means something, probably not what you wanted. Nothing is a warning that the compiler could have decided for itself.</li>
+</ul>
+<p>The code in brackets — <code>T04</code> — is the thing to search this page for. Every example below is compiled by the test suite and draws exactly the code it is filed under.</p>
+                            </div>
+                            <h2 class="wf-heading">Structural errors</h2>
+                            <div class="wf-markdown">
+<p>Errors without a code, because each is a reference to something that does not exist, or code where there must be none:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Structural errors</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You wrote</th>
+                                        <th scope="col">The compiler says</th>
+                                        <th scope="col">Fix</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Buton(&quot;Save&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>unknown component <code>Buton</code>: no <code>component Buton</code> is declared</p>
+                                            </div>
+                                        </td>
+                                        <td>Check the spelling, or declare it</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Button(&quot;Save&quot;).huge</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Button has no flag or enum case <code>huge</code>, then every flag it takes</p>
+                                            </div>
+                                        </td>
+                                        <td>Use a listed flag</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Row(gap: .huge)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>gap</code> on Row has no case <code>.huge</code>, then the cases</p>
+                                            </div>
+                                        </td>
+                                        <td>Use a listed case</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Card(&quot;Laptop&quot;, 999)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Only the first argument may be positional</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Name the others: <code>Card(&quot;Laptop&quot;, price: 999)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>page P(layout: Shell)</code> where <code>Shell</code> has no <code>slot</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Shell</code> declares no default slot, so the page has nowhere to go</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Add <code>slot</code> and place <code>children</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>two <code>component Card2</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>duplicate component <code>Card2</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Rename or remove one</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Chip(&quot;a&quot;) { on chnage { … } }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Chip</code> declares no event <code>chnage</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Handle a declared event, or a DOM event</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Panel { footer { … } }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Panel</code> declares no slot <code>footer</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Fill a declared slot, or declare <code>slot footer</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>n = n + 1</code> loose in a page</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>n</code> is not an element or a statement a render block can hold</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Button(&quot;Save&quot;, onclick: &quot;save()&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>onclick</code> on Button would put script in an attribute</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Button(&quot;Save&quot;) { on click { save() } }</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Link(&quot;Go&quot;, to: &quot;javascript:…&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>to</code> on Link names the <code>javascript</code> scheme, which a browser runs</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A relative URL, or <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, <code>sms</code>, <code>ftp</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>env.STRIPE_SECRET</code> in a page</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>env.STRIPE_SECRET</code> is not public, and a page reads what is in the bundle</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Rename it <code>PUBLIC_…</code> or list it in <code>public_env</code> — only if anyone may read it (<a href="/WebFluent/docs/guide/environments">chapter 30</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A parse error — a missing brace, a stray character — names what it expected and what it found, at the line it stopped.</p>
+                            </div>
+                            <h2 class="wf-heading">Warnings without a code</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Warnings without a code</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">You wrote</th>
+                                        <th scope="col">The compiler says</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Button(&quot;Save&quot;, colour: &quot;red&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Button has no prop <code>colour</code>; it is written to the element as an attribute. A typo does nothing on screen. <code>aria-*</code>, <code>data-*</code> and the global attributes (<code>id</code>, <code>role</code>, <code>title</code>, …) are expected and draw nothing.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Icon(&quot;rocket&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>rocket</code> is not an icon the runtime draws; it will show as the word — and the list of icons</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a key in <code>webfluent.app.json</code> nothing reads</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>…</code> is not a setting, and nothing reads it — did you mean <code>…</code>? (<strong>4.1</strong>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Types</h2>
+                            <div class="wf-markdown">
+<p>Errors. The type checker's findings; a program that declares no types raises none of them, since what it cannot resolve is <code>Any</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T01 — A value of the wrong type</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state count: Number = 0
+    Heading(&quot;Counter&quot;).h1
+    Button(&quot;Reset&quot;) { on click { count = &quot;zero&quot; } }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T01] `count` is `String`, but `Number` is wanted at src/App.wf:4:34
+  Convert it: `Number(value)`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give the state a value of its type, or convert: <code>Number(text)</code>, <code>&quot;{n}&quot;</code>. If the state really holds either, declare it <code>Any</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T02 — A case the enum does not have</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T02</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">enum Tone { calm, loud }
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state tone: Tone = .quiet
+    Heading(&quot;Tone&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T02] `Tone` has no case `.quiet` at src/App.wf:3:17
+  `Tone` takes .calm, .loud</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Use one of the cases the message lists, or add the case to the <code>enum</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T04 — A value that may be null, read as if it were not</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T04</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type User { name: String, email: String? }
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state user = User(name: &quot;Ada&quot;, email: null)
+    Heading(&quot;Profile&quot;).h1
+    Text(user.email.toUpperCase())
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/App.wf:5:10
+  Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Unwrap it: <code>if let e = user.email { e.toUpperCase() }</code>, <code>user.email?.toUpperCase()</code>, or <code>(user.email ?? &quot;&quot;).toUpperCase()</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T05 — A field or method that does not exist</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T05</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type User { name: String }
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state user = User(name: &quot;Ada&quot;)
+    Heading(user.nmae).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T05] `User` has no field `nmae` at src/App.wf:4:18
+  Its fields are `name`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Correct the spelling to one of the fields listed, or add the field to the <code>type</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T06 — A member a store or service does not have</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T06</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart { state items = [] }
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    use Cart
+    Heading(&quot;{Cart.count} items&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T06] `Cart` has no member `count` at src/App.wf:4:15
+  Its members are `items`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Use a member the store declares, or declare it: <code>derived count = items.length</code>. For a service, the endpoint must be declared in its <code>api</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T07 — A condition that is always true</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T07</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state items = [&quot;a&quot;]
+    Heading(&quot;List&quot;).h1
+    if items { Text(&quot;There are items&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T07] `if` reads `items` as a condition, but a list is always true at src/App.wf:4:5
+  Ask about its length: `items.length &gt; 0`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Ask the question you mean: <code>items.length &gt; 0</code>, <code>user != null</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">T08 — A loop over something that is not a list</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T08</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state total = 3
+    Heading(&quot;Loop&quot;).h1
+    for n in total { Text(&quot;{n}&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T08] `for` loops over a list, but `total` is `Number` at src/App.wf:4:5
+  Give it a list, or `.split(…)` a string first</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Loop over a list — <code>for n in 1..=total</code> for a range of numbers.</p>
+                            </div>
+                            <h3 class="wf-heading">T09 — An emit that does not match its event</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T09</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Stepper(_ start: Number) {
+    event change(value: Number)
+    Button(&quot;+&quot;) { on click { emit change(1, 2) } }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T09] `emit change` passes 2 arguments, but the event takes 1 at src/App.wf:3:30
+  `event change(value: Number)`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Pass what the <code>event</code> declares, in order, or change the declaration.</p>
+                            </div>
+                            <h3 class="wf-heading">T10 — A call with the wrong arguments</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T10</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state count = 0
+    action add(by: Number) { count = count + by }
+    Heading(&quot;Count&quot;).h1
+    Button(&quot;+&quot;) { on click { add(1, 2) } }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T10] `add` takes 1 argument, but 2 are given at src/App.wf:5:30</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Pass the arguments the action, endpoint or function takes.</p>
+                            </div>
+                            <h3 class="wf-heading">T11 — A match on something that cannot be matched</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T11</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state n = 1
+    Heading(&quot;Match&quot;).h1
+    match n {
+        loading { Spinner }
+        else { Text(&quot;?&quot;) }
+    }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T11] `match` needs a resource or an enum, but `n` is `Number` at src/App.wf:4:5
+  Use `if` for a condition; `match` chooses among a resource&#x27;s states or an enum&#x27;s cases</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Use <code>if</code> for a condition; <code>match</code> takes a resource, a connection or an enum.</p>
+                            </div>
+                            <h3 class="wf-heading">T12 — A secret where it would escape</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T12</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state token: Secret = &quot;&quot;
+    Heading(&quot;Token&quot;).h1
+    Text(token)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Error: [T12] `token` is a `Secret`, and `Text` would show it at src/App.wf:4:10
+  A secret must not reach the page; send it as a value, or show one field of what it unlocks</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Do not show, splice, log or persist a <code>Secret</code>. Send it in a request — or keep it on the server.</p>
+                            </div>
+                            <h2 class="wf-heading">Accessibility</h2>
+                            <div class="wf-markdown">
+<p>Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.</p>
+                            </div>
+                            <h3 class="wf-heading">A01 — An image with no alt text</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Photo&quot;).h1
+    Image(src: &quot;/team.jpg&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A01]: Image missing &quot;alt&quot; attribute at src/App.wf:3:5
+  Add alt text: Image(src: &quot;...&quot;, alt: &quot;Description of image&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Image(src: &quot;/team.jpg&quot;, alt: &quot;The team at the launch&quot;)</code>. A purely decorative image takes <code>alt: &quot;&quot;</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">A02 — An icon button with no name</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A02</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Close&quot;).h1
+    IconButton(icon: &quot;close&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A02]: IconButton missing accessible label at src/App.wf:3:5
+  Add a label: IconButton(icon: &quot;close&quot;, label: &quot;Close dialog&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>IconButton(icon: &quot;close&quot;, label: &quot;Close&quot;)</code> — the label is read aloud, never shown.</p>
+                            </div>
+                            <h3 class="wf-heading">A03 — An input with no label</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A03</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state name = &quot;&quot;
+    Heading(&quot;Name&quot;).h1
+    Input(bind: name).text
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A03]: Input missing &quot;label&quot; or &quot;placeholder&quot; attribute at src/App.wf:4:5
+  Add a label: Input(label: &quot;Username&quot;).text</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Input(bind: name, label: &quot;Name&quot;)</code>. A placeholder alone disappears as the reader types.</p>
+                            </div>
+                            <h3 class="wf-heading">A04 — A control with no label</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A04</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state agree = false
+    Heading(&quot;Terms&quot;).h1
+    Checkbox(bind: agree)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A04]: Checkbox missing &quot;label&quot; attribute at src/App.wf:4:5
+  Add a label: Checkbox(bind: value, label: &quot;Description&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Checkbox(bind: agree, label: &quot;I agree to the terms&quot;)</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">A05 — A button with no text</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A05</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Actions&quot;).h1
+    Button { Icon(&quot;check&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A05]: Button has no text content at src/App.wf:3:5
+  Add text: Button(&quot;Save&quot;).primary</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give it text, or an <code>aria-label:</code> when it shows only an icon.</p>
+                            </div>
+                            <h3 class="wf-heading">A06 — A link with no text</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A06</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Links&quot;).h1
+    Link(to: &quot;/about&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A06]: Link has no text content at src/App.wf:3:5
+  Add text: Link(&quot;About&quot;, to: &quot;/about&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give it text that names where it goes — not &quot;click here&quot;.</p>
+                            </div>
+                            <h3 class="wf-heading">A07 — An empty heading</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A07</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Title&quot;).h1
+    Heading(&quot;&quot;).h2
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A07]: Heading has empty text content at src/App.wf:3:5
+  Headings should have meaningful text</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give the heading text, or remove it; style text with <code>style { }</code> rather than an empty heading.</p>
+                            </div>
+                            <h3 class="wf-heading">A08 — A dialog with no title</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A08</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state open = false
+    Heading(&quot;Modal&quot;).h1
+    Modal(visible: open) { Text(&quot;Hello&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A08]: Modal missing &quot;title&quot; attribute at src/App.wf:4:5
+  Add a title: Modal(visible: state, title: &quot;Dialog Title&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Modal(visible: open, title: &quot;Delete this?&quot;)</code> — the title is its accessible name.</p>
+                            </div>
+                            <h3 class="wf-heading">A09 — Media nobody can follow without sound</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A09</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Demo&quot;).h1
+    Video(src: &quot;/demo.mp4&quot;).controls
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A09]: Video missing &quot;captions&quot; at src/App.wf:3:5
+  Add captions: Video(src: &quot;...&quot;, captions: &quot;/captions.en.vtt&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Video(src: …, captions: &quot;/demo.en.vtt&quot;).controls</code>; an <code>Audio</code> takes <code>transcript:</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">A10 — A table with no header row</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A10</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Table&quot;).h1
+    Table(caption: &quot;Prices&quot;) { Table.Body { Table.Row { Table.Cell(&quot;Pen&quot;)  Table.Cell(&quot;2&quot;) } } }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A10]: Table missing header row (Thead) at src/App.wf:3:5
+  Add a header: Table { Thead { Tcell(&quot;Column Name&quot;) } ... }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Put the first row in <code>Table.Head</code>, so its cells are <code>&lt;th scope=&quot;col&quot;&gt;</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">A11 — A skipped heading level</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A11</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Title&quot;).h1
+    Heading(&quot;Deep&quot;).h4
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A11]: Heading level skips from h1 to h4 at src/App.wf:3:5
+  Use h2 instead, or add the missing intermediate headings</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Use the next level down (<code>h2</code> after <code>h1</code>). Size text with <code>style { font-size }</code>, not with the heading level.</p>
+                            </div>
+                            <h3 class="wf-heading">A12 — A page without exactly one h1</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A12</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Section&quot;).h2
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A12]: Page has no h1 heading at src/App.wf:1:1
+  Add a main heading: Heading(&quot;Page Title&quot;).h1</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> One <code>Heading(…).h1</code> per page, naming what the page is. A layout's <code>h1</code> counts for the page it frames.</p>
+                            </div>
+                            <h3 class="wf-heading">A13 — Colours without enough contrast</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A13</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">theme Faint {
+    color-text: #BBBBBB
+    color-background: #FFFFFF
+}
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Contrast&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A13]: body text on the page background has a contrast ratio of 1.92:1, below the 4.5:1 WCAG AA minimum at src/App.wf:3:1
+  Darken --color-text or lighten --color-background until they clear 4.5:1</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).</p>
+                            </div>
+                            <h3 class="wf-heading">A14 — A role whose children are the wrong kind</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A14</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Tabs&quot;).h1
+    Row(role: &quot;tablist&quot;) {
+        Button(&quot;One&quot;)
+        Button(&quot;Two&quot;)
+    }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A14]: role &quot;tablist&quot; requires children with role &quot;tab&quot;, but holds a Button at src/App.wf:3:5
+  Give each child role: &quot;tab&quot;, or use the built-in that owns this structure</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give each child the role the parent requires (<code>role: &quot;tab&quot;</code>), or use the built-in that owns the structure — <code>Tabs</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">A15 — An aria-label that does not contain the visible text</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws A15</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Save&quot;).h1
+    Button(&quot;Save&quot;, aria-label: &quot;Submit the form&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [A15]: Button shows &quot;save&quot; but its aria-label says &quot;Submit the form&quot; at src/App.wf:3:5
+  Start the aria-label with the visible text, so what a user says matches what they see</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Start the <code>aria-label</code> with the visible words: <code>aria-label: &quot;Save the draft&quot;</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Search and sharing</h2>
+                            <div class="wf-markdown">
+<p>Warnings. What a search engine or a link preview would act on.</p>
+                            </div>
+                            <h3 class="wf-heading">S01 — A page with no title</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws S01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, description: &quot;D&quot;) {
+    Heading(&quot;No title&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [S01]: Page P has no title at src/App.wf:1:1
+  Add one: page Name(path: &quot;/&quot;, title: &quot;What this page is&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>page P(path: &quot;/&quot;, title: &quot;What this page is&quot;)</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">S02 — A page with no description</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws S02</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;) {
+    Heading(&quot;No description&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [S02]: Page P has no description at src/App.wf:1:1
+  Add one: page Name(path: &quot;/&quot;, title: &quot;…&quot;, description: &quot;A sentence a search result can show&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Add a <code>description:</code> of about 150 characters: what a reader gets from the page.</p>
+                            </div>
+                            <h3 class="wf-heading">S03 — A description too long for a search result</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws S03</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.&quot;) {
+    Heading(&quot;Long&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [S03]: Page P&#x27;s description is 178 characters; a search result shows about 160 at src/App.wf:1:1
+  Shorten it, or accept that it will be cut mid-sentence</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Shorten it to about 160 characters.</p>
+                            </div>
+                            <h3 class="wf-heading">S04 — Two pages on one route</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws S04</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page A(path: &quot;/about&quot;, title: &quot;A&quot;, description: &quot;D&quot;) { Heading(&quot;A&quot;).h1 }
+page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot;) { Heading(&quot;B&quot;).h1 }</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [S04]: Pages A and B both claim the route /about at src/App.wf:2:1
+  Give each page its own path</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Give each page its own <code>path:</code>. Only one of them would ever render.</p>
+                            </div>
+                            <h2 class="wf-heading">What is kept in the browser</h2>
+                            <div class="wf-markdown">
+<p>Warnings. <code>persist</code> values across releases.</p>
+                            </div>
+                            <h3 class="wf-heading">P01 — A persisted value with no way forward</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws P01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart {
+    persist items: [String] = [] {
+        version: 2
+    }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [P01]: `items` is at version 2, and nothing brings version 1 forward at src/App.wf:2:5
+  A reader who last visited then loses what they had. Add `migrate 1 -&gt; 2`</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Add a step for each older version: <code>migrate 1 -&gt; 2 { old.map(…) }</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">P02 — A migration that never runs</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws P02</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart {
+    persist items: [String] = [] {
+        version: 1
+        migrate 1 -&gt; 2 { old }
+    }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [P02]: `migrate 1 -&gt; 2` on `items` is past the declared version at src/App.wf:2:5
+  A step above `version:` never runs; raise the version or drop the step</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Raise <code>version:</code> to the step's target, or drop the step.</p>
+                            </div>
+                            <h3 class="wf-heading">P03 — A persisted value in a route-scoped store</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws P03</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Filters(scope: .route) {
+    persist query = &quot;&quot;
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [P03]: `query` is persisted in a store scoped to the route at src/App.wf:2:5
+  The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Keep route-scoped data in <code>state</code>, or move the value to a store with a wider scope.</p>
+                            </div>
+                            <h2 class="wf-heading">Declared and never read</h2>
+                            <div class="wf-markdown">
+<p>Warnings. A name beginning <code>_</code> is taken as unused on purpose.</p>
+                            </div>
+                            <h3 class="wf-heading">U01 — A state nothing reads</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws U01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state unused = 0
+    Heading(&quot;Unused&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [U01]: `unused` is declared but never read at src/App.wf:2:5
+  Nothing reads the state; remove it, or name it `_unused` to keep it</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Remove it, read it, or name it <code>_unused</code> to keep it on purpose.</p>
+                            </div>
+                            <h3 class="wf-heading">U02 — A derived value nothing reads</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws U02</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state n = 1
+    derived doubled = n * 2
+    Heading(&quot;{n}&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [U02]: `doubled` is declared but never read at src/App.wf:3:5
+  Nothing reads the derived value; remove it, or name it `_doubled` to keep it</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Remove it or read it; a leading <code>_</code> keeps it.</p>
+                            </div>
+                            <h3 class="wf-heading">U03 — A component nothing places</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws U03</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">component Orphan { Text(&quot;Nobody places me&quot;) }
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Home&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [U03]: `Orphan` is declared but never placed at src/App.wf:1:1
+  Place it in a page, name it as a layout, or remove it</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Place it, name it as a <code>layout:</code>, publish it in <code>build.elements</code>, or remove it.</p>
+                            </div>
+                            <h3 class="wf-heading">U04 — A store member nothing reads</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws U04</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">store Cart {
+    state items = []
+    state coupon = &quot;&quot;
+}
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    use Cart
+    Heading(&quot;{Cart.items.length}&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [U04]: `Cart.coupon` is declared but never read at src/App.wf:3:5
+  Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Remove the member, or name it with a leading <code>_</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">U05 — An action nothing calls</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws U05</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state n = 0
+    action reset() { n = 0 }
+    Heading(&quot;{n}&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [U05]: `reset` is declared but never read at src/App.wf:3:5
+  Nothing reads the action; remove it, or name it `_reset` to keep it</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Call it, remove it, or name it <code>_reset</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Vocabulary</h2>
+                            <div class="wf-markdown">
+<p>Warnings.</p>
+                            </div>
+                            <h3 class="wf-heading">V01 — A bare word that means nothing</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws V01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Save&quot;).h1
+    Button(primary)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary` at src/App.wf:3:12</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Write the flag with its dot — <code>Button(&quot;Save&quot;).primary</code> — or declare the name.</p>
+                            </div>
+                            <h3 class="wf-heading">V03 — Markup put in as markup</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws V03</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state body = &quot;&lt;b&gt;Hi&lt;/b&gt;&quot;
+    Heading(&quot;Markup&quot;).h1
+    Unsafe.Html(body)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [V03]: `Unsafe.Html` puts markup in as markup at src/App.wf:4:5
+  Anything the project did not write itself belongs in `sanitize(…)` first</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Wrap markup from outside the project in <code>sanitize(…)</code>: <code>Unsafe.Html(sanitize(body))</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">V02 — A flag no stylesheet styles</h3>
+                            <div class="wf-markdown">
+<p>A flag on one of your components whose class no stylesheet — the engine's or one of the project's <code>.css</code> files — defines, so it changes nothing on screen. The built-ins cannot draw it: the registry and the engine's stylesheet are held to each other. <strong>Fix:</strong> define the class in a <code>.css</code> file under <code>src/</code>, or drop the flag.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/config">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">38. Configuration</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/built-ins">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">40. Built-ins</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#structural-errors">Structural errors</a>
+                        <a class="wf-link wf-sdae384de" href="#warnings-without-a-code">Warnings without a code</a>
+                        <a class="wf-link wf-sdae384de" href="#types">Types</a>
+                        <a class="wf-link wf-sdae384de" href="#accessibility">Accessibility</a>
+                        <a class="wf-link wf-sdae384de" href="#search-and-sharing">Search and sharing</a>
+                        <a class="wf-link wf-sdae384de" href="#what-is-kept-in-the-browser">What is kept in the browser</a>
+                        <a class="wf-link wf-sdae384de" href="#declared-and-never-read">Declared and never read</a>
+                        <a class="wf-link wf-sdae384de" href="#vocabulary">Vocabulary</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/39-diagnostics.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link active" href="/WebFluent/docs/guide/diagnostics" aria-current="page">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

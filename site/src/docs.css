@@ -65,6 +65,9 @@ button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mo
 .wf-table .wf-markdown { max-width: none; }
 .wf-table .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; }
 .wf-table code { white-space: nowrap; font-size: 12px; }
+/* In the guide's tables a cell's code may break, so a table of long values
+   fits the article instead of widening the page. */
+.docs-article .wf-table code { white-space: normal; overflow-wrap: anywhere; }
 
 /* Code blocks: no wrapping, the block scrolls. */
 .code-block pre.wf-code, .code-block .wf-code--block { white-space: pre; }

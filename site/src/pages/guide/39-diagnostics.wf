@@ -1,0 +1,648 @@
+/// Chapter 39 of the guide, written from md-docs/39-diagnostics.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.", layout: DocsShell("Diagnostics", chapter: t("guide.chapter", { n: "39" }), blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.", source: "md-docs/39-diagnostics.md", sections: [Anchor(id: "structural-errors", label: "Structural errors"), Anchor(id: "warnings-without-a-code", label: "Warnings without a code"), Anchor(id: "types", label: "Types"), Anchor(id: "accessibility", label: "Accessibility"), Anchor(id: "search-and-sharing", label: "Search and sharing"), Anchor(id: "what-is-kept-in-the-browser", label: "What is kept in the browser"), Anchor(id: "declared-and-never-read", label: "Declared and never read"), Anchor(id: "vocabulary", label: "Vocabulary")], prevTo: "/docs/guide/config", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/built-ins", nextLabel: "40. {t("ch.40")}")) {
+    Stack(gap: .lg) {
+        Markdown("`wf build`, `wf serve` and your editor report the same findings. Each names the file, the line and the column, says what is wrong in a sentence, and usually offers a fix on the line under it:")
+
+        CodeBlock(#"Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/pages/Profile.wf:12:10
+  Unwrap it first: `if let x = value { … }`, `value ?? fallback`, …"#, title: "text")
+
+        Markdown("- **Errors** stop the build: the program cannot mean what it says.\n- **Warnings** print and the build goes on: it means something, probably not what you wanted. Nothing is a warning that the compiler could have decided for itself.\n\nThe code in brackets — `T04` — is the thing to search this page for. Every example below is compiled by the test suite and draws exactly the code it is filed under.")
+
+        Heading("Structural errors", id: "structural-errors").h2
+
+        Markdown("Errors without a code, because each is a reference to something that does not exist, or code where there must be none:")
+
+        Table(caption: "Structural errors") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("You wrote").header
+                    Table.Cell("The compiler says").header
+                    Table.Cell("Fix").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Buton(\"Save\")`") }
+                    Table.Cell { Markdown("unknown component `Buton`: no `component Buton` is declared") }
+                    Table.Cell("Check the spelling, or declare it")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Button(\"Save\").huge`") }
+                    Table.Cell { Markdown("Button has no flag or enum case `huge`, then every flag it takes") }
+                    Table.Cell("Use a listed flag")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Row(gap: .huge)`") }
+                    Table.Cell { Markdown("`gap` on Row has no case `.huge`, then the cases") }
+                    Table.Cell("Use a listed case")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Card(\"Laptop\", 999)`") }
+                    Table.Cell("Only the first argument may be positional")
+                    Table.Cell { Markdown("Name the others: `Card(\"Laptop\", price: 999)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`page P(layout: Shell)` where `Shell` has no `slot`") }
+                    Table.Cell { Markdown("`Shell` declares no default slot, so the page has nowhere to go") }
+                    Table.Cell { Markdown("Add `slot` and place `children`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("two `component Card2`") }
+                    Table.Cell { Markdown("duplicate component `Card2`") }
+                    Table.Cell("Rename or remove one")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Chip(\"a\") \{ on chnage \{ … \} \}`") }
+                    Table.Cell { Markdown("`Chip` declares no event `chnage`") }
+                    Table.Cell("Handle a declared event, or a DOM event")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Panel \{ footer \{ … \} \}`") }
+                    Table.Cell { Markdown("`Panel` declares no slot `footer`") }
+                    Table.Cell { Markdown("Fill a declared slot, or declare `slot footer`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`n = n + 1` loose in a page") }
+                    Table.Cell { Markdown("`n` is not an element or a statement a render block can hold") }
+                    Table.Cell { Markdown("Put it in `on click \{ \}`, an `action` or an `effect`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Button(\"Save\", onclick: \"save()\")`") }
+                    Table.Cell { Markdown("`onclick` on Button would put script in an attribute") }
+                    Table.Cell { Markdown("`Button(\"Save\") \{ on click \{ save() \} \}`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Link(\"Go\", to: \"javascript:…\")`") }
+                    Table.Cell { Markdown("`to` on Link names the `javascript` scheme, which a browser runs") }
+                    Table.Cell { Markdown("A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`, `ftp`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`env.STRIPE_SECRET` in a page") }
+                    Table.Cell { Markdown("`env.STRIPE_SECRET` is not public, and a page reads what is in the bundle") }
+                    Table.Cell { Markdown("Rename it `PUBLIC_…` or list it in `public_env` — only if anyone may read it ([chapter 30](/docs/guide/environments))") }
+                }
+            }
+        }
+
+        Markdown("A parse error — a missing brace, a stray character — names what it expected and what it found, at the line it stopped.")
+
+        Heading("Warnings without a code", id: "warnings-without-a-code").h2
+
+        Table(caption: "Warnings without a code") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("You wrote").header
+                    Table.Cell("The compiler says").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Button(\"Save\", colour: \"red\")`") }
+                    Table.Cell { Markdown("Button has no prop `colour`; it is written to the element as an attribute. A typo does nothing on screen. `aria-*`, `data-*` and the global attributes (`id`, `role`, `title`, …) are expected and draw nothing.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Icon(\"rocket\")`") }
+                    Table.Cell { Markdown("`rocket` is not an icon the runtime draws; it will show as the word — and the list of icons") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("a key in `webfluent.app.json` nothing reads") }
+                    Table.Cell { Markdown("`…` is not a setting, and nothing reads it — did you mean `…`? (**4.1**)") }
+                }
+            }
+        }
+
+        Heading("Types", id: "types").h2
+
+        Markdown("Errors. The type checker's findings; a program that declares no types raises none of them, since what it cannot resolve is `Any`.")
+
+        Heading("T01 — A value of the wrong type", id: "t01-a-value-of-the-wrong-type").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count: Number = 0
+    Heading("Counter").h1
+    Button("Reset") { on click { count = "zero" } }
+}"#, title: "wf · draws T01")
+
+        CodeBlock(#"Error: [T01] `count` is `String`, but `Number` is wanted at src/App.wf:4:34
+  Convert it: `Number(value)`"#, title: "text")
+
+        Markdown("**Fix:** Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.")
+
+        Heading("T02 — A case the enum does not have", id: "t02-a-case-the-enum-does-not-have").h3
+
+        CodeBlock(#"enum Tone { calm, loud }
+page P(path: "/", title: "T", description: "D") {
+    state tone: Tone = .quiet
+    Heading("Tone").h1
+}"#, title: "wf · draws T02")
+
+        CodeBlock(#"Error: [T02] `Tone` has no case `.quiet` at src/App.wf:3:17
+  `Tone` takes .calm, .loud"#, title: "text")
+
+        Markdown("**Fix:** Use one of the cases the message lists, or add the case to the `enum`.")
+
+        Heading("T04 — A value that may be null, read as if it were not", id: "t04-a-value-that-may-be-null-read-as-if-it-were-not").h3
+
+        CodeBlock(#"type User { name: String, email: String? }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada", email: null)
+    Heading("Profile").h1
+    Text(user.email.toUpperCase())
+}"#, title: "wf · draws T04")
+
+        CodeBlock(#"Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/App.wf:5:10
+  Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`"#, title: "text")
+
+        Markdown("**Fix:** Unwrap it: `if let e = user.email \{ e.toUpperCase() \}`, `user.email?.toUpperCase()`, or `(user.email ?? \"\").toUpperCase()`.")
+
+        Heading("T05 — A field or method that does not exist", id: "t05-a-field-or-method-that-does-not-exist").h3
+
+        CodeBlock(#"type User { name: String }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada")
+    Heading(user.nmae).h1
+}"#, title: "wf · draws T05")
+
+        CodeBlock(#"Error: [T05] `User` has no field `nmae` at src/App.wf:4:18
+  Its fields are `name`"#, title: "text")
+
+        Markdown("**Fix:** Correct the spelling to one of the fields listed, or add the field to the `type`.")
+
+        Heading("T06 — A member a store or service does not have", id: "t06-a-member-a-store-or-service-does-not-have").h3
+
+        CodeBlock(#"store Cart { state items = [] }
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("{Cart.count} items").h1
+}"#, title: "wf · draws T06")
+
+        CodeBlock(#"Error: [T06] `Cart` has no member `count` at src/App.wf:4:15
+  Its members are `items`"#, title: "text")
+
+        Markdown("**Fix:** Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.")
+
+        Heading("T07 — A condition that is always true", id: "t07-a-condition-that-is-always-true").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state items = ["a"]
+    Heading("List").h1
+    if items { Text("There are items") }
+}"#, title: "wf · draws T07")
+
+        CodeBlock(#"Error: [T07] `if` reads `items` as a condition, but a list is always true at src/App.wf:4:5
+  Ask about its length: `items.length > 0`"#, title: "text")
+
+        Markdown("**Fix:** Ask the question you mean: `items.length > 0`, `user != null`.")
+
+        Heading("T08 — A loop over something that is not a list", id: "t08-a-loop-over-something-that-is-not-a-list").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state total = 3
+    Heading("Loop").h1
+    for n in total { Text("{n}") }
+}"#, title: "wf · draws T08")
+
+        CodeBlock(#"Error: [T08] `for` loops over a list, but `total` is `Number` at src/App.wf:4:5
+  Give it a list, or `.split(…)` a string first"#, title: "text")
+
+        Markdown("**Fix:** Loop over a list — `for n in 1..=total` for a range of numbers.")
+
+        Heading("T09 — An emit that does not match its event", id: "t09-an-emit-that-does-not-match-its-event").h3
+
+        CodeBlock(#"component Stepper(_ start: Number) {
+    event change(value: Number)
+    Button("+") { on click { emit change(1, 2) } }
+}"#, title: "wf · draws T09")
+
+        CodeBlock(#"Error: [T09] `emit change` passes 2 arguments, but the event takes 1 at src/App.wf:3:30
+  `event change(value: Number)`"#, title: "text")
+
+        Markdown("**Fix:** Pass what the `event` declares, in order, or change the declaration.")
+
+        Heading("T10 — A call with the wrong arguments", id: "t10-a-call-with-the-wrong-arguments").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    action add(by: Number) { count = count + by }
+    Heading("Count").h1
+    Button("+") { on click { add(1, 2) } }
+}"#, title: "wf · draws T10")
+
+        CodeBlock(#"Error: [T10] `add` takes 1 argument, but 2 are given at src/App.wf:5:30"#, title: "text")
+
+        Markdown("**Fix:** Pass the arguments the action, endpoint or function takes.")
+
+        Heading("T11 — A match on something that cannot be matched", id: "t11-a-match-on-something-that-cannot-be-matched").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 1
+    Heading("Match").h1
+    match n {
+        loading { Spinner }
+        else { Text("?") }
+    }
+}"#, title: "wf · draws T11")
+
+        CodeBlock(#"Error: [T11] `match` needs a resource or an enum, but `n` is `Number` at src/App.wf:4:5
+  Use `if` for a condition; `match` chooses among a resource's states or an enum's cases"#, title: "text")
+
+        Markdown("**Fix:** Use `if` for a condition; `match` takes a resource, a connection or an enum.")
+
+        Heading("T12 — A secret where it would escape", id: "t12-a-secret-where-it-would-escape").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state token: Secret = ""
+    Heading("Token").h1
+    Text(token)
+}"#, title: "wf · draws T12")
+
+        CodeBlock(#"Error: [T12] `token` is a `Secret`, and `Text` would show it at src/App.wf:4:10
+  A secret must not reach the page; send it as a value, or show one field of what it unlocks"#, title: "text")
+
+        Markdown("**Fix:** Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.")
+
+        Heading("Accessibility", id: "accessibility").h2
+
+        Markdown("Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.")
+
+        Heading("A01 — An image with no alt text", id: "a01-an-image-with-no-alt-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Photo").h1
+    Image(src: "/team.jpg")
+}"#, title: "wf · draws A01")
+
+        CodeBlock(#"Warning [A01]: Image missing "alt" attribute at src/App.wf:3:5
+  Add alt text: Image(src: "...", alt: "Description of image")"#, title: "text")
+
+        Markdown("**Fix:** `Image(src: \"/team.jpg\", alt: \"The team at the launch\")`. A purely decorative image takes `alt: \"\"`.")
+
+        Heading("A02 — An icon button with no name", id: "a02-an-icon-button-with-no-name").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Close").h1
+    IconButton(icon: "close")
+}"#, title: "wf · draws A02")
+
+        CodeBlock(#"Warning [A02]: IconButton missing accessible label at src/App.wf:3:5
+  Add a label: IconButton(icon: "close", label: "Close dialog")"#, title: "text")
+
+        Markdown("**Fix:** `IconButton(icon: \"close\", label: \"Close\")` — the label is read aloud, never shown.")
+
+        Heading("A03 — An input with no label", id: "a03-an-input-with-no-label").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state name = ""
+    Heading("Name").h1
+    Input(bind: name).text
+}"#, title: "wf · draws A03")
+
+        CodeBlock(#"Warning [A03]: Input missing "label" or "placeholder" attribute at src/App.wf:4:5
+  Add a label: Input(label: "Username").text"#, title: "text")
+
+        Markdown("**Fix:** `Input(bind: name, label: \"Name\")`. A placeholder alone disappears as the reader types.")
+
+        Heading("A04 — A control with no label", id: "a04-a-control-with-no-label").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state agree = false
+    Heading("Terms").h1
+    Checkbox(bind: agree)
+}"#, title: "wf · draws A04")
+
+        CodeBlock(#"Warning [A04]: Checkbox missing "label" attribute at src/App.wf:4:5
+  Add a label: Checkbox(bind: value, label: "Description")"#, title: "text")
+
+        Markdown("**Fix:** `Checkbox(bind: agree, label: \"I agree to the terms\")`.")
+
+        Heading("A05 — A button with no text", id: "a05-a-button-with-no-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Actions").h1
+    Button { Icon("check") }
+}"#, title: "wf · draws A05")
+
+        CodeBlock(#"Warning [A05]: Button has no text content at src/App.wf:3:5
+  Add text: Button("Save").primary"#, title: "text")
+
+        Markdown("**Fix:** Give it text, or an `aria-label:` when it shows only an icon.")
+
+        Heading("A06 — A link with no text", id: "a06-a-link-with-no-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Links").h1
+    Link(to: "/about")
+}"#, title: "wf · draws A06")
+
+        CodeBlock(#"Warning [A06]: Link has no text content at src/App.wf:3:5
+  Add text: Link("About", to: "/about")"#, title: "text")
+
+        Markdown("**Fix:** Give it text that names where it goes — not \"click here\".")
+
+        Heading("A07 — An empty heading", id: "a07-an-empty-heading").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Title").h1
+    Heading("").h2
+}"#, title: "wf · draws A07")
+
+        CodeBlock(#"Warning [A07]: Heading has empty text content at src/App.wf:3:5
+  Headings should have meaningful text"#, title: "text")
+
+        Markdown("**Fix:** Give the heading text, or remove it; style text with `style \{ \}` rather than an empty heading.")
+
+        Heading("A08 — A dialog with no title", id: "a08-a-dialog-with-no-title").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state open = false
+    Heading("Modal").h1
+    Modal(visible: open) { Text("Hello") }
+}"#, title: "wf · draws A08")
+
+        CodeBlock(#"Warning [A08]: Modal missing "title" attribute at src/App.wf:4:5
+  Add a title: Modal(visible: state, title: "Dialog Title")"#, title: "text")
+
+        Markdown("**Fix:** `Modal(visible: open, title: \"Delete this?\")` — the title is its accessible name.")
+
+        Heading("A09 — Media nobody can follow without sound", id: "a09-media-nobody-can-follow-without-sound").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Demo").h1
+    Video(src: "/demo.mp4").controls
+}"#, title: "wf · draws A09")
+
+        CodeBlock(#"Warning [A09]: Video missing "captions" at src/App.wf:3:5
+  Add captions: Video(src: "...", captions: "/captions.en.vtt")"#, title: "text")
+
+        Markdown("**Fix:** `Video(src: …, captions: \"/demo.en.vtt\").controls`; an `Audio` takes `transcript:`.")
+
+        Heading("A10 — A table with no header row", id: "a10-a-table-with-no-header-row").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Table").h1
+    Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
+}"#, title: "wf · draws A10")
+
+        CodeBlock(#"Warning [A10]: Table missing header row (Thead) at src/App.wf:3:5
+  Add a header: Table { Thead { Tcell("Column Name") } ... }"#, title: "text")
+
+        Markdown("**Fix:** Put the first row in `Table.Head`, so its cells are `<th scope=\"col\">`.")
+
+        Heading("A11 — A skipped heading level", id: "a11-a-skipped-heading-level").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Title").h1
+    Heading("Deep").h4
+}"#, title: "wf · draws A11")
+
+        CodeBlock(#"Warning [A11]: Heading level skips from h1 to h4 at src/App.wf:3:5
+  Use h2 instead, or add the missing intermediate headings"#, title: "text")
+
+        Markdown("**Fix:** Use the next level down (`h2` after `h1`). Size text with `style \{ font-size \}`, not with the heading level.")
+
+        Heading("A12 — A page without exactly one h1", id: "a12-a-page-without-exactly-one-h1").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Section").h2
+}"#, title: "wf · draws A12")
+
+        CodeBlock(#"Warning [A12]: Page has no h1 heading at src/App.wf:1:1
+  Add a main heading: Heading("Page Title").h1"#, title: "text")
+
+        Markdown("**Fix:** One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.")
+
+        Heading("A13 — Colours without enough contrast", id: "a13-colours-without-enough-contrast").h3
+
+        CodeBlock(#"theme Faint {
+    color-text: #BBBBBB
+    color-background: #FFFFFF
+}
+page P(path: "/", title: "T", description: "D") {
+    Heading("Contrast").h1
+}"#, title: "wf · draws A13")
+
+        CodeBlock(#"Warning [A13]: body text on the page background has a contrast ratio of 1.92:1, below the 4.5:1 WCAG AA minimum at src/App.wf:3:1
+  Darken --color-text or lighten --color-background until they clear 4.5:1"#, title: "text")
+
+        Markdown("**Fix:** Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).")
+
+        Heading("A14 — A role whose children are the wrong kind", id: "a14-a-role-whose-children-are-the-wrong-kind").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Tabs").h1
+    Row(role: "tablist") {
+        Button("One")
+        Button("Two")
+    }
+}"#, title: "wf · draws A14")
+
+        CodeBlock(#"Warning [A14]: role "tablist" requires children with role "tab", but holds a Button at src/App.wf:3:5
+  Give each child role: "tab", or use the built-in that owns this structure"#, title: "text")
+
+        Markdown("**Fix:** Give each child the role the parent requires (`role: \"tab\"`), or use the built-in that owns the structure — `Tabs`.")
+
+        Heading("A15 — An aria-label that does not contain the visible text", id: "a15-an-aria-label-that-does-not-contain-the-visible-text").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save", aria-label: "Submit the form")
+}"#, title: "wf · draws A15")
+
+        CodeBlock(#"Warning [A15]: Button shows "save" but its aria-label says "Submit the form" at src/App.wf:3:5
+  Start the aria-label with the visible text, so what a user says matches what they see"#, title: "text")
+
+        Markdown("**Fix:** Start the `aria-label` with the visible words: `aria-label: \"Save the draft\"`.")
+
+        Heading("Search and sharing", id: "search-and-sharing").h2
+
+        Markdown("Warnings. What a search engine or a link preview would act on.")
+
+        Heading("S01 — A page with no title", id: "s01-a-page-with-no-title").h3
+
+        CodeBlock(#"page P(path: "/", description: "D") {
+    Heading("No title").h1
+}"#, title: "wf · draws S01")
+
+        CodeBlock(#"Warning [S01]: Page P has no title at src/App.wf:1:1
+  Add one: page Name(path: "/", title: "What this page is")"#, title: "text")
+
+        Markdown("**Fix:** `page P(path: \"/\", title: \"What this page is\")`.")
+
+        Heading("S02 — A page with no description", id: "s02-a-page-with-no-description").h3
+
+        CodeBlock(#"page P(path: "/", title: "T") {
+    Heading("No description").h1
+}"#, title: "wf · draws S02")
+
+        CodeBlock(#"Warning [S02]: Page P has no description at src/App.wf:1:1
+  Add one: page Name(path: "/", title: "…", description: "A sentence a search result can show")"#, title: "text")
+
+        Markdown("**Fix:** Add a `description:` of about 150 characters: what a reader gets from the page.")
+
+        Heading("S03 — A description too long for a search result", id: "s03-a-description-too-long-for-a-search-result").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
+    Heading("Long").h1
+}"#, title: "wf · draws S03")
+
+        CodeBlock(#"Warning [S03]: Page P's description is 178 characters; a search result shows about 160 at src/App.wf:1:1
+  Shorten it, or accept that it will be cut mid-sentence"#, title: "text")
+
+        Markdown("**Fix:** Shorten it to about 160 characters.")
+
+        Heading("S04 — Two pages on one route", id: "s04-two-pages-on-one-route").h3
+
+        CodeBlock(#"page A(path: "/about", title: "A", description: "D") { Heading("A").h1 }
+page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }"#, title: "wf · draws S04")
+
+        CodeBlock(#"Warning [S04]: Pages A and B both claim the route /about at src/App.wf:2:1
+  Give each page its own path"#, title: "text")
+
+        Markdown("**Fix:** Give each page its own `path:`. Only one of them would ever render.")
+
+        Heading("What is kept in the browser", id: "what-is-kept-in-the-browser").h2
+
+        Markdown("Warnings. `persist` values across releases.")
+
+        Heading("P01 — A persisted value with no way forward", id: "p01-a-persisted-value-with-no-way-forward").h3
+
+        CodeBlock(#"store Cart {
+    persist items: [String] = [] {
+        version: 2
+    }
+}"#, title: "wf · draws P01")
+
+        CodeBlock(#"Warning [P01]: `items` is at version 2, and nothing brings version 1 forward at src/App.wf:2:5
+  A reader who last visited then loses what they had. Add `migrate 1 -> 2`"#, title: "text")
+
+        Markdown("**Fix:** Add a step for each older version: `migrate 1 -> 2 \{ old.map(…) \}`.")
+
+        Heading("P02 — A migration that never runs", id: "p02-a-migration-that-never-runs").h3
+
+        CodeBlock(#"store Cart {
+    persist items: [String] = [] {
+        version: 1
+        migrate 1 -> 2 { old }
+    }
+}"#, title: "wf · draws P02")
+
+        CodeBlock(#"Warning [P02]: `migrate 1 -> 2` on `items` is past the declared version at src/App.wf:2:5
+  A step above `version:` never runs; raise the version or drop the step"#, title: "text")
+
+        Markdown("**Fix:** Raise `version:` to the step's target, or drop the step.")
+
+        Heading("P03 — A persisted value in a route-scoped store", id: "p03-a-persisted-value-in-a-route-scoped-store").h3
+
+        CodeBlock(#"store Filters(scope: .route) {
+    persist query = ""
+}"#, title: "wf · draws P03")
+
+        CodeBlock(#"Warning [P03]: `query` is persisted in a store scoped to the route at src/App.wf:2:5
+  The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it"#, title: "text")
+
+        Markdown("**Fix:** Keep route-scoped data in `state`, or move the value to a store with a wider scope.")
+
+        Heading("Declared and never read", id: "declared-and-never-read").h2
+
+        Markdown("Warnings. A name beginning `_` is taken as unused on purpose.")
+
+        Heading("U01 — A state nothing reads", id: "u01-a-state-nothing-reads").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state unused = 0
+    Heading("Unused").h1
+}"#, title: "wf · draws U01")
+
+        CodeBlock(#"Warning [U01]: `unused` is declared but never read at src/App.wf:2:5
+  Nothing reads the state; remove it, or name it `_unused` to keep it"#, title: "text")
+
+        Markdown("**Fix:** Remove it, read it, or name it `_unused` to keep it on purpose.")
+
+        Heading("U02 — A derived value nothing reads", id: "u02-a-derived-value-nothing-reads").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 1
+    derived doubled = n * 2
+    Heading("{n}").h1
+}"#, title: "wf · draws U02")
+
+        CodeBlock(#"Warning [U02]: `doubled` is declared but never read at src/App.wf:3:5
+  Nothing reads the derived value; remove it, or name it `_doubled` to keep it"#, title: "text")
+
+        Markdown("**Fix:** Remove it or read it; a leading `_` keeps it.")
+
+        Heading("U03 — A component nothing places", id: "u03-a-component-nothing-places").h3
+
+        CodeBlock(#"component Orphan { Text("Nobody places me") }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+}"#, title: "wf · draws U03")
+
+        CodeBlock(#"Warning [U03]: `Orphan` is declared but never placed at src/App.wf:1:1
+  Place it in a page, name it as a layout, or remove it"#, title: "text")
+
+        Markdown("**Fix:** Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.")
+
+        Heading("U04 — A store member nothing reads", id: "u04-a-store-member-nothing-reads").h3
+
+        CodeBlock(#"store Cart {
+    state items = []
+    state coupon = ""
+}
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("{Cart.items.length}").h1
+}"#, title: "wf · draws U04")
+
+        CodeBlock(#"Warning [U04]: `Cart.coupon` is declared but never read at src/App.wf:3:5
+  Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it"#, title: "text")
+
+        Markdown("**Fix:** Remove the member, or name it with a leading `_`.")
+
+        Heading("U05 — An action nothing calls", id: "u05-an-action-nothing-calls").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state n = 0
+    action reset() { n = 0 }
+    Heading("{n}").h1
+}"#, title: "wf · draws U05")
+
+        CodeBlock(#"Warning [U05]: `reset` is declared but never read at src/App.wf:3:5
+  Nothing reads the action; remove it, or name it `_reset` to keep it"#, title: "text")
+
+        Markdown("**Fix:** Call it, remove it, or name it `_reset`.")
+
+        Heading("Vocabulary", id: "vocabulary").h2
+
+        Markdown("Warnings.")
+
+        Heading("V01 — A bare word that means nothing", id: "v01-a-bare-word-that-means-nothing").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button(primary)
+}"#, title: "wf · draws V01")
+
+        CodeBlock(#"Warning [V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary` at src/App.wf:3:12"#, title: "text")
+
+        Markdown("**Fix:** Write the flag with its dot — `Button(\"Save\").primary` — or declare the name.")
+
+        Heading("V03 — Markup put in as markup", id: "v03-markup-put-in-as-markup").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state body = "<b>Hi</b>"
+    Heading("Markup").h1
+    Unsafe.Html(body)
+}"#, title: "wf · draws V03")
+
+        CodeBlock(#"Warning [V03]: `Unsafe.Html` puts markup in as markup at src/App.wf:4:5
+  Anything the project did not write itself belongs in `sanitize(…)` first"#, title: "text")
+
+        Markdown("**Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.")
+
+        Heading("V02 — A flag no stylesheet styles", id: "v02-a-flag-no-stylesheet-styles").h3
+
+        Markdown("A flag on one of your components whose class no stylesheet — the engine's or one of the project's `.css` files — defines, so it changes nothing on screen. The built-ins cannot draw it: the registry and the engine's stylesheet are held to each other. **Fix:** define the class in a `.css` file under `src/`, or drop the flag.")
+    }
+}

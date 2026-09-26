@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Components reference</title>
+    <title>buttongroup — Components reference</title>
     <meta name="description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup?lang=ar">
     <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Components reference">
+    <meta property="og:title" content="buttongroup — Components reference">
     <meta property="og:site_name" content="WebFluent">
     <meta property="og:description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup">
     <meta property="og:locale" content="en">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Components reference">
+    <meta name="twitter:title" content="buttongroup — Components reference">
     <meta name="twitter:description" content="One built-in element: its signature, props, flags, events and parts, from the compiler&#x27;s registry.">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup","name":"Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"},{"@type":"ListItem","position":4,"name":"Buttongroup","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup","name":"buttongroup — Components reference","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"One built-in element: its signature, props, flags, events and parts, from the compiler's registry."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Components reference","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference"},{"@type":"ListItem","position":4,"name":"Buttongroup","item":"https://monzeromer-lab.github.io/WebFluent/docs/reference/buttongroup"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,7 +72,7 @@
                 <div class="wf-stack wf-gap--lg wf-sc5c212b4 docs-main reference-main" role="main">
                     <div class="wf-stack wf-gap--sm wf-s3df5f255">
                         <div class="wf-row wf-align--center wf-gap--xs crumbs">
-                            <a class="wf-link" href="/WebFluent/docs/reference">Chapter 20</a>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Chapter 36</a>
                             <p class="wf-text">/</p>
                             <a class="wf-link" href="/WebFluent/docs/reference#actions">Actions</a>
                         </div>
@@ -85,6 +85,15 @@
 <p>Buttons joined into one row.</p>
                         </div>
                         <code class="wf-code wf-code--block wf-s6f9d6ddc"><span class="wf-tok-name">ButtonGroup</span> { … }</code>
+                        <p class="wf-text wf-s080a8452 overline">Example</p>
+                        <code class="wf-code wf-code--block wf-s6220f9e8"><span class="wf-tok-name">ButtonGroup</span> {
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Day&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Week&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Month&quot;</span>)
+}</code>
+                        <div class="wf-markdown wf-s4e367f57">
+<p>Renders with the class <code>wf-btn-group</code>, stable across releases, so a stylesheet may target it.</p>
+                        </div>
                     </div>
                     <div class="wf-row wf-gap--xs wf-s6f09ca9a entry-tabs" role="tablist">
                         <button class="wf-btn active" role="tab" aria-selected="true">Props</button>
@@ -128,19 +137,22 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Reference</p>
                             <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
                             <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
@@ -152,7 +164,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
-                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>
             </div>

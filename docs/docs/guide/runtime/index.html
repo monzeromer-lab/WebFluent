@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Runtime API</title>
+    <meta name="description" content="The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Runtime API">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Runtime API">
+    <meta name="twitter:description" content="The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime","name":"Runtime API","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Runtime API","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/RuntimeGuide.js" data-wf-page="RuntimeGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">4.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/runtime" aria-current="page">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 42</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Runtime API</h1>
+                        <p class="wf-text wf-s38239618">window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library&#x27;s callback.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p><code>app.js</code> opens with the runtime, and the page can reach it as <code>window.WF</code>. Compiled code calls it; so may a hand-written script in <code>public/</code>, a library's callback, or you in the browser's console:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">js</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">WF.navigate(&quot;/about&quot;);
+WF.toast(&quot;Saved&quot;, &quot;success&quot;);
+WF.storeSnapshot(&quot;Cart&quot;);</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A build keeps only the modules its own code reaches, so a script calling a module nothing else uses needs <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code> (<a href="/WebFluent/docs/guide/interop">chapter 32</a>). Most names here are what the compiler emits for the language's features; the ones worth calling yourself are marked <strong>●</strong>.</p>
+                            </div>
+                            <h2 class="wf-heading">State — core</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">State — core</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>signal(value)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A reactive value: call it to read, <code>.set(v)</code>, <code>.update(f)</code>, <code>.subscribe(f)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>computed(fn)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>A value computed from signals, recomputed when they change</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>effect(fn)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Runs <code>fn</code>, and again when a signal it read changes; a returned function is its cleanup</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>scoped(fn)</code>, <code>onCleanup(fn)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Ownership: what <code>fn</code> creates is disposed of with its scope; <code>onCleanup</code> registers a disposal</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>every(ms, fn)</code>, <code>after(ms, fn)</code>, <code>listen(target, event, fn)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A timer or listener tied to the current scope</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ref()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>An element handle, filled when the element is made</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Elements and bodies — core, when, each, show, match, slot</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Elements and bodies — core, when, each, show, match, slot</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>el(tag, attrs, …children)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Makes an element; a function attribute or child follows the signals it reads</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>text(v)</code>, <code>props(given, defaults)</code>, <code>classes(node, fn)</code>, <code>mark(node, attrs)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A text node, a component&#x27;s props, live classes, animation marks</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>onRoot(node, event, fn)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A handler on a component&#x27;s root element</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>when(parent, cond, then, else, anim)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>if</code>/<code>else</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>each(parent, list, item, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>for</code>, keyed or not</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>show(parent, cond, body, anim)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>show</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>match(parent, key, arg, arms)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>match</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>slot(…)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A component&#x27;s slot fill</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>emit(props, event, …args)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Fires a component&#x27;s declared event</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>onKey(node, combination, fn)</code>, <code>keyIs(event, combination)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>on key(&quot;ctrl+k&quot;)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Motion — motion</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Motion — motion</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>animate(target, name, duration)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Plays an animation now; returns a handle with <code>play()</code>, <code>cancel()</code>, <code>finished</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>replay(node, name)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>Plays an element&#x27;s own animation again</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>animateIn</code>, <code>animateOut(node, name, duration, delay, easing)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Enter and exit</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>expand(node, open, duration, easing)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Opens or closes to the measured height</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>countTo(node, from, to, duration, format)</code>, <code>counted(…)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A number that counts</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>onEnterView(node, name, …)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Plays when scrolled to</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>shared(node, name)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>An element carried across a route change</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Routing — core, router, pages</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Routing — core, router, pages</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>navigate(path)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>Moves to a route (a page load in a static build)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>params()</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>The current route&#x27;s parameters</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>router(routes, container, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The router <code>Router</code> compiles to</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>activeLink(a, href, prefix)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Keeps a link's <code>.active</code> and <code>aria-current</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>page(name, fn)</code>, <code>loadPage</code>, <code>loadSheet</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Page chunks and their stylesheets</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>setBasePath(path)</code>, <code>setSsgMode(on)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Set at boot from the config</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Browser values — browser, core</h2>
+                            <div class="wf-markdown">
+<p><code>viewport()</code>, <code>query()</code>, <code>hash()</code>, <code>now(every)</code>, <code>network()</code> and <code>theme()</code> read what the language's browser values hold; <code>setTheme(choice)</code> ● switches the theme.</p>
+                            </div>
+                            <h2 class="wf-heading">Data — net, http, api</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Data — net, http, api</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>resource(url, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>{ state, data, error, items, hasMore, reload, loadMore, invalidate, cancel }</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>request(url, options)</code>, <code>fetch(url, options)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>A request through the engine: retries, timeouts, cache, typed errors; resolves to the parsed body</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>send(url, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The engine&#x27;s request itself</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>invalidate(key)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Drops a cached answer</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>optimistic(holder, change)</code>, <code>attempt(fn)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A change shown now and rolled back if <code>fn</code> throws</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>beacon(url, data)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>A post that survives unloading</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>api(definition)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A service <code>api</code> compiles to</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ws(url, options)</code>, <code>sse(url, options)</code>, <code>broadcast(name, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A socket, a stream, a channel</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>rtc(options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A peer — module <code>peer</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Stores — store, keep</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Stores — store, keep</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>store(name, define, options)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A store, built on first read</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>dropRouteStores()</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Drops the <code>.route</code> stores, on a route change</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>watchStores(fn)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Calls <code>fn</code> with every action and the state either side of it; returns the function that stops it</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>storeSnapshot(name?)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>What every store — or one — holds</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>restoreStore(name, values)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>Puts a store back to what it held</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>persist(…)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>persist</code> value's storage, versions and migrations</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Nothing is recorded while nothing is watching.</p>
+                            </div>
+                            <h2 class="wf-heading">Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>toast(message, tone, ms)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Shows a toast: <code>&quot;success&quot;</code>, <code>&quot;danger&quot;</code>, <code>&quot;warning&quot;</code>, <code>&quot;info&quot;</code>; 3 seconds by default</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>announce(text)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Says <code>text</code> to screen readers, politely</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>dialog</code>, <code>popup</code>, <code>tabs</code>, <code>menu</code>, <code>drawer</code>, <code>tooltip</code>, <code>carousel</code>, <code>field</code></p>
+                                            </div>
+                                        </td>
+                                        <td>What the matching built-ins compile to</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>form(options)</code>, <code>validate(…)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>Form</code> handle and its rules</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Safety — core, sanitize</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Safety — core, sanitize</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Function</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>safeUrl(url)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The URL where a browser may follow it, <code>&quot;&quot;</code> where it may not</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>sanitize(html)</code> ●</p>
+                                            </div>
+                                        </td>
+                                        <td>Markup through the allow-list</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>jsonAttr(raw)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>An attribute holding JSON, as the prop it stands for</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Both <code>safeUrl</code> and <code>sanitize</code> have a build-time twin, held to one table of cases.</p>
+                            </div>
+                            <h2 class="wf-heading">Text — text, format</h2>
+                            <div class="wf-markdown">
+<p><code>markdown(text)</code> ● renders the language's Markdown to HTML; <code>highlight(code, lang)</code> ● colours <code>wf</code>, <code>json</code>, <code>bash</code> or <code>css</code>; <code>format(value, style, option)</code> ● and <code>ago(date)</code> ● format in the locale.</p>
+                            </div>
+                            <h2 class="wf-heading">Values — helpers, scalars</h2>
+                            <div class="wf-markdown">
+<p>The list and string helpers (<code>sortBy</code>, <code>groupBy</code>, <code>unique</code>, <code>take</code>, <code>first</code>, <code>last</code>, <code>capitalize</code>, <code>truncate</code>, <code>dedent</code>, <code>lines</code>, <code>words</code>, <code>range</code>, <code>removeAt</code>) and the built-in types' methods (<code>plus</code>, <code>minus</code>, <code>until</code>, <code>year</code> … <code>inZone</code>, <code>money</code>, <code>times</code>, <code>convert</code>, <code>host</code>, <code>path</code>, <code>domain</code>, <code>mix</code>, <code>lighten</code>, <code>darken</code>, <code>alpha</code>, <code>contrast</code>, <code>preview</code>, <code>uuid</code>, <code>dateOf</code>, <code>timeOf</code>, <code>urlWith</code>, <code>urlQuery</code>), and <code>caseOf(v)</code> and <code>payload(v)</code> for an enum case — each a function of the value it works on.</p>
+                            </div>
+                            <h2 class="wf-heading">Everything else</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Everything else</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Module</th>
+                                        <th scope="col">Functions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>i18n</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>locales(default, tables)</code> → <code>WF.i18n</code>, with <code>t</code>, <code>locale</code>, <code>dir</code>, <code>setLocale</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>offline</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>offline(options)</code>, <code>update()</code> — the service worker and the update flow</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>head</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>head(tags)</code> — a page's own head tags</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>host</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>attach(node, mount, update, cleanup)</code> — what <code>Host</code> compiles to</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>picture</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>picture(…)</code> — an <code>image</code>'s <code>&lt;picture&gt;</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>hydrate</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>hydrate(fn, container)</code> — takes over a pre-rendered page</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>core</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>mount(fn, container)</code>, <code>mainOf(root)</code> — boot</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>debug</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>__debug</code>, <code>__reg</code> — for WebFluent Studio</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/tokens">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">41. Design tokens</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/grammar">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">43. Grammar</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#state-core">State — core</a>
+                        <a class="wf-link wf-sdae384de" href="#elements-and-bodies-core-when-each-show-match-slot">Elements and bodies — core, when, each, show, match, slot</a>
+                        <a class="wf-link wf-sdae384de" href="#motion-motion">Motion — motion</a>
+                        <a class="wf-link wf-sdae384de" href="#routing-core-router-pages">Routing — core, router, pages</a>
+                        <a class="wf-link wf-sdae384de" href="#browser-values-browser-core">Browser values — browser, core</a>
+                        <a class="wf-link wf-sdae384de" href="#data-net-http-api">Data — net, http, api</a>
+                        <a class="wf-link wf-sdae384de" href="#stores-store-keep">Stores — store, keep</a>
+                        <a class="wf-link wf-sdae384de" href="#widgets-toast-overlay-announce-field-tooltip-carousel-drawer-form">Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form</a>
+                        <a class="wf-link wf-sdae384de" href="#safety-core-sanitize">Safety — core, sanitize</a>
+                        <a class="wf-link wf-sdae384de" href="#text-text-format">Text — text, format</a>
+                        <a class="wf-link wf-sdae384de" href="#values-helpers-scalars">Values — helpers, scalars</a>
+                        <a class="wf-link wf-sdae384de" href="#everything-else">Everything else</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/42-runtime-api.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

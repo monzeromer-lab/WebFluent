@@ -1,0 +1,90 @@
+/// Chapter 22 of the guide, written from md-docs/22-accessibility.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page AccessibilityGuide(path: "/docs/guide/accessibility", title: "Accessibility", description: "What the built-ins do for keyboard and screen-reader users, the A01–A15 checks, what is still yours to do, and how to test it.", layout: DocsShell("Accessibility", chapter: t("guide.chapter", { n: "22" }), blurb: "What the built-ins do for readers who use a keyboard, a screen reader or voice control, what the compiler checks on every build, and what is still yours to do.", source: "md-docs/22-accessibility.md", sections: [Anchor(id: "what-you-get-without-asking", label: "What you get without asking"), Anchor(id: "what-the-compiler-checks", label: "What the compiler checks"), Anchor(id: "what-is-still-yours", label: "What is still yours"), Anchor(id: "labelling-things-well", label: "Labelling things well"), Anchor(id: "testing-with-assistive-technology", label: "Testing with assistive technology")], prevTo: "/docs/guide/i18n", prevLabel: "21. {t("ch.21")}", nextTo: "/docs/guide/security", nextLabel: "23. {t("ch.23")}")) {
+    Stack(gap: .lg) {
+        Markdown("Accessibility is not a plugin here: the built-ins render the markup assistive technology expects, the router and the form manage focus, and the compiler checks every page on every build.")
+
+        Heading("What you get without asking", id: "what-you-get-without-asking").h2
+
+        Markdown("- **Semantic elements.** A `Button` is a `<button>`, a `Link` an `<a>`, `Heading(…).h2` an `<h2>`, `Header`/`Section`/`Footer` landmarks, a `Table` a `<table>` whose head cells are `<th scope=\"col\">`, a `List` a `<ul>` or `<ol>`, the page's content a `<main>`.\n- **A skip link**, first in the tab order and visible when focused, jumping past the navigation to the content.\n- **Route changes that behave like page loads.** Focus moves to the new page's heading, the scroll returns to the top, and the new title is announced.\n- **Labelled fields.** `label:` is a real `<label for>`; `hint:` and the error are tied to the control with `aria-describedby`; an error sets `aria-invalid` and is announced when it appears.\n- **Forms that point at the problem.** A submit that fails moves focus to the first field with an error and announces it.\n- **Dialogs that trap focus.** `Modal` and `Dialog` are real `<dialog>` elements: the rest of the page is inert, Escape closes, and focus returns to what opened them.\n- **Menus with the keys people expect.** Arrows move, Home and End jump, Enter and Space choose, Escape closes.\n- **Announcements.** A `Toast` is spoken politely; `WF.announce(text)` says anything else.\n- **The active link** carries `aria-current=\"page\"`.\n- **Reduced motion.** A reader who asked for it gets no animation at all, and a carousel does not auto-play.\n- **Visible focus.** Every interactive built-in has a focus ring for the keyboard (`:focus-visible`), not on every click.")
+
+        Heading("What the compiler checks", id: "what-the-compiler-checks").h2
+
+        Markdown("Warnings on every build and in the editor ([Diagnostics](/docs/guide/diagnostics#accessibility)):")
+
+        Table(caption: "What the compiler checks") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Code").header
+                    Table.Cell("Checks").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`A01`") }
+                    Table.Cell { Markdown("Every `Image` has `alt:` (empty for decoration)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A02`") }
+                    Table.Cell { Markdown("Every `IconButton` has a `label:`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A03`, `A04`") }
+                    Table.Cell { Markdown("Every `Input`, `Checkbox`, `Radio`, `Switch`, `Slider` and `Textarea` has a label") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A05`, `A06`, `A07`") }
+                    Table.Cell("Buttons, links and headings have text")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A08`") }
+                    Table.Cell { Markdown("Every `Modal` and `Dialog` has a `title:`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A09`") }
+                    Table.Cell("Video has captions and controls; audio has a transcript")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A10`") }
+                    Table.Cell("Tables have a header row")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A11`, `A12`") }
+                    Table.Cell { Markdown("One `h1` per page, and no skipped heading levels") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A13`") }
+                    Table.Cell("The theme's text and background colours have AA contrast")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A14`") }
+                    Table.Cell { Markdown("A `role:` holds children of the roles it requires") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A15`") }
+                    Table.Cell { Markdown("A control's `aria-label` starts with its visible text, for voice control") }
+                }
+            }
+        }
+
+        Heading("What is still yours", id: "what-is-still-yours").h2
+
+        Markdown("The compiler can see markup; it cannot see meaning.\n\n- **Alt text that says what the picture shows**, in context. \"Photo\" passes `A01` and helps nobody.\n- **Link text that says where it goes.** Twelve \"Read more\" links pass `A06`.\n- **An order that makes sense.** The reading order is the source order; do not rearrange it visually with `order:` or absolute positioning.\n- **Colour that is not the only signal.** An error in red also says so in words; a chart has labels.\n- **Your own styles' contrast.** `A13` checks the theme's tokens, not a colour written raw in a `style \{ \}`.\n- **Custom controls.** A `Card` made clickable with `on click` is not a button to a keyboard. Use `Button` — or give it `role: \"button\"`, `tabindex: 0` and `on key(\"Enter\") \{ \}` and `on key(\"space\") \{ \}`.\n- **Time limits.** A `Toast` disappears; anything the reader must act on belongs in an `Alert` that stays.")
+
+        Heading("Labelling things well", id: "labelling-things-well").h2
+
+        CodeBlock(#"page Search(path: "/", title: "Search", description: "Find a page.") {
+    state q = ""
+    Heading("Search").h1
+    Input(bind: q, label: "Search the docs", hint: "Try “routing” or “forms”").search
+    IconButton(icon: "close", label: "Clear the search") { on click { q = "" } }
+    Button("Search", aria-label: "Search the docs") { on click { log(q) } }
+}"#, title: "wf")
+
+        Markdown("- A visible `label:` is better than a placeholder, which disappears.\n- An icon-only control is named by `label:` (`IconButton`) or `aria-label:`.\n- An `aria-label` begins with the visible words, so someone saying \"click Search\" hits the right button (`A15`).")
+
+        Heading("Testing with assistive technology", id: "testing-with-assistive-technology").h2
+
+        Markdown("- **Keyboard.** Put the mouse away: Tab through the page, open and close every menu and dialog, submit every form. Focus should always be visible and never lost.\n- **A screen reader.** VoiceOver (macOS: ⌘F5), NVDA (Windows, free) or TalkBack (Android). Listen to a page's headings list and landmarks, and to what a form says when it fails.\n- **Zoom** to 200%, and a narrow window: nothing should need horizontal scrolling.\n- **Reduced motion**: turn it on in your system settings and reload.\n- **Tests that find things by name.** `wf test`'s `click \"Save\"` and `type \"…\" into \"Email\"` find controls the way assistive technology does, so a test that passes is a page someone can operate ([Testing](/docs/guide/testing)).")
+    }
+}

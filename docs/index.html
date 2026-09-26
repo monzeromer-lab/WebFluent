@@ -109,7 +109,7 @@
                         <p class="wf-text wf-se6051429">01</p>
                         <h3 class="wf-heading">A file is a list of declarations</h3>
                         <div class="wf-markdown">
-<p>Eleven kinds: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>const</code>, <code>data</code>, <code>animation</code>, <code>test</code>. Pages own their routes; there is no separate route table.</p>
+<p>Fourteen kinds — <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>external</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code>, <code>test</code>. Pages own their routes; there is no separate route table.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
@@ -144,9 +144,59 @@
                     <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card idea-card-highlight">
                         <h3 class="wf-heading">Coming from React, Vue or Svelte?</h3>
                         <div class="wf-markdown">
-<p>Skim chapters 2 and 4, then read 5, 8 and 9. The reactivity model is signals, the components are declared and typed, and the compiler checks what you write against what they declare.</p>
+<p>Start with the map from what you know: state is a signal, components are declared and typed, stores replace context, and the compiler checks what you write against what the components declare.</p>
                         </div>
-                        <a class="wf-link" href="/WebFluent/docs/guide/state">Take the shortcut →</a>
+                        <a class="wf-link" href="/WebFluent/docs/guide/coming-from">Take the shortcut →</a>
+                    </div>
+                </div>
+            </div>
+            <div class="wf-stack wf-gap--lg wf-s446e5caa landing-section">
+                <div class="wf-stack wf-gap--xs wf-s3df5f255">
+                    <p class="wf-text overline">Batteries included</p>
+                    <h2 class="wf-heading wf-s2f056481">What a real site needs, in the language</h2>
+                </div>
+                <div class="wf-grid wf-gap--lg wf-sb4509c22 ideas-grid" data-cols="3">
+                    <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
+                        <h3 class="wf-heading">A service, described once</h3>
+                        <div class="wf-markdown">
+<p><code>api Backend { get users() -&gt; [User] }</code> — every call typed, cached, retried and cancellable; or read the whole surface from an OpenAPI file.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/data">Read the chapter →</a>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
+                        <h3 class="wf-heading">Forms that validate themselves</h3>
+                        <div class="wf-markdown">
+<p><code>validate email { required  email }</code> beside the state; the field shows its message accessibly, and a failed submit focuses the problem.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/forms">Read the chapter →</a>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
+                        <h3 class="wf-heading">Sockets, streams and peers</h3>
+                        <div class="wf-markdown">
+<p>WebSockets that reconnect, server-sent events, a channel every tab hears, and WebRTC straight to another page — each closed when its page leaves.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/realtime">Read the chapter →</a>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
+                        <h3 class="wf-heading">Works offline</h3>
+                        <div class="wf-markdown">
+<p>Name <code>offline</code> in the config: a service worker stores the site, writes wait for the connection, and a new version is offered, not forced.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/offline">Read the chapter →</a>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
+                        <h3 class="wf-heading">Tests that click</h3>
+                        <div class="wf-markdown">
+<p><code>click &quot;Save&quot;</code> then <code>expect &quot;Saved&quot;</code> runs in headless Chrome, and <code>wf verify</code> loads every page of the build.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/testing">Read the chapter →</a>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sb739d371 idea-card">
+                        <h3 class="wf-heading">Safe by construction</h3>
+                        <div class="wf-markdown">
+<p>Text is always text, no inline handlers, no <code>javascript:</code> URLs, private <code>env</code> names kept out of the bundle, and a CSP the build holds itself to.</p>
+                        </div>
+                        <a class="wf-link" href="/WebFluent/docs/guide/security">Read the chapter →</a>
                     </div>
                 </div>
             </div>
@@ -294,7 +344,7 @@
                     <div class="wf-stack wf-gap--xs wf-s90950c90">
                         <h2 class="wf-heading wf-s0c3ae7dc">Install it and read chapter one</h2>
                         <div class="wf-markdown wf-se4ee4d09">
-<p><code>wf init hello</code> writes a small application — a dashboard, a task list, a settings page, a store, a theme — so you have something to read.</p>
+<p><code>wf init hello</code> writes a small application — four pages, three components and two stores — so you have something real to read, and the tutorial builds a site from nothing to deployed.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s07e11f40">
@@ -322,19 +372,22 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Reference</p>
                             <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
                             <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
@@ -346,7 +399,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
-                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>
             </div>

@@ -205,7 +205,16 @@
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/reference/router</loc>
   </url>
   <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/introduction</loc>
+  </url>
+  <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/getting-started</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/tutorial</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/coming-from</loc>
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/language-basics</loc>
@@ -220,7 +229,7 @@
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/state</loc>
   </url>
   <url>
-    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/events-and-forms</loc>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/events</loc>
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/control-flow</loc>
@@ -241,27 +250,99 @@
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/styling</loc>
   </url>
   <url>
-    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/motion</loc>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/forms</loc>
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/data</loc>
   </url>
   <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/realtime</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/offline</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/motion</loc>
+  </url>
+  <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/i18n</loc>
   </url>
   <url>
-    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/content</loc>
-  </url>
-  <url>
-    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/outputs</loc>
-  </url>
-  <url>
-    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/tooling</loc>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/accessibility</loc>
   </url>
   <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/security</loc>
   </url>
   <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/testing</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/project-structure</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/static-and-spa</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/content</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/media</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/environments</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/performance</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/interop</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/pdf-and-slides</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/server-rendering</loc>
+  </url>
+  <url>
     <loc>https://monzeromer-lab.github.io/WebFluent/docs/cookbook</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/cli</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/config</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/built-ins</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/tokens</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/runtime</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/grammar</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/browser-support</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/glossary</loc>
+  </url>
+  <url>
+    <loc>https://monzeromer-lab.github.io/WebFluent/docs/guide/contributing</loc>
   </url>
 </urlset>

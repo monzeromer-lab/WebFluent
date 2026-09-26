@@ -1,0 +1,82 @@
+/// Chapter 1 of the guide, written from md-docs/01-introduction.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", description: "What WebFluent is, the five ideas behind it, when to use it and when not to, and a map of the guide.", layout: DocsShell("Introduction", chapter: t("guide.chapter", { n: "1" }), blurb: "What WebFluent is, what it does for you, where it fits and where it does not, and how to read this guide.", source: "md-docs/01-introduction.md", sections: [Anchor(id: "what-you-get", label: "What you get"), Anchor(id: "the-five-ideas", label: "The five ideas"), Anchor(id: "when-to-use-it-and-when-not", label: "When to use it — and when not"), Anchor(id: "how-to-read-this-guide", label: "How to read this guide"), Anchor(id: "versions", label: "Versions")], nextTo: "/docs/guide/getting-started", nextLabel: "2. {t("ch.02")}")) {
+    Stack(gap: .lg) {
+        Markdown("WebFluent is a programming language for websites. You write `.wf` files that say what each page shows, the state behind it, and what happens when the reader acts; the compiler, `wf`, turns them into a finished site — HTML, CSS and a small JavaScript runtime — or into a PDF or a slide deck from the same source.")
+
+        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
+    state count = 0
+    Container {
+        Heading("Hello, world").h1
+        Text("You have clicked {count} times.")
+        Button("Click me").primary { on click { count = count + 1 } }
+    }
+}"#, title: "wf")
+
+        Markdown("That file is a complete, deployable page: routing, reactivity, a styled button, accessible markup, the `<title>`, the meta description and the Open Graph tags are all there after `wf build`.")
+
+        Heading("What you get", id: "what-you-get").h2
+
+        Markdown("- **One binary, no toolchain.** `wf` is the compiler, the dev server, the formatter, the test runner and the language server. There is no `node_modules`, no bundler and no config to write before the first page.\n- **A compiler that checks your work.** Every built-in element and every component you declare has a known set of props, flags, events and slots. A misspelled prop, a flag the element does not take, a field a record does not have or a value that may be `null` read as if it were not is an error with a line number and a hint — never a silent no-op in the browser.\n- **Fine-grained reactivity.** `state` is a signal; the one text node or attribute that reads it updates, and nothing else re-renders.\n- **Fifty-odd designed components.** Layout, navigation, tables, forms, overlays, media — styled by design tokens a theme changes in a few lines.\n- **The web done properly by default.** Pre-rendered HTML per page, one stylesheet pruned to what you used, a runtime cut down to what the program reaches, image pipelines, sitemaps, canonical links, Open Graph and JSON-LD, a Content-Security-Policy the build holds its own output to, and accessibility lints on every build.\n- **Batteries.** Routing, stores, forms and validation, typed HTTP services, WebSockets and WebRTC, offline support with a service worker, i18n with automatic right-to-left, animations and dark mode.\n- **More than websites.** The same language compiles to PDF documents and slide decks, renders templates with JSON on a server, and publishes components as custom elements any framework can use.")
+
+        Heading("The five ideas", id: "the-five-ideas").h2
+
+        Markdown("1. **A file is a list of declarations.** `page`, `component`, `store`, `theme`, `app`, `type`, `enum`, `api`, `external`, `const`, `data`, `image`, `animation` and `test` — fourteen kinds, each covered in this guide. Pages own their routes; there is no separate route table.\n2. **An element is a typed call.** `Button(\"Save\", tone: .primary).lg \{ on click \{ save() \} \}`: one positional argument, named props, `.flag`s, then a block. The compiler knows every built-in's props and cases, and every component you declare.\n3. **State is a signal.** `state count = 0`; anything that reads `count` follows it. `derived` values recompute, `effect`s re-run, the DOM updates.\n4. **Styles are CSS, written where the element is.** `style \{ padding: $md; &:hover \{ background: $surface-hover \} \}` — raw values, design tokens with `$`, nested rules as CSS nesting spells them.\n5. **The build is the whole site.** `wf build` writes everything a host needs, and `wf serve` rebuilds it on every save.")
+
+        Heading("When to use it — and when not", id: "when-to-use-it-and-when-not").h2
+
+        Markdown("WebFluent fits well when you want:\n\n- a marketing site, a documentation site, a blog or a portfolio that must be fast, accessible and well indexed, with some interactivity;\n- a dashboard, an admin panel or an internal tool that talks to an API;\n- invoices, reports or slide decks generated from the same data as a site;\n- a small team that would rather not maintain a JavaScript build chain.\n\nReach for something else when:\n\n- you depend on a large ecosystem of framework-specific UI libraries (you can still embed any library through [JavaScript interop](/docs/guide/interop), but you write the binding yourself);\n- you need server-side rendering on every request with per-user data — a WebFluent site is static files plus a browser runtime; your server stays your server (though [server rendering](/docs/guide/server-rendering) of templates covers emails, invoices and fragments);\n- you need a native mobile app.")
+
+        Heading("How to read this guide", id: "how-to-read-this-guide").h2
+
+        Markdown("The guide is in six parts:")
+
+        Table(caption: "How to read this guide") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Part").header
+                    Table.Cell("Chapters").header
+                    Table.Cell("For").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("**Start**") }
+                    Table.Cell("1–4")
+                    Table.Cell("Installing, a first project, a tutorial that ends in a deployed site, and a map from React, Vue and Svelte")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**The basics**") }
+                    Table.Cell("5–14")
+                    Table.Cell("The language itself, in the order the ideas build on each other")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Building**") }
+                    Table.Cell("15–24")
+                    Table.Cell("Styling, forms, data, real-time, offline, motion, i18n, accessibility, security and testing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Shipping**") }
+                    Table.Cell("25–35")
+                    Table.Cell("Structuring a project, static or single-page, content and SEO, media, deploying, environments, performance, JavaScript interop, PDFs and slides, server rendering, and recipes")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Reference**") }
+                    Table.Cell("36–43")
+                    Table.Cell("Every component, command, config key, diagnostic, built-in, design token, runtime function and keyword")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("**Help**") }
+                    Table.Cell("44–48")
+                    Table.Cell("Troubleshooting, upgrading, browser support, a glossary and contributing")
+                }
+            }
+        }
+
+        Markdown("- **New to WebFluent:** read [Getting started](/docs/guide/getting-started) and work through the [tutorial](/docs/guide/tutorial), then read chapters 5–12 in order. Every example in them builds.\n- **Coming from a framework:** read [Coming from React, Vue or Svelte](/docs/guide/coming-from) first; it maps what you know to what is here.\n- **Looking something up:** the [reference](/docs/reference) chapters are generated from, or checked against, the compiler itself.\n- **Something is wrong:** start at [Troubleshooting](/docs/guide/troubleshooting); every diagnostic code has an entry in [Diagnostics](/docs/guide/diagnostics).\n\nEvery `wf` code block in this guide is parsed, type-checked and compiled by the test suite, so what you read is what the compiler accepts. A block that leaves something out says so with a `…`.")
+
+        Heading("Versions", id: "versions").h2
+
+        Markdown("This guide describes WebFluent 4. Features marked **4.1** are in the next release; `wf --version` tells you which one you have, and [Upgrading](/docs/guide/upgrading) lists what changed in each release.")
+    }
+}

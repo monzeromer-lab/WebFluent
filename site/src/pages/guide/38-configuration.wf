@@ -1,0 +1,571 @@
+/// Chapter 38 of the guide, written from md-docs/38-configuration.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description: "Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.", layout: DocsShell("Configuration", chapter: t("guide.chapter", { n: "38" }), blurb: "Every key of webfluent.app.json, its default, and what it changes.", source: "md-docs/38-configuration.md", sections: [Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline")], prevTo: "/docs/guide/cli", prevLabel: "37. {t("ch.37")}", nextTo: "/docs/guide/diagnostics", nextLabel: "39. {t("ch.39")}")) {
+    Stack(gap: .lg) {
+        Markdown("A project's settings live in `webfluent.app.json` beside `src/`. Every key is optional except `name`, so the smallest config is:")
+
+        CodeBlock(#"{ "name": "my-site" }"#, title: "json")
+
+        Markdown("A key the build does not know is reported with a warning — and the key it most likely meant, so `\"defaultLocale\"` says to write `default_locale` — rather than silently ignored (**4.1**).")
+
+        Heading("The defaults", id: "the-defaults").h2
+
+        Markdown("This is what a config with only a name means. `i18n` and `offline` are absent unless you add them.")
+
+        CodeBlock(#"{
+  "name": "my-site",
+  "version": "0.1.0",
+  "author": "",
+  "theme": {
+    "name": null,
+    "tokens": {},
+    "builtin": "full",
+    "dark": null
+  },
+  "build": {
+    "elements": [],
+    "output": "./build",
+    "minify": true,
+    "sourcemap": false,
+    "ssg": false,
+    "base_path": "",
+    "csp": false,
+    "split": true,
+    "compress": true,
+    "budget": {},
+    "runtime": "auto",
+    "media": {
+      "formats": ["webp"],
+      "widths": [480, 960, 1440, 1920],
+      "quality": 78,
+      "pipeline": true
+    },
+    "output_type": "spa",
+    "pdf": {
+      "page_size": "A4",
+      "margins": { "top": 72.0, "bottom": 72.0, "left": 72.0, "right": 72.0 },
+      "default_font": "Helvetica",
+      "default_font_size": 12.0,
+      "output_filename": null
+    },
+    "slides": {
+      "size": "16:9",
+      "width": null,
+      "height": null,
+      "default_font": "Helvetica",
+      "default_font_size": 24.0,
+      "margin": 60.0,
+      "show_slide_numbers": false,
+      "footer_text": null,
+      "background_color": null,
+      "chrome_color": null,
+      "output_filename": null
+    }
+  },
+  "dev": { "port": 3000, "hot_reload": true },
+  "meta": {
+    "integrity": {},
+    "title": "my-site",
+    "description": "",
+    "favicon": "",
+    "lang": "en",
+    "site_url": "",
+    "site_name": "",
+    "image": "",
+    "sitemap": true,
+    "fonts": [],
+    "stylesheets": []
+  },
+  "motion": { "duration": null, "easing": null },
+  "env": {},
+  "public_env": []
+}"#, title: "json")
+
+        Markdown("`wf init` writes a shorter file and turns `build.csp` on.")
+
+        Heading("The project", id: "the-project").h2
+
+        Table(caption: "The project") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`name`") }
+                    Table.Cell("—")
+                    Table.Cell { Markdown("The only required key. The site's name, the PDF's file name when none is given, and `meta.title`'s fallback.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`version`, `author`") }
+                    Table.Cell { Markdown("`\"0.1.0\"`, `\"\"`") }
+                    Table.Cell("Yours; nothing in the build reads them.")
+                }
+            }
+        }
+
+        Heading("build", id: "build").h2
+
+        Table(caption: "build") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`output`") }
+                    Table.Cell { Markdown("`\"./build\"`") }
+                    Table.Cell("Where the build is written, relative to the project.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`output_type`") }
+                    Table.Cell { Markdown("`\"spa\"`") }
+                    Table.Cell { Markdown("`spa` (a website), `pdf`, `slides` or `elements` ([chapter 33](/docs/guide/pdf-and-slides)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ssg`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell { Markdown("Pre-render every page to its own HTML ([chapter 26](/docs/guide/static-and-spa)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`base_path`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell { Markdown("The sub-path the site is served under, such as `\"/docs\"`. Every link and asset is prefixed.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`split`") }
+                    Table.Cell { Markdown("`true`") }
+                    Table.Cell("One script and stylesheet chunk per page, loaded when its route shows.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`minify`") }
+                    Table.Cell { Markdown("`true`") }
+                    Table.Cell("Strip comments and whitespace from the scripts and stylesheets.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sourcemap`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell("Write a source map beside the bundle.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`compress`") }
+                    Table.Cell { Markdown("`true`") }
+                    Table.Cell { Markdown("Write a `.gz` beside every text output over a kilobyte.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`runtime`") }
+                    Table.Cell { Markdown("`\"auto\"`") }
+                    Table.Cell { Markdown("`auto` ships the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` ([chapter 32](/docs/guide/interop)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`csp`") }
+                    Table.Cell { Markdown("`false` (`true` in a project `wf init` makes)") }
+                    Table.Cell { Markdown("Emit a Content-Security-Policy and `_headers`, and check the output against the policy ([chapter 23](/docs/guide/security#content-security-policy)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`budget`") }
+                    Table.Cell { Markdown("`\{\}`") }
+                    Table.Cell { Markdown("A gzipped size each named output should stay under: `\{ \"app.js\": \"40 kB\" \}`. Over it, the build warns.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`elements`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("With `output_type: \"elements\"`, the components to publish as custom elements.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`media`") }
+                    Table.Cell("below")
+                    Table.Cell("The image pipeline.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`pdf`, `slides`") }
+                    Table.Cell("below")
+                    Table.Cell("The paper outputs.")
+                }
+            }
+        }
+
+        Heading("build.media", id: "build-media").h3
+
+        Table(caption: "build.media") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`formats`") }
+                    Table.Cell { Markdown("`[\"webp\"]`") }
+                    Table.Cell { Markdown("The formats every `image` is written in, as well as its original.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`widths`") }
+                    Table.Cell { Markdown("`[480, 960, 1440, 1920]`") }
+                    Table.Cell("The widths written, where smaller than the original.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`quality`") }
+                    Table.Cell { Markdown("`78`") }
+                    Table.Cell("The encoding quality, 1–100.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`pipeline`") }
+                    Table.Cell { Markdown("`true`") }
+                    Table.Cell { Markdown("`false` copies images as `public/` does, without resizing.") }
+                }
+            }
+        }
+
+        Heading("build.pdf", id: "build-pdf").h3
+
+        Table(caption: "build.pdf") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`page_size`") }
+                    Table.Cell { Markdown("`\"A4\"`") }
+                    Table.Cell { Markdown("`A4`, `A3`, `A5`, `Letter` or `Legal`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`margins`") }
+                    Table.Cell { Markdown("`72` each") }
+                    Table.Cell { Markdown("`top`, `bottom`, `left`, `right`, in points (72 to the inch).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`default_font`") }
+                    Table.Cell { Markdown("`\"Helvetica\"`") }
+                    Table.Cell { Markdown("`Helvetica`, `Times-Roman` or `Courier`, or their `-Bold` forms — standard PDF fonts, which need no embedding.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`default_font_size`") }
+                    Table.Cell { Markdown("`12`") }
+                    Table.Cell("In points.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`output_filename`") }
+                    Table.Cell("the project's name")
+                    Table.Cell("The file written.")
+                }
+            }
+        }
+
+        Heading("build.slides", id: "build-slides").h3
+
+        Table(caption: "build.slides") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`size`") }
+                    Table.Cell { Markdown("`\"16:9\"`") }
+                    Table.Cell { Markdown("`16:9` (960 × 540 pt), `4:3`, `A4-landscape`, or `\"WIDTHxHEIGHT\"` in points.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`width`, `height`") }
+                    Table.Cell { Markdown("`null`") }
+                    Table.Cell { Markdown("Explicit points, overriding `size`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`margin`") }
+                    Table.Cell { Markdown("`60`") }
+                    Table.Cell("The space around each slide's content; what runs past it is clipped.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`default_font`, `default_font_size`") }
+                    Table.Cell { Markdown("`\"Helvetica\"`, `24`") }
+                    Table.Cell("The deck's text.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`show_slide_numbers`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell { Markdown("`n / total` in the bottom corner.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`footer_text`") }
+                    Table.Cell { Markdown("`null`") }
+                    Table.Cell("Text in the bottom-left of every slide.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`background_color`") }
+                    Table.Cell { Markdown("`null`") }
+                    Table.Cell("A full-bleed colour for every slide.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`chrome_color`") }
+                    Table.Cell { Markdown("`null`") }
+                    Table.Cell("The colour of the numbers and footer; unset, it flips between dark and light on the slide's background.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`output_filename`") }
+                    Table.Cell("the project's name")
+                    Table.Cell("The file written.")
+                }
+            }
+        }
+
+        Heading("dev", id: "dev").h2
+
+        Table(caption: "dev") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`port`") }
+                    Table.Cell { Markdown("`3000`") }
+                    Table.Cell { Markdown("The port `wf serve` listens on.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`hot_reload`") }
+                    Table.Cell { Markdown("`true`") }
+                    Table.Cell("Rebuild on a save, reload open tabs, and draw a failed build's error over the page.")
+                }
+            }
+        }
+
+        Heading("motion", id: "motion").h2
+
+        Table(caption: "motion") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`duration`") }
+                    Table.Cell("unset")
+                    Table.Cell { Markdown("How long an animation runs when the element does not say: `\"180ms\"`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`easing`") }
+                    Table.Cell("unset")
+                    Table.Cell { Markdown("How it is paced: a CSS timing function, or a token such as `\"$ease-standard\"`.") }
+                }
+            }
+        }
+
+        Heading("meta", id: "meta").h2
+
+        Table(caption: "meta") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`title`, `description`") }
+                    Table.Cell { Markdown("the name, `\"\"`") }
+                    Table.Cell("What a page falls back to when it declares none.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`lang`") }
+                    Table.Cell { Markdown("`\"en\"`") }
+                    Table.Cell("The document's language.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`site_url`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell("The absolute address. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`site_name`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell("The name a link preview shows.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`image`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell("The sharing image for pages that set none.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`favicon`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell { Markdown("The icon a tab shows: a file in `public/`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sitemap`") }
+                    Table.Cell { Markdown("`true`") }
+                    Table.Cell { Markdown("Write `sitemap.xml` and `robots.txt`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`fonts`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Web-font stylesheet URLs to link, each with a `preconnect`; their origins join the policy.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`stylesheets`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`integrity`") }
+                    Table.Cell { Markdown("`\{\}`") }
+                    Table.Cell("Subresource-integrity hashes of external assets, by URL.")
+                }
+            }
+        }
+
+        Heading("theme", id: "theme").h2
+
+        Table(caption: "theme") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`name`") }
+                    Table.Cell("unset")
+                    Table.Cell { Markdown("Which `theme` declaration is the site's. A project with exactly one need not name it.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`dark`") }
+                    Table.Cell("unset")
+                    Table.Cell { Markdown("The theme that stands in for dark mode ([chapter 15](/docs/guide/styling#dark-mode)).") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`builtin`") }
+                    Table.Cell { Markdown("`\"full\"`") }
+                    Table.Cell { Markdown("`full` ships the built-ins' designed look; `structural` only their layout and mechanics.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`tokens`") }
+                    Table.Cell { Markdown("`\{\}`") }
+                    Table.Cell("Token values on top of the theme, for a pipeline to supply.")
+                }
+            }
+        }
+
+        Heading("i18n", id: "i18n").h2
+
+        CodeBlock(#"{ "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#, title: "json")
+
+        Table(caption: "i18n") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`default_locale`") }
+                    Table.Cell { Markdown("`\"en\"`") }
+                    Table.Cell("The locale a page opens in.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`locales`") }
+                    Table.Cell { Markdown("`[\"en\"]`") }
+                    Table.Cell("Every locale; one JSON file each.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`dir`") }
+                    Table.Cell { Markdown("`\"src/translations\"`") }
+                    Table.Cell("Where the files are.")
+                }
+            }
+        }
+
+        Markdown("[Chapter 21](/docs/guide/i18n).")
+
+        Heading("env and publicenv", id: "env-and-publicenv").h2
+
+        Table(caption: "env and publicenv") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`env`") }
+                    Table.Cell { Markdown("`\{\}`") }
+                    Table.Cell { Markdown("Values read as `env.NAME`, fixed at build time. A `.env` file and the shell add to them.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`public_env`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Names a page may read beyond those beginning `PUBLIC_`.") }
+                }
+            }
+        }
+
+        Markdown("[Chapter 30](/docs/guide/environments).")
+
+        Heading("offline", id: "offline").h2
+
+        Markdown("**4.1.** Absent, no service worker is written.")
+
+        CodeBlock(#"{ "offline": { "precache": ["/", "/docs/*"], "fallback": "/offline", "cache": { "/api/*": "network-first" }, "sync": true } }"#, title: "json")
+
+        Table(caption: "offline") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`precache`") }
+                    Table.Cell { Markdown("`[\"/\"]`") }
+                    Table.Cell { Markdown("The routes a first visit stores, as globs; `\"*\"` for every route.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`fallback`") }
+                    Table.Cell { Markdown("`null`") }
+                    Table.Cell("A page's path, shown for a route that was not stored.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cache`") }
+                    Table.Cell { Markdown("`\{\}`") }
+                    Table.Cell { Markdown("How paths the build did not write are fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sync`") }
+                    Table.Cell { Markdown("`false`") }
+                    Table.Cell("Keep writes made offline and send them later.")
+                }
+            }
+        }
+
+        Markdown("[Chapter 19](/docs/guide/offline).")
+    }
+}

@@ -8,13 +8,13 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
     ReferenceShell {
 
         Row(align: .center, gap: .xs, class: "crumbs") {
-            Text(t("guide.chapter", { n: "20" }))
+            Text(t("guide.chapter", { n: "36" }))
             Text("/")
-            Text(t("ch.20")) { style { color: $color-text-muted } }
+            Text(t("ch.36")) { style { color: $color-text-muted } }
         }
         Stack(gap: .sm) {
             style { gap: 12px; max-width: 680px }
-            Heading(t("ch.20")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
+            Heading(t("ch.36")).h1 { style { margin: 0; font-size: 34px; line-height: 38px; font-weight: 700; letter-spacing: -0.016em } }
             Markdown(t("ref.intro", { count: registry.count })) { style { & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
         }
 
@@ -80,7 +80,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
     }
 }
 
-page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Components reference", description: "One built-in element: its signature, props, flags, events and parts, from the compiler's registry.", paths: registry.components.map(c => c.slug)) {
+page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{slug} — Components reference", description: "One built-in element: its signature, props, flags, events and parts, from the compiler's registry.", paths: registry.components.map(c => c.slug)) {
     state tab = "props"
     derived entry = registry.components.find(c => c.slug == slug)
     derived events = registry.universal.events
@@ -121,7 +121,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Compone
             Stack(gap: .sm) {
                 style { gap: 10px }
                 Row(align: .center, gap: .xs, class: "crumbs") {
-                    Link(t("guide.chapter", { n: "20" }), to: "/docs/reference")
+                    Link(t("guide.chapter", { n: "36" }), to: "/docs/reference")
                     Text("/")
                     Link(c.group, to: "/docs/reference#{c.group.toLowerCase().replace(" ", "-")}")
                 }
@@ -134,6 +134,15 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Compone
                 Markdown(c.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
                 Code(c.signature, language: "wf").block {
                     style { margin: 4px 0 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                }
+                if c.example != "" {
+                    Text(t("ref.example"), class: "overline") { style { margin: 8px 0 0 } }
+                    Code(c.example, language: "wf").block {
+                        style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                    }
+                }
+                if c.cssClass != "" {
+                    Markdown(t("ref.renders", { cls: c.cssClass })) { style { & p { margin: 0; font-size: 13px; line-height: 20px; color: $ink-subtle } } }
                 }
             }
 
@@ -227,7 +236,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "Compone
 
         } else {
             Heading(t("notfound.title")).h2
-            Link(t("ch.20"), to: "/docs/reference")
+            Link(t("ch.36"), to: "/docs/reference")
         }
     }
 }

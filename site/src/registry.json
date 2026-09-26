@@ -43,7 +43,9 @@
     "Column",
     "Grid",
     "Stack"
-   ]
+   ],
+   "example": "Container { Heading(\"Pricing\").h1 }\nContainer.fluid { Text(\"Edge to edge\") }",
+   "cssClass": "wf-container"
   },
   {
    "name": "Row",
@@ -107,7 +109,9 @@
     "Column",
     "Grid",
     "Stack"
-   ]
+   ],
+   "example": "Row(gap: .md, align: .center, justify: .between) {\n    Text(\"Left\")\n    Button(\"Right\")\n}\nRow(direction: { base: .column, md: .row }) { Text(\"a\")  Text(\"b\") }",
+   "cssClass": "wf-row"
   },
   {
    "name": "Column",
@@ -144,7 +148,9 @@
     "Row",
     "Grid",
     "Stack"
-   ]
+   ],
+   "example": "Row {\n    Column(span: 8) { Text(\"Main\") }\n    Column(span: 4) { Text(\"Aside\") }\n}",
+   "cssClass": "wf-col"
   },
   {
    "name": "Grid",
@@ -206,7 +212,9 @@
     "Row",
     "Column",
     "Stack"
-   ]
+   ],
+   "example": "Grid(columns: { base: 1, md: 3 }, gap: .lg) {\n    Card { Text(\"One\") }\n    Card { Text(\"Two\") }\n    Card { Text(\"Three\") }\n}",
+   "cssClass": "wf-grid"
   },
   {
    "name": "Stack",
@@ -257,7 +265,9 @@
     "Row",
     "Column",
     "Grid"
-   ]
+   ],
+   "example": "Stack(gap: .sm) {\n    Text(\"First\")\n    Text(\"Second\")\n}",
+   "cssClass": "wf-stack"
   },
   {
    "name": "Spacer",
@@ -293,7 +303,9 @@
     "Row",
     "Column",
     "Grid"
-   ]
+   ],
+   "example": "Text(\"Above\")\nSpacer.lg\nText(\"Below\")",
+   "cssClass": "wf-spacer"
   },
   {
    "name": "Divider",
@@ -317,7 +329,9 @@
     "Row",
     "Column",
     "Grid"
-   ]
+   ],
+   "example": "Text(\"Section one\")\nDivider\nText(\"Section two\")",
+   "cssClass": "wf-divider"
   },
   {
    "name": "Navbar",
@@ -363,7 +377,9 @@
     "Link",
     "Tabs",
     "Breadcrumb"
-   ]
+   ],
+   "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
+   "cssClass": "wf-navbar"
   },
   {
    "name": "Sidebar",
@@ -427,7 +443,9 @@
     "Link",
     "Tabs",
     "Breadcrumb"
-   ]
+   ],
+   "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
+   "cssClass": "wf-sidebar"
   },
   {
    "name": "Link",
@@ -470,7 +488,9 @@
     "Sidebar",
     "Tabs",
     "Breadcrumb"
-   ]
+   ],
+   "example": "Link(\"About us\", to: \"/about\")\nLink(\"Guide\", to: \"/docs\", active: .prefix)\nLink(to: \"https://example.com\", target: \"_blank\") { Text(\"Example\") }",
+   "cssClass": "wf-link"
   },
   {
    "name": "Tabs",
@@ -508,7 +528,9 @@
     "Sidebar",
     "Link",
     "Breadcrumb"
-   ]
+   ],
+   "example": "Tabs {\n    Tabs.Page(\"Profile\") { Text(\"Your details\") }\n    Tabs.Page(\"Billing\") { Text(\"Your plan\") }\n}",
+   "cssClass": "wf-tabs"
   },
   {
    "name": "Breadcrumb",
@@ -546,7 +568,9 @@
     "Sidebar",
     "Link",
     "Tabs"
-   ]
+   ],
+   "example": "Breadcrumb {\n    Breadcrumb.Item(to: \"/\") { Text(\"Home\") }\n    Breadcrumb.Item(to: \"/docs\") { Text(\"Docs\") }\n    Breadcrumb.Item { Text(\"Components\") }\n}",
+   "cssClass": "wf-breadcrumb"
   },
   {
    "name": "Menu",
@@ -596,7 +620,9 @@
     "Sidebar",
     "Link",
     "Tabs"
-   ]
+   ],
+   "example": "Menu(trigger: \"Options\") {\n    Menu.Item { Text(\"Rename\") }\n    Menu.Divider\n    Menu.Item { Text(\"Delete\") }\n}",
+   "cssClass": "wf-menu"
   },
   {
    "name": "Card",
@@ -652,7 +678,9 @@
     "List",
     "Badge",
     "Tag"
-   ]
+   ],
+   "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
+   "cssClass": "wf-card"
   },
   {
    "name": "Table",
@@ -724,7 +752,9 @@
     "List",
     "Badge",
     "Tag"
-   ]
+   ],
+   "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
+   "cssClass": "wf-table"
   },
   {
    "name": "List",
@@ -764,7 +794,9 @@
     "Table",
     "Badge",
     "Tag"
-   ]
+   ],
+   "example": "List {\n    List.Item { Text(\"Milk\") }\n    List.Item { Text(\"Eggs\") }\n}\nList.ordered { List.Item { Text(\"First\") } }",
+   "cssClass": "wf-list"
   },
   {
    "name": "Badge",
@@ -812,7 +844,9 @@
     "Table",
     "List",
     "Tag"
-   ]
+   ],
+   "example": "Badge(\"Beta\").info\nBadge(\"3 new\").danger.pill",
+   "cssClass": "wf-badge"
   },
   {
    "name": "Tag",
@@ -842,7 +876,9 @@
     "Table",
     "List",
     "Badge"
-   ]
+   ],
+   "example": "Tag(\"design\")",
+   "cssClass": "wf-tag"
   },
   {
    "name": "Avatar",
@@ -897,7 +933,9 @@
     "Table",
     "List",
     "Badge"
-   ]
+   ],
+   "example": "Avatar(src: \"/ada.jpg\", alt: \"Ada Lovelace\")\nAvatar(initials: \"AL\").primary.lg",
+   "cssClass": "wf-avatar"
   },
   {
    "name": "Tooltip",
@@ -927,7 +965,9 @@
     "Table",
     "List",
     "Badge"
-   ]
+   ],
+   "example": "Tooltip(\"Copies the link\") { IconButton(icon: \"copy\", label: \"Copy link\") }",
+   "cssClass": "wf-tooltip"
   },
   {
    "name": "Input",
@@ -1047,7 +1087,9 @@
     "Checkbox",
     "Radio",
     "Switch"
-   ]
+   ],
+   "example": "state email = \"\"\nInput(bind: email, label: \"Email\", hint: \"We never share it\").email.required",
+   "cssClass": "wf-input"
   },
   {
    "name": "Select",
@@ -1130,7 +1172,9 @@
     "Checkbox",
     "Radio",
     "Switch"
-   ]
+   ],
+   "example": "state plan = \"free\"\nSelect(bind: plan, label: \"Plan\") {\n    Select.Option(\"Free\", value: \"free\")\n    Select.Option(\"Team\", value: \"team\")\n}",
+   "cssClass": "wf-select"
   },
   {
    "name": "Checkbox",
@@ -1179,7 +1223,9 @@
     "Select",
     "Radio",
     "Switch"
-   ]
+   ],
+   "example": "state agree = false\nCheckbox(bind: agree, label: \"I agree to the terms\")",
+   "cssClass": "wf-checkbox"
   },
   {
    "name": "Radio",
@@ -1233,7 +1279,9 @@
     "Select",
     "Checkbox",
     "Switch"
-   ]
+   ],
+   "example": "state size = \"m\"\nRadio(bind: size, value: \"s\", label: \"Small\")\nRadio(bind: size, value: \"m\", label: \"Medium\")",
+   "cssClass": "wf-radio"
   },
   {
    "name": "Switch",
@@ -1282,7 +1330,9 @@
     "Select",
     "Checkbox",
     "Radio"
-   ]
+   ],
+   "example": "state notify = true\nSwitch(bind: notify, label: \"Email me about replies\")",
+   "cssClass": "wf-switch"
   },
   {
    "name": "Slider",
@@ -1340,7 +1390,9 @@
     "Select",
     "Checkbox",
     "Radio"
-   ]
+   ],
+   "example": "state volume = 50\nSlider(bind: volume, min: 0, max: 100, step: 5, label: \"Volume\")",
+   "cssClass": "wf-slider"
   },
   {
    "name": "DatePicker",
@@ -1393,7 +1445,9 @@
     "Select",
     "Checkbox",
     "Radio"
-   ]
+   ],
+   "example": "state start: Date? = null\nDatePicker(bind: start, label: \"Start date\", min: \"2026-01-01\")",
+   "cssClass": "wf-datepicker"
   },
   {
    "name": "FileUpload",
@@ -1442,7 +1496,9 @@
     "Select",
     "Checkbox",
     "Radio"
-   ]
+   ],
+   "example": "FileUpload(accept: \"image/*\", label: \"Choose a picture\") { on change(e) { log(e.target.files[0].name) } }",
+   "cssClass": "wf-file-upload"
   },
   {
    "name": "Form",
@@ -1482,7 +1538,9 @@
     "Select",
     "Checkbox",
     "Radio"
-   ]
+   ],
+   "example": "state name = \"\"\nForm(bind: form) {\n    on submit { log(name) }\n    Input(bind: name, label: \"Name\").required\n    Button(\"Save\", type: .submit, disabled: !form.valid).primary\n}",
+   "cssClass": "wf-form"
   },
   {
    "name": "Textarea",
@@ -1556,7 +1614,9 @@
     "Select",
     "Checkbox",
     "Radio"
-   ]
+   ],
+   "example": "state note = \"\"\nTextarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)",
+   "cssClass": "wf-input wf-textarea"
   },
   {
    "name": "Alert",
@@ -1596,7 +1656,9 @@
     "Modal",
     "Dialog",
     "Spinner"
-   ]
+   ],
+   "example": "Alert(\"Your changes were saved.\").success\nAlert(\"The server is not answering.\").danger",
+   "cssClass": "wf-alert"
   },
   {
    "name": "Toast",
@@ -1636,7 +1698,9 @@
     "Modal",
     "Dialog",
     "Spinner"
-   ]
+   ],
+   "example": "state saved = false\nif saved { Toast(\"Saved\").success }",
+   "cssClass": "wf-toast"
   },
   {
    "name": "Modal",
@@ -1679,7 +1743,9 @@
     "Toast",
     "Dialog",
     "Spinner"
-   ]
+   ],
+   "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete this?\") {\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
+   "cssClass": "wf-modal"
   },
   {
    "name": "Dialog",
@@ -1714,7 +1780,9 @@
     "Toast",
     "Modal",
     "Spinner"
-   ]
+   ],
+   "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving?\") { Text(\"Your draft will be lost.\") }",
+   "cssClass": "wf-dialog"
   },
   {
    "name": "Spinner",
@@ -1748,7 +1816,9 @@
     "Toast",
     "Modal",
     "Dialog"
-   ]
+   ],
+   "example": "Spinner\nSpinner.lg",
+   "cssClass": "wf-spinner"
   },
   {
    "name": "Progress",
@@ -1783,7 +1853,9 @@
     "Toast",
     "Modal",
     "Dialog"
-   ]
+   ],
+   "example": "Progress(value: 40, max: 100)",
+   "cssClass": "wf-progress"
   },
   {
    "name": "Skeleton",
@@ -1830,7 +1902,9 @@
     "Toast",
     "Modal",
     "Dialog"
-   ]
+   ],
+   "example": "Skeleton(height: \"20px\", width: \"200px\")\nSkeleton(size: \"48px\").circle",
+   "cssClass": "wf-skeleton"
   },
   {
    "name": "Button",
@@ -1917,7 +1991,9 @@
     "IconButton",
     "ButtonGroup",
     "Dropdown"
-   ]
+   ],
+   "example": "Button(\"Save\").primary { on click { log(\"saved\") } }\nButton(\"Delete\").danger.outlined.sm\nButton(\"Send\", type: .submit).primary.full",
+   "cssClass": "wf-btn"
   },
   {
    "name": "IconButton",
@@ -1981,7 +2057,9 @@
     "Button",
     "ButtonGroup",
     "Dropdown"
-   ]
+   ],
+   "example": "IconButton(icon: \"close\", label: \"Close\")\nIconButton(icon: \"edit\", label: \"Edit the title\").primary.sm",
+   "cssClass": "wf-icon-btn"
   },
   {
    "name": "ButtonGroup",
@@ -2004,7 +2082,9 @@
     "Button",
     "IconButton",
     "Dropdown"
-   ]
+   ],
+   "example": "ButtonGroup {\n    Button(\"Day\")\n    Button(\"Week\")\n    Button(\"Month\")\n}",
+   "cssClass": "wf-btn-group"
   },
   {
    "name": "Dropdown",
@@ -2048,7 +2128,9 @@
     "Button",
     "IconButton",
     "ButtonGroup"
-   ]
+   ],
+   "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
+   "cssClass": "wf-dropdown"
   },
   {
    "name": "Image",
@@ -2126,7 +2208,9 @@
     "Audio",
     "Icon",
     "Carousel"
-   ]
+   ],
+   "example": "Image(src: \"/team.jpg\", alt: \"The team at the launch\", width: 1200, height: 630)\nImage(src: \"/flourish.svg\", alt: \"\")",
+   "cssClass": "wf-image"
   },
   {
    "name": "Video",
@@ -2208,7 +2292,9 @@
     "Audio",
     "Icon",
     "Carousel"
-   ]
+   ],
+   "example": "Video(src: \"/demo.mp4\", captions: \"/demo.en.vtt\", poster: \"/demo.jpg\").controls",
+   "cssClass": "wf-video"
   },
   {
    "name": "Audio",
@@ -2262,7 +2348,9 @@
     "Video",
     "Icon",
     "Carousel"
-   ]
+   ],
+   "example": "Audio(src: \"/episode-1.mp3\", transcript: \"/episode-1.txt\").controls",
+   "cssClass": "wf-audio"
   },
   {
    "name": "Icon",
@@ -2318,7 +2406,9 @@
     "Video",
     "Audio",
     "Carousel"
-   ]
+   ],
+   "example": "Icon(\"search\")\nIcon(\"check\").lg.success",
+   "cssClass": "wf-icon"
   },
   {
    "name": "Carousel",
@@ -2368,7 +2458,9 @@
     "Video",
     "Audio",
     "Icon"
-   ]
+   ],
+   "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
+   "cssClass": "wf-carousel"
   },
   {
    "name": "Text",
@@ -2464,7 +2556,9 @@
     "Code",
     "Markdown",
     "Unsafe"
-   ]
+   ],
+   "example": "Text(\"Hello, world\")\nText(\"Last updated today\").muted.sm\nText(\"Important\").bold.danger",
+   "cssClass": "wf-text"
   },
   {
    "name": "Heading",
@@ -2520,7 +2614,9 @@
     "Code",
     "Markdown",
     "Unsafe"
-   ]
+   ],
+   "example": "Heading(\"Pricing\").h1\nHeading(\"Frequently asked\").h2",
+   "cssClass": "wf-heading"
   },
   {
    "name": "Code",
@@ -2562,7 +2658,9 @@
     "Heading",
     "Markdown",
     "Unsafe"
-   ]
+   ],
+   "example": "Text(\"Run \")\nCode(\"wf serve\")\nCode(\"page Home(path: \\\"/\\\") { Text(\\\"Hi\\\") }\", language: \"wf\").block",
+   "cssClass": "wf-code"
   },
   {
    "name": "Markdown",
@@ -2592,7 +2690,9 @@
     "Heading",
     "Code",
     "Unsafe"
-   ]
+   ],
+   "example": "Markdown(\"Some **bold** text and a [link](/docs).\")",
+   "cssClass": "wf-markdown"
   },
   {
    "name": "Host",
@@ -2637,7 +2737,9 @@
     "Row",
     "Column",
     "Grid"
-   ]
+   ],
+   "example": "Host(tag: \"canvas\", mount: (node) => node.getContext(\"2d\"), cleanup: (ctx) => log(\"gone\"))",
+   "cssClass": "wf-host"
   },
   {
    "name": "Unsafe",
@@ -2675,7 +2777,9 @@
     "Heading",
     "Code",
     "Markdown"
-   ]
+   ],
+   "example": "state body = \"<p>From the CMS</p>\"\nUnsafe.Html(sanitize(body))",
+   "cssClass": ""
   },
   {
    "name": "Blockquote",
@@ -2705,7 +2809,9 @@
     "Heading",
     "Code",
     "Markdown"
-   ]
+   ],
+   "example": "Blockquote { Text(\"Make it work, make it right, make it fast.\") }",
+   "cssClass": "wf-blockquote"
   },
   {
    "name": "Document",
@@ -2741,7 +2847,9 @@
     "Paragraph",
     "Header",
     "Footer"
-   ]
+   ],
+   "example": "Document(page_size: \"A4\") {\n    Section { Heading(\"Report\").h1  Paragraph(\"Revenue grew.\") }\n}",
+   "cssClass": "wf-document"
   },
   {
    "name": "Section",
@@ -2765,7 +2873,9 @@
     "Paragraph",
     "Header",
     "Footer"
-   ]
+   ],
+   "example": "Section {\n    Heading(\"Terms\").h2\n    Text(\"Payment within 30 days.\")\n}",
+   "cssClass": "wf-section"
   },
   {
    "name": "Paragraph",
@@ -2861,7 +2971,9 @@
     "Section",
     "Header",
     "Footer"
-   ]
+   ],
+   "example": "Paragraph(\"A block of prose, with the spacing a paragraph has.\")",
+   "cssClass": "wf-text"
   },
   {
    "name": "Header",
@@ -2885,7 +2997,9 @@
     "Section",
     "Paragraph",
     "Footer"
-   ]
+   ],
+   "example": "Header { Text(\"Company Inc.\").muted.sm }",
+   "cssClass": "wf-header"
   },
   {
    "name": "Footer",
@@ -2909,7 +3023,9 @@
     "Section",
     "Paragraph",
     "Header"
-   ]
+   ],
+   "example": "Footer { Text(\"\u00a9 Company Inc.\").muted.sm }",
+   "cssClass": "wf-footer"
   },
   {
    "name": "PageBreak",
@@ -2933,7 +3049,9 @@
     "Section",
     "Paragraph",
     "Header"
-   ]
+   ],
+   "example": "Text(\"End of chapter one.\")\nPageBreak\nHeading(\"Chapter two\").h2",
+   "cssClass": ""
   },
   {
    "name": "Presentation",
@@ -2957,7 +3075,9 @@
     "TitleSlide",
     "SectionSlide",
     "TwoColumn"
-   ]
+   ],
+   "example": "Presentation {\n    TitleSlide(\"Q1 review\", subtitle: \"March 2026\")\n    Slide { Heading(\"Highlights\").h1 }\n}",
+   "cssClass": ""
   },
   {
    "name": "Slide",
@@ -2981,7 +3101,9 @@
     "TitleSlide",
     "SectionSlide",
     "TwoColumn"
-   ]
+   ],
+   "example": "Presentation {\n    Slide {\n        Heading(\"Revenue\").h1\n        Text(\"Up 18% on last quarter.\")\n    }\n}",
+   "cssClass": ""
   },
   {
    "name": "TitleSlide",
@@ -3016,7 +3138,9 @@
     "Slide",
     "SectionSlide",
     "TwoColumn"
-   ]
+   ],
+   "example": "Presentation { TitleSlide(\"Q1 review\", subtitle: \"Acme, March 2026\") }",
+   "cssClass": ""
   },
   {
    "name": "SectionSlide",
@@ -3057,7 +3181,9 @@
     "Slide",
     "TitleSlide",
     "TwoColumn"
-   ]
+   ],
+   "example": "Presentation { SectionSlide(\"Numbers\").primary }",
+   "cssClass": ""
   },
   {
    "name": "TwoColumn",
@@ -3081,7 +3207,9 @@
     "Slide",
     "TitleSlide",
     "SectionSlide"
-   ]
+   ],
+   "example": "Presentation {\n    TwoColumn {\n        Container { Heading(\"Wins\").h3 }\n        Container { Heading(\"Risks\").h3 }\n    }\n}",
+   "cssClass": ""
   },
   {
    "name": "ImageSlide",
@@ -3116,7 +3244,9 @@
     "Slide",
     "TitleSlide",
     "SectionSlide"
-   ]
+   ],
+   "example": "Presentation { ImageSlide(src: \"chart.png\", caption: \"Revenue by month\") }",
+   "cssClass": ""
   },
   {
    "name": "Router",
@@ -3150,7 +3280,9 @@
     "aria",
     "data"
    ],
-   "nearby": []
+   "nearby": [],
+   "example": "app {\n    Navbar { Navbar.Brand { Link(\"Acme\", to: \"/\") } }\n    Router(transition: .fade, duration: \"200ms\")\n}",
+   "cssClass": "wf-router"
   }
  ],
  "universal": {
@@ -3264,6 +3396,174 @@
    {
     "name": "on mouseleave",
     "meaning": "The pointer left the element"
+   },
+   {
+    "name": "on dblclick",
+    "meaning": "The element was double-clicked"
+   },
+   {
+    "name": "on contextmenu",
+    "meaning": "The context menu was asked for; `e.preventDefault()` keeps the browser's"
+   },
+   {
+    "name": "on mousedown",
+    "meaning": "A mouse button went down over the element"
+   },
+   {
+    "name": "on mouseup",
+    "meaning": "A mouse button came up over the element"
+   },
+   {
+    "name": "on mousemove",
+    "meaning": "The mouse moved over the element"
+   },
+   {
+    "name": "on mouseover",
+    "meaning": "The pointer moved onto the element or one of its children"
+   },
+   {
+    "name": "on mouseout",
+    "meaning": "The pointer moved off the element or one of its children"
+   },
+   {
+    "name": "on pointerdown",
+    "meaning": "A pointer \u2014 mouse, pen or touch \u2014 went down"
+   },
+   {
+    "name": "on pointerup",
+    "meaning": "A pointer came up"
+   },
+   {
+    "name": "on pointermove",
+    "meaning": "A pointer moved"
+   },
+   {
+    "name": "on pointerenter",
+    "meaning": "A pointer entered the element"
+   },
+   {
+    "name": "on pointerleave",
+    "meaning": "A pointer left the element"
+   },
+   {
+    "name": "on pointercancel",
+    "meaning": "The browser took the pointer back, for a scroll or a gesture"
+   },
+   {
+    "name": "on touchstart",
+    "meaning": "A finger touched the element"
+   },
+   {
+    "name": "on touchend",
+    "meaning": "A finger left the element"
+   },
+   {
+    "name": "on touchmove",
+    "meaning": "A finger moved across the element"
+   },
+   {
+    "name": "on wheel",
+    "meaning": "The wheel or trackpad scrolled over the element"
+   },
+   {
+    "name": "on scroll",
+    "meaning": "The element's content scrolled"
+   },
+   {
+    "name": "on focusin",
+    "meaning": "The element or something inside it received focus"
+   },
+   {
+    "name": "on focusout",
+    "meaning": "The element or something inside it lost focus"
+   },
+   {
+    "name": "on reset",
+    "meaning": "The form was reset"
+   },
+   {
+    "name": "on invalid",
+    "meaning": "A control failed the browser's own validation"
+   },
+   {
+    "name": "on select",
+    "meaning": "Text in a field was selected"
+   },
+   {
+    "name": "on copy",
+    "meaning": "Something was copied from the element"
+   },
+   {
+    "name": "on cut",
+    "meaning": "Something was cut from the element"
+   },
+   {
+    "name": "on paste",
+    "meaning": "Something was pasted into the element; `e.clipboardData` holds it"
+   },
+   {
+    "name": "on dragstart",
+    "meaning": "The element started being dragged"
+   },
+   {
+    "name": "on drag",
+    "meaning": "The element is being dragged"
+   },
+   {
+    "name": "on dragend",
+    "meaning": "A drag of the element ended"
+   },
+   {
+    "name": "on dragenter",
+    "meaning": "Something dragged entered the element"
+   },
+   {
+    "name": "on dragover",
+    "meaning": "Something dragged is over the element; `e.preventDefault()` allows a drop"
+   },
+   {
+    "name": "on dragleave",
+    "meaning": "Something dragged left the element"
+   },
+   {
+    "name": "on drop",
+    "meaning": "Something was dropped on the element; `e.dataTransfer` holds it"
+   },
+   {
+    "name": "on load",
+    "meaning": "An image, video or frame finished loading"
+   },
+   {
+    "name": "on error",
+    "meaning": "An image, video or script failed to load"
+   },
+   {
+    "name": "on play",
+    "meaning": "A video or audio started playing"
+   },
+   {
+    "name": "on pause",
+    "meaning": "A video or audio paused"
+   },
+   {
+    "name": "on ended",
+    "meaning": "A video or audio reached its end"
+   },
+   {
+    "name": "on timeupdate",
+    "meaning": "A playing video or audio moved on"
+   },
+   {
+    "name": "on animationend",
+    "meaning": "A CSS animation on the element ended"
+   },
+   {
+    "name": "on transitionend",
+    "meaning": "A CSS transition on the element ended"
+   },
+   {
+    "name": "on toggle",
+    "meaning": "A details element opened or closed"
    }
   ]
  },

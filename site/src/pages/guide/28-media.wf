@@ -1,0 +1,57 @@
+/// Chapter 28 of the guide, written from md-docs/28-media.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page MediaGuide(path: "/docs/guide/media", title: "Media", description: "Images from public/ and the image pipeline, Video with captions, Audio with a transcript, the 32 built-in icons, and Carousel.", layout: DocsShell("Media", chapter: t("guide.chapter", { n: "28" }), blurb: "Pictures the build resizes for every screen, video with captions, audio with a transcript, icons and carousels.", source: "md-docs/28-media.md", sections: [Anchor(id: "pictures-from-public", label: "Pictures from public/"), Anchor(id: "image-a-picture-the-build-processes", label: "image: a picture the build processes"), Anchor(id: "icons", label: "Icons"), Anchor(id: "carousel", label: "Carousel")], prevTo: "/docs/guide/content", prevLabel: "27. {t("ch.27")}", nextTo: "/docs/guide/deploying", nextLabel: "29. {t("ch.29")}")) {
+    Stack(gap: .lg) {
+        Heading("Pictures from public/", id: "pictures-from-public").h2
+
+        CodeBlock(#"page Media(path: "/") {
+    Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)
+    Image(src: "/deco.png", alt: "")
+    Video(src: "/demo.mp4", captions: "/demo.en.vtt").controls
+    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
+}"#, title: "wf")
+
+        Markdown("Give every `Image` an `alt:` — empty for a decorative one — and a `width:` and `height:` where you know them so the layout does not shift; the first image on a page loads eagerly and later ones lazily. Files in `public/` are served from the root.\n\nA `Video` without `captions:` and an `Audio` without `transcript:` each draw an `A09`: a video nobody can hear is a video nobody can follow. `captions:` becomes a `<track>`; `transcript:` a link beneath the player.")
+
+        Heading("image: a picture the build processes", id: "image-a-picture-the-build-processes").h2
+
+        Markdown("Naming a picture with `image` hands the build the file itself. The path is looked up in the project's folder, then `src/`, then `public/`:")
+
+        CodeBlock(#"image hero = "hero.jpg"
+
+page Home(path: "/", title: "Home", description: "The front page.") {
+    Image(hero, alt: "The team at the launch",
+          sizes: "(max-width: 768px) 100vw, 1200px",
+          placeholder: .blur)
+    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
+}"#, title: "wf")
+
+        Markdown("The build reads its real size and its average colour, writes it again at every width in `media.widths` smaller than the original, and gives the page a `<picture>`:\n\n- a `<source>` per format, each with a `srcset` of the widths, so the browser picks the one it needs for the space `sizes:` describes;\n- `width` and `height` from the file, so the box is the right shape before a byte of the image has arrived and **nothing on the page moves**;\n- a placeholder in the meantime — `.blur` inlines a sixteen-pixel-wide copy as a data URI, `.color` fills the box with the average colour, `.none` does neither;\n- a content hash in every file's name, so a host can cache them forever.\n\nThe name is a value: `hero.src`, `.width`, `.height`, `.color`, `.placeholder`, `.srcset`.")
+
+        CodeBlock(#"{ "build": { "media": {
+    "formats": ["webp"],
+    "widths": [480, 960, 1440, 1920],
+    "quality": 78,
+    "pipeline": true
+} } }"#, title: "json")
+
+        Markdown("`pipeline: false` copies the file as `public/` always did. The work is cached in `.wf-cache/media/`, so a build that changes no image does no image work. A PDF or a slide deck embeds the real picture rather than drawing a box where one should be.")
+
+        Heading("Icons", id: "icons").h2
+
+        Markdown("`Icon(\"name\")` draws one of the built-in SVG icons inline, in the current text colour, so it follows the theme; `.sm`, `.lg` and a tone flag size and colour it. `IconButton(icon: \"close\", label: \"Close\")` is a button that is only an icon, named for screen readers by its `label:`. `Sidebar.Item` takes `icon:` too.\n\nThe 32 icons: `home`, `menu`, `search`, `close`, `user`, `settings`, `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`, `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`, `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`, `chevron-left`, `logout`, `copy`, `sun`, `moon`.\n\nA name that is not one of them draws as the word, and the build carries only the glyphs the program names — so an icon whose name arrives at run time needs `\"build\": \{ \"runtime\": \"full\" \}`. For any other icon, put an SVG file in `public/` and show it with `Image(src: \"/icons/rocket.svg\", alt: \"\")`.")
+
+        Heading("Carousel", id: "carousel").h2
+
+        CodeBlock(#"page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
+    Heading("Gallery").h1
+    Carousel(label: "Recent work", autoplay: true, interval: 5000) {
+        Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
+        Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour from above") }
+        Carousel.Slide { Image(src: "/three.jpg", alt: "Rain on the market") }
+    }
+}"#, title: "wf")
+
+        Markdown("A carousel has named previous and next buttons and a dot per slide; its `label:` names the region for screen readers. With autoplay there is also a button that stops it; it pauses on its own while the pointer or focus is on it, and does not run at all for a reader who asked for reduced motion.")
+    }
+}

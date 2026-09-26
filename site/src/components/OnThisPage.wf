@@ -1,6 +1,6 @@
 /// The right-hand rail of a chapter: its headings, the two links every
 /// chapter carries, and the note that the guide is checked.
-component OnThisPage(sections: [Anchor] = []) {
+component OnThisPage(sections: [Anchor] = [], source: String = "md-docs") {
     Stack(gap: .lg, aria-label: t("docs.onthispage")) {
         style {
             width: 240px
@@ -36,7 +36,7 @@ component OnThisPage(sections: [Anchor] = []) {
 
         Stack(gap: .xs) {
             style { gap: 10px; & a { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none } & a:hover { color: $color-text } & .wf-icon { font-size: 16px; display: inline-flex } }
-            Link(href: "{REPO}/tree/master/md-docs") { Icon("edit")  Text(t("docs.edit")) { style { margin: 0 } } }
+            Link(href: "{REPO}/blob/master/{source}") { Icon("edit")  Text(t("docs.edit")) { style { margin: 0 } } }
             Link(to: "/docs/reference") { Icon("menu")  Text(t("docs.reference")) { style { margin: 0 } } }
         }
 

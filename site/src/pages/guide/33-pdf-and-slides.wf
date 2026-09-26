@@ -1,0 +1,148 @@
+/// Chapter 33 of the guide, written from md-docs/33-pdf-and-slides.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page PdfAndSlidesGuide(path: "/docs/guide/pdf-and-slides", title: "PDF and slides", description: "PDF documents and slide decks: configuration, the document and slide elements, what renders, styling, and templates for them.", layout: DocsShell("PDF and slides", chapter: t("guide.chapter", { n: "33" }), blurb: "The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks.", source: "md-docs/33-pdf-and-slides.md", sections: [Anchor(id: "pdf-documents", label: "PDF documents"), Anchor(id: "slide-decks", label: "Slide decks")], prevTo: "/docs/guide/interop", prevLabel: "32. {t("ch.32")}", nextTo: "/docs/guide/server-rendering", nextLabel: "34. {t("ch.34")}")) {
+    Stack(gap: .lg) {
+        Markdown("The same language compiles to paper. `build.output_type` in `webfluent.app.json` chooses what `wf build` writes:")
+
+        Table(caption: "PDF and slides") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Output").header
+                    Table.Cell.header { Markdown("`output_type`") }
+                    Table.Cell("Writes").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("A website")
+                    Table.Cell { Markdown("`spa` (default), with `build.ssg` for static pages") }
+                    Table.Cell { Markdown("HTML, CSS and JavaScript ([chapter 26](/docs/guide/static-and-spa))") }
+                }
+                Table.Row {
+                    Table.Cell("PDF document")
+                    Table.Cell { Markdown("`pdf`") }
+                    Table.Cell { Markdown("One `.pdf`, paginated") }
+                }
+                Table.Row {
+                    Table.Cell("Slide deck")
+                    Table.Cell { Markdown("`slides`") }
+                    Table.Cell { Markdown("One `.pdf`, a slide per page") }
+                }
+                Table.Row {
+                    Table.Cell("Custom elements")
+                    Table.Cell { Markdown("`elements`") }
+                    Table.Cell { Markdown("`elements.js` for other frameworks ([chapter 32](/docs/guide/interop#publishing-your-components-as-custom-elements))") }
+                }
+            }
+        }
+
+        Markdown("The PDF is written by the compiler itself — PDF 1.7, the standard PDF fonts, no browser and no external tool — so a document builds anywhere `wf` runs. To produce one PDF per invoice from data, use [server rendering](/docs/guide/server-rendering) with the same templates.")
+
+        Heading("PDF documents", id: "pdf-documents").h2
+
+        CodeBlock(#"{
+  "build": {
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "A4",
+      "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 },
+      "default_font": "Helvetica",
+      "default_font_size": 12,
+      "output_filename": "report.pdf"
+    }
+  }
+}"#, title: "json")
+
+        Markdown("A PDF page holds a `Document` with a body of the document components:")
+
+        CodeBlock(#"type Line { item: String, qty: Number, price: Number }
+
+const LINES: [Line] = [
+    Line(item: "Design", qty: 12, price: 90),
+    Line(item: "Build", qty: 40, price: 110),
+]
+
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    derived total = LINES.reduce((sum, l) => sum + l.qty * l.price, 0)
+    Document(page_size: "A4") {
+        Header { Text("Acme Studio").muted.sm.right }
+        Footer { Text("Page footer — thank you for your business").muted.sm.center }
+        Section {
+            Heading("Invoice #2026-014").h1
+            Text("Issued {format("2026-09-01", .date, "long")}")
+            Spacer
+            Table {
+                Table.Head {
+                    Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Price")  Table.Cell("Amount") }
+                }
+                Table.Body {
+                    for l in LINES {
+                        Table.Row {
+                            Table.Cell(l.item)
+                            Table.Cell("{l.qty}")
+                            Table.Cell(format(l.price, .currency))
+                            Table.Cell(format(l.qty * l.price, .currency))
+                        }
+                    }
+                }
+            }
+            Divider
+            Text("Total: {format(total, .currency)}").bold.lg
+        }
+        PageBreak
+        Section {
+            Heading("Terms").h2
+            Paragraph { Text("Payment within 30 days.") }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- `Document(page_size:)` — `A4`, `A3`, `A5`, `Letter`, `Legal` — is the root; `Header` and `Footer` repeat on every page; `Section` groups with spacing; `Paragraph` is a block of text; `PageBreak` starts a new page.\n- Typography, layout containers, `Table`, `List`, `Badge`, `Card`, `Image`, `Divider`, `Spacer` render; `if` and `for` work over static data (`const`, `data`, literals).\n- Interactive components (`Button`, `Input`, `Form`, `Modal`, …), navigation, handlers, `resource`, `state` that changes, and motion do not belong in a PDF; the PDF validator rejects them before codegen.\n- A `style \{ \}` on a container honours a subset: `background` (colour or a two-stop `linear-gradient`), `padding`, `border`, `border-radius`, `box-shadow`, `width`, `height` in `pt` or `%`. Unknown properties warn once per component and property.\n\n`wf init my-report --template pdf` scaffolds one.")
+
+        Heading("Slide decks", id: "slide-decks").h2
+
+        CodeBlock(##"{
+  "build": {
+    "output_type": "slides",
+    "slides": {
+      "size": "16:9",
+      "show_slide_numbers": true,
+      "footer_text": "Acme — Q4 review",
+      "background_color": "#FFFFFF"
+    }
+  }
+}"##, title: "json")
+
+        CodeBlock(#"page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
+    Presentation {
+        TitleSlide("Q4 review", subtitle: "Acme Studio, October 2026")
+        SectionSlide("Numbers").primary
+        Slide {
+            Heading("Revenue").h2
+            List {
+                List.Item { Text("Up 18% on Q3") }
+                List.Item { Text("Three new enterprise accounts") }
+                List.Item { Text("Churn at 1.2%") }
+            }
+        }
+        TwoColumn {
+            Container {
+                Heading("What worked").h3
+                Text("Self-serve onboarding.")
+            }
+            Container {
+                Heading("What did not").h3
+                Text("The March pricing test.")
+            }
+        }
+        ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
+        Slide {
+            style { background: linear-gradient(135deg, #1E3A8A, #0F172A) }
+            Heading("Thank you").h1
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- `Presentation` holds only slides; a slide is one PDF page and never flows onto the next (content past the bottom margin is clipped, with a warning).\n- Kinds: `Slide \{ \}` freeform; `TitleSlide(title, subtitle:)`; `SectionSlide(label).primary/.success/.danger/.warning/.info` full-bleed; `TwoColumn \{ Container \{ \} Container \{ \} \}`; `ImageSlide(src:, caption:)`.\n- `slides.size`: `16:9` (default, 960×540pt), `4:3` (720×540), `A4-landscape` (841.89×595.28), or `WIDTHxHEIGHT` in points. `slides.width` and `slides.height` override it outright; `slides.margin` (60pt) is the space round the content, and what runs past it is clipped.\n- `show_slide_numbers`, `footer_text` and `chrome_color` add the chrome (the colour auto-flips between dark and light on the slide's background when unset). `default_font`, `default_font_size` (24pt) and `output_filename` are the deck's own.\n- Backgrounds: `slides.background_color` deck-wide, a `Slide`'s `style \{ background \}`, a `Container`'s; hex or a two-stop `linear-gradient`.\n- Inside a slide: `Text`, `Heading` (scaled up), `List`, layout containers, `Spacer`, `Divider`, `if`/`for` over literals. Interactive, navigation and media components are rejected.\n\n`wf init my-deck --template slides` scaffolds one.")
+    }
+}

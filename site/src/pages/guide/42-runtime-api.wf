@@ -1,0 +1,382 @@
+/// Chapter 42 of the guide, written from md-docs/42-runtime-api.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page RuntimeGuide(path: "/docs/guide/runtime", title: "Runtime API", description: "The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot.", layout: DocsShell("Runtime API", chapter: t("guide.chapter", { n: "42" }), blurb: "window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback.", source: "md-docs/42-runtime-api.md", sections: [Anchor(id: "state-core", label: "State — core"), Anchor(id: "elements-and-bodies-core-when-each-show-match-slot", label: "Elements and bodies — core, when, each, show, match, slot"), Anchor(id: "motion-motion", label: "Motion — motion"), Anchor(id: "routing-core-router-pages", label: "Routing — core, router, pages"), Anchor(id: "browser-values-browser-core", label: "Browser values — browser, core"), Anchor(id: "data-net-http-api", label: "Data — net, http, api"), Anchor(id: "stores-store-keep", label: "Stores — store, keep"), Anchor(id: "widgets-toast-overlay-announce-field-tooltip-carousel-drawer-form", label: "Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form"), Anchor(id: "safety-core-sanitize", label: "Safety — core, sanitize"), Anchor(id: "text-text-format", label: "Text — text, format"), Anchor(id: "values-helpers-scalars", label: "Values — helpers, scalars"), Anchor(id: "everything-else", label: "Everything else")], prevTo: "/docs/guide/tokens", prevLabel: "41. {t("ch.41")}", nextTo: "/docs/guide/grammar", nextLabel: "43. {t("ch.43")}")) {
+    Stack(gap: .lg) {
+        Markdown("`app.js` opens with the runtime, and the page can reach it as `window.WF`. Compiled code calls it; so may a hand-written script in `public/`, a library's callback, or you in the browser's console:")
+
+        CodeBlock(#"WF.navigate("/about");
+WF.toast("Saved", "success");
+WF.storeSnapshot("Cart");"#, title: "js")
+
+        Markdown("A build keeps only the modules its own code reaches, so a script calling a module nothing else uses needs `\"build\": \{ \"runtime\": \"full\" \}` ([chapter 32](/docs/guide/interop)). Most names here are what the compiler emits for the language's features; the ones worth calling yourself are marked **●**.")
+
+        Heading("State — core", id: "state-core").h2
+
+        Table(caption: "State — core") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`signal(value)` ●") }
+                    Table.Cell { Markdown("A reactive value: call it to read, `.set(v)`, `.update(f)`, `.subscribe(f)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`computed(fn)` ●") }
+                    Table.Cell("A value computed from signals, recomputed when they change")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`effect(fn)` ●") }
+                    Table.Cell { Markdown("Runs `fn`, and again when a signal it read changes; a returned function is its cleanup") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`scoped(fn)`, `onCleanup(fn)`") }
+                    Table.Cell { Markdown("Ownership: what `fn` creates is disposed of with its scope; `onCleanup` registers a disposal") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`every(ms, fn)`, `after(ms, fn)`, `listen(target, event, fn)`") }
+                    Table.Cell("A timer or listener tied to the current scope")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ref()`") }
+                    Table.Cell("An element handle, filled when the element is made")
+                }
+            }
+        }
+
+        Heading("Elements and bodies — core, when, each, show, match, slot", id: "elements-and-bodies-core-when-each-show-match-slot").h2
+
+        Table(caption: "Elements and bodies — core, when, each, show, match, slot") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`el(tag, attrs, …children)`") }
+                    Table.Cell("Makes an element; a function attribute or child follows the signals it reads")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`text(v)`, `props(given, defaults)`, `classes(node, fn)`, `mark(node, attrs)`") }
+                    Table.Cell("A text node, a component's props, live classes, animation marks")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`onRoot(node, event, fn)`") }
+                    Table.Cell("A handler on a component's root element")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`when(parent, cond, then, else, anim)`") }
+                    Table.Cell { Markdown("`if`/`else`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`each(parent, list, item, options)`") }
+                    Table.Cell { Markdown("`for`, keyed or not") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`show(parent, cond, body, anim)`") }
+                    Table.Cell { Markdown("`show`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`match(parent, key, arg, arms)`") }
+                    Table.Cell { Markdown("`match`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`slot(…)`") }
+                    Table.Cell("A component's slot fill")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`emit(props, event, …args)`") }
+                    Table.Cell("Fires a component's declared event")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`onKey(node, combination, fn)`, `keyIs(event, combination)`") }
+                    Table.Cell { Markdown("`on key(\"ctrl+k\")`") }
+                }
+            }
+        }
+
+        Heading("Motion — motion", id: "motion-motion").h2
+
+        Table(caption: "Motion — motion") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`animate(target, name, duration)` ●") }
+                    Table.Cell { Markdown("Plays an animation now; returns a handle with `play()`, `cancel()`, `finished`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`replay(node, name)` ●") }
+                    Table.Cell("Plays an element's own animation again")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animateIn`, `animateOut(node, name, duration, delay, easing)`") }
+                    Table.Cell("Enter and exit")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`expand(node, open, duration, easing)`") }
+                    Table.Cell("Opens or closes to the measured height")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`countTo(node, from, to, duration, format)`, `counted(…)`") }
+                    Table.Cell("A number that counts")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`onEnterView(node, name, …)`") }
+                    Table.Cell("Plays when scrolled to")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`shared(node, name)`") }
+                    Table.Cell("An element carried across a route change")
+                }
+            }
+        }
+
+        Heading("Routing — core, router, pages", id: "routing-core-router-pages").h2
+
+        Table(caption: "Routing — core, router, pages") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`navigate(path)` ●") }
+                    Table.Cell("Moves to a route (a page load in a static build)")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`params()` ●") }
+                    Table.Cell("The current route's parameters")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`router(routes, container, options)`") }
+                    Table.Cell { Markdown("The router `Router` compiles to") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`activeLink(a, href, prefix)`") }
+                    Table.Cell { Markdown("Keeps a link's `.active` and `aria-current`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`page(name, fn)`, `loadPage`, `loadSheet`") }
+                    Table.Cell("Page chunks and their stylesheets")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`setBasePath(path)`, `setSsgMode(on)`") }
+                    Table.Cell("Set at boot from the config")
+                }
+            }
+        }
+
+        Heading("Browser values — browser, core", id: "browser-values-browser-core").h2
+
+        Markdown("`viewport()`, `query()`, `hash()`, `now(every)`, `network()` and `theme()` read what the language's browser values hold; `setTheme(choice)` ● switches the theme.")
+
+        Heading("Data — net, http, api", id: "data-net-http-api").h2
+
+        Table(caption: "Data — net, http, api") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`resource(url, options)`") }
+                    Table.Cell { Markdown("`\{ state, data, error, items, hasMore, reload, loadMore, invalidate, cancel \}`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`request(url, options)`, `fetch(url, options)` ●") }
+                    Table.Cell("A request through the engine: retries, timeouts, cache, typed errors; resolves to the parsed body")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`send(url, options)`") }
+                    Table.Cell("The engine's request itself")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`invalidate(key)`") }
+                    Table.Cell("Drops a cached answer")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`optimistic(holder, change)`, `attempt(fn)`") }
+                    Table.Cell { Markdown("A change shown now and rolled back if `fn` throws") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`beacon(url, data)` ●") }
+                    Table.Cell("A post that survives unloading")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`api(definition)`") }
+                    Table.Cell { Markdown("A service `api` compiles to") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ws(url, options)`, `sse(url, options)`, `broadcast(name, options)`") }
+                    Table.Cell("A socket, a stream, a channel")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`rtc(options)`") }
+                    Table.Cell { Markdown("A peer — module `peer`") }
+                }
+            }
+        }
+
+        Heading("Stores — store, keep", id: "stores-store-keep").h2
+
+        Table(caption: "Stores — store, keep") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`store(name, define, options)`") }
+                    Table.Cell("A store, built on first read")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`dropRouteStores()`") }
+                    Table.Cell { Markdown("Drops the `.route` stores, on a route change") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`watchStores(fn)` ●") }
+                    Table.Cell { Markdown("Calls `fn` with every action and the state either side of it; returns the function that stops it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`storeSnapshot(name?)` ●") }
+                    Table.Cell("What every store — or one — holds")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`restoreStore(name, values)` ●") }
+                    Table.Cell("Puts a store back to what it held")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`persist(…)`") }
+                    Table.Cell { Markdown("A `persist` value's storage, versions and migrations") }
+                }
+            }
+        }
+
+        Markdown("Nothing is recorded while nothing is watching.")
+
+        Heading("Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form", id: "widgets-toast-overlay-announce-field-tooltip-carousel-drawer-form").h2
+
+        Table(caption: "Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`toast(message, tone, ms)` ●") }
+                    Table.Cell { Markdown("Shows a toast: `\"success\"`, `\"danger\"`, `\"warning\"`, `\"info\"`; 3 seconds by default") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`announce(text)` ●") }
+                    Table.Cell { Markdown("Says `text` to screen readers, politely") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`dialog`, `popup`, `tabs`, `menu`, `drawer`, `tooltip`, `carousel`, `field`") }
+                    Table.Cell("What the matching built-ins compile to")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`form(options)`, `validate(…)`") }
+                    Table.Cell { Markdown("A `Form` handle and its rules") }
+                }
+            }
+        }
+
+        Heading("Safety — core, sanitize", id: "safety-core-sanitize").h2
+
+        Table(caption: "Safety — core, sanitize") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`safeUrl(url)` ●") }
+                    Table.Cell { Markdown("The URL where a browser may follow it, `\"\"` where it may not") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sanitize(html)` ●") }
+                    Table.Cell("Markup through the allow-list")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`jsonAttr(raw)`") }
+                    Table.Cell("An attribute holding JSON, as the prop it stands for")
+                }
+            }
+        }
+
+        Markdown("Both `safeUrl` and `sanitize` have a build-time twin, held to one table of cases.")
+
+        Heading("Text — text, format", id: "text-text-format").h2
+
+        Markdown("`markdown(text)` ● renders the language's Markdown to HTML; `highlight(code, lang)` ● colours `wf`, `json`, `bash` or `css`; `format(value, style, option)` ● and `ago(date)` ● format in the locale.")
+
+        Heading("Values — helpers, scalars", id: "values-helpers-scalars").h2
+
+        Markdown("The list and string helpers (`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `capitalize`, `truncate`, `dedent`, `lines`, `words`, `range`, `removeAt`) and the built-in types' methods (`plus`, `minus`, `until`, `year` … `inZone`, `money`, `times`, `convert`, `host`, `path`, `domain`, `mix`, `lighten`, `darken`, `alpha`, `contrast`, `preview`, `uuid`, `dateOf`, `timeOf`, `urlWith`, `urlQuery`), and `caseOf(v)` and `payload(v)` for an enum case — each a function of the value it works on.")
+
+        Heading("Everything else", id: "everything-else").h2
+
+        Table(caption: "Everything else") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Module").header
+                    Table.Cell("Functions").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`i18n`") }
+                    Table.Cell { Markdown("`locales(default, tables)` → `WF.i18n`, with `t`, `locale`, `dir`, `setLocale`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`offline`") }
+                    Table.Cell { Markdown("`offline(options)`, `update()` — the service worker and the update flow") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`head`") }
+                    Table.Cell { Markdown("`head(tags)` — a page's own head tags") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`host`") }
+                    Table.Cell { Markdown("`attach(node, mount, update, cleanup)` — what `Host` compiles to") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`picture`") }
+                    Table.Cell { Markdown("`picture(…)` — an `image`'s `<picture>`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`hydrate`") }
+                    Table.Cell { Markdown("`hydrate(fn, container)` — takes over a pre-rendered page") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`mount(fn, container)`, `mainOf(root)` — boot") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`debug`") }
+                    Table.Cell { Markdown("`__debug`, `__reg` — for WebFluent Studio") }
+                }
+            }
+        }
+    }
+}

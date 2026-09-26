@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command line and editors</title>
+    <meta name="description" content="The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/cli">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/cli?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/cli?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/cli">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Command line and editors">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/cli">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Command line and editors">
+    <meta name="twitter:description" content="The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/cli#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/cli","name":"Command line and editors","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/cli#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Command line and editors","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/cli"}]}]}</script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="../../../styles.css">
+    <script src="../../../app.js" defer></script>
+    <script src="../../../pages/CliGuide.js" data-wf-page="CliGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <div class="wf-row wf-align--center wf-justify--between wf-s1719304e site-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--lg wf-sc1306c41">
+                    <a class="wf-link" href="/WebFluent/">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sc1d54d40">
+                            <p class="wf-text wf-sb993cc9b">wf</p>
+                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
+                            <p class="wf-text wf-s81483e57">4.0</p>
+                        </div>
+                    </a>
+                    <div class="wf-row wf-align--center wf-gap--xs wf-scddefdad site-nav" role="navigation" aria-label="Site">
+                        <a class="wf-link active" href="/WebFluent/docs/guide" aria-current="page">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">Components</a>
+                        <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sd38856dd">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-s96fbc978 site-search">
+                        <i class="wf-icon" data-icon="search"></i>
+                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
+                        <p class="wf-text wf-s09f6982c">/</p>
+                    </div>
+                    <!--wf-if-->
+                    <button class="wf-icon-btn site-icon-button"></button>
+                    <a class="wf-link wf-s57f35af7 site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
+                    <button class="wf-icon-btn wf-sf5bd26da site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                </div>
+            </div>
+            <!--wf-if-->
+            <div class="wf-row wf-align--stretch wf-s8fba8729">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
+                        <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
+                        <p class="wf-text">Getting started</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
+                        <p class="wf-text num">05</p>
+                        <p class="wf-text">Language basics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
+                        <p class="wf-text num">06</p>
+                        <p class="wf-text">Pages and routing</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
+                        <p class="wf-text num">07</p>
+                        <p class="wf-text">Elements</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
+                        <p class="wf-text num">08</p>
+                        <p class="wf-text">State and reactivity</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
+                        <p class="wf-text num">10</p>
+                        <p class="wf-text">Control flow</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
+                        <p class="wf-text num">11</p>
+                        <p class="wf-text">Components</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
+                        <p class="wf-text num">12</p>
+                        <p class="wf-text">Stores</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
+                        <p class="wf-text num">13</p>
+                        <p class="wf-text">Types</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
+                        <p class="wf-text num">14</p>
+                        <p class="wf-text">Expressions</p>
+                    </a>
+                    <p class="wf-text group-label">Building</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
+                        <p class="wf-text num">15</p>
+                        <p class="wf-text">Styling</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/data">
+                        <p class="wf-text num">17</p>
+                        <p class="wf-text">Data</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
+                        <p class="wf-text num">21</p>
+                        <p class="wf-text">Internationalisation</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
+                        <p class="wf-text num">23</p>
+                        <p class="wf-text">Security</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
+                        <p class="wf-text num">35</p>
+                        <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/cli" aria-current="page">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
+                    </a>
+                </aside>
+                <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
+                        <p class="wf-text">/</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 37</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s82e57ad1">
+                        <h1 class="wf-heading wf-sf52d8cd0">Command line and editors</h1>
+                        <p class="wf-text wf-s38239618">Every wf command and flag, the dev server, and the language server in each editor.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
+                        <div class="wf-stack wf-gap--lg">
+                            <div class="wf-markdown">
+<p>One binary, <code>wf</code>, scaffolds, builds, serves, formats, tests, renders and describes a project. A second, <code>wf-lsp</code>, brings the same checks into your editor. <code>wf --help</code> lists the commands and <code>wf &lt;command&gt; --help</code> each one's flags; <code>wf --version</code> prints the version.</p>
+<p>Every command that takes a project runs in the current directory unless told otherwise, and exits non-zero on failure, so each is a CI step as it is.</p>
+                            </div>
+                            <h2 class="wf-heading">The commands</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">The commands</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Command</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf init NAME [-t, --template spa|static|pdf|slides]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Creates a project from a template</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf build [-d, --dir DIR] [--stats]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Compiles the project; fails on errors, prints warnings</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf serve [-d, --dir DIR]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Builds, serves on <code>dev.port</code>, rebuilds and reloads on every save</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf test [PATH] [--update]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Runs the project's <code>test</code> declarations</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf verify [PATH] [--json] [--budget MS]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Loads every built page in headless Chrome</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf fmt [PATH] [--check] [--stdout] [--to wf|wfx]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Formats sources, or switches their layout</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate page|component|store NAME [-d, --dir DIR]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Writes a starter file</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Renders a template with data</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf migrate [PATH] [--check] [--stdout] [--wfx]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Carries a WebFluent 2 or 3 project forward</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf audit [PATH] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Lists what the project trusts</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf docs [-d, --dir DIR] [-o, --out OUT]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Writes a gallery of every component</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf registry [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Describes every built-in</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf types [PATH] [--json]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Describes what the project declares</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Creating and building</h2>
+                            <h3 class="wf-heading">wf init</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Makes a directory <code>NAME</code> with a config, a <code>.gitignore</code> and a small working application for the template: <code>spa</code> (the default — an interactive app), <code>static</code> (a marketing site, pre-rendered), <code>pdf</code> (a document) or <code>slides</code> (a deck). It refuses a directory that already exists.</p>
+                            </div>
+                            <h3 class="wf-heading">wf build</h3>
+                            <div class="wf-markdown">
+<p>Runs the whole pipeline — parse, semantic checks, type checks, linters, code generation — and writes <code>build.output</code> (<code>./build</code>). Errors stop the build with the file, line, column, message and a hint; warnings print and the build goes on. <code>-d DIR</code> builds another directory.</p>
+<p><code>--stats</code> prints what the build weighs: every text file with its gzipped size and how it moved since the last build, the runtime modules it kept and what reached each, and the design tokens it left out. <a href="/WebFluent/docs/guide/performance">Performance</a> reads it.</p>
+                            </div>
+                            <h3 class="wf-heading">wf serve</h3>
+                            <div class="wf-markdown">
+<p>The development loop. It builds once, serves the output on <code>dev.port</code> (3000), watches <code>src/</code>, <code>public/</code> and the config, rebuilds on a change and reloads every open tab. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at <code>/__wf/dev.js</code>, the build's state at <code>/__wf/status</code> (JSON).</p>
+<p>Every page it serves also carries a <strong>stores</strong> button: what each store holds, a log of every action with the state on each side of it, and a click to put a store back (<a href="/WebFluent/docs/guide/stores#looking-at-one-while-it-runs">Stores</a>). An offline site's service worker is removed under <code>wf serve</code>, so an edit is never hidden behind its cache.</p>
+                            </div>
+                            <h3 class="wf-heading">wf generate</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Writes a starter declaration in <code>src/pages/</code>, <code>src/components/</code> or <code>src/stores/</code> — in <code>.wfx</code> when the project is written that way — and never overwrites a file. A page gets a path from its name (<code>/pricing</code>), a title, a description and an <code>h1</code>.</p>
+                            </div>
+                            <h2 class="wf-heading">Checking</h2>
+                            <h3 class="wf-heading">wf test</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Runs every <code>test &quot;…&quot; { }</code> under <code>tests/</code> (and in <code>src/</code>), or those in one file; <code>--update</code> rewrites the snapshots. A test that clicks or types runs in headless Chrome. <a href="/WebFluent/docs/guide/testing">Testing</a> covers writing them.</p>
+                            </div>
+                            <h3 class="wf-heading">wf verify</h3>
+                            <div class="wf-markdown">
+<p>A build says what the compiler wrote. This says what a browser does with it.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>It starts a headless Chrome, serves the output, and opens every route the project has. A route fails on an uncaught exception, a <code>console.error</code>, a file that did not arrive, an image that failed to load, or a page that rendered no text — the things a compiler cannot see and a reader always can.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872"></p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">  16 route(s) in http://127.0.0.1:39785
+    ok   /                                    236ms     613 nodes    447.0 kB   11 req
+    ok   /app/deployments                      68ms     657 nodes    360.6 kB   10 req
+
+  16 page(s), 0 problem(s)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The numbers are the first contentful paint, the elements in the document once it settled, the bytes the page fetched and the requests it made. <code>--budget 400</code> fails a route that takes longer than that to paint. <code>--json</code> is the same report for a pipeline.</p>
+<p>It also says <strong>which built-ins no page drew</strong>. A component can be in the registry, in the tests and in the documentation and still be broken in a page; the classes the pages carried are the list of what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all — it is a fact about coverage, not a failure.</p>
+<p>It needs a Chrome or Chromium on the machine, or <code>WF_CHROME</code> pointing at one, and says so plainly when there is none.</p>
+                            </div>
+                            <h3 class="wf-heading">wf audit</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Prints what a security review asks for: every <code>Unsafe.*</code> and whether it is sanitised, every other origin the pages load from, everything kept on the reader's machine, every <code>env</code> name and whether it is public, the policy the build ships, and what the compiler depends on. It reports and never fails. <a href="/WebFluent/docs/guide/security#wf-audit">Security</a>.</p>
+                            </div>
+                            <h2 class="wf-heading">Formatting</h2>
+                            <h3 class="wf-heading">wf fmt</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Formats every <code>.wf</code> and <code>.wfx</code> under a path, or one file, in place: four spaces a level, a line that closes a block one level out, trailing spaces gone, tabs made spaces, runs of blank lines folded to one, a brace one space from what it opens (<code>Row{</code> → <code>Row {</code>, <code>}else</code> → <code>} else</code>). A line carried on by a trailing comma is left as written, and comments stay where they are. The result is held to the file's own tokens, so formatting never changes what a file says.</p>
+<ul>
+<li><code>--check</code> writes nothing and fails when a file would change — for CI.</li>
+<li><code>--stdout</code> prints one file instead of writing it.</li>
+<li><code>--to wfx</code> rewrites a project's <code>.wf</code> files in the indented layout, and <code>--to wf</code> the other way. It is a change of layout and nothing else; it refuses a file whose indentation does not already follow its braces.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading">Rendering</h2>
+                            <h3 class="wf-heading">wf render</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Renders one template with JSON data: <code>-f</code> / <code>--format</code> is <code>html</code> (a whole document, the default), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code>; <code>-o</code> writes a file instead of printing; <code>--theme</code> picks one of several themes the template declares; without <code>--data</code> the JSON is read from stdin. <a href="/WebFluent/docs/guide/server-rendering">Server rendering</a>.</p>
+                            </div>
+                            <h2 class="wf-heading">Upgrading</h2>
+                            <h3 class="wf-heading">wf migrate</h3>
+                            <div class="wf-markdown">
+<p>Two things, in one command.</p>
+<p><strong>2 → 3</strong> rewrites every <code>.wf</code> under <code>src/</code> in place, with a note for anything that needed a decision. It is a change of spelling: the migrated project builds to what it built before.</p>
+<p><strong>3 → 4</strong> is a change of what the compiler allows, so it runs over the project rather than the files. It adds every <code>env</code> name your pages already read to <code>public_env</code> — preserving what the project did, and printing the list, because <em>public</em> means anyone who opens the site may read the value. Then it names, with file and line, everything 4 refuses that 3 allowed: an <code>on*</code> attribute, a <code>javascript:</code> or <code>data:</code> URL. Those have no automatic rewrite; the old value was a string of JavaScript or a link that ran one. Finally it states the changes that need no edit: a store is built on first read rather than at boot, a <code>persist</code> value follows the site's other tabs, and <code>WF.store</code>/<code>WF.host</code> were renamed.</p>
+<p><code>--check</code> writes nothing and tells you what it would do.</p>
+                            </div>
+                            <h2 class="wf-heading">Describing</h2>
+                            <h3 class="wf-heading">wf docs, wf registry, wf types</h3>
+                            <div class="wf-markdown">
+<p><code>wf docs</code> writes <code>docs/index.html</code> (or <code>-o OUT</code>): a self-contained gallery of every built-in — props, cases, flags, events, slots, parts — and of every component, enum, type, store and page the project declares, with their <code>///</code> docs.</p>
+<p><code>wf registry</code> describes every built-in, and <code>wf types</code> what a project declares, externals included; with <code>--json</code> each prints the data a tool reads:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The registry is the compiler's own table: what it prints is exactly what the checker accepts.</p>
+                            </div>
+                            <h2 class="wf-heading">Environment variables</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Environment variables</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Variable</th>
+                                        <th scope="col">Read by</th>
+                                        <th scope="col">Does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>WF_INSTALL_DIR</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>install.sh</code>, <code>install.ps1</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Where the binary is installed (default <code>~/.webfluent/bin</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>WF_VERSION</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>install.sh</code>, <code>install.ps1</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The release to install, <code>v4.0.1</code>, instead of the latest</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>WF_CHROME</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf test</code>, <code>wf verify</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The Chrome or Chromium to drive, when it is not found on its own</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>WF_BIN</code></p>
+                                            </div>
+                                        </td>
+                                        <td>the Node binding</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The <code>wf</code> binary to call</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>any <code>PUBLIC_…</code> name</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf build</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A value for <code>env.NAME</code> (<a href="/WebFluent/docs/guide/environments">Environments</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading">Editors</h2>
+                            <div class="wf-markdown">
+<p><code>wf-lsp</code> is the language server. Get the binary from a <a href="https://github.com/monzeromer-lab/WebFluent/releases">release</a> (<code>wf-lsp-&lt;version&gt;-&lt;arch&gt;-&lt;os&gt;.tar.gz</code>) and put it on your <code>PATH</code>, or build it from a clone with <code>cargo install --path crates/wf-lsp</code>. It gives:</p>
+<ul>
+<li>Diagnostics as you type — every check <code>wf build</code> runs.</li>
+<li>Completion: components and their props after <code>(</code>, flags and parts after <code>.</code>, enum cases after <code>:</code>, events after <code>on </code>, <code>$</code> tokens, <code>match</code> arms, slot names, fields of a record, methods of a string or a list.</li>
+<li>Hover: a component's doc and signature, a name's inferred type.</li>
+<li>Go to definition, find references, rename across the project.</li>
+<li>Document symbols and the outline.</li>
+<li>Quick fixes — &quot;Change to <code>…</code>&quot; on a misspelt name — and <code>Extract component</code> on a selection.</li>
+</ul>
+<p><strong>Zed</strong>: the extension is in <code>editors/zed</code>; install it with <code>zed: install dev extension</code> pointing at that folder (it is not in Zed's extension registry yet). It brings Tree-sitter highlighting, outline, brackets, indentation, snippets and the language server (found on <code>PATH</code> or downloaded from the latest release), for <code>.wf</code> and <code>.wfx</code>.</p>
+<p><strong>VS Code</strong>: <code>editors/vscode</code> — TextMate highlighting and the language server. Until it is on the Marketplace, run <code>npm ci &amp;&amp; npm run package</code> in that folder and install the <code>.vsix</code> with <em>Extensions: Install from VSIX</em>.</p>
+<p><strong>Neovim</strong> (0.11 or later):</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">lua</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">vim.filetype.add({ extension = { wf = &quot;webfluent&quot;, wfx = &quot;webfluent&quot; } })
+vim.lsp.config(&quot;wf_lsp&quot;, {
+  cmd = { &quot;wf-lsp&quot; },
+  filetypes = { &quot;webfluent&quot; },
+  root_markers = { &quot;webfluent.app.json&quot; },
+})
+vim.lsp.enable(&quot;wf_lsp&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Helix</strong> — in <code>languages.toml</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">toml</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">[[language]]
+name = &quot;webfluent&quot;
+scope = &quot;source.webfluent&quot;
+file-types = [&quot;wf&quot;, &quot;wfx&quot;]
+roots = [&quot;webfluent.app.json&quot;]
+comment-token = &quot;//&quot;
+indent = { tab-width = 4, unit = &quot;    &quot; }
+language-servers = [&quot;wf-lsp&quot;]
+
+[language-server.wf-lsp]
+command = &quot;wf-lsp&quot;</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Emacs</strong> (with Eglot):</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">elisp</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">(define-derived-mode webfluent-mode prog-mode &quot;WebFluent&quot;)
+(add-to-list &#x27;auto-mode-alist &#x27;(&quot;\\.wfx?\\&#x27;&quot; . webfluent-mode))
+(with-eval-after-load &#x27;eglot
+  (add-to-list &#x27;eglot-server-programs &#x27;(webfluent-mode . (&quot;wf-lsp&quot;))))</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Any other editor with LSP support runs <code>wf-lsp</code> over stdio; the project root is the folder holding <code>webfluent.app.json</code>. The Tree-sitter grammars in <code>editors/tree-sitter-webfluent</code> (braces) and <code>editors/tree-sitter-webfluentx</code> (indentation) give highlighting to an editor that reads Tree-sitter.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/reference">
+                            <p class="wf-text wf-s3e0c6c38">Previous</p>
+                            <p class="wf-text wf-s2c78daf6">36. Components reference</p>
+                        </a>
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/config">
+                            <p class="wf-text wf-s3e0c6c38">Next</p>
+                            <p class="wf-text wf-s2c78daf6">38. Configuration</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s055f199e" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                        <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#the-commands">The commands</a>
+                        <a class="wf-link wf-sdae384de" href="#creating-and-building">Creating and building</a>
+                        <a class="wf-link wf-sdae384de" href="#checking">Checking</a>
+                        <a class="wf-link wf-sdae384de" href="#formatting">Formatting</a>
+                        <a class="wf-link wf-sdae384de" href="#rendering">Rendering</a>
+                        <a class="wf-link wf-sdae384de" href="#upgrading">Upgrading</a>
+                        <a class="wf-link wf-sdae384de" href="#describing">Describing</a>
+                        <a class="wf-link wf-sdae384de" href="#environment-variables">Environment variables</a>
+                        <a class="wf-link wf-sdae384de" href="#editors">Editors</a>
+                    </div>
+                    <hr class="wf-divider wf-se3c90f45">
+                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/37-cli.md">
+                            <i class="wf-icon" data-icon="edit"></i>
+                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
+                        </a>
+                        <a class="wf-link" href="/WebFluent/docs/reference">
+                            <i class="wf-icon" data-icon="menu"></i>
+                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
+                        </a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s61ad603d">
+            <div class="wf-stack wf-gap--lg wf-sc70179bd">
+                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-sa468ddd1">
+                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sb1ec559f">
+                            <p class="wf-text wf-s7c2fb5e9">wf</p>
+                            <p class="wf-text wf-s312df231">WebFluent</p>
+                        </div>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
+                    </div>
+                    <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Guide</p>
+                            <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Reference</p>
+                            <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
+                            <a class="wf-link active" href="/WebFluent/docs/guide/cli" aria-current="page">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
+                        </div>
+                        <div class="wf-stack wf-gap--xs wf-s116caabe">
+                            <p class="wf-text overline">Project</p>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
+                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
+                    <p class="wf-text">© 2026 Monzer Omer</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

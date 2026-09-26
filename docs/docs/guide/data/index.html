@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data</title>
-    <meta name="description" content="resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.">
+    <meta name="description" content="api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data?lang=ar">
@@ -12,20 +12,20 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Data">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.">
+    <meta property="og:description" content="api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/data">
     <meta property="og:locale" content="en">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Data">
-    <meta name="twitter:description" content="resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data","name":"Data","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Data","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data"}]}]}</script>
+    <meta name="twitter:description" content="api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data","name":"Data","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Data","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="../../../styles.css">
     <script src="../../../app.js" defer></script>
-    <script src="../../../pages/DataChapter.js" data-wf-page="DataChapter" defer></script>
+    <script src="../../../pages/DataGuide.js" data-wf-page="DataGuide" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
@@ -61,110 +61,220 @@
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s782ff52c" aria-label="Chapters">
-                    <p class="wf-text group-label">The basics</p>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                <aside class="wf-sidebar wf-s6b2249e6" aria-label="Chapters">
+                    <p class="wf-text group-label">Start</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
                         <p class="wf-text num">01</p>
+                        <p class="wf-text">Introduction</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/getting-started">
+                        <p class="wf-text num">02</p>
                         <p class="wf-text">Getting started</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tutorial">
+                        <p class="wf-text num">03</p>
+                        <p class="wf-text">Tutorial</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/coming-from">
+                        <p class="wf-text num">04</p>
+                        <p class="wf-text">Coming from React, Vue or Svelte</p>
+                    </a>
+                    <p class="wf-text group-label">The basics</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/language-basics">
-                        <p class="wf-text num">02</p>
+                        <p class="wf-text num">05</p>
                         <p class="wf-text">Language basics</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pages-and-routing">
-                        <p class="wf-text num">03</p>
+                        <p class="wf-text num">06</p>
                         <p class="wf-text">Pages and routing</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/elements">
-                        <p class="wf-text num">04</p>
+                        <p class="wf-text num">07</p>
                         <p class="wf-text">Elements</p>
                     </a>
-                    <p class="wf-text group-label">Behaviour</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/state">
-                        <p class="wf-text num">05</p>
+                        <p class="wf-text num">08</p>
                         <p class="wf-text">State and reactivity</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events-and-forms">
-                        <p class="wf-text num">06</p>
-                        <p class="wf-text">Events and forms</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/events">
+                        <p class="wf-text num">09</p>
+                        <p class="wf-text">Events</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/control-flow">
-                        <p class="wf-text num">07</p>
+                        <p class="wf-text num">10</p>
                         <p class="wf-text">Control flow</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/components">
-                        <p class="wf-text num">08</p>
+                        <p class="wf-text num">11</p>
                         <p class="wf-text">Components</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/stores">
-                        <p class="wf-text num">09</p>
+                        <p class="wf-text num">12</p>
                         <p class="wf-text">Stores</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/types">
-                        <p class="wf-text num">10</p>
+                        <p class="wf-text num">13</p>
                         <p class="wf-text">Types</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/expressions">
-                        <p class="wf-text num">11</p>
+                        <p class="wf-text num">14</p>
                         <p class="wf-text">Expressions</p>
                     </a>
-                    <p class="wf-text group-label">Surface and output</p>
+                    <p class="wf-text group-label">Building</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/styling">
-                        <p class="wf-text num">12</p>
+                        <p class="wf-text num">15</p>
                         <p class="wf-text">Styling</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
-                        <p class="wf-text num">13</p>
-                        <p class="wf-text">Motion</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/forms">
+                        <p class="wf-text num">16</p>
+                        <p class="wf-text">Forms and validation</p>
                     </a>
                     <a class="wf-sidebar__item active" href="/WebFluent/docs/guide/data" aria-current="page">
-                        <p class="wf-text num">14</p>
+                        <p class="wf-text num">17</p>
                         <p class="wf-text">Data</p>
                     </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/realtime">
+                        <p class="wf-text num">18</p>
+                        <p class="wf-text">Real-time</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/offline">
+                        <p class="wf-text num">19</p>
+                        <p class="wf-text">Offline</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/motion">
+                        <p class="wf-text num">20</p>
+                        <p class="wf-text">Motion</p>
+                    </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/i18n">
-                        <p class="wf-text num">15</p>
+                        <p class="wf-text num">21</p>
                         <p class="wf-text">Internationalisation</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
-                        <p class="wf-text num">16</p>
-                        <p class="wf-text">Content</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/outputs">
-                        <p class="wf-text num">17</p>
-                        <p class="wf-text">Outputs</p>
-                    </a>
-                    <p class="wf-text group-label">Reference</p>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tooling">
-                        <p class="wf-text num">18</p>
-                        <p class="wf-text">Tooling</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/accessibility">
+                        <p class="wf-text num">22</p>
+                        <p class="wf-text">Accessibility</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/security">
-                        <p class="wf-text num">19</p>
+                        <p class="wf-text num">23</p>
                         <p class="wf-text">Security</p>
                     </a>
-                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
-                        <p class="wf-text num">20</p>
-                        <p class="wf-text">Components reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/testing">
+                        <p class="wf-text num">24</p>
+                        <p class="wf-text">Testing</p>
+                    </a>
+                    <p class="wf-text group-label">Shipping</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/project-structure">
+                        <p class="wf-text num">25</p>
+                        <p class="wf-text">Project structure</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/static-and-spa">
+                        <p class="wf-text num">26</p>
+                        <p class="wf-text">Static or single-page</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/content">
+                        <p class="wf-text num">27</p>
+                        <p class="wf-text">Content</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/media">
+                        <p class="wf-text num">28</p>
+                        <p class="wf-text">Media</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/deploying">
+                        <p class="wf-text num">29</p>
+                        <p class="wf-text">Deploying</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/environments">
+                        <p class="wf-text num">30</p>
+                        <p class="wf-text">Environments</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/performance">
+                        <p class="wf-text num">31</p>
+                        <p class="wf-text">Performance</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/interop">
+                        <p class="wf-text num">32</p>
+                        <p class="wf-text">JavaScript interop</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/pdf-and-slides">
+                        <p class="wf-text num">33</p>
+                        <p class="wf-text">PDF and slides</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/server-rendering">
+                        <p class="wf-text num">34</p>
+                        <p class="wf-text">Server rendering</p>
                     </a>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/cookbook">
-                        <p class="wf-text num">21</p>
+                        <p class="wf-text num">35</p>
                         <p class="wf-text">Cookbook</p>
+                    </a>
+                    <p class="wf-text group-label">Reference</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/reference">
+                        <p class="wf-text num">36</p>
+                        <p class="wf-text">Components reference</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/cli">
+                        <p class="wf-text num">37</p>
+                        <p class="wf-text">Command line and editors</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/config">
+                        <p class="wf-text num">38</p>
+                        <p class="wf-text">Configuration</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/diagnostics">
+                        <p class="wf-text num">39</p>
+                        <p class="wf-text">Diagnostics</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/built-ins">
+                        <p class="wf-text num">40</p>
+                        <p class="wf-text">Built-ins</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/tokens">
+                        <p class="wf-text num">41</p>
+                        <p class="wf-text">Design tokens</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/runtime">
+                        <p class="wf-text num">42</p>
+                        <p class="wf-text">Runtime API</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/grammar">
+                        <p class="wf-text num">43</p>
+                        <p class="wf-text">Grammar</p>
+                    </a>
+                    <p class="wf-text group-label">Help</p>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/troubleshooting">
+                        <p class="wf-text num">44</p>
+                        <p class="wf-text">Troubleshooting</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/upgrading">
+                        <p class="wf-text num">45</p>
+                        <p class="wf-text">Upgrading</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/browser-support">
+                        <p class="wf-text num">46</p>
+                        <p class="wf-text">Browser support</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/glossary">
+                        <p class="wf-text num">47</p>
+                        <p class="wf-text">Glossary</p>
+                    </a>
+                    <a class="wf-sidebar__item" href="/WebFluent/docs/guide/contributing">
+                        <p class="wf-text num">48</p>
+                        <p class="wf-text">Contributing</p>
                     </a>
                 </aside>
                 <div class="wf-stack wf-gap--lg wf-s049bb2c9 docs-main" role="main">
                     <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Guide</a>
+                        <a class="wf-link" href="/WebFluent/docs/guide/introduction">Guide</a>
                         <p class="wf-text">/</p>
-                        <p class="wf-text wf-s8c71c534">Chapter 14</p>
+                        <p class="wf-text wf-s8c71c534">Chapter 17</p>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-sf52d8cd0">Data</h1>
-                        <p class="wf-text wf-s38239618">Three ways to get data onto a page: resource, await fetch, and data files read at build time.</p>
+                        <p class="wf-text wf-s38239618">Getting data onto a page: a service described once, a resource a page shows, a fetch an action makes, and files read at build time.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sc6dc482e docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <div class="wf-markdown">
-<p>Ways to get data onto a page: <code>api</code> for a service described once and called everywhere, <code>resource</code> for something fetched while the page shows, <code>await fetch</code> inside an action for something fetched on demand, and <code>data</code> for a file read at build time. Plus <code>const</code> and <code>env</code> for values that are the same for the whole build, and <code>socket</code>, <code>stream</code> and <code>channel</code> for a connection the page holds open.</p>
+<p>Ways to get data onto a page: <code>api</code> for a service described once and called everywhere, <code>resource</code> for something fetched while the page shows, <code>await fetch</code> inside an action for something fetched on demand, and <code>data</code> for a file read at build time. A connection the page holds open — a socket, a stream, a channel, a peer — is <a href="/WebFluent/docs/guide/realtime">Real-time</a>; working without a network is <a href="/WebFluent/docs/guide/offline">Offline</a>; values fixed per build are <a href="/WebFluent/docs/guide/environments">Environments</a>.</p>
                             </div>
                             <h2 class="wf-heading">resource</h2>
                             <div class="wf-markdown">
@@ -482,6 +592,212 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                             <div class="wf-markdown">
 <p>Every endpoint, parameter, response type and error shape is read from the file at build time, and each named schema becomes a <code>type</code> the program can name. The day the server changes its contract, the build says so.</p>
                             </div>
+                            <h3 class="wf-heading">Settings</h3>
+                            <div class="wf-markdown">
+<p>What goes in the service's parentheses or its block, before the endpoints:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Settings</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Setting</th>
+                                        <th scope="col">Values</th>
+                                        <th scope="col">Default</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>base:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The address every path is relative to: <code>&quot;/api/v1&quot;</code>, <code>env.PUBLIC_API</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>timeout:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A duration after which a call gives up with <code>.timeout</code>: <code>10.seconds</code></p>
+                                            </div>
+                                        </td>
+                                        <td>none</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>retry:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A count (<code>3</code>), <code>.never</code>, or <code>.backoff(times: 3, on: [.network, .timeout, .status5xx], delay: 300, max: 30000, jitter: true)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>no retries</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>cache:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.swr(60.seconds)</code> (serve what is held, revalidate behind it), <code>.cache(5.minutes)</code>, <code>.forever</code>, <code>.none</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.none</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>credentials:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.omit</code>, <code>.sameOrigin</code>, <code>.include</code> — whether cookies go with a call</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the browser's (<code>.sameOrigin</code>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>mode:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.cors</code>, <code>.noCors</code>, <code>.sameOrigin</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.cors</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>redirect:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.follow</code>, <code>.error</code>, <code>.manual</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.follow</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>referrer:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a referrer policy: <code>.noReferrer</code>, <code>.origin</code>, …</p>
+                                            </div>
+                                        </td>
+                                        <td>the page&#x27;s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>headers { }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Headers every call carries, each read at the moment of the call</td>
+                                        <td>—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p><code>retry</code>'s <code>on:</code> takes <code>.network</code>, <code>.timeout</code>, <code>.status5xx</code>, <code>.status4xx</code>, <code>.status429</code> and <code>.status503</code>-style single codes; left out, it retries the network, timeouts, 5xx and 429. The wait doubles from <code>delay</code> (ms) up to <code>max</code>, with jitter, and a <code>Retry-After</code> from the server wins. An aborted call is never retried.</p>
+                            </div>
+                            <h3 class="wf-heading">Endpoints</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">get users(page: Number = 1, q: String?) -&gt; [User]
+get user(id: String) at &quot;users/:id&quot; -&gt; User
+post createUser(body: Map) -&gt; User
+    errors { 422 -&gt; Map }
+put rename(id: String, body: Map) at &quot;users/:id&quot; -&gt; User
+patch settings(body: Map) -&gt; Map
+delete removeUser(id: String) at &quot;users/:id&quot;
+get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li>The verb is <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>, <code>head</code> or <code>options</code>.</li>
+<li>A parameter the path names (<code>:id</code>) goes in the path; a parameter called <code>body</code> is the request body (a map is sent as JSON); a <code>File</code> parameter makes the call a multipart upload; every other parameter goes in the query string, and one that is <code>null</code> is left out.</li>
+<li><code>-&gt; T</code> is what a success returns; without it the call returns <code>Any</code>, and <code>204 No Content</code> returns nothing.</li>
+<li><code>errors { 422 -&gt; T }</code> types the body of a failure with that status: the <code>.status(code, body)</code> error carries it decoded.</li>
+<li><code>as:</code> says how to read a response that is not JSON: <code>.text</code>, <code>.blob</code>, <code>.arrayBuffer</code>, <code>.none</code>. <code>errorAs:</code> does the same for a failure's body. <code>cache:</code> sets a cache policy for that endpoint alone.</li>
+</ul>
+<p>A call passes the endpoint's parameters by name, and may add <code>cache:</code>, <code>retry:</code> and — in a <code>resource</code> — <code>on:</code> for when to fetch again (<code>.focus</code>, <code>.reconnect</code>, <code>.interval(30.seconds)</code>) and <code>paginate:</code>.</p>
+                            </div>
+                            <h3 class="wf-heading">Pages of results</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String }
+
+api Catalog(base: &quot;/api&quot;) {
+    get items(page: Number = 1) -&gt; [Item]
+}
+
+page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quot;Everything, a page at a time.&quot;) {
+    state page = 1
+    resource list = Catalog.items(page: page, paginate: .page)
+    Heading(&quot;Items&quot;).h1
+    for item in list.items by item.id { Text(item.name) }
+    if list.hasMore {
+        Button(&quot;Load more&quot;) { on click { list.loadMore() } }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>paginate: .page</code> gathers the pages into <code>.items</code>, <code>loadMore()</code> moves <code>page</code> on by one, and <code>.hasMore</code> turns false when a page comes back empty.</p>
+                            </div>
+                            <h3 class="wf-heading">An API on another origin</h3>
+                            <div class="wf-markdown">
+<p>A page on <code>https://example.com</code> calling <code>https://api.example.com</code> is a cross-origin request: the API must answer with CORS headers (<code>Access-Control-Allow-Origin</code>, and <code>-Allow-Credentials</code> if cookies go with it), or the browser refuses the response. The same applies while you develop: <code>wf serve</code> answers on <code>localhost:3000</code> and has no proxy, so an API on <code>localhost:8080</code> must allow that origin. The alternative is to serve the API and the site from one origin behind a reverse proxy, where <code>base: &quot;/api&quot;</code> needs no CORS at all (<a href="/WebFluent/docs/guide/deploying#an-api-on-the-same-origin">Deploying</a>).</p>
+                            </div>
                             <h3 class="wf-heading">Showing a change before the server agrees</h3>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -492,419 +808,12 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">action rename(id: String, name: String) {
     optimistic(Todos.items, items =&gt; items.map(i =&gt; if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id, { name: name })
+    await Backend.updateUser(id: id, body: { name: name })
     Backend.users.invalidate()
 }</code>
                             </div>
                             <div class="wf-markdown">
 <p>The change shows at once. If anything later in the action throws, what was shown is taken back.</p>
-                            </div>
-                            <h2 class="wf-heading">A connection the page holds open</h2>
-                            <div class="wf-markdown">
-<p>A socket, a stream of server-sent events, a channel every tab of the origin hears, or a peer — a line straight to another reader's page. Each is closed when the page that opened it leaves.</p>
-                            </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Chat(path: &quot;/chat&quot;, title: &quot;Chat&quot;, description: &quot;Talk.&quot;) {
-    state draft = &quot;&quot;
-    socket chat = ws(&quot;wss://example.com/chat&quot;, heartbeat: 20.seconds) {
-        on message(m) { log(m) }
-    }
-
-    Heading(&quot;Chat&quot;).h1
-    match chat {
-        connecting { Spinner.sm }
-        open       { for m in chat.messages by m.id { Text(m.text) } }
-        closed(c)  { Alert(&quot;Disconnected ({c.code})&quot;).warning }
-        error(e)   { Alert(e.message).danger }
-    }
-    Input(bind: draft, label: &quot;Message&quot;).text
-    Button(&quot;Send&quot;).primary { on click { chat.send({ text: draft })  draft = &quot;&quot; } }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>A socket reconnects with backoff, keeps itself alive with a heartbeat, and holds what was sent while it was down.</p>
-                            </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">stream ticks = sse(&quot;/events&quot;, events: [&quot;price&quot;])
-channel cart = broadcast(&quot;cart&quot;) { on message(m) { Cart.merge(m) } }
-beacon(&quot;/analytics&quot;, { event: &quot;checkout&quot; })     // survives the page unloading</code>
-                            </div>
-                            <div class="wf-markdown">
-<p><code>ticks</code> and <code>cart</code> are handles too — a <code>match</code> reads the state, and an <code>effect</code> reads what arrived:</p>
-                            </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">effect { if let p = ticks.last(&quot;price&quot;) { price = p } }
-Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>What each handle holds:</p>
-                            </div>
-                            <table class="wf-table">
-                                <caption class="wf-visually-hidden">A connection the page holds open</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col">
-                                            <div class="wf-markdown">
-<p><code>socket</code></p>
-                                            </div>
-                                        </th>
-                                        <th scope="col">
-                                            <div class="wf-markdown">
-<p><code>stream</code></p>
-                                            </div>
-                                        </th>
-                                        <th scope="col">
-                                            <div class="wf-markdown">
-<p><code>channel</code></p>
-                                            </div>
-                                        </th>
-                                        <th scope="col">
-                                            <div class="wf-markdown">
-<p><code>peer</code></p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.state</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>connecting</code> <code>open</code> <code>closed</code> <code>error</code> — the arms of a <code>match</code></p>
-                                            </div>
-                                        </td>
-                                        <td>the same</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>open</code> or <code>closed</code></p>
-                                            </div>
-                                        </td>
-                                        <td>the same as a socket</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.messages</code></p>
-                                            </div>
-                                        </td>
-                                        <td>every message, in order</td>
-                                        <td>every message, in order</td>
-                                        <td>—</td>
-                                        <td>every message, in order</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.last(kind)</code></p>
-                                            </div>
-                                        </td>
-                                        <td>the last message, or the last of a kind</td>
-                                        <td>the last under an event&#x27;s name</td>
-                                        <td>the last posted</td>
-                                        <td>as a socket</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.error</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>the failure, which the <code>error(e)</code> arm is handed</p>
-                                            </div>
-                                        </td>
-                                        <td>the same</td>
-                                        <td>—</td>
-                                        <td>the same</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.closure</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>the close, which <code>closed(c)</code> is handed: <code>.code</code>, <code>.reason</code></p>
-                                            </div>
-                                        </td>
-                                        <td>—</td>
-                                        <td>—</td>
-                                        <td>the same</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sending</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.send(value)</code> — queued while the line is down</p>
-                                            </div>
-                                        </td>
-                                        <td>—</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.post(value)</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.send(value)</code> — queued until it opens</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.close()</code></p>
-                                            </div>
-                                        </td>
-                                        <td>closes it early</td>
-                                        <td>the same</td>
-                                        <td>the same</td>
-                                        <td>the same</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>.signal(m)</code></p>
-                                            </div>
-                                        </td>
-                                        <td>—</td>
-                                        <td>—</td>
-                                        <td>—</td>
-                                        <td>hands it what the other side signalled</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="wf-markdown">
-<p>A <code>match</code> over one takes <code>connecting</code>, <code>open</code>, <code>closed(c)</code> and <code>error(e)</code>, and an <code>else</code> for the rest. The page closing closes the connection, so a route change cannot leak one.</p>
-                            </div>
-                            <h3 class="wf-heading">A peer</h3>
-                            <div class="wf-markdown">
-<p><code>peer</code> is a WebRTC data channel to another page. The language supplies the channel, not a server: what the two sides must tell each other to connect — an offer, an answer, the routes each can be reached by — goes out through <code>signal:</code>, over whatever the app already has, and what the other side sent is handed back to <code>link.signal(m)</code>. One side is the <code>initiator</code>.</p>
-                            </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;Two readers, one line.&quot;) {
-    state heard = &quot;&quot;
-    channel lobby = broadcast(&quot;room&quot;) { on message(m) { link.signal(m) } }
-    peer link = rtc(signal: m =&gt; lobby.post(m), initiator: query.host == &quot;1&quot;) {
-        on message(m) { heard = m.text }
-    }
-
-    Heading(&quot;Room&quot;).h1
-    match link {
-        connecting { Text(&quot;Waiting for the other side…&quot;).muted }
-        open       { Button(&quot;Wave&quot;) { on click { link.send({ text: &quot;hello&quot; }) } } }
-        closed(c)  { Text(&quot;They left.&quot;) }
-        error(e)   { Alert(e.message).danger }
-    }
-    Text(heard)
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>A <code>broadcast</code> channel signals between two tabs of one browser, as here; between two readers the signal rides the app's own socket or <code>api</code>.</p>
-                            </div>
-                            <table class="wf-table">
-                                <caption class="wf-visually-hidden">A peer</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Option</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>signal:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>Required: a function handed each message the other side must receive.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>initiator:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>Whether this side offers. Exactly one side does.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>ice:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>The servers that help two readers on different networks find each other — <code>[{ urls: &quot;stun:…&quot; }]</code>. None by default, which connects readers on the same network only.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>ordered:</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>false</code> for a channel that may deliver out of order.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="wf-markdown">
-<p>A page that leaves closes its peer, and the other side reads <code>closed</code> at once rather than when the connection times out.</p>
-                            </div>
-                            <h2 class="wf-heading">The network as a value</h2>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">if !network.online { Alert(&quot;You are offline — changes are queued.&quot;).warning }</code>
-                            </div>
-                            <div class="wf-markdown">
-<p><code>network.online</code>, <code>.effectiveType</code> (<code>4g</code>, <code>3g</code>, …), <code>.saveData</code>, <code>.downlink</code> — live, so a page can say what it does on a slow line or none at all — and <code>.queued</code>, the writes waiting for the connection when the site works offline.</p>
-                            </div>
-                            <h2 class="wf-heading">Working offline</h2>
-                            <div class="wf-markdown">
-<p>Name <code>offline</code> in <code>webfluent.app.json</code> and the build writes a service worker, <code>sw.js</code>, that stores the site for when the network is gone:</p>
-                            </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">json</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ &quot;offline&quot;: {
-    &quot;precache&quot;: [&quot;/&quot;, &quot;/docs/*&quot;],
-    &quot;fallback&quot;: &quot;/offline&quot;,
-    &quot;cache&quot;: { &quot;/api/*&quot;: &quot;network-first&quot; },
-    &quot;sync&quot;: true
-} }</code>
-                            </div>
-                            <table class="wf-table">
-                                <caption class="wf-visually-hidden">Working offline</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Key</th>
-                                        <th scope="col">What it does</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>precache</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>The routes a first visit stores, as globs — <code>&quot;/&quot;</code> by default. Each is stored with its own chunk and sheet, and the shell with them.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>fallback</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>A page's <code>path</code>, shown for a route that was not stored.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>cache</code></p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p>How a path the build did not write is fetched: <code>network-first</code>, <code>cache-first</code>, <code>stale-while-revalidate</code> or <code>network-only</code>. A path not named passes through.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>sync</code></p>
-                                            </div>
-                                        </td>
-                                        <td>A write made with no network is kept and sent later (below).</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="wf-markdown">
-<p>A stored route loads with no network at all. When there is one, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.</p>
-                            </div>
-                            <h3 class="wf-heading">A write made offline</h3>
-                            <div class="wf-markdown">
-<p>With <code>sync</code>, a write — any method but <code>GET</code> and <code>HEAD</code>, through <code>fetch</code> or an <code>api</code> — that fails because the network is gone is kept instead of thrown, and the call resolves with nothing, so what the page showed stays shown. The writes are sent in order when the connection returns: by Background Sync where the browser has it, so a closed tab still sends them, and by the page otherwise. A server that answers has the write, even if it refuses it; one that is down or asks to wait keeps it for later. A <code>File</code> body is not kept, and its call fails as before.</p>
-<p><code>network.queued</code> is how many wait.</p>
-                            </div>
-                            <h3 class="wf-heading">A new version</h3>
-                            <div class="wf-markdown">
-<p>The worker is versioned by a hash of everything the build wrote, so any deploy that changes a byte is a new version. It installs beside the old one and waits for the page to take it:</p>
-                            </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The front page.&quot;) {
-    if update.available {
-        Button(&quot;A new version is ready — reload&quot;) { on click { update.apply() } }
-    }
-    if network.queued &gt; 0 {
-        Text(&quot;{network.queued} change(s) will be sent when you are back online&quot;).muted
-    }
-    Heading(&quot;Home&quot;).h1
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p><code>update.apply()</code> takes it and reloads the page once: never on the first install, which only takes over a page that already works, and never twice for one update. The old version's store is deleted when the new one takes over.</p>
-<p>Under <code>wf serve</code> the worker takes itself away: a page answered from its own store would hide every edit you make.</p>
                             </div>
                             <h2 class="wf-heading">await fetch in an action</h2>
                             <div class="wf-markdown">
@@ -1029,32 +938,6 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String, title: &quot;Post&qu
                             <div class="wf-markdown">
 <p><code>paths:</code> must be knowable at build time — a <code>data</code> file, a <code>const</code>, a literal. For a route with several parameters, each value is a map naming them: <code>paths: pairs.map(x =&gt; { year: x.y, slug: x.s })</code>. Routes not in <code>paths:</code> still work in the SPA; only the static build needs the list.</p>
                             </div>
-                            <h2 class="wf-heading">const and env</h2>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
-                                </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">const PAGE_SIZE = 25
-const API = env.PUBLIC_API_URL ?? &quot;/api&quot;
-const FEATURES = { billing: env.PUBLIC_BILLING == &quot;on&quot;, beta: false }
-
-page Rows(path: &quot;/&quot;) {
-    resource rows = fetch(&quot;{API}/rows?limit={PAGE_SIZE}&quot;)
-    if FEATURES.billing { Link(&quot;Billing&quot;, to: &quot;/billing&quot;) }
-    match rows {
-        loading { Spinner }
-        error(e) { Text(e.message).danger }
-        ready(r) { Text(&quot;{r.length} rows&quot;) }
-    }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p><code>env.NAME</code> reads the build environment — the shell's variables, a <code>.env</code> file in the project root and the config's own <code>env</code> map — and is <code>null</code> when unset.</p>
-<p>Everything a page reads is <strong>inlined into the bundle</strong>, so the compiler only lets a page, a component, a store or an <code>api</code> read a name that says it may be read: one beginning <code>PUBLIC_</code>, or one the config's <code>public_env</code> lists. Any other name there is a compile error, not a warning (<a href="/WebFluent/docs/guide/security#env-and-what-ends-up-in-the-bundle">chapter 19</a>). Build scripts and the config itself may read any name.</p>
-                            </div>
                             <h2 class="wf-heading">Where data lands in the static paint</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">Where data lands in the static paint</caption>
@@ -1106,13 +989,13 @@ page Rows(path: &quot;/&quot;) {
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
-                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/motion">
+                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/forms">
                             <p class="wf-text wf-s3e0c6c38">Previous</p>
-                            <p class="wf-text wf-s2c78daf6">13. Motion</p>
+                            <p class="wf-text wf-s2c78daf6">16. Forms and validation</p>
                         </a>
-                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/i18n">
+                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/realtime">
                             <p class="wf-text wf-s3e0c6c38">Next</p>
-                            <p class="wf-text wf-s2c78daf6">15. Internationalisation</p>
+                            <p class="wf-text wf-s2c78daf6">18. Real-time</p>
                         </a>
                     </div>
                 </div>
@@ -1121,17 +1004,13 @@ page Rows(path: &quot;/&quot;) {
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#resource">resource</a>
                         <a class="wf-link wf-sdae384de" href="#api-a-service-described-once">api: a service, described once</a>
-                        <a class="wf-link wf-sdae384de" href="#a-connection-the-page-holds-open">A connection the page holds open</a>
-                        <a class="wf-link wf-sdae384de" href="#the-network-as-a-value">The network as a value</a>
-                        <a class="wf-link wf-sdae384de" href="#working-offline">Working offline</a>
                         <a class="wf-link wf-sdae384de" href="#await-fetch-in-an-action">await fetch in an action</a>
                         <a class="wf-link wf-sdae384de" href="#data-a-file-at-build-time">data: a file at build time</a>
-                        <a class="wf-link wf-sdae384de" href="#const-and-env">const and env</a>
                         <a class="wf-link wf-sdae384de" href="#where-data-lands-in-the-static-paint">Where data lands in the static paint</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">
-                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/tree/master/md-docs">
+                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/17-data.md">
                             <i class="wf-icon" data-icon="edit"></i>
                             <p class="wf-text wf-s5c9c3c02">Edit this page</p>
                         </a>
@@ -1155,19 +1034,22 @@ page Rows(path: &quot;/&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 3, parsed and type-checked by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 4, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s33b1e776 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Guide</p>
                             <a class="wf-link" href="/WebFluent/docs/guide/getting-started">Getting started</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/language-basics">Language basics</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/state">State and reactivity</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/tutorial">Tutorial</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/deploying">Deploying</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/troubleshooting">Troubleshooting</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
                             <p class="wf-text overline">Reference</p>
                             <a class="wf-link" href="/WebFluent/docs/reference">Built-in components</a>
-                            <a class="wf-link" href="/WebFluent/docs/guide/tooling#diagnostics">Diagnostics</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/cli">Command line and editors</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/config">Configuration</a>
+                            <a class="wf-link" href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>
                             <a class="wf-link" href="/WebFluent/docs/cookbook">Cookbook</a>
                         </div>
                         <div class="wf-stack wf-gap--xs wf-s116caabe">
@@ -1179,7 +1061,7 @@ page Rows(path: &quot;/&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
-                    <p class="wf-text">WebFluent 3 — MIT licence</p>
+                    <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>
             </div>

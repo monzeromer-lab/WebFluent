@@ -1,11 +1,28 @@
 /// The guide's front doors: `/docs` and `/docs/guide` send the reader to
 /// chapter one. A guard that never holds is a redirect.
-page DocsIndex(path: "/docs", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs/guide/getting-started", noindex: true) {
+page DocsIndex(path: "/docs", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs/guide/introduction", noindex: true) {
     Heading(t("nav.guide")).h1
-    Link(t("ch.01"), to: "/docs/guide/getting-started")
+    Link(t("ch.01"), to: "/docs/guide/introduction")
 }
 
-page GuideIndex(path: "/docs/guide", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs/guide/getting-started", noindex: true) {
+page GuideIndex(path: "/docs/guide", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs/guide/introduction", noindex: true) {
     Heading(t("nav.guide")).h1
-    Link(t("ch.01"), to: "/docs/guide/getting-started")
+    Link(t("ch.01"), to: "/docs/guide/introduction")
+}
+
+/// Chapters that moved when the guide was reorganised, so an old link still
+/// lands on the page that holds what it pointed at.
+page OldEventsAndForms(path: "/docs/guide/events-and-forms", title: "Events", description: "This chapter moved.", guard: false, redirect: "/docs/guide/events", noindex: true) {
+    Heading(t("ch.09")).h1
+    Link(t("ch.09"), to: "/docs/guide/events")
+}
+
+page OldOutputs(path: "/docs/guide/outputs", title: "PDF and slides", description: "This chapter moved.", guard: false, redirect: "/docs/guide/pdf-and-slides", noindex: true) {
+    Heading(t("ch.33")).h1
+    Link(t("ch.33"), to: "/docs/guide/pdf-and-slides")
+}
+
+page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", description: "This chapter moved.", guard: false, redirect: "/docs/guide/cli", noindex: true) {
+    Heading(t("ch.37")).h1
+    Link(t("ch.37"), to: "/docs/guide/cli")
 }

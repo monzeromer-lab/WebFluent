@@ -1,0 +1,499 @@
+/// Chapter 41 of the guide, written from md-docs/41-design-tokens.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page TokensGuide(path: "/docs/guide/tokens", title: "Design tokens", description: "Every baseline design token with its default value, how a theme overrides them, and how styles and stylesheets read them.", layout: DocsShell("Design tokens", chapter: t("guide.chapter", { n: "41" }), blurb: "Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with.", source: "md-docs/41-design-tokens.md", sections: [Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], prevTo: "/docs/guide/built-ins", prevLabel: "40. {t("ch.40")}", nextTo: "/docs/guide/runtime", nextLabel: "42. {t("ch.42")}")) {
+    Stack(gap: .lg) {
+        Markdown("A design token is a named value — a colour, a size, a duration — that every built-in is drawn with. A `theme` changes the ones it names and keeps the rest; each becomes a CSS custom property on `:root`.")
+
+        CodeBlock(#"theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+    screen-md: 900px
+}"#, title: "wf")
+
+        Markdown("Read one in a `style \{ \}` block as `$name` — `background: $color-surface`, or the short form the property's group resolves, `padding: $lg` for `spacing-lg` — and in a stylesheet as `var(--color-surface)`. A theme may add tokens of its own (`surface-raised: #131519`) and read them the same way. The build writes only the tokens something in the output names.")
+
+        Heading("The baseline", id: "the-baseline").h2
+
+        Heading("Colour", id: "colour").h3
+
+        Table(caption: "Colour") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`color-background`") }
+                    Table.Cell { Markdown("`#FFFFFF`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-border`") }
+                    Table.Cell { Markdown("`#E2E8F0`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-danger`") }
+                    Table.Cell { Markdown("`#EF4444`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-info`") }
+                    Table.Cell { Markdown("`#06B6D4`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-primary`") }
+                    Table.Cell { Markdown("`#3B82F6`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-secondary`") }
+                    Table.Cell { Markdown("`#64748B`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-success`") }
+                    Table.Cell { Markdown("`#22C55E`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-surface`") }
+                    Table.Cell { Markdown("`#F8FAFC`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-text`") }
+                    Table.Cell { Markdown("`#0F172A`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-text-muted`") }
+                    Table.Cell { Markdown("`#64748B`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color-warning`") }
+                    Table.Cell { Markdown("`#F59E0B`") }
+                }
+            }
+        }
+
+        Heading("Font", id: "font").h3
+
+        Table(caption: "Font") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`font-family`") }
+                    Table.Cell { Markdown("`system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-family-mono`") }
+                    Table.Cell { Markdown("`ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-2xl`") }
+                    Table.Cell { Markdown("`clamp(1.5rem, 1.25rem + 1.25vw, 2rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-3xl`") }
+                    Table.Cell { Markdown("`clamp(1.75rem, 1.38rem + 1.88vw, 2.5rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-base`") }
+                    Table.Cell { Markdown("`1rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-lg`") }
+                    Table.Cell { Markdown("`clamp(1.125rem, 1.06rem + 0.31vw, 1.25rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-sm`") }
+                    Table.Cell { Markdown("`0.875rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-xl`") }
+                    Table.Cell { Markdown("`clamp(1.25rem, 1.13rem + 0.63vw, 1.5rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size-xs`") }
+                    Table.Cell { Markdown("`0.75rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-weight-bold`") }
+                    Table.Cell { Markdown("`700`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-weight-medium`") }
+                    Table.Cell { Markdown("`500`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-weight-normal`") }
+                    Table.Cell { Markdown("`400`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`line-height-loose`") }
+                    Table.Cell { Markdown("`1.75`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`line-height-normal`") }
+                    Table.Cell { Markdown("`1.5`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`line-height-tight`") }
+                    Table.Cell { Markdown("`1.25`") }
+                }
+            }
+        }
+
+        Heading("Spacing", id: "spacing").h3
+
+        Table(caption: "Spacing") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-2xl`") }
+                    Table.Cell { Markdown("`clamp(2rem, 1.5rem + 2.5vw, 3rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-3xl`") }
+                    Table.Cell { Markdown("`clamp(2.5rem, 1.75rem + 3.75vw, 4rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-lg`") }
+                    Table.Cell { Markdown("`1.5rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-md`") }
+                    Table.Cell { Markdown("`1rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-sm`") }
+                    Table.Cell { Markdown("`0.5rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-xl`") }
+                    Table.Cell { Markdown("`clamp(1.5rem, 1.25rem + 1.25vw, 2rem)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`spacing-xs`") }
+                    Table.Cell { Markdown("`0.25rem`") }
+                }
+            }
+        }
+
+        Heading("Radius", id: "radius").h3
+
+        Table(caption: "Radius") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`radius-full`") }
+                    Table.Cell { Markdown("`9999px`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`radius-lg`") }
+                    Table.Cell { Markdown("`1rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`radius-md`") }
+                    Table.Cell { Markdown("`0.5rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`radius-none`") }
+                    Table.Cell { Markdown("`0`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`radius-sm`") }
+                    Table.Cell { Markdown("`0.25rem`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`radius-xl`") }
+                    Table.Cell { Markdown("`1.5rem`") }
+                }
+            }
+        }
+
+        Heading("Shadow", id: "shadow").h3
+
+        Table(caption: "Shadow") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`shadow-lg`") }
+                    Table.Cell { Markdown("`0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`shadow-md`") }
+                    Table.Cell { Markdown("`0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`shadow-none`") }
+                    Table.Cell { Markdown("`none`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`shadow-sm`") }
+                    Table.Cell { Markdown("`0 1px 2px 0 rgba(0,0,0,0.05)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`shadow-xl`") }
+                    Table.Cell { Markdown("`0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)`") }
+                }
+            }
+        }
+
+        Heading("Motion", id: "motion").h3
+
+        Table(caption: "Motion") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`animation-duration-fast`") }
+                    Table.Cell { Markdown("`150ms`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animation-duration-normal`") }
+                    Table.Cell { Markdown("`300ms`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animation-duration-slow`") }
+                    Table.Cell { Markdown("`500ms`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animation-easing-bounce`") }
+                    Table.Cell { Markdown("`cubic-bezier(0.68, -0.55, 0.265, 1.55)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animation-easing-default`") }
+                    Table.Cell { Markdown("`cubic-bezier(0.4, 0, 0.2, 1)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animation-easing-spring`") }
+                    Table.Cell { Markdown("`cubic-bezier(0.175, 0.885, 0.32, 1.275)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`transition-fast`") }
+                    Table.Cell { Markdown("`150ms ease`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`transition-normal`") }
+                    Table.Cell { Markdown("`250ms ease`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`transition-slow`") }
+                    Table.Cell { Markdown("`350ms ease`") }
+                }
+            }
+        }
+
+        Heading("Easing", id: "easing").h3
+
+        Table(caption: "Easing") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`ease-in`") }
+                    Table.Cell { Markdown("`cubic-bezier(0.4, 0, 1, 1)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ease-out`") }
+                    Table.Cell { Markdown("`cubic-bezier(0, 0, 0.2, 1)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ease-spring`") }
+                    Table.Cell { Markdown("`linear(0, 0.006, 0.079, 0.234, 0.44, 0.652, 0.828, 0.947, 1.008, 1.025, 1.016, 1)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ease-standard`") }
+                    Table.Cell { Markdown("`cubic-bezier(0.2, 0, 0, 1)`") }
+                }
+            }
+        }
+
+        Heading("Breakpoints", id: "breakpoints").h3
+
+        Table(caption: "Breakpoints") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`screen-lg`") }
+                    Table.Cell { Markdown("`1024px`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`screen-md`") }
+                    Table.Cell { Markdown("`768px`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`screen-sm`") }
+                    Table.Cell { Markdown("`640px`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`screen-xl`") }
+                    Table.Cell { Markdown("`1280px`") }
+                }
+            }
+        }
+
+        Heading("Code", id: "code").h3
+
+        Table(caption: "Code") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`syntax-comment`") }
+                    Table.Cell { Markdown("`#959BA1`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`syntax-function`") }
+                    Table.Cell { Markdown("`#6FD3E6`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`syntax-keyword`") }
+                    Table.Cell { Markdown("`#8FBDE7`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`syntax-number`") }
+                    Table.Cell { Markdown("`#E0B070`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`syntax-punct`") }
+                    Table.Cell { Markdown("`#B3BAC0`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`syntax-string`") }
+                    Table.Cell { Markdown("`#7FD6A8`") }
+                }
+            }
+        }
+
+        Heading("Terminal", id: "terminal").h3
+
+        Table(caption: "Terminal") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`term-bg`") }
+                    Table.Cell { Markdown("`#1B1F22`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`term-dim`") }
+                    Table.Cell { Markdown("`#959BA1`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`term-ink`") }
+                    Table.Cell { Markdown("`#E6E9EC`") }
+                }
+            }
+        }
+
+        Heading("Layout", id: "layout").h3
+
+        Table(caption: "Layout") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Token").header
+                    Table.Cell("Baseline").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`wf-header-height`") }
+                    Table.Cell { Markdown("`56px`") }
+                }
+            }
+        }
+
+        Markdown("71 tokens in all.")
+
+        Heading("Short names", id: "short-names").h2
+
+        Markdown("In a style block, a short name is resolved by the property it is given to:")
+
+        Table(caption: "Short names") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Property").header
+                    Table.Cell("Group").header
+                    Table.Cell.header { Markdown("So `$…` means") }
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`padding`, `margin` and their sides, `gap`, `row-gap`, `column-gap`, `width`, `height`, `min-`/`max-` sizes, `top`/`right`/`bottom`/`left`, `inset`") }
+                    Table.Cell("spacing")
+                    Table.Cell { Markdown("`$lg` is `spacing-lg` (`xs` … `3xl`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`color`, `background`, `background-color`, `border-color`, `fill`, `stroke`") }
+                    Table.Cell("colour")
+                    Table.Cell { Markdown("`$primary` is `color-primary` (`primary`, `secondary`, `success`, `danger`, `warning`, `info`, `background`, `surface`, `text`, `border`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`font-size`") }
+                    Table.Cell("font size")
+                    Table.Cell { Markdown("`$xl` is `font-size-xl` (`xs`, `sm`, `base`, `lg`, `xl`, `2xl`, `3xl`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`line-height`") }
+                    Table.Cell("line height")
+                    Table.Cell { Markdown("`$tight` is `line-height-tight`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`border-radius`") }
+                    Table.Cell("radius")
+                    Table.Cell { Markdown("`$lg` is `radius-lg`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`box-shadow`") }
+                    Table.Cell("shadow")
+                    Table.Cell { Markdown("`$md` is `shadow-md`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`transition`") }
+                    Table.Cell("transition")
+                    Table.Cell { Markdown("`$fast` is `transition-fast`") }
+                }
+            }
+        }
+
+        Markdown("A full name — `$color-text-muted`, `$spacing-lg`, a token of your own — works in any property.")
+    }
+}

@@ -5,7 +5,11 @@ component SiteHeader(docs: Bool = false) {
     state q = ""
     state menu = false
     derived query = q.trim().toLowerCase()
-    derived hits = guideIndex.filter(r => query != "" && "{r.title} {r.section}".toLowerCase().includes(query)).take(8)
+    // A heading that matches comes first; a section whose text mentions the
+    // term after it.
+    derived named = guideIndex.filter(r => query != "" && "{r.title} {r.section}".toLowerCase().includes(query))
+    derived mentioned = guideIndex.filter(r => query != "" && !"{r.title} {r.section}".toLowerCase().includes(query) && r.words.includes(query))
+    derived hits = [...named, ...mentioned].take(10)
     // The theme on show: the reader's choice, or the system's when they
     // have not made one.
     derived dark = theme == "dark" || (theme == "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)

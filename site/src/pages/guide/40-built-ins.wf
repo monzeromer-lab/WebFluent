@@ -1,0 +1,305 @@
+/// Chapter 40 of the guide, written from md-docs/40-built-ins.md by
+/// scripts/site-from-guide.py; edit the guide, not this file.
+page BuiltInsGuide(path: "/docs/guide/built-ins", title: "Built-ins", description: "Built-in functions, browser values like viewport, query, now and network, string and list helpers, the built-in types, and globals.", layout: DocsShell("Built-ins", chapter: t("guide.chapter", { n: "40" }), blurb: "Every function, browser value, method and global the language gives a program, in one place.", source: "md-docs/40-built-ins.md", sections: [Anchor(id: "functions", label: "Functions"), Anchor(id: "browser-values", label: "Browser values"), Anchor(id: "string-methods", label: "String methods"), Anchor(id: "list-methods", label: "List methods"), Anchor(id: "number-methods", label: "Number methods"), Anchor(id: "the-built-in-types", label: "The built-in types"), Anchor(id: "browser-globals", label: "Browser globals")], prevTo: "/docs/guide/diagnostics", prevLabel: "39. {t("ch.39")}", nextTo: "/docs/guide/tokens", nextLabel: "41. {t("ch.41")}")) {
+    Stack(gap: .lg) {
+        Heading("Functions", id: "functions").h2
+
+        Table(caption: "Functions") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Function").header
+                    Table.Cell("Does").header
+                    Table.Cell("Where").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`log(x, …)`") }
+                    Table.Cell("Prints to the console")
+                    Table.Cell("anywhere")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`navigate(path)`") }
+                    Table.Cell("Moves to a route; in a static build, a page load")
+                    Table.Cell("actions, handlers")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`format(value, .style, option)`") }
+                    Table.Cell("A number, date or money as text, in the locale")
+                    Table.Cell { Markdown("anywhere ([chapter 14](/docs/guide/expressions#format-and-ago))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ago(date)`") }
+                    Table.Cell("\"3 minutes ago\", \"in 2 days\"")
+                    Table.Cell("anywhere")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`t(\"key\", \{ name: value \})`") }
+                    Table.Cell("A translation, with placeholders and plurals")
+                    Table.Cell { Markdown("anywhere ([chapter 21](/docs/guide/i18n))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`setLocale(\"ar\")`") }
+                    Table.Cell("Switches the locale, and the direction with it")
+                    Table.Cell("actions, handlers, effects")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`setTheme(\"dark\")`") }
+                    Table.Cell { Markdown("`\"light\"`, `\"dark\"` or `\"system\"`, kept across visits") }
+                    Table.Cell("actions, handlers")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`uuid()`") }
+                    Table.Cell { Markdown("A fresh `Uuid`") }
+                    Table.Cell("anywhere")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sanitize(html)`") }
+                    Table.Cell { Markdown("Markup through an allow-list, for `Unsafe.Html`") }
+                    Table.Cell { Markdown("anywhere ([chapter 23](/docs/guide/security#markup-you-did-not-write))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`fetch(url, options)`") }
+                    Table.Cell { Markdown("A request through the same engine as `api`; `await` it") }
+                    Table.Cell { Markdown("actions ([chapter 17](/docs/guide/data#await-fetch-in-an-action))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`optimistic(holder, change)`") }
+                    Table.Cell("Shows a change now, takes it back if the action throws")
+                    Table.Cell { Markdown("actions ([chapter 17](/docs/guide/data#showing-a-change-before-the-server-agrees))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`beacon(url, data)`") }
+                    Table.Cell("A small post that survives the page unloading")
+                    Table.Cell { Markdown("anywhere ([chapter 18](/docs/guide/realtime))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`animate(element, name, duration)`") }
+                    Table.Cell("Plays an animation on a handle")
+                    Table.Cell { Markdown("handlers ([chapter 20](/docs/guide/motion#driving-one-yourself))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`replayAnimation(element, name)`") }
+                    Table.Cell("Plays an element's own animation again")
+                    Table.Cell("handlers")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`every(interval) \{ \}`, `after(interval) \{ \}`") }
+                    Table.Cell("A repeating and a one-off timer, stopped when their scope leaves")
+                    Table.Cell { Markdown("render blocks ([chapter 8](/docs/guide/state#timers))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ws(url)`, `sse(url)`, `broadcast(name)`, `rtc(signal: …)`") }
+                    Table.Cell { Markdown("Open a socket, a stream, a channel, a peer — after `socket x =`, `stream x =`, `channel x =`, `peer x =`") }
+                    Table.Cell { Markdown("render blocks ([chapter 18](/docs/guide/realtime))") }
+                }
+            }
+        }
+
+        Heading("Browser values", id: "browser-values").h2
+
+        Markdown("Always in scope and kept current; a `state` of the same name shadows one.")
+
+        Table(caption: "Browser values") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Name").header
+                    Table.Cell("Holds").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`viewport`") }
+                    Table.Cell { Markdown("`.width`, `.height`, `.sm`, `.md`, `.lg`, `.xl`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`query`") }
+                    Table.Cell("the query string, as a map")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`hash`") }
+                    Table.Cell { Markdown("the fragment, without `#`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`theme`") }
+                    Table.Cell { Markdown("`\"light\"`, `\"dark\"` or `\"system\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`now`") }
+                    Table.Cell { Markdown("the current `DateTime`, every minute; `now(every: 1.seconds)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`network`") }
+                    Table.Cell { Markdown("`.online`, `.effectiveType`, `.saveData`, `.downlink`, `.queued`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`update`") }
+                    Table.Cell { Markdown("`.available`, `.apply()` — a new version of an offline site") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`locale`, `dir`") }
+                    Table.Cell("the current locale and direction, with i18n configured")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`params`") }
+                    Table.Cell("the route's parameters, by name")
+                }
+            }
+        }
+
+        Heading("String methods", id: "string-methods").h2
+
+        Markdown("`length`, `trim()`, `trimStart()`, `trimEnd()`, `toLowerCase()`, `toUpperCase()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`, `lastIndexOf(s)`, `slice(a, b)`, `substring(a, b)`, `charAt(i)`, `at(i)`, `replace(a, b)`, `replaceAll(a, b)`, `split(sep)`, `padStart(n, c)`, `padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`, `match(re)`, `search(re)` — the browser's — and WebFluent's own:")
+
+        Table(caption: "String methods") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Method").header
+                    Table.Cell("Gives").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`capitalize()`") }
+                    Table.Cell("The first letter in upper case")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`truncate(n)`") }
+                    Table.Cell { Markdown("At most `n` characters, with `…` when cut") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`dedent()`") }
+                    Table.Cell("The text without the indentation its lines share")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`lines()`") }
+                    Table.Cell("A list of its lines")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`words()`") }
+                    Table.Cell("A list of its words, split on whitespace")
+                }
+            }
+        }
+
+        Heading("List methods", id: "list-methods").h2
+
+        Markdown("`length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `some(f)`, `every(f)`, `includes(x)`, `indexOf(x)`, `reduce(f, init)`, `join(sep)`, `slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `flatMap(f)` — the browser's; `push(x)` in an action — and WebFluent's own:")
+
+        Table(caption: "List methods") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Method").header
+                    Table.Cell("Gives").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`sortBy(f)`") }
+                    Table.Cell { Markdown("A sorted copy, by what `f` returns") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`groupBy(f)`") }
+                    Table.Cell { Markdown("A map from what `f` returns to the items that returned it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`unique()`") }
+                    Table.Cell("A copy without repeats")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`take(n)`") }
+                    Table.Cell { Markdown("The first `n` items") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`first()`, `last()`") }
+                    Table.Cell { Markdown("The first or last item, or `null`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sum()`") }
+                    Table.Cell("The total of a list of numbers")
+                }
+            }
+        }
+
+        Markdown("Every helper runs at build time too, so a static page shows its result.")
+
+        Heading("Number methods", id: "number-methods").h2
+
+        Markdown("`toFixed(n)`, `toString()`. Convert with `Number(\"12\")` and `String(n)`, or `\"\{n\}\"`; round with `Math.round`, `Math.floor`, `Math.max` and the rest.")
+
+        Heading("The built-in types", id: "the-built-in-types").h2
+
+        Table(caption: "The built-in types") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Type").header
+                    Table.Cell("Written").header
+                    Table.Cell("Methods and fields").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Date`") }
+                    Table.Cell { Markdown("`@2026-03-14`") }
+                    Table.Cell { Markdown("`.year() .month() .day() .weekday()`, `.plus(days: 3)`, `.minus(…)`, `.isBefore(d) .isAfter(d) .isSame(d)`, `.until(d)`, `.startOfDay() .startOfWeek() .startOfMonth() .endOfDay()`, `.native()`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Time`") }
+                    Table.Cell { Markdown("`@09:30`") }
+                    Table.Cell { Markdown("`.hour() .minute() .second()`, `.plus(minutes: 30)`, the comparisons") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`DateTime`") }
+                    Table.Cell { Markdown("`@2026-03-14T09:30Z`") }
+                    Table.Cell { Markdown("the above, `.date() .time()`, `.inZone(\"Europe/Berlin\")`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Duration`") }
+                    Table.Cell { Markdown("`90.minutes`, `3.days`, `250.ms`") }
+                    Table.Cell { Markdown("`.days() .hours() .minutes() .seconds() .ms()`, `.plus(d)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Money`") }
+                    Table.Cell { Markdown("`€12.99`, `$9.99`, `£4.50`") }
+                    Table.Cell { Markdown("`.plus(m) .minus(m) .times(n) .convert(rate, \"USD\")`, `.amount`, `.currency`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Url`") }
+                    Table.Cell("a string")
+                    Table.Cell { Markdown("`.host() .path() .query()`, `.with(query: \{ page: 2 \})`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Email`") }
+                    Table.Cell("a string")
+                    Table.Cell { Markdown("`.domain()`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Color`") }
+                    Table.Cell { Markdown("`#0F766E`") }
+                    Table.Cell { Markdown("`.mix(other, 0.2) .lighten(n) .darken(n) .alpha(0.5) .contrast(other)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Uuid`") }
+                    Table.Cell { Markdown("`uuid()`") }
+                    Table.Cell("a string's")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`File`") }
+                    Table.Cell { Markdown("from `FileUpload`") }
+                    Table.Cell { Markdown("`.preview()`, `.name`, `.size`, `.type`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Secret`") }
+                    Table.Cell("—")
+                    Table.Cell("none: it may not be shown, spliced, logged or persisted")
+                }
+            }
+        }
+
+        Markdown("`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. Durations are written with `ms`, `seconds`, `minutes`, `hours`, `days` and `weeks`. [Chapter 13](/docs/guide/types#the-types-the-language-brings-with-it) has the rest.")
+
+        Heading("Browser globals", id: "browser-globals").h2
+
+        Markdown("These compile to themselves, with no prefix: `window`, `document`, `console`, `navigator`, `location`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `parseInt`, `parseFloat`, `Array`, `Object`, `String`, `Number`, `Boolean`, `Promise`, `Error`, `Map`, `Set`, `RegExp`, `Infinity`, `NaN`, `undefined`, `encodeURIComponent`, `decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `alert`, `confirm`, `prompt`, `requestAnimationFrame`, `cancelAnimationFrame`, `history`, `screen`, `performance`, `crypto`, `globalThis`, `Intl`, `Symbol`, `Reflect`, `URL`, `URLSearchParams`, `FormData`, `Blob`, `File`, `FileReader`, `Event`, `CustomEvent`, `AbortController`, `TextEncoder`, `TextDecoder`, `Notification`, `matchMedia`, `getComputedStyle`, `structuredClone`, `queueMicrotask`. The checker types them as `Any`, and a name the program declares itself wins over them.")
+    }
+}
