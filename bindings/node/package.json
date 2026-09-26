@@ -1,6 +1,6 @@
 {
   "name": "webfluent",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Render WebFluent (.wf) templates to HTML and PDF from Node.js \u2014 a thin wrapper around the `wf` compiler",
   "main": "index.js",
   "types": "index.d.ts",
