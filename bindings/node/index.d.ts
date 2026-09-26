@@ -1,7 +1,7 @@
 export interface TemplateOptions {
-  /** Theme name (default: "default") */
+  /** Which `theme` the template declares to render with; only needed when it declares more than one */
   theme?: string;
-  /** Custom design tokens */
+  /** Design tokens over the theme's, e.g. `{ "color-primary": "#8B5CF6" }` */
   tokens?: Record<string, string>;
 }
 
@@ -14,7 +14,7 @@ export class Template {
   /** Create a Template from a .wf file path. */
   static fromFile(filePath: string, options?: TemplateOptions): Template;
 
-  /** Set the theme. Returns this for chaining. */
+  /** Render with one of the `theme` declarations the template makes. Returns this for chaining. */
   withTheme(theme: string): this;
 
   /** Set custom design tokens. Returns this for chaining. */
@@ -28,4 +28,7 @@ export class Template {
 
   /** Render to a PDF Buffer. */
   renderPdf(data: Record<string, unknown>): Buffer;
+
+  /** Render a `Presentation` to a PDF slide deck. */
+  renderSlides(data: Record<string, unknown>): Buffer;
 }

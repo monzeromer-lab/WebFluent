@@ -242,3 +242,35 @@ jobs:
           else
             npx --yes ovsx publish dist/*.vsix --pat "$OVSX_PAT" --skip-duplicate
           fi
+
+  # The Node binding (`bindings/node`) as `webfluent` on npm, at the
+  # compiler's version. It needs an npm automation token as the repository
+  # secret `NPM_TOKEN`; without it this warns and passes. A version already on
+  # npm is skipped, so a re-run is safe.
+  publish-npm:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish to npm
+        working-directory: bindings/node
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN is not set, so webfluent $version was not published to npm. Add an npm automation token as that repository secret, then re-run this job."
+          elif npm view "webfluent@$version" version >/dev/null 2>&1; then
+            echo "webfluent $version is already on npm; nothing to do."
+          else
+            npm publish --provenance --access public
+          fi

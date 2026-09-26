@@ -37,7 +37,9 @@ function findBinary() {
   }
 
   throw new Error(
-    "WebFluent CLI (wf) not found. Install it with: cargo install webfluent\n" +
+    "WebFluent CLI (wf) not found. Install it with:\n" +
+    "  curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash\n" +
+    "or: cargo install webfluent\n" +
     "Or set the WF_BIN environment variable to the binary path."
   );
 }
@@ -69,12 +71,13 @@ class Template {
   /**
    * @param {string} source - The .wf template source code
    * @param {object} [options]
-   * @param {string} [options.theme="default"] - Theme name
-   * @param {object} [options.tokens={}] - Custom design tokens
+   * @param {string} [options.theme] - Which `theme` the template declares to
+   *   render with; only needed when it declares more than one
+   * @param {object} [options.tokens={}] - Design tokens over the theme's
    */
   constructor(source, options = {}) {
     this._source = source;
-    this._theme = options.theme || "default";
+    this._theme = options.theme || null;
     this._tokens = options.tokens || {};
     this._templateFile = null;
   }
@@ -102,7 +105,7 @@ class Template {
   }
 
   /**
-   * Set the theme.
+   * Render with one of the `theme` declarations the template makes.
    * @param {string} theme
    * @returns {Template}
    */
@@ -145,9 +148,23 @@ class Template {
    * @returns {Buffer}
    */
   renderPdf(data) {
+    return this._renderFile(data, "pdf");
+  }
+
+  /**
+   * Render a `Presentation` to a PDF slide deck.
+   * @param {object} data - JSON data context
+   * @returns {Buffer}
+   */
+  renderSlides(data) {
+    return this._renderFile(data, "slides");
+  }
+
+  /** @private */
+  _renderFile(data, format) {
     const outFile = tmpFile("", ".pdf");
     try {
-      this._render(data, "pdf", outFile);
+      this._render(data, format, outFile);
       return fs.readFileSync(outFile);
     } finally {
       cleanup(outFile);
@@ -157,33 +174,27 @@ class Template {
   /** @private */
   _render(data, format, outputFile) {
     const tplFile = this._getTemplateFile();
-    const dataFile = tmpFile(JSON.stringify(data), ".json");
-
+    const dataFile = tmpFile(JSON.stringify(data === undefined ? {} : data), ".json");
+    const args = ["render", tplFile, "--data", dataFile, "--format", format];
+    if (this._theme) args.push("--theme", this._theme);
+    for (const [name, value] of Object.entries(this._tokens)) {
+      args.push("--token", `${name}=${value}`);
+    }
+    if (outputFile) args.push("-o", outputFile);
     try {
-      const args = [
-        "render", tplFile,
-        "--data", dataFile,
-        "--format", format,
-        "--theme", this._theme,
-      ];
-
-      if (outputFile) {
-        args.push("-o", outputFile);
-      }
-
       const result = execFileSync(bin(), args, {
-        encoding: format === "pdf" && !outputFile ? "buffer" : "utf-8",
-        maxBuffer: 50 * 1024 * 1024, // 50MB
+        encoding: "utf-8",
+        maxBuffer: 50 * 1024 * 1024,
         stdio: ["pipe", "pipe", "pipe"],
       });
-
       return outputFile ? undefined : result;
+    } catch (e) {
+      // What `wf` said, not the child process's own report around it.
+      const said = e.stderr ? String(e.stderr).trim() : "";
+      throw new Error(said || e.message);
     } finally {
       cleanup(dataFile);
-      if (!this._templateFile) {
-        // Clean up inline template file
-        cleanup(tplFile);
-      }
+      if (!this._templateFile) cleanup(tplFile);
     }
   }
 

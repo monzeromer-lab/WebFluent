@@ -146,6 +146,11 @@ jobs:
       - name: JavaScript suites
         run: node --test tests/js/*.test.mjs
 
+      # The Node binding against the `wf` this job built: what `npm install
+      # webfluent` hands a server.
+      - name: Node binding
+        run: WF_BIN="$PWD/target/debug/wf" node --test bindings/node/test.js
+
   scaffolds:
     name: Scaffolds build clean
     runs-on: ubuntu-latest

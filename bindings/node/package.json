@@ -1,20 +1,37 @@
 {
-  "name": "@aspect/webfluent",
-  "version": "0.2.0-alpha",
-  "description": "WebFluent template engine for Node.js — render .wf templates to HTML and PDF",
+  "name": "webfluent",
+  "version": "4.0.1",
+  "description": "Render WebFluent (.wf) templates to HTML and PDF from Node.js \u2014 a thin wrapper around the `wf` compiler",
   "main": "index.js",
   "types": "index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/monzeromer-lab/WebFluent"
+    "url": "git+https://github.com/monzeromer-lab/WebFluent.git",
+    "directory": "bindings/node"
   },
-  "keywords": ["webfluent", "template-engine", "html", "pdf", "ssr"],
-  "files": ["index.js", "index.d.ts", "README.md"],
+  "keywords": [
+    "webfluent",
+    "template-engine",
+    "html",
+    "pdf",
+    "ssr",
+    "email",
+    "invoice"
+  ],
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md"
+  ],
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "node --test test.js"
+  },
+  "homepage": "https://monzeromer-lab.github.io/WebFluent/docs/guide/server-rendering",
+  "bugs": {
+    "url": "https://github.com/monzeromer-lab/WebFluent/issues"
   }
 }

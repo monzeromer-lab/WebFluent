@@ -16,6 +16,10 @@ version's section of the notes as its body, and `cargo publish`.
 `CARGO_REGISTRY_TOKEN`. Until it exists that job warns and passes; add the
 secret and re-run the job to publish a release that went out without it.
 
+The Node binding (`bindings/node`) goes to npm as `webfluent`, at the same
+version — `just bump` sets it. It needs an npm automation token saved as
+`NPM_TOKEN`; without it that job warns and passes, the same way.
+
 If the grammar changed since the last release, point the Zed extension at
 it before tagging: commit the grammar, then `just zed-pin-grammar` and
 commit that. The preflight refuses a tag whose pinned grammar is stale.

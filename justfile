@@ -60,11 +60,13 @@ site-build:
 # ── Release ──────────────────────────────────────────
 
 # Then write the release notes' section, and `just preflight vVERSION`.
-# Set both crates to VERSION, and the lock file with them
+# Set both crates and the Node binding to VERSION, and the lock file with them
 bump version:
     sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml crates/wf-lsp/Cargo.toml
+    sed -i '0,/"version": ".*"/s//"version": "{{version}}"/' bindings/node/package.json
     cargo update -w --quiet
     @grep -H '^version' Cargo.toml crates/wf-lsp/Cargo.toml
+    @grep -H '"version"' bindings/node/package.json
 
 # What the release workflow checks before it builds anything for TAG
 preflight tag:

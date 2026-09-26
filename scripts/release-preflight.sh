@@ -26,6 +26,14 @@ for manifest in Cargo.toml crates/wf-lsp/Cargo.toml; do
     fi
 done
 
+# 1b. The Node binding is published at the compiler's version.
+have=$(sed -n 's/^  "version": "\(.*\)",/\1/p' bindings/node/package.json | head -n1)
+if [ "$have" = "$version" ]; then
+    ok "bindings/node/package.json is $version"
+else
+    fail "bindings/node/package.json is $have, but the tag is $tag. Bump it with \`just bump $version\`."
+fi
+
 # 2. The release notes say what this release is. 4.0.0 was written
 #    `# WebFluent v4.0 Release Notes`, so a .0 release may drop its patch.
 short="${version%.0}"
