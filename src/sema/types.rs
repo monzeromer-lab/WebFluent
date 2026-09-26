@@ -807,23 +807,27 @@ impl<'a, 'p> Checker<'a, 'p> {
                 self.bind(&name, form_type(), stmt.span);
             }
         }
+        // Actions before derived values, and all of them before any is
+        // inferred: a store's members are mutually visible, and the runtime
+        // binds its actions first. Inferring a derived value in source order
+        // reported an action declared below it as undeclared.
         for stmt in stmts {
             self.current_span = stmt.span;
-            match &stmt.kind {
-                StatementKind::Action(a) => {
-                    let params: Vec<Type> = a
-                        .params
-                        .iter()
-                        .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
-                        .collect();
-                    // The return type is found when the body is checked.
-                    self.bind(&a.name, Type::Func(params, Box::new(Type::Any)), stmt.span);
-                }
-                StatementKind::Derived(d) => {
-                    let ty = self.infer(&d.value, None);
-                    self.bind(&d.name, ty, stmt.span);
-                }
-                _ => {}
+            if let StatementKind::Action(a) = &stmt.kind {
+                let params: Vec<Type> = a
+                    .params
+                    .iter()
+                    .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
+                    .collect();
+                // The return type is found when the body is checked.
+                self.bind(&a.name, Type::Func(params, Box::new(Type::Any)), stmt.span);
+            }
+        }
+        for stmt in stmts {
+            self.current_span = stmt.span;
+            if let StatementKind::Derived(d) = &stmt.kind {
+                let ty = self.infer(&d.value, None);
+                self.bind(&d.name, ty, stmt.span);
             }
         }
     }
@@ -3504,6 +3508,23 @@ mod tests {
                 None => d.message.clone(),
             })
             .collect()
+    }
+
+    /// A store's members are mutually visible. Inferring each derived value
+    /// as it was met meant an action declared below it read as undeclared,
+    /// though the runtime binds actions first and an action may call one
+    /// declared after it.
+    #[test]
+    fn a_derived_value_may_call_an_action_declared_below_it() {
+        let src = r#"
+            store S {
+                state n = 2
+                derived after = twice(n)
+                action twice(v: Number) { return v * 2 }
+            }
+            page P(path: "/") { use S  Text("{S.after}") }
+        "#;
+        assert_eq!(errors(src), Vec::<String>::new());
     }
 
     fn clean(src: &str) {
