@@ -66,13 +66,14 @@ Then `wf init my-site`."#, title: "markdown")
     "site_name": "Acme Inc.",
     "image": "/og-default.png",
     "favicon": "/favicon.svg",
+    "touch_icon": "/apple-touch-icon.png",
     "sitemap": true,
     "fonts": ["https://fonts.googleapis.com/css2?family=Inter&display=swap"],
     "stylesheets": ["/print.css"]
   }
 }"#, title: "json")
 
-        Markdown("- `<title>` and `<meta name=\"description\">` from the page's `title:` and `description:` — the snippet a search result shows and a link preview quotes. Keep the description under ~150 characters.\n- A canonical link and `og:url`, when `site_url` is set (a relative canonical is worse than none, so without `site_url` the build emits none).\n- Open Graph and Twitter card tags: `og:title`, `og:description`, `og:image` (the page's `image:` or the site's), `og:type` from `type:` (`website` or `article`), `og:site_name`.\n- JSON-LD: an `Organization`, a `WebPage` or `Article`, and a `BreadcrumbList` derived from the route's segments.\n- `hreflang` alternates for each locale when the project has several.\n- `<meta name=\"robots\" content=\"noindex\">` and no sitemap entry for a `noindex: true` page.\n\nA page adds its own tags with `head \{ \}` ([chapter 6](/docs/guide/pages-and-routing#per-page-head-tags)).")
+        Markdown("- `<title>` and `<meta name=\"description\">` from the page's `title:` and `description:` — the snippet a search result shows and a link preview quotes. Keep the description under ~150 characters.\n- A canonical link and `og:url`, when `site_url` is set (a relative canonical is worse than none, so without `site_url` the build emits none).\n- Open Graph and Twitter card tags: `og:title`, `og:description`, `og:image` (the page's `image:` or the site's), `og:type` from `type:` (`website` or `article`), `og:site_name`.\n- JSON-LD: an `Organization`, a `WebPage` or `Article`, and a `BreadcrumbList` derived from the route's segments.\n- `hreflang` alternates for each locale when the project has several.\n- The icons: `<link rel=\"icon\">` for `favicon` (typed, so an SVG is read as one) and `<link rel=\"apple-touch-icon\">` for `touch_icon`, each resolved against the `base_path`. A sharing image is best 1200×630.\n- `<meta name=\"robots\" content=\"noindex\">` and no sitemap entry for a `noindex: true` page.\n\nA page adds its own tags with `head \{ \}` ([chapter 6](/docs/guide/pages-and-routing#per-page-head-tags)).")
 
         CodeBlock(#"type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
 

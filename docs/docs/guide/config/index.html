@@ -15,11 +15,15 @@
     <meta property="og:description" content="Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/config">
     <meta property="og:locale" content="en">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Configuration">
     <meta name="twitter:description" content="Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.">
+    <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/config#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/config","name":"Configuration","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/config#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Configuration","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/config"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="../../../apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -355,6 +359,7 @@
     &quot;title&quot;: &quot;my-site&quot;,
     &quot;description&quot;: &quot;&quot;,
     &quot;favicon&quot;: &quot;&quot;,
+    &quot;touch_icon&quot;: &quot;&quot;,
     &quot;lang&quot;: &quot;en&quot;,
     &quot;site_url&quot;: &quot;&quot;,
     &quot;site_name&quot;: &quot;&quot;,
@@ -1097,7 +1102,24 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>The icon a tab shows: a file in <code>public/</code>.</p>
+<p>The icon a tab shows: a file in <code>public/</code> — an SVG scales to every size — or a URL.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>touch_icon</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The icon a phone puts on its home screen: a 180×180 PNG in <code>public/</code>. iOS reads this, not an SVG <code>favicon</code>.</p>
                                             </div>
                                         </td>
                                     </tr>

@@ -487,8 +487,14 @@ pub struct MetaConfig {
     pub title: String,
     #[serde(default)]
     pub description: String,
+    /// The icon a tab shows: a file in `public/` (an SVG scales to every
+    /// size) or a URL.
     #[serde(default)]
     pub favicon: String,
+    /// The icon a phone puts on its home screen: a 180×180 PNG in `public/`.
+    /// iOS reads this and not an SVG `favicon`.
+    #[serde(default)]
+    pub touch_icon: String,
     #[serde(default = "default_lang")]
     pub lang: String,
 
@@ -713,6 +719,7 @@ impl Default for MetaConfig {
             title: String::new(),
             description: String::new(),
             favicon: String::new(),
+            touch_icon: String::new(),
             lang: default_lang(),
             site_url: String::new(),
             site_name: String::new(),

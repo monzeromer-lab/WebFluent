@@ -68,6 +68,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "title": "my-site",
     "description": "",
     "favicon": "",
+    "touch_icon": "",
     "lang": "en",
     "site_url": "",
     "site_name": "",
@@ -410,7 +411,12 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`favicon`") }
                     Table.Cell { Markdown("`\"\"`") }
-                    Table.Cell { Markdown("The icon a tab shows: a file in `public/`.") }
+                    Table.Cell { Markdown("The icon a tab shows: a file in `public/` — an SVG scales to every size — or a URL.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`touch_icon`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell { Markdown("The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sitemap`") }

@@ -76,12 +76,6 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         })
         .unwrap_or_default();
 
-    let favicon_link = if config.meta.favicon.is_empty() {
-        String::new()
-    } else {
-        format!(r#"    <link rel="icon" href="{}">"#, config.meta.favicon)
-    };
-
     format!(
         r#"<!DOCTYPE html>
 <html lang="{}">
@@ -89,7 +83,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{}</title>
-{}{}{}{}    <link rel="stylesheet" href="{root}/styles.css">
+{}{}{}    <link rel="stylesheet" href="{root}/styles.css">
 {}{}    <script src="{root}/app.js" defer></script>
 {}</head>
 <body>
@@ -99,11 +93,6 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         lang,
         title,
         description_meta,
-        if favicon_link.is_empty() {
-            String::new()
-        } else {
-            format!("{}\n", favicon_link)
-        },
         csp_meta(config),
         head_links,
         entry_sheet,
@@ -158,6 +147,28 @@ pub fn externals_tags(config: &ProjectConfig, program: &Program, root: &str) -> 
 pub fn head_links(config: &ProjectConfig, base: &str) -> String {
     use crate::config::project::url_origin;
     let mut out = String::new();
+    // The icons, resolved from this page's depth like any site-relative
+    // asset: `/favicon.svg` under a `base_path` is the base's, not the
+    // host's.
+    if !config.meta.favicon.is_empty() {
+        let icon = &config.meta.favicon;
+        let kind = match icon.rsplit('.').next().map(|e| e.to_ascii_lowercase()) {
+            Some(e) if e == "svg" => " type=\"image/svg+xml\"",
+            Some(e) if e == "png" => " type=\"image/png\"",
+            Some(e) if e == "ico" => " type=\"image/x-icon\"",
+            _ => "",
+        };
+        out.push_str(&format!(
+            "    <link rel=\"icon\" href=\"{}\"{kind}>\n",
+            href_from(icon, base)
+        ));
+    }
+    if !config.meta.touch_icon.is_empty() {
+        out.push_str(&format!(
+            "    <link rel=\"apple-touch-icon\" href=\"{}\">\n",
+            href_from(&config.meta.touch_icon, base)
+        ));
+    }
     let mut preconnected: Vec<String> = Vec::new();
     let mut preconnect = |origin: String, out: &mut String| {
         if !preconnected.contains(&origin) {
@@ -264,6 +275,25 @@ mod head_link_tests {
                 r#"<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>"#,
                 r#"<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>"#,
                 &format!(r#"<link rel="stylesheet" href="{url}">"#),
+            ]
+        );
+    }
+
+    /// A pre-rendered page never linked `meta.favicon`, and the single-page
+    /// shell linked it as written, so under a `base_path` `/favicon.svg`
+    /// was the host's, not the site's.
+    #[test]
+    fn the_icons_are_linked_from_the_pages_depth() {
+        let mut config = config(&[], &[]);
+        config.meta.favicon = "/favicon.svg".into();
+        config.meta.touch_icon = "/apple-touch-icon.png".into();
+        let links = head_links(&config, "../..");
+        let lines: Vec<&str> = links.lines().map(str::trim).collect();
+        assert_eq!(
+            lines,
+            [
+                r#"<link rel="icon" href="../../favicon.svg" type="image/svg+xml">"#,
+                r#"<link rel="apple-touch-icon" href="../../apple-touch-icon.png">"#,
             ]
         );
     }

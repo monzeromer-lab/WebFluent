@@ -124,6 +124,15 @@ build now warns and names the key it meant (`default_locale`). `wf init
 
 ## Fixed
 
+### The favicon on a pre-rendered page
+
+`meta.favicon` was never linked from a pre-rendered page, and the
+single-page shell linked it as written, so under a `base_path` it pointed at
+the host's root. It is linked from every page, resolved like any other
+asset, and typed so an SVG icon is read as one. `meta.touch_icon` is new:
+the 180×180 PNG a phone puts on its home screen, which iOS reads instead of
+an SVG.
+
 ### A sidebar's items on a phone, and in Arabic
 
 A `Sidebar` is a column of fixed height that scrolls, and its items shrank
@@ -212,7 +221,8 @@ Written for a phone first: every rule is the phone's, and `md`, `lg` and
 reader taps is at least 24px (44px in a drawer), a wide table or code block
 scrolls inside its own box, and no page scrolls sideways at any width from
 320px to 1920px, in English or Arabic — each checked on every route in a
-real browser. The search index is its own file, fetched the first time the
+real browser. It has a favicon, a home-screen icon and a link-preview card,
+drawn as SVG in `site/art/` and exported by `scripts/site-art.sh`. The search index is its own file, fetched the first time the
 search box is used, instead of 20 kB carried by every page.
 
 ## Editors

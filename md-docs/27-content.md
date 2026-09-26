@@ -96,6 +96,7 @@ attributes and `meta.*` in `webfluent.app.json`:
     "site_name": "Acme Inc.",
     "image": "/og-default.png",
     "favicon": "/favicon.svg",
+    "touch_icon": "/apple-touch-icon.png",
     "sitemap": true,
     "fonts": ["https://fonts.googleapis.com/css2?family=Inter&display=swap"],
     "stylesheets": ["/print.css"]
@@ -114,6 +115,9 @@ attributes and `meta.*` in `webfluent.app.json`:
 - JSON-LD: an `Organization`, a `WebPage` or `Article`, and a
   `BreadcrumbList` derived from the route's segments.
 - `hreflang` alternates for each locale when the project has several.
+- The icons: `<link rel="icon">` for `favicon` (typed, so an SVG is read
+  as one) and `<link rel="apple-touch-icon">` for `touch_icon`, each
+  resolved against the `base_path`. A sharing image is best 1200×630.
 - `<meta name="robots" content="noindex">` and no sitemap entry for a
   `noindex: true` page.
 

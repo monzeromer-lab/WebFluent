@@ -81,6 +81,7 @@ absent unless you add them.
     "title": "my-site",
     "description": "",
     "favicon": "",
+    "touch_icon": "",
     "lang": "en",
     "site_url": "",
     "site_name": "",
@@ -180,7 +181,8 @@ absent unless you add them.
 | `site_url` | `""` | The absolute address. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed. |
 | `site_name` | `""` | The name a link preview shows. |
 | `image` | `""` | The sharing image for pages that set none. |
-| `favicon` | `""` | The icon a tab shows: a file in `public/`. |
+| `favicon` | `""` | The icon a tab shows: a file in `public/` — an SVG scales to every size — or a URL. |
+| `touch_icon` | `""` | The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`. |
 | `sitemap` | `true` | Write `sitemap.xml` and `robots.txt`. |
 | `fonts` | `[]` | Web-font stylesheet URLs to link, each with a `preconnect`; their origins join the policy. |
 | `stylesheets` | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |

@@ -2544,6 +2544,7 @@ site's other tabs, and `WF.store`/`WF.host` were renamed.
         "title": "",
         "description": "",
         "favicon": "",
+        "touch_icon": "",
         "lang": "en",
         "fonts": [],
         "stylesheets": [],
