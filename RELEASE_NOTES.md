@@ -1,3 +1,39 @@
+# WebFluent v4.1.2 Release Notes
+
+Six fixes, all found by moving a nineteen-screen application
+(https://github.com/monzeromer-lab/Halyard) from WebFluent 2 to 4. Nothing
+here is breaking.
+
+## Fixed
+
+- **A store's `derived` may call an `action` declared below it.** The
+  checker inferred each derived value as it met it, so an action declared
+  lower in the file read as undeclared (`T13`) — though a store's members
+  are mutually visible and the runtime binds its actions first. Half a
+  store's derived values failed to compile for no reason.
+- **A `sort` comparator is handed two elements.** It was typed like
+  `map`'s `(element, index)`, so the second parameter read as a `Number`
+  and a comparator over records failed with `T01`.
+- **A layout's arguments read the route's parameters.** They were compiled
+  with no page parameters in scope, so
+  `layout: Shell(crumb: "Build {hash}")` on `/app/builds/:hash` compiled
+  `hash` to `location.hash`.
+- **`A11` resolves an `if` on a `Bool` prop from the call.** A card that
+  titles itself `h2` under a page title and `h3` inside a section was
+  judged on both branches, so the heading-outline lint reported the `h3`
+  one against a page whose call says `h2`.
+- **A select's value takes once its options arrive.** The runtime applied
+  it after the children passed to `el()`, but codegen appends
+  `Select.Option` children as later statements, so a select bound to state
+  still showed its first option.
+- **An animation the page never painted settles at its end, not its
+  start.** When the clock ran out, `settled()` committed the animation's
+  current state — and a page that painted no frame is still on its first —
+  so a mount animation in a background tab or a prerender left the element
+  at `opacity: 0` for good.
+
+---
+
 # WebFluent v4.1.1 Release Notes
 
 ## Fixed
