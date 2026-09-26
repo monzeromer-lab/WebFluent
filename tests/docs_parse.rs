@@ -49,6 +49,7 @@ const DECLARATIONS: &[&str] = &[
     "animation",
     "test",
     "data",
+    "image",
 ];
 
 fn starts_declaration(line: &str) -> bool {
@@ -498,31 +499,74 @@ fn the_guide_parses() {
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
 }
 
-/// Every baseline design token is in the styling chapter's table. A token
-/// nobody can find is a token nobody uses, and the table is written by
-/// hand — so this is what keeps it from drifting behind `default_tokens`.
+/// The design-tokens chapter lists every baseline token with its value,
+/// between `<!-- tokens -->` and `<!-- /tokens -->`, written from
+/// `default_tokens` itself — a hand-kept table fell behind it twice. Run
+/// with `WF_WRITE_TOKENS=1` to rewrite it after the baseline changes.
 #[test]
-fn every_design_token_is_documented() {
-    let chapter = std::fs::read_to_string(
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/12-styling.md"),
-    )
-    .unwrap();
-    let mut missing = Vec::new();
-    for name in webfluent::themes::tokens::default_tokens().keys() {
-        // A family written as a range (`font-size-xs … font-size-3xl`) or
-        // with a slash (`animation-duration-fast/normal/slow`) covers its
-        // members: the reader finds them either way.
-        let family = name.rsplit_once('-').map(|(head, _)| head).unwrap_or(name);
-        if chapter.contains(name.as_str()) || chapter.contains(&format!("{family}-")) {
+fn the_design_tokens_chapter_is_the_baseline() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/41-design-tokens.md");
+    let chapter = std::fs::read_to_string(&path).unwrap();
+    let tokens = webfluent::themes::tokens::default_tokens();
+    let groups: &[(&str, &[&str])] = &[
+        ("Colour", &["color-"]),
+        ("Font", &["font-", "line-height-"]),
+        ("Spacing", &["spacing-"]),
+        ("Radius", &["radius-"]),
+        ("Shadow", &["shadow-"]),
+        ("Motion", &["transition-", "animation-"]),
+        ("Easing", &["ease-"]),
+        ("Breakpoints", &["screen-"]),
+        ("Code", &["syntax-"]),
+        ("Terminal", &["term-"]),
+    ];
+    let mut names: Vec<&String> = tokens.keys().collect();
+    names.sort();
+    let mut table = String::new();
+    let mut placed: Vec<&String> = Vec::new();
+    for (group, prefixes) in groups {
+        let members: Vec<&&String> = names
+            .iter()
+            .filter(|n| prefixes.iter().any(|p| n.starts_with(p)))
+            .collect();
+        if members.is_empty() {
             continue;
         }
-        missing.push(name.clone());
+        table.push_str(&format!("### {group}\n\n| Token | Baseline |\n|---|---|\n"));
+        for n in members {
+            table.push_str(&format!(
+                "| `{n}` | `{}` |\n",
+                tokens[*n].replace('|', "\\|")
+            ));
+            placed.push(n);
+        }
+        table.push('\n');
     }
-    missing.sort();
-    assert!(
-        missing.is_empty(),
-        "md-docs/12-styling.md does not name: {}",
-        missing.join(", ")
+    let rest: Vec<&&String> = names.iter().filter(|n| !placed.contains(n)).collect();
+    if !rest.is_empty() {
+        table.push_str("### Layout\n\n| Token | Baseline |\n|---|---|\n");
+        for n in rest {
+            table.push_str(&format!(
+                "| `{n}` | `{}` |\n",
+                tokens[*n].replace('|', "\\|")
+            ));
+        }
+        table.push('\n');
+    }
+    table.push_str(&format!("{} tokens in all.\n", names.len()));
+    let (open, close) = ("<!-- tokens -->\n", "<!-- /tokens -->");
+    let start = chapter.find(open).expect("the tokens marker") + open.len();
+    let end = chapter.find(close).expect("the closing marker");
+    let want = format!("\n{table}\n");
+    if std::env::var("WF_WRITE_TOKENS").is_ok() {
+        let written = format!("{}{want}{}", &chapter[..start], &chapter[end..]);
+        std::fs::write(&path, written).unwrap();
+        return;
+    }
+    assert_eq!(
+        &chapter[start..end],
+        want,
+        "md-docs/41-design-tokens.md is behind the baseline; run with WF_WRITE_TOKENS=1"
     );
 }
 
@@ -652,6 +696,12 @@ fn the_sites_guide_pages_are_current_with_the_guide() {
         if want != have {
             stale.push(name);
         }
+    }
+    // The sidebar is written from the chapters' metadata too.
+    let want = std::fs::read_to_string(out.join("sidebar/DocSidebar.wf")).unwrap_or_default();
+    let have = std::fs::read_to_string(root.join("site/src/components/DocSidebar.wf")).unwrap();
+    if want != have {
+        stale.push("site/src/components/DocSidebar.wf".to_string());
     }
     let _ = std::fs::remove_dir_all(&out);
     assert!(
@@ -844,4 +894,486 @@ fn the_sites_search_and_registry_are_current() {
         stale.is_empty(),
         "these are behind the guide or the registry; run `python3 scripts/site-data.py`: {stale:?}"
     );
+}
+
+// ─── The guide, held to the compiler ────────────────────────────────────
+//
+// What the guide says exists is what the compiler has: every example that
+// claims a diagnostic draws it, every link lands, every declaration, keyword,
+// built-in, browser value, function, config key, command and code is named
+// somewhere a reader will find it, and the defaults it prints are the
+// compiler's own.
+
+/// The guide's chapters, in order: `(file name, text)`.
+fn chapters() -> Vec<(String, String)> {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs");
+    let mut out: Vec<(String, String)> = std::fs::read_dir(&dir)
+        .unwrap()
+        .flatten()
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .filter(|n| n.len() > 3 && n[..2].chars().all(|c| c.is_ascii_digit()) && n.ends_with(".md"))
+        .map(|n| {
+            let text = std::fs::read_to_string(dir.join(&n)).unwrap();
+            (n, text)
+        })
+        .collect();
+    out.sort();
+    out
+}
+
+fn chapter(stem: &str) -> String {
+    chapters()
+        .into_iter()
+        .find(|(n, _)| n.contains(stem))
+        .unwrap_or_else(|| panic!("no chapter named like {stem}"))
+        .1
+}
+
+/// Every finding the build would print for `src`, as text.
+fn every_finding(src: &str) -> Vec<String> {
+    let Ok(program) = parse_source(src, "example.wf") else {
+        return vec![format!(
+            "does not parse: {}",
+            parse_source(src, "example.wf").unwrap_err()
+        )];
+    };
+    let file_of = |_: usize| "example.wf".to_string();
+    let mut out = Vec::new();
+    let findings = webfluent::sema::check(&program, &file_of);
+    out.extend(findings.errors.iter().map(|d| d.to_string()));
+    out.extend(findings.warnings.iter().map(|d| d.to_string()));
+    let typed = webfluent::sema::types::check(&program, &file_of);
+    out.extend(typed.findings.errors.iter().map(|d| d.to_string()));
+    out.extend(typed.findings.warnings.iter().map(|d| d.to_string()));
+    out.extend(
+        webfluent::linter::validate_semantics_in(&program, &file_of)
+            .iter()
+            .map(|d| d.to_string()),
+    );
+    let program = webfluent::sema::lower(program);
+    out.extend(
+        webfluent::linter::lint_accessibility_in(&program, &file_of)
+            .iter()
+            .map(|w| w.to_string()),
+    );
+    if let Ok(tokens) = webfluent::themes::resolve_tokens(&program, &Default::default()) {
+        out.extend(
+            webfluent::linter::lint_contrast_in(&program, &tokens, &file_of)
+                .iter()
+                .map(|w| w.to_string()),
+        );
+    }
+    out.extend(
+        webfluent::linter::lint_unused_in(&program, &file_of)
+            .iter()
+            .map(|w| w.to_string()),
+    );
+    out.extend(
+        webfluent::linter::lint_vocabulary_with(&program, "", &file_of)
+            .iter()
+            .map(|w| w.to_string()),
+    );
+    out
+}
+
+/// A ```` ```wf expect T04 ```` block is a program that draws `T04` on
+/// purpose. Every one of them draws exactly the code it is filed under —
+/// and every code the compiler has is filed somewhere.
+#[test]
+fn every_diagnostic_example_draws_its_code() {
+    let mut failures = Vec::new();
+    let mut shown: Vec<String> = Vec::new();
+    for (name, text) in chapters() {
+        let mut lines = text.lines().enumerate();
+        while let Some((at, line)) = lines.next() {
+            let Some(code) = line.trim_end().strip_prefix("```wf expect ") else {
+                continue;
+            };
+            let mut body = String::new();
+            for (_, l) in lines.by_ref() {
+                if l.trim_end() == "```" {
+                    break;
+                }
+                body.push_str(l);
+                body.push('\n');
+            }
+            let found = every_finding(&body);
+            if !found.iter().any(|f| f.contains(&format!("[{code}]"))) {
+                failures.push(format!(
+                    "md-docs/{name}:{}: does not draw {code}; it draws {found:?}",
+                    at + 1
+                ));
+            }
+            shown.push(code.to_string());
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+
+    // Every code in the compiler has an entry in the diagnostics chapter.
+    let diagnostics = chapter("-diagnostics");
+    let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mut codes: Vec<String> = Vec::new();
+    fn walk(dir: &Path, codes: &mut Vec<String>) {
+        for e in std::fs::read_dir(dir).unwrap().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                walk(&p, codes);
+            } else if p.extension().is_some_and(|x| x == "rs") {
+                let text = std::fs::read_to_string(&p).unwrap();
+                let bytes = text.as_bytes();
+                for i in 0..bytes.len().saturating_sub(4) {
+                    if bytes[i] == b'"'
+                        && b"ATSPUV".contains(&bytes[i + 1])
+                        && bytes[i + 2].is_ascii_digit()
+                        && bytes[i + 3].is_ascii_digit()
+                        && bytes[i + 4] == b'"'
+                    {
+                        let code = text[i + 1..i + 4].to_string();
+                        if !codes.contains(&code) {
+                            codes.push(code);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    walk(&src_dir, &mut codes);
+    codes.sort();
+    let missing: Vec<&String> = codes
+        .iter()
+        .filter(|c| !diagnostics.contains(&format!("### {c} ")))
+        .collect();
+    assert!(
+        missing.is_empty(),
+        "the diagnostics chapter has no entry for {missing:?}"
+    );
+    assert!(codes.len() > 35, "found only {codes:?}");
+}
+
+/// The anchor a heading gets on the site and on GitHub, as the generator
+/// writes it.
+fn slug(text: &str) -> String {
+    let text = text.replace('`', "").to_lowercase();
+    let mut out = String::new();
+    let mut dash = false;
+    for c in text.chars() {
+        if c.is_ascii_alphanumeric() {
+            out.push(c);
+            dash = false;
+        } else if !dash {
+            out.push('-');
+            dash = true;
+        }
+    }
+    out.trim_matches('-').to_string()
+}
+
+/// Every link from one chapter to another lands on a chapter that exists,
+/// and on a heading it has; every link to a file of the repository finds it.
+#[test]
+fn every_link_in_the_guide_lands() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let all = chapters();
+    let anchors = |text: &str| -> Vec<String> {
+        text.lines()
+            .filter_map(|l| l.strip_prefix("## ").or_else(|| l.strip_prefix("### ")))
+            .map(|h| slug(h.trim_start_matches('#').trim()))
+            .collect()
+    };
+    let mut failures = Vec::new();
+    let mut docs = all.clone();
+    docs.push((
+        "README.md".into(),
+        std::fs::read_to_string(root.join("md-docs/README.md")).unwrap(),
+    ));
+    for (name, text) in &docs {
+        // Links in code — a Markdown sample, a URL in a snippet — are not
+        // the guide's own.
+        let mut prose = String::new();
+        let mut fenced = false;
+        for line in text.lines() {
+            if line.trim_start().starts_with("```") {
+                fenced = !fenced;
+                continue;
+            }
+            if !fenced {
+                let mut inline = false;
+                for c in line.chars() {
+                    if c == '`' {
+                        inline = !inline;
+                    } else if !inline {
+                        prose.push(c);
+                    }
+                }
+                prose.push('\n');
+            }
+        }
+        let mut rest = prose.as_str();
+        while let Some(at) = rest.find("](") {
+            let after = &rest[at + 2..];
+            let Some(end) = after.find(')') else { break };
+            let target = &after[..end];
+            rest = &after[end..];
+            if target.starts_with("http") || target.starts_with("mailto:") || target.contains(' ') {
+                continue;
+            }
+            let (file, anchor) = target.split_once('#').unwrap_or((target, ""));
+            if file.is_empty() {
+                if !anchor.is_empty() && !anchors(text).contains(&anchor.to_string()) {
+                    failures.push(format!("{name}: #{anchor} is not a heading of its own"));
+                }
+                continue;
+            }
+            if let Some(repo_path) = file.strip_prefix("../") {
+                if !root.join(repo_path).exists() {
+                    failures.push(format!("{name}: {file} does not exist"));
+                }
+                continue;
+            }
+            match all.iter().find(|(n, _)| n == file) {
+                None => failures.push(format!("{name}: {file} is not a chapter")),
+                Some((_, target_text)) => {
+                    if !anchor.is_empty() && !anchors(target_text).contains(&anchor.to_string()) {
+                        failures.push(format!("{name}: {file}#{anchor} is not a heading there"));
+                    }
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// A link that says "chapter 12" goes to chapter 12: the numbers moved when
+/// the guide was reorganised, and a label that kept the old one sent the
+/// reader looking in the wrong place.
+#[test]
+fn a_link_that_names_a_chapter_number_goes_to_that_chapter() {
+    let mut failures = Vec::new();
+    for (name, text) in chapters() {
+        let mut rest = text.as_str();
+        while let Some(at) = rest.find("[chapter ").or_else(|| rest.find("[Chapter ")) {
+            let after = &rest[at + 9..];
+            let number: String = after.chars().take_while(|c| c.is_ascii_digit()).collect();
+            if let Some(close) = after.find("](") {
+                let target = &after[close + 2..];
+                if target.len() > 2 && target[..2].chars().all(|c| c.is_ascii_digit()) {
+                    let file: usize = target[..2].parse().unwrap();
+                    if number.parse::<usize>().ok() != Some(file) {
+                        failures.push(format!(
+                            "{name}: \"chapter {number}\" links to chapter {file}"
+                        ));
+                    }
+                }
+            }
+            rest = &after[1..];
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// Every chapter says where it lives on the site and what it is, and says
+/// it in a length a search result shows whole.
+#[test]
+fn every_chapter_says_where_it_lives() {
+    let groups = [
+        "start",
+        "basics",
+        "building",
+        "shipping",
+        "reference",
+        "help",
+    ];
+    let mut routes: Vec<String> = Vec::new();
+    let mut failures = Vec::new();
+    for (name, text) in chapters() {
+        let meta = |key: &str| {
+            text.lines()
+                .take(10)
+                .find_map(|l| l.strip_prefix(&format!("{key}: ")).map(str::to_string))
+        };
+        let (Some(route), Some(group), Some(blurb), Some(description)) = (
+            meta("route"),
+            meta("group"),
+            meta("blurb"),
+            meta("description"),
+        ) else {
+            failures.push(format!("{name}: its metadata comment is incomplete"));
+            continue;
+        };
+        if !groups.contains(&group.as_str()) {
+            failures.push(format!("{name}: `{group}` is not a part of the guide"));
+        }
+        if description.chars().count() > 158 {
+            failures.push(format!(
+                "{name}: its description is {} characters; a search result shows about 160",
+                description.chars().count()
+            ));
+        }
+        if blurb.is_empty() {
+            failures.push(format!("{name}: an empty blurb"));
+        }
+        if routes.contains(&route) {
+            failures.push(format!("{name}: the route {route} is taken"));
+        }
+        routes.push(route);
+        let number: usize = name[..2].parse().unwrap();
+        if !text.starts_with(&format!("# {number}. ")) {
+            failures.push(format!("{name}: its title is not numbered {number}"));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// The configuration chapter's defaults are the compiler's: the config a
+/// project that names only itself is loaded as, written out.
+#[test]
+fn the_configuration_chapter_prints_the_real_defaults() {
+    let text = chapter("-configuration");
+    let start = text.find("<!-- defaults -->").expect("the defaults marker");
+    let end = text.find("<!-- /defaults -->").expect("its end");
+    let block = &text[start..end];
+    let json = &block[block.find("```json").unwrap() + 7..block.rfind("```").unwrap()];
+    let printed: serde_json::Value = serde_json::from_str(json).expect("the block is JSON");
+    let mut real =
+        serde_json::to_value(webfluent::config::ProjectConfig::default_config("my-site")).unwrap();
+    // Absent unless written: a project without them has none.
+    for key in ["i18n", "offline"] {
+        real.as_object_mut().unwrap().remove(key);
+    }
+    assert_eq!(
+        printed, real,
+        "md-docs/38-configuration.md prints defaults the compiler does not have"
+    );
+}
+
+/// Everything a program can write is named in the guide, where a reader
+/// looks for it: every declaration, every keyword, every browser value and
+/// built-in function, every config key, every command and flag, every icon.
+#[test]
+fn the_guide_names_everything_the_language_has() {
+    let mut missing = Vec::new();
+    let mut need = |chapter_stem: &str, text: &str, words: &[&str]| {
+        for w in words {
+            if !text.contains(&format!("`{w}")) {
+                missing.push(format!("{chapter_stem} does not name `{w}`"));
+            }
+        }
+    };
+    // Declarations, in the chapter that lists them.
+    need(
+        "language basics",
+        &chapter("-language-basics"),
+        DECLARATIONS,
+    );
+    // Every keyword a statement starts with, in the grammar.
+    need(
+        "grammar",
+        &chapter("-grammar"),
+        &[
+            "state", "persist", "derived", "effect", "cleanup", "action", "use", "resource",
+            "validate", "socket", "stream", "channel", "peer", "every", "after", "on key", "head",
+            "if", "if let", "for", "show", "match", "sequence", "step", "slot", "event", "part",
+            "children", "let", "return", "try", "await", "emit", "expect", "click", "type",
+            "press",
+        ],
+    );
+    // Browser values and helpers, in the built-ins reference.
+    let built_ins = chapter("-built-ins");
+    let values: Vec<&str> = webfluent::codegen::js::BROWSER_VALUES.to_vec();
+    need("built-ins", &built_ins, &values);
+    let helpers: Vec<&str> = webfluent::codegen::js::LIST_AND_STRING_HELPERS.to_vec();
+    need("built-ins", &built_ins, &helpers);
+    need(
+        "built-ins",
+        &built_ins,
+        &[
+            "log",
+            "navigate",
+            "format",
+            "ago",
+            "t(",
+            "setLocale",
+            "setTheme",
+            "uuid",
+            "sanitize",
+            "fetch",
+            "optimistic",
+            "beacon",
+            "animate",
+            "replayAnimation",
+            "every",
+            "ws(",
+            "sse(",
+            "broadcast(",
+            "rtc(",
+        ],
+    );
+    // Every key of the config, in the configuration reference.
+    let config_text = chapter("-configuration");
+    let real =
+        serde_json::to_value(webfluent::config::ProjectConfig::default_config("my-site")).unwrap();
+    fn keys(v: &serde_json::Value, out: &mut Vec<String>) {
+        if let Some(map) = v.as_object() {
+            for (k, v) in map {
+                out.push(k.clone());
+                keys(v, out);
+            }
+        }
+    }
+    let mut config_keys = Vec::new();
+    keys(&real, &mut config_keys);
+    for extra in [
+        "precache",
+        "fallback",
+        "cache",
+        "sync",
+        "default_locale",
+        "locales",
+        "dir",
+    ] {
+        config_keys.push(extra.to_string());
+    }
+    let config_refs: Vec<&str> = config_keys.iter().map(String::as_str).collect();
+    need("configuration", &config_text, &config_refs);
+    // Every command and its flags, in the CLI reference.
+    let cli = chapter("-cli");
+    let help = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .arg("--help")
+        .output()
+        .unwrap();
+    let help = String::from_utf8_lossy(&help.stdout).to_string();
+    let commands: Vec<String> = help
+        .lines()
+        .skip_while(|l| !l.starts_with("Commands:"))
+        .skip(1)
+        .take_while(|l| l.starts_with("  "))
+        .filter_map(|l| l.split_whitespace().next().map(str::to_string))
+        .filter(|c| c != "help")
+        .collect();
+    assert!(commands.len() > 10, "{help}");
+    for command in &commands {
+        if !cli.contains(&format!("wf {command}")) {
+            missing.push(format!("the CLI reference does not name `wf {command}`"));
+        }
+        let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+            .args([command.as_str(), "--help"])
+            .output()
+            .unwrap();
+        for flag in String::from_utf8_lossy(&out.stdout).split_whitespace() {
+            let flag = flag.trim_end_matches(',');
+            if flag.starts_with("--") && flag != "--help" && !cli.contains(flag) {
+                missing.push(format!(
+                    "the CLI reference does not name `wf {command} {flag}`"
+                ));
+            }
+        }
+    }
+    // Every icon, in the media chapter.
+    let media = chapter("-media");
+    for icon in webfluent::registry::ICONS {
+        if !media.contains(&format!("`{icon}`")) {
+            missing.push(format!("the media chapter does not name the icon `{icon}`"));
+        }
+    }
+    assert!(missing.is_empty(), "{}", missing.join("\n"));
 }

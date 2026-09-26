@@ -1,0 +1,233 @@
+// md-docs/03-tutorial.md
+/// One book on the list.
+type Book {
+    slug: String
+    title: String
+    author: String
+    year: Number
+    pages: Number
+    summary: String
+    tags: [String] = []
+}
+data books: [Book] = "books.json"
+
+// md-docs/03-tutorial.md
+/// The books the reader wants to read, kept across visits.
+store Shelf {
+    persist saved: [String] = []
+    derived count = saved.length
+
+    action toggle(slug: String) {
+        if saved.includes(slug) {
+            saved = saved.filter(s => s != slug)
+        } else {
+            saved = [...saved, slug]
+        }
+    }
+}
+
+// md-docs/03-tutorial.md
+page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
+    Container {
+        Heading("Nothing lives here").h1
+        Link("Back to the books", to: "/")
+    }
+}
+
+// md-docs/03-tutorial.md
+page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
+    state title = ""
+    state author = ""
+    state why = ""
+    state sent = false
+
+    validate title { required "Which book?" }
+    validate author { required "Who wrote it?" }
+    validate why { maxLength(280) "Keep it under 280 characters" }
+
+    Container {
+        Stack(gap: .lg) {
+            Heading("Suggest a book").h1
+            if sent { Alert("Thank you — we will take a look.").success }
+            Form(bind: form) {
+                on submit {
+                    sent = true
+                    form.reset()
+                }
+                Input(bind: title, label: "Title")
+                Input(bind: author, label: "Author")
+                Textarea(bind: why, label: "Why it belongs here", rows: 4, maxLength: 280)
+                Button("Send the suggestion", type: .submit).primary
+            }
+        }
+    }
+}
+
+// md-docs/03-tutorial.md
+theme Paper {
+    color-primary: #6D28D9
+    font-family: Charter, Georgia, serif
+    radius-md: 10px
+}
+theme Ink {
+    color-background: #111014
+    color-surface: #1A1820
+    color-text: #ECEAF2
+    color-text-muted: #A8A3B5
+    color-border: #2B2833
+}
+
+// md-docs/03-tutorial.md
+type Book {
+    slug: String
+    title: String
+    author: String
+    year: Number
+    pages: Number
+    summary: String
+    tags: [String] = []
+}
+data books: [Book] = "books.json"
+store Shelf {
+    persist saved: [String] = []
+    derived count = saved.length
+
+    action toggle(slug: String) {
+        if saved.includes(slug) {
+            saved = saved.filter(s => s != slug)
+        } else {
+            saved = [...saved, slug]
+        }
+    }
+}
+component BookCard(_ book: Book) {
+    use Shelf
+    Card.outlined {
+        Stack(gap: .sm) {
+            Link(book.title, to: "/books/{book.slug}")
+            Text("{book.author} · {book.year}").muted.sm
+            Text(book.summary)
+            Row(gap: .xs) {
+                for tag in book.tags { Tag(tag) }
+            }
+            Button(if Shelf.saved.includes(book.slug) { "On your shelf" } else { "Want to read" }).sm {
+                on click { Shelf.toggle(book.slug) }
+            }
+        }
+    }
+}
+app {
+    Navbar {
+        Navbar.Brand { Link("Shelf", to: "/") }
+        Navbar.Links {
+            Link("Books", to: "/")
+            Link("Your shelf ({Shelf.count})", to: "/shelf")
+            Link("Suggest a book", to: "/suggest")
+        }
+    }
+    Router
+    Footer { Text("Built with WebFluent").muted.sm }
+}
+page Home(path: "/", title: "Shelf", description: "Books worth reading, and the ones you want to.") {
+    state q = ""
+    derived needle = q.trim().toLowerCase()
+    derived found = books.filter(b => b.title.toLowerCase().includes(needle) || b.author.toLowerCase().includes(needle))
+
+    Container {
+        Stack(gap: .lg) {
+            Heading("Books worth reading").h1
+            Input(bind: q, label: "Search by title or author").search
+            Text("{found.length} of {books.length} books").muted.sm
+            Grid(columns: { base: 1, md: 2 }, gap: .md) {
+                for book in found by book.slug { BookCard(book) }
+            }
+            if found.length == 0 { Text("Nothing matches “{q}”.").muted }
+        }
+    }
+}
+page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book on the shelf.", type: "article", paths: books.map(b => b.slug)) {
+    derived book = books.find(b => b.slug == slug)
+    head {
+        meta(property: "og:title", content: book?.title ?? "Book")
+    }
+    Container {
+        if let b = book {
+            Breadcrumb {
+                Breadcrumb.Item(to: "/") { Text("Books") }
+                Breadcrumb.Item { Text(b.title) }
+            }
+            Heading(b.title).h1
+            Text("{b.author}, {b.year} · {b.pages} pages").muted
+            Paragraph(b.summary)
+        } else {
+            Heading("No such book").h1
+            Link("Back to the list", to: "/")
+        }
+    }
+}
+page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you want to read.") {
+    use Shelf
+    derived mine = books.filter(b => Shelf.saved.includes(b.slug))
+    Container {
+        Stack(gap: .lg) {
+            Heading("Your shelf").h1
+            if mine.length == 0 {
+                Text("Nothing yet. Pick something from the list.").muted
+                Link("Browse the books", to: "/")
+            } else {
+                for book in mine by book.slug { BookCard(book) }
+            }
+        }
+    }
+}
+page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
+    state title = ""
+    state author = ""
+    state why = ""
+    state sent = false
+
+    validate title { required "Which book?" }
+    validate author { required "Who wrote it?" }
+    validate why { maxLength(280) "Keep it under 280 characters" }
+
+    Container {
+        Stack(gap: .lg) {
+            Heading("Suggest a book").h1
+            if sent { Alert("Thank you — we will take a look.").success }
+            Form(bind: form) {
+                on submit {
+                    sent = true
+                    form.reset()
+                }
+                Input(bind: title, label: "Title")
+                Input(bind: author, label: "Author")
+                Textarea(bind: why, label: "Why it belongs here", rows: 4, maxLength: 280)
+                Button("Send the suggestion", type: .submit).primary
+            }
+        }
+    }
+}
+page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
+    Container {
+        Heading("Nothing lives here").h1
+        Link("Back to the books", to: "/")
+    }
+}
+theme Paper {
+    color-primary: #6D28D9
+    font-family: Charter, Georgia, serif
+    radius-md: 10px
+}
+theme Ink {
+    color-background: #111014
+    color-surface: #1A1820
+    color-text: #ECEAF2
+    color-text-muted: #A8A3B5
+    color-border: #2B2833
+}
+test "a card shows who wrote the book, and when" {
+    BookCard(Book(slug: "x", title: "X", author: "Ada Lovelace", year: 1843, pages: 66, summary: "Notes."))
+    expect "Ada Lovelace · 1843"
+    expect "Want to read"
+}
+

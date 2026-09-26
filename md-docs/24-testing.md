@@ -1,0 +1,185 @@
+# 24. Testing
+
+<!--
+route: guide/testing
+group: building
+blurb: Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.
+description: wf test: render tests with snapshots, seeding stores, tests that click and type in headless Chrome, wf verify, and running them in CI.
+-->
+
+Tests are WebFluent declarations: `test "name" { … }`. A test renders
+something — a component, a fragment of a page — and holds it to what it must
+and must not show. A test that clicks or types runs in a real, headless
+browser. `wf verify` then loads every page of the built site in one.
+
+## A test that looks
+
+A test declaration renders a body with the project's components, stores,
+types and constants at hand, and holds the result to what it expects:
+
+```wf
+component PriceTag(_ amount: Number, sale: Bool = false) {
+    Row(gap: .sm, align: .center) {
+        Text(format(amount, .currency)).bold
+        if sale { Badge("Sale").danger }
+    }
+}
+
+test "a price tag shows the amount as currency" {
+    PriceTag(1234.5)
+    expect "$1,234.50"
+    expect not "Sale"
+}
+
+test "a sale tag carries the badge" {
+    PriceTag(10, sale: true)
+    expect "Sale"
+}
+
+test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
+    for r in rows { Text(r.name) }
+    expect "a"
+    expect "b"
+}
+```
+
+- Tests live in `tests/*.wf` (or beside the code in `src/`).
+- `expect "text"` must appear in what the page shows; `expect not "text"`
+  must not.
+- `data: { … }` supplies values by name; a `state` in the body is seeded
+  with its initial value.
+- Each render is also compared to `tests/__snapshots__/<file>/<test>.html`,
+  written when missing; `--update` rewrites them after an intended change.
+
+`wf test` exits non-zero on a failure, with a diff.
+
+## A test that acts
+
+Everything above only **looks**: the body is rendered and the expects read
+the result. A click cannot be rendered — it runs a handler, which runs an
+action, which changes a store, which repaints — so a test with an
+interaction in it is compiled into a real page, served, and run in a
+headless browser. Same compiler, same runtime, same output a reader gets.
+
+```wf
+test "reporting an incident opens one more" {
+    use IncidentStore
+    state draft = ""
+    Text("{IncidentStore.open} open")
+    Input(bind: draft, label: "What happened")
+    Button("Report") { on click { IncidentStore.report(draft) } }
+
+    expect "2 open"
+    type "Queue backing up" into "What happened"
+    click "Report"
+    expect "3 open"
+}
+```
+
+| Step | What it does |
+|---|---|
+| `expect "text"` · `expect not "text"` | What the page must, or must not, show |
+| `click "Save"` | Clicks whatever carries that name |
+| `type "Ada" into "Name"` | Types into the control that label names |
+| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one |
+
+The steps run **in the order written** — that is the whole meaning, since
+what a click did is only visible in the expect that follows it.
+
+Everything is found the way a reader finds it: by the name on it. A
+button is its text; a control is its label, its placeholder or its
+`aria-label`. That is the same name the accessibility checks hold a page
+to, so a test that passes here is a page somebody can use — and a test
+that cannot find what it asks for says so:
+
+```
+  FAIL  tests/cart.wf — the count follows what is added
+        nothing to click called "Publish"
+        the page showed:
+        Nothing here
+```
+
+**A handler that throws fails the test**, even where the expects would
+have passed — a click that quietly did nothing is the bug, not a pass.
+These tests need a Chrome or Chromium on the machine, or `WF_CHROME`
+pointing at one; a test that only looks needs neither.
+
+A test that acts takes no snapshot. What it expects is the test.
+
+## Seeding data and stores
+
+A test's `data:` names values its body reads, and a key that is a store's
+name seeds that store's state:
+
+```wf
+test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
+    CartSummary()
+    expect "2 items"
+}
+```
+
+## Running them
+
+```bash
+wf test
+wf test tests/cart.wf
+wf test --update
+```
+
+`wf test` runs every test under `tests/` (and any declared in `src/`), prints
+a line per test and exits non-zero when one fails — so it is a CI step as it
+is. `--update` rewrites the snapshots after a change you meant. A build never
+includes tests.
+
+A test that acts needs Chrome or Chromium on the machine, or `WF_CHROME`
+pointing at one; a test that only looks needs neither.
+
+## Checking every page: `wf verify`
+
+```bash
+wf build && wf verify
+```
+
+`wf verify` serves the build, opens every route in headless Chrome, and
+fails on an uncaught exception, a `console.error`, a request that failed, an
+image that did not load, or a page that rendered no text. It prints each
+route's first contentful paint, its size and its requests; `--budget 400`
+fails a route slower than 400 ms to paint, and `--json` is the report for a
+pipeline. It also lists the built-ins no page drew — a fact about coverage,
+not a failure. [CLI](37-cli.md#wf-verify) has the details.
+
+## In CI
+
+```yaml
+name: Check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+      - run: echo "$HOME/.webfluent/bin" >> "$GITHUB_PATH"
+      - run: wf fmt --check
+      - run: wf build
+      - run: wf test
+      - run: wf verify --budget 1000
+```
+
+GitHub's Ubuntu runners come with Chrome, so the interactive tests and
+`wf verify` run there as they do on your machine.
+
+## What to test
+
+- **Components** with more than one state: each branch a prop can take.
+- **Stores** through what a component shows of them, seeded with `data:`.
+- **Flows** a reader depends on — signing in, adding to a cart, submitting a
+  form — as tests that act.
+- **Every page** with `wf verify`, on every build.
+
+The type checker and the accessibility lints already catch a large class of
+mistakes; tests are for behaviour they cannot see.
+
+## Next
+
+[Project structure](25-project-structure.md).

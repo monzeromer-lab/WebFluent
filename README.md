@@ -4,7 +4,7 @@
 
 **One binary in, a website out.** Write `.wf`, get HTML, CSS and JavaScript — no framework, no `node_modules`, no build config. The same source also compiles to PDF documents and slide decks.
 
-**[Docs](https://monzeromer-lab.github.io/WebFluent)** · **[The Guide](md-docs/)** · **[Components](md-docs/20-components-reference.md)**
+**[Docs](https://monzeromer-lab.github.io/WebFluent)** · **[Tutorial](https://monzeromer-lab.github.io/WebFluent/docs/guide/tutorial)** · **[Components](https://monzeromer-lab.github.io/WebFluent/docs/reference)** · **[Guide source](md-docs/)**
 
 ```wf
 store Todos {
@@ -53,6 +53,8 @@ cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
 ```
 
+`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](md-docs/29-deploying.md) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
+
 <sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 
 ## What you get
@@ -60,7 +62,7 @@ wf serve              # http://localhost:3000, rebuilds on save
 - **Reactivity without a framework** — signals update the exact DOM node that changed. No virtual DOM, no diffing.
 - **50+ components, already designed** — layout, navigation, tables, forms, modals, media. Styled by design tokens you can retheme in ten lines.
 - **A compiler that actually checks your work** — types, props, flags, slots and events, plus lints for accessibility, SEO and dead code. A typo is an error with a line number, never a silent no-op.
-- **Ships small** — the build keeps only the runtime modules your program reaches, splits a chunk per page, and precompresses everything. A static page carries ~19 kB of runtime.
+- **Ships small** — the build keeps only the runtime modules your program reaches, splits a chunk per page, and precompresses everything. A page of static text ships under 4 kB of script, gzipped.
 - **Four targets, one language** — SPA, pre-rendered static site, PDF, or a slide deck, by one config flag.
 - **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
 - **Editor support** — a language server for [Zed](editors/zed) and [VS Code](editors/vscode): completion, hover, go to definition, rename, quick fixes.
@@ -180,10 +182,10 @@ wf migrate [path] [--check] [--wfx]         WebFluent 2 or 3 → 4
 
 ## Documentation
 
-- **[The Guide](md-docs/)** — twenty-one chapters, from `wf init` to three complete applications
-- **[Live docs](https://monzeromer-lab.github.io/WebFluent)** — built with WebFluent itself
-- **[Language specification](spec/SPEC.md)** — full syntax, every component, the grammar
-- **[Design](spec/DESIGN.md)** — the vision and the principles behind it
+- **[The documentation](https://monzeromer-lab.github.io/WebFluent)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
+- **[Reference](https://monzeromer-lab.github.io/WebFluent/docs/reference)** — every component, [CLI command](md-docs/37-cli.md), [config key](md-docs/38-configuration.md), [diagnostic](md-docs/39-diagnostics.md) and [keyword](md-docs/43-grammar.md)
+- **[Troubleshooting](md-docs/44-troubleshooting.md)** and **[upgrading](md-docs/45-upgrading.md)**
+- **[The guide's source](md-docs/)** — the same chapters as Markdown; every code block in them is compiled by the test suite
 
 ## How it works
 

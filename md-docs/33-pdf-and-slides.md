@@ -1,29 +1,26 @@
-# 17. Outputs
+# 33. PDF and slides
 
-One source, several outputs. `build.output_type` in `webfluent.app.json`
-chooses what `wf build` writes, and the same file can also be rendered on a
-server with data.
+<!--
+route: guide/pdf-and-slides
+group: shipping
+blurb: The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks.
+description: PDF documents and slide decks: configuration, the document and slide elements, what renders, styling, and templates for them.
+-->
+
+The same language compiles to paper. `build.output_type` in
+`webfluent.app.json` chooses what `wf build` writes:
 
 | Output | `output_type` | Writes |
 |---|---|---|
-| Single-page app | `spa` (default) | `index.html` + `app.js` + `styles.css`: the router paints pages in the browser |
-| Static site | `spa` with `build.ssg: true` | One pre-rendered HTML file per route, hydrated by the same script ([chapter 16](16-content.md#static-builds)) |
-| PDF document | `pdf` | One `.pdf` |
+| A website | `spa` (default), with `build.ssg` for static pages | HTML, CSS and JavaScript ([chapter 26](26-static-and-spa.md)) |
+| PDF document | `pdf` | One `.pdf`, paginated |
 | Slide deck | `slides` | One `.pdf`, a slide per page |
-| Server template | — | HTML or PDF from `wf render` or the library, with JSON data |
+| Custom elements | `elements` | `elements.js` for other frameworks ([chapter 32](32-javascript-interop.md#publishing-your-components-as-custom-elements)) |
 
-## SPA
-
-The default: one `index.html` that loads `app.js`, which mounts the `app`
-and routes between pages in the browser. `build.split` (on by default)
-writes each page as its own `pages/<Name>.js` and `pages/<Name>.css`,
-fetched when its route first shows. A host serves `index.html` for every
-path (the "SPA fallback"), or you turn on `ssg` and get real files.
-
-`build.base_path` (`"/my-site"` for a GitHub Pages project site) prefixes
-every asset and route; `build.minify`, `build.sourcemap`, `build.compress`
-(gzip beside each text file) and `build.csp` (a strict
-Content-Security-Policy and a `_headers` file) tune the output.
+The PDF is written by the compiler itself — PDF 1.7, the standard PDF fonts,
+no browser and no external tool — so a document builds anywhere `wf` runs.
+To produce one PDF per invoice from data, use
+[server rendering](34-server-rendering.md) with the same templates.
 
 ## PDF documents
 
@@ -173,93 +170,6 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 
 `wf init my-deck --template slides` scaffolds one.
 
-## Custom elements
-
-```json
-{ "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }
-```
-
-The project as tags any framework can place, rather than a site. `wf build`
-writes `elements.js`, `styles.css` and a page listing what it published;
-there are no routes, no shell and no pages, because a component is the
-whole of what is published. [Chapter 8](08-components.md#publishing-yours)
-covers how an attribute becomes a prop and an event reaches the host page.
-
-## Templates: rendering with data on a server
-
-A `.wf` file can be rendered with JSON data — an invoice, an email, a
-report — from the CLI or from Rust and Node. The data's top-level keys
-are in scope by name; the static subset of the language applies (no
-`state`, handlers, stores, `resource`, motion).
-
-```wf
-page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
-    Heading("Invoice #{number}").h1
-    Text("Bill to: {customer.name}")
-    Table {
-        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
-        Table.Body {
-            for item in items {
-                Table.Row {
-                    Table.Cell(item.name)
-                    Table.Cell("{item.qty}")
-                    Table.Cell(format(item.price * item.qty, .currency))
-                }
-            }
-        }
-    }
-    if paid { Badge("Paid").success } else { Badge("Due").warning }
-    Text("Total: {format(total, .currency)}").bold.lg
-}
-```
-
-```json
-{
-  "number": "INV-001",
-  "customer": { "name": "Acme Corp" },
-  "items": [{ "name": "Widget", "qty": 5, "price": 9.99 }],
-  "total": 49.95,
-  "paid": false,
-  "locale": "en"
-}
-```
-
-CLI:
-
-```bash
-wf render invoice.wf --data invoice.json --format html-fragment
-```
-
-`--format` is `html` (a whole document with its CSS), `html-fragment`
-(the body only), `pdf` or `slides`; `-o file` writes instead of printing;
-`--theme Name` picks one of several `theme` declarations; the data is read
-from stdin when `--data` is omitted.
-
-Rust:
-
-```rust
-use webfluent::Template;
-use serde_json::json;
-
-let tpl = Template::from_file("templates/invoice.wf")?;
-let html = tpl.render_html(&json!({ "number": "INV-001", "items": [], "total": 0, "paid": true }))?;
-let pdf: Vec<u8> = tpl.render_pdf(&json!({ "number": "INV-001", "items": [], "total": 0, "paid": true }))?;
-let themed = tpl.with_theme("Night").with_tokens(&[("color-primary", "#8B5CF6")]).render_html(&json!({}))?;
-```
-
-Node (`npm install @aspect/webfluent`):
-
-```js
-const { Template } = require("@aspect/webfluent");
-const tpl = Template.fromFile("templates/invoice.wf");
-res.send(tpl.renderHtml(invoice));
-res.type("application/pdf").send(tpl.renderPdf(invoice));
-```
-
-A template may declare `type`s and a `theme` like any file; `data` files
-are read relative to the template. `format` and `ago` speak the data's
-`locale` when it has one, else English.
-
 ## Next
 
-[Tooling](18-tooling.md).
+[Server rendering](34-server-rendering.md).

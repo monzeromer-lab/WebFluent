@@ -1,9 +1,16 @@
-# 2. Language basics
+# 5. Language basics
+
+<!--
+route: guide/language-basics
+group: basics
+blurb: A file is a list of declarations. This chapter covers all fourteen kinds, naming, comments, bodies, strings and the two layouts.
+description: Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.
+-->
 
 ## A file is a list of declarations
 
 Every `.wf` file holds top-level declarations and nothing else — no loose
-elements, no statements outside a body. There are eleven kinds:
+elements, no statements outside a body. There are fourteen kinds:
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
@@ -13,23 +20,34 @@ theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
+api Backend(base: "/api/v1") { get todos() -> [Todo] }
+external Confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/+esm" { fn confetti(options: Map) }
 const API = "/api/v1"
 data posts = "posts.json"
+image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
 test "chip shows its label" { Chip("Beta")  expect "Beta" }
 ```
 
 | Declaration | What it is | Chapter |
 |---|---|---|
-| `page` | A route and what it shows | 3 |
-| `component` | A reusable element with typed props, events, slots and parts | 8 |
-| `store` | State shared across pages | 9 |
-| `theme` | Design tokens: colours, spacing, radii, fonts | 12 |
-| `app` | The shell every page renders inside, with the `Router` | 3 |
-| `type`, `enum` | Records and enumerations the checker enforces | 10 |
-| `const`, `data` | A value read everywhere; a JSON file as one | 10 |
-| `animation` | Keyframes | 13 |
-| `test` | A render held to expectations and a snapshot | 18 |
+| `page` | A route and what it shows | [6](06-pages-and-routing.md) |
+| `component` | A reusable element with typed props, events, slots and parts | [11](11-components.md) |
+| `store` | State shared across pages | [12](12-stores.md) |
+| `theme` | Design tokens: colours, spacing, radii, fonts | [15](15-styling.md) |
+| `app` | The shell every page renders inside, with the `Router` | [6](06-pages-and-routing.md#the-app-shell) |
+| `type`, `enum` | Records and enumerations the checker enforces | [13](13-types.md) |
+| `api` | An HTTP service: its address, its endpoints and what they return | [17](17-data.md#api-a-service-described-once) |
+| `external` | A JavaScript module or custom element, typed | [32](32-javascript-interop.md) |
+| `const` | A value read everywhere | [14](14-expressions.md#constants) |
+| `data` | A JSON file read at build time, as a constant | [17](17-data.md#data-a-file-at-build-time) |
+| `image` | A picture the build resizes and hands to `Image` | [28](28-media.md) |
+| `animation` | Keyframes | [20](20-motion.md#custom-animations) |
+| `test` | A render held to expectations and a snapshot | [24](24-testing.md) |
+
+Inside a body there are more statements — `state`, `derived`, `effect`,
+`action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and
+the rest. [Grammar](43-grammar.md) lists every keyword and where it may appear.
 
 All the files under `src/` merge into one program, so a component declared in
 `components/Chip.wf` is usable from every page. `App.wf` is read first; the
@@ -82,7 +100,8 @@ page P(path: "/") {
 Writing `n = n + 1` loose inside the page body is an error: *"Code that does
 something goes in `on click { … }`, an `action` or an `effect`"*.
 
-Statements on one line are separated by two spaces or a `;`:
+Statements need no separator. A newline is usual; on one line, a `;` or
+nothing at all works — two spaces is the house style, because it reads:
 
 ```wf
 page P(path: "/") {
@@ -165,7 +184,7 @@ page P(path: "/") {
 Interpolated text is live: when `user` changes, the text changes. A
 splice may also say how to show its value — `{total:.currency}`,
 `{when:.date(long)}` — which is
-[formatting](11-expressions.md#showing-a-value-a-particular-way)
+[formatting](14-expressions.md#showing-a-value-a-particular-way)
 written where it is read.
 
 ### Three ways to write one
@@ -196,4 +215,4 @@ was indented, and that much comes off every line.
 
 ## Next
 
-[Pages and routing](03-pages-and-routing.md).
+[Pages and routing](06-pages-and-routing.md).

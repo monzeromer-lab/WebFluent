@@ -1,0 +1,10 @@
+// md-docs/01-introduction.md
+page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
+    state count = 0
+    Container {
+        Heading("Hello, world").h1
+        Text("You have clicked {count} times.")
+        Button("Click me").primary { on click { count = count + 1 } }
+    }
+}
+

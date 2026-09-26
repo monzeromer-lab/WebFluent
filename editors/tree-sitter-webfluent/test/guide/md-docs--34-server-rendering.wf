@@ -1,0 +1,20 @@
+// md-docs/34-server-rendering.md
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+

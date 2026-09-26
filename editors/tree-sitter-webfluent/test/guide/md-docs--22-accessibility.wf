@@ -1,0 +1,9 @@
+// md-docs/22-accessibility.md
+page Search(path: "/", title: "Search", description: "Find a page.") {
+    state q = ""
+    Heading("Search").h1
+    Input(bind: q, label: "Search the docs", hint: "Try “routing” or “forms”").search
+    IconButton(icon: "close", label: "Clear the search") { on click { q = "" } }
+    Button("Search", aria-label: "Search the docs") { on click { log(q) } }
+}
+

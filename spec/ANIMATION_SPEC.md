@@ -1,5 +1,7 @@
 # WebFluent Animation System Specification
 
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 20-motion.md. Where the two differ, the guide is right.
+
 > Version 3.0
 > Author: Monzer Omer
 > Date: 2026-09-20 (first draft 2026-03-24)

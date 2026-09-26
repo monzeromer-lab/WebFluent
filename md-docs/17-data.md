@@ -1,11 +1,19 @@
-# 14. Data
+# 17. Data
+
+<!--
+route: guide/data
+group: building
+blurb: Getting data onto a page: a service described once, a resource a page shows, a fetch an action makes, and files read at build time.
+description: api services with retries, caching and typed errors, resource and match, reactive URLs, await fetch, optimistic updates and data files.
+-->
 
 Ways to get data onto a page: `api` for a service described once and called
 everywhere, `resource` for something fetched while the page shows, `await
 fetch` inside an action for something fetched on demand, and `data` for a
-file read at build time. Plus `const` and `env` for values that are the
-same for the whole build, and `socket`, `stream` and `channel` for a
-connection the page holds open.
+file read at build time. A connection the page holds open — a socket, a
+stream, a channel, a peer — is [Real-time](18-realtime.md); working without
+a network is [Offline](19-offline.md); values fixed per build are
+[Environments](30-environments.md).
 
 ## `resource`
 
@@ -191,191 +199,104 @@ Every endpoint, parameter, response type and error shape is read from the
 file at build time, and each named schema becomes a `type` the program can
 name. The day the server changes its contract, the build says so.
 
+### Settings
+
+What goes in the service's parentheses or its block, before the endpoints:
+
+| Setting | Values | Default |
+|---|---|---|
+| `base:` | The address every path is relative to: `"/api/v1"`, `env.PUBLIC_API` | — |
+| `timeout:` | A duration after which a call gives up with `.timeout`: `10.seconds` | none |
+| `retry:` | A count (`3`), `.never`, or `.backoff(times: 3, on: [.network, .timeout, .status5xx], delay: 300, max: 30000, jitter: true)` | no retries |
+| `cache:` | `.swr(60.seconds)` (serve what is held, revalidate behind it), `.cache(5.minutes)`, `.forever`, `.none` | `.none` |
+| `credentials:` | `.omit`, `.sameOrigin`, `.include` — whether cookies go with a call | the browser's (`.sameOrigin`) |
+| `mode:` | `.cors`, `.noCors`, `.sameOrigin` | `.cors` |
+| `redirect:` | `.follow`, `.error`, `.manual` | `.follow` |
+| `referrer:` | a referrer policy: `.noReferrer`, `.origin`, … | the page's |
+| `headers { }` | Headers every call carries, each read at the moment of the call | — |
+
+`retry`'s `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`,
+`.status429` and `.status503`-style single codes; left out, it retries the
+network, timeouts, 5xx and 429. The wait doubles from `delay` (ms) up to
+`max`, with jitter, and a `Retry-After` from the server wins. An aborted call
+is never retried.
+
+### Endpoints
+
+```text
+get users(page: Number = 1, q: String?) -> [User]
+get user(id: String) at "users/:id" -> User
+post createUser(body: Map) -> User
+    errors { 422 -> Map }
+put rename(id: String, body: Map) at "users/:id" -> User
+patch settings(body: Map) -> Map
+delete removeUser(id: String) at "users/:id"
+get report(id: String) at "reports/:id" as: .blob
+```
+
+- The verb is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.
+- A parameter the path names (`:id`) goes in the path; a parameter called
+  `body` is the request body (a map is sent as JSON); a `File` parameter
+  makes the call a multipart upload; every other parameter goes in the query
+  string, and one that is `null` is left out.
+- `-> T` is what a success returns; without it the call returns `Any`, and
+  `204 No Content` returns nothing.
+- `errors { 422 -> T }` types the body of a failure with that status: the
+  `.status(code, body)` error carries it decoded.
+- `as:` says how to read a response that is not JSON: `.text`, `.blob`,
+  `.arrayBuffer`, `.none`. `errorAs:` does the same for a failure's body.
+  `cache:` sets a cache policy for that endpoint alone.
+
+A call passes the endpoint's parameters by name, and may add `cache:`,
+`retry:` and — in a `resource` — `on:` for when to fetch again
+(`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.
+
+### Pages of results
+
+```wf
+type Item { id: String, name: String }
+
+api Catalog(base: "/api") {
+    get items(page: Number = 1) -> [Item]
+}
+
+page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
+    state page = 1
+    resource list = Catalog.items(page: page, paginate: .page)
+    Heading("Items").h1
+    for item in list.items by item.id { Text(item.name) }
+    if list.hasMore {
+        Button("Load more") { on click { list.loadMore() } }
+    }
+}
+```
+
+`paginate: .page` gathers the pages into `.items`, `loadMore()` moves `page`
+on by one, and `.hasMore` turns false when a page comes back empty.
+
+### An API on another origin
+
+A page on `https://example.com` calling `https://api.example.com` is a
+cross-origin request: the API must answer with CORS headers
+(`Access-Control-Allow-Origin`, and `-Allow-Credentials` if cookies go with
+it), or the browser refuses the response. The same applies while you
+develop: `wf serve` answers on `localhost:3000` and has no proxy, so an API
+on `localhost:8080` must allow that origin. The alternative is to serve the
+API and the site from one origin behind a reverse proxy, where `base: "/api"`
+needs no CORS at all ([Deploying](29-deploying.md#an-api-on-the-same-origin)).
+
 ### Showing a change before the server agrees
 
 ```wf
 action rename(id: String, name: String) {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id, { name: name })
+    await Backend.updateUser(id: id, body: { name: name })
     Backend.users.invalidate()
 }
 ```
 
 The change shows at once. If anything later in the action throws, what was
 shown is taken back.
-
-## A connection the page holds open
-
-A socket, a stream of server-sent events, a channel every tab of the
-origin hears, or a peer — a line straight to another reader's page. Each
-is closed when the page that opened it leaves.
-
-```wf
-page Chat(path: "/chat", title: "Chat", description: "Talk.") {
-    state draft = ""
-    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
-        on message(m) { log(m) }
-    }
-
-    Heading("Chat").h1
-    match chat {
-        connecting { Spinner.sm }
-        open       { for m in chat.messages by m.id { Text(m.text) } }
-        closed(c)  { Alert("Disconnected ({c.code})").warning }
-        error(e)   { Alert(e.message).danger }
-    }
-    Input(bind: draft, label: "Message").text
-    Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
-}
-```
-
-A socket reconnects with backoff, keeps itself alive with a heartbeat, and
-holds what was sent while it was down.
-
-```wf
-stream ticks = sse("/events", events: ["price"])
-channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
-beacon("/analytics", { event: "checkout" })     // survives the page unloading
-```
-
-`ticks` and `cart` are handles too — a `match` reads the state, and an
-`effect` reads what arrived:
-
-```wf
-effect { if let p = ticks.last("price") { price = p } }
-Button("Sync") { on click { cart.post({ items: Cart.count }) } }
-```
-
-What each handle holds:
-
-| | `socket` | `stream` | `channel` | `peer` |
-|---|---|---|---|---|
-| `.state` | `connecting` `open` `closed` `error` — the arms of a `match` | the same | `open` or `closed` | the same as a socket |
-| `.messages` | every message, in order | every message, in order | — | every message, in order |
-| `.last(kind)` | the last message, or the last of a kind | the last under an event's name | the last posted | as a socket |
-| `.error` | the failure, which the `error(e)` arm is handed | the same | — | the same |
-| `.closure` | the close, which `closed(c)` is handed: `.code`, `.reason` | — | — | the same |
-| Sending | `.send(value)` — queued while the line is down | — | `.post(value)` | `.send(value)` — queued until it opens |
-| `.close()` | closes it early | the same | the same | the same |
-| `.signal(m)` | — | — | — | hands it what the other side signalled |
-
-A `match` over one takes `connecting`, `open`, `closed(c)` and `error(e)`,
-and an `else` for the rest. The page closing closes the connection, so a
-route change cannot leak one.
-
-### A peer
-
-`peer` is a WebRTC data channel to another page. The language supplies the
-channel, not a server: what the two sides must tell each other to connect —
-an offer, an answer, the routes each can be reached by — goes out through
-`signal:`, over whatever the app already has, and what the other side sent
-is handed back to `link.signal(m)`. One side is the `initiator`.
-
-```wf
-page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
-    state heard = ""
-    channel lobby = broadcast("room") { on message(m) { link.signal(m) } }
-    peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") {
-        on message(m) { heard = m.text }
-    }
-
-    Heading("Room").h1
-    match link {
-        connecting { Text("Waiting for the other side…").muted }
-        open       { Button("Wave") { on click { link.send({ text: "hello" }) } } }
-        closed(c)  { Text("They left.") }
-        error(e)   { Alert(e.message).danger }
-    }
-    Text(heard)
-}
-```
-
-A `broadcast` channel signals between two tabs of one browser, as here;
-between two readers the signal rides the app's own socket or `api`.
-
-| Option | |
-|---|---|
-| `signal:` | Required: a function handed each message the other side must receive. |
-| `initiator:` | Whether this side offers. Exactly one side does. |
-| `ice:` | The servers that help two readers on different networks find each other — `[{ urls: "stun:…" }]`. None by default, which connects readers on the same network only. |
-| `ordered:` | `false` for a channel that may deliver out of order. |
-
-A page that leaves closes its peer, and the other side reads `closed` at
-once rather than when the connection times out.
-
-## The network as a value
-
-```wf
-if !network.online { Alert("You are offline — changes are queued.").warning }
-```
-
-`network.online`, `.effectiveType` (`4g`, `3g`, …), `.saveData`, `.downlink`
-— live, so a page can say what it does on a slow line or none at all — and
-`.queued`, the writes waiting for the connection when the site works offline.
-
-## Working offline
-
-Name `offline` in `webfluent.app.json` and the build writes a service worker,
-`sw.js`, that stores the site for when the network is gone:
-
-```json
-{ "offline": {
-    "precache": ["/", "/docs/*"],
-    "fallback": "/offline",
-    "cache": { "/api/*": "network-first" },
-    "sync": true
-} }
-```
-
-| Key | What it does |
-|---|---|
-| `precache` | The routes a first visit stores, as globs — `"/"` by default. Each is stored with its own chunk and sheet, and the shell with them. |
-| `fallback` | A page's `path`, shown for a route that was not stored. |
-| `cache` | How a path the build did not write is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through. |
-| `sync` | A write made with no network is kept and sent later (below). |
-
-A stored route loads with no network at all. When there is one, a
-navigation still goes to it first, so a page that changed is never served
-stale while the server is there to ask.
-
-### A write made offline
-
-With `sync`, a write — any method but `GET` and `HEAD`, through `fetch` or
-an `api` — that fails because the network is gone is kept instead of
-thrown, and the call resolves with nothing, so what the page showed stays
-shown. The writes are sent in order when the connection returns: by
-Background Sync where the browser has it, so a closed tab still sends them,
-and by the page otherwise. A server that answers has the write, even if it
-refuses it; one that is down or asks to wait keeps it for later. A `File`
-body is not kept, and its call fails as before.
-
-`network.queued` is how many wait.
-
-### A new version
-
-The worker is versioned by a hash of everything the build wrote, so any
-deploy that changes a byte is a new version. It installs beside the old one
-and waits for the page to take it:
-
-```wf
-page Home(path: "/", title: "Home", description: "The front page.") {
-    if update.available {
-        Button("A new version is ready — reload") { on click { update.apply() } }
-    }
-    if network.queued > 0 {
-        Text("{network.queued} change(s) will be sent when you are back online").muted
-    }
-    Heading("Home").h1
-}
-```
-
-`update.apply()` takes it and reloads the page once: never on the first
-install, which only takes over a page that already works, and never twice
-for one update. The old version's store is deleted when the new one takes
-over.
-
-Under `wf serve` the worker takes itself away: a page answered from its own
-store would hide every edit you make.
 
 ## `await fetch` in an action
 
@@ -487,35 +408,6 @@ literal. For a route with several parameters, each value is a map naming
 them: `paths: pairs.map(x => { year: x.y, slug: x.s })`. Routes not in
 `paths:` still work in the SPA; only the static build needs the list.
 
-## `const` and `env`
-
-```wf
-const PAGE_SIZE = 25
-const API = env.PUBLIC_API_URL ?? "/api"
-const FEATURES = { billing: env.PUBLIC_BILLING == "on", beta: false }
-
-page Rows(path: "/") {
-    resource rows = fetch("{API}/rows?limit={PAGE_SIZE}")
-    if FEATURES.billing { Link("Billing", to: "/billing") }
-    match rows {
-        loading { Spinner }
-        error(e) { Text(e.message).danger }
-        ready(r) { Text("{r.length} rows") }
-    }
-}
-```
-
-`env.NAME` reads the build environment — the shell's variables, a `.env`
-file in the project root and the config's own `env` map — and is `null`
-when unset.
-
-Everything a page reads is **inlined into the bundle**, so the compiler
-only lets a page, a component, a store or an `api` read a name that says
-it may be read: one beginning `PUBLIC_`, or one the config's `public_env`
-lists. Any other name there is a compile error, not a warning
-([chapter 19](19-security.md#env-and-what-ends-up-in-the-bundle)). Build
-scripts and the config itself may read any name.
-
 ## Where data lands in the static paint
 
 | Source | In the pre-rendered HTML |
@@ -527,4 +419,4 @@ scripts and the config itself may read any name.
 
 ## Next
 
-[Internationalisation](15-i18n.md).
+[Real-time](18-realtime.md).

@@ -1,4 +1,11 @@
-# 10. Types
+# 13. Types
+
+<!--
+route: guide/types
+group: basics
+blurb: A gradual, structural type checker that changes no output and names every mistake with a hint.
+description: The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and every check.
+-->
 
 WebFluent has a gradual, structural type checker. It runs in `wf build` and
 in the editor, before anything is emitted, and its findings are errors with
@@ -11,7 +18,7 @@ every annotation you add narrows what it can say.
 | Type | Written | Values |
 |---|---|---|
 | String | `String` | `"text"`, `"with {interpolation}"` |
-| Number | `Number` | `42`, `3.14` |
+| Number | `Number` (`Int` and `Float` are accepted as other spellings of it) | `42`, `3.14` |
 | Bool | `Bool` | `true`, `false` |
 | List | `[String]`, `[Todo]` | `[a, b]` |
 | Map | `Map` | `{ key: value }` — an object with unknown keys |
@@ -236,7 +243,7 @@ page Enums(path: "/") {
 - A case may carry a payload: `.failed("x")` is checked like a call, and a
   `match` arm binds it: `.failed(r)` gives `r: String`.
 - `size == .lg` compares cases; an enum is written to a component's root
-  as `data-<prop>` ([chapter 8](08-components.md#enum-props)).
+  as `data-<prop>` ([chapter 11](11-components.md#enum-props)).
 
 ## Map literals are shapes
 
@@ -279,7 +286,8 @@ needs (`Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
 `some`, `every`, `includes` → `Bool`; `length`, `sum`, `indexOf`,
 `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`; `reduce` →
 the initial value's type. On a `Number`: `toFixed`, `toString` → `String`.
-Anything else is `Any`.
+Anything else is `Any`. The full lists are in
+[Built-ins](40-built-ins.md).
 
 **From stores** — `Todos.items` has the type of the store's state,
 `Todos.add` the signature of its action.
@@ -358,7 +366,12 @@ page Deploys(path: "/") {
 }
 ```
 
-The checker trusts the annotation; it does not read the server's schema.
+The checker trusts the annotation: it cannot see what a URL will return.
+When the server publishes an OpenAPI specification, let the compiler read it
+instead — `api Backend from "openapi.json"` types every endpoint, parameter,
+response and error from the file, and turns each named schema into a `type`
+([Data and APIs](17-data.md#from-a-specification)). An `api` written by hand
+types its calls the same way: `get users() -> [User]`.
 
 ## The checks
 
@@ -381,8 +394,8 @@ cases an enum takes, the fields a record has, the unwrapping forms above.
 
 What the checker does not do: it does not check a lambda's body against a
 return type, does not change a name's type across assignments (`state x =
-1` stays a `Number`; assigning a string to it is `T01`), and does not read
-the schema of a `fetch`.
+1` stays a `Number`; assigning a string to it is `T01`), and does not know
+what a plain `fetch` returns (annotate it, or use an `api`).
 
 ## In the editor
 
@@ -390,8 +403,8 @@ Hover shows a name's inferred type (`state draft: String`, `derived
 remaining: Number`, `Todos.add: action(String)`); completion after `.`
 offers a record's fields, an enum's cases where one is wanted, and the
 methods of a `String`, a `Number` or a list. A type error is a diagnostic
-at the argument it belongs to. [Chapter 18](18-tooling.md#editors) sets it up.
+at the argument it belongs to. [Chapter 37](37-cli.md#editors) sets it up.
 
 ## Next
 
-[Expressions](11-expressions.md).
+[Expressions](14-expressions.md).

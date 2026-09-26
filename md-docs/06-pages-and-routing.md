@@ -1,4 +1,11 @@
-# 3. Pages and routing
+# 6. Pages and routing
+
+<!--
+route: guide/pages-and-routing
+group: basics
+blurb: A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them.
+description: Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.
+-->
 
 A page is a route and what it shows. Pages own their paths: there is no route
 table to keep in step with them.
@@ -19,7 +26,7 @@ The header takes these attributes:
 | Attribute | Required | Meaning |
 |---|---|---|
 | `path:` | yes | The route: `"/"`, `"/about"`, `"/posts/:slug"`, or `"*"` for the catch-all |
-| `title:` | strongly | The `<title>`, the history entry, what a screen reader announces on arrival |
+| `title:` | strongly | The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `"{slug} — Blog"` |
 | `description:` | strongly | The meta description and the snippet a search result and a link preview show (~150 characters) |
 | `image:` | | The image a shared link previews with, site-relative or absolute |
 | `type:` | | `og:type` — `website` (default) or `article` |
@@ -27,7 +34,7 @@ The header takes these attributes:
 | `layout:` | | The component that frames the page (below) |
 | `guard:` | | An expression that must hold for the route to render |
 | `redirect:` | | Where the reader goes when the guard fails (default `/`) |
-| `paths:` | | The values a static build renders a `:param` page for (chapter 14) |
+| `paths:` | | The values a static build renders a `:param` page for ([chapter 26](26-static-and-spa.md#static-paths)) |
 | `name: Type` | | A route parameter, typed (below) |
 
 A page without a `title` or `description` builds with a warning (`S01`,
@@ -60,7 +67,7 @@ last), so declaration order can never shadow a route. A project with no `app`
 declaration gets a bare router.
 
 `Router(transition: .fade, duration: "200ms")` animates page changes
-(chapter 13).
+([chapter 20](20-motion.md#route-transitions)).
 
 ## Links and navigation
 
@@ -74,7 +81,10 @@ page Nav(path: "/nav") {
 
 The link whose `to:` matches the current route carries the class `.active`
 and `aria-current="page"`; `.prefix` makes a section link active for the
-routes beneath it. `navigate(path)` moves in code. In a static build, links
+routes beneath it. `navigate(path)` moves in code. Write paths from the
+site's root — `"/about"` — even when the site is served under a sub-path:
+with `build.base_path` set to `"/docs"`, every `Link`, `navigate` and asset
+is prefixed for you. In a static build, links
 are real page loads and `navigate` is too; in a single-page app they swap
 pages without a reload, move focus to the new page's heading, reset the
 scroll and announce the title.
@@ -109,7 +119,31 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
 A parameter is a `String` unless you say otherwise (`id: Number`). A static
 build renders a `:param` page once per value named in `paths:` — see
-[Data](14-data.md#static-paths).
+[Data](26-static-and-spa.md#static-paths).
+
+## Query strings and fragments
+
+`query` is the URL's query string as a map, and `hash` its `#fragment`;
+both are kept current by the runtime, so a page that reads them follows the
+address:
+
+```wf
+page Products(path: "/products", title: "Products", description: "Everything we sell.") {
+    derived tab = query.tab ?? "all"
+    derived sort = query.sort ?? "name"
+    Heading("Products").h1
+    Row(gap: .sm) {
+        Link("All", to: "/products?tab=all")
+        Link("On sale", to: "/products?tab=sale")
+    }
+    Text("Showing {tab}, sorted by {sort}; section: {hash}")
+}
+```
+
+A query string is not part of the route: `/products?tab=sale` is the
+`/products` page. To change it from code, `navigate("/products?tab=sale")`.
+In the static paint `query` and `hash` are unknown, so what depends on them
+is drawn once the page is live.
 
 ## Layouts
 
@@ -213,7 +247,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives here.",
 }
 ```
 
-## Where the code runs
+## Set-up code: what runs when a page opens
 
 A page's body is a render block: it declares state, derived values and
 actions, and lists what to show. Everything at the top of the body runs once
@@ -234,6 +268,23 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
 }
 ```
 
+The life of a page, in order:
+
+1. The route matches, the page's chunk loads (in a split build) and its
+   stylesheet with it.
+2. The body runs **once**: `state`s take their initial values, set-up calls
+   run, elements are created. There is no re-render after this — what reads a
+   state updates on its own.
+3. `effect`s run, and run again when what they read changes; timers start.
+4. The page is placed. In a single-page app, focus moves to its heading, the
+   scroll goes to the top and the title is announced.
+5. When the route changes, everything the page created — effects, timers,
+   listeners, connections, `.route` stores — is disposed of, and their
+   `cleanup { }` blocks run.
+
+There is no `onMount` to write: set-up code runs at step 2, an `effect` at
+step 3, and `after(0) { … }` once the page is on screen.
+
 ## Next
 
-[Elements](04-elements.md) — what goes inside a page.
+[Elements](07-elements.md).

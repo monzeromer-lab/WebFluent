@@ -1,4 +1,11 @@
-# 9. Stores
+# 12. Stores
+
+<!--
+route: guide/stores
+group: basics
+blurb: A store is state shared by every page and component that uses it, built the first time something reads it.
+description: Stores: declaration, scopes, use, actions, persistence and migrations, loading data, debugging, testing, and when to reach for one.
+-->
 
 A store is state shared by every page and component that uses it: the cart,
 the signed-in user, the theme, a cache of what was fetched. It holds `state`,
@@ -267,4 +274,4 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 
 ## Next
 
-[Types](10-types.md).
+[Types](13-types.md).

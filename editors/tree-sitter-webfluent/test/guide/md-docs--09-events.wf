@@ -1,0 +1,92 @@
+// md-docs/09-events.md
+page Clicks(path: "/") {
+    state n = 0
+    state last = ""
+    Button("+1") { on click { n = n + 1 } }
+    Input(bind: last, placeholder: "type") {
+        on input { log(last) }
+        on keydown(e) { if e.key == "Enter" { log("submitted {last}") } }
+        on focus { log("in") }
+        on blur { log("out") }
+    }
+    Text("{n}")
+}
+
+// md-docs/09-events.md
+page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
+    state names: [String] = []
+    Heading("Drop files here").h1
+    Card {
+        on dragover(e) { e.preventDefault() }
+        on drop(e) {
+            e.preventDefault()
+            names = Array.from(e.dataTransfer.files).map(f => f.name)
+        }
+        Text(if names.length == 0 { "Nothing yet" } else { names.join(", ") })
+    }
+}
+
+// md-docs/09-events.md
+page Keys(path: "/") {
+    state open = false
+    state q = ""
+    Input(bind: q, ref: box, placeholder: "Search") {
+        on key("Escape") { q = "" }            // on the element: fires while it has focus
+        on key("Enter", e) { log(e.target.value) }
+    }
+    on key("ctrl+k") { box.focus() }           // on the page: fires anywhere on the page
+    on key("cmd+k") { box.focus() }
+    on key("?") { open = !open }
+    if open { Alert("Shortcuts: ctrl+k to search, ? for this.").info }
+}
+
+// md-docs/09-events.md
+component Counter(_ start: Number) {
+    event change(value: Number)
+    state n = start
+    Row(gap: .sm) {
+        Button("−") { on click { n = n - 1  emit change(n) } }
+        Text("{n}")
+        Button("+") { on click { n = n + 1  emit change(n) } }
+    }
+}
+page Use(path: "/") {
+    state total = 0
+    Counter(10) { on change(v) { total = v } }
+    Text("Now {total}")
+}
+
+// md-docs/09-events.md
+page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
+    state confirm = false
+    state deleted = false
+    Heading("Overlays").h1
+    Button("Delete").danger { on click { confirm = true } }
+    Modal(visible: confirm, title: "Delete this?") {
+        Text("This cannot be undone.")
+        Modal.Footer {
+            Button("Cancel") { on click { confirm = false } }
+            Button("Delete").danger { on click { confirm = false  deleted = true } }
+        }
+    }
+    if deleted { Toast("Deleted").success }
+    Menu(trigger: "More") {
+        Menu.Item { Text("Rename") }
+        Menu.Divider
+        Menu.Item { Text("Archive") }
+    }
+    Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
+}
+
+// md-docs/09-events.md
+page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
+    state y = 0
+    action track() { y = window.scrollY }
+    effect {
+        window.addEventListener("scroll", track)
+        cleanup { window.removeEventListener("scroll", track) }
+    }
+    Heading("Scrolled").h1
+    Text("{y}px down")
+}
+

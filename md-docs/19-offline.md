@@ -1,0 +1,118 @@
+# 19. Offline
+
+<!--
+route: guide/offline
+group: building
+blurb: A service worker the build writes for you: the site keeps working with no network, writes wait for the connection, and a new version is offered, not forced.
+description: Offline support: precaching routes, a fallback page, cache policies, writes kept for later, the update flow, testing it, and its limits.
+-->
+
+**4.1.** Name `offline` in the config and the build writes a service worker
+that keeps the site usable with no network: stored pages load, writes made
+offline are sent when the connection returns, and a new deploy is offered to
+the reader rather than swapped in under them. There is no worker to write
+and no cache to name by hand.
+
+## Turning it on
+
+Name `offline` in `webfluent.app.json` and the build writes a service worker,
+`sw.js`, that stores the site for when the network is gone:
+
+```json
+{ "offline": {
+    "precache": ["/", "/docs/*"],
+    "fallback": "/offline",
+    "cache": { "/api/*": "network-first" },
+    "sync": true
+} }
+```
+
+| Key | What it does |
+|---|---|
+| `precache` | The routes a first visit stores, as globs — `"/"` by default. Each is stored with its own chunk and sheet, and the shell with them. |
+| `fallback` | A page's `path`, shown for a route that was not stored. |
+| `cache` | How a path the build did not write is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through. |
+| `sync` | A write made with no network is kept and sent later (below). |
+
+A stored route loads with no network at all. When there is one, a
+navigation still goes to it first, so a page that changed is never served
+stale while the server is there to ask.
+
+## A write made offline
+
+With `sync`, a write — any method but `GET` and `HEAD`, through `fetch` or
+an `api` — that fails because the network is gone is kept instead of
+thrown, and the call resolves with nothing, so what the page showed stays
+shown. The writes are sent in order when the connection returns: by
+Background Sync where the browser has it, so a closed tab still sends them,
+and by the page otherwise. A server that answers has the write, even if it
+refuses it; one that is down or asks to wait keeps it for later. A `File`
+body is not kept, and its call fails as before.
+
+`network.queued` is how many wait.
+
+## A new version
+
+The worker is versioned by a hash of everything the build wrote, so any
+deploy that changes a byte is a new version. It installs beside the old one
+and waits for the page to take it:
+
+```wf
+page Home(path: "/", title: "Home", description: "The front page.") {
+    if update.available {
+        Button("A new version is ready — reload") { on click { update.apply() } }
+    }
+    if network.queued > 0 {
+        Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    Heading("Home").h1
+}
+```
+
+`update.apply()` takes it and reloads the page once: never on the first
+install, which only takes over a page that already works, and never twice
+for one update. The old version's store is deleted when the new one takes
+over.
+
+Under `wf serve` the worker takes itself away: a page answered from its own
+store would hide every edit you make.
+
+## What it needs
+
+- **HTTPS**, or `localhost`. Browsers only run service workers from a secure
+  origin.
+- **A host that serves `sw.js` fresh.** The page registers it with
+  `updateViaCache: "none"`, so the browser asks for it on every visit — but a
+  CDN in front can still hold a copy. Give `sw.js` `Cache-Control: no-cache`
+  ([Deploying](29-deploying.md#cache-headers)).
+- **Everything in `build/` deployed together.** The worker's version is a hash
+  of every file the build wrote; deploying half a build confuses it.
+
+## Trying it
+
+1. `wf build`, then serve `build/` with anything static — `python3 -m
+   http.server -d build` will do. (`wf serve` removes the worker on purpose.)
+2. Open the site, then in the browser's developer tools, *Application →
+   Service workers*, check it is activated.
+3. Tick *Offline* in the *Network* panel and reload: stored routes load, the
+   rest show the `fallback`.
+4. Make a write, untick *Offline*, and watch it go out.
+
+`wf verify` runs against the built output too, and the repository's own
+browser tests hold the whole flow to a real Chrome.
+
+## Limits
+
+- A `File` body is never kept: an upload made offline fails as before.
+- A kept write is sent once it can be, possibly minutes later — make the
+  server's endpoints safe to receive late, and idempotent where a retry could
+  repeat one.
+- What `cache` does not name passes straight through, so an API the site
+  depends on while offline needs a `network-first` or `stale-while-revalidate`
+  entry.
+- The browser decides how much it keeps; a store can be evicted under storage
+  pressure, and the next visit fetches it again.
+
+## Next
+
+[Motion](20-motion.md).

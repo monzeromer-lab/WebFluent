@@ -1,0 +1,56 @@
+// md-docs/18-realtime.md
+page Chat(path: "/chat", title: "Chat", description: "Talk.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        on message(m) { log(m) }
+    }
+
+    Heading("Chat").h1
+    match chat {
+        connecting { Spinner.sm }
+        open       { for m in chat.messages by m.id { Text(m.text) } }
+        closed(c)  { Alert("Disconnected ({c.code})").warning }
+        error(e)   { Alert(e.message).danger }
+    }
+    Input(bind: draft, label: "Message").text
+    Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
+}
+
+// md-docs/18-realtime.md
+page Doc(path: "/") {
+    stream ticks = sse("/events", events: ["price"])
+    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+    beacon("/analytics", { event: "checkout" })     // survives the page unloading
+}
+
+// md-docs/18-realtime.md
+page Doc(path: "/") {
+    effect { if let p = ticks.last("price") { price = p } }
+    Button("Sync") { on click { cart.post({ items: Cart.count }) } }
+}
+
+// md-docs/18-realtime.md
+type Incoming { id: String, text: String }
+type Outgoing { text: String }
+page Room(path: "/room", title: "Room", description: "A typed conversation.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        send    Outgoing
+        receive Incoming
+    }
+    Heading("Room").h1
+    for m in chat.messages by m.id { Text(m.text) }
+    Input(bind: draft, label: "Message")
+    Button("Send") { on click { chat.send(Outgoing(text: draft))  draft = "" } }
+}
+
+// md-docs/18-realtime.md
+page Doc(path: "/") {
+    beacon("/analytics", { event: "checkout", value: 42 })
+}
+
+// md-docs/18-realtime.md
+page Doc(path: "/") {
+    if !network.online { Alert("You are offline — changes are queued.").warning }
+}
+

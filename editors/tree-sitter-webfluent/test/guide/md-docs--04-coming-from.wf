@@ -1,0 +1,12 @@
+// md-docs/04-coming-from.md
+component Counter(start: Number = 0) {
+    event change(value: Number)
+    state n = start
+    derived even = n % 2 == 0
+    Row(gap: .sm, align: .center) {
+        Button("+") { on click { n = n + 1  emit change(n) } }
+        Text("{n}")
+        if even { Badge("even").info }
+    }
+}
+

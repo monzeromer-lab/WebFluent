@@ -1,0 +1,14 @@
+// md-docs/30-environments.md
+const API = env.PUBLIC_API ?? "/api"
+const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
+page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
+    resource rows = fetch("{API}/rows")
+    Heading("Rows").h1
+    if FEATURES.billing { Link("Billing", to: "/billing") }
+    match rows {
+        loading { Spinner }
+        error(e) { Text(e.message).danger }
+        ready(r) { Text("{r.length} rows") }
+    }
+}
+

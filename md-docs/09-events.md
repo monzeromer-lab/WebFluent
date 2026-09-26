@@ -1,4 +1,11 @@
-# 6. Events and forms
+# 9. Events
+
+<!--
+route: guide/events
+group: basics
+blurb: Handlers on elements, keyboard shortcuts, the events components fire, and the overlays a page opens.
+description: DOM event handlers, the event object, keyboard shortcuts, component events, modals, dialogs, toasts and menus.
+-->
 
 ## Handlers
 
@@ -20,11 +27,37 @@ page Clicks(path: "/") {
 }
 ```
 
-The DOM events every element accepts: `click`, `input`, `change`, `submit`,
-`focus`, `blur`, `keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`;
-a component's own declared events (chapter 8) join them on its calls. A
-handler's body is an imperative block, so it may assign state, call actions,
-`await`, and `navigate`.
+A handler may name any DOM event: the common ones are `click`, `input`,
+`change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and
+`mouseleave`, and the rest — `dblclick`, `contextmenu`, `pointerdown`,
+`pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`,
+`dragover`, `animationend`, `ended` and the others — work the same way. The
+[components reference](36-components-reference.md#on-every-element) lists
+every one. A component's own declared events (chapter 11) join them on its
+calls. A handler's body is an imperative block, so it may assign state,
+call actions, `await`, and `navigate`.
+
+### The event object
+
+Name a parameter to read the event: `on keydown(e) { … }`. Without one, the
+event is still in scope as `event`. It is the browser's own event object, so
+`e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and
+`e.stopPropagation()` are all there.
+
+```wf
+page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
+    state names: [String] = []
+    Heading("Drop files here").h1
+    Card {
+        on dragover(e) { e.preventDefault() }
+        on drop(e) {
+            e.preventDefault()
+            names = Array.from(e.dataTransfer.files).map(f => f.name)
+        }
+        Text(if names.length == 0 { "Nothing yet" } else { names.join(", ") })
+    }
+}
+```
 
 A handler on a component call — `UserCard("x") { on click { } }` — attaches
 to the component's root element, so a styled button component is clickable
@@ -56,214 +89,10 @@ that element; at the top of a page or component it listens on the document
 for as long as the page shows. Every modifier must match exactly, so
 `ctrl+k` does not fire on `ctrl+shift+k`.
 
-## Two-way binding
-
-`bind: stateName` on a control keeps the state and the control in step, both
-ways:
-
-```wf
-page Signup(path: "/") {
-    state name = ""
-    state email = ""
-    state plan = "free"
-    state agree = false
-    state seats = 1
-    state when: Date? = null
-
-    Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
-    Input(bind: email, label: "Email").email.required
-    Select(bind: plan, label: "Plan") {
-        Select.Option("Free", value: "free")
-        Select.Option("Team", value: "team")
-    }
-    Radio(bind: plan, value: "free", label: "Free")
-    Radio(bind: plan, value: "team", label: "Team")
-    Checkbox(bind: agree, label: "I agree to the terms")
-    Switch(bind: agree, label: "Same thing, as a switch")
-    Slider(bind: seats, min: 1, max: 50, label: "Seats")
-    DatePicker(bind: when, label: "Start date")
-    Text("{name} <{email}> wants {seats} {plan} seats from {when}")
-}
-```
-
-`Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` is several
-lines of text; with `maxLength` it shows how much is left, politely.
-
-The checker knows what each control holds: `Checkbox` and `Switch` bind a
-`Bool`, `Slider` a `Number`, `DatePicker` a [`Date?`](10-types.md#the-types-the-language-brings-with-it)
-(nothing, until one is picked), the rest a `String` (an `Input.number` holds a `Number`). A control needs a
-`label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the
-accessibility lint says so otherwise.
-
-## Forms
-
-A `Form` groups controls; `on submit` runs when it is submitted, and the
-page never navigates away. `Form(bind: name)` hands you a handle on the form:
-
-```wf
-page Contact(path: "/") {
-    state name = ""
-    state email = ""
-    state message = ""
-    state sent = false
-
-    action send() {
-        let r = await fetch("/api/contact", { method: "POST", body: { name: name, email: email, message: message } })
-        sent = true
-        form.reset()
-    }
-
-    Form(bind: form) {
-        on submit { send() }
-        Input(bind: name, name: "name", label: "Name").required
-        Input(bind: email, name: "email", label: "Email").email.required
-        Input(bind: message, name: "message", label: "Message").required
-        Button("Send", type: .submit, disabled: !form.valid || send.pending).primary
-        Text("Fields: {form.values.name} {form.values.email}").muted.sm
-    }
-    if sent { Alert("Thanks — we will be in touch.").success }
-}
-```
-
-The handle gives:
-
-| | |
-|---|---|
-| `form.valid` | `true` when every control passes its own checks and every `validate` rule holds — kept current as the reader types |
-| `form.errors` | The message of every field that has one, by name |
-| `form.touched` | Which fields the reader has left |
-| `form.pending` | Whether an `async` rule is still asking |
-| `form.values` | A map of the controls' values by their `name:` attribute |
-| `form.reset()` | Clears the form, and everything it was showing |
-| `form.submit()` | Submits it in code |
-| `form.apply(errors)` | Shows what the server said, on the fields it named |
-| `form.element` | The `<form>` itself |
-
-A `Button` with `type: .submit` (or `.submit`) submits; the browser's own
-constraint validation runs first, so an invalid form never reaches
-`on submit`.
-
-## What a value must be: `validate`
-
-A `validate` block sits beside the state it guards. Every rule is one
-line, and the control bound to that state shows what they say — there is
-no `error:` to write and no `derived` to compute:
-
-```wf
-page Signup(path: "/join", title: "Join", description: "Make an account.") {
-    state email = ""
-    state password = ""
-    state confirm = ""
-
-    validate email {
-        required
-        email
-    }
-    validate password {
-        required
-        minLength(8) "Use at least 8 characters"
-        pattern(/[0-9]/) "Include a number"
-    }
-    validate confirm {
-        matches(password) "The two passwords differ"
-    }
-
-    Heading("Join").h1
-    Form(bind: form) {
-        on submit { log("signing up") }
-        Input(bind: email, label: "Email").email
-        Input(bind: password, label: "Password").password
-        Input(bind: confirm, label: "Confirm").password
-        Button("Join", type: .submit, disabled: !form.valid).primary
-    }
-}
-```
-
-### The rules
-
-| Rule | Holds when |
-|---|---|
-| `required` | Something was given — a non-blank string, a non-empty list, a ticked checkbox |
-| `email`, `url` | It looks like one |
-| `minLength(n)`, `maxLength(n)` | The text is that long |
-| `min(v)`, `max(v)` | The number, date or time is within it |
-| `pattern(/…/)` | The text matches |
-| `matches(other)` | It equals another value, which it follows |
-| `oneOf([…])` | It is one of them |
-| `custom "…" { expr }` | The expression is true |
-| `async "…" { await … }` | The answer, once it arrives |
-
-Each takes an optional message after it. Without one, the rule's own is
-used — and a project with translations replaces it by naming
-`form.required`, `form.email`, `form.minLength` and so on.
-
-Every rule but `required` passes an empty value, so a blank optional field
-shows one message rather than two. An `async` rule is only asked once the
-rest have passed, and once per value — so a server is not asked about every
-keystroke of an address that is not one yet.
-
-### When a message shows
-
-`Form(show:)` says: `.onBlur` (the default — after the reader leaves the
-field), `.onSubmit`, or `.live` as they type. The fault is known either
-way, so `form.valid` is the truth whatever the reader has seen.
-
-A submit that fails shows every message, moves focus to the first field
-that has one and announces it, and does not run `on submit`.
-
-### A refined type validates itself
-
-```wf
-state nights: Number(1..=30) = 2
-validate nights { required }
-```
-
-The range on the type is already a rule; only `required` needed saying.
-See [Types](10-types.md#a-condition-on-a-type).
-
-### What the server said
-
-```wf
-action signUp() {
-    try {
-        await Backend.signUp(email, password)
-    } catch e {
-        form.apply(e.body.errors)     // { email: "That address is taken" }
-    }
-}
-```
-
-Each message is shown on the field it names, and stands until the reader
-changes that value.
-
-## Pending actions
-
-An action that `await`s exposes `name.pending`, `true` while a call of it runs
-— for a disabled button or a spinner:
-
-```wf
-store Api {
-    state saved = 0
-    action save(payload: Map) {
-        let r = await fetch("/api/save", { method: "POST", body: payload })
-        saved = saved + 1
-    }
-}
-
-page Save(path: "/") {
-    use Api
-    state text = ""
-    Input(bind: text, label: "Note")
-    Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
-    if Api.save.pending { Spinner.sm }
-    Text("Saved {Api.saved} times")
-}
-```
-
 ## Emitting events from components
 
 A component declares the events it fires and fires them with `emit`; the
-caller handles them like DOM events. [Chapter 8](08-components.md#events)
+caller handles them like DOM events. [Chapter 11](11-components.md#events)
 covers it:
 
 ```wf
@@ -284,28 +113,13 @@ page Use(path: "/") {
 }
 ```
 
-## Switching the theme
-
-`setTheme("dark" | "light" | "system")` records the reader's choice, applies
-it, and keeps it across visits; `theme` reads it. [Chapter 12](12-styling.md#dark-mode)
-shows the theme declaration it switches to.
+## Overlays: modals, dialogs, toasts and menus
 
 ```wf
-page ThemePicker(path: "/") {
-    Row(gap: .sm) {
-        Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
-        Button("Dark", outlined: theme != "dark") { on click { setTheme("dark") } }
-        Button("System", outlined: theme != "system") { on click { setTheme("system") } }
-    }
-}
-```
-
-## Overlays: modals, dialogs, toasts
-
-```wf
-page Overlays(path: "/") {
+page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
     state confirm = false
     state deleted = false
+    Heading("Overlays").h1
     Button("Delete").danger { on click { confirm = true } }
     Modal(visible: confirm, title: "Delete this?") {
         Text("This cannot be undone.")
@@ -315,13 +129,55 @@ page Overlays(path: "/") {
         }
     }
     if deleted { Toast("Deleted").success }
+    Menu(trigger: "More") {
+        Menu.Item { Text("Rename") }
+        Menu.Divider
+        Menu.Item { Text("Archive") }
+    }
+    Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
 }
 ```
 
-A `Modal` or `Dialog` opens while its `visible:` state is true, traps focus,
-closes on Escape, and returns focus where it was. A `Toast` shows the moment
-it is rendered, so it lives under a condition that turns true.
+- **`Modal`** and **`Dialog`** are real `<dialog>` elements, opened while their
+  `visible:` state is true. The browser traps focus, makes the rest of the
+  page inert and closes on Escape or a click on the backdrop — and when it
+  closes that way, the state is set back to `false`, so it never disagrees
+  with what is on screen. Focus returns to what opened it. `title:` is the
+  accessible name (`A08` without one). `Modal.Footer` is the row of actions.
+- **`Toast`** shows the moment it is rendered and leaves after three seconds;
+  it is announced politely to screen readers. Put it under a condition that
+  turns true.
+- **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move
+  between items, Home and End jump to the ends, Enter and Space choose,
+  Escape closes with focus back on the button, and a click outside closes it.
+- **`Tooltip`** shows its text when its child is hovered or focused, and is
+  linked to it with `aria-describedby`.
+
+## Listening outside the page's elements
+
+A handler on an element hears that element. For the window or the document
+— a resize, a scroll of the page, a message from another window — use an
+`effect` with a `cleanup`, which removes the listener when the page leaves.
+An action named without parentheses is the function itself, so it can be
+handed to the browser:
+
+```wf
+page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
+    state y = 0
+    action track() { y = window.scrollY }
+    effect {
+        window.addEventListener("scroll", track)
+        cleanup { window.removeEventListener("scroll", track) }
+    }
+    Heading("Scrolled").h1
+    Text("{y}px down")
+}
+```
+
+For the viewport's size, the network and the URL, the language already keeps
+values current — `viewport`, `network`, `query`, `hash` — so no listener is
+needed ([State](08-state-and-reactivity.md#the-browser-as-values)).
 
 ## Next
 
-[Control flow](07-control-flow.md).
+[Control flow](10-control-flow.md).

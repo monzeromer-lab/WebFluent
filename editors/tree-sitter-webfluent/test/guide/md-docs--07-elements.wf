@@ -1,0 +1,83 @@
+// md-docs/07-elements.md
+page P(path: "/") {
+    Button("Save", disabled: false).primary.lg {
+        style { min-width: 120px }
+        transition { background: 150ms ease-out }
+        on click { log("saved") }
+        Icon("check")
+    }
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
+    Row(gap: .md, align: .center, justify: .between) {
+        Text("left")
+        Text("right")
+    }
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
+    Button("Danger").danger            // tone: .danger
+    Button("Wide").full.outlined       // width: .full, outlined: true
+    Input(bind: q).search.required     // type: .search, required: true
+    state q = ""
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
+    Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
+    Input(bind: name, id: "name", autocomplete: "name", maxlength: 40)
+    state name = ""
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
+    Card.elevated {
+        Card.Header { Heading("Title").h3 }
+        Card.Body { Text("Body") }
+        Card.Footer { Button("OK").primary }
+    }
+    Table(caption: "Regions") {
+        Table.Head { Table.Row { Table.Cell("Region").header  Table.Cell("Latency").header } }
+        Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("34 ms") } }
+    }
+    Select(bind: region, label: "Region") {
+        Select.Option("Frankfurt", value: "fra1")
+        Select.Option("Iowa", value: "iad1")
+    }
+    Tabs {
+        Tabs.Page("One") { Text("first") }
+        Tabs.Page("Two") { Text("second") }
+    }
+    state region = "fra1"
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
+    Heading("Title").h1                       // a real <h1>; .h2 is the default
+    Text("Plain, {count} live").bold.muted   // an inline run of text
+    Paragraph("Prose, as a <p>.")
+    Code("let x = 1").block
+    Blockquote("A quotation.")
+    Markdown("**Bold** and a [link](/docs)")  // chapter 27
+    state count = 3
+}
+
+// md-docs/07-elements.md
+page P(path: "/") {
+    Container {                                  // centred, max-width
+        Row(gap: .md, align: .center) {          // horizontal flex
+            Column(span: 8) { Text("main") }     // 12-column grid child
+            Column(span: 4) { Text("aside") }
+        }
+        Grid(columns: 3, gap: .lg) { Card { Text("a") }  Card { Text("b") }  Card { Text("c") } }
+        Stack(gap: .sm) { Text("one")  Text("two") }   // vertical flex
+        Spacer.lg
+        Divider
+    }
+    Header { Text("a page region") }
+    Section { Text("another") }
+    Footer { Text("the last") }
+}
+

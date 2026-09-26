@@ -1,4 +1,11 @@
-# 19. Security
+# 23. Security
+
+<!--
+route: guide/security
+group: building
+blurb: What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.
+description: The threat model, what WebFluent enforces, markup from outside, sessions, env and secrets, uploads, CSP and headers, audits and a checklist.
+-->
 
 A web page is a program you hand to a stranger's machine, and the strings
 in it come from everywhere: a form, a URL, a CMS, a database, another
@@ -51,7 +58,13 @@ A CMS body, a Markdown renderer of your own, an email — sometimes the
 content really is HTML. There is one door:
 
 ```wf
-page Post(path: "/p/:slug", title: "Post", slug: String) {
+type Post { title: String, body: String }
+
+api Backend(base: "/api") {
+    get post(slug: String) at "posts/:slug" -> Post
+}
+
+page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
     resource post = Backend.post(slug: slug)
     match post {
         ready(p) { Unsafe.Html(sanitize(p.body)) }
@@ -231,5 +244,4 @@ a build.
 
 ## Next
 
-[Components reference](20-components-reference.md), then the
-[cookbook](21-cookbook.md).
+[Testing](24-testing.md).

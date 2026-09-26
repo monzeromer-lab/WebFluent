@@ -1,4 +1,11 @@
-# 12. Styling
+# 15. Styling
+
+<!--
+route: guide/styling
+group: building
+blurb: Every built-in ships styled; a theme changes the whole site; a style block is real CSS scoped to its element.
+description: Themes and tokens, style blocks with splices, nesting and media queries, transitions, classes and stylesheets, dark mode, responsive layout.
+-->
 
 Every built-in ships styled, and a theme changes the whole site by changing
 its tokens. When you need more, an element takes a `style { }` block of
@@ -30,26 +37,12 @@ theme Brand {
 A project with one theme uses it; with several, `webfluent.app.json` chooses:
 `"theme": { "name": "Brand" }`. Values are raw CSS to the end of the line.
 
-The baseline tokens, by group:
-
-| Group | Tokens |
-|---|---|
-| Color | `color-primary`, `color-secondary`, `color-success`, `color-danger`, `color-warning`, `color-info`, `color-background`, `color-surface`, `color-text`, `color-text-muted`, `color-border` |
-| Font | `font-family`, `font-family-mono`, `font-size-xs` … `font-size-3xl`, `font-weight-normal/medium/bold`, `line-height-tight/normal/loose` |
-| Spacing | `spacing-xs`, `spacing-sm`, `spacing-md`, `spacing-lg`, `spacing-xl`, `spacing-2xl`, `spacing-3xl` |
-| Radius | `radius-none`, `radius-sm`, `radius-md`, `radius-lg`, `radius-xl`, `radius-full` |
-| Shadow | `shadow-none`, `shadow-sm`, `shadow-md`, `shadow-lg`, `shadow-xl` |
-| Motion | `transition-fast`, `transition-normal`, `transition-slow`, `animation-duration-fast/normal/slow`, `animation-easing-default/spring/bounce` |
-| Easing | `ease-standard`, `ease-in`, `ease-out`, `ease-spring` — what `easing: .standard` and `.spring` resolve to ([chapter 13](13-motion.md#the-defaults)) |
-| Breakpoints | `screen-sm`, `screen-md`, `screen-lg`, `screen-xl` — every media query a responsive value or an `@md { }` writes, and what `viewport.md` follows |
-| Code | `syntax-keyword`, `syntax-string`, `syntax-number`, `syntax-comment`, `syntax-function`, `syntax-punct` — the colours `Code` highlights with |
-| Terminal | `term-bg`, `term-ink`, `term-dim` — a `Code` block shown as a shell |
-| Layout | `wf-header-height` — what a fixed `Navbar` reserves, which anchored scrolling offsets by |
-
-That is the whole baseline: 71 tokens, every one a `--custom-property` on
-`:root`, readable from a style block as `$name` and from a stylesheet as
-`var(--name)`. Moving a breakpoint moves every media query the build
-writes with it.
+The baseline carries 71 tokens in groups — colour, font, spacing, radius,
+shadow, motion, easing, breakpoints, code and layout — every one a CSS custom
+property on `:root`, readable from a style block as `$name` and from a
+stylesheet as `var(--name)`. [Design tokens](41-design-tokens.md) lists each
+with its baseline value. Moving a breakpoint moves every media query the
+build writes with it.
 
 A theme may add tokens of its own (`surface-raised: #131519`); they become
 custom properties like the rest. The contrast lint (`A13`) checks text
@@ -91,8 +84,9 @@ page Styled(path: "/") {
   `padding: $lg` is `spacing-lg`, `color: $primary` is `color-primary`,
   `border-radius: $lg` is `radius-lg`, `box-shadow: $md` is `shadow-md`,
   `font-size: $xl` is `font-size-xl`, `transition: $fast`. A full name
-  (`$color-primary`, `$surface-raised`) works anywhere. A token the theme
-  does not have is an error.
+  (`$color-primary`, `$surface-raised`) works anywhere. Check a token's
+  spelling: one no theme defines resolves to nothing, and the browser drops
+  the declaration.
 - `{expr}` splices a live value; the declaration updates when the value
   changes. A whole value or a part of one (`{n}px`).
 - `&:hover`, `&:focus-visible`, `&.active`, `& > p`, `&[aria-current]`
@@ -120,7 +114,7 @@ page Fade(path: "/") {
 
 `transition { prop: duration easing }` sets CSS transitions for the
 element; a `$fast/$normal/$slow` token or a raw value. Reduced-motion
-readers get none ([chapter 13](13-motion.md)).
+readers get none ([chapter 20](20-motion.md)).
 
 ## Classes and your own stylesheet
 
@@ -141,10 +135,29 @@ The value may be an expression, so a class can follow state. Built-ins wear
 `wf-*` classes (`wf-btn`, `wf-btn--primary`, `wf-card`), stable across
 releases, so a stylesheet may target them.
 
+## When your rule and a built-in's disagree
+
+Three layers of CSS meet on a page, in this order of strength:
+
+1. **The built-ins' own rules** (`.wf-btn`, `.wf-card`), shipped in
+   `styles.css`.
+2. **Your stylesheets** (`src/**/*.css`), bundled after them — so on equal
+   specificity, yours win.
+3. **`style { }` blocks**, compiled to rules with tripled specificity, and
+   nested state and media rules marked `!important` — so an element's own
+   block beats any sheet, as the inline style it replaces would.
+
+So: to restyle one element, use its `style { }`. To restyle every button,
+write `.wf-btn { … }` in a stylesheet, or change the tokens in a theme — the
+built-ins read tokens, so `color-primary` recolours every primary button,
+link and focus ring at once. `theme.builtin: "structural"` drops the
+built-ins' look entirely and keeps only their layout and mechanics, for a
+project that brings its whole design.
+
 ## Enum props as hooks
 
 A component's enum props are written to its root element as `data-<prop>`,
-so one stylesheet rule styles every variant ([chapter 8](08-components.md#enum-props)):
+so one stylesheet rule styles every variant ([chapter 11](11-components.md#enum-props)):
 
 ```css
 .note[data-tone="loud"] { font-weight: 700; color: var(--color-danger) }
@@ -192,7 +205,7 @@ is `"light"`, `"dark"` or `"system"`.
 
 Most layout needs no `style` at all: `Stack`, `Row`, `Grid`, `Container`,
 `Spacer` and `Divider` with their `gap:`, `align:`, `justify:` and
-`columns:` props ([chapter 4](04-elements.md#layout-elements)).
+`columns:` props ([chapter 7](07-elements.md#layout-elements)).
 
 ```wf
 page Layout(path: "/", title: "Layout", description: "A grid of projects.") {
@@ -262,18 +275,20 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
 WebFluent 2 project, so the old behaviour carries over — written down,
 where you can see it and change it.
 
-`viewport` ([chapter 5](05-state-and-reactivity.md#the-browser-as-values))
+`viewport` ([chapter 8](08-state-and-reactivity.md#the-browser-as-values))
 stays for what is genuinely behavioural — a drawer instead of a sidebar —
 and follows `matchMedia`, which fires once when the answer changes rather
 than on every pixel of a drag.
 
 ## What the build emits
 
-`styles.css` holds the tokens (`:root { --color-primary: … }`), the dark
-overrides, the structural and baseline CSS of the built-ins you used (and
-only those), and your bundled stylesheets. Each page's own `style` blocks go
-to `pages/<Name>.css`, loaded with the page. Unused built-in CSS is pruned.
+`styles.css` holds the tokens something in the output uses
+(`:root { --color-primary: … }`), the dark overrides, the CSS of the built-ins
+you used (and only those), your bundled stylesheets, and the compiled
+`style { }` rules that more than one page reaches. A rule only one page can
+reach goes to `pages/<Name>.css`, loaded with that page.
+[Performance](31-performance.md) shows how to see what each weighs.
 
 ## Next
 
-[Motion](13-motion.md).
+[Forms and validation](16-forms.md).

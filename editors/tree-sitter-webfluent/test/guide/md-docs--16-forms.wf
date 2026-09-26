@@ -1,0 +1,179 @@
+// md-docs/16-forms.md
+page Signup(path: "/") {
+    state name = ""
+    state email = ""
+    state plan = "free"
+    state agree = false
+    state seats = 1
+    state when: Date? = null
+
+    Input(bind: name, label: "Name", placeholder: "Ada Lovelace").required
+    Input(bind: email, label: "Email").email.required
+    Select(bind: plan, label: "Plan") {
+        Select.Option("Free", value: "free")
+        Select.Option("Team", value: "team")
+    }
+    Radio(bind: plan, value: "free", label: "Free")
+    Radio(bind: plan, value: "team", label: "Team")
+    Checkbox(bind: agree, label: "I agree to the terms")
+    Switch(bind: agree, label: "Same thing, as a switch")
+    Slider(bind: seats, min: 1, max: 50, label: "Seats")
+    DatePicker(bind: when, label: "Start date")
+    Text("{name} <{email}> wants {seats} {plan} seats from {when}")
+}
+
+// md-docs/16-forms.md
+page Handle(path: "/", title: "Handle", description: "Pick a handle.") {
+    state handle = ""
+    derived problem = if handle.length > 0 && handle.length < 3 { "At least three characters" } else { "" }
+    Heading("Pick a handle").h1
+    Input(bind: handle, label: "Handle", hint: "Letters, numbers and dashes", error: problem)
+}
+
+// md-docs/16-forms.md
+page Contact(path: "/") {
+    state name = ""
+    state email = ""
+    state message = ""
+    state sent = false
+
+    action send() {
+        let r = await fetch("/api/contact", { method: "POST", body: { name: name, email: email, message: message } })
+        sent = true
+        form.reset()
+    }
+
+    Form(bind: form) {
+        on submit { send() }
+        Input(bind: name, name: "name", label: "Name").required
+        Input(bind: email, name: "email", label: "Email").email.required
+        Input(bind: message, name: "message", label: "Message").required
+        Button("Send", type: .submit, disabled: !form.valid || send.pending).primary
+        Text("Fields: {form.values.name} {form.values.email}").muted.sm
+    }
+    if sent { Alert("Thanks — we will be in touch.").success }
+}
+
+// md-docs/16-forms.md
+page Signup(path: "/join", title: "Join", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state confirm = ""
+
+    validate email {
+        required
+        email
+    }
+    validate password {
+        required
+        minLength(8) "Use at least 8 characters"
+        pattern(/[0-9]/) "Include a number"
+    }
+    validate confirm {
+        matches(password) "The two passwords differ"
+    }
+
+    Heading("Join").h1
+    Form(bind: form) {
+        on submit { log("signing up") }
+        Input(bind: email, label: "Email").email
+        Input(bind: password, label: "Password").password
+        Input(bind: confirm, label: "Confirm").password
+        Button("Join", type: .submit, disabled: !form.valid).primary
+    }
+}
+
+// md-docs/16-forms.md
+page Doc(path: "/") {
+    state nights: Number(1..=30) = 2
+    validate nights { required }
+}
+
+// md-docs/16-forms.md
+page Doc(path: "/") {
+    action signUp() {
+        try {
+            await Backend.signUp(email, password)
+        } catch e {
+            form.apply(e.body.errors)     // { email: "That address is taken" }
+        }
+    }
+}
+
+// md-docs/16-forms.md
+api Backend(base: "/api") {
+    post avatar(id: String, file: File) at "users/:id/avatar"
+}
+page Avatar(path: "/avatar", title: "Your picture", description: "Change your picture.") {
+    state picked: File? = null
+    state done = false
+
+    action upload() {
+        if let f = picked {
+            await Backend.avatar(id: "me", file: f)
+            done = true
+        }
+    }
+
+    Heading("Your picture").h1
+    FileUpload(accept: "image/*", label: "Choose a picture") {
+        on change(e) { picked = e.target.files[0] }
+    }
+    if let f = picked {
+        Image(src: f.preview(), alt: "The picture you chose")
+        Text("{f.name}, {format(f.size / 1024, .integer)} kB").muted.sm
+        Button("Upload", disabled: upload.pending).primary { on click { upload() } }
+        if upload.pending { Progress(value: Backend.avatar.progress * 100, max: 100) }
+    }
+    if done { Alert("Uploaded.").success }
+}
+
+// md-docs/16-forms.md
+api Backend(base: "/api") {
+    post signUp(body: Map) -> Map
+        errors { 422 -> Map }
+}
+page Join(path: "/join", title: "Join", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state joined = false
+
+    validate email { required  email }
+    validate password { required  minLength(8) }
+
+    action join() {
+        try {
+            await Backend.signUp(body: { email: email, password: password })
+            joined = true
+        } catch e {
+            form.apply(e.body.errors)
+        }
+    }
+
+    Heading("Join").h1
+    if joined { Alert("Welcome aboard.").success }
+    Form(bind: form) {
+        on submit { join() }
+        Input(bind: email, name: "email", label: "Email").email
+        Input(bind: password, name: "password", label: "Password").password
+        Button("Join", type: .submit, disabled: !form.valid || join.pending).primary
+    }
+}
+
+// md-docs/16-forms.md
+store Api {
+    state saved = 0
+    action save(payload: Map) {
+        let r = await fetch("/api/save", { method: "POST", body: payload })
+        saved = saved + 1
+    }
+}
+page Save(path: "/") {
+    use Api
+    state text = ""
+    Input(bind: text, label: "Note")
+    Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
+    if Api.save.pending { Spinner.sm }
+    Text("Saved {Api.saved} times")
+}
+

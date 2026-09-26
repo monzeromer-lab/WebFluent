@@ -1,4 +1,11 @@
-# 13. Motion
+# 20. Motion
+
+<!--
+route: guide/motion
+group: building
+blurb: Motion is declared, not scripted: how an element enters and leaves, how a list staggers, how pages change.
+description: Enter and exit animations, list stagger, keyframes, expanding boxes, counting numbers, shared elements, sequences and route transitions.
+-->
 
 Motion in WebFluent is declared, not scripted: an element says how it
 enters and leaves, a list says how its items stagger, the router says how
@@ -251,7 +258,7 @@ values.
 ## Transitions on state
 
 For a property that changes with state, `transition { }` sets what to
-tween and how long ([chapter 12](12-styling.md#transition--)):
+tween and how long ([chapter 15](15-styling.md#transition)):
 
 ```wf
 page Tween(path: "/") {
@@ -319,4 +326,4 @@ forms, which have one.
 
 ## Next
 
-[Data](14-data.md).
+[Internationalisation](21-i18n.md).

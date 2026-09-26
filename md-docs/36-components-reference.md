@@ -1,6 +1,13 @@
-# 19. Built-in components — reference
+# 36. Components reference
 
-Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`; edit the registry, not this file.
+<!--
+route: reference
+group: reference
+blurb: Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry.
+description: The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example.
+-->
+
+Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`, with an example of each from `scripts/component_examples.py`; edit those, not this file.
 
 Every component is written `Name(positional, prop: value).flag { block }`. A **prop** is passed by name; the one **positional** prop, where there is one, comes first and unnamed. A **flag** is written after the parentheses with a dot: a `Bool` prop, or a case of one of the element's enum props (`Button("x").primary.lg`). An **enum prop** takes a case written `.case` (`Row(gap: .md)`). Every element also takes the universal props and events listed at the end, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).
 
@@ -28,6 +35,13 @@ Centred wrapper with a maximum width and horizontal padding.
 Container(fluid: …) { … }
 ```
 
+```wf
+Container { Heading("Pricing").h1 }
+Container.fluid { Text("Edge to edge") }
+```
+
+Renders with the class `wf-container`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `fluid:` | `Bool` | Full width, no maximum |
@@ -45,6 +59,16 @@ Horizontal flex layout. It stays a row at every width unless `.stacks` or a resp
 ```
 Row(gap: …, align: …, justify: …) { … }
 ```
+
+```wf
+Row(gap: .md, align: .center, justify: .between) {
+    Text("Left")
+    Button("Right")
+}
+Row(direction: { base: .column, md: .row }) { Text("a")  Text("b") }
+```
+
+Renders with the class `wf-row`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -68,6 +92,15 @@ A child of the 12-column grid, spanning `span` columns.
 Column(span: …, stacks: …) { … }
 ```
 
+```wf
+Row {
+    Column(span: 8) { Text("Main") }
+    Column(span: 4) { Text("Aside") }
+}
+```
+
+Renders with the class `wf-col`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `span:` | `Number` | How many of the 12 grid columns to span |
@@ -86,6 +119,16 @@ CSS grid with a fixed number of columns.
 ```
 Grid(columns: …, gap: …, align: …) { … }
 ```
+
+```wf
+Grid(columns: { base: 1, md: 3 }, gap: .lg) {
+    Card { Text("One") }
+    Card { Text("Two") }
+    Card { Text("Three") }
+}
+```
+
+Renders with the class `wf-grid`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -109,6 +152,15 @@ Vertical flex layout.
 Stack(gap: …, align: …, justify: …) { … }
 ```
 
+```wf
+Stack(gap: .sm) {
+    Text("First")
+    Text("Second")
+}
+```
+
+Renders with the class `wf-stack`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `gap:` | `.xs` `.sm` `.md` `.lg` `.xl` | Space between children |
@@ -129,6 +181,14 @@ Vertical space; `md` when no size is given.
 Spacer(size: …)
 ```
 
+```wf
+Text("Above")
+Spacer.lg
+Text("Below")
+```
+
+Renders with the class `wf-spacer`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `size:` | `.xs` `.sm` `.md` `.lg` `.xl` | How much space |
@@ -145,6 +205,14 @@ Horizontal rule.
 Divider
 ```
 
+```wf
+Text("Section one")
+Divider
+Text("Section two")
+```
+
+Renders with the class `wf-divider`.
+
 Attribute families: `global`, `aria`, `data`.
 
 ### Host
@@ -154,6 +222,12 @@ An element handed to somebody else's code, with a lifetime. `mount:` runs once w
 ```
 Host(mount: …, update: …, cleanup: …)
 ```
+
+```wf
+Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))
+```
+
+Renders with the class `wf-host`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -174,6 +248,16 @@ Top navigation bar with brand, links and action areas.
 Navbar { … }
 ```
 
+```wf
+Navbar {
+    Navbar.Brand { Link("Acme", to: "/") }
+    Navbar.Links { Link("Docs", to: "/docs")  Link("Pricing", to: "/pricing") }
+    Navbar.Actions { Button("Sign in").sm }
+}
+```
+
+Renders with the class `wf-navbar`.
+
 **Parts:**
 
 - `Navbar.Brand { … }` — The brand area, usually a link home.
@@ -191,6 +275,17 @@ Side navigation. A `Sidebar.Item` whose `to` matches the current route is marked
 ```
 Sidebar { … }
 ```
+
+```wf
+Sidebar {
+    Sidebar.Header { Text("Console").bold }
+    Sidebar.Item(to: "/", icon: "home") { Text("Overview") }
+    Sidebar.Divider
+    Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
+}
+```
+
+Renders with the class `wf-sidebar`.
 
 **Parts:**
 
@@ -214,6 +309,14 @@ Client-side navigation link; its label or its block is the link text.
 Link(label, to: …, active: …) { … }
 ```
 
+```wf
+Link("About us", to: "/about")
+Link("Guide", to: "/docs", active: .prefix)
+Link(to: "https://example.com", target: "_blank") { Text("Example") }
+```
+
+Renders with the class `wf-link`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` (positional) | `String` | The link text |
@@ -234,6 +337,15 @@ Tab strip switching between its pages.
 Tabs { … }
 ```
 
+```wf
+Tabs {
+    Tabs.Page("Profile") { Text("Your details") }
+    Tabs.Page("Billing") { Text("Your plan") }
+}
+```
+
+Renders with the class `wf-tabs`.
+
 **Parts:**
 
 - `Tabs.Page(label) { … }` — One tab and its panel.
@@ -251,6 +363,16 @@ Breadcrumb trail. An item without `to` is the current page.
 Breadcrumb { … }
 ```
 
+```wf
+Breadcrumb {
+    Breadcrumb.Item(to: "/") { Text("Home") }
+    Breadcrumb.Item(to: "/docs") { Text("Docs") }
+    Breadcrumb.Item { Text("Components") }
+}
+```
+
+Renders with the class `wf-breadcrumb`.
+
 **Parts:**
 
 - `Breadcrumb.Item(to: …) { … }` — One step of the trail.
@@ -267,6 +389,16 @@ Menu opened by a trigger button.
 ```
 Menu(trigger: …, label: …) { … }
 ```
+
+```wf
+Menu(trigger: "Options") {
+    Menu.Item { Text("Rename") }
+    Menu.Divider
+    Menu.Item { Text("Delete") }
+}
+```
+
+Renders with the class `wf-menu`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -292,6 +424,16 @@ Card surface with optional header, body and footer sections.
 Card(surface: …) { … }
 ```
 
+```wf
+Card.elevated {
+    Card.Header { Heading("Pro").h3 }
+    Card.Body { Text("Everything in Free, and more.") }
+    Card.Footer { Button("Choose Pro").primary }
+}
+```
+
+Renders with the class `wf-card`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `surface:` | `.flat` `.elevated` `.outlined` | Surface treatment |
@@ -315,6 +457,15 @@ Data table. Cells inside `Table.Head` render as `<th scope="col">`; `caption` is
 ```
 Table(caption: …) { … }
 ```
+
+```wf
+Table(caption: "Deploys") {
+    Table.Head { Table.Row { Table.Cell("Region")  Table.Cell("Status") } }
+    Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("Healthy") } }
+}
+```
+
+Renders with the class `wf-table`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -342,6 +493,16 @@ List of its children; `ordered` for a numbered list.
 List(ordered: …) { … }
 ```
 
+```wf
+List {
+    List.Item { Text("Milk") }
+    List.Item { Text("Eggs") }
+}
+List.ordered { List.Item { Text("First") } }
+```
+
+Renders with the class `wf-list`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `ordered:` | `Bool` | Numbered (`<ol>`) |
@@ -364,6 +525,13 @@ Small status label.
 Badge(label, tone: …, pill: …)
 ```
 
+```wf
+Badge("Beta").info
+Badge("3 new").danger.pill
+```
+
+Renders with the class `wf-badge`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` (positional) | `String` | The badge text |
@@ -382,6 +550,12 @@ Compact chip.
 Tag(label)
 ```
 
+```wf
+Tag("design")
+```
+
+Renders with the class `wf-tag`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` (positional) | `String` | The tag text |
@@ -395,6 +569,13 @@ A picture of a person, or their initials.
 ```
 Avatar(src: …, alt: …, initials: …)
 ```
+
+```wf
+Avatar(src: "/ada.jpg", alt: "Ada Lovelace")
+Avatar(initials: "AL").primary.lg
+```
+
+Renders with the class `wf-avatar`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -416,6 +597,12 @@ Shows `text` when its child is hovered or focused.
 Tooltip(text) { … }
 ```
 
+```wf
+Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
+```
+
+Renders with the class `wf-tooltip`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `text` (positional) | `String` | The tooltip text |
@@ -433,6 +620,13 @@ Text field. With `label`, `hint` or `error` it is a labelled field.
 ```
 Input(bind: …, label: …, hint: …)
 ```
+
+```wf
+state email = ""
+Input(bind: email, label: "Email", hint: "We never share it").email.required
+```
+
+Renders with the class `wf-input`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -464,6 +658,16 @@ Drop-down of `Select.Option` children.
 Select(bind: …, value: …, label: …) { … }
 ```
 
+```wf
+state plan = "free"
+Select(bind: plan, label: "Plan") {
+    Select.Option("Free", value: "free")
+    Select.Option("Team", value: "team")
+}
+```
+
+Renders with the class `wf-select`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
@@ -494,6 +698,13 @@ Checkbox bound to a boolean state.
 Checkbox(bind: …, checked: …, label: …)
 ```
 
+```wf
+state agree = false
+Checkbox(bind: agree, label: "I agree to the terms")
+```
+
+Renders with the class `wf-checkbox`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
@@ -512,6 +723,14 @@ One choice of a group; every radio bound to the same state is one group.
 ```
 Radio(bind: …, value: …, checked: …)
 ```
+
+```wf
+state size = "m"
+Radio(bind: size, value: "s", label: "Small")
+Radio(bind: size, value: "m", label: "Medium")
+```
+
+Renders with the class `wf-radio`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -533,6 +752,13 @@ On/off toggle bound to a boolean state.
 Switch(bind: …, checked: …, label: …)
 ```
 
+```wf
+state notify = true
+Switch(bind: notify, label: "Email me about replies")
+```
+
+Renders with the class `wf-switch`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
@@ -551,6 +777,13 @@ Range input. `aria-*` arguments reach the input; with `aria-valuetext` the raw n
 ```
 Slider(bind: …, min: …, max: …)
 ```
+
+```wf
+state volume = 50
+Slider(bind: volume, min: 0, max: 100, step: 5, label: "Volume")
+```
+
+Renders with the class `wf-slider`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -573,6 +806,13 @@ Date input.
 DatePicker(bind: …, label: …, min: …)
 ```
 
+```wf
+state start: Date? = null
+DatePicker(bind: start, label: "Start date", min: "2026-01-01")
+```
+
+Renders with the class `wf-datepicker`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
@@ -592,6 +832,12 @@ File input; handle the chosen files in `on change`.
 ```
 FileUpload(accept: …, label: …, multiple: …) { … }
 ```
+
+```wf
+FileUpload(accept: "image/*", label: "Choose a picture") { on change(e) { log(e.target.files[0].name) } }
+```
+
+Renders with the class `wf-file-upload`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -614,6 +860,17 @@ Groups controls; `on submit` runs when it is submitted, and the page never navig
 Form(bind: …, show: …) { … }
 ```
 
+```wf
+state name = ""
+Form(bind: form) {
+    on submit { log(name) }
+    Input(bind: name, label: "Name").required
+    Button("Save", type: .submit, disabled: !form.valid).primary
+}
+```
+
+Renders with the class `wf-form`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)` |
@@ -632,6 +889,13 @@ Several lines of text. With `label`, `hint` or `error` it is a labelled field; w
 ```
 Textarea(bind: …, label: …, hint: …)
 ```
+
+```wf
+state note = ""
+Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
+```
+
+Renders with the class `wf-input wf-textarea`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -659,6 +923,13 @@ Inline notice; a `danger` or `warning` one is announced as an alert.
 Alert(message, tone: …) { … }
 ```
 
+```wf
+Alert("Your changes were saved.").success
+Alert("The server is not answering.").danger
+```
+
+Renders with the class `wf-alert`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `message` (positional) | `String` | The message |
@@ -678,6 +949,13 @@ Temporary notification.
 Toast(message, tone: …)
 ```
 
+```wf
+state saved = false
+if saved { Toast("Saved").success }
+```
+
+Renders with the class `wf-toast`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `message` (positional) | `String` | The message |
@@ -694,6 +972,17 @@ Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping an
 ```
 Modal(visible: …, title: …) { … }
 ```
+
+```wf
+state open = false
+Button("Delete") { on click { open = true } }
+Modal(visible: open, title: "Delete this?") {
+    Text("This cannot be undone.")
+    Modal.Footer { Button("Cancel") { on click { open = false } } }
+}
+```
+
+Renders with the class `wf-modal`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -716,6 +1005,13 @@ Confirmation `<dialog>`, opened by a state flag.
 Dialog(visible: …, title: …) { … }
 ```
 
+```wf
+state asking = false
+Dialog(visible: asking, title: "Leave without saving?") { Text("Your draft will be lost.") }
+```
+
+Renders with the class `wf-dialog`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `visible:` | `State` | State flag that opens and closes it |
@@ -733,6 +1029,13 @@ Loading indicator, announced as a status.
 Spinner(size: …)
 ```
 
+```wf
+Spinner
+Spinner.lg
+```
+
+Renders with the class `wf-spinner`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `size:` | `.sm` `.md` `.lg` | Its size |
@@ -749,6 +1052,12 @@ Progress bar; a `value` that reads state moves with it.
 Progress(value: …, max: …)
 ```
 
+```wf
+Progress(value: 40, max: 100)
+```
+
+Renders with the class `wf-progress`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `value:` | `Number` | Current value |
@@ -763,6 +1072,13 @@ Placeholder shape shown while content loads.
 ```
 Skeleton(height: …, width: …, size: …)
 ```
+
+```wf
+Skeleton(height: "20px", width: "200px")
+Skeleton(size: "48px").circle
+```
+
+Renders with the class `wf-skeleton`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -784,6 +1100,14 @@ Button. Its block holds what it shows; `on click` what it does.
 ```
 Button(label, tone: …, size: …, shape: …) { … }
 ```
+
+```wf
+Button("Save").primary { on click { log("saved") } }
+Button("Delete").danger.outlined.sm
+Button("Send", type: .submit).primary.full
+```
+
+Renders with the class `wf-btn`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -811,6 +1135,13 @@ Icon-only button. `label` is its accessible name, never visible text.
 IconButton(icon: …, label: …, size: …) { … }
 ```
 
+```wf
+IconButton(icon: "close", label: "Close")
+IconButton(icon: "edit", label: "Edit the title").primary.sm
+```
+
+Renders with the class `wf-icon-btn`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `icon:` | `String` | One of the built-in icon names |
@@ -834,6 +1165,16 @@ Buttons joined into one row.
 ButtonGroup { … }
 ```
 
+```wf
+ButtonGroup {
+    Button("Day")
+    Button("Week")
+    Button("Month")
+}
+```
+
+Renders with the class `wf-btn-group`.
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -845,6 +1186,16 @@ Button that opens a menu of `Dropdown.Item`s.
 ```
 Dropdown(label) { … }
 ```
+
+```wf
+Dropdown(label: "Actions") {
+    Dropdown.Item { Text("Duplicate") }
+    Dropdown.Divider
+    Dropdown.Item { Text("Archive") }
+}
+```
+
+Renders with the class `wf-dropdown`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -869,6 +1220,13 @@ Image; `alt` is required for accessibility (rule A01). Given an `image` the prog
 Image(source, src: …, sizes: …, placeholder: …)
 ```
 
+```wf
+Image(src: "/team.jpg", alt: "The team at the launch", width: 1200, height: 630)
+Image(src: "/flourish.svg", alt: "")
+```
+
+Renders with the class `wf-image`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `source` (positional) | `Any` | An `image` the program declares, or a URL |
@@ -892,6 +1250,12 @@ Video player. Without `captions` it draws an `A09` warning: a video nobody can h
 ```
 Video(src: …, controls: …, autoplay: …)
 ```
+
+```wf
+Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
+```
+
+Renders with the class `wf-video`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -918,6 +1282,12 @@ Audio player. `transcript` links what was said, which is what a reader who canno
 Audio(src: …, controls: …, autoplay: …)
 ```
 
+```wf
+Audio(src: "/episode-1.mp3", transcript: "/episode-1.txt").controls
+```
+
+Renders with the class `wf-audio`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `src:` | `String` | Audio URL |
@@ -938,6 +1308,13 @@ One of the built-in SVG icons, rendered inline.
 Icon(name, size: …, tone: …, muted: …)
 ```
 
+```wf
+Icon("search")
+Icon("check").lg.success
+```
+
+Renders with the class `wf-icon`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `name` (positional) | `String` | The icon name |
@@ -956,6 +1333,15 @@ Slide track with named controls and dots; optional autoplay.
 ```
 Carousel(label: …, autoplay: …, interval: …) { … }
 ```
+
+```wf
+Carousel(label: "Recent work", autoplay: true, interval: 5000) {
+    Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
+    Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }
+}
+```
+
+Renders with the class `wf-carousel`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -983,6 +1369,14 @@ A paragraph of text. `{…}` in the string reads state and stays live.
 Text(content, tone: …, size: …, align: …)
 ```
 
+```wf
+Text("Hello, world")
+Text("Last updated today").muted.sm
+Text("Important").bold.danger
+```
+
+Renders with the class `wf-text`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `content` (positional) | `Any` | The text |
@@ -1008,6 +1402,13 @@ Heading; `level` picks the tag (`h2` when none is given).
 Heading(content, level: …, align: …, muted: …)
 ```
 
+```wf
+Heading("Pricing").h1
+Heading("Frequently asked").h2
+```
+
+Renders with the class `wf-heading`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `content` (positional) | `Any` | The heading text |
@@ -1027,6 +1428,14 @@ Inline code, or a code block with `block`; `language:` colours it.
 Code(content, block: …, language: …)
 ```
 
+```wf
+Text("Run ")
+Code("wf serve")
+Code("page Home(path: \"/\") { Text(\"Hi\") }", language: "wf").block
+```
+
+Renders with the class `wf-code`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `content` (positional) | `Any` | The code |
@@ -1045,6 +1454,12 @@ Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links
 Markdown(text)
 ```
 
+```wf
+Markdown("Some **bold** text and a [link](/docs).")
+```
+
+Renders with the class `wf-markdown`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `text` (positional) | `String` | The Markdown text |
@@ -1057,6 +1472,11 @@ The one door for markup a page did not write. It has a single part, `Unsafe.Html
 
 ```
 Unsafe
+```
+
+```wf
+state body = "<p>From the CMS</p>"
+Unsafe.Html(sanitize(body))
 ```
 
 **Parts:**
@@ -1073,6 +1493,12 @@ Quotation: the text, or its block as the quoted content.
 ```
 Blockquote(content) { … }
 ```
+
+```wf
+Blockquote { Text("Make it work, make it right, make it fast.") }
+```
+
+Renders with the class `wf-blockquote`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -1092,6 +1518,14 @@ Root of a PDF document.
 Document(page_size: …) { … }
 ```
 
+```wf
+Document(page_size: "A4") {
+    Section { Heading("Report").h1  Paragraph("Revenue grew.") }
+}
+```
+
+Renders with the class `wf-document`.
+
 | Prop | Type | Meaning |
 |---|---|---|
 | `page_size:` | `.A4` `.A3` `.A5` `.Letter` `.Legal` | Paper size |
@@ -1110,6 +1544,15 @@ Groups content with spacing; on the web, a `<section>`.
 Section { … }
 ```
 
+```wf
+Section {
+    Heading("Terms").h2
+    Text("Payment within 30 days.")
+}
+```
+
+Renders with the class `wf-section`.
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1121,6 +1564,12 @@ Block of text with paragraph spacing.
 ```
 Paragraph(content, tone: …, size: …, align: …)
 ```
+
+```wf
+Paragraph("A block of prose, with the spacing a paragraph has.")
+```
+
+Renders with the class `wf-text`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -1147,6 +1596,12 @@ Repeated at the top of every PDF page; a `<header>` on the web.
 Header { … }
 ```
 
+```wf
+Header { Text("Company Inc.").muted.sm }
+```
+
+Renders with the class `wf-header`.
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1159,6 +1614,12 @@ Repeated at the bottom of every PDF page; a `<footer>` on the web.
 Footer { … }
 ```
 
+```wf
+Footer { Text("© Company Inc.").muted.sm }
+```
+
+Renders with the class `wf-footer`.
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1169,6 +1630,12 @@ Forces a new PDF page.
 
 ```
 PageBreak
+```
+
+```wf
+Text("End of chapter one.")
+PageBreak
+Heading("Chapter two").h2
 ```
 
 Attribute families: `global`, `aria`, `data`.
@@ -1183,6 +1650,13 @@ Root of a slide deck; its children must be slides.
 Presentation { … }
 ```
 
+```wf
+Presentation {
+    TitleSlide("Q1 review", subtitle: "March 2026")
+    Slide { Heading("Highlights").h1 }
+}
+```
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1195,6 +1669,15 @@ One slide, one PDF page; content is top-aligned and clipped at the bottom margin
 Slide { … }
 ```
 
+```wf
+Presentation {
+    Slide {
+        Heading("Revenue").h1
+        Text("Up 18% on last quarter.")
+    }
+}
+```
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1205,6 +1688,10 @@ Cover slide: title and subtitle, vertically centred.
 
 ```
 TitleSlide(title, subtitle: …)
+```
+
+```wf
+Presentation { TitleSlide("Q1 review", subtitle: "Acme, March 2026") }
 ```
 
 | Prop | Type | Meaning |
@@ -1220,6 +1707,10 @@ Full-bleed coloured band with a centred label.
 
 ```
 SectionSlide(label, tone: …)
+```
+
+```wf
+Presentation { SectionSlide("Numbers").primary }
 ```
 
 | Prop | Type | Meaning |
@@ -1239,6 +1730,15 @@ Two equal columns; takes exactly two `Container` children.
 TwoColumn { … }
 ```
 
+```wf
+Presentation {
+    TwoColumn {
+        Container { Heading("Wins").h3 }
+        Container { Heading("Risks").h3 }
+    }
+}
+```
+
 Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
@@ -1249,6 +1749,10 @@ Image slide with an optional caption.
 
 ```
 ImageSlide(src: …, caption: …)
+```
+
+```wf
+Presentation { ImageSlide(src: "chart.png", caption: "Revenue by month") }
 ```
 
 | Prop | Type | Meaning |
@@ -1267,6 +1771,15 @@ Where the current page renders. May sit at any depth inside `app`; pages declare
 ```
 Router(transition: …, duration: …) { … }
 ```
+
+```wf
+app {
+    Navbar { Navbar.Brand { Link("Acme", to: "/") } }
+    Router(transition: .fade, duration: "200ms")
+}
+```
+
+Renders with the class `wf-router`.
 
 | Prop | Type | Meaning |
 |---|---|---|
@@ -1313,9 +1826,55 @@ Events every element accepts in an `on … { }` handler:
 - `on keypress` — A character key was pressed
 - `on mouseenter` — The pointer entered the element
 - `on mouseleave` — The pointer left the element
+- `on dblclick` — The element was double-clicked
+- `on contextmenu` — The context menu was asked for; `e.preventDefault()` keeps the browser's
+- `on mousedown` — A mouse button went down over the element
+- `on mouseup` — A mouse button came up over the element
+- `on mousemove` — The mouse moved over the element
+- `on mouseover` — The pointer moved onto the element or one of its children
+- `on mouseout` — The pointer moved off the element or one of its children
+- `on pointerdown` — A pointer — mouse, pen or touch — went down
+- `on pointerup` — A pointer came up
+- `on pointermove` — A pointer moved
+- `on pointerenter` — A pointer entered the element
+- `on pointerleave` — A pointer left the element
+- `on pointercancel` — The browser took the pointer back, for a scroll or a gesture
+- `on touchstart` — A finger touched the element
+- `on touchend` — A finger left the element
+- `on touchmove` — A finger moved across the element
+- `on wheel` — The wheel or trackpad scrolled over the element
+- `on scroll` — The element's content scrolled
+- `on focusin` — The element or something inside it received focus
+- `on focusout` — The element or something inside it lost focus
+- `on reset` — The form was reset
+- `on invalid` — A control failed the browser's own validation
+- `on select` — Text in a field was selected
+- `on copy` — Something was copied from the element
+- `on cut` — Something was cut from the element
+- `on paste` — Something was pasted into the element; `e.clipboardData` holds it
+- `on dragstart` — The element started being dragged
+- `on drag` — The element is being dragged
+- `on dragend` — A drag of the element ended
+- `on dragenter` — Something dragged entered the element
+- `on dragover` — Something dragged is over the element; `e.preventDefault()` allows a drop
+- `on dragleave` — Something dragged left the element
+- `on drop` — Something was dropped on the element; `e.dataTransfer` holds it
+- `on load` — An image, video or frame finished loading
+- `on error` — An image, video or script failed to load
+- `on play` — A video or audio started playing
+- `on pause` — A video or audio paused
+- `on ended` — A video or audio reached its end
+- `on timeupdate` — A playing video or audio moved on
+- `on animationend` — A CSS animation on the element ended
+- `on transitionend` — A CSS transition on the element ended
+- `on toggle` — A details element opened or closed
 
 ## Icons
 
 The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.
 
 `close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon`
+
+## Next
+
+[CLI](37-cli.md).

@@ -154,7 +154,8 @@ page Home(path: "/", title: "Home") {
 
 - `path` — URL route. A dynamic segment is a typed parameter of the page:
   `page User(path: "/user/:id", id: String) { Text(id) }`
-- `title` — Browser tab title, and the heading of a search result
+- `title` — Browser tab title, and the heading of a search result; may name
+  the page's parameters: `title: "{slug} — Blog"`
 - `description` — The snippet a search result and a link preview show
 - `image` — Link-preview image, site-relative or absolute
 - `type` — `"website"` (default) or `"article"`
@@ -675,7 +676,10 @@ Input(bind: q) {
 ```
 
 DOM events: `click`, `input`, `change`, `submit`, `focus`, `blur`,
-`keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`. The handler's
+`keydown`, `keyup`, `keypress`, `mouseenter`, `mouseleave`, and every other
+standard one — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`,
+`touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `ended`,
+`animationend`, … (`wf registry --json` lists them). The handler's
 parameter names the DOM event; without one, `event` is in scope. An
 element's block is ordered `style` → `transition` → `on …` → slot fills →
 children.
@@ -1153,7 +1157,7 @@ action throws, what was shown is taken back — the action rolls itself back:
 ```wf
 action rename(id: String, name: String) {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id, { name: name })
+    await Backend.updateUser(id: id, body: { name: name })
     Backend.users.invalidate()
 }
 ```
@@ -1370,7 +1374,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Image` | `Image(src: "/photo.jpg", alt: "Description")`, or `Image(hero, alt: "…", sizes: "…", placeholder: .blur)` with an `image` the program declares — decoded asynchronously; the first image on a page loads eagerly at high priority (it is usually the largest paint), the rest lazily. `loading:` overrides |
 | `Video` | `Video(src: "/video.mp4", captions: "/clip.en.vtt", poster: "/frame.jpg").controls` — `muted`, `loop`, `playsinline`; without `captions` it draws an `A09` |
 | `Audio` | `Audio(src: "/talk.mp3", transcript: "/talk.txt").controls` — the transcript is a link beneath the player |
-| `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 30 built-in SVG icons rendered inline |
+| `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 32 built-in SVG icons rendered inline |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 
 ### Typography
@@ -1506,9 +1510,9 @@ FileUpload(accept: ".pdf,.doc", label: "Documents").multiple
 
 ### Icon System
 
-WebFluent includes 30 built-in SVG icons, rendered inline. Available icons:
+WebFluent includes 32 built-in SVG icons, rendered inline. Available icons:
 
-`home`, `menu`, `search`, `close`, `user`, `settings`, `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`, `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`, `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`, `chevron-left`, `logout`, `copy`
+`home`, `menu`, `search`, `close`, `user`, `settings`, `check`, `plus`, `minus`, `edit`, `trash`, `star`, `heart`, `mail`, `bell`, `download`, `upload`, `eye`, `link`, `calendar`, `filter`, `info`, `warning`, `arrow-left`, `arrow-right`, `chevron-down`, `chevron-right`, `chevron-left`, `logout`, `copy`, `sun`, `moon`
 
 Usage:
 
@@ -1879,9 +1883,6 @@ from a stylesheet as `var(--surface-raised)`. Declare one and it is used
 automatically; declare several and pick one with `"theme": { "name":
 "Brand" }`.
 
-Four starting points ship in `examples/themes/` — copy one into `src/` and edit
-it. They are ordinary source files, not engine settings.
-
 **Dark mode.** Declare a second theme with the tokens that change and name
 it in the config: `"theme": { "name": "Brand", "dark": "Night" }`. Its
 tokens apply under `prefers-color-scheme: dark`, and whenever the reader
@@ -1939,7 +1940,7 @@ reaches. The runtime is a set of feature modules (`each`, `router`, `net`,
 bundle it just wrote: every `WF.<name>` the code generator emitted, closed
 over each module's dependencies, plus the glyphs the program names, which
 are the only ones the icon table keeps. A page that shows static text
-carries 19 kB of runtime where the whole of it is 107 kB; a `for` adds
+carries 3 of the 37 modules — an `app.js` of 3.7 kB gzipped; a `for` adds
 `each`, a second page adds `router`, a `resource` adds `net`.
 
 Nothing is hand-marked, so the set cannot fall behind the compiler. A name
@@ -1960,7 +1961,7 @@ with its size and what reached it.
     app.js                                10.6 kB  (3.6 kB gzipped)  −0.1 kB
     styles.css                            10.0 kB  (2.7 kB gzipped)
 
-  Runtime: 3 of 28 modules, 22.4 kB of 107.2 kB (before minifying)
+  Runtime: 3 of 37 modules, 23.4 kB of 220.3 kB (before minifying)
     core          18.6 kB  always
     pages          2.5 kB  WF.page
     hydrate        0.9 kB  WF.hydrate
@@ -2548,7 +2549,7 @@ site's other tabs, and `WF.store`/`WF.host` were renamed.
         "sync": false
     },
     "i18n": {
-        "defaultLocale": "en",
+        "default_locale": "en",
         "locales": ["en"],
         "dir": "src/translations"
     }
@@ -2566,7 +2567,7 @@ WebFluent can be used as a **template engine** from Rust or Node.js to render `.
 wf render template.wf --data data.json --format html -o output.html
 
 # Render to HTML fragment (no <html> wrapper)
-wf render template.wf --data data.json --format fragment
+wf render template.wf --data data.json --format html-fragment
 
 # Render to PDF
 wf render template.wf --data data.json --format pdf -o report.pdf
@@ -2601,6 +2602,8 @@ let html = tpl.with_theme("Brand")
 ### Node.js API
 
 ```javascript
+// bindings/node — a wrapper around `wf render`, not on npm yet:
+// npm install /path/to/WebFluent/bindings/node
 const { Template } = require('@aspect/webfluent');
 
 const tpl = Template.fromString('Container { Heading("Hello, {name}!").h1 }');

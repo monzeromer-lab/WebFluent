@@ -1,5 +1,7 @@
 # WebFluent Template Engine Specification
 
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 34-server-rendering.md. Where the two differ, the guide is right.
+
 ## Overview
 
 WebFluent can be used as a **template engine** from other programming languages (Rust, Node.js, etc.) to render `.wf` templates into HTML strings or PDF bytes. This enables server-side rendering of emails, reports, invoices, documentation, and static pages using WebFluent's component system and design tokens.

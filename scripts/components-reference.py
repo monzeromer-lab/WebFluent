@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write md-docs/20-components-reference.md from `wf registry --json`.
+"""Write the guide's components reference from `wf registry --json`.
 
 The registry is the compiler's own description of every built-in, so the
 reference can never drift from what the compiler accepts. Rerun after the
@@ -11,6 +11,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from component_examples import EXAMPLES  # noqa: E402
+# The chapter is whichever `NN-components-reference.md` the guide has: its
+# number is its place in the guide, not something this script decides.
+TARGET = next((ROOT / "md-docs").glob("[0-9][0-9]-components-reference.md"))
+NUMBER = int(TARGET.name[:2])
 wf = ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
@@ -33,8 +39,15 @@ def prop_line(p):
     return f"| `{p['name']}:` | {ty} | {esc(p['summary'])} |"
 
 out = []
-out.append("# 19. Built-in components — reference\n")
-out.append("Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`; edit the registry, not this file.\n")
+out.append(f"# {NUMBER}. Components reference\n")
+out.append("""<!--
+route: reference
+group: reference
+blurb: Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry.
+description: The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example.
+-->
+""")
+out.append("Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`, with an example of each from `scripts/component_examples.py`; edit those, not this file.\n")
 out.append("Every component is written `Name(positional, prop: value).flag { block }`. A **prop** is passed by name; the one **positional** prop, where there is one, comes first and unnamed. A **flag** is written after the parentheses with a dot: a `Bool` prop, or a case of one of the element's enum props (`Button(\"x\").primary.lg`). An **enum prop** takes a case written `.case` (`Row(gap: .md)`). Every element also takes the universal props and events listed at the end, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).\n")
 
 groups = []
@@ -67,6 +80,12 @@ for g in groups:
         if c["children"] == "elements":
             sig += " { … }"
         out.append(f"```\n{sig}\n```\n")
+        example = EXAMPLES.get(name)
+        if example is None:
+            sys.exit(f"scripts/component_examples.py has no example of {name}")
+        out.append(f"```wf\n{example}\n```\n")
+        if c.get("class"):
+            out.append(f"Renders with the class `{c['class']}`.\n")
         rows = []
         if pos:
             rows.append(f"| `{pos['name']}` (positional) | `{pos['type']}` | {esc(pos['summary'])} |")
@@ -120,5 +139,7 @@ out.append("## Icons\n")
 out.append("The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.\n")
 out.append(" ".join(f"`{i}`" for i in data["icons"]) + "\n")
 
-(ROOT / "md-docs" / "20-components-reference.md").write_text("\n".join(out))
-print("wrote md-docs/20-components-reference.md")
+out.append("## Next\n")
+out.append("[CLI](37-cli.md).\n")
+TARGET.write_text("\n".join(out))
+print(f"wrote {TARGET.relative_to(ROOT)}")

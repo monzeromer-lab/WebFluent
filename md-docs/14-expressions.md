@@ -1,4 +1,11 @@
-# 11. Expressions
+# 14. Expressions
+
+<!--
+route: guide/expressions
+group: basics
+blurb: The whole expression language: literals, interpolation, operators, values that choose, calls, methods, formatting and await.
+description: Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens and await.
+-->
 
 An expression is a value: a prop's value, a condition, the right side of a
 `state` or `derived`, the inside of `{…}` in a string. This chapter is the
@@ -21,8 +28,26 @@ page Literals(path: "/") {
 }
 ```
 
-Strings are double-quoted; `\"`, `\\`, `\n` and `\t` escape. Lists and map
-literals may span lines and take a trailing comma.
+Strings are double-quoted and read the escapes `\n`, `\t`, `\r`, `\\`,
+`\"`, `\{` and `\}`; a raw string `#"…"#` and a block string `"""…"""` are in
+[Language basics](05-language-basics.md#three-ways-to-write-one). Lists and
+map literals may span lines and take a trailing comma.
+
+The language's own types have literals of their own
+([Types](13-types.md#the-types-the-language-brings-with-it)):
+
+```wf
+page Typed(path: "/", title: "Typed", description: "Literals of the built-in types.") {
+    state due: Date = @2026-03-14             // a Date
+    state opens: Time = @09:30                // a Time
+    state at: DateTime = @2026-03-14T09:30Z   // a DateTime
+    state wait: Duration = 90.minutes         // a Duration: ms, seconds, minutes, hours, days, weeks
+    state price: Money = €12.99               // Money, in minor units; $ and £ too
+    state brand: Color = #0F766E              // a Color
+    Heading("Typed").h1
+    Text("{due} {opens} {at} {wait.minutes()} {format(price)} {brand}")
+}
+```
 
 ## Interpolation
 
@@ -84,8 +109,9 @@ takes a name first (`derived ratio = 0.256`, then `{ratio:.percent(1)}`).
 
 `+` joins strings when either side is a `String`, and adds numbers otherwise.
 `==` compares values; two records with the same fields are not `==` unless
-they are the same object, so compare ids. Precedence is the usual: `!` and
-unary `-`, then `* / %`, `+ -`, comparisons, `&&`, `||`, `??`.
+they are the same object, so compare ids. Precedence, strongest first: `!`
+and unary `-`, then `* / %`, `+ -`, comparisons, equality, `&&`, `||`, `??`,
+and ranges last ([Grammar](43-grammar.md#expressions)).
 
 ```wf
 page Ops(path: "/") {
@@ -230,7 +256,7 @@ page Regex(path: "/") {
 
 ## Tokens as values
 
-`$name` names a design token from the theme ([chapter 12](12-styling.md)).
+`$name` names a design token from the theme ([chapter 15](15-styling.md)).
 In a style it becomes the CSS variable; as a value it is the variable
 reference, so a prop that takes a color takes a token:
 
@@ -254,10 +280,9 @@ page Await(path: "/") {
     state rows: [Map] = []
     state note = ""
     action load() {
-        let r = await fetch("/api/rows")
-        rows = r.rows
-        let text = await fetch("/api/note", { method: "GET" })
-        note = text.note
+        rows = await fetch("/api/rows")
+        let answer = await fetch("/api/note", { method: "GET" })
+        note = answer.text ?? ""
     }
     Button("Load", disabled: load.pending) { on click { load() } }
     Text("{rows.length} rows, note: {note}")
@@ -266,10 +291,10 @@ page Await(path: "/") {
 
 `fetch(url, options)` returns the parsed JSON body (or throws on a failed
 response); `options` is a map with `method`, `headers`, `body` (a map is
-sent as JSON). [Chapter 14](14-data.md) has `resource`, the declarative
+sent as JSON). [Chapter 17](17-data.md) has `resource`, the declarative
 form.
 
-## Constants and environment
+## Constants
 
 ```wf
 const MAX_ROWS = 50
@@ -280,8 +305,11 @@ page Consts(path: "/") {
 }
 ```
 
-`const` declares a project-wide value; `env.NAME` reads a variable from the
-build environment (and `.env` in the project root). Both are inlined.
+`const` declares a project-wide value, read by name everywhere and inlined
+into the bundle. It may carry a type: `const PAGE_SIZE: Number = 20`.
+`env.NAME` reads a value fixed at build time — from the config's `env` map,
+a `.env` file, or the shell — and only a public name may be read from a page;
+[Environments](30-environments.md) has the rules.
 
 ## Built-in functions
 
@@ -292,16 +320,18 @@ component or one of the browser's own globals.
 | Name | Does |
 |---|---|
 | `log(x, …)` | Prints to the console |
-| `navigate(path)` | Changes the route ([chapter 3](03-pages-and-routing.md#links-and-navigation)) |
+| `navigate(path)` | Changes the route ([chapter 6](06-pages-and-routing.md#links-and-navigation)) |
 | `format(v, .style, opt)`, `ago(d)` | [Above](#format-and-ago) |
-| `t("key", args)`, `setLocale("ar")` | Translates, and switches locale ([chapter 15](15-i18n.md)) |
-| `setTheme("dark")` | `"dark"`, `"light"` or `"system"`, kept across visits ([chapter 12](12-styling.md#dark-mode)) |
-| `every(ms) { }`, `after(ms) { }` | Timers ([chapter 5](05-state-and-reactivity.md#timers)) |
-| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays one by hand ([chapter 13](13-motion.md#driving-one-yourself)) |
-| `optimistic(holder, change)` | Shows a change before the server agrees ([chapter 14](14-data.md#showing-a-change-before-the-server-agrees)) |
-| `beacon(url, data)` | A send that outlives the page ([chapter 14](14-data.md#a-connection-the-page-holds-open)) |
-| `sanitize(html)` | Markup, through an allow-list ([chapter 19](19-security.md#markup-you-did-not-write)) |
-| `uuid()` | A fresh `Uuid` ([chapter 10](10-types.md#the-types-the-language-brings-with-it)) |
+| `t("key", args)`, `setLocale("ar")` | Translates, and switches locale ([chapter 21](21-i18n.md)) |
+| `setTheme("dark")` | `"dark"`, `"light"` or `"system"`, kept across visits ([chapter 15](15-styling.md#dark-mode)) |
+| `every(ms) { }`, `after(ms) { }` | Timers ([chapter 8](08-state-and-reactivity.md#timers)) |
+| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays one by hand ([chapter 20](20-motion.md#driving-one-yourself)) |
+| `optimistic(holder, change)` | Shows a change before the server agrees ([chapter 17](17-data.md#showing-a-change-before-the-server-agrees)) |
+| `beacon(url, data)` | A send that outlives the page ([chapter 18](18-realtime.md)) |
+| `sanitize(html)` | Markup, through an allow-list ([chapter 23](23-security.md#markup-you-did-not-write)) |
+| `uuid()` | A fresh `Uuid` ([chapter 13](13-types.md#the-types-the-language-brings-with-it)) |
+| `fetch(url, options)` | A request, through the same engine as `api` ([Data](17-data.md#await-fetch-in-an-action)) |
+| `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)` | Open a socket, a stream, a channel or a peer, after `socket x =` and the rest ([Real-time](18-realtime.md)) |
 
 The browser's own globals need no prefix and compile to themselves:
 `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`,
@@ -310,8 +340,10 @@ The browser's own globals need no prefix and compile to themselves:
 `Number`, `Boolean`, `Promise`, `Error`, `Map`, `Set`, `RegExp`,
 `Infinity`, `NaN`, `undefined`, `encodeURIComponent`, `decodeURIComponent`,
 `encodeURI`, `decodeURI`, `atob`, `btoa`, `fetch`, `alert`, `confirm`,
-`prompt`, `requestAnimationFrame` and `cancelAnimationFrame`.
+`prompt`, `requestAnimationFrame`, `cancelAnimationFrame`, `navigator`,
+`location` and the other platform names [Built-ins](40-built-ins.md#browser-globals)
+lists.
 
 ## Next
 
-[Styling](12-styling.md).
+[Styling](15-styling.md).

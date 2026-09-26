@@ -1,0 +1,37 @@
+// md-docs/32-javascript-interop.md
+external Charts from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/auto/+esm" {
+    fn Chart(canvas: Any, config: Map) -> ChartHandle
+    type ChartHandle {
+        update()
+        destroy()
+        data: Map
+    }
+}
+page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
+    state values: [Number] = [12, 19, 7, 15]
+
+    action redraw(chart: ChartHandle) {
+        chart.data.datasets[0].data = values
+        chart.update()
+    }
+
+    Heading("Sales").h1
+    Host(tag: "canvas",
+         mount: (node) => Charts.Chart(node, { type: "bar", data: { labels: ["Q1", "Q2", "Q3", "Q4"], datasets: [{ label: "Sales", data: values }] } }),
+         update: (chart) => redraw(chart),
+         cleanup: (chart) => chart.destroy())
+    Button("Add a quarter") { on click { values = [...values, 10] } }
+}
+
+// md-docs/32-javascript-interop.md
+external element Stripe("stripe-pricing-table") {
+    prop publishableKey: String
+    prop pricingTableId: String
+    event ready()
+}
+
+// md-docs/32-javascript-interop.md
+page Doc(path: "/") {
+    Stripe(publishableKey: key, pricingTableId: "prctbl_1") { on ready { loaded = true } }
+}
+

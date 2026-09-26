@@ -1,4 +1,11 @@
-# 5. State and reactivity
+# 8. State and reactivity
+
+<!--
+route: guide/state
+group: basics
+blurb: Reactivity here is fine-grained: a state is a signal, and only the thing that read it updates.
+description: state, derived, effect, actions and let, persist, timers, clean-up, element handles and the browser's values.
+-->
 
 WebFluent's reactivity is fine-grained: a `state` is a signal, and anything
 that reads it — a text, an attribute, a `derived` value, an `effect`, a style
@@ -22,7 +29,7 @@ page Counter(path: "/") {
 
 A `state` is declared at the top of a page, component or store body, with an
 initial value. Its type is read off the value, or written after a colon;
-[chapter 10](10-types.md) has the type language. Assigning a value of another
+[chapter 13](13-types.md) has the type language. Assigning a value of another
 type is an error (`T01`).
 
 State is written only in an imperative block — a handler, an action, an
@@ -62,17 +69,14 @@ the effect lives in) leaves:
 ```wf
 page Watch(path: "/") {
     state query = ""
-    state hits = 0
     effect {
         log("query is now {query}")
-        hits = hits + 1
     }
     effect {
         document.title = "Search: {query}"
         cleanup { document.title = "Search" }
     }
     Input(bind: query, placeholder: "Search")
-    Text("{hits} runs")
 }
 ```
 
@@ -118,7 +122,7 @@ page Todos(path: "/") {
 - `let x = …` declares a local of the action (or handler). `let { a, b } = m`
   and `let [x, y] = l` destructure.
 - `await` inside an action makes it asynchronous; `name.pending` is `true`
-  while a call of it runs ([chapter 6](06-events-and-forms.md#pending-actions)).
+  while a call of it runs ([chapter 16](16-forms.md#pending-actions)).
 - `for item in list { }`, `for item, i in list { }` and `for n in 1..=10 { }`
   loop; `try { } catch e { }` guards a call that may fail; `return x` leaves
   with a value.
@@ -142,13 +146,17 @@ page Prefs(path: "/") {
 }
 ```
 
+A `persist` may say more about itself — which storage, a version with
+migrations, whether to follow other tabs — in a block after it; that and the
+rest of the policy are in [Stores](12-stores.md#keeping-a-value-across-visits).
 It works in a store too, where every page shares it. The key is the owner's
 name and the state's (`Prefs.theme`), so a page and a store may each have a
 `theme`. Storage that is blocked or full falls back to the initial value.
 
 ## Timers
 
-`every(ms) { }` repeats; `after(ms) { }` fires once. Both stop when what
+`every(ms) { }` repeats; `after(ms) { }` fires once. The interval is a number
+of milliseconds, or a duration: `every(5.seconds)`, `after(2.minutes)`. Both stop when what
 declared them leaves the page — a branch that closes, a list item that is
 removed, a route that changes:
 
@@ -163,7 +171,7 @@ page Clock(path: "/") {
 }
 ```
 
-## Ownership: what leaves, leaves
+## Automatic clean-up
 
 Everything a body creates — effects, timers, listeners, handles — belongs to
 the scope it was created in. When that scope's nodes leave (an `if` branch
@@ -190,21 +198,52 @@ the element has.
 
 ## The browser as values
 
-Four names are always in scope, kept current by the runtime:
+Some names are always in scope, kept current by the runtime, so a page reads
+the browser the way it reads its own state:
+
+| Name | Is | Updates when |
+|---|---|---|
+| `viewport` | `.width`, `.height`, and `.sm` `.md` `.lg` `.xl` — whether the window is at least that breakpoint | a breakpoint is crossed (through `matchMedia`, not on every pixel) |
+| `query` | the URL's query string as a map: `query.tab` for `?tab=x` | the URL changes |
+| `hash` | the URL's `#fragment`, without the `#` | the URL changes |
+| `theme` | `"light"`, `"dark"` or `"system"` — the reader's choice ([Styling](15-styling.md#dark-mode)) | `setTheme(…)` is called |
+| `now` | a `DateTime`, every minute; `now(every: 1.seconds)` for a finer clock ([Types](13-types.md#now)) | the clock ticks |
+| `network` | `.online`, `.effectiveType`, `.saveData`, `.downlink`, `.queued` ([Real-time](18-realtime.md#the-network-as-a-value)) | the connection changes |
+| `update` | `.available` and `.apply()` — a new version of an offline site ([Offline](19-offline.md)) | a new build is installed |
+| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([i18n](21-i18n.md)) | `setLocale(…)` is called |
 
 ```wf
-page Where(path: "/") {
-    Text(if viewport.md { "wide" } else { "narrow" })   // viewport.width, .height, .sm .md .lg .xl
-    derived tab = query.tab ?? "all"                      // the URL's ?tab=x
-    Text("Tab: {tab}")
-    Text("Section: {hash}")                               // the URL's #fragment
-    Text("Theme: {theme}")                                // light, dark or system
+page Where(path: "/", title: "Where", description: "The browser, read as values.") {
+    Heading("Where am I?").h1
+    Text(if viewport.md { "A wide window" } else { "A narrow window" })
+    derived tab = query.tab ?? "all"
+    Text("Tab: {tab}, section: {hash}")
+    Text("Theme: {theme}")
+    if !network.online { Alert("You are offline.").warning }
 }
 ```
 
-Breakpoints: `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px. A `state` you
-declare with one of these names shadows it. In the static paint they are
-unknown, so a condition on them renders as its live branch once hydrated.
+Breakpoints are the `screen-sm` … `screen-xl` design tokens — 640, 768, 1024
+and 1280px unless a theme moves them. A `state` you declare with one of
+these names shadows it. In the static paint they are unknown, so what depends
+on them is drawn once the page is live — for layout, prefer
+[responsive values](15-styling.md#responsive-values), which are right in the
+first paint.
+
+## Common mistakes
+
+- **Writing state in a `derived`.** A derived value computes; it never
+  assigns. Put the assignment in an action or an `effect`.
+- **An effect that writes what it reads.** `effect { n = n + 1 }` reads `n`,
+  so it runs again, forever. Compute it with `derived` instead.
+- **Mutating a list and expecting a copy.** `items.push(x)` changes `items`
+  in place and notifies its readers; `let copy = items` is the same list.
+  Use `items.slice()` or `[...items]` for a copy.
+- **Reading an element handle during set-up.** A `ref:` is filled once the
+  element exists; read it in a handler, an `effect` or `after(0) { }`.
+- **Expecting a component to re-run.** A component's body runs once. A value
+  that should follow a prop or a state is a `derived`, or an expression
+  written where it is shown.
 
 ## Where values come from, in order
 
@@ -212,10 +251,11 @@ unknown, so a condition on them renders as its live branch once hydrated.
 2. `state`, `persist`, `derived`, `resource`, actions of the body.
 3. A `use`d store's members, through the store's name (`Cart.total`).
 4. Loop variables and arm bindings inside their block.
-5. Constants and `data` files, `env.X`, the browser's values.
+5. Constants, `data` and `image` declarations, `env.X`, and the browser's
+   values above.
 6. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
    `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.
 
 ## Next
 
-[Events and forms](06-events-and-forms.md).
+[Events](09-events.md).

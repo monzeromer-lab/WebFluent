@@ -1,5 +1,16 @@
 # WebFluent v4.1 Release Notes
 
+## Security
+
+### A private `env` value no longer reaches the bundle
+
+4.0 made a page that *reads* a non-public `env` name a compile error — and
+then wrote the whole `env` map into `app.js` as `const env = {…}` anyway, so
+a value like `STRIPE_SECRET` in `webfluent.app.json` was downloaded by every
+reader. The bundle now carries only the names a page may read: those
+beginning `PUBLIC_` and those `public_env` lists. **If a site built with 4.0
+or 4.0.1 had a secret in `env`, rotate it.**
+
 ## Added
 
 ### Offline
@@ -34,7 +45,79 @@ the `initiator`; `ice:` names STUN or TURN servers. A page that leaves
 closes its peer, and the other side reads `closed` at once. Held to two
 pages in a real Chrome in CI (`tests/browser/peer.mjs`).
 
+### The documentation, rewritten
+
+The guide is 48 chapters in six parts — Start, the basics, Building,
+Shipping, Reference and Help — with a tutorial that ends in a deployed
+site, chapters for forms, real-time, offline, accessibility, testing,
+deploying, environments, performance and JavaScript interop, and reference
+chapters for every command, config key, diagnostic, built-in, design token,
+runtime function and keyword. It is held to the compiler: every example is
+compiled, every page example is run and clicked through, every diagnostic
+example draws its code, every link lands, and a test fails when the language
+has something the guide does not name.
+
+### `env` from a `.env` file and the shell
+
+`env.NAME` reads the config's `env` map, then a `.env` file beside it, then
+the shell — so a pipeline can give staging and production their own values
+without editing a file. The shell supplies a name the config or `.env`
+declares, or a public one.
+
+### A config key nothing reads is reported
+
+`"defaultLocale"` in `webfluent.app.json` was dropped without a word; the
+build now warns and names the key it meant (`default_locale`). `wf init
+-t static` itself wrote the misspelling, and so did the documentation site.
+
+### And
+
+- **Pagination**: `resource list = Api.items(page: page, paginate: .page)`,
+  then `list.items`, `list.loadMore()`, `list.hasMore`. The compiler emitted
+  the option and the checker refused it; the runtime now has it.
+- **A route's parameters in its title**: `title: "{slug} — Blog"` gives each
+  pre-rendered file, and the live tab, that route's value.
+- **`?lang=ar`** opens a page in that locale — the address the build's
+  `hreflang` alternates always pointed at.
+- **Every standard DOM event** in `on …`: `dblclick`, `pointerdown`,
+  `scroll`, `paste`, `drop` and the rest, without a warning.
+- **`on open { }`** on a socket, as a peer and a channel had it.
+- **A class a module exports** is constructed when an `external` calls it,
+  so Chart.js and most modern libraries work through `external` + `Host`.
+- `wf init` writes a `.gitignore`; `wf generate page` gives the page a
+  description.
+
 ## Fixed
+
+### An action's parameters
+
+`action move(by: Number) { n = n + by }` on a page or a component compiled
+`by` as a signal, `_by()`, which does not exist: every such action threw the
+first time it ran. A store's actions were never affected.
+
+### What the guide's examples found
+
+Writing every example out as a real page and running it found programs the
+checks accepted and the browser rejected:
+
+- `head { meta(content: post?.title) }` read a `derived` before it existed.
+- `Text("{rows.state}")` showed a signal's source; a resource's `state`,
+  `data`, `error` and a socket's `messages` are now read as their values.
+- `navigator` and `location` compiled as signals.
+- `app { state … }` never declared its state.
+- `now(every: 1.seconds)` called a `now` nothing declared.
+- An action handed over as a value, `addEventListener("scroll", track)`, was
+  read as a signal.
+- A type an `external` declares could not annotate a value.
+- `Backend.avatar.progress` was refused by the checker.
+- Two declarations on one line — `theme T { color-primary: #0F766E
+  radius-md: 14px }` — were read as one, setting the first token to both.
+- `S04` never reported two pages on one route; `A12` counted an `h1` in each
+  branch of an `if` as two.
+- A test that clicks failed in any project with a dark theme.
+- The CSP check took a code sample's `onClick=` for an attribute.
+- Warnings printed as `Warning: Error: …`.
+- The Node binding did not look where the installer puts `wf`.
 
 ### A `site_url` with the subpath in it
 
@@ -84,7 +167,10 @@ and no two runtime modules may declare the same name.
 - **Zed**: the grammar reads WebFluent 4 — `api`, connections, `validate`,
   refined types, the language's literals — where it used to mark them as
   errors, and a call with a bare-name argument (`remove(i)`) no longer
-  fails to parse. It is held to every example in the guide.
+  fails to parse. It is held to every example in the guide. A string that
+  begins `"/// …"` — a sample of code — is text, not a doc comment.
+- **Neovim, Helix and Emacs**: the guide's CLI chapter has the configuration
+  for each.
 - **VS Code 0.3.0**: attached to this release as a `.vsix`. It is bundled —
   the 0.2.0 package could not start — finds `wf-lsp.exe` on Windows, and
   downloads the server from the latest release when it is not on `PATH`.

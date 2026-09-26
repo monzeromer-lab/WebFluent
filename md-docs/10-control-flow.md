@@ -1,8 +1,15 @@
-# 7. Control flow
+# 10. Control flow
+
+<!--
+route: guide/control-flow
+group: basics
+blurb: Five statements decide what shows: if, if let, for, show and match. Each creates and removes elements as its condition changes.
+description: if, if let, for … by, show and match, in render blocks and in actions.
+-->
 
 Inside a render block, five statements decide what shows: `if`, `if let`,
 `for`, `show` and `match`. Each creates and removes elements as its condition
-changes, and each animates if you ask it to ([chapter 13](13-motion.md)).
+changes, and each animates if you ask it to ([chapter 20](20-motion.md)).
 
 ## `if` / `else if` / `else`
 
@@ -110,7 +117,7 @@ page Job(path: "/") {
 }
 ```
 
-Over a **resource** it chooses by the request's state — [chapter 14](14-data.md).
+Over a **resource** it chooses by the request's state — [chapter 17](17-data.md).
 
 An arm binds one name per part of the payload; `else` covers the rest. Every
 case of an enum has to be handled or covered by `else` only in a match
@@ -161,4 +168,4 @@ page Sync(path: "/") {
 
 ## Next
 
-[Components](08-components.md).
+[Components](11-components.md).

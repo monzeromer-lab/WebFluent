@@ -26,9 +26,12 @@ if not wf.exists():
     wf = "wf"
 
 import importlib.util
+import sys
 spec = importlib.util.spec_from_file_location("guide", ROOT / "scripts" / "site-from-guide.py")
 guide = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guide)
+sys.path.insert(0, str(ROOT / "scripts"))
+from component_examples import EXAMPLES  # noqa: E402
 
 
 def legacy(c):
@@ -95,6 +98,8 @@ def registry():
             "parts": parts,
             "attributes": c.get("attributes") or [],
             "nearby": siblings[:4],
+            "example": EXAMPLES.get(c["name"], ""),
+            "cssClass": c.get("class") or "",
         })
     universal = {
         "props": [prop_row(p) for p in data["universal"]["props"]],
@@ -103,19 +108,62 @@ def registry():
     return {"groups": groups, "components": out, "universal": universal, "icons": data["icons"], "count": len(out)}
 
 
+STOP = set("""about after again also always another because before being between both cannot could does doesn during each either every first from have here into itself just like made make many more most much must need never only other over same should since some such than that their them then there these they this those through under until very what when where which while with within without would your yours""".split())
+
+
+def terms(text: str, cap: int = 14) -> str:
+    """The words in a section a reader might search for: what is written as
+    code, capitalised names, and longer words — each once, in order, up to
+    `cap`. The index is part of the site's bundle, so it stays short."""
+    body = re.sub(r"```.*?```", " ", text, flags=re.S)
+    found = []
+    for code in re.findall(r"`([^`]+)`", body):
+        for w in re.findall(r"[A-Za-z_$@.][\w.$-]{1,}", code):
+            found.append(w.strip(".").lower())
+    for w in re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", re.sub(r"`[^`]*`", " ", body)):
+        if (w[0].isupper() or len(w) >= 7) and w.lower() not in STOP:
+            found.append(w.lower())
+    seen = []
+    for w in found:
+        if w and w not in seen:
+            seen.append(w)
+    return " ".join(seen[:cap])
+
+
 def search_index():
     rows = []
     for f in sorted((ROOT / "md-docs").glob("[0-9][0-9]-*.md")):
         num = f.name[:2]
-        route, _ = guide.CHAPTERS[num]
+        meta = guide.read_meta(num, f)
+        route = meta["route"]
         md = f.read_text()
-        title = re.sub(r"^# (\d+\.\s*)?", "", next(l for l in md.split("\n") if l.startswith("# "))).strip()
-        rows.append({"chapter": num, "title": title, "section": "", "route": f"/docs/{route}"})
-        for h in re.findall(r"^## (.+)$", md, re.M):
-            text = guide.plain(h)
+        title = meta["title"]
+        if route == guide.REFERENCE_ROUTE:
+            continue  # its entries come from the registry, below
+        rows.append({"chapter": num, "title": title, "section": "", "route": f"/docs/{route}", "words": terms(meta["description"])})
+        # Every `##` and `###` section, with what its text is about.
+        parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
+        for k in range(1, len(parts), 3):
+            text = guide.plain(parts[k + 1])
             if text in ("Next", "Contents"):
                 continue
-            rows.append({"chapter": num, "title": title, "section": text, "route": f"/docs/{route}#{guide.slug(text)}"})
+            rows.append({
+                "chapter": num,
+                "title": title,
+                "section": text,
+                "route": f"/docs/{route}#{guide.slug(text)}",
+                "words": terms(parts[k + 2]),
+            })
+    # Every built-in, by name, with what it takes.
+    ref = next(f for f in (ROOT / "md-docs").glob("[0-9][0-9]-components-reference.md"))
+    for c in registry()["components"]:
+        rows.append({
+            "chapter": ref.name[:2],
+            "title": "Components reference",
+            "section": c["name"],
+            "route": f"/docs/reference/{c['slug']}",
+            "words": terms(c["summary"] + " " + " ".join(f"`{p['name']}`" for p in c["props"])),
+        })
     return rows
 
 

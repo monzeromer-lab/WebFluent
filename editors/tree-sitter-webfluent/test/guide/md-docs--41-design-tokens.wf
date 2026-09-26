@@ -1,0 +1,7 @@
+// md-docs/41-design-tokens.md
+theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+    screen-md: 900px
+}
+

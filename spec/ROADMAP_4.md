@@ -1,7 +1,8 @@
 # WebFluent 4 — the plan
 
 > Approved in outline 2026-09-24; the decisions are recorded at the end.
-> Nothing here is implemented yet.
+> Implemented: every item shipped in 4.0 and 4.1 — this file is the record of
+> the plan and its decisions. The guide, `md-docs/`, describes what was built.
 > Author: Monzer Omer · Date: 2026-09-24
 >
 > Every `wf-next` block is **proposed** syntax: it does not compile today, which

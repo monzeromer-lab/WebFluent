@@ -1,0 +1,163 @@
+// md-docs/11-components.md
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true, avatar: String? = null) {
+    Card.elevated {
+        Row(align: .center, gap: .md) {
+            if let src = avatar { Avatar(src: src, alt: name) } else { Avatar(initials: name.slice(0, 2)).primary }
+            Stack {
+                Text(name).bold
+                Text(role).muted
+            }
+            if active { Badge("Active").success }
+        }
+    }
+}
+page Team(path: "/") {
+    UserCard("Monzer", role: "Developer")
+    UserCard("Sam", role: "Designer", active: false, avatar: "/sam.png")
+    UserCard("Ann", role: "PM").active
+}
+
+// md-docs/11-components.md
+enum Tone { calm, loud }
+component Note(_ text: String, tone: Tone = .calm) {
+    Text(text) {
+        style { padding: $sm; border-radius: $radius-sm }
+    }
+}
+page Notes(path: "/") {
+    Note("Quiet")
+    Note("Loud!", tone: .loud)
+    Note("Loud too").loud
+}
+
+// md-docs/11-components.md
+type Todo { id: String, title: String, done: Bool = false }
+component TodoRow(_ todo: Todo) {
+    event toggle(id: String)
+    event remove(id: String)
+    Row(align: .center, gap: .sm) {
+        Checkbox(checked: todo.done, label: todo.title) { on change { emit toggle(todo.id) } }
+        IconButton(icon: "trash", label: "Remove {todo.title}").sm { on click { emit remove(todo.id) } }
+    }
+}
+page Todos(path: "/") {
+    state todos: [Todo] = [Todo(id: "1", title: "Milk"), Todo(id: "2", title: "Eggs")]
+    action toggle(id: String) {
+        todos = todos.map(t => if t.id == id { Todo(id: t.id, title: t.title, done: !t.done) } else { t })
+    }
+    for t in todos by t.id {
+        TodoRow(t) {
+            on toggle(id) { toggle(id) }
+            on remove(id) { todos = todos.filter(t => t.id != id) }
+        }
+    }
+}
+
+// md-docs/11-components.md
+component Panel(_ title: String) {
+    slot
+    slot trailing
+    Card {
+        Row(justify: .between, align: .center) {
+            Heading(title).h3
+            trailing
+        }
+        children
+    }
+}
+page Keys(path: "/") {
+    Panel("API keys") {
+        trailing { Badge("Beta").info }
+        Text("Rotate every 90 days.")
+        Button("Generate").primary
+    }
+}
+
+// md-docs/11-components.md
+type Todo { id: String, title: String, done: Bool = false }
+component TodoList(items: [Todo]) {
+    slot row(item: Todo, index: Number)
+    slot empty
+    if items.length == 0 {
+        empty
+    } else {
+        for it, i in items by it.id { row(item: it, index: i) }
+    }
+}
+page Use(path: "/") {
+    state todos: [Todo] = [Todo(id: "1", title: "Milk")]
+    TodoList(items: todos) {
+        row(t, i) { Text("{i + 1}. {t.title}") }
+        empty { Text("Nothing to do.").muted }
+    }
+}
+
+// md-docs/11-components.md
+component Panel(_ title: String) {
+    part Header(_ text: String) { Heading(text).h3 }
+    part Footer { Divider  Text("End").muted.sm }
+    Card { Text(title)  children }
+    slot
+}
+page Parts(path: "/") {
+    Panel("Keys") {
+        Panel.Header("Rotate")
+        Text("Body")
+        Panel.Footer
+    }
+}
+
+// md-docs/11-components.md
+component Stepper(_ start: Number, step: Number = 1) {
+    event change(value: Number)
+    state n = start
+    derived even = n % 2 == 0
+    action move(by: Number) { n = n + by  emit change(n) }
+    Row(gap: .sm, align: .center) {
+        Button("−").sm { on click { move(-step) } }
+        Text("{n}").bold
+        Button("+").sm { on click { move(step) } }
+        if even { Badge("even").info }
+    }
+}
+
+// md-docs/11-components.md
+store Cart {
+    state items: [String] = []
+    action add(name: String) { items.push(name) }
+}
+component AddToCart(_ name: String) {
+    use Cart
+    Button("Add {name}").primary { on click { Cart.add(name) } }
+}
+page Shop(path: "/") {
+    use Cart
+    AddToCart("Pen")
+    Text("{Cart.items.length} in cart")
+}
+
+// md-docs/11-components.md
+component Stepper(_ value: Number, label: String, min: Number = 0) {
+    event change(value: Number)
+    Row(gap: .sm, align: .center) {
+        Button("−", disabled: value <= min).sm { on click { emit change(value - 1) } }
+        Text("{label}: {value}")
+        Button("+").sm { on click { emit change(value + 1) } }
+    }
+}
+page Booking(path: "/", title: "Booking", description: "How many seats.") {
+    state seats = 1
+    Heading("Book").h1
+    Stepper(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
+}
+
+// md-docs/11-components.md
+component Chip(_ label: String, extra: String = "", note: String = "") {
+    Badge(label, class: extra, aria-description: note)
+}
+page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
+    Heading("Chips").h1
+    Chip("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
+}
+

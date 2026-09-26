@@ -1,5 +1,7 @@
 # WebFluent Slides — Specification
 
+> **Status: a design note, kept for its reasoning.** The current, tested description is the guide — [`md-docs/`](../md-docs/README.md), here 33-pdf-and-slides.md. Where the two differ, the guide is right.
+
 PDF slide-deck output. One `Slide` = exactly one PDF page; no flow pagination across slides.
 
 ## Output target

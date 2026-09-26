@@ -1,0 +1,27 @@
+// md-docs/28-media.md
+page Media(path: "/") {
+    Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)
+    Image(src: "/deco.png", alt: "")
+    Video(src: "/demo.mp4", captions: "/demo.en.vtt").controls
+    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
+}
+
+// md-docs/28-media.md
+image hero = "hero.jpg"
+page Home(path: "/", title: "Home", description: "The front page.") {
+    Image(hero, alt: "The team at the launch",
+          sizes: "(max-width: 768px) 100vw, 1200px",
+          placeholder: .blur)
+    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
+}
+
+// md-docs/28-media.md
+page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
+    Heading("Gallery").h1
+    Carousel(label: "Recent work", autoplay: true, interval: 5000) {
+        Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
+        Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour from above") }
+        Carousel.Slide { Image(src: "/three.jpg", alt: "Rain on the market") }
+    }
+}
+

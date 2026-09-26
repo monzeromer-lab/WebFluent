@@ -1,4 +1,11 @@
-# 21. Cookbook
+# 35. Cookbook
+
+<!--
+route: cookbook
+group: shipping
+blurb: Three complete applications you can paste into a fresh project, and recipes for the things every site needs.
+description: Three complete applications — todos, a static blog, a guarded dashboard — and recipes for search, pagination, forms, auth, uploads and more.
+-->
 
 Three complete applications, each a single file you can paste into
 `src/App.wf` of a fresh `wf init`, then a set of recipes for things that
@@ -643,20 +650,22 @@ page Signup(path: "/") {
     state password = ""
     state confirm = ""
     state sent = false
-    derived emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
-    derived passwordOk = password.length >= 8
-    derived same = password == confirm
-    derived ok = emailOk && passwordOk && same
+    validate email { required  email "Enter a valid email" }
+    validate password { required  minLength(8) "At least 8 characters" }
+    validate confirm { matches(password) "The passwords differ" }
     Form(bind: form) {
-        on submit { if ok { sent = true  form.reset() } }
-        Input(bind: email, name: "email", label: "Email", error: if email != "" && !emailOk { "Enter a valid email" } else { "" }).email.required
-        Input(bind: password, name: "password", label: "Password", error: if password != "" && !passwordOk { "At least 8 characters" } else { "" }).password.required
-        Input(bind: confirm, name: "confirm", label: "Confirm password", error: if confirm != "" && !same { "Passwords differ" } else { "" }).password.required
-        Button("Create account", type: .submit, disabled: !ok).primary
+        on submit { sent = true  form.reset() }
+        Input(bind: email, name: "email", label: "Email").email
+        Input(bind: password, name: "password", label: "Password").password
+        Input(bind: confirm, name: "confirm", label: "Confirm password").password
+        Button("Create account", type: .submit, disabled: !form.valid).primary
     }
     if sent { Alert("Welcome aboard.").success }
 }
 ```
+
+Each control shows its own message when the reader leaves it, and a submit
+that fails focuses the first problem. [Forms](16-forms.md) has every rule.
 
 ### Tabs with the active tab in the URL
 
@@ -701,11 +710,153 @@ page Countdown(path: "/") {
 }
 ```
 
+### Signing in with a session cookie
+
+```wf
+type User { id: String, name: String }
+
+api Auth(base: "/api") {
+    credentials: .sameOrigin
+    get me() -> User
+    post signIn(body: Map) -> User
+        errors { 401 -> Map }
+    post signOut()
+}
+
+store Session {
+    state user: User? = null
+    state checked = false
+    derived signedIn = user != null
+    action load() {
+        try { user = await Auth.me() } catch e { user = null }
+        checked = true
+    }
+    action signIn(email: String, password: String) {
+        user = await Auth.signIn(body: { email: email, password: password })
+        navigate("/account")
+    }
+    action signOut() {
+        await Auth.signOut()
+        user = null
+        navigate("/")
+    }
+}
+
+page SignIn(path: "/sign-in", title: "Sign in", description: "Sign in to your account.", noindex: true) {
+    state email = ""
+    state password = ""
+    state problem = ""
+    validate email { required  email }
+    validate password { required }
+    action send() {
+        problem = ""
+        try { await Session.signIn(email, password) } catch e { problem = "That email and password do not match." }
+    }
+    Heading("Sign in").h1
+    if problem != "" { Alert(problem).danger }
+    Form(bind: form) {
+        on submit { send() }
+        Input(bind: email, label: "Email").email
+        Input(bind: password, label: "Password").password
+        Button("Sign in", type: .submit, disabled: send.pending).primary
+    }
+}
+
+page Account(path: "/account", title: "Your account", description: "Your account.", guard: Session.signedIn, redirect: "/sign-in") {
+    use Session
+    Heading("Your account").h1
+    if let u = Session.user { Text("Signed in as {u.name}") }
+    Button("Sign out") { on click { Session.signOut() } }
+}
+```
+
+The session is an httpOnly cookie the server sets; the page never holds a
+token. `guard:` hides the page from the signed-out, and the server still
+checks every request ([Security](23-security.md#sessions-and-tokens)).
+Call `Session.load()` from the app's set-up so a returning reader is signed
+in.
+
+### Load more
+
+```wf
+type Item { id: String, name: String }
+
+api Catalog(base: "/api") {
+    get items(page: Number = 1) -> [Item]
+}
+
+page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
+    state page = 1
+    resource list = Catalog.items(page: page, paginate: .page)
+    Heading("Items").h1
+    for item in list.items by item.id { Text(item.name) }
+    if list.hasMore {
+        Button("Load more", disabled: list.state == "loading") { on click { list.loadMore() } }
+    }
+}
+```
+
+### Filters in the URL
+
+```wf
+page Products(path: "/products", title: "Products", description: "Everything we sell.") {
+    derived sort = query.sort ?? "name"
+    Heading("Products").h1
+    Row(gap: .sm) {
+        Link("By name", to: "/products?sort=name")
+        Link("By price", to: "/products?sort=price")
+    }
+    Text("Sorted by {sort}")
+}
+```
+
+A filter in the query string survives a reload, a shared link and the back
+button, where a `state` would not.
+
+### A dark-mode switch
+
+```wf
+page Settings(path: "/settings", title: "Settings", description: "How the site looks.") {
+    Heading("Settings").h1
+    Row(gap: .sm) {
+        Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
+        Button("Dark", outlined: theme != "dark") { on click { setTheme("dark") } }
+        Button("Match the system", outlined: theme != "system") { on click { setTheme("system") } }
+    }
+}
+```
+
+It needs a dark theme named in the config ([Styling](15-styling.md#dark-mode)).
+
+### Copy to the clipboard
+
+```wf
+page Share(path: "/share", title: "Share", description: "Copy the link.") {
+    state copied = false
+    action copy(text: String) {
+        await navigator.clipboard.writeText(text)
+        copied = true
+    }
+    Heading("Share").h1
+    Button("Copy the link") { on click { copy(location.href) } }
+    if copied { Toast("Copied").success }
+}
+```
+
+### A chart
+
+A charting library goes through `external` and `Host`; the full example is in
+[JavaScript interop](32-javascript-interop.md#a-library-end-to-end).
+
 ## Where to go next
 
-- The [components reference](20-components-reference.md) for every prop
+- The [components reference](36-components-reference.md) for every prop
   and flag.
-- The `examples/` and `tests/fixtures/` folders of the repository: a
-  gallery, a marketing site, a dashboard, a docs site and a bespoke
-  design, each a complete project.
+- The `tests/fixtures/` folder of the repository: a gallery, a marketing
+  site, a dashboard, a docs site, an invoice, a deck, an offline site and a
+  bespoke design, each a complete project.
 - `wf docs` in your own project, for what *your* components take.
+
+## Next
+
+[Built-in components — reference](36-components-reference.md).

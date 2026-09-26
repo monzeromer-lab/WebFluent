@@ -1,0 +1,14 @@
+// md-docs/26-static-and-spa.md
+type Post { slug: String, title: String, date: String, body: String }
+data posts: [Post] = "posts.json"
+page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post.", paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    head { meta(property: "og:title", content: post?.title ?? "Post") }
+    if let p = post {
+        Heading(p.title).h1
+        Markdown(p.body)
+    } else {
+        Alert("No such post").warning
+    }
+}
+

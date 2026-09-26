@@ -131,16 +131,12 @@ page Doc(path: "/") {
 }
 
 // AGENTS.md
+image hero = "hero.jpg"
 page Home(path: "/", title: "Home") {
     Image(hero, alt: "The team at the launch",
           sizes: "(max-width: 768px) 100vw, 1200px",
           placeholder: .blur)
     Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
-}
-page Doc(path: "/") {
-    action doc() {
-        image hero = "hero.jpg"
-    }
 }
 
 // AGENTS.md
@@ -508,7 +504,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 page Doc(path: "/") {
     action rename(id: String, name: String) {
         optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-        await Backend.updateUser(id, { name: name })
+        await Backend.updateUser(id: id, body: { name: name })
         Backend.users.invalidate()
     }
 }

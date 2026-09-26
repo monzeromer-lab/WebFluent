@@ -1,0 +1,14 @@
+// md-docs/05-language-basics.md
+page Home(path: "/")
+    state open = true
+    Row(gap: .sm)
+        style
+            padding: 6px 0
+            &:hover
+                background: $surface-hover
+        on click { open = !open }
+        Text("a").bold
+    if open
+        Spinner
+    else
+        Text("b")

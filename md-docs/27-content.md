@@ -1,8 +1,17 @@
-# 16. Content
+# 27. Content
+
+<!--
+route: guide/content
+group: shipping
+blurb: Markdown, pages written as .md files, code on the page, and what the build writes for search engines and link previews.
+description: The Markdown element, .md pages with front matter, search and sharing tags, canonical links, sitemaps, JSON-LD and code blocks.
+-->
 
 A site is also its words: pages of prose, a blog, docs. This chapter covers
-writing content in Markdown, pre-rendering the site to static HTML, and
-what the build does for search engines and link previews.
+writing content in Markdown, showing code, and what the build writes for
+search engines and link previews. Pre-rendering is
+[Static or single-page](26-static-and-spa.md); pictures and video are
+[Media](28-media.md).
 
 ## The `Markdown` element
 
@@ -53,7 +62,7 @@ The front matter keys are the page's attributes: `path` (default: `/` for
 `type`, `noindex`. The page's name is the file's stem, capitalised.
 
 `layout: DocsShell` frames the body in a component with a default slot —
-the same one a `.wf` page names ([chapter 3](03-pages-and-routing.md#layouts)):
+the same one a `.wf` page names ([chapter 6](06-pages-and-routing.md#layouts)):
 
 ```wf
 component DocsShell {
@@ -70,35 +79,7 @@ component DocsShell {
 
 A docs site is a folder of `.md` files, one layout, and a `.wf` for the
 `app`. (`wf docs` is something else: a gallery of every component the
-project can use — [chapter 18](18-tooling.md#wf-docs-wf-registry-wf-types).)
-
-## Static builds
-
-With `"build": { "ssg": true }` every page is pre-rendered to HTML at build
-time: `index.html`, `about/index.html`, `posts/hello/index.html`, one per
-route (and one per value in `paths:` for a `:param` page). Each file is the
-page's first paint — text, lists over seeded state, components expanded,
-the `loading` arm of every resource — with the app script loading after
-it. The page is readable before any script runs, and interactive once the
-script hydrates the paint in place, without repainting it.
-
-What the static paint knows: literals, `state` initial values, `derived`
-over them, `data`, `const`, `env`, `t` in the default locale, `format` and
-`ago` with a built-in locale table. What it does not: fetched data, the
-browser's values (`viewport`, `query`, `hash`, `theme`), anything read from
-`window`. A condition on an unknown renders its live branch once hydrated.
-
-The output also holds:
-
-| File | |
-|---|---|
-| `404.html` | The `path: "*"` page, served by a static host for a route it has no file for |
-| `sitemap.xml`, `robots.txt` | Every indexable route (`meta.sitemap`, on by default; needs `meta.site_url`) |
-| `styles.css`, `pages/*.css` | Shared and per-page stylesheets |
-| `app.js`, `pages/*.js` | The runtime the program reaches for, and each page's script, loaded when its route shows |
-| `*.gz` | Each text file, precompressed (`build.compress`) |
-| `_headers` | A strict Content-Security-Policy for hosts that read one (`build.csp`) |
-| `public/*` | Copied as they are to the output root |
+project can use — [chapter 37](37-cli.md#wf-docs-wf-registry-wf-types).)
 
 ## Search and sharing
 
@@ -136,7 +117,7 @@ attributes and `meta.*` in `webfluent.app.json`:
 - `<meta name="robots" content="noindex">` and no sitemap entry for a
   `noindex: true` page.
 
-A page adds its own tags with `head { }` ([chapter 3](03-pages-and-routing.md#per-page-head-tags)).
+A page adds its own tags with `head { }` ([chapter 6](06-pages-and-routing.md#per-page-head-tags)).
 
 ```wf
 type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
@@ -159,10 +140,25 @@ page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.
 }
 ```
 
-`title:` and `description:` of a `:param` page are one string for every
-value, so name the section there ("Blog") and let the `og:title` in
-`head { }` carry each post's own; the runtime keeps the head tags current
-as the parameter changes.
+The `title:` and `description:` of a `:param` page may name its parameters
+— `title: "{slug} — Blog"` — and each pre-rendered file, and the live page's
+tab, has that route's value. A title that comes from the data rather than the
+address goes in `head { }` as `og:title`, as above; the runtime keeps the
+head tags current as the parameter changes.
+
+## A checklist for being found
+
+- Set `meta.site_url` — without it there are no canonical links, no sitemap
+  and no absolute sharing URLs.
+- Give every page a `title:` and a `description:` of about 150 characters
+  (`S01`–`S03` warn when they are missing or too long).
+- Pre-render: `build.ssg: true`, so the text is in the HTML.
+- One `h1` per page, headings in order (`A11`, `A12`).
+- An `image:` per page that is shared, or `meta.image` for the site — 1200 ×
+  630 pixels suits most previews.
+- `noindex: true` on pages that should not be found: sign-in, thanks, drafts.
+- Check the result: view a built page's source, and paste a URL into a
+  link-preview debugger.
 
 ## Code on the page
 
@@ -179,71 +175,6 @@ page Snippets(path: "/") {
 }
 ```
 
-## Images and media
-
-```wf
-page Media(path: "/") {
-    Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)
-    Image(src: "/deco.png", alt: "")
-    Video(src: "/demo.mp4", captions: "/demo.en.vtt").controls
-    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
-}
-```
-
-Give every `Image` an `alt:` — empty for a decorative one — and a `width:`
-and `height:` where you know them so the layout does not shift; the first
-image on a page loads eagerly and later ones lazily. Files in `public/`
-are served from the root.
-
-A `Video` without `captions:` and an `Audio` without `transcript:` each
-draw an `A09`: a video nobody can hear is a video nobody can follow.
-`captions:` becomes a `<track>`; `transcript:` a link beneath the player.
-
-### `image`: a picture the build processes
-
-Naming a picture with `image` hands the build the file itself:
-
-```wf
-image hero = "hero.jpg"
-
-page Home(path: "/", title: "Home", description: "The front page.") {
-    Image(hero, alt: "The team at the launch",
-          sizes: "(max-width: 768px) 100vw, 1200px",
-          placeholder: .blur)
-    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
-}
-```
-
-The build reads its real size and its average colour, writes it again at
-every width in `media.widths` smaller than the original, and gives the page
-a `<picture>`:
-
-- a `<source>` per format, each with a `srcset` of the widths, so the
-  browser picks the one it needs for the space `sizes:` describes;
-- `width` and `height` from the file, so the box is the right shape before
-  a byte of the image has arrived and **nothing on the page moves**;
-- a placeholder in the meantime — `.blur` inlines a sixteen-pixel-wide copy
-  as a data URI, `.color` fills the box with the average colour, `.none`
-  does neither;
-- a content hash in every file's name, so a host can cache them forever.
-
-The name is a value: `hero.src`, `.width`, `.height`, `.color`,
-`.placeholder`, `.srcset`.
-
-```json
-{ "build": { "media": {
-    "formats": ["webp"],
-    "widths": [480, 960, 1440, 1920],
-    "quality": 78,
-    "pipeline": true
-} } }
-```
-
-`pipeline: false` copies the file as `public/` always did. The work is
-cached in `.wf-cache/media/`, so a build that changes no image does no
-image work. A PDF or a slide deck embeds the real picture rather than
-drawing a box where one should be.
-
 ## Next
 
-[Outputs](17-outputs.md).
+[Media](28-media.md).

@@ -1,4 +1,11 @@
-# 4. Elements
+# 7. Elements
+
+<!--
+route: guide/elements
+group: basics
+blurb: Everything on screen is an element: a call with one positional value, named props, flags, and a block.
+description: The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.
+-->
 
 Everything a page shows is an element: a built-in such as `Button`, or a
 component you declare. Every element is written the same way.
@@ -66,11 +73,23 @@ case name the flag is ambiguous and the compiler asks you to name the prop.
 A flag the element does not declare is an error, with the list of what it
 takes — there is no shared vocabulary of modifiers to guess from.
 
-Every element also takes the universal motion props (`animate:`, `exit:`,
-`delay:`, `stagger:`, `speed:`, `duration:`, `easing:`) and their flags
-(`.fadeIn`, `.fast`), `class:` for your own stylesheet classes, and `ref:`
-(chapter 5). See the [reference](20-components-reference.md) for every
-element's props.
+Every element also takes the **universal props**, which are not listed on
+each one:
+
+| Prop | Does | Chapter |
+|---|---|---|
+| `class:` | Adds classes from your own stylesheets (it adds, it never replaces) | [15](15-styling.md#classes-and-your-own-stylesheet) |
+| `ref:` | Names a handle on the element: `box.focus()` | [8](08-state-and-reactivity.md#element-handles) |
+| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](20-motion.md) |
+| `exit:` | The animation it leaves with | [20](20-motion.md#exit-animations) |
+| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](20-motion.md) |
+| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](20-motion.md#lists) |
+| `on:` | When the animation plays: `.mount` (default) or `.enterView` | [20](20-motion.md#playing-when-it-is-scrolled-to) |
+| `shared:` | A name the element keeps across a route change | [20](20-motion.md#the-same-element-across-a-route-change) |
+| `count:` | A number in its text counts to its new value | [20](20-motion.md#a-number-that-counts) |
+
+The [components reference](36-components-reference.md) lists every element's
+own props.
 
 ## Attributes
 
@@ -117,8 +136,9 @@ page P(path: "/") {
 }
 ```
 
-A part is only valid directly inside its owner; `Card.Body` outside a `Card`
-is an error. Your own components may declare parts too (chapter 8).
+A part belongs inside its owner: `Card.Body` is drawn as a card's body
+section, and outside a `Card` it is only a section with no card around it.
+Your own components may declare parts too (chapter 11).
 
 ## Text and headings
 
@@ -129,7 +149,7 @@ page P(path: "/") {
     Paragraph("Prose, as a <p>.")
     Code("let x = 1").block
     Blockquote("A quotation.")
-    Markdown("**Bold** and a [link](/docs)")  // chapter 16
+    Markdown("**Bold** and a [link](/docs)")  // chapter 27
     state count = 3
 }
 ```
@@ -161,6 +181,32 @@ page P(path: "/") {
 `<footer>`); use them for page regions so the page has an outline a screen
 reader and a search engine can follow.
 
+## The families of built-ins
+
+| Family | Elements |
+|---|---|
+| Layout | `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `Host` |
+| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu` |
+| Data display | `Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` |
+| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](16-forms.md)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Spinner`, `Progress`, `Skeleton` ([Events](09-events.md#overlays-modals-dialogs-toasts-and-menus)) |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
+| Media | `Image`, `Video`, `Audio`, `Icon`, `Carousel` ([Media](28-media.md)) |
+| Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
+| Documents and decks | `Document`, `PageBreak`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](33-pdf-and-slides.md)) |
+| Routing | `Router` ([Pages](06-pages-and-routing.md#the-app-shell)) |
+
+## What an element renders
+
+Each built-in renders real, semantic HTML — a `Button` is a `<button>`, a
+`Link` an `<a>`, a `Heading(…).h2` an `<h2>`, a `Table` a `<table>` with
+`<th scope="col">` in its head — and carries a stable class named
+`wf-<name>`, with modifier classes for its flags: `Button("Save").primary.lg` is
+`<button class="wf-btn wf-btn--primary wf-btn--large">`. The classes are part
+of the public surface and stable across releases, so your own stylesheet may
+target them ([Styling](15-styling.md#classes-and-your-own-stylesheet)). The
+reference names each element's class.
+
 ## What the compiler checks on every element
 
 - The name is a built-in, a part in its owner, or a declared component.
@@ -170,11 +216,11 @@ reader and a search engine can follow.
 - Handlers name a DOM event or one of the component's declared events.
 - Slot fills name a declared slot.
 - An `Icon("name")` or `icon:` names one of the icons the runtime draws
-  ([the list](20-components-reference.md#icons)); any other name shows as
+  ([the list](36-components-reference.md#icons)); any other name shows as
   the word.
 - Accessibility: an `Image` has `alt:`, an `IconButton` has `label:`, a control
   has a label, a `Modal` a title, a `Table` a `Table.Head` (`A01`–`A10`).
 
 ## Next
 
-[State and reactivity](05-state-and-reactivity.md).
+[State and reactivity](08-state-and-reactivity.md).
