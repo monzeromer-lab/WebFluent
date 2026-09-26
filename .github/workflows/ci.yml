@@ -68,12 +68,14 @@ jobs:
 
       - run: npx vsce package --out webfluent.vsix
 
-  # A service worker is nothing without a browser, so `offline` is driven in
-  # a real Chrome: the site stored, served with the server gone, a write kept
-  # and sent once, an update taken with one reload — pre-rendered and as a
-  # single page. The runner has Chrome; `puppeteer-core` drives it.
+  # What only a real browser has — a service worker, WebRTC — is driven in a
+  # real Chrome: `offline` (the site stored, served with the server gone, a
+  # write kept and sent once, an update taken with one reload, pre-rendered
+  # and as a single page) and `peer` (two pages connecting, a message each
+  # way, one seeing the other leave). The runner has Chrome;
+  # `puppeteer-core` drives it.
   browser:
-    name: Offline in a real browser
+    name: Offline and peers in a real browser
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +97,10 @@ jobs:
       - name: Offline
         working-directory: tests/browser
         run: node offline.mjs
+
+      - name: Peers
+        working-directory: tests/browser
+        run: node peer.mjs
 
   check:
     name: Build, lint and test

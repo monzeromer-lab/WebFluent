@@ -206,8 +206,9 @@ shown is taken back.
 
 ## A connection the page holds open
 
-A socket, a stream of server-sent events, or a channel every tab of the
-origin hears. Each is closed when the page that opened it leaves.
+A socket, a stream of server-sent events, a channel every tab of the
+origin hears, or a peer — a line straight to another reader's page. Each
+is closed when the page that opened it leaves.
 
 ```wf
 page Chat(path: "/chat", title: "Chat", description: "Talk.") {
@@ -247,19 +248,60 @@ Button("Sync") { on click { cart.post({ items: Cart.count }) } }
 
 What each handle holds:
 
-| | `socket` | `stream` | `channel` |
-|---|---|---|---|
-| `.state` | `connecting` `open` `closed` `error` — the arms of a `match` | the same | `open` or `closed` |
-| `.messages` | every message, in order | every message, in order | — |
-| `.last(kind)` | the last message, or the last of a kind | the last under an event's name | the last posted |
-| `.error` | the failure, which the `error(e)` arm is handed | the same | — |
-| `.closure` | the close, which `closed(c)` is handed: `.code`, `.reason` | — | — |
-| Sending | `.send(value)` — queued while the line is down | — | `.post(value)` |
-| `.close()` | closes it early | the same | the same |
+| | `socket` | `stream` | `channel` | `peer` |
+|---|---|---|---|---|
+| `.state` | `connecting` `open` `closed` `error` — the arms of a `match` | the same | `open` or `closed` | the same as a socket |
+| `.messages` | every message, in order | every message, in order | — | every message, in order |
+| `.last(kind)` | the last message, or the last of a kind | the last under an event's name | the last posted | as a socket |
+| `.error` | the failure, which the `error(e)` arm is handed | the same | — | the same |
+| `.closure` | the close, which `closed(c)` is handed: `.code`, `.reason` | — | — | the same |
+| Sending | `.send(value)` — queued while the line is down | — | `.post(value)` | `.send(value)` — queued until it opens |
+| `.close()` | closes it early | the same | the same | the same |
+| `.signal(m)` | — | — | — | hands it what the other side signalled |
 
 A `match` over one takes `connecting`, `open`, `closed(c)` and `error(e)`,
 and an `else` for the rest. The page closing closes the connection, so a
 route change cannot leak one.
+
+### A peer
+
+`peer` is a WebRTC data channel to another page. The language supplies the
+channel, not a server: what the two sides must tell each other to connect —
+an offer, an answer, the routes each can be reached by — goes out through
+`signal:`, over whatever the app already has, and what the other side sent
+is handed back to `link.signal(m)`. One side is the `initiator`.
+
+```wf
+page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
+    state heard = ""
+    channel lobby = broadcast("room") { on message(m) { link.signal(m) } }
+    peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") {
+        on message(m) { heard = m.text }
+    }
+
+    Heading("Room").h1
+    match link {
+        connecting { Text("Waiting for the other side…").muted }
+        open       { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        closed(c)  { Text("They left.") }
+        error(e)   { Alert(e.message).danger }
+    }
+    Text(heard)
+}
+```
+
+A `broadcast` channel signals between two tabs of one browser, as here;
+between two readers the signal rides the app's own socket or `api`.
+
+| Option | |
+|---|---|
+| `signal:` | Required: a function handed each message the other side must receive. |
+| `initiator:` | Whether this side offers. Exactly one side does. |
+| `ice:` | The servers that help two readers on different networks find each other — `[{ urls: "stun:…" }]`. None by default, which connects readers on the same network only. |
+| `ordered:` | `false` for a channel that may deliver out of order. |
+
+A page that leaves closes its peer, and the other side reads `closed` at
+once rather than when the connection times out.
 
 ## The network as a value
 

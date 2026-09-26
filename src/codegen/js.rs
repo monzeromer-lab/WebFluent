@@ -4982,13 +4982,17 @@ impl JsCodegen {
             ConnectionKind::Socket => "ws",
             ConnectionKind::Stream => "sse",
             ConnectionKind::Channel => "broadcast",
+            ConnectionKind::Peer => "rtc",
         };
-        let url = self.emit_expr(&c.url);
-        let url_js = if self.is_reactive(&url) {
-            format!("() => {url}")
-        } else {
-            url
-        };
+        // A peer's only argument is its options; the rest open an address.
+        let url_js = c.url.as_ref().map(|url| {
+            let url = self.emit_expr(url);
+            if self.is_reactive(&url) {
+                format!("() => {url}")
+            } else {
+                url
+            }
+        });
         let mut options: Vec<String> = c
             .options
             .iter()
@@ -5006,11 +5010,11 @@ impl JsCodegen {
                 capitalize_first(&handler.event)
             ));
         }
-        self.emit_line(&format!(
-            "const _{} = WF.{opener}({url_js}, {{ {} }});",
-            c.name,
-            options.join(", ")
-        ));
+        let args = match url_js {
+            Some(url) => format!("{url}, {{ {} }}", options.join(", ")),
+            None => format!("{{ {} }}", options.join(", ")),
+        };
+        self.emit_line(&format!("const _{} = WF.{opener}({args});", c.name));
     }
 
     /// `match x { … }`: one arm shown at a time, chosen by a resource's

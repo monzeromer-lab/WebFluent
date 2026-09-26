@@ -731,6 +731,9 @@ pub enum ConnectionKind {
     Stream,
     /// `channel cart = broadcast("cart")`.
     Channel,
+    /// `peer link = rtc(signal: send)` — a WebRTC data channel to another
+    /// page, signalled over whatever transport the author already has.
+    Peer,
 }
 
 /// A connection the page holds open, closed when the page leaves.
@@ -738,7 +741,9 @@ pub enum ConnectionKind {
 pub struct ConnectionDecl {
     pub kind: ConnectionKind,
     pub name: String,
-    pub url: Expr,
+    /// The address a socket, a stream or a channel opens; a peer has none —
+    /// what reaches it comes through its signalling.
+    pub url: Option<Expr>,
     /// `protocols:`, `reconnect:`, `heartbeat:`, `events:`, `resume:`.
     pub options: Vec<(String, Expr)>,
     /// `send Outgoing` and `receive Incoming`, when they are declared.
@@ -1363,7 +1368,9 @@ impl StatementKind {
             StatementKind::Resource(r) => std::iter::once(&r.url)
                 .chain(r.options.iter().map(|o| &o.value))
                 .collect(),
-            StatementKind::Connection(c) => std::iter::once(&c.url)
+            StatementKind::Connection(c) => c
+                .url
+                .iter()
                 .chain(c.options.iter().map(|(_, v)| v))
                 .collect(),
             StatementKind::Validate(v) => v
@@ -1514,7 +1521,9 @@ pub fn walk_exprs_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut Expr)) {
                 }
             }
             StatementKind::Connection(c) => {
-                c.url.walk_mut(f);
+                if let Some(url) = &mut c.url {
+                    url.walk_mut(f);
+                }
                 for (_, v) in &mut c.options {
                     v.walk_mut(f);
                 }

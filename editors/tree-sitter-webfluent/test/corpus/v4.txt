@@ -449,3 +449,57 @@ page P(path: "/") {
                     (identifier))
                   (number))))
             (identifier)))))))
+
+================================================================================
+A peer, signalled over a channel
+================================================================================
+
+page P(path: "/") {
+    peer link = rtc(signal: m => room.post(m), initiator: true) {
+        send Note
+        on message(m) { log(m) }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (page_declaration
+    (component_identifier)
+    (page_attributes
+      (named_argument
+        (attribute_name
+          (identifier))
+        (string
+          (string_content))))
+    (block
+      (connection_declaration
+        (identifier)
+        (call_expression
+          (identifier)
+          (arguments
+            (named_argument
+              (attribute_name
+                (identifier))
+              (lambda
+                (identifier)
+                (call_expression
+                  (member_expression
+                    (identifier)
+                    (identifier))
+                  (arguments
+                    (identifier)))))
+            (named_argument
+              (attribute_name
+                (identifier))
+              (boolean))))
+        (connection_body
+          (message_type
+            (named_type
+              (component_identifier)))
+          (event_handler
+            (identifier)
+            (identifier)
+            (block
+              (log_statement
+                (identifier)))))))))

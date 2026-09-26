@@ -1120,6 +1120,10 @@
             "named": false
           },
           {
+            "type": "peer",
+            "named": false
+          },
+          {
             "type": "socket",
             "named": false
           },
@@ -5184,6 +5188,10 @@
   },
   {
     "type": "patch",
+    "named": false
+  },
+  {
+    "type": "peer",
     "named": false
   },
   {

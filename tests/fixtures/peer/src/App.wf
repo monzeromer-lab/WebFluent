@@ -1,0 +1,30 @@
+/// Two pages talking over WebRTC: `tests/browser/peer.mjs` opens this page
+/// twice, as `?role=a` (the initiator) and `?role=b`, and holds them to
+/// connecting, to a message each way, and to one side noticing the other
+/// leave. The signalling rides a `broadcast` channel, since both pages are
+/// in one browser; a real app would carry it over its own socket or `api`.
+
+page Chat(path: "/", title: "Peer", description: "Two pages talking over WebRTC.") {
+    state got = ""
+
+    channel room = broadcast("wf-peer-test") {
+        on message(m) { link.signal(m) }
+    }
+    peer link = rtc(signal: m => room.post(m), initiator: query.role == "a") {
+        on message(m) { got = m.text }
+    }
+
+    Container {
+        Heading("Peer").h1
+        match link {
+            connecting { Text("connecting", id: "state") }
+            open { Text("open", id: "state") }
+            closed(c) { Text("closed", id: "state") }
+            error(e) { Text("error: {e.message}", id: "state") }
+        }
+        Text("got:{got}", id: "got")
+        Button("Send", id: "send") {
+            on click { link.send({ text: "hello from {query.role}" }) }
+        }
+    }
+}

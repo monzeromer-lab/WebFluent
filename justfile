@@ -42,9 +42,9 @@ run *args:
 browser: release
     node tests/browser/run.mjs
 
-# `offline` in a real Chrome: stored, served offline, writes kept, updates
-browser-offline: release
-    cd tests/browser && npm ci --no-audit --no-fund --silent && node offline.mjs
+# What only a real Chrome has: `offline` (a service worker) and `peer` (WebRTC)
+browser-features: release
+    cd tests/browser && npm ci --no-audit --no-fund --silent && npm test
 
 # Build and serve the docs site locally
 site:

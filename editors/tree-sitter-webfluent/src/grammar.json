@@ -2858,6 +2858,10 @@
                 {
                   "type": "STRING",
                   "value": "channel"
+                },
+                {
+                  "type": "STRING",
+                  "value": "peer"
                 }
               ]
             }

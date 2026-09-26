@@ -1,10 +1,10 @@
 {
   "name": "webfluent-browser-tests",
   "private": true,
-  "description": "What only a real browser can check: `offline`'s service worker. Run with `node offline.mjs`.",
+  "description": "What only a real browser can check: `offline`'s service worker and `peer`'s WebRTC. `npm test` runs both.",
   "type": "module",
   "scripts": {
-    "test": "node offline.mjs"
+    "test": "node offline.mjs && node peer.mjs"
   },
   "devDependencies": {
     "puppeteer-core": "^24.0.0"

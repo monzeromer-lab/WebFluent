@@ -1,6 +1,6 @@
 {
   "name": "WebFluent",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "author": "Monzer Omer",
   "theme": {
     "name": "Day",
@@ -25,7 +25,7 @@
     "title": "WebFluent — a language for websites",
     "description": "A file describes what a page shows — its elements, the state behind them, what happens when the reader acts. The compiler turns it into a static site, a single-page app, a PDF or a slide deck.",
     "lang": "en",
-    "site_url": "https://monzeromer-lab.github.io",
+    "site_url": "https://monzeromer-lab.github.io/WebFluent",
     "site_name": "WebFluent",
     "sitemap": true,
     "fonts": [

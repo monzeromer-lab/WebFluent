@@ -1,0 +1,5 @@
+{
+  "name": "peer",
+  "build": { "output": "build", "output_type": "spa" },
+  "meta": { "title": "Peer", "description": "Two pages talking over WebRTC." }
+}

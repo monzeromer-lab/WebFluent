@@ -224,7 +224,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
         Heading("A connection the page holds open", id: "a-connection-the-page-holds-open").h2
 
-        Markdown("A socket, a stream of server-sent events, or a channel every tab of the origin hears. Each is closed when the page that opened it leaves.")
+        Markdown("A socket, a stream of server-sent events, a channel every tab of the origin hears, or a peer — a line straight to another reader's page. Each is closed when the page that opened it leaves.")
 
         CodeBlock(#"page Chat(path: "/chat", title: "Chat", description: "Talk.") {
     state draft = ""
@@ -263,6 +263,7 @@ Button("Sync") { on click { cart.post({ items: Cart.count }) } }"#, title: "wf")
                     Table.Cell.header { Markdown("`socket`") }
                     Table.Cell.header { Markdown("`stream`") }
                     Table.Cell.header { Markdown("`channel`") }
+                    Table.Cell.header { Markdown("`peer`") }
                 }
             }
             Table.Body {
@@ -271,47 +272,113 @@ Button("Sync") { on click { cart.post({ items: Cart.count }) } }"#, title: "wf")
                     Table.Cell { Markdown("`connecting` `open` `closed` `error` — the arms of a `match`") }
                     Table.Cell("the same")
                     Table.Cell { Markdown("`open` or `closed`") }
+                    Table.Cell("the same as a socket")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.messages`") }
                     Table.Cell("every message, in order")
                     Table.Cell("every message, in order")
                     Table.Cell("—")
+                    Table.Cell("every message, in order")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.last(kind)`") }
                     Table.Cell("the last message, or the last of a kind")
                     Table.Cell("the last under an event's name")
                     Table.Cell("the last posted")
+                    Table.Cell("as a socket")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.error`") }
                     Table.Cell { Markdown("the failure, which the `error(e)` arm is handed") }
                     Table.Cell("the same")
                     Table.Cell("—")
+                    Table.Cell("the same")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.closure`") }
                     Table.Cell { Markdown("the close, which `closed(c)` is handed: `.code`, `.reason`") }
                     Table.Cell("—")
                     Table.Cell("—")
+                    Table.Cell("the same")
                 }
                 Table.Row {
                     Table.Cell("Sending")
                     Table.Cell { Markdown("`.send(value)` — queued while the line is down") }
                     Table.Cell("—")
                     Table.Cell { Markdown("`.post(value)`") }
+                    Table.Cell { Markdown("`.send(value)` — queued until it opens") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.close()`") }
                     Table.Cell("closes it early")
                     Table.Cell("the same")
                     Table.Cell("the same")
+                    Table.Cell("the same")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.signal(m)`") }
+                    Table.Cell("—")
+                    Table.Cell("—")
+                    Table.Cell("—")
+                    Table.Cell("hands it what the other side signalled")
                 }
             }
         }
 
         Markdown("A `match` over one takes `connecting`, `open`, `closed(c)` and `error(e)`, and an `else` for the rest. The page closing closes the connection, so a route change cannot leak one.")
+
+        Heading("A peer", id: "a-peer").h3
+
+        Markdown("`peer` is a WebRTC data channel to another page. The language supplies the channel, not a server: what the two sides must tell each other to connect — an offer, an answer, the routes each can be reached by — goes out through `signal:`, over whatever the app already has, and what the other side sent is handed back to `link.signal(m)`. One side is the `initiator`.")
+
+        CodeBlock(#"page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
+    state heard = ""
+    channel lobby = broadcast("room") { on message(m) { link.signal(m) } }
+    peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") {
+        on message(m) { heard = m.text }
+    }
+
+    Heading("Room").h1
+    match link {
+        connecting { Text("Waiting for the other side…").muted }
+        open       { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        closed(c)  { Text("They left.") }
+        error(e)   { Alert(e.message).danger }
+    }
+    Text(heard)
+}"#, title: "wf")
+
+        Markdown("A `broadcast` channel signals between two tabs of one browser, as here; between two readers the signal rides the app's own socket or `api`.")
+
+        Table(caption: "A peer") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Option").header
+                    Table.Cell("").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`signal:`") }
+                    Table.Cell("Required: a function handed each message the other side must receive.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`initiator:`") }
+                    Table.Cell("Whether this side offers. Exactly one side does.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ice:`") }
+                    Table.Cell { Markdown("The servers that help two readers on different networks find each other — `[\{ urls: \"stun:…\" \}]`. None by default, which connects readers on the same network only.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ordered:`") }
+                    Table.Cell { Markdown("`false` for a channel that may deliver out of order.") }
+                }
+            }
+        }
+
+        Markdown("A page that leaves closes its peer, and the other side reads `closed` at once rather than when the connection times out.")
 
         Heading("The network as a value", id: "the-network-as-a-value").h2
 

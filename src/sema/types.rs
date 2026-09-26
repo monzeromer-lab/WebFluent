@@ -906,8 +906,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             }
             StatementKind::Connection(c) => {
-                let url = self.infer(&c.url, Some(&Type::String));
-                self.expect(&url, &Type::String, span, "a connection's address");
+                if let Some(url) = &c.url {
+                    let url = self.infer(url, Some(&Type::String));
+                    self.expect(&url, &Type::String, span, "a connection's address");
+                }
                 for (_, value) in &c.options {
                     self.infer(value, None);
                 }

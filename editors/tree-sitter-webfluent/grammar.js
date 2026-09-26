@@ -571,11 +571,12 @@ module.exports = grammar({
       ),
 
     // `socket chat = ws("wss://…") { send Out  receive In  on message(m) { } }`,
-    // `stream ticks = sse("/events")`, `channel cart = broadcast("cart") { … }`.
+    // `stream ticks = sse("/events")`, `channel cart = broadcast("cart") { … }`,
+    // `peer link = rtc(signal: m => room.post(m)) { … }`.
     connection_declaration: ($) =>
       prec.right(
         seq(
-          field("kind", choice("socket", "stream", "channel")),
+          field("kind", choice("socket", "stream", "channel", "peer")),
           field("name", $._name),
           "=",
           field("value", $._expression),

@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data</title>
     <meta name="description" content="resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.">
-    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data">
-    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/data">
+    <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data">
+    <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Data">
     <meta property="og:site_name" content="WebFluent">
     <meta property="og:description" content="resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.">
-    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/data">
+    <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data">
     <meta property="og:locale" content="en">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Data">
     <meta name="twitter:description" content="resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env.">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data","name":"Data","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Data","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/data"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/WebFluent/#website","url":"https://monzeromer-lab.github.io/WebFluent/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/WebFluent/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data#webpage","url":"https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data","name":"Data","isPartOf":{"@id":"https://monzeromer-lab.github.io/WebFluent/#website"},"description":"resource and match, reactive URLs, await fetch in actions, data files, static paths, const and env."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Data","item":"https://monzeromer-lab.github.io/WebFluent/WebFluent/docs/guide/data"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -501,7 +501,7 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                             </div>
                             <h2 class="wf-heading">A connection the page holds open</h2>
                             <div class="wf-markdown">
-<p>A socket, a stream of server-sent events, or a channel every tab of the origin hears. Each is closed when the page that opened it leaves.</p>
+<p>A socket, a stream of server-sent events, a channel every tab of the origin hears, or a peer — a line straight to another reader's page. Each is closed when the page that opened it leaves.</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
@@ -577,6 +577,11 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
 <p><code>channel</code></p>
                                             </div>
                                         </th>
+                                        <th scope="col">
+                                            <div class="wf-markdown">
+<p><code>peer</code></p>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -597,6 +602,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
 <p><code>open</code> or <code>closed</code></p>
                                             </div>
                                         </td>
+                                        <td>the same as a socket</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -607,6 +613,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                         <td>every message, in order</td>
                                         <td>every message, in order</td>
                                         <td>—</td>
+                                        <td>every message, in order</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -617,6 +624,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                         <td>the last message, or the last of a kind</td>
                                         <td>the last under an event&#x27;s name</td>
                                         <td>the last posted</td>
+                                        <td>as a socket</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -631,6 +639,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                         </td>
                                         <td>the same</td>
                                         <td>—</td>
+                                        <td>the same</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -645,6 +654,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                         </td>
                                         <td>—</td>
                                         <td>—</td>
+                                        <td>the same</td>
                                     </tr>
                                     <tr>
                                         <td>Sending</td>
@@ -659,6 +669,11 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
 <p><code>.post(value)</code></p>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.send(value)</code> — queued until it opens</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -669,11 +684,108 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                         <td>closes it early</td>
                                         <td>the same</td>
                                         <td>the same</td>
+                                        <td>the same</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>.signal(m)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                        <td>hands it what the other side signalled</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
 <p>A <code>match</code> over one takes <code>connecting</code>, <code>open</code>, <code>closed(c)</code> and <code>error(e)</code>, and an <code>else</code> for the rest. The page closing closes the connection, so a route change cannot leak one.</p>
+                            </div>
+                            <h3 class="wf-heading">A peer</h3>
+                            <div class="wf-markdown">
+<p><code>peer</code> is a WebRTC data channel to another page. The language supplies the channel, not a server: what the two sides must tell each other to connect — an offer, an answer, the routes each can be reached by — goes out through <code>signal:</code>, over whatever the app already has, and what the other side sent is handed back to <code>link.signal(m)</code>. One side is the <code>initiator</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sbeaee83f">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s21cc4e75" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;Two readers, one line.&quot;) {
+    state heard = &quot;&quot;
+    channel lobby = broadcast(&quot;room&quot;) { on message(m) { link.signal(m) } }
+    peer link = rtc(signal: m =&gt; lobby.post(m), initiator: query.host == &quot;1&quot;) {
+        on message(m) { heard = m.text }
+    }
+
+    Heading(&quot;Room&quot;).h1
+    match link {
+        connecting { Text(&quot;Waiting for the other side…&quot;).muted }
+        open       { Button(&quot;Wave&quot;) { on click { link.send({ text: &quot;hello&quot; }) } } }
+        closed(c)  { Text(&quot;They left.&quot;) }
+        error(e)   { Alert(e.message).danger }
+    }
+    Text(heard)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A <code>broadcast</code> channel signals between two tabs of one browser, as here; between two readers the signal rides the app's own socket or <code>api</code>.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">A peer</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Option</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>signal:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Required: a function handed each message the other side must receive.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>initiator:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Whether this side offers. Exactly one side does.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ice:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The servers that help two readers on different networks find each other — <code>[{ urls: &quot;stun:…&quot; }]</code>. None by default, which connects readers on the same network only.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>ordered:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>false</code> for a channel that may deliver out of order.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>A page that leaves closes its peer, and the other side reads <code>closed</code> at once rather than when the connection times out.</p>
                             </div>
                             <h2 class="wf-heading">The network as a value</h2>
                             <div class="wf-stack wf-s3c016d1b code-block">

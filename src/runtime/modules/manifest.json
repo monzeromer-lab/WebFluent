@@ -260,6 +260,17 @@
       "deps": [],
       "exports": [
         [
+          "rtc",
+          "rtc"
+        ]
+      ],
+      "name": "peer",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
           "year",
           "year"
         ],

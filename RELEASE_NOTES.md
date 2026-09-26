@@ -22,6 +22,18 @@ route served with the server gone and the fallback for one that is not, a
 write kept, counted and received exactly once, and an update offered and
 taken with one reload.
 
+### Peers
+
+`peer link = rtc(signal: …)` opens a WebRTC data channel straight to another
+page, with the handle and the `match` of a socket — `connecting`, `open`,
+`closed(c)`, `error(e)`, `.send`, `.messages`, `.last`. The language supplies
+the channel, not a server: the offer, the answer and the routes each side
+can be reached by go out through `signal:`, over whatever the app already
+has, and what the other side sent is handed to `link.signal(m)`. One side is
+the `initiator`; `ice:` names STUN or TURN servers. A page that leaves
+closes its peer, and the other side reads `closed` at once. Held to two
+pages in a real Chrome in CI (`tests/browser/peer.mjs`).
+
 ## Fixed
 
 ### A browser value in text

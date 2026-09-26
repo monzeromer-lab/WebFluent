@@ -267,7 +267,7 @@
           "name": "keyword.declaration.webfluent"
         },
         {
-          "match": "(?<!\\.)\\b(const|image|data|socket|stream|channel|persist|validate)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "match": "(?<!\\.)\\b(const|image|data|socket|stream|channel|peer|persist|validate)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
           "captures": {
             "1": {
               "name": "keyword.declaration.webfluent"

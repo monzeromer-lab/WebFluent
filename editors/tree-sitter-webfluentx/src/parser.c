@@ -15,9 +15,9 @@
 #define LANGUAGE_VERSION 14
 #define STATE_COUNT 2424
 #define LARGE_STATE_COUNT 789
-#define SYMBOL_COUNT 417
+#define SYMBOL_COUNT 418
 #define ALIAS_COUNT 2
-#define TOKEN_COUNT 236
+#define TOKEN_COUNT 237
 #define EXTERNAL_TOKEN_COUNT 6
 #define FIELD_COUNT 58
 #define MAX_ALIAS_SEQUENCE_LENGTH 12
@@ -94,354 +94,355 @@ enum ts_symbol_identifiers {
   anon_sym_socket = 68,
   anon_sym_stream = 69,
   anon_sym_channel = 70,
-  anon_sym_send = 71,
-  anon_sym_receive = 72,
-  anon_sym_effect = 73,
-  anon_sym_action = 74,
-  anon_sym_use = 75,
-  anon_sym_resource = 76,
-  anon_sym_event = 77,
-  anon_sym_slot = 78,
-  anon_sym_let = 79,
-  anon_sym_try = 80,
-  anon_sym_catch = 81,
-  anon_sym_navigate = 82,
-  anon_sym_log = 83,
-  anon_sym_return = 84,
-  anon_sym_emit = 85,
-  sym_children = 86,
-  anon_sym_if = 87,
-  anon_sym_else = 88,
-  anon_sym_for = 89,
-  anon_sym_by = 90,
-  anon_sym_show = 91,
-  anon_sym_sequence = 92,
-  anon_sym_step = 93,
-  anon_sym_after = 94,
-  anon_sym_match = 95,
-  sym_loading_pattern = 96,
-  anon_sym_error = 97,
-  anon_sym_ready = 98,
-  anon_sym_connecting = 99,
-  anon_sym_open = 100,
-  anon_sym_closed = 101,
-  anon_sym_DOT = 102,
-  sym__dot_word = 103,
-  anon_sym_Container = 104,
-  anon_sym_Row = 105,
-  anon_sym_Column = 106,
-  anon_sym_Grid = 107,
-  anon_sym_Stack = 108,
-  anon_sym_Spacer = 109,
-  anon_sym_Divider = 110,
-  anon_sym_Navbar = 111,
-  anon_sym_Sidebar = 112,
-  anon_sym_Breadcrumb = 113,
-  anon_sym_Link = 114,
-  anon_sym_Menu = 115,
-  anon_sym_Tabs = 116,
-  anon_sym_TabPage = 117,
-  anon_sym_Router = 118,
-  anon_sym_Route = 119,
-  anon_sym_Card = 120,
-  anon_sym_Table = 121,
-  anon_sym_Thead = 122,
-  anon_sym_Tbody = 123,
-  anon_sym_Trow = 124,
-  anon_sym_Tcell = 125,
-  anon_sym_List = 126,
-  anon_sym_Badge = 127,
-  anon_sym_Avatar = 128,
-  anon_sym_Tooltip = 129,
-  anon_sym_Tag = 130,
-  anon_sym_Input = 131,
-  anon_sym_Select = 132,
-  anon_sym_Option = 133,
-  anon_sym_Checkbox = 134,
-  anon_sym_Radio = 135,
-  anon_sym_Switch = 136,
-  anon_sym_Slider = 137,
-  anon_sym_DatePicker = 138,
-  anon_sym_FileUpload = 139,
-  anon_sym_Form = 140,
-  anon_sym_Textarea = 141,
-  anon_sym_Alert = 142,
-  anon_sym_Toast = 143,
-  anon_sym_Modal = 144,
-  anon_sym_Dialog = 145,
-  anon_sym_Spinner = 146,
-  anon_sym_Progress = 147,
-  anon_sym_Skeleton = 148,
-  anon_sym_Button = 149,
-  anon_sym_IconButton = 150,
-  anon_sym_ButtonGroup = 151,
-  anon_sym_Dropdown = 152,
-  anon_sym_Image = 153,
-  anon_sym_Video = 154,
-  anon_sym_Audio = 155,
-  anon_sym_Icon = 156,
-  anon_sym_Carousel = 157,
-  anon_sym_Text = 158,
-  anon_sym_Heading = 159,
-  anon_sym_Code = 160,
-  anon_sym_Blockquote = 161,
-  anon_sym_Markdown = 162,
-  anon_sym_Unsafe = 163,
-  anon_sym_Host = 164,
-  anon_sym_Document = 165,
-  anon_sym_Section = 166,
-  anon_sym_Paragraph = 167,
-  anon_sym_PageBreak = 168,
-  anon_sym_Header = 169,
-  anon_sym_Footer = 170,
-  anon_sym_Presentation = 171,
-  anon_sym_Slide = 172,
-  anon_sym_TitleSlide = 173,
-  anon_sym_SectionSlide = 174,
-  anon_sym_TwoColumn = 175,
-  anon_sym_ImageSlide = 176,
-  anon_sym_on = 177,
-  anon_sym_every = 178,
-  anon_sym_cleanup = 179,
-  anon_sym_meta = 180,
-  anon_sym_link = 181,
-  anon_sym_script = 182,
-  anon_sym_style = 183,
-  sym_selector = 184,
-  sym_vendor_property_name = 185,
-  sym_custom_property_name = 186,
-  anon_sym_transition = 187,
-  anon_sym_QMARK_QMARK = 188,
-  anon_sym_PIPE_PIPE = 189,
-  anon_sym_AMP_AMP = 190,
-  anon_sym_EQ_EQ = 191,
-  anon_sym_BANG_EQ = 192,
-  anon_sym_BANG_EQ_EQ = 193,
-  anon_sym_LT = 194,
-  anon_sym_LT_EQ = 195,
-  anon_sym_GT_EQ = 196,
-  anon_sym_PLUS = 197,
-  anon_sym_STAR = 198,
-  anon_sym_SLASH = 199,
-  anon_sym_PERCENT = 200,
-  anon_sym_BANG = 201,
-  anon_sym_await = 202,
-  anon_sym_QMARK_DOT = 203,
-  anon_sym_EQ_GT = 204,
-  sym_design_token = 205,
-  anon_sym_DQUOTE = 206,
-  aux_sym__quoted_string_token1 = 207,
-  sym_raw_string = 208,
-  anon_sym_DQUOTE_DQUOTE_DQUOTE = 209,
-  aux_sym_block_string_content_token1 = 210,
-  aux_sym_block_string_content_token2 = 211,
-  aux_sym_block_string_content_token3 = 212,
-  aux_sym_string_content_token1 = 213,
-  sym_escape_sequence = 214,
-  aux_sym_interpolation_token1 = 215,
-  aux_sym_interpolation_token2 = 216,
-  sym_temporal = 217,
-  sym_money = 218,
-  sym_duration = 219,
-  sym_color = 220,
-  sym_number = 221,
-  sym_regex = 222,
-  anon_sym_true = 223,
-  anon_sym_false = 224,
-  sym_null = 225,
-  anon_sym_DOT_DOT_DOT = 226,
-  anon_sym_DOT_DOT = 227,
-  anon_sym_DOT_DOT_EQ = 228,
-  sym_component_identifier = 229,
-  sym_doc_comment = 230,
-  sym_comment = 231,
-  sym_style_text = 232,
-  sym__indent = 233,
-  sym__dedent = 234,
-  sym__layout = 235,
-  sym_source_file = 236,
-  sym__declaration = 237,
-  sym_const_declaration = 238,
-  sym_data_declaration = 239,
-  sym_api_declaration = 240,
-  sym_api_settings = 241,
-  sym_api_body = 242,
-  sym_api_setting = 243,
-  sym_api_headers = 244,
-  sym_header = 245,
-  sym_header_name = 246,
-  sym_endpoint = 247,
-  sym_endpoint_errors = 248,
-  sym_error_mapping = 249,
-  sym_endpoint_setting = 250,
-  sym_page_declaration = 251,
-  sym_page_attributes = 252,
-  sym_route_parameter = 253,
-  sym_component_declaration = 254,
-  sym_part_declaration = 255,
-  sym_external_declaration = 256,
-  sym_external_body = 257,
-  sym_external_fn = 258,
-  sym_external_type = 259,
-  sym_external_member = 260,
-  sym_external_prop = 261,
-  sym_store_declaration = 262,
-  sym_theme_declaration = 263,
-  sym_theme_body = 264,
-  sym_animation_declaration = 265,
-  sym_keyframe = 266,
-  sym_test_declaration = 267,
-  sym_expect_statement = 268,
-  sym_act_statement = 269,
-  sym_token_declaration = 270,
-  sym_app_declaration = 271,
-  sym_type_declaration = 272,
-  sym_field_declaration = 273,
-  sym_enum_declaration = 274,
-  sym_enum_case_declaration = 275,
-  sym_parameter_list = 276,
-  sym_parameter = 277,
-  sym__type = 278,
-  sym_refined_type = 279,
-  sym_builtin_type = 280,
-  sym_list_type = 281,
-  sym_optional_type = 282,
-  sym_named_type = 283,
-  sym_block = 284,
-  sym__statement = 285,
-  sym_state_declaration = 286,
-  sym_persist_policy = 287,
-  sym_persist_option = 288,
-  sym_migration = 289,
-  sym_derived_declaration = 290,
-  sym_validate_declaration = 291,
-  sym_validation_rule = 292,
-  sym_connection_declaration = 293,
-  sym_connection_body = 294,
-  sym_message_type = 295,
-  sym_effect_declaration = 296,
-  sym_action_declaration = 297,
-  sym_use_declaration = 298,
-  sym_resource_declaration = 299,
-  sym_event_declaration = 300,
-  sym_slot_declaration = 301,
-  sym_let_declaration = 302,
-  sym_destructuring_pattern = 303,
-  sym_try_statement = 304,
-  sym_navigate_statement = 305,
-  sym_log_statement = 306,
-  sym_return_statement = 307,
-  sym_emit_statement = 308,
-  sym_if_statement = 309,
-  sym_if_let = 310,
-  sym_else_clause = 311,
-  sym_for_statement = 312,
-  sym_show_statement = 313,
-  sym_sequence_statement = 314,
-  sym_step = 315,
-  sym_match_statement = 316,
-  sym_match_arm = 317,
-  sym__arm_pattern = 318,
-  sym_error_pattern = 319,
-  sym_ready_pattern = 320,
-  sym_state_pattern = 321,
-  sym_case_pattern = 322,
-  sym_else_pattern = 323,
-  sym_element = 324,
-  sym_part = 325,
-  sym_flag = 326,
-  sym_builtin_component = 327,
-  sym_argument_list = 328,
-  sym__argument = 329,
-  sym_named_argument = 330,
-  sym_attribute_name = 331,
-  sym_arguments = 332,
-  sym_event_handler = 333,
-  sym_timer_statement = 334,
-  sym_cleanup_block = 335,
-  sym_head_block = 336,
-  sym_head_tag = 337,
-  sym_slot_fill = 338,
-  sym_style_block = 339,
-  sym_style_property = 340,
-  sym_style_value = 341,
-  sym_nested_rule = 342,
-  sym_property_name = 343,
-  sym_transition_block = 344,
-  sym_call_statement = 345,
-  sym_store_member = 346,
-  sym_assignment = 347,
-  sym_expression_statement = 348,
-  sym__expression = 349,
-  sym__primary_expression = 350,
-  sym_binary_expression = 351,
-  sym_unary_expression = 352,
-  sym_member_expression = 353,
-  sym_index_expression = 354,
-  sym_call_expression = 355,
-  sym_parenthesized_expression = 356,
-  sym_lambda = 357,
-  sym_lambda_parameters = 358,
-  sym_if_expression = 359,
-  sym_match_expression = 360,
-  sym_match_expression_arm = 361,
-  sym_enum_case = 362,
-  sym_case_value = 363,
-  sym_string = 364,
-  sym__quoted_string = 365,
-  sym_block_string = 366,
-  sym_block_string_content = 367,
-  sym_string_content = 368,
-  sym_interpolation = 369,
-  sym_format_spec = 370,
-  sym_boolean = 371,
-  sym_array = 372,
-  sym_object = 373,
-  sym_spread_element = 374,
-  sym_pair = 375,
-  sym_range_expression = 376,
-  aux_sym_source_file_repeat1 = 377,
-  aux_sym_api_settings_repeat1 = 378,
-  aux_sym_api_body_repeat1 = 379,
-  aux_sym_api_headers_repeat1 = 380,
-  aux_sym_header_name_repeat1 = 381,
-  aux_sym_endpoint_repeat1 = 382,
-  aux_sym_endpoint_errors_repeat1 = 383,
-  aux_sym_page_attributes_repeat1 = 384,
-  aux_sym_external_body_repeat1 = 385,
-  aux_sym_external_type_repeat1 = 386,
-  aux_sym_theme_body_repeat1 = 387,
-  aux_sym_animation_declaration_repeat1 = 388,
-  aux_sym_keyframe_repeat1 = 389,
-  aux_sym_type_declaration_repeat1 = 390,
-  aux_sym_enum_declaration_repeat1 = 391,
-  aux_sym_enum_case_declaration_repeat1 = 392,
-  aux_sym_parameter_list_repeat1 = 393,
-  aux_sym_refined_type_repeat1 = 394,
-  aux_sym_block_repeat1 = 395,
-  aux_sym_persist_policy_repeat1 = 396,
-  aux_sym_validate_declaration_repeat1 = 397,
-  aux_sym_connection_body_repeat1 = 398,
-  aux_sym_destructuring_pattern_repeat1 = 399,
-  aux_sym_sequence_statement_repeat1 = 400,
-  aux_sym_match_statement_repeat1 = 401,
-  aux_sym_case_pattern_repeat1 = 402,
-  aux_sym_element_repeat1 = 403,
-  aux_sym_attribute_name_repeat1 = 404,
-  aux_sym_head_block_repeat1 = 405,
-  aux_sym_slot_fill_repeat1 = 406,
-  aux_sym_style_block_repeat1 = 407,
-  aux_sym_style_value_repeat1 = 408,
-  aux_sym_property_name_repeat1 = 409,
-  aux_sym_call_statement_repeat1 = 410,
-  aux_sym_lambda_parameters_repeat1 = 411,
-  aux_sym_match_expression_repeat1 = 412,
-  aux_sym__quoted_string_repeat1 = 413,
-  aux_sym_block_string_repeat1 = 414,
-  aux_sym_array_repeat1 = 415,
-  aux_sym_object_repeat1 = 416,
-  alias_sym_method = 417,
-  alias_sym_property = 418,
+  anon_sym_peer = 71,
+  anon_sym_send = 72,
+  anon_sym_receive = 73,
+  anon_sym_effect = 74,
+  anon_sym_action = 75,
+  anon_sym_use = 76,
+  anon_sym_resource = 77,
+  anon_sym_event = 78,
+  anon_sym_slot = 79,
+  anon_sym_let = 80,
+  anon_sym_try = 81,
+  anon_sym_catch = 82,
+  anon_sym_navigate = 83,
+  anon_sym_log = 84,
+  anon_sym_return = 85,
+  anon_sym_emit = 86,
+  sym_children = 87,
+  anon_sym_if = 88,
+  anon_sym_else = 89,
+  anon_sym_for = 90,
+  anon_sym_by = 91,
+  anon_sym_show = 92,
+  anon_sym_sequence = 93,
+  anon_sym_step = 94,
+  anon_sym_after = 95,
+  anon_sym_match = 96,
+  sym_loading_pattern = 97,
+  anon_sym_error = 98,
+  anon_sym_ready = 99,
+  anon_sym_connecting = 100,
+  anon_sym_open = 101,
+  anon_sym_closed = 102,
+  anon_sym_DOT = 103,
+  sym__dot_word = 104,
+  anon_sym_Container = 105,
+  anon_sym_Row = 106,
+  anon_sym_Column = 107,
+  anon_sym_Grid = 108,
+  anon_sym_Stack = 109,
+  anon_sym_Spacer = 110,
+  anon_sym_Divider = 111,
+  anon_sym_Navbar = 112,
+  anon_sym_Sidebar = 113,
+  anon_sym_Breadcrumb = 114,
+  anon_sym_Link = 115,
+  anon_sym_Menu = 116,
+  anon_sym_Tabs = 117,
+  anon_sym_TabPage = 118,
+  anon_sym_Router = 119,
+  anon_sym_Route = 120,
+  anon_sym_Card = 121,
+  anon_sym_Table = 122,
+  anon_sym_Thead = 123,
+  anon_sym_Tbody = 124,
+  anon_sym_Trow = 125,
+  anon_sym_Tcell = 126,
+  anon_sym_List = 127,
+  anon_sym_Badge = 128,
+  anon_sym_Avatar = 129,
+  anon_sym_Tooltip = 130,
+  anon_sym_Tag = 131,
+  anon_sym_Input = 132,
+  anon_sym_Select = 133,
+  anon_sym_Option = 134,
+  anon_sym_Checkbox = 135,
+  anon_sym_Radio = 136,
+  anon_sym_Switch = 137,
+  anon_sym_Slider = 138,
+  anon_sym_DatePicker = 139,
+  anon_sym_FileUpload = 140,
+  anon_sym_Form = 141,
+  anon_sym_Textarea = 142,
+  anon_sym_Alert = 143,
+  anon_sym_Toast = 144,
+  anon_sym_Modal = 145,
+  anon_sym_Dialog = 146,
+  anon_sym_Spinner = 147,
+  anon_sym_Progress = 148,
+  anon_sym_Skeleton = 149,
+  anon_sym_Button = 150,
+  anon_sym_IconButton = 151,
+  anon_sym_ButtonGroup = 152,
+  anon_sym_Dropdown = 153,
+  anon_sym_Image = 154,
+  anon_sym_Video = 155,
+  anon_sym_Audio = 156,
+  anon_sym_Icon = 157,
+  anon_sym_Carousel = 158,
+  anon_sym_Text = 159,
+  anon_sym_Heading = 160,
+  anon_sym_Code = 161,
+  anon_sym_Blockquote = 162,
+  anon_sym_Markdown = 163,
+  anon_sym_Unsafe = 164,
+  anon_sym_Host = 165,
+  anon_sym_Document = 166,
+  anon_sym_Section = 167,
+  anon_sym_Paragraph = 168,
+  anon_sym_PageBreak = 169,
+  anon_sym_Header = 170,
+  anon_sym_Footer = 171,
+  anon_sym_Presentation = 172,
+  anon_sym_Slide = 173,
+  anon_sym_TitleSlide = 174,
+  anon_sym_SectionSlide = 175,
+  anon_sym_TwoColumn = 176,
+  anon_sym_ImageSlide = 177,
+  anon_sym_on = 178,
+  anon_sym_every = 179,
+  anon_sym_cleanup = 180,
+  anon_sym_meta = 181,
+  anon_sym_link = 182,
+  anon_sym_script = 183,
+  anon_sym_style = 184,
+  sym_selector = 185,
+  sym_vendor_property_name = 186,
+  sym_custom_property_name = 187,
+  anon_sym_transition = 188,
+  anon_sym_QMARK_QMARK = 189,
+  anon_sym_PIPE_PIPE = 190,
+  anon_sym_AMP_AMP = 191,
+  anon_sym_EQ_EQ = 192,
+  anon_sym_BANG_EQ = 193,
+  anon_sym_BANG_EQ_EQ = 194,
+  anon_sym_LT = 195,
+  anon_sym_LT_EQ = 196,
+  anon_sym_GT_EQ = 197,
+  anon_sym_PLUS = 198,
+  anon_sym_STAR = 199,
+  anon_sym_SLASH = 200,
+  anon_sym_PERCENT = 201,
+  anon_sym_BANG = 202,
+  anon_sym_await = 203,
+  anon_sym_QMARK_DOT = 204,
+  anon_sym_EQ_GT = 205,
+  sym_design_token = 206,
+  anon_sym_DQUOTE = 207,
+  aux_sym__quoted_string_token1 = 208,
+  sym_raw_string = 209,
+  anon_sym_DQUOTE_DQUOTE_DQUOTE = 210,
+  aux_sym_block_string_content_token1 = 211,
+  aux_sym_block_string_content_token2 = 212,
+  aux_sym_block_string_content_token3 = 213,
+  aux_sym_string_content_token1 = 214,
+  sym_escape_sequence = 215,
+  aux_sym_interpolation_token1 = 216,
+  aux_sym_interpolation_token2 = 217,
+  sym_temporal = 218,
+  sym_money = 219,
+  sym_duration = 220,
+  sym_color = 221,
+  sym_number = 222,
+  sym_regex = 223,
+  anon_sym_true = 224,
+  anon_sym_false = 225,
+  sym_null = 226,
+  anon_sym_DOT_DOT_DOT = 227,
+  anon_sym_DOT_DOT = 228,
+  anon_sym_DOT_DOT_EQ = 229,
+  sym_component_identifier = 230,
+  sym_doc_comment = 231,
+  sym_comment = 232,
+  sym_style_text = 233,
+  sym__indent = 234,
+  sym__dedent = 235,
+  sym__layout = 236,
+  sym_source_file = 237,
+  sym__declaration = 238,
+  sym_const_declaration = 239,
+  sym_data_declaration = 240,
+  sym_api_declaration = 241,
+  sym_api_settings = 242,
+  sym_api_body = 243,
+  sym_api_setting = 244,
+  sym_api_headers = 245,
+  sym_header = 246,
+  sym_header_name = 247,
+  sym_endpoint = 248,
+  sym_endpoint_errors = 249,
+  sym_error_mapping = 250,
+  sym_endpoint_setting = 251,
+  sym_page_declaration = 252,
+  sym_page_attributes = 253,
+  sym_route_parameter = 254,
+  sym_component_declaration = 255,
+  sym_part_declaration = 256,
+  sym_external_declaration = 257,
+  sym_external_body = 258,
+  sym_external_fn = 259,
+  sym_external_type = 260,
+  sym_external_member = 261,
+  sym_external_prop = 262,
+  sym_store_declaration = 263,
+  sym_theme_declaration = 264,
+  sym_theme_body = 265,
+  sym_animation_declaration = 266,
+  sym_keyframe = 267,
+  sym_test_declaration = 268,
+  sym_expect_statement = 269,
+  sym_act_statement = 270,
+  sym_token_declaration = 271,
+  sym_app_declaration = 272,
+  sym_type_declaration = 273,
+  sym_field_declaration = 274,
+  sym_enum_declaration = 275,
+  sym_enum_case_declaration = 276,
+  sym_parameter_list = 277,
+  sym_parameter = 278,
+  sym__type = 279,
+  sym_refined_type = 280,
+  sym_builtin_type = 281,
+  sym_list_type = 282,
+  sym_optional_type = 283,
+  sym_named_type = 284,
+  sym_block = 285,
+  sym__statement = 286,
+  sym_state_declaration = 287,
+  sym_persist_policy = 288,
+  sym_persist_option = 289,
+  sym_migration = 290,
+  sym_derived_declaration = 291,
+  sym_validate_declaration = 292,
+  sym_validation_rule = 293,
+  sym_connection_declaration = 294,
+  sym_connection_body = 295,
+  sym_message_type = 296,
+  sym_effect_declaration = 297,
+  sym_action_declaration = 298,
+  sym_use_declaration = 299,
+  sym_resource_declaration = 300,
+  sym_event_declaration = 301,
+  sym_slot_declaration = 302,
+  sym_let_declaration = 303,
+  sym_destructuring_pattern = 304,
+  sym_try_statement = 305,
+  sym_navigate_statement = 306,
+  sym_log_statement = 307,
+  sym_return_statement = 308,
+  sym_emit_statement = 309,
+  sym_if_statement = 310,
+  sym_if_let = 311,
+  sym_else_clause = 312,
+  sym_for_statement = 313,
+  sym_show_statement = 314,
+  sym_sequence_statement = 315,
+  sym_step = 316,
+  sym_match_statement = 317,
+  sym_match_arm = 318,
+  sym__arm_pattern = 319,
+  sym_error_pattern = 320,
+  sym_ready_pattern = 321,
+  sym_state_pattern = 322,
+  sym_case_pattern = 323,
+  sym_else_pattern = 324,
+  sym_element = 325,
+  sym_part = 326,
+  sym_flag = 327,
+  sym_builtin_component = 328,
+  sym_argument_list = 329,
+  sym__argument = 330,
+  sym_named_argument = 331,
+  sym_attribute_name = 332,
+  sym_arguments = 333,
+  sym_event_handler = 334,
+  sym_timer_statement = 335,
+  sym_cleanup_block = 336,
+  sym_head_block = 337,
+  sym_head_tag = 338,
+  sym_slot_fill = 339,
+  sym_style_block = 340,
+  sym_style_property = 341,
+  sym_style_value = 342,
+  sym_nested_rule = 343,
+  sym_property_name = 344,
+  sym_transition_block = 345,
+  sym_call_statement = 346,
+  sym_store_member = 347,
+  sym_assignment = 348,
+  sym_expression_statement = 349,
+  sym__expression = 350,
+  sym__primary_expression = 351,
+  sym_binary_expression = 352,
+  sym_unary_expression = 353,
+  sym_member_expression = 354,
+  sym_index_expression = 355,
+  sym_call_expression = 356,
+  sym_parenthesized_expression = 357,
+  sym_lambda = 358,
+  sym_lambda_parameters = 359,
+  sym_if_expression = 360,
+  sym_match_expression = 361,
+  sym_match_expression_arm = 362,
+  sym_enum_case = 363,
+  sym_case_value = 364,
+  sym_string = 365,
+  sym__quoted_string = 366,
+  sym_block_string = 367,
+  sym_block_string_content = 368,
+  sym_string_content = 369,
+  sym_interpolation = 370,
+  sym_format_spec = 371,
+  sym_boolean = 372,
+  sym_array = 373,
+  sym_object = 374,
+  sym_spread_element = 375,
+  sym_pair = 376,
+  sym_range_expression = 377,
+  aux_sym_source_file_repeat1 = 378,
+  aux_sym_api_settings_repeat1 = 379,
+  aux_sym_api_body_repeat1 = 380,
+  aux_sym_api_headers_repeat1 = 381,
+  aux_sym_header_name_repeat1 = 382,
+  aux_sym_endpoint_repeat1 = 383,
+  aux_sym_endpoint_errors_repeat1 = 384,
+  aux_sym_page_attributes_repeat1 = 385,
+  aux_sym_external_body_repeat1 = 386,
+  aux_sym_external_type_repeat1 = 387,
+  aux_sym_theme_body_repeat1 = 388,
+  aux_sym_animation_declaration_repeat1 = 389,
+  aux_sym_keyframe_repeat1 = 390,
+  aux_sym_type_declaration_repeat1 = 391,
+  aux_sym_enum_declaration_repeat1 = 392,
+  aux_sym_enum_case_declaration_repeat1 = 393,
+  aux_sym_parameter_list_repeat1 = 394,
+  aux_sym_refined_type_repeat1 = 395,
+  aux_sym_block_repeat1 = 396,
+  aux_sym_persist_policy_repeat1 = 397,
+  aux_sym_validate_declaration_repeat1 = 398,
+  aux_sym_connection_body_repeat1 = 399,
+  aux_sym_destructuring_pattern_repeat1 = 400,
+  aux_sym_sequence_statement_repeat1 = 401,
+  aux_sym_match_statement_repeat1 = 402,
+  aux_sym_case_pattern_repeat1 = 403,
+  aux_sym_element_repeat1 = 404,
+  aux_sym_attribute_name_repeat1 = 405,
+  aux_sym_head_block_repeat1 = 406,
+  aux_sym_slot_fill_repeat1 = 407,
+  aux_sym_style_block_repeat1 = 408,
+  aux_sym_style_value_repeat1 = 409,
+  aux_sym_property_name_repeat1 = 410,
+  aux_sym_call_statement_repeat1 = 411,
+  aux_sym_lambda_parameters_repeat1 = 412,
+  aux_sym_match_expression_repeat1 = 413,
+  aux_sym__quoted_string_repeat1 = 414,
+  aux_sym_block_string_repeat1 = 415,
+  aux_sym_array_repeat1 = 416,
+  aux_sym_object_repeat1 = 417,
+  alias_sym_method = 418,
+  alias_sym_property = 419,
 };
 
 static const char * const ts_symbol_names[] = {
@@ -516,6 +517,7 @@ static const char * const ts_symbol_names[] = {
   [anon_sym_socket] = "socket",
   [anon_sym_stream] = "stream",
   [anon_sym_channel] = "channel",
+  [anon_sym_peer] = "peer",
   [anon_sym_send] = "send",
   [anon_sym_receive] = "receive",
   [anon_sym_effect] = "effect",
@@ -938,6 +940,7 @@ static const TSSymbol ts_symbol_map[] = {
   [anon_sym_socket] = anon_sym_socket,
   [anon_sym_stream] = anon_sym_stream,
   [anon_sym_channel] = anon_sym_channel,
+  [anon_sym_peer] = anon_sym_peer,
   [anon_sym_send] = anon_sym_send,
   [anon_sym_receive] = anon_sym_receive,
   [anon_sym_effect] = anon_sym_effect,
@@ -1570,6 +1573,10 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .named = false,
   },
   [anon_sym_channel] = {
+    .visible = true,
+    .named = false,
+  },
+  [anon_sym_peer] = {
     .visible = true,
     .named = false,
   },
@@ -11008,75 +11015,76 @@ static bool ts_lex_keywords(TSLexer *lexer, TSStateId state) {
       if (lookahead == 't') ADVANCE(130);
       END_STATE();
     case 64:
-      if (lookahead == 'r') ADVANCE(131);
+      if (lookahead == 'e') ADVANCE(131);
+      if (lookahead == 'r') ADVANCE(132);
       END_STATE();
     case 65:
-      if (lookahead == 's') ADVANCE(132);
+      if (lookahead == 's') ADVANCE(133);
       END_STATE();
     case 66:
-      if (lookahead == 'e') ADVANCE(133);
-      if (lookahead == 'o') ADVANCE(134);
+      if (lookahead == 'e') ADVANCE(134);
+      if (lookahead == 'o') ADVANCE(135);
       END_STATE();
     case 67:
-      if (lookahead == 't') ADVANCE(135);
+      if (lookahead == 't') ADVANCE(136);
       END_STATE();
     case 68:
-      if (lookahead == 'a') ADVANCE(136);
-      if (lookahead == 'c') ADVANCE(137);
-      if (lookahead == 's') ADVANCE(138);
-      if (lookahead == 't') ADVANCE(139);
+      if (lookahead == 'a') ADVANCE(137);
+      if (lookahead == 'c') ADVANCE(138);
+      if (lookahead == 's') ADVANCE(139);
+      if (lookahead == 't') ADVANCE(140);
       END_STATE();
     case 69:
-      if (lookahead == 'r') ADVANCE(140);
+      if (lookahead == 'r') ADVANCE(141);
       END_STATE();
     case 70:
-      if (lookahead == 'n') ADVANCE(141);
-      if (lookahead == 'q') ADVANCE(142);
+      if (lookahead == 'n') ADVANCE(142);
+      if (lookahead == 'q') ADVANCE(143);
       END_STATE();
     case 71:
-      if (lookahead == 'o') ADVANCE(143);
-      END_STATE();
-    case 72:
       if (lookahead == 'o') ADVANCE(144);
       END_STATE();
+    case 72:
+      if (lookahead == 'o') ADVANCE(145);
+      END_STATE();
     case 73:
-      if (lookahead == 'c') ADVANCE(145);
+      if (lookahead == 'c') ADVANCE(146);
       END_STATE();
     case 74:
-      if (lookahead == 'a') ADVANCE(146);
-      if (lookahead == 'e') ADVANCE(147);
-      if (lookahead == 'o') ADVANCE(148);
-      if (lookahead == 'r') ADVANCE(149);
-      if (lookahead == 'y') ADVANCE(150);
+      if (lookahead == 'a') ADVANCE(147);
+      if (lookahead == 'e') ADVANCE(148);
+      if (lookahead == 'o') ADVANCE(149);
+      if (lookahead == 'r') ADVANCE(150);
+      if (lookahead == 'y') ADVANCE(151);
       END_STATE();
     case 75:
-      if (lookahead == 's') ADVANCE(151);
+      if (lookahead == 's') ADVANCE(152);
       END_STATE();
     case 76:
-      if (lookahead == 'e') ADVANCE(152);
+      if (lookahead == 'e') ADVANCE(153);
       END_STATE();
     case 77:
-      if (lookahead == 'a') ADVANCE(153);
-      if (lookahead == 'u') ADVANCE(154);
-      if (lookahead == 'y') ADVANCE(155);
+      if (lookahead == 'a') ADVANCE(154);
+      if (lookahead == 'u') ADVANCE(155);
+      if (lookahead == 'y') ADVANCE(156);
       END_STATE();
     case 78:
-      if (lookahead == 'p') ADVANCE(156);
+      if (lookahead == 'p') ADVANCE(157);
       END_STATE();
     case 79:
-      if (lookahead == 'e') ADVANCE(157);
+      if (lookahead == 'e') ADVANCE(158);
       END_STATE();
     case 80:
-      if (lookahead == 'l') ADVANCE(158);
+      if (lookahead == 'l') ADVANCE(159);
       END_STATE();
     case 81:
-      if (lookahead == 'i') ADVANCE(159);
+      if (lookahead == 'i') ADVANCE(160);
       END_STATE();
     case 82:
-      if (lookahead == 'e') ADVANCE(160);
+      if (lookahead == 'e') ADVANCE(161);
       END_STATE();
     case 83:
-      if (lookahead == 'm') ADVANCE(161);
+      if (lookahead == 'm') ADVANCE(162);
       END_STATE();
     case 84:
       ACCEPT_TOKEN(anon_sym_api);
@@ -11085,565 +11093,565 @@ static bool ts_lex_keywords(TSLexer *lexer, TSStateId state) {
       ACCEPT_TOKEN(anon_sym_app);
       END_STATE();
     case 86:
-      if (lookahead == 'i') ADVANCE(162);
+      if (lookahead == 'i') ADVANCE(163);
       END_STATE();
     case 87:
-      if (lookahead == 'h') ADVANCE(163);
+      if (lookahead == 'h') ADVANCE(164);
       END_STATE();
     case 88:
-      if (lookahead == 'c') ADVANCE(164);
+      if (lookahead == 'c') ADVANCE(165);
       END_STATE();
     case 89:
-      if (lookahead == 'n') ADVANCE(165);
+      if (lookahead == 'n') ADVANCE(166);
       END_STATE();
     case 90:
-      if (lookahead == 'l') ADVANCE(166);
+      if (lookahead == 'l') ADVANCE(167);
       END_STATE();
     case 91:
-      if (lookahead == 'a') ADVANCE(167);
+      if (lookahead == 'a') ADVANCE(168);
       END_STATE();
     case 92:
-      if (lookahead == 'c') ADVANCE(168);
+      if (lookahead == 'c') ADVANCE(169);
       END_STATE();
     case 93:
-      if (lookahead == 's') ADVANCE(169);
+      if (lookahead == 's') ADVANCE(170);
       END_STATE();
     case 94:
-      if (lookahead == 'p') ADVANCE(170);
+      if (lookahead == 'p') ADVANCE(171);
       END_STATE();
     case 95:
-      if (lookahead == 'n') ADVANCE(171);
-      if (lookahead == 's') ADVANCE(172);
+      if (lookahead == 'n') ADVANCE(172);
+      if (lookahead == 's') ADVANCE(173);
       END_STATE();
     case 96:
-      if (lookahead == 'a') ADVANCE(173);
+      if (lookahead == 'a') ADVANCE(174);
       END_STATE();
     case 97:
-      if (lookahead == 'e') ADVANCE(174);
+      if (lookahead == 'e') ADVANCE(175);
       END_STATE();
     case 98:
-      if (lookahead == 'i') ADVANCE(175);
+      if (lookahead == 'i') ADVANCE(176);
       END_STATE();
     case 99:
-      if (lookahead == 'e') ADVANCE(176);
+      if (lookahead == 'e') ADVANCE(177);
       END_STATE();
     case 100:
-      if (lookahead == 'm') ADVANCE(177);
+      if (lookahead == 'm') ADVANCE(178);
       END_STATE();
     case 101:
-      if (lookahead == 'e') ADVANCE(178);
+      if (lookahead == 'e') ADVANCE(179);
       END_STATE();
     case 102:
-      if (lookahead == 't') ADVANCE(179);
+      if (lookahead == 't') ADVANCE(180);
       END_STATE();
     case 103:
-      if (lookahead == 'm') ADVANCE(180);
+      if (lookahead == 'm') ADVANCE(181);
       END_STATE();
     case 104:
-      if (lookahead == 'o') ADVANCE(181);
+      if (lookahead == 'o') ADVANCE(182);
       END_STATE();
     case 105:
-      if (lookahead == 'n') ADVANCE(182);
-      if (lookahead == 'r') ADVANCE(183);
+      if (lookahead == 'n') ADVANCE(183);
+      if (lookahead == 'r') ADVANCE(184);
       END_STATE();
     case 106:
-      if (lookahead == 'e') ADVANCE(184);
-      END_STATE();
-    case 107:
       if (lookahead == 'e') ADVANCE(185);
       END_STATE();
+    case 107:
+      if (lookahead == 'e') ADVANCE(186);
+      END_STATE();
     case 108:
-      if (lookahead == 's') ADVANCE(186);
+      if (lookahead == 's') ADVANCE(187);
       END_STATE();
     case 109:
-      if (lookahead == 'e') ADVANCE(187);
+      if (lookahead == 'e') ADVANCE(188);
       END_STATE();
     case 110:
       ACCEPT_TOKEN(anon_sym_for);
       END_STATE();
     case 111:
-      if (lookahead == 'm') ADVANCE(188);
+      if (lookahead == 'm') ADVANCE(189);
       END_STATE();
     case 112:
       ACCEPT_TOKEN(anon_sym_get);
       END_STATE();
     case 113:
-      if (lookahead == 'd') ADVANCE(189);
+      if (lookahead == 'd') ADVANCE(190);
       END_STATE();
     case 114:
-      if (lookahead == 'g') ADVANCE(190);
+      if (lookahead == 'g') ADVANCE(191);
       END_STATE();
     case 115:
-      if (lookahead == 'e') ADVANCE(191);
-      if (lookahead == 'o') ADVANCE(192);
+      if (lookahead == 'e') ADVANCE(192);
+      if (lookahead == 'o') ADVANCE(193);
       END_STATE();
     case 116:
       ACCEPT_TOKEN(anon_sym_let);
       END_STATE();
     case 117:
-      if (lookahead == 'k') ADVANCE(193);
+      if (lookahead == 'k') ADVANCE(194);
       END_STATE();
     case 118:
-      if (lookahead == 'd') ADVANCE(194);
+      if (lookahead == 'd') ADVANCE(195);
       END_STATE();
     case 119:
       ACCEPT_TOKEN(anon_sym_log);
       END_STATE();
     case 120:
-      if (lookahead == 'c') ADVANCE(195);
+      if (lookahead == 'c') ADVANCE(196);
       END_STATE();
     case 121:
-      if (lookahead == 'a') ADVANCE(196);
+      if (lookahead == 'a') ADVANCE(197);
       END_STATE();
     case 122:
-      if (lookahead == 'r') ADVANCE(197);
+      if (lookahead == 'r') ADVANCE(198);
       END_STATE();
     case 123:
-      if (lookahead == 'i') ADVANCE(198);
+      if (lookahead == 'i') ADVANCE(199);
       END_STATE();
     case 124:
       ACCEPT_TOKEN(anon_sym_not);
       END_STATE();
     case 125:
-      if (lookahead == 'l') ADVANCE(199);
+      if (lookahead == 'l') ADVANCE(200);
       END_STATE();
     case 126:
-      if (lookahead == 'n') ADVANCE(200);
+      if (lookahead == 'n') ADVANCE(201);
       END_STATE();
     case 127:
-      if (lookahead == 'i') ADVANCE(201);
+      if (lookahead == 'i') ADVANCE(202);
       END_STATE();
     case 128:
-      if (lookahead == 'e') ADVANCE(202);
+      if (lookahead == 'e') ADVANCE(203);
       END_STATE();
     case 129:
-      if (lookahead == 't') ADVANCE(203);
+      if (lookahead == 't') ADVANCE(204);
       END_STATE();
     case 130:
-      if (lookahead == 'c') ADVANCE(204);
+      if (lookahead == 'c') ADVANCE(205);
       END_STATE();
     case 131:
-      if (lookahead == 's') ADVANCE(205);
+      if (lookahead == 'r') ADVANCE(206);
       END_STATE();
     case 132:
-      if (lookahead == 't') ADVANCE(206);
-      END_STATE();
-    case 133:
       if (lookahead == 's') ADVANCE(207);
       END_STATE();
+    case 133:
+      if (lookahead == 't') ADVANCE(208);
+      END_STATE();
     case 134:
-      if (lookahead == 'p') ADVANCE(208);
+      if (lookahead == 's') ADVANCE(209);
       END_STATE();
     case 135:
-      ACCEPT_TOKEN(anon_sym_put);
+      if (lookahead == 'p') ADVANCE(210);
       END_STATE();
     case 136:
-      if (lookahead == 'd') ADVANCE(209);
+      ACCEPT_TOKEN(anon_sym_put);
       END_STATE();
     case 137:
-      if (lookahead == 'e') ADVANCE(210);
+      if (lookahead == 'd') ADVANCE(211);
       END_STATE();
     case 138:
-      if (lookahead == 'o') ADVANCE(211);
+      if (lookahead == 'e') ADVANCE(212);
       END_STATE();
     case 139:
-      if (lookahead == 'u') ADVANCE(212);
+      if (lookahead == 'o') ADVANCE(213);
       END_STATE();
     case 140:
-      if (lookahead == 'i') ADVANCE(213);
+      if (lookahead == 'u') ADVANCE(214);
       END_STATE();
     case 141:
-      if (lookahead == 'd') ADVANCE(214);
+      if (lookahead == 'i') ADVANCE(215);
       END_STATE();
     case 142:
-      if (lookahead == 'u') ADVANCE(215);
+      if (lookahead == 'd') ADVANCE(216);
       END_STATE();
     case 143:
-      if (lookahead == 'w') ADVANCE(216);
+      if (lookahead == 'u') ADVANCE(217);
       END_STATE();
     case 144:
-      if (lookahead == 't') ADVANCE(217);
+      if (lookahead == 'w') ADVANCE(218);
       END_STATE();
     case 145:
-      if (lookahead == 'k') ADVANCE(218);
-      END_STATE();
-    case 146:
       if (lookahead == 't') ADVANCE(219);
       END_STATE();
+    case 146:
+      if (lookahead == 'k') ADVANCE(220);
+      END_STATE();
     case 147:
-      if (lookahead == 'p') ADVANCE(220);
+      if (lookahead == 't') ADVANCE(221);
       END_STATE();
     case 148:
-      if (lookahead == 'r') ADVANCE(221);
+      if (lookahead == 'p') ADVANCE(222);
       END_STATE();
     case 149:
-      if (lookahead == 'e') ADVANCE(222);
+      if (lookahead == 'r') ADVANCE(223);
       END_STATE();
     case 150:
-      if (lookahead == 'l') ADVANCE(223);
+      if (lookahead == 'e') ADVANCE(224);
       END_STATE();
     case 151:
-      if (lookahead == 't') ADVANCE(224);
+      if (lookahead == 'l') ADVANCE(225);
       END_STATE();
     case 152:
-      if (lookahead == 'm') ADVANCE(225);
+      if (lookahead == 't') ADVANCE(226);
       END_STATE();
     case 153:
-      if (lookahead == 'n') ADVANCE(226);
+      if (lookahead == 'm') ADVANCE(227);
       END_STATE();
     case 154:
-      if (lookahead == 'e') ADVANCE(227);
+      if (lookahead == 'n') ADVANCE(228);
       END_STATE();
     case 155:
-      ACCEPT_TOKEN(anon_sym_try);
+      if (lookahead == 'e') ADVANCE(229);
       END_STATE();
     case 156:
-      if (lookahead == 'e') ADVANCE(228);
+      ACCEPT_TOKEN(anon_sym_try);
       END_STATE();
     case 157:
-      ACCEPT_TOKEN(anon_sym_use);
+      if (lookahead == 'e') ADVANCE(230);
       END_STATE();
     case 158:
-      if (lookahead == 'i') ADVANCE(229);
+      ACCEPT_TOKEN(anon_sym_use);
       END_STATE();
     case 159:
-      if (lookahead == 'o') ADVANCE(230);
+      if (lookahead == 'i') ADVANCE(231);
       END_STATE();
     case 160:
-      if (lookahead == 'r') ADVANCE(231);
+      if (lookahead == 'o') ADVANCE(232);
       END_STATE();
     case 161:
-      if (lookahead == 'a') ADVANCE(232);
+      if (lookahead == 'r') ADVANCE(233);
       END_STATE();
     case 162:
-      if (lookahead == 't') ADVANCE(233);
+      if (lookahead == 'a') ADVANCE(234);
       END_STATE();
     case 163:
-      if (lookahead == 'e') ADVANCE(234);
+      if (lookahead == 't') ADVANCE(235);
       END_STATE();
     case 164:
-      if (lookahead == 'h') ADVANCE(235);
+      if (lookahead == 'e') ADVANCE(236);
       END_STATE();
     case 165:
-      if (lookahead == 'n') ADVANCE(236);
+      if (lookahead == 'h') ADVANCE(237);
       END_STATE();
     case 166:
-      if (lookahead == 'd') ADVANCE(237);
-      END_STATE();
-    case 167:
       if (lookahead == 'n') ADVANCE(238);
       END_STATE();
+    case 167:
+      if (lookahead == 'd') ADVANCE(239);
+      END_STATE();
     case 168:
-      if (lookahead == 'k') ADVANCE(239);
+      if (lookahead == 'n') ADVANCE(240);
       END_STATE();
     case 169:
-      if (lookahead == 'e') ADVANCE(240);
+      if (lookahead == 'k') ADVANCE(241);
       END_STATE();
     case 170:
-      if (lookahead == 'o') ADVANCE(241);
-      END_STATE();
-    case 171:
       if (lookahead == 'e') ADVANCE(242);
       END_STATE();
+    case 171:
+      if (lookahead == 'o') ADVANCE(243);
+      END_STATE();
     case 172:
-      if (lookahead == 't') ADVANCE(243);
+      if (lookahead == 'e') ADVANCE(244);
       END_STATE();
     case 173:
-      ACCEPT_TOKEN(anon_sym_data);
+      if (lookahead == 't') ADVANCE(245);
       END_STATE();
     case 174:
-      if (lookahead == 't') ADVANCE(244);
+      ACCEPT_TOKEN(anon_sym_data);
       END_STATE();
     case 175:
-      if (lookahead == 'v') ADVANCE(245);
+      if (lookahead == 't') ADVANCE(246);
       END_STATE();
     case 176:
-      if (lookahead == 'c') ADVANCE(246);
+      if (lookahead == 'v') ADVANCE(247);
       END_STATE();
     case 177:
-      if (lookahead == 'e') ADVANCE(247);
+      if (lookahead == 'c') ADVANCE(248);
       END_STATE();
     case 178:
-      ACCEPT_TOKEN(anon_sym_else);
+      if (lookahead == 'e') ADVANCE(249);
       END_STATE();
     case 179:
-      ACCEPT_TOKEN(anon_sym_emit);
+      ACCEPT_TOKEN(anon_sym_else);
       END_STATE();
     case 180:
-      ACCEPT_TOKEN(anon_sym_enum);
+      ACCEPT_TOKEN(anon_sym_emit);
       END_STATE();
     case 181:
-      if (lookahead == 'r') ADVANCE(248);
+      ACCEPT_TOKEN(anon_sym_enum);
       END_STATE();
     case 182:
-      if (lookahead == 't') ADVANCE(249);
+      if (lookahead == 'r') ADVANCE(250);
       END_STATE();
     case 183:
-      if (lookahead == 'y') ADVANCE(250);
+      if (lookahead == 't') ADVANCE(251);
       END_STATE();
     case 184:
-      if (lookahead == 'c') ADVANCE(251);
+      if (lookahead == 'y') ADVANCE(252);
       END_STATE();
     case 185:
-      if (lookahead == 'r') ADVANCE(252);
+      if (lookahead == 'c') ADVANCE(253);
       END_STATE();
     case 186:
-      if (lookahead == 'e') ADVANCE(253);
+      if (lookahead == 'r') ADVANCE(254);
       END_STATE();
     case 187:
-      if (lookahead == 'F') ADVANCE(254);
-      END_STATE();
-    case 188:
-      ACCEPT_TOKEN(anon_sym_from);
-      END_STATE();
-    case 189:
-      ACCEPT_TOKEN(anon_sym_head);
       if (lookahead == 'e') ADVANCE(255);
       END_STATE();
+    case 188:
+      if (lookahead == 'F') ADVANCE(256);
+      END_STATE();
+    case 189:
+      ACCEPT_TOKEN(anon_sym_from);
+      END_STATE();
     case 190:
-      if (lookahead == 'e') ADVANCE(256);
+      ACCEPT_TOKEN(anon_sym_head);
+      if (lookahead == 'e') ADVANCE(257);
       END_STATE();
     case 191:
-      if (lookahead == 'g') ADVANCE(257);
+      if (lookahead == 'e') ADVANCE(258);
       END_STATE();
     case 192:
-      ACCEPT_TOKEN(anon_sym_into);
+      if (lookahead == 'g') ADVANCE(259);
       END_STATE();
     case 193:
-      ACCEPT_TOKEN(anon_sym_link);
+      ACCEPT_TOKEN(anon_sym_into);
       END_STATE();
     case 194:
-      if (lookahead == 'i') ADVANCE(258);
+      ACCEPT_TOKEN(anon_sym_link);
       END_STATE();
     case 195:
-      if (lookahead == 'h') ADVANCE(259);
+      if (lookahead == 'i') ADVANCE(260);
       END_STATE();
     case 196:
-      ACCEPT_TOKEN(anon_sym_meta);
+      if (lookahead == 'h') ADVANCE(261);
       END_STATE();
     case 197:
-      if (lookahead == 'a') ADVANCE(260);
+      ACCEPT_TOKEN(anon_sym_meta);
       END_STATE();
     case 198:
-      if (lookahead == 'g') ADVANCE(261);
+      if (lookahead == 'a') ADVANCE(262);
       END_STATE();
     case 199:
-      ACCEPT_TOKEN(sym_null);
+      if (lookahead == 'g') ADVANCE(263);
       END_STATE();
     case 200:
-      ACCEPT_TOKEN(anon_sym_open);
+      ACCEPT_TOKEN(sym_null);
       END_STATE();
     case 201:
-      if (lookahead == 'o') ADVANCE(262);
+      ACCEPT_TOKEN(anon_sym_open);
       END_STATE();
     case 202:
-      ACCEPT_TOKEN(anon_sym_page);
+      if (lookahead == 'o') ADVANCE(264);
       END_STATE();
     case 203:
-      ACCEPT_TOKEN(anon_sym_part);
+      ACCEPT_TOKEN(anon_sym_page);
       END_STATE();
     case 204:
-      if (lookahead == 'h') ADVANCE(263);
+      ACCEPT_TOKEN(anon_sym_part);
       END_STATE();
     case 205:
-      if (lookahead == 'i') ADVANCE(264);
+      if (lookahead == 'h') ADVANCE(265);
       END_STATE();
     case 206:
-      ACCEPT_TOKEN(anon_sym_post);
+      ACCEPT_TOKEN(anon_sym_peer);
       END_STATE();
     case 207:
-      if (lookahead == 's') ADVANCE(265);
+      if (lookahead == 'i') ADVANCE(266);
       END_STATE();
     case 208:
-      ACCEPT_TOKEN(anon_sym_prop);
+      ACCEPT_TOKEN(anon_sym_post);
       END_STATE();
     case 209:
-      if (lookahead == 'y') ADVANCE(266);
+      if (lookahead == 's') ADVANCE(267);
       END_STATE();
     case 210:
-      if (lookahead == 'i') ADVANCE(267);
+      ACCEPT_TOKEN(anon_sym_prop);
       END_STATE();
     case 211:
-      if (lookahead == 'u') ADVANCE(268);
+      if (lookahead == 'y') ADVANCE(268);
       END_STATE();
     case 212:
-      if (lookahead == 'r') ADVANCE(269);
+      if (lookahead == 'i') ADVANCE(269);
       END_STATE();
     case 213:
-      if (lookahead == 'p') ADVANCE(270);
+      if (lookahead == 'u') ADVANCE(270);
       END_STATE();
     case 214:
-      ACCEPT_TOKEN(anon_sym_send);
+      if (lookahead == 'r') ADVANCE(271);
       END_STATE();
     case 215:
-      if (lookahead == 'e') ADVANCE(271);
+      if (lookahead == 'p') ADVANCE(272);
       END_STATE();
     case 216:
-      ACCEPT_TOKEN(anon_sym_show);
+      ACCEPT_TOKEN(anon_sym_send);
       END_STATE();
     case 217:
-      ACCEPT_TOKEN(anon_sym_slot);
-      END_STATE();
-    case 218:
-      if (lookahead == 'e') ADVANCE(272);
-      END_STATE();
-    case 219:
       if (lookahead == 'e') ADVANCE(273);
       END_STATE();
-    case 220:
-      ACCEPT_TOKEN(anon_sym_step);
+    case 218:
+      ACCEPT_TOKEN(anon_sym_show);
       END_STATE();
-    case 221:
+    case 219:
+      ACCEPT_TOKEN(anon_sym_slot);
+      END_STATE();
+    case 220:
       if (lookahead == 'e') ADVANCE(274);
       END_STATE();
+    case 221:
+      if (lookahead == 'e') ADVANCE(275);
+      END_STATE();
     case 222:
-      if (lookahead == 'a') ADVANCE(275);
+      ACCEPT_TOKEN(anon_sym_step);
       END_STATE();
     case 223:
       if (lookahead == 'e') ADVANCE(276);
       END_STATE();
     case 224:
-      ACCEPT_TOKEN(anon_sym_test);
+      if (lookahead == 'a') ADVANCE(277);
       END_STATE();
     case 225:
-      if (lookahead == 'e') ADVANCE(277);
+      if (lookahead == 'e') ADVANCE(278);
       END_STATE();
     case 226:
-      if (lookahead == 's') ADVANCE(278);
+      ACCEPT_TOKEN(anon_sym_test);
       END_STATE();
     case 227:
-      ACCEPT_TOKEN(anon_sym_true);
+      if (lookahead == 'e') ADVANCE(279);
       END_STATE();
     case 228:
-      ACCEPT_TOKEN(anon_sym_type);
+      if (lookahead == 's') ADVANCE(280);
       END_STATE();
     case 229:
-      if (lookahead == 'd') ADVANCE(279);
+      ACCEPT_TOKEN(anon_sym_true);
       END_STATE();
     case 230:
-      if (lookahead == 'n') ADVANCE(280);
+      ACCEPT_TOKEN(anon_sym_type);
       END_STATE();
     case 231:
-      ACCEPT_TOKEN(anon_sym_after);
+      if (lookahead == 'd') ADVANCE(281);
       END_STATE();
     case 232:
-      if (lookahead == 't') ADVANCE(281);
+      if (lookahead == 'n') ADVANCE(282);
       END_STATE();
     case 233:
-      ACCEPT_TOKEN(anon_sym_await);
+      ACCEPT_TOKEN(anon_sym_after);
       END_STATE();
     case 234:
-      ACCEPT_TOKEN(anon_sym_cache);
+      if (lookahead == 't') ADVANCE(283);
       END_STATE();
     case 235:
-      ACCEPT_TOKEN(anon_sym_catch);
+      ACCEPT_TOKEN(anon_sym_await);
       END_STATE();
     case 236:
-      if (lookahead == 'e') ADVANCE(282);
+      ACCEPT_TOKEN(anon_sym_cache);
       END_STATE();
     case 237:
-      if (lookahead == 'r') ADVANCE(283);
+      ACCEPT_TOKEN(anon_sym_catch);
       END_STATE();
     case 238:
-      if (lookahead == 'u') ADVANCE(284);
+      if (lookahead == 'e') ADVANCE(284);
       END_STATE();
     case 239:
-      ACCEPT_TOKEN(anon_sym_click);
+      if (lookahead == 'r') ADVANCE(285);
       END_STATE();
     case 240:
-      if (lookahead == 'd') ADVANCE(285);
+      if (lookahead == 'u') ADVANCE(286);
       END_STATE();
     case 241:
-      if (lookahead == 'n') ADVANCE(286);
+      ACCEPT_TOKEN(anon_sym_click);
       END_STATE();
     case 242:
-      if (lookahead == 'c') ADVANCE(287);
+      if (lookahead == 'd') ADVANCE(287);
       END_STATE();
     case 243:
-      ACCEPT_TOKEN(anon_sym_const);
+      if (lookahead == 'n') ADVANCE(288);
       END_STATE();
     case 244:
-      if (lookahead == 'e') ADVANCE(288);
+      if (lookahead == 'c') ADVANCE(289);
       END_STATE();
     case 245:
-      if (lookahead == 'e') ADVANCE(289);
+      ACCEPT_TOKEN(anon_sym_const);
       END_STATE();
     case 246:
-      if (lookahead == 't') ADVANCE(290);
+      if (lookahead == 'e') ADVANCE(290);
       END_STATE();
     case 247:
-      if (lookahead == 'n') ADVANCE(291);
+      if (lookahead == 'e') ADVANCE(291);
       END_STATE();
     case 248:
-      ACCEPT_TOKEN(anon_sym_error);
-      if (lookahead == 'A') ADVANCE(292);
-      if (lookahead == 's') ADVANCE(293);
+      if (lookahead == 't') ADVANCE(292);
       END_STATE();
     case 249:
-      ACCEPT_TOKEN(anon_sym_event);
+      if (lookahead == 'n') ADVANCE(293);
       END_STATE();
     case 250:
-      ACCEPT_TOKEN(anon_sym_every);
+      ACCEPT_TOKEN(anon_sym_error);
+      if (lookahead == 'A') ADVANCE(294);
+      if (lookahead == 's') ADVANCE(295);
       END_STATE();
     case 251:
-      if (lookahead == 't') ADVANCE(294);
+      ACCEPT_TOKEN(anon_sym_event);
       END_STATE();
     case 252:
-      if (lookahead == 'n') ADVANCE(295);
+      ACCEPT_TOKEN(anon_sym_every);
       END_STATE();
     case 253:
-      ACCEPT_TOKEN(anon_sym_false);
+      if (lookahead == 't') ADVANCE(296);
       END_STATE();
     case 254:
-      if (lookahead == 'i') ADVANCE(296);
+      if (lookahead == 'n') ADVANCE(297);
       END_STATE();
     case 255:
-      if (lookahead == 'r') ADVANCE(297);
+      ACCEPT_TOKEN(anon_sym_false);
       END_STATE();
     case 256:
-      ACCEPT_TOKEN(anon_sym_image);
+      if (lookahead == 'i') ADVANCE(298);
       END_STATE();
     case 257:
-      if (lookahead == 'r') ADVANCE(298);
+      if (lookahead == 'r') ADVANCE(299);
       END_STATE();
     case 258:
-      if (lookahead == 'n') ADVANCE(299);
+      ACCEPT_TOKEN(anon_sym_image);
       END_STATE();
     case 259:
-      ACCEPT_TOKEN(anon_sym_match);
+      if (lookahead == 'r') ADVANCE(300);
       END_STATE();
     case 260:
-      if (lookahead == 't') ADVANCE(300);
+      if (lookahead == 'n') ADVANCE(301);
       END_STATE();
     case 261:
-      if (lookahead == 'a') ADVANCE(301);
+      ACCEPT_TOKEN(anon_sym_match);
       END_STATE();
     case 262:
-      if (lookahead == 'n') ADVANCE(302);
+      if (lookahead == 't') ADVANCE(302);
       END_STATE();
     case 263:
-      ACCEPT_TOKEN(anon_sym_patch);
+      if (lookahead == 'a') ADVANCE(303);
       END_STATE();
     case 264:
-      if (lookahead == 's') ADVANCE(303);
+      if (lookahead == 'n') ADVANCE(304);
       END_STATE();
     case 265:
-      ACCEPT_TOKEN(anon_sym_press);
+      ACCEPT_TOKEN(anon_sym_patch);
       END_STATE();
     case 266:
-      ACCEPT_TOKEN(anon_sym_ready);
+      if (lookahead == 's') ADVANCE(305);
       END_STATE();
     case 267:
-      if (lookahead == 'v') ADVANCE(304);
+      ACCEPT_TOKEN(anon_sym_press);
       END_STATE();
     case 268:
-      if (lookahead == 'r') ADVANCE(305);
+      ACCEPT_TOKEN(anon_sym_ready);
       END_STATE();
     case 269:
-      if (lookahead == 'n') ADVANCE(306);
+      if (lookahead == 'v') ADVANCE(306);
       END_STATE();
     case 270:
-      if (lookahead == 't') ADVANCE(307);
+      if (lookahead == 'r') ADVANCE(307);
       END_STATE();
     case 271:
       if (lookahead == 'n') ADVANCE(308);
@@ -11652,252 +11660,258 @@ static bool ts_lex_keywords(TSLexer *lexer, TSStateId state) {
       if (lookahead == 't') ADVANCE(309);
       END_STATE();
     case 273:
-      ACCEPT_TOKEN(anon_sym_state);
+      if (lookahead == 'n') ADVANCE(310);
       END_STATE();
     case 274:
-      ACCEPT_TOKEN(anon_sym_store);
+      if (lookahead == 't') ADVANCE(311);
       END_STATE();
     case 275:
-      if (lookahead == 'm') ADVANCE(310);
+      ACCEPT_TOKEN(anon_sym_state);
       END_STATE();
     case 276:
-      ACCEPT_TOKEN(anon_sym_style);
+      ACCEPT_TOKEN(anon_sym_store);
       END_STATE();
     case 277:
-      ACCEPT_TOKEN(anon_sym_theme);
+      if (lookahead == 'm') ADVANCE(312);
       END_STATE();
     case 278:
-      if (lookahead == 'i') ADVANCE(311);
+      ACCEPT_TOKEN(anon_sym_style);
       END_STATE();
     case 279:
-      if (lookahead == 'a') ADVANCE(312);
+      ACCEPT_TOKEN(anon_sym_theme);
       END_STATE();
     case 280:
-      ACCEPT_TOKEN(anon_sym_action);
-      END_STATE();
-    case 281:
       if (lookahead == 'i') ADVANCE(313);
       END_STATE();
+    case 281:
+      if (lookahead == 'a') ADVANCE(314);
+      END_STATE();
     case 282:
-      if (lookahead == 'l') ADVANCE(314);
+      ACCEPT_TOKEN(anon_sym_action);
       END_STATE();
     case 283:
-      if (lookahead == 'e') ADVANCE(315);
+      if (lookahead == 'i') ADVANCE(315);
       END_STATE();
     case 284:
-      if (lookahead == 'p') ADVANCE(316);
+      if (lookahead == 'l') ADVANCE(316);
       END_STATE();
     case 285:
-      ACCEPT_TOKEN(anon_sym_closed);
-      END_STATE();
-    case 286:
       if (lookahead == 'e') ADVANCE(317);
       END_STATE();
+    case 286:
+      if (lookahead == 'p') ADVANCE(318);
+      END_STATE();
     case 287:
-      if (lookahead == 't') ADVANCE(318);
+      ACCEPT_TOKEN(anon_sym_closed);
       END_STATE();
     case 288:
-      ACCEPT_TOKEN(anon_sym_delete);
+      if (lookahead == 'e') ADVANCE(319);
       END_STATE();
     case 289:
-      if (lookahead == 'd') ADVANCE(319);
-      END_STATE();
-    case 290:
-      ACCEPT_TOKEN(anon_sym_effect);
-      END_STATE();
-    case 291:
       if (lookahead == 't') ADVANCE(320);
       END_STATE();
+    case 290:
+      ACCEPT_TOKEN(anon_sym_delete);
+      END_STATE();
+    case 291:
+      if (lookahead == 'd') ADVANCE(321);
+      END_STATE();
     case 292:
-      if (lookahead == 's') ADVANCE(321);
+      ACCEPT_TOKEN(anon_sym_effect);
       END_STATE();
     case 293:
-      ACCEPT_TOKEN(anon_sym_errors);
+      if (lookahead == 't') ADVANCE(322);
       END_STATE();
     case 294:
-      ACCEPT_TOKEN(anon_sym_expect);
+      if (lookahead == 's') ADVANCE(323);
       END_STATE();
     case 295:
-      if (lookahead == 'a') ADVANCE(322);
+      ACCEPT_TOKEN(anon_sym_errors);
       END_STATE();
     case 296:
-      if (lookahead == 'e') ADVANCE(323);
+      ACCEPT_TOKEN(anon_sym_expect);
       END_STATE();
     case 297:
-      if (lookahead == 's') ADVANCE(324);
+      if (lookahead == 'a') ADVANCE(324);
       END_STATE();
     case 298:
-      if (lookahead == 'i') ADVANCE(325);
+      if (lookahead == 'e') ADVANCE(325);
       END_STATE();
     case 299:
-      if (lookahead == 'g') ADVANCE(326);
+      if (lookahead == 's') ADVANCE(326);
       END_STATE();
     case 300:
-      if (lookahead == 'e') ADVANCE(327);
+      if (lookahead == 'i') ADVANCE(327);
       END_STATE();
     case 301:
-      if (lookahead == 't') ADVANCE(328);
+      if (lookahead == 'g') ADVANCE(328);
       END_STATE();
     case 302:
-      if (lookahead == 's') ADVANCE(329);
+      if (lookahead == 'e') ADVANCE(329);
       END_STATE();
     case 303:
       if (lookahead == 't') ADVANCE(330);
       END_STATE();
     case 304:
-      if (lookahead == 'e') ADVANCE(331);
+      if (lookahead == 's') ADVANCE(331);
       END_STATE();
     case 305:
-      if (lookahead == 'c') ADVANCE(332);
+      if (lookahead == 't') ADVANCE(332);
       END_STATE();
     case 306:
-      ACCEPT_TOKEN(anon_sym_return);
+      if (lookahead == 'e') ADVANCE(333);
       END_STATE();
     case 307:
-      ACCEPT_TOKEN(anon_sym_script);
+      if (lookahead == 'c') ADVANCE(334);
       END_STATE();
     case 308:
-      if (lookahead == 'c') ADVANCE(333);
+      ACCEPT_TOKEN(anon_sym_return);
       END_STATE();
     case 309:
-      ACCEPT_TOKEN(anon_sym_socket);
+      ACCEPT_TOKEN(anon_sym_script);
       END_STATE();
     case 310:
-      ACCEPT_TOKEN(anon_sym_stream);
+      if (lookahead == 'c') ADVANCE(335);
       END_STATE();
     case 311:
-      if (lookahead == 't') ADVANCE(334);
+      ACCEPT_TOKEN(anon_sym_socket);
       END_STATE();
     case 312:
-      if (lookahead == 't') ADVANCE(335);
+      ACCEPT_TOKEN(anon_sym_stream);
       END_STATE();
     case 313:
-      if (lookahead == 'o') ADVANCE(336);
+      if (lookahead == 't') ADVANCE(336);
       END_STATE();
     case 314:
-      ACCEPT_TOKEN(anon_sym_channel);
+      if (lookahead == 't') ADVANCE(337);
       END_STATE();
     case 315:
-      if (lookahead == 'n') ADVANCE(337);
+      if (lookahead == 'o') ADVANCE(338);
       END_STATE();
     case 316:
-      ACCEPT_TOKEN(anon_sym_cleanup);
+      ACCEPT_TOKEN(anon_sym_channel);
       END_STATE();
     case 317:
-      if (lookahead == 'n') ADVANCE(338);
+      if (lookahead == 'n') ADVANCE(339);
       END_STATE();
     case 318:
-      if (lookahead == 'i') ADVANCE(339);
+      ACCEPT_TOKEN(anon_sym_cleanup);
       END_STATE();
     case 319:
-      ACCEPT_TOKEN(anon_sym_derived);
+      if (lookahead == 'n') ADVANCE(340);
       END_STATE();
     case 320:
-      ACCEPT_TOKEN(anon_sym_element);
+      if (lookahead == 'i') ADVANCE(341);
       END_STATE();
     case 321:
-      ACCEPT_TOKEN(anon_sym_errorAs);
+      ACCEPT_TOKEN(anon_sym_derived);
       END_STATE();
     case 322:
-      if (lookahead == 'l') ADVANCE(340);
+      ACCEPT_TOKEN(anon_sym_element);
       END_STATE();
     case 323:
-      if (lookahead == 'l') ADVANCE(341);
+      ACCEPT_TOKEN(anon_sym_errorAs);
       END_STATE();
     case 324:
-      ACCEPT_TOKEN(anon_sym_headers);
+      if (lookahead == 'l') ADVANCE(342);
       END_STATE();
     case 325:
-      if (lookahead == 't') ADVANCE(342);
+      if (lookahead == 'l') ADVANCE(343);
       END_STATE();
     case 326:
-      ACCEPT_TOKEN(sym_loading_pattern);
+      ACCEPT_TOKEN(anon_sym_headers);
       END_STATE();
     case 327:
-      ACCEPT_TOKEN(anon_sym_migrate);
+      if (lookahead == 't') ADVANCE(344);
       END_STATE();
     case 328:
-      if (lookahead == 'e') ADVANCE(343);
+      ACCEPT_TOKEN(sym_loading_pattern);
       END_STATE();
     case 329:
-      ACCEPT_TOKEN(anon_sym_options);
+      ACCEPT_TOKEN(anon_sym_migrate);
       END_STATE();
     case 330:
-      ACCEPT_TOKEN(anon_sym_persist);
-      END_STATE();
-    case 331:
-      ACCEPT_TOKEN(anon_sym_receive);
-      END_STATE();
-    case 332:
-      if (lookahead == 'e') ADVANCE(344);
-      END_STATE();
-    case 333:
       if (lookahead == 'e') ADVANCE(345);
       END_STATE();
+    case 331:
+      ACCEPT_TOKEN(anon_sym_options);
+      END_STATE();
+    case 332:
+      ACCEPT_TOKEN(anon_sym_persist);
+      END_STATE();
+    case 333:
+      ACCEPT_TOKEN(anon_sym_receive);
+      END_STATE();
     case 334:
-      if (lookahead == 'i') ADVANCE(346);
+      if (lookahead == 'e') ADVANCE(346);
       END_STATE();
     case 335:
       if (lookahead == 'e') ADVANCE(347);
       END_STATE();
     case 336:
-      if (lookahead == 'n') ADVANCE(348);
+      if (lookahead == 'i') ADVANCE(348);
       END_STATE();
     case 337:
-      ACCEPT_TOKEN(sym_children);
+      if (lookahead == 'e') ADVANCE(349);
       END_STATE();
     case 338:
-      if (lookahead == 't') ADVANCE(349);
-      END_STATE();
-    case 339:
       if (lookahead == 'n') ADVANCE(350);
       END_STATE();
+    case 339:
+      ACCEPT_TOKEN(sym_children);
+      END_STATE();
     case 340:
-      ACCEPT_TOKEN(anon_sym_external);
+      if (lookahead == 't') ADVANCE(351);
       END_STATE();
     case 341:
-      if (lookahead == 'd') ADVANCE(351);
+      if (lookahead == 'n') ADVANCE(352);
       END_STATE();
     case 342:
-      if (lookahead == 'y') ADVANCE(352);
+      ACCEPT_TOKEN(anon_sym_external);
       END_STATE();
     case 343:
-      ACCEPT_TOKEN(anon_sym_navigate);
+      if (lookahead == 'd') ADVANCE(353);
       END_STATE();
     case 344:
-      ACCEPT_TOKEN(anon_sym_resource);
+      if (lookahead == 'y') ADVANCE(354);
       END_STATE();
     case 345:
-      ACCEPT_TOKEN(anon_sym_sequence);
+      ACCEPT_TOKEN(anon_sym_navigate);
       END_STATE();
     case 346:
-      if (lookahead == 'o') ADVANCE(353);
+      ACCEPT_TOKEN(anon_sym_resource);
       END_STATE();
     case 347:
-      ACCEPT_TOKEN(anon_sym_validate);
+      ACCEPT_TOKEN(anon_sym_sequence);
       END_STATE();
     case 348:
-      ACCEPT_TOKEN(anon_sym_animation);
+      if (lookahead == 'o') ADVANCE(355);
       END_STATE();
     case 349:
-      ACCEPT_TOKEN(anon_sym_component);
+      ACCEPT_TOKEN(anon_sym_validate);
       END_STATE();
     case 350:
-      if (lookahead == 'g') ADVANCE(354);
+      ACCEPT_TOKEN(anon_sym_animation);
       END_STATE();
     case 351:
-      ACCEPT_TOKEN(anon_sym_fileField);
+      ACCEPT_TOKEN(anon_sym_component);
       END_STATE();
     case 352:
-      ACCEPT_TOKEN(anon_sym_integrity);
+      if (lookahead == 'g') ADVANCE(356);
       END_STATE();
     case 353:
-      if (lookahead == 'n') ADVANCE(355);
+      ACCEPT_TOKEN(anon_sym_fileField);
       END_STATE();
     case 354:
-      ACCEPT_TOKEN(anon_sym_connecting);
+      ACCEPT_TOKEN(anon_sym_integrity);
       END_STATE();
     case 355:
+      if (lookahead == 'n') ADVANCE(357);
+      END_STATE();
+    case 356:
+      ACCEPT_TOKEN(anon_sym_connecting);
+      END_STATE();
+    case 357:
       ACCEPT_TOKEN(anon_sym_transition);
       END_STATE();
     default:
@@ -14404,6 +14418,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1),
     [anon_sym_stream] = ACTIONS(1),
     [anon_sym_channel] = ACTIONS(1),
+    [anon_sym_peer] = ACTIONS(1),
     [anon_sym_send] = ACTIONS(1),
     [anon_sym_receive] = ACTIONS(1),
     [anon_sym_effect] = ACTIONS(1),
@@ -14684,6 +14699,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -14889,6 +14905,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -15093,6 +15110,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -15299,6 +15317,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -15503,6 +15522,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(260),
     [anon_sym_stream] = ACTIONS(260),
     [anon_sym_channel] = ACTIONS(260),
+    [anon_sym_peer] = ACTIONS(260),
     [anon_sym_effect] = ACTIONS(263),
     [anon_sym_action] = ACTIONS(266),
     [anon_sym_use] = ACTIONS(269),
@@ -15709,6 +15729,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -15914,6 +15935,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -16119,6 +16141,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(429),
     [anon_sym_stream] = ACTIONS(429),
     [anon_sym_channel] = ACTIONS(429),
+    [anon_sym_peer] = ACTIONS(429),
     [anon_sym_effect] = ACTIONS(432),
     [anon_sym_action] = ACTIONS(435),
     [anon_sym_use] = ACTIONS(438),
@@ -16323,6 +16346,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -16528,6 +16552,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -16733,6 +16758,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -16939,6 +16965,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -17144,6 +17171,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -17348,6 +17376,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -17554,6 +17583,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -17758,6 +17788,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -17964,6 +17995,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -18168,6 +18200,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -18374,6 +18407,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -18578,6 +18612,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -18784,6 +18819,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -18988,6 +19024,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -19194,6 +19231,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -19398,6 +19436,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(159),
     [anon_sym_stream] = ACTIONS(159),
     [anon_sym_channel] = ACTIONS(159),
+    [anon_sym_peer] = ACTIONS(159),
     [anon_sym_effect] = ACTIONS(161),
     [anon_sym_action] = ACTIONS(163),
     [anon_sym_use] = ACTIONS(165),
@@ -19604,6 +19643,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -19809,6 +19849,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(67),
     [anon_sym_stream] = ACTIONS(67),
     [anon_sym_channel] = ACTIONS(67),
+    [anon_sym_peer] = ACTIONS(67),
     [anon_sym_effect] = ACTIONS(69),
     [anon_sym_action] = ACTIONS(71),
     [anon_sym_use] = ACTIONS(73),
@@ -19960,6 +20001,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(522),
     [anon_sym_stream] = ACTIONS(522),
     [anon_sym_channel] = ACTIONS(522),
+    [anon_sym_peer] = ACTIONS(522),
     [anon_sym_effect] = ACTIONS(522),
     [anon_sym_action] = ACTIONS(522),
     [anon_sym_use] = ACTIONS(522),
@@ -20131,6 +20173,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(522),
     [anon_sym_stream] = ACTIONS(522),
     [anon_sym_channel] = ACTIONS(522),
+    [anon_sym_peer] = ACTIONS(522),
     [anon_sym_effect] = ACTIONS(522),
     [anon_sym_action] = ACTIONS(522),
     [anon_sym_use] = ACTIONS(522),
@@ -20299,6 +20342,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(522),
     [anon_sym_stream] = ACTIONS(522),
     [anon_sym_channel] = ACTIONS(522),
+    [anon_sym_peer] = ACTIONS(522),
     [anon_sym_effect] = ACTIONS(522),
     [anon_sym_action] = ACTIONS(522),
     [anon_sym_use] = ACTIONS(522),
@@ -20466,6 +20510,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(522),
     [anon_sym_stream] = ACTIONS(522),
     [anon_sym_channel] = ACTIONS(522),
+    [anon_sym_peer] = ACTIONS(522),
     [anon_sym_effect] = ACTIONS(522),
     [anon_sym_action] = ACTIONS(522),
     [anon_sym_use] = ACTIONS(522),
@@ -20651,6 +20696,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(564),
     [anon_sym_stream] = ACTIONS(564),
     [anon_sym_channel] = ACTIONS(564),
+    [anon_sym_peer] = ACTIONS(564),
     [anon_sym_effect] = ACTIONS(564),
     [anon_sym_action] = ACTIONS(564),
     [anon_sym_use] = ACTIONS(564),
@@ -20819,6 +20865,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(564),
     [anon_sym_stream] = ACTIONS(564),
     [anon_sym_channel] = ACTIONS(564),
+    [anon_sym_peer] = ACTIONS(564),
     [anon_sym_effect] = ACTIONS(564),
     [anon_sym_action] = ACTIONS(564),
     [anon_sym_use] = ACTIONS(564),
@@ -20966,6 +21013,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -21133,6 +21181,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -21299,6 +21348,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -21462,6 +21512,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -21627,6 +21678,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -21792,6 +21844,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -21955,6 +22008,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -22117,6 +22171,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(670),
     [anon_sym_stream] = ACTIONS(670),
     [anon_sym_channel] = ACTIONS(670),
+    [anon_sym_peer] = ACTIONS(670),
     [anon_sym_effect] = ACTIONS(670),
     [anon_sym_action] = ACTIONS(670),
     [anon_sym_use] = ACTIONS(670),
@@ -22282,6 +22337,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(678),
     [anon_sym_stream] = ACTIONS(678),
     [anon_sym_channel] = ACTIONS(678),
+    [anon_sym_peer] = ACTIONS(678),
     [anon_sym_effect] = ACTIONS(678),
     [anon_sym_action] = ACTIONS(678),
     [anon_sym_use] = ACTIONS(678),
@@ -22446,6 +22502,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -22607,6 +22664,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(717),
     [anon_sym_stream] = ACTIONS(717),
     [anon_sym_channel] = ACTIONS(717),
+    [anon_sym_peer] = ACTIONS(717),
     [anon_sym_effect] = ACTIONS(717),
     [anon_sym_action] = ACTIONS(717),
     [anon_sym_use] = ACTIONS(717),
@@ -22770,6 +22828,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(721),
     [anon_sym_stream] = ACTIONS(721),
     [anon_sym_channel] = ACTIONS(721),
+    [anon_sym_peer] = ACTIONS(721),
     [anon_sym_effect] = ACTIONS(721),
     [anon_sym_action] = ACTIONS(721),
     [anon_sym_use] = ACTIONS(721),
@@ -22935,6 +22994,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(760),
     [anon_sym_stream] = ACTIONS(760),
     [anon_sym_channel] = ACTIONS(760),
+    [anon_sym_peer] = ACTIONS(760),
     [anon_sym_effect] = ACTIONS(760),
     [anon_sym_action] = ACTIONS(760),
     [anon_sym_use] = ACTIONS(760),
@@ -23096,6 +23156,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(764),
     [anon_sym_stream] = ACTIONS(764),
     [anon_sym_channel] = ACTIONS(764),
+    [anon_sym_peer] = ACTIONS(764),
     [anon_sym_effect] = ACTIONS(764),
     [anon_sym_action] = ACTIONS(764),
     [anon_sym_use] = ACTIONS(764),
@@ -23259,6 +23320,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -23423,6 +23485,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(721),
     [anon_sym_stream] = ACTIONS(721),
     [anon_sym_channel] = ACTIONS(721),
+    [anon_sym_peer] = ACTIONS(721),
     [anon_sym_effect] = ACTIONS(721),
     [anon_sym_action] = ACTIONS(721),
     [anon_sym_use] = ACTIONS(721),
@@ -23585,6 +23648,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(760),
     [anon_sym_stream] = ACTIONS(760),
     [anon_sym_channel] = ACTIONS(760),
+    [anon_sym_peer] = ACTIONS(760),
     [anon_sym_effect] = ACTIONS(760),
     [anon_sym_action] = ACTIONS(760),
     [anon_sym_use] = ACTIONS(760),
@@ -23749,6 +23813,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -23911,6 +23976,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(670),
     [anon_sym_stream] = ACTIONS(670),
     [anon_sym_channel] = ACTIONS(670),
+    [anon_sym_peer] = ACTIONS(670),
     [anon_sym_effect] = ACTIONS(670),
     [anon_sym_action] = ACTIONS(670),
     [anon_sym_use] = ACTIONS(670),
@@ -24075,6 +24141,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(760),
     [anon_sym_stream] = ACTIONS(760),
     [anon_sym_channel] = ACTIONS(760),
+    [anon_sym_peer] = ACTIONS(760),
     [anon_sym_effect] = ACTIONS(760),
     [anon_sym_action] = ACTIONS(760),
     [anon_sym_use] = ACTIONS(760),
@@ -24238,6 +24305,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(764),
     [anon_sym_stream] = ACTIONS(764),
     [anon_sym_channel] = ACTIONS(764),
+    [anon_sym_peer] = ACTIONS(764),
     [anon_sym_effect] = ACTIONS(764),
     [anon_sym_action] = ACTIONS(764),
     [anon_sym_use] = ACTIONS(764),
@@ -24401,6 +24469,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(779),
     [anon_sym_stream] = ACTIONS(779),
     [anon_sym_channel] = ACTIONS(779),
+    [anon_sym_peer] = ACTIONS(779),
     [anon_sym_effect] = ACTIONS(779),
     [anon_sym_action] = ACTIONS(779),
     [anon_sym_use] = ACTIONS(779),
@@ -24564,6 +24633,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -24725,6 +24795,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(783),
     [anon_sym_stream] = ACTIONS(783),
     [anon_sym_channel] = ACTIONS(783),
+    [anon_sym_peer] = ACTIONS(783),
     [anon_sym_effect] = ACTIONS(783),
     [anon_sym_action] = ACTIONS(783),
     [anon_sym_use] = ACTIONS(783),
@@ -24890,6 +24961,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(791),
     [anon_sym_stream] = ACTIONS(791),
     [anon_sym_channel] = ACTIONS(791),
+    [anon_sym_peer] = ACTIONS(791),
     [anon_sym_effect] = ACTIONS(791),
     [anon_sym_action] = ACTIONS(791),
     [anon_sym_use] = ACTIONS(791),
@@ -25052,6 +25124,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(678),
     [anon_sym_stream] = ACTIONS(678),
     [anon_sym_channel] = ACTIONS(678),
+    [anon_sym_peer] = ACTIONS(678),
     [anon_sym_effect] = ACTIONS(678),
     [anon_sym_action] = ACTIONS(678),
     [anon_sym_use] = ACTIONS(678),
@@ -25214,6 +25287,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(717),
     [anon_sym_stream] = ACTIONS(717),
     [anon_sym_channel] = ACTIONS(717),
+    [anon_sym_peer] = ACTIONS(717),
     [anon_sym_effect] = ACTIONS(717),
     [anon_sym_action] = ACTIONS(717),
     [anon_sym_use] = ACTIONS(717),
@@ -25380,6 +25454,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(779),
     [anon_sym_stream] = ACTIONS(779),
     [anon_sym_channel] = ACTIONS(779),
+    [anon_sym_peer] = ACTIONS(779),
     [anon_sym_effect] = ACTIONS(779),
     [anon_sym_action] = ACTIONS(779),
     [anon_sym_use] = ACTIONS(779),
@@ -25541,6 +25616,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(783),
     [anon_sym_stream] = ACTIONS(783),
     [anon_sym_channel] = ACTIONS(783),
+    [anon_sym_peer] = ACTIONS(783),
     [anon_sym_effect] = ACTIONS(783),
     [anon_sym_action] = ACTIONS(783),
     [anon_sym_use] = ACTIONS(783),
@@ -25706,6 +25782,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(791),
     [anon_sym_stream] = ACTIONS(791),
     [anon_sym_channel] = ACTIONS(791),
+    [anon_sym_peer] = ACTIONS(791),
     [anon_sym_effect] = ACTIONS(791),
     [anon_sym_action] = ACTIONS(791),
     [anon_sym_use] = ACTIONS(791),
@@ -25868,6 +25945,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(532),
     [anon_sym_stream] = ACTIONS(532),
     [anon_sym_channel] = ACTIONS(532),
+    [anon_sym_peer] = ACTIONS(532),
     [anon_sym_effect] = ACTIONS(532),
     [anon_sym_action] = ACTIONS(532),
     [anon_sym_use] = ACTIONS(532),
@@ -26029,6 +26107,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(798),
     [anon_sym_stream] = ACTIONS(798),
     [anon_sym_channel] = ACTIONS(798),
+    [anon_sym_peer] = ACTIONS(798),
     [anon_sym_effect] = ACTIONS(798),
     [anon_sym_action] = ACTIONS(798),
     [anon_sym_use] = ACTIONS(798),
@@ -26195,6 +26274,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -26358,6 +26438,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -26520,6 +26601,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(760),
     [anon_sym_stream] = ACTIONS(760),
     [anon_sym_channel] = ACTIONS(760),
+    [anon_sym_peer] = ACTIONS(760),
     [anon_sym_effect] = ACTIONS(760),
     [anon_sym_action] = ACTIONS(760),
     [anon_sym_use] = ACTIONS(760),
@@ -26683,6 +26765,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(806),
     [anon_sym_stream] = ACTIONS(806),
     [anon_sym_channel] = ACTIONS(806),
+    [anon_sym_peer] = ACTIONS(806),
     [anon_sym_effect] = ACTIONS(806),
     [anon_sym_action] = ACTIONS(806),
     [anon_sym_use] = ACTIONS(806),
@@ -26845,6 +26928,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(798),
     [anon_sym_stream] = ACTIONS(798),
     [anon_sym_channel] = ACTIONS(798),
+    [anon_sym_peer] = ACTIONS(798),
     [anon_sym_effect] = ACTIONS(798),
     [anon_sym_action] = ACTIONS(798),
     [anon_sym_use] = ACTIONS(798),
@@ -27010,6 +27094,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(806),
     [anon_sym_stream] = ACTIONS(806),
     [anon_sym_channel] = ACTIONS(806),
+    [anon_sym_peer] = ACTIONS(806),
     [anon_sym_effect] = ACTIONS(806),
     [anon_sym_action] = ACTIONS(806),
     [anon_sym_use] = ACTIONS(806),
@@ -27172,6 +27257,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(810),
     [anon_sym_stream] = ACTIONS(810),
     [anon_sym_channel] = ACTIONS(810),
+    [anon_sym_peer] = ACTIONS(810),
     [anon_sym_effect] = ACTIONS(810),
     [anon_sym_action] = ACTIONS(810),
     [anon_sym_use] = ACTIONS(810),
@@ -27333,6 +27419,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(802),
     [anon_sym_stream] = ACTIONS(802),
     [anon_sym_channel] = ACTIONS(802),
+    [anon_sym_peer] = ACTIONS(802),
     [anon_sym_effect] = ACTIONS(802),
     [anon_sym_action] = ACTIONS(802),
     [anon_sym_use] = ACTIONS(802),
@@ -27495,6 +27582,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(810),
     [anon_sym_stream] = ACTIONS(810),
     [anon_sym_channel] = ACTIONS(810),
+    [anon_sym_peer] = ACTIONS(810),
     [anon_sym_effect] = ACTIONS(810),
     [anon_sym_action] = ACTIONS(810),
     [anon_sym_use] = ACTIONS(810),
@@ -27658,6 +27746,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(814),
     [anon_sym_stream] = ACTIONS(814),
     [anon_sym_channel] = ACTIONS(814),
+    [anon_sym_peer] = ACTIONS(814),
     [anon_sym_effect] = ACTIONS(814),
     [anon_sym_action] = ACTIONS(814),
     [anon_sym_use] = ACTIONS(814),
@@ -27820,6 +27909,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(824),
     [anon_sym_stream] = ACTIONS(824),
     [anon_sym_channel] = ACTIONS(824),
+    [anon_sym_peer] = ACTIONS(824),
     [anon_sym_effect] = ACTIONS(824),
     [anon_sym_action] = ACTIONS(824),
     [anon_sym_use] = ACTIONS(824),
@@ -27981,6 +28071,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(854),
     [anon_sym_stream] = ACTIONS(854),
     [anon_sym_channel] = ACTIONS(854),
+    [anon_sym_peer] = ACTIONS(854),
     [anon_sym_effect] = ACTIONS(854),
     [anon_sym_action] = ACTIONS(854),
     [anon_sym_use] = ACTIONS(854),
@@ -28144,6 +28235,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(858),
     [anon_sym_stream] = ACTIONS(858),
     [anon_sym_channel] = ACTIONS(858),
+    [anon_sym_peer] = ACTIONS(858),
     [anon_sym_effect] = ACTIONS(858),
     [anon_sym_action] = ACTIONS(858),
     [anon_sym_use] = ACTIONS(858),
@@ -28305,6 +28397,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(674),
     [anon_sym_stream] = ACTIONS(674),
     [anon_sym_channel] = ACTIONS(674),
+    [anon_sym_peer] = ACTIONS(674),
     [anon_sym_effect] = ACTIONS(674),
     [anon_sym_action] = ACTIONS(674),
     [anon_sym_use] = ACTIONS(674),
@@ -28467,6 +28560,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(862),
     [anon_sym_stream] = ACTIONS(862),
     [anon_sym_channel] = ACTIONS(862),
+    [anon_sym_peer] = ACTIONS(862),
     [anon_sym_effect] = ACTIONS(862),
     [anon_sym_action] = ACTIONS(862),
     [anon_sym_use] = ACTIONS(862),
@@ -28629,6 +28723,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(866),
     [anon_sym_stream] = ACTIONS(866),
     [anon_sym_channel] = ACTIONS(866),
+    [anon_sym_peer] = ACTIONS(866),
     [anon_sym_effect] = ACTIONS(866),
     [anon_sym_action] = ACTIONS(866),
     [anon_sym_use] = ACTIONS(866),
@@ -28791,6 +28886,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(870),
     [anon_sym_stream] = ACTIONS(870),
     [anon_sym_channel] = ACTIONS(870),
+    [anon_sym_peer] = ACTIONS(870),
     [anon_sym_effect] = ACTIONS(870),
     [anon_sym_action] = ACTIONS(870),
     [anon_sym_use] = ACTIONS(870),
@@ -28953,6 +29049,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(874),
     [anon_sym_stream] = ACTIONS(874),
     [anon_sym_channel] = ACTIONS(874),
+    [anon_sym_peer] = ACTIONS(874),
     [anon_sym_effect] = ACTIONS(874),
     [anon_sym_action] = ACTIONS(874),
     [anon_sym_use] = ACTIONS(874),
@@ -29115,6 +29212,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(878),
     [anon_sym_stream] = ACTIONS(878),
     [anon_sym_channel] = ACTIONS(878),
+    [anon_sym_peer] = ACTIONS(878),
     [anon_sym_effect] = ACTIONS(878),
     [anon_sym_action] = ACTIONS(878),
     [anon_sym_use] = ACTIONS(878),
@@ -29277,6 +29375,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -29439,6 +29538,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -29601,6 +29701,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -29763,6 +29864,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -29925,6 +30027,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -30087,6 +30190,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -30249,6 +30353,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -30411,6 +30516,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(916),
     [anon_sym_stream] = ACTIONS(916),
     [anon_sym_channel] = ACTIONS(916),
+    [anon_sym_peer] = ACTIONS(916),
     [anon_sym_effect] = ACTIONS(916),
     [anon_sym_action] = ACTIONS(916),
     [anon_sym_use] = ACTIONS(916),
@@ -30573,6 +30679,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(787),
     [anon_sym_stream] = ACTIONS(787),
     [anon_sym_channel] = ACTIONS(787),
+    [anon_sym_peer] = ACTIONS(787),
     [anon_sym_effect] = ACTIONS(787),
     [anon_sym_action] = ACTIONS(787),
     [anon_sym_use] = ACTIONS(787),
@@ -30735,6 +30842,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(920),
     [anon_sym_stream] = ACTIONS(920),
     [anon_sym_channel] = ACTIONS(920),
+    [anon_sym_peer] = ACTIONS(920),
     [anon_sym_effect] = ACTIONS(920),
     [anon_sym_action] = ACTIONS(920),
     [anon_sym_use] = ACTIONS(920),
@@ -30897,6 +31005,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(924),
     [anon_sym_stream] = ACTIONS(924),
     [anon_sym_channel] = ACTIONS(924),
+    [anon_sym_peer] = ACTIONS(924),
     [anon_sym_effect] = ACTIONS(924),
     [anon_sym_action] = ACTIONS(924),
     [anon_sym_use] = ACTIONS(924),
@@ -31059,6 +31168,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(814),
     [anon_sym_stream] = ACTIONS(814),
     [anon_sym_channel] = ACTIONS(814),
+    [anon_sym_peer] = ACTIONS(814),
     [anon_sym_effect] = ACTIONS(814),
     [anon_sym_action] = ACTIONS(814),
     [anon_sym_use] = ACTIONS(814),
@@ -31221,6 +31331,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(928),
     [anon_sym_stream] = ACTIONS(928),
     [anon_sym_channel] = ACTIONS(928),
+    [anon_sym_peer] = ACTIONS(928),
     [anon_sym_effect] = ACTIONS(928),
     [anon_sym_action] = ACTIONS(928),
     [anon_sym_use] = ACTIONS(928),
@@ -31383,6 +31494,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(932),
     [anon_sym_stream] = ACTIONS(932),
     [anon_sym_channel] = ACTIONS(932),
+    [anon_sym_peer] = ACTIONS(932),
     [anon_sym_effect] = ACTIONS(932),
     [anon_sym_action] = ACTIONS(932),
     [anon_sym_use] = ACTIONS(932),
@@ -31545,6 +31657,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(936),
     [anon_sym_stream] = ACTIONS(936),
     [anon_sym_channel] = ACTIONS(936),
+    [anon_sym_peer] = ACTIONS(936),
     [anon_sym_effect] = ACTIONS(936),
     [anon_sym_action] = ACTIONS(936),
     [anon_sym_use] = ACTIONS(936),
@@ -31707,6 +31820,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(940),
     [anon_sym_stream] = ACTIONS(940),
     [anon_sym_channel] = ACTIONS(940),
+    [anon_sym_peer] = ACTIONS(940),
     [anon_sym_effect] = ACTIONS(940),
     [anon_sym_action] = ACTIONS(940),
     [anon_sym_use] = ACTIONS(940),
@@ -31869,6 +31983,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(944),
     [anon_sym_stream] = ACTIONS(944),
     [anon_sym_channel] = ACTIONS(944),
+    [anon_sym_peer] = ACTIONS(944),
     [anon_sym_effect] = ACTIONS(944),
     [anon_sym_action] = ACTIONS(944),
     [anon_sym_use] = ACTIONS(944),
@@ -32031,6 +32146,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(948),
     [anon_sym_stream] = ACTIONS(948),
     [anon_sym_channel] = ACTIONS(948),
+    [anon_sym_peer] = ACTIONS(948),
     [anon_sym_effect] = ACTIONS(948),
     [anon_sym_action] = ACTIONS(948),
     [anon_sym_use] = ACTIONS(948),
@@ -32193,6 +32309,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(952),
     [anon_sym_stream] = ACTIONS(952),
     [anon_sym_channel] = ACTIONS(952),
+    [anon_sym_peer] = ACTIONS(952),
     [anon_sym_effect] = ACTIONS(952),
     [anon_sym_action] = ACTIONS(952),
     [anon_sym_use] = ACTIONS(952),
@@ -32355,6 +32472,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(956),
     [anon_sym_stream] = ACTIONS(956),
     [anon_sym_channel] = ACTIONS(956),
+    [anon_sym_peer] = ACTIONS(956),
     [anon_sym_effect] = ACTIONS(956),
     [anon_sym_action] = ACTIONS(956),
     [anon_sym_use] = ACTIONS(956),
@@ -32517,6 +32635,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(960),
     [anon_sym_stream] = ACTIONS(960),
     [anon_sym_channel] = ACTIONS(960),
+    [anon_sym_peer] = ACTIONS(960),
     [anon_sym_effect] = ACTIONS(960),
     [anon_sym_action] = ACTIONS(960),
     [anon_sym_use] = ACTIONS(960),
@@ -32679,6 +32798,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(964),
     [anon_sym_stream] = ACTIONS(964),
     [anon_sym_channel] = ACTIONS(964),
+    [anon_sym_peer] = ACTIONS(964),
     [anon_sym_effect] = ACTIONS(964),
     [anon_sym_action] = ACTIONS(964),
     [anon_sym_use] = ACTIONS(964),
@@ -32841,6 +32961,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(968),
     [anon_sym_stream] = ACTIONS(968),
     [anon_sym_channel] = ACTIONS(968),
+    [anon_sym_peer] = ACTIONS(968),
     [anon_sym_effect] = ACTIONS(968),
     [anon_sym_action] = ACTIONS(968),
     [anon_sym_use] = ACTIONS(968),
@@ -33003,6 +33124,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(972),
     [anon_sym_stream] = ACTIONS(972),
     [anon_sym_channel] = ACTIONS(972),
+    [anon_sym_peer] = ACTIONS(972),
     [anon_sym_effect] = ACTIONS(972),
     [anon_sym_action] = ACTIONS(972),
     [anon_sym_use] = ACTIONS(972),
@@ -33166,6 +33288,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -33328,6 +33451,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(802),
     [anon_sym_stream] = ACTIONS(802),
     [anon_sym_channel] = ACTIONS(802),
+    [anon_sym_peer] = ACTIONS(802),
     [anon_sym_effect] = ACTIONS(802),
     [anon_sym_action] = ACTIONS(802),
     [anon_sym_use] = ACTIONS(802),
@@ -33489,6 +33613,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(976),
     [anon_sym_stream] = ACTIONS(976),
     [anon_sym_channel] = ACTIONS(976),
+    [anon_sym_peer] = ACTIONS(976),
     [anon_sym_effect] = ACTIONS(976),
     [anon_sym_action] = ACTIONS(976),
     [anon_sym_use] = ACTIONS(976),
@@ -33651,6 +33776,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(980),
     [anon_sym_stream] = ACTIONS(980),
     [anon_sym_channel] = ACTIONS(980),
+    [anon_sym_peer] = ACTIONS(980),
     [anon_sym_effect] = ACTIONS(980),
     [anon_sym_action] = ACTIONS(980),
     [anon_sym_use] = ACTIONS(980),
@@ -33814,6 +33940,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(674),
     [anon_sym_stream] = ACTIONS(674),
     [anon_sym_channel] = ACTIONS(674),
+    [anon_sym_peer] = ACTIONS(674),
     [anon_sym_effect] = ACTIONS(674),
     [anon_sym_action] = ACTIONS(674),
     [anon_sym_use] = ACTIONS(674),
@@ -33976,6 +34103,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(787),
     [anon_sym_stream] = ACTIONS(787),
     [anon_sym_channel] = ACTIONS(787),
+    [anon_sym_peer] = ACTIONS(787),
     [anon_sym_effect] = ACTIONS(787),
     [anon_sym_action] = ACTIONS(787),
     [anon_sym_use] = ACTIONS(787),
@@ -34138,6 +34266,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(960),
     [anon_sym_stream] = ACTIONS(960),
     [anon_sym_channel] = ACTIONS(960),
+    [anon_sym_peer] = ACTIONS(960),
     [anon_sym_effect] = ACTIONS(960),
     [anon_sym_action] = ACTIONS(960),
     [anon_sym_use] = ACTIONS(960),
@@ -34300,6 +34429,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(964),
     [anon_sym_stream] = ACTIONS(964),
     [anon_sym_channel] = ACTIONS(964),
+    [anon_sym_peer] = ACTIONS(964),
     [anon_sym_effect] = ACTIONS(964),
     [anon_sym_action] = ACTIONS(964),
     [anon_sym_use] = ACTIONS(964),
@@ -34462,6 +34592,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(968),
     [anon_sym_stream] = ACTIONS(968),
     [anon_sym_channel] = ACTIONS(968),
+    [anon_sym_peer] = ACTIONS(968),
     [anon_sym_effect] = ACTIONS(968),
     [anon_sym_action] = ACTIONS(968),
     [anon_sym_use] = ACTIONS(968),
@@ -34624,6 +34755,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(984),
     [anon_sym_stream] = ACTIONS(984),
     [anon_sym_channel] = ACTIONS(984),
+    [anon_sym_peer] = ACTIONS(984),
     [anon_sym_effect] = ACTIONS(984),
     [anon_sym_action] = ACTIONS(984),
     [anon_sym_use] = ACTIONS(984),
@@ -34786,6 +34918,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(988),
     [anon_sym_stream] = ACTIONS(988),
     [anon_sym_channel] = ACTIONS(988),
+    [anon_sym_peer] = ACTIONS(988),
     [anon_sym_effect] = ACTIONS(988),
     [anon_sym_action] = ACTIONS(988),
     [anon_sym_use] = ACTIONS(988),
@@ -34948,6 +35081,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(992),
     [anon_sym_stream] = ACTIONS(992),
     [anon_sym_channel] = ACTIONS(992),
+    [anon_sym_peer] = ACTIONS(992),
     [anon_sym_effect] = ACTIONS(992),
     [anon_sym_action] = ACTIONS(992),
     [anon_sym_use] = ACTIONS(992),
@@ -35109,6 +35243,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(824),
     [anon_sym_stream] = ACTIONS(824),
     [anon_sym_channel] = ACTIONS(824),
+    [anon_sym_peer] = ACTIONS(824),
     [anon_sym_effect] = ACTIONS(824),
     [anon_sym_action] = ACTIONS(824),
     [anon_sym_use] = ACTIONS(824),
@@ -35272,6 +35407,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(976),
     [anon_sym_stream] = ACTIONS(976),
     [anon_sym_channel] = ACTIONS(976),
+    [anon_sym_peer] = ACTIONS(976),
     [anon_sym_effect] = ACTIONS(976),
     [anon_sym_action] = ACTIONS(976),
     [anon_sym_use] = ACTIONS(976),
@@ -35434,6 +35570,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(980),
     [anon_sym_stream] = ACTIONS(980),
     [anon_sym_channel] = ACTIONS(980),
+    [anon_sym_peer] = ACTIONS(980),
     [anon_sym_effect] = ACTIONS(980),
     [anon_sym_action] = ACTIONS(980),
     [anon_sym_use] = ACTIONS(980),
@@ -35596,6 +35733,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(854),
     [anon_sym_stream] = ACTIONS(854),
     [anon_sym_channel] = ACTIONS(854),
+    [anon_sym_peer] = ACTIONS(854),
     [anon_sym_effect] = ACTIONS(854),
     [anon_sym_action] = ACTIONS(854),
     [anon_sym_use] = ACTIONS(854),
@@ -35758,6 +35896,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(862),
     [anon_sym_stream] = ACTIONS(862),
     [anon_sym_channel] = ACTIONS(862),
+    [anon_sym_peer] = ACTIONS(862),
     [anon_sym_effect] = ACTIONS(862),
     [anon_sym_action] = ACTIONS(862),
     [anon_sym_use] = ACTIONS(862),
@@ -35920,6 +36059,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(866),
     [anon_sym_stream] = ACTIONS(866),
     [anon_sym_channel] = ACTIONS(866),
+    [anon_sym_peer] = ACTIONS(866),
     [anon_sym_effect] = ACTIONS(866),
     [anon_sym_action] = ACTIONS(866),
     [anon_sym_use] = ACTIONS(866),
@@ -36082,6 +36222,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(870),
     [anon_sym_stream] = ACTIONS(870),
     [anon_sym_channel] = ACTIONS(870),
+    [anon_sym_peer] = ACTIONS(870),
     [anon_sym_effect] = ACTIONS(870),
     [anon_sym_action] = ACTIONS(870),
     [anon_sym_use] = ACTIONS(870),
@@ -36244,6 +36385,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(874),
     [anon_sym_stream] = ACTIONS(874),
     [anon_sym_channel] = ACTIONS(874),
+    [anon_sym_peer] = ACTIONS(874),
     [anon_sym_effect] = ACTIONS(874),
     [anon_sym_action] = ACTIONS(874),
     [anon_sym_use] = ACTIONS(874),
@@ -36406,6 +36548,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(878),
     [anon_sym_stream] = ACTIONS(878),
     [anon_sym_channel] = ACTIONS(878),
+    [anon_sym_peer] = ACTIONS(878),
     [anon_sym_effect] = ACTIONS(878),
     [anon_sym_action] = ACTIONS(878),
     [anon_sym_use] = ACTIONS(878),
@@ -36568,6 +36711,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -36730,6 +36874,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -36892,6 +37037,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -37054,6 +37200,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -37216,6 +37363,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -37378,6 +37526,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -37540,6 +37689,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(916),
     [anon_sym_stream] = ACTIONS(916),
     [anon_sym_channel] = ACTIONS(916),
+    [anon_sym_peer] = ACTIONS(916),
     [anon_sym_effect] = ACTIONS(916),
     [anon_sym_action] = ACTIONS(916),
     [anon_sym_use] = ACTIONS(916),
@@ -37702,6 +37852,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(920),
     [anon_sym_stream] = ACTIONS(920),
     [anon_sym_channel] = ACTIONS(920),
+    [anon_sym_peer] = ACTIONS(920),
     [anon_sym_effect] = ACTIONS(920),
     [anon_sym_action] = ACTIONS(920),
     [anon_sym_use] = ACTIONS(920),
@@ -37864,6 +38015,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(924),
     [anon_sym_stream] = ACTIONS(924),
     [anon_sym_channel] = ACTIONS(924),
+    [anon_sym_peer] = ACTIONS(924),
     [anon_sym_effect] = ACTIONS(924),
     [anon_sym_action] = ACTIONS(924),
     [anon_sym_use] = ACTIONS(924),
@@ -38026,6 +38178,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(928),
     [anon_sym_stream] = ACTIONS(928),
     [anon_sym_channel] = ACTIONS(928),
+    [anon_sym_peer] = ACTIONS(928),
     [anon_sym_effect] = ACTIONS(928),
     [anon_sym_action] = ACTIONS(928),
     [anon_sym_use] = ACTIONS(928),
@@ -38188,6 +38341,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(932),
     [anon_sym_stream] = ACTIONS(932),
     [anon_sym_channel] = ACTIONS(932),
+    [anon_sym_peer] = ACTIONS(932),
     [anon_sym_effect] = ACTIONS(932),
     [anon_sym_action] = ACTIONS(932),
     [anon_sym_use] = ACTIONS(932),
@@ -38350,6 +38504,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(936),
     [anon_sym_stream] = ACTIONS(936),
     [anon_sym_channel] = ACTIONS(936),
+    [anon_sym_peer] = ACTIONS(936),
     [anon_sym_effect] = ACTIONS(936),
     [anon_sym_action] = ACTIONS(936),
     [anon_sym_use] = ACTIONS(936),
@@ -38512,6 +38667,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(940),
     [anon_sym_stream] = ACTIONS(940),
     [anon_sym_channel] = ACTIONS(940),
+    [anon_sym_peer] = ACTIONS(940),
     [anon_sym_effect] = ACTIONS(940),
     [anon_sym_action] = ACTIONS(940),
     [anon_sym_use] = ACTIONS(940),
@@ -38674,6 +38830,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(944),
     [anon_sym_stream] = ACTIONS(944),
     [anon_sym_channel] = ACTIONS(944),
+    [anon_sym_peer] = ACTIONS(944),
     [anon_sym_effect] = ACTIONS(944),
     [anon_sym_action] = ACTIONS(944),
     [anon_sym_use] = ACTIONS(944),
@@ -38836,6 +38993,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(948),
     [anon_sym_stream] = ACTIONS(948),
     [anon_sym_channel] = ACTIONS(948),
+    [anon_sym_peer] = ACTIONS(948),
     [anon_sym_effect] = ACTIONS(948),
     [anon_sym_action] = ACTIONS(948),
     [anon_sym_use] = ACTIONS(948),
@@ -38998,6 +39156,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(952),
     [anon_sym_stream] = ACTIONS(952),
     [anon_sym_channel] = ACTIONS(952),
+    [anon_sym_peer] = ACTIONS(952),
     [anon_sym_effect] = ACTIONS(952),
     [anon_sym_action] = ACTIONS(952),
     [anon_sym_use] = ACTIONS(952),
@@ -39160,6 +39319,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(956),
     [anon_sym_stream] = ACTIONS(956),
     [anon_sym_channel] = ACTIONS(956),
+    [anon_sym_peer] = ACTIONS(956),
     [anon_sym_effect] = ACTIONS(956),
     [anon_sym_action] = ACTIONS(956),
     [anon_sym_use] = ACTIONS(956),
@@ -39321,6 +39481,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(717),
     [anon_sym_stream] = ACTIONS(717),
     [anon_sym_channel] = ACTIONS(717),
+    [anon_sym_peer] = ACTIONS(717),
     [anon_sym_effect] = ACTIONS(717),
     [anon_sym_action] = ACTIONS(717),
     [anon_sym_use] = ACTIONS(717),
@@ -39484,6 +39645,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(972),
     [anon_sym_stream] = ACTIONS(972),
     [anon_sym_channel] = ACTIONS(972),
+    [anon_sym_peer] = ACTIONS(972),
     [anon_sym_effect] = ACTIONS(972),
     [anon_sym_action] = ACTIONS(972),
     [anon_sym_use] = ACTIONS(972),
@@ -39646,6 +39808,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(717),
     [anon_sym_stream] = ACTIONS(717),
     [anon_sym_channel] = ACTIONS(717),
+    [anon_sym_peer] = ACTIONS(717),
     [anon_sym_effect] = ACTIONS(717),
     [anon_sym_action] = ACTIONS(717),
     [anon_sym_use] = ACTIONS(717),
@@ -39806,6 +39969,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(960),
     [anon_sym_stream] = ACTIONS(960),
     [anon_sym_channel] = ACTIONS(960),
+    [anon_sym_peer] = ACTIONS(960),
     [anon_sym_effect] = ACTIONS(960),
     [anon_sym_action] = ACTIONS(960),
     [anon_sym_use] = ACTIONS(960),
@@ -39968,6 +40132,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(964),
     [anon_sym_stream] = ACTIONS(964),
     [anon_sym_channel] = ACTIONS(964),
+    [anon_sym_peer] = ACTIONS(964),
     [anon_sym_effect] = ACTIONS(964),
     [anon_sym_action] = ACTIONS(964),
     [anon_sym_use] = ACTIONS(964),
@@ -40130,6 +40295,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(968),
     [anon_sym_stream] = ACTIONS(968),
     [anon_sym_channel] = ACTIONS(968),
+    [anon_sym_peer] = ACTIONS(968),
     [anon_sym_effect] = ACTIONS(968),
     [anon_sym_action] = ACTIONS(968),
     [anon_sym_use] = ACTIONS(968),
@@ -40292,6 +40458,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(984),
     [anon_sym_stream] = ACTIONS(984),
     [anon_sym_channel] = ACTIONS(984),
+    [anon_sym_peer] = ACTIONS(984),
     [anon_sym_effect] = ACTIONS(984),
     [anon_sym_action] = ACTIONS(984),
     [anon_sym_use] = ACTIONS(984),
@@ -40454,6 +40621,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(988),
     [anon_sym_stream] = ACTIONS(988),
     [anon_sym_channel] = ACTIONS(988),
+    [anon_sym_peer] = ACTIONS(988),
     [anon_sym_effect] = ACTIONS(988),
     [anon_sym_action] = ACTIONS(988),
     [anon_sym_use] = ACTIONS(988),
@@ -40616,6 +40784,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(992),
     [anon_sym_stream] = ACTIONS(992),
     [anon_sym_channel] = ACTIONS(992),
+    [anon_sym_peer] = ACTIONS(992),
     [anon_sym_effect] = ACTIONS(992),
     [anon_sym_action] = ACTIONS(992),
     [anon_sym_use] = ACTIONS(992),
@@ -40778,6 +40947,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(802),
     [anon_sym_stream] = ACTIONS(802),
     [anon_sym_channel] = ACTIONS(802),
+    [anon_sym_peer] = ACTIONS(802),
     [anon_sym_effect] = ACTIONS(802),
     [anon_sym_action] = ACTIONS(802),
     [anon_sym_use] = ACTIONS(802),
@@ -40940,6 +41110,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(976),
     [anon_sym_stream] = ACTIONS(976),
     [anon_sym_channel] = ACTIONS(976),
+    [anon_sym_peer] = ACTIONS(976),
     [anon_sym_effect] = ACTIONS(976),
     [anon_sym_action] = ACTIONS(976),
     [anon_sym_use] = ACTIONS(976),
@@ -41102,6 +41273,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(980),
     [anon_sym_stream] = ACTIONS(980),
     [anon_sym_channel] = ACTIONS(980),
+    [anon_sym_peer] = ACTIONS(980),
     [anon_sym_effect] = ACTIONS(980),
     [anon_sym_action] = ACTIONS(980),
     [anon_sym_use] = ACTIONS(980),
@@ -41264,6 +41436,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(810),
     [anon_sym_stream] = ACTIONS(810),
     [anon_sym_channel] = ACTIONS(810),
+    [anon_sym_peer] = ACTIONS(810),
     [anon_sym_effect] = ACTIONS(810),
     [anon_sym_action] = ACTIONS(810),
     [anon_sym_use] = ACTIONS(810),
@@ -41426,6 +41599,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(814),
     [anon_sym_stream] = ACTIONS(814),
     [anon_sym_channel] = ACTIONS(814),
+    [anon_sym_peer] = ACTIONS(814),
     [anon_sym_effect] = ACTIONS(814),
     [anon_sym_action] = ACTIONS(814),
     [anon_sym_use] = ACTIONS(814),
@@ -41588,6 +41762,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(854),
     [anon_sym_stream] = ACTIONS(854),
     [anon_sym_channel] = ACTIONS(854),
+    [anon_sym_peer] = ACTIONS(854),
     [anon_sym_effect] = ACTIONS(854),
     [anon_sym_action] = ACTIONS(854),
     [anon_sym_use] = ACTIONS(854),
@@ -41750,6 +41925,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(858),
     [anon_sym_stream] = ACTIONS(858),
     [anon_sym_channel] = ACTIONS(858),
+    [anon_sym_peer] = ACTIONS(858),
     [anon_sym_effect] = ACTIONS(858),
     [anon_sym_action] = ACTIONS(858),
     [anon_sym_use] = ACTIONS(858),
@@ -41912,6 +42088,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(674),
     [anon_sym_stream] = ACTIONS(674),
     [anon_sym_channel] = ACTIONS(674),
+    [anon_sym_peer] = ACTIONS(674),
     [anon_sym_effect] = ACTIONS(674),
     [anon_sym_action] = ACTIONS(674),
     [anon_sym_use] = ACTIONS(674),
@@ -42074,6 +42251,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(862),
     [anon_sym_stream] = ACTIONS(862),
     [anon_sym_channel] = ACTIONS(862),
+    [anon_sym_peer] = ACTIONS(862),
     [anon_sym_effect] = ACTIONS(862),
     [anon_sym_action] = ACTIONS(862),
     [anon_sym_use] = ACTIONS(862),
@@ -42236,6 +42414,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(866),
     [anon_sym_stream] = ACTIONS(866),
     [anon_sym_channel] = ACTIONS(866),
+    [anon_sym_peer] = ACTIONS(866),
     [anon_sym_effect] = ACTIONS(866),
     [anon_sym_action] = ACTIONS(866),
     [anon_sym_use] = ACTIONS(866),
@@ -42398,6 +42577,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(870),
     [anon_sym_stream] = ACTIONS(870),
     [anon_sym_channel] = ACTIONS(870),
+    [anon_sym_peer] = ACTIONS(870),
     [anon_sym_effect] = ACTIONS(870),
     [anon_sym_action] = ACTIONS(870),
     [anon_sym_use] = ACTIONS(870),
@@ -42560,6 +42740,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(874),
     [anon_sym_stream] = ACTIONS(874),
     [anon_sym_channel] = ACTIONS(874),
+    [anon_sym_peer] = ACTIONS(874),
     [anon_sym_effect] = ACTIONS(874),
     [anon_sym_action] = ACTIONS(874),
     [anon_sym_use] = ACTIONS(874),
@@ -42722,6 +42903,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(878),
     [anon_sym_stream] = ACTIONS(878),
     [anon_sym_channel] = ACTIONS(878),
+    [anon_sym_peer] = ACTIONS(878),
     [anon_sym_effect] = ACTIONS(878),
     [anon_sym_action] = ACTIONS(878),
     [anon_sym_use] = ACTIONS(878),
@@ -42884,6 +43066,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -43046,6 +43229,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -43208,6 +43392,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(806),
     [anon_sym_stream] = ACTIONS(806),
     [anon_sym_channel] = ACTIONS(806),
+    [anon_sym_peer] = ACTIONS(806),
     [anon_sym_effect] = ACTIONS(806),
     [anon_sym_action] = ACTIONS(806),
     [anon_sym_use] = ACTIONS(806),
@@ -43370,6 +43555,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -43532,6 +43718,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -43694,6 +43881,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -43856,6 +44044,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -44018,6 +44207,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -44180,6 +44370,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(916),
     [anon_sym_stream] = ACTIONS(916),
     [anon_sym_channel] = ACTIONS(916),
+    [anon_sym_peer] = ACTIONS(916),
     [anon_sym_effect] = ACTIONS(916),
     [anon_sym_action] = ACTIONS(916),
     [anon_sym_use] = ACTIONS(916),
@@ -44342,6 +44533,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(787),
     [anon_sym_stream] = ACTIONS(787),
     [anon_sym_channel] = ACTIONS(787),
+    [anon_sym_peer] = ACTIONS(787),
     [anon_sym_effect] = ACTIONS(787),
     [anon_sym_action] = ACTIONS(787),
     [anon_sym_use] = ACTIONS(787),
@@ -44504,6 +44696,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(920),
     [anon_sym_stream] = ACTIONS(920),
     [anon_sym_channel] = ACTIONS(920),
+    [anon_sym_peer] = ACTIONS(920),
     [anon_sym_effect] = ACTIONS(920),
     [anon_sym_action] = ACTIONS(920),
     [anon_sym_use] = ACTIONS(920),
@@ -44666,6 +44859,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(924),
     [anon_sym_stream] = ACTIONS(924),
     [anon_sym_channel] = ACTIONS(924),
+    [anon_sym_peer] = ACTIONS(924),
     [anon_sym_effect] = ACTIONS(924),
     [anon_sym_action] = ACTIONS(924),
     [anon_sym_use] = ACTIONS(924),
@@ -44828,6 +45022,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(779),
     [anon_sym_stream] = ACTIONS(779),
     [anon_sym_channel] = ACTIONS(779),
+    [anon_sym_peer] = ACTIONS(779),
     [anon_sym_effect] = ACTIONS(779),
     [anon_sym_action] = ACTIONS(779),
     [anon_sym_use] = ACTIONS(779),
@@ -44990,6 +45185,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(928),
     [anon_sym_stream] = ACTIONS(928),
     [anon_sym_channel] = ACTIONS(928),
+    [anon_sym_peer] = ACTIONS(928),
     [anon_sym_effect] = ACTIONS(928),
     [anon_sym_action] = ACTIONS(928),
     [anon_sym_use] = ACTIONS(928),
@@ -45152,6 +45348,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(932),
     [anon_sym_stream] = ACTIONS(932),
     [anon_sym_channel] = ACTIONS(932),
+    [anon_sym_peer] = ACTIONS(932),
     [anon_sym_effect] = ACTIONS(932),
     [anon_sym_action] = ACTIONS(932),
     [anon_sym_use] = ACTIONS(932),
@@ -45314,6 +45511,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(936),
     [anon_sym_stream] = ACTIONS(936),
     [anon_sym_channel] = ACTIONS(936),
+    [anon_sym_peer] = ACTIONS(936),
     [anon_sym_effect] = ACTIONS(936),
     [anon_sym_action] = ACTIONS(936),
     [anon_sym_use] = ACTIONS(936),
@@ -45476,6 +45674,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(940),
     [anon_sym_stream] = ACTIONS(940),
     [anon_sym_channel] = ACTIONS(940),
+    [anon_sym_peer] = ACTIONS(940),
     [anon_sym_effect] = ACTIONS(940),
     [anon_sym_action] = ACTIONS(940),
     [anon_sym_use] = ACTIONS(940),
@@ -45638,6 +45837,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(791),
     [anon_sym_stream] = ACTIONS(791),
     [anon_sym_channel] = ACTIONS(791),
+    [anon_sym_peer] = ACTIONS(791),
     [anon_sym_effect] = ACTIONS(791),
     [anon_sym_action] = ACTIONS(791),
     [anon_sym_use] = ACTIONS(791),
@@ -45800,6 +46000,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(944),
     [anon_sym_stream] = ACTIONS(944),
     [anon_sym_channel] = ACTIONS(944),
+    [anon_sym_peer] = ACTIONS(944),
     [anon_sym_effect] = ACTIONS(944),
     [anon_sym_action] = ACTIONS(944),
     [anon_sym_use] = ACTIONS(944),
@@ -45962,6 +46163,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(948),
     [anon_sym_stream] = ACTIONS(948),
     [anon_sym_channel] = ACTIONS(948),
+    [anon_sym_peer] = ACTIONS(948),
     [anon_sym_effect] = ACTIONS(948),
     [anon_sym_action] = ACTIONS(948),
     [anon_sym_use] = ACTIONS(948),
@@ -46124,6 +46326,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(952),
     [anon_sym_stream] = ACTIONS(952),
     [anon_sym_channel] = ACTIONS(952),
+    [anon_sym_peer] = ACTIONS(952),
     [anon_sym_effect] = ACTIONS(952),
     [anon_sym_action] = ACTIONS(952),
     [anon_sym_use] = ACTIONS(952),
@@ -46286,6 +46489,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(956),
     [anon_sym_stream] = ACTIONS(956),
     [anon_sym_channel] = ACTIONS(956),
+    [anon_sym_peer] = ACTIONS(956),
     [anon_sym_effect] = ACTIONS(956),
     [anon_sym_action] = ACTIONS(956),
     [anon_sym_use] = ACTIONS(956),
@@ -46449,6 +46653,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(960),
     [anon_sym_stream] = ACTIONS(960),
     [anon_sym_channel] = ACTIONS(960),
+    [anon_sym_peer] = ACTIONS(960),
     [anon_sym_effect] = ACTIONS(960),
     [anon_sym_action] = ACTIONS(960),
     [anon_sym_use] = ACTIONS(960),
@@ -46611,6 +46816,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(964),
     [anon_sym_stream] = ACTIONS(964),
     [anon_sym_channel] = ACTIONS(964),
+    [anon_sym_peer] = ACTIONS(964),
     [anon_sym_effect] = ACTIONS(964),
     [anon_sym_action] = ACTIONS(964),
     [anon_sym_use] = ACTIONS(964),
@@ -46773,6 +46979,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(968),
     [anon_sym_stream] = ACTIONS(968),
     [anon_sym_channel] = ACTIONS(968),
+    [anon_sym_peer] = ACTIONS(968),
     [anon_sym_effect] = ACTIONS(968),
     [anon_sym_action] = ACTIONS(968),
     [anon_sym_use] = ACTIONS(968),
@@ -46935,6 +47142,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(984),
     [anon_sym_stream] = ACTIONS(984),
     [anon_sym_channel] = ACTIONS(984),
+    [anon_sym_peer] = ACTIONS(984),
     [anon_sym_effect] = ACTIONS(984),
     [anon_sym_action] = ACTIONS(984),
     [anon_sym_use] = ACTIONS(984),
@@ -47097,6 +47305,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(988),
     [anon_sym_stream] = ACTIONS(988),
     [anon_sym_channel] = ACTIONS(988),
+    [anon_sym_peer] = ACTIONS(988),
     [anon_sym_effect] = ACTIONS(988),
     [anon_sym_action] = ACTIONS(988),
     [anon_sym_use] = ACTIONS(988),
@@ -47259,6 +47468,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(992),
     [anon_sym_stream] = ACTIONS(992),
     [anon_sym_channel] = ACTIONS(992),
+    [anon_sym_peer] = ACTIONS(992),
     [anon_sym_effect] = ACTIONS(992),
     [anon_sym_action] = ACTIONS(992),
     [anon_sym_use] = ACTIONS(992),
@@ -47421,6 +47631,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(802),
     [anon_sym_stream] = ACTIONS(802),
     [anon_sym_channel] = ACTIONS(802),
+    [anon_sym_peer] = ACTIONS(802),
     [anon_sym_effect] = ACTIONS(802),
     [anon_sym_action] = ACTIONS(802),
     [anon_sym_use] = ACTIONS(802),
@@ -47583,6 +47794,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(976),
     [anon_sym_stream] = ACTIONS(976),
     [anon_sym_channel] = ACTIONS(976),
+    [anon_sym_peer] = ACTIONS(976),
     [anon_sym_effect] = ACTIONS(976),
     [anon_sym_action] = ACTIONS(976),
     [anon_sym_use] = ACTIONS(976),
@@ -47745,6 +47957,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(980),
     [anon_sym_stream] = ACTIONS(980),
     [anon_sym_channel] = ACTIONS(980),
+    [anon_sym_peer] = ACTIONS(980),
     [anon_sym_effect] = ACTIONS(980),
     [anon_sym_action] = ACTIONS(980),
     [anon_sym_use] = ACTIONS(980),
@@ -47907,6 +48120,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(810),
     [anon_sym_stream] = ACTIONS(810),
     [anon_sym_channel] = ACTIONS(810),
+    [anon_sym_peer] = ACTIONS(810),
     [anon_sym_effect] = ACTIONS(810),
     [anon_sym_action] = ACTIONS(810),
     [anon_sym_use] = ACTIONS(810),
@@ -48069,6 +48283,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(814),
     [anon_sym_stream] = ACTIONS(814),
     [anon_sym_channel] = ACTIONS(814),
+    [anon_sym_peer] = ACTIONS(814),
     [anon_sym_effect] = ACTIONS(814),
     [anon_sym_action] = ACTIONS(814),
     [anon_sym_use] = ACTIONS(814),
@@ -48231,6 +48446,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(854),
     [anon_sym_stream] = ACTIONS(854),
     [anon_sym_channel] = ACTIONS(854),
+    [anon_sym_peer] = ACTIONS(854),
     [anon_sym_effect] = ACTIONS(854),
     [anon_sym_action] = ACTIONS(854),
     [anon_sym_use] = ACTIONS(854),
@@ -48393,6 +48609,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(858),
     [anon_sym_stream] = ACTIONS(858),
     [anon_sym_channel] = ACTIONS(858),
+    [anon_sym_peer] = ACTIONS(858),
     [anon_sym_effect] = ACTIONS(858),
     [anon_sym_action] = ACTIONS(858),
     [anon_sym_use] = ACTIONS(858),
@@ -48555,6 +48772,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(858),
     [anon_sym_stream] = ACTIONS(858),
     [anon_sym_channel] = ACTIONS(858),
+    [anon_sym_peer] = ACTIONS(858),
     [anon_sym_effect] = ACTIONS(858),
     [anon_sym_action] = ACTIONS(858),
     [anon_sym_use] = ACTIONS(858),
@@ -48717,6 +48935,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(674),
     [anon_sym_stream] = ACTIONS(674),
     [anon_sym_channel] = ACTIONS(674),
+    [anon_sym_peer] = ACTIONS(674),
     [anon_sym_effect] = ACTIONS(674),
     [anon_sym_action] = ACTIONS(674),
     [anon_sym_use] = ACTIONS(674),
@@ -48879,6 +49098,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(862),
     [anon_sym_stream] = ACTIONS(862),
     [anon_sym_channel] = ACTIONS(862),
+    [anon_sym_peer] = ACTIONS(862),
     [anon_sym_effect] = ACTIONS(862),
     [anon_sym_action] = ACTIONS(862),
     [anon_sym_use] = ACTIONS(862),
@@ -49041,6 +49261,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(866),
     [anon_sym_stream] = ACTIONS(866),
     [anon_sym_channel] = ACTIONS(866),
+    [anon_sym_peer] = ACTIONS(866),
     [anon_sym_effect] = ACTIONS(866),
     [anon_sym_action] = ACTIONS(866),
     [anon_sym_use] = ACTIONS(866),
@@ -49203,6 +49424,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(870),
     [anon_sym_stream] = ACTIONS(870),
     [anon_sym_channel] = ACTIONS(870),
+    [anon_sym_peer] = ACTIONS(870),
     [anon_sym_effect] = ACTIONS(870),
     [anon_sym_action] = ACTIONS(870),
     [anon_sym_use] = ACTIONS(870),
@@ -49365,6 +49587,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(874),
     [anon_sym_stream] = ACTIONS(874),
     [anon_sym_channel] = ACTIONS(874),
+    [anon_sym_peer] = ACTIONS(874),
     [anon_sym_effect] = ACTIONS(874),
     [anon_sym_action] = ACTIONS(874),
     [anon_sym_use] = ACTIONS(874),
@@ -49527,6 +49750,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(878),
     [anon_sym_stream] = ACTIONS(878),
     [anon_sym_channel] = ACTIONS(878),
+    [anon_sym_peer] = ACTIONS(878),
     [anon_sym_effect] = ACTIONS(878),
     [anon_sym_action] = ACTIONS(878),
     [anon_sym_use] = ACTIONS(878),
@@ -49689,6 +49913,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -49851,6 +50076,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -50013,6 +50239,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(806),
     [anon_sym_stream] = ACTIONS(806),
     [anon_sym_channel] = ACTIONS(806),
+    [anon_sym_peer] = ACTIONS(806),
     [anon_sym_effect] = ACTIONS(806),
     [anon_sym_action] = ACTIONS(806),
     [anon_sym_use] = ACTIONS(806),
@@ -50175,6 +50402,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -50337,6 +50565,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -50499,6 +50728,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -50661,6 +50891,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -50823,6 +51054,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -50985,6 +51217,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(916),
     [anon_sym_stream] = ACTIONS(916),
     [anon_sym_channel] = ACTIONS(916),
+    [anon_sym_peer] = ACTIONS(916),
     [anon_sym_effect] = ACTIONS(916),
     [anon_sym_action] = ACTIONS(916),
     [anon_sym_use] = ACTIONS(916),
@@ -51147,6 +51380,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(787),
     [anon_sym_stream] = ACTIONS(787),
     [anon_sym_channel] = ACTIONS(787),
+    [anon_sym_peer] = ACTIONS(787),
     [anon_sym_effect] = ACTIONS(787),
     [anon_sym_action] = ACTIONS(787),
     [anon_sym_use] = ACTIONS(787),
@@ -51309,6 +51543,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(920),
     [anon_sym_stream] = ACTIONS(920),
     [anon_sym_channel] = ACTIONS(920),
+    [anon_sym_peer] = ACTIONS(920),
     [anon_sym_effect] = ACTIONS(920),
     [anon_sym_action] = ACTIONS(920),
     [anon_sym_use] = ACTIONS(920),
@@ -51471,6 +51706,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(924),
     [anon_sym_stream] = ACTIONS(924),
     [anon_sym_channel] = ACTIONS(924),
+    [anon_sym_peer] = ACTIONS(924),
     [anon_sym_effect] = ACTIONS(924),
     [anon_sym_action] = ACTIONS(924),
     [anon_sym_use] = ACTIONS(924),
@@ -51633,6 +51869,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(779),
     [anon_sym_stream] = ACTIONS(779),
     [anon_sym_channel] = ACTIONS(779),
+    [anon_sym_peer] = ACTIONS(779),
     [anon_sym_effect] = ACTIONS(779),
     [anon_sym_action] = ACTIONS(779),
     [anon_sym_use] = ACTIONS(779),
@@ -51795,6 +52032,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(928),
     [anon_sym_stream] = ACTIONS(928),
     [anon_sym_channel] = ACTIONS(928),
+    [anon_sym_peer] = ACTIONS(928),
     [anon_sym_effect] = ACTIONS(928),
     [anon_sym_action] = ACTIONS(928),
     [anon_sym_use] = ACTIONS(928),
@@ -51957,6 +52195,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(932),
     [anon_sym_stream] = ACTIONS(932),
     [anon_sym_channel] = ACTIONS(932),
+    [anon_sym_peer] = ACTIONS(932),
     [anon_sym_effect] = ACTIONS(932),
     [anon_sym_action] = ACTIONS(932),
     [anon_sym_use] = ACTIONS(932),
@@ -52119,6 +52358,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(936),
     [anon_sym_stream] = ACTIONS(936),
     [anon_sym_channel] = ACTIONS(936),
+    [anon_sym_peer] = ACTIONS(936),
     [anon_sym_effect] = ACTIONS(936),
     [anon_sym_action] = ACTIONS(936),
     [anon_sym_use] = ACTIONS(936),
@@ -52281,6 +52521,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(940),
     [anon_sym_stream] = ACTIONS(940),
     [anon_sym_channel] = ACTIONS(940),
+    [anon_sym_peer] = ACTIONS(940),
     [anon_sym_effect] = ACTIONS(940),
     [anon_sym_action] = ACTIONS(940),
     [anon_sym_use] = ACTIONS(940),
@@ -52443,6 +52684,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(791),
     [anon_sym_stream] = ACTIONS(791),
     [anon_sym_channel] = ACTIONS(791),
+    [anon_sym_peer] = ACTIONS(791),
     [anon_sym_effect] = ACTIONS(791),
     [anon_sym_action] = ACTIONS(791),
     [anon_sym_use] = ACTIONS(791),
@@ -52605,6 +52847,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(944),
     [anon_sym_stream] = ACTIONS(944),
     [anon_sym_channel] = ACTIONS(944),
+    [anon_sym_peer] = ACTIONS(944),
     [anon_sym_effect] = ACTIONS(944),
     [anon_sym_action] = ACTIONS(944),
     [anon_sym_use] = ACTIONS(944),
@@ -52767,6 +53010,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(948),
     [anon_sym_stream] = ACTIONS(948),
     [anon_sym_channel] = ACTIONS(948),
+    [anon_sym_peer] = ACTIONS(948),
     [anon_sym_effect] = ACTIONS(948),
     [anon_sym_action] = ACTIONS(948),
     [anon_sym_use] = ACTIONS(948),
@@ -52929,6 +53173,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(952),
     [anon_sym_stream] = ACTIONS(952),
     [anon_sym_channel] = ACTIONS(952),
+    [anon_sym_peer] = ACTIONS(952),
     [anon_sym_effect] = ACTIONS(952),
     [anon_sym_action] = ACTIONS(952),
     [anon_sym_use] = ACTIONS(952),
@@ -53091,6 +53336,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(956),
     [anon_sym_stream] = ACTIONS(956),
     [anon_sym_channel] = ACTIONS(956),
+    [anon_sym_peer] = ACTIONS(956),
     [anon_sym_effect] = ACTIONS(956),
     [anon_sym_action] = ACTIONS(956),
     [anon_sym_use] = ACTIONS(956),
@@ -53252,6 +53498,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(717),
     [anon_sym_stream] = ACTIONS(717),
     [anon_sym_channel] = ACTIONS(717),
+    [anon_sym_peer] = ACTIONS(717),
     [anon_sym_effect] = ACTIONS(717),
     [anon_sym_action] = ACTIONS(717),
     [anon_sym_use] = ACTIONS(717),
@@ -53415,6 +53662,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(717),
     [anon_sym_stream] = ACTIONS(717),
     [anon_sym_channel] = ACTIONS(717),
+    [anon_sym_peer] = ACTIONS(717),
     [anon_sym_effect] = ACTIONS(717),
     [anon_sym_action] = ACTIONS(717),
     [anon_sym_use] = ACTIONS(717),
@@ -53576,6 +53824,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(972),
     [anon_sym_stream] = ACTIONS(972),
     [anon_sym_channel] = ACTIONS(972),
+    [anon_sym_peer] = ACTIONS(972),
     [anon_sym_effect] = ACTIONS(972),
     [anon_sym_action] = ACTIONS(972),
     [anon_sym_use] = ACTIONS(972),
@@ -53739,6 +53988,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(972),
     [anon_sym_stream] = ACTIONS(972),
     [anon_sym_channel] = ACTIONS(972),
+    [anon_sym_peer] = ACTIONS(972),
     [anon_sym_effect] = ACTIONS(972),
     [anon_sym_action] = ACTIONS(972),
     [anon_sym_use] = ACTIONS(972),
@@ -53901,6 +54151,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(984),
     [anon_sym_stream] = ACTIONS(984),
     [anon_sym_channel] = ACTIONS(984),
+    [anon_sym_peer] = ACTIONS(984),
     [anon_sym_effect] = ACTIONS(984),
     [anon_sym_action] = ACTIONS(984),
     [anon_sym_use] = ACTIONS(984),
@@ -54063,6 +54314,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(988),
     [anon_sym_stream] = ACTIONS(988),
     [anon_sym_channel] = ACTIONS(988),
+    [anon_sym_peer] = ACTIONS(988),
     [anon_sym_effect] = ACTIONS(988),
     [anon_sym_action] = ACTIONS(988),
     [anon_sym_use] = ACTIONS(988),
@@ -54225,6 +54477,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -54388,6 +54641,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -54549,6 +54803,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(992),
     [anon_sym_stream] = ACTIONS(992),
     [anon_sym_channel] = ACTIONS(992),
+    [anon_sym_peer] = ACTIONS(992),
     [anon_sym_effect] = ACTIONS(992),
     [anon_sym_action] = ACTIONS(992),
     [anon_sym_use] = ACTIONS(992),
@@ -54712,6 +54967,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(912),
     [anon_sym_stream] = ACTIONS(912),
     [anon_sym_channel] = ACTIONS(912),
+    [anon_sym_peer] = ACTIONS(912),
     [anon_sym_effect] = ACTIONS(912),
     [anon_sym_action] = ACTIONS(912),
     [anon_sym_use] = ACTIONS(912),
@@ -54872,6 +55128,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(998),
     [anon_sym_stream] = ACTIONS(998),
     [anon_sym_channel] = ACTIONS(998),
+    [anon_sym_peer] = ACTIONS(998),
     [anon_sym_effect] = ACTIONS(998),
     [anon_sym_action] = ACTIONS(998),
     [anon_sym_use] = ACTIONS(998),
@@ -55033,6 +55290,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -55194,6 +55452,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1008),
     [anon_sym_stream] = ACTIONS(1008),
     [anon_sym_channel] = ACTIONS(1008),
+    [anon_sym_peer] = ACTIONS(1008),
     [anon_sym_effect] = ACTIONS(1008),
     [anon_sym_action] = ACTIONS(1008),
     [anon_sym_use] = ACTIONS(1008),
@@ -55356,6 +55615,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1012),
     [anon_sym_stream] = ACTIONS(1012),
     [anon_sym_channel] = ACTIONS(1012),
+    [anon_sym_peer] = ACTIONS(1012),
     [anon_sym_effect] = ACTIONS(1012),
     [anon_sym_action] = ACTIONS(1012),
     [anon_sym_use] = ACTIONS(1012),
@@ -55516,6 +55776,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1016),
     [anon_sym_stream] = ACTIONS(1016),
     [anon_sym_channel] = ACTIONS(1016),
+    [anon_sym_peer] = ACTIONS(1016),
     [anon_sym_effect] = ACTIONS(1016),
     [anon_sym_action] = ACTIONS(1016),
     [anon_sym_use] = ACTIONS(1016),
@@ -55678,6 +55939,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1020),
     [anon_sym_stream] = ACTIONS(1020),
     [anon_sym_channel] = ACTIONS(1020),
+    [anon_sym_peer] = ACTIONS(1020),
     [anon_sym_effect] = ACTIONS(1020),
     [anon_sym_action] = ACTIONS(1020),
     [anon_sym_use] = ACTIONS(1020),
@@ -55839,6 +56101,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(998),
     [anon_sym_stream] = ACTIONS(998),
     [anon_sym_channel] = ACTIONS(998),
+    [anon_sym_peer] = ACTIONS(998),
     [anon_sym_effect] = ACTIONS(998),
     [anon_sym_action] = ACTIONS(998),
     [anon_sym_use] = ACTIONS(998),
@@ -56000,6 +56263,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1024),
     [anon_sym_stream] = ACTIONS(1024),
     [anon_sym_channel] = ACTIONS(1024),
+    [anon_sym_peer] = ACTIONS(1024),
     [anon_sym_effect] = ACTIONS(1024),
     [anon_sym_action] = ACTIONS(1024),
     [anon_sym_use] = ACTIONS(1024),
@@ -56161,6 +56425,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1028),
     [anon_sym_stream] = ACTIONS(1028),
     [anon_sym_channel] = ACTIONS(1028),
+    [anon_sym_peer] = ACTIONS(1028),
     [anon_sym_effect] = ACTIONS(1028),
     [anon_sym_action] = ACTIONS(1028),
     [anon_sym_use] = ACTIONS(1028),
@@ -56321,6 +56586,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1032),
     [anon_sym_stream] = ACTIONS(1032),
     [anon_sym_channel] = ACTIONS(1032),
+    [anon_sym_peer] = ACTIONS(1032),
     [anon_sym_effect] = ACTIONS(1032),
     [anon_sym_action] = ACTIONS(1032),
     [anon_sym_use] = ACTIONS(1032),
@@ -56482,6 +56748,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1036),
     [anon_sym_stream] = ACTIONS(1036),
     [anon_sym_channel] = ACTIONS(1036),
+    [anon_sym_peer] = ACTIONS(1036),
     [anon_sym_effect] = ACTIONS(1036),
     [anon_sym_action] = ACTIONS(1036),
     [anon_sym_use] = ACTIONS(1036),
@@ -56644,6 +56911,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1040),
     [anon_sym_stream] = ACTIONS(1040),
     [anon_sym_channel] = ACTIONS(1040),
+    [anon_sym_peer] = ACTIONS(1040),
     [anon_sym_effect] = ACTIONS(1040),
     [anon_sym_action] = ACTIONS(1040),
     [anon_sym_use] = ACTIONS(1040),
@@ -56805,6 +57073,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1032),
     [anon_sym_stream] = ACTIONS(1032),
     [anon_sym_channel] = ACTIONS(1032),
+    [anon_sym_peer] = ACTIONS(1032),
     [anon_sym_effect] = ACTIONS(1032),
     [anon_sym_action] = ACTIONS(1032),
     [anon_sym_use] = ACTIONS(1032),
@@ -56965,6 +57234,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1040),
     [anon_sym_stream] = ACTIONS(1040),
     [anon_sym_channel] = ACTIONS(1040),
+    [anon_sym_peer] = ACTIONS(1040),
     [anon_sym_effect] = ACTIONS(1040),
     [anon_sym_action] = ACTIONS(1040),
     [anon_sym_use] = ACTIONS(1040),
@@ -57127,6 +57397,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1044),
     [anon_sym_stream] = ACTIONS(1044),
     [anon_sym_channel] = ACTIONS(1044),
+    [anon_sym_peer] = ACTIONS(1044),
     [anon_sym_effect] = ACTIONS(1044),
     [anon_sym_action] = ACTIONS(1044),
     [anon_sym_use] = ACTIONS(1044),
@@ -57288,6 +57559,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1048),
     [anon_sym_stream] = ACTIONS(1048),
     [anon_sym_channel] = ACTIONS(1048),
+    [anon_sym_peer] = ACTIONS(1048),
     [anon_sym_effect] = ACTIONS(1048),
     [anon_sym_action] = ACTIONS(1048),
     [anon_sym_use] = ACTIONS(1048),
@@ -57449,6 +57721,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1052),
     [anon_sym_stream] = ACTIONS(1052),
     [anon_sym_channel] = ACTIONS(1052),
+    [anon_sym_peer] = ACTIONS(1052),
     [anon_sym_effect] = ACTIONS(1052),
     [anon_sym_action] = ACTIONS(1052),
     [anon_sym_use] = ACTIONS(1052),
@@ -57609,6 +57882,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1024),
     [anon_sym_stream] = ACTIONS(1024),
     [anon_sym_channel] = ACTIONS(1024),
+    [anon_sym_peer] = ACTIONS(1024),
     [anon_sym_effect] = ACTIONS(1024),
     [anon_sym_action] = ACTIONS(1024),
     [anon_sym_use] = ACTIONS(1024),
@@ -57771,6 +58045,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1036),
     [anon_sym_stream] = ACTIONS(1036),
     [anon_sym_channel] = ACTIONS(1036),
+    [anon_sym_peer] = ACTIONS(1036),
     [anon_sym_effect] = ACTIONS(1036),
     [anon_sym_action] = ACTIONS(1036),
     [anon_sym_use] = ACTIONS(1036),
@@ -57931,6 +58206,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1056),
     [anon_sym_stream] = ACTIONS(1056),
     [anon_sym_channel] = ACTIONS(1056),
+    [anon_sym_peer] = ACTIONS(1056),
     [anon_sym_effect] = ACTIONS(1056),
     [anon_sym_action] = ACTIONS(1056),
     [anon_sym_use] = ACTIONS(1056),
@@ -58093,6 +58369,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1008),
     [anon_sym_stream] = ACTIONS(1008),
     [anon_sym_channel] = ACTIONS(1008),
+    [anon_sym_peer] = ACTIONS(1008),
     [anon_sym_effect] = ACTIONS(1008),
     [anon_sym_action] = ACTIONS(1008),
     [anon_sym_use] = ACTIONS(1008),
@@ -58254,6 +58531,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1016),
     [anon_sym_stream] = ACTIONS(1016),
     [anon_sym_channel] = ACTIONS(1016),
+    [anon_sym_peer] = ACTIONS(1016),
     [anon_sym_effect] = ACTIONS(1016),
     [anon_sym_action] = ACTIONS(1016),
     [anon_sym_use] = ACTIONS(1016),
@@ -58414,6 +58692,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1028),
     [anon_sym_stream] = ACTIONS(1028),
     [anon_sym_channel] = ACTIONS(1028),
+    [anon_sym_peer] = ACTIONS(1028),
     [anon_sym_effect] = ACTIONS(1028),
     [anon_sym_action] = ACTIONS(1028),
     [anon_sym_use] = ACTIONS(1028),
@@ -58575,6 +58854,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1052),
     [anon_sym_stream] = ACTIONS(1052),
     [anon_sym_channel] = ACTIONS(1052),
+    [anon_sym_peer] = ACTIONS(1052),
     [anon_sym_effect] = ACTIONS(1052),
     [anon_sym_action] = ACTIONS(1052),
     [anon_sym_use] = ACTIONS(1052),
@@ -58737,6 +59017,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -58897,6 +59178,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1060),
     [anon_sym_stream] = ACTIONS(1060),
     [anon_sym_channel] = ACTIONS(1060),
+    [anon_sym_peer] = ACTIONS(1060),
     [anon_sym_effect] = ACTIONS(1060),
     [anon_sym_action] = ACTIONS(1060),
     [anon_sym_use] = ACTIONS(1060),
@@ -59059,6 +59341,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1060),
     [anon_sym_stream] = ACTIONS(1060),
     [anon_sym_channel] = ACTIONS(1060),
+    [anon_sym_peer] = ACTIONS(1060),
     [anon_sym_effect] = ACTIONS(1060),
     [anon_sym_action] = ACTIONS(1060),
     [anon_sym_use] = ACTIONS(1060),
@@ -59219,6 +59502,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1012),
     [anon_sym_stream] = ACTIONS(1012),
     [anon_sym_channel] = ACTIONS(1012),
+    [anon_sym_peer] = ACTIONS(1012),
     [anon_sym_effect] = ACTIONS(1012),
     [anon_sym_action] = ACTIONS(1012),
     [anon_sym_use] = ACTIONS(1012),
@@ -59380,6 +59664,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1044),
     [anon_sym_stream] = ACTIONS(1044),
     [anon_sym_channel] = ACTIONS(1044),
+    [anon_sym_peer] = ACTIONS(1044),
     [anon_sym_effect] = ACTIONS(1044),
     [anon_sym_action] = ACTIONS(1044),
     [anon_sym_use] = ACTIONS(1044),
@@ -59541,6 +59826,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1048),
     [anon_sym_stream] = ACTIONS(1048),
     [anon_sym_channel] = ACTIONS(1048),
+    [anon_sym_peer] = ACTIONS(1048),
     [anon_sym_effect] = ACTIONS(1048),
     [anon_sym_action] = ACTIONS(1048),
     [anon_sym_use] = ACTIONS(1048),
@@ -59702,6 +59988,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1064),
     [anon_sym_stream] = ACTIONS(1064),
     [anon_sym_channel] = ACTIONS(1064),
+    [anon_sym_peer] = ACTIONS(1064),
     [anon_sym_effect] = ACTIONS(1064),
     [anon_sym_action] = ACTIONS(1064),
     [anon_sym_use] = ACTIONS(1064),
@@ -59864,6 +60151,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1056),
     [anon_sym_stream] = ACTIONS(1056),
     [anon_sym_channel] = ACTIONS(1056),
+    [anon_sym_peer] = ACTIONS(1056),
     [anon_sym_effect] = ACTIONS(1056),
     [anon_sym_action] = ACTIONS(1056),
     [anon_sym_use] = ACTIONS(1056),
@@ -60025,6 +60313,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(630),
     [anon_sym_stream] = ACTIONS(630),
     [anon_sym_channel] = ACTIONS(630),
+    [anon_sym_peer] = ACTIONS(630),
     [anon_sym_effect] = ACTIONS(630),
     [anon_sym_action] = ACTIONS(630),
     [anon_sym_use] = ACTIONS(630),
@@ -60185,6 +60474,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1020),
     [anon_sym_stream] = ACTIONS(1020),
     [anon_sym_channel] = ACTIONS(1020),
+    [anon_sym_peer] = ACTIONS(1020),
     [anon_sym_effect] = ACTIONS(1020),
     [anon_sym_action] = ACTIONS(1020),
     [anon_sym_use] = ACTIONS(1020),
@@ -60347,6 +60637,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1064),
     [anon_sym_stream] = ACTIONS(1064),
     [anon_sym_channel] = ACTIONS(1064),
+    [anon_sym_peer] = ACTIONS(1064),
     [anon_sym_effect] = ACTIONS(1064),
     [anon_sym_action] = ACTIONS(1064),
     [anon_sym_use] = ACTIONS(1064),
@@ -60510,6 +60801,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(522),
     [anon_sym_stream] = ACTIONS(522),
     [anon_sym_channel] = ACTIONS(522),
+    [anon_sym_peer] = ACTIONS(522),
     [anon_sym_effect] = ACTIONS(522),
     [anon_sym_action] = ACTIONS(522),
     [anon_sym_use] = ACTIONS(522),
@@ -60661,6 +60953,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(522),
     [anon_sym_stream] = ACTIONS(522),
     [anon_sym_channel] = ACTIONS(522),
+    [anon_sym_peer] = ACTIONS(522),
     [anon_sym_effect] = ACTIONS(522),
     [anon_sym_action] = ACTIONS(522),
     [anon_sym_use] = ACTIONS(522),
@@ -60809,6 +61102,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1072),
     [anon_sym_stream] = ACTIONS(1072),
     [anon_sym_channel] = ACTIONS(1072),
+    [anon_sym_peer] = ACTIONS(1072),
     [anon_sym_effect] = ACTIONS(1072),
     [anon_sym_action] = ACTIONS(1072),
     [anon_sym_use] = ACTIONS(1072),
@@ -60959,6 +61253,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1072),
     [anon_sym_stream] = ACTIONS(1072),
     [anon_sym_channel] = ACTIONS(1072),
+    [anon_sym_peer] = ACTIONS(1072),
     [anon_sym_effect] = ACTIONS(1072),
     [anon_sym_action] = ACTIONS(1072),
     [anon_sym_use] = ACTIONS(1072),
@@ -61108,6 +61403,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1076),
     [anon_sym_stream] = ACTIONS(1076),
     [anon_sym_channel] = ACTIONS(1076),
+    [anon_sym_peer] = ACTIONS(1076),
     [anon_sym_effect] = ACTIONS(1076),
     [anon_sym_action] = ACTIONS(1076),
     [anon_sym_use] = ACTIONS(1076),
@@ -61256,6 +61552,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1080),
     [anon_sym_stream] = ACTIONS(1080),
     [anon_sym_channel] = ACTIONS(1080),
+    [anon_sym_peer] = ACTIONS(1080),
     [anon_sym_effect] = ACTIONS(1080),
     [anon_sym_action] = ACTIONS(1080),
     [anon_sym_use] = ACTIONS(1080),
@@ -61405,6 +61702,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1076),
     [anon_sym_stream] = ACTIONS(1076),
     [anon_sym_channel] = ACTIONS(1076),
+    [anon_sym_peer] = ACTIONS(1076),
     [anon_sym_effect] = ACTIONS(1076),
     [anon_sym_action] = ACTIONS(1076),
     [anon_sym_use] = ACTIONS(1076),
@@ -61555,6 +61853,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1080),
     [anon_sym_stream] = ACTIONS(1080),
     [anon_sym_channel] = ACTIONS(1080),
+    [anon_sym_peer] = ACTIONS(1080),
     [anon_sym_effect] = ACTIONS(1080),
     [anon_sym_action] = ACTIONS(1080),
     [anon_sym_use] = ACTIONS(1080),
@@ -61704,6 +62003,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1072),
     [anon_sym_stream] = ACTIONS(1072),
     [anon_sym_channel] = ACTIONS(1072),
+    [anon_sym_peer] = ACTIONS(1072),
     [anon_sym_effect] = ACTIONS(1072),
     [anon_sym_action] = ACTIONS(1072),
     [anon_sym_use] = ACTIONS(1072),
@@ -61852,6 +62152,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1072),
     [anon_sym_stream] = ACTIONS(1072),
     [anon_sym_channel] = ACTIONS(1072),
+    [anon_sym_peer] = ACTIONS(1072),
     [anon_sym_effect] = ACTIONS(1072),
     [anon_sym_action] = ACTIONS(1072),
     [anon_sym_use] = ACTIONS(1072),
@@ -62002,6 +62303,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1072),
     [anon_sym_stream] = ACTIONS(1072),
     [anon_sym_channel] = ACTIONS(1072),
+    [anon_sym_peer] = ACTIONS(1072),
     [anon_sym_effect] = ACTIONS(1072),
     [anon_sym_action] = ACTIONS(1072),
     [anon_sym_use] = ACTIONS(1072),
@@ -62150,6 +62452,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1072),
     [anon_sym_stream] = ACTIONS(1072),
     [anon_sym_channel] = ACTIONS(1072),
+    [anon_sym_peer] = ACTIONS(1072),
     [anon_sym_effect] = ACTIONS(1072),
     [anon_sym_action] = ACTIONS(1072),
     [anon_sym_use] = ACTIONS(1072),
@@ -62299,6 +62602,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1084),
     [anon_sym_stream] = ACTIONS(1084),
     [anon_sym_channel] = ACTIONS(1084),
+    [anon_sym_peer] = ACTIONS(1084),
     [anon_sym_effect] = ACTIONS(1084),
     [anon_sym_action] = ACTIONS(1084),
     [anon_sym_use] = ACTIONS(1084),
@@ -62447,6 +62751,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1093),
     [anon_sym_stream] = ACTIONS(1093),
     [anon_sym_channel] = ACTIONS(1093),
+    [anon_sym_peer] = ACTIONS(1093),
     [anon_sym_effect] = ACTIONS(1093),
     [anon_sym_action] = ACTIONS(1093),
     [anon_sym_use] = ACTIONS(1093),
@@ -62594,6 +62899,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1084),
     [anon_sym_stream] = ACTIONS(1084),
     [anon_sym_channel] = ACTIONS(1084),
+    [anon_sym_peer] = ACTIONS(1084),
     [anon_sym_effect] = ACTIONS(1084),
     [anon_sym_action] = ACTIONS(1084),
     [anon_sym_use] = ACTIONS(1084),
@@ -62742,6 +63048,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1093),
     [anon_sym_stream] = ACTIONS(1093),
     [anon_sym_channel] = ACTIONS(1093),
+    [anon_sym_peer] = ACTIONS(1093),
     [anon_sym_effect] = ACTIONS(1093),
     [anon_sym_action] = ACTIONS(1093),
     [anon_sym_use] = ACTIONS(1093),
@@ -62889,6 +63196,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1103),
     [anon_sym_stream] = ACTIONS(1103),
     [anon_sym_channel] = ACTIONS(1103),
+    [anon_sym_peer] = ACTIONS(1103),
     [anon_sym_effect] = ACTIONS(1103),
     [anon_sym_action] = ACTIONS(1103),
     [anon_sym_use] = ACTIONS(1103),
@@ -63035,6 +63343,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1107),
     [anon_sym_stream] = ACTIONS(1107),
     [anon_sym_channel] = ACTIONS(1107),
+    [anon_sym_peer] = ACTIONS(1107),
     [anon_sym_effect] = ACTIONS(1107),
     [anon_sym_action] = ACTIONS(1107),
     [anon_sym_use] = ACTIONS(1107),
@@ -63181,6 +63490,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1113),
     [anon_sym_stream] = ACTIONS(1113),
     [anon_sym_channel] = ACTIONS(1113),
+    [anon_sym_peer] = ACTIONS(1113),
     [anon_sym_effect] = ACTIONS(1113),
     [anon_sym_action] = ACTIONS(1113),
     [anon_sym_use] = ACTIONS(1113),
@@ -63328,6 +63638,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1107),
     [anon_sym_stream] = ACTIONS(1107),
     [anon_sym_channel] = ACTIONS(1107),
+    [anon_sym_peer] = ACTIONS(1107),
     [anon_sym_effect] = ACTIONS(1107),
     [anon_sym_action] = ACTIONS(1107),
     [anon_sym_use] = ACTIONS(1107),
@@ -63473,6 +63784,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(798),
     [anon_sym_stream] = ACTIONS(798),
     [anon_sym_channel] = ACTIONS(798),
+    [anon_sym_peer] = ACTIONS(798),
     [anon_sym_effect] = ACTIONS(798),
     [anon_sym_action] = ACTIONS(798),
     [anon_sym_use] = ACTIONS(798),
@@ -63619,6 +63931,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1084),
     [anon_sym_stream] = ACTIONS(1084),
     [anon_sym_channel] = ACTIONS(1084),
+    [anon_sym_peer] = ACTIONS(1084),
     [anon_sym_effect] = ACTIONS(1084),
     [anon_sym_action] = ACTIONS(1084),
     [anon_sym_use] = ACTIONS(1084),
@@ -63764,6 +64077,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(798),
     [anon_sym_stream] = ACTIONS(798),
     [anon_sym_channel] = ACTIONS(798),
+    [anon_sym_peer] = ACTIONS(798),
     [anon_sym_effect] = ACTIONS(798),
     [anon_sym_action] = ACTIONS(798),
     [anon_sym_use] = ACTIONS(798),
@@ -63910,6 +64224,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1113),
     [anon_sym_stream] = ACTIONS(1113),
     [anon_sym_channel] = ACTIONS(1113),
+    [anon_sym_peer] = ACTIONS(1113),
     [anon_sym_effect] = ACTIONS(1113),
     [anon_sym_action] = ACTIONS(1113),
     [anon_sym_use] = ACTIONS(1113),
@@ -64056,6 +64371,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1103),
     [anon_sym_stream] = ACTIONS(1103),
     [anon_sym_channel] = ACTIONS(1103),
+    [anon_sym_peer] = ACTIONS(1103),
     [anon_sym_effect] = ACTIONS(1103),
     [anon_sym_action] = ACTIONS(1103),
     [anon_sym_use] = ACTIONS(1103),
@@ -64203,6 +64519,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1119),
     [anon_sym_stream] = ACTIONS(1119),
     [anon_sym_channel] = ACTIONS(1119),
+    [anon_sym_peer] = ACTIONS(1119),
     [anon_sym_effect] = ACTIONS(1119),
     [anon_sym_action] = ACTIONS(1119),
     [anon_sym_use] = ACTIONS(1119),
@@ -64348,6 +64665,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(783),
     [anon_sym_stream] = ACTIONS(783),
     [anon_sym_channel] = ACTIONS(783),
+    [anon_sym_peer] = ACTIONS(783),
     [anon_sym_effect] = ACTIONS(783),
     [anon_sym_action] = ACTIONS(783),
     [anon_sym_use] = ACTIONS(783),
@@ -64496,6 +64814,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1119),
     [anon_sym_stream] = ACTIONS(1119),
     [anon_sym_channel] = ACTIONS(1119),
+    [anon_sym_peer] = ACTIONS(1119),
     [anon_sym_effect] = ACTIONS(1119),
     [anon_sym_action] = ACTIONS(1119),
     [anon_sym_use] = ACTIONS(1119),
@@ -64640,6 +64959,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(670),
     [anon_sym_stream] = ACTIONS(670),
     [anon_sym_channel] = ACTIONS(670),
+    [anon_sym_peer] = ACTIONS(670),
     [anon_sym_effect] = ACTIONS(670),
     [anon_sym_action] = ACTIONS(670),
     [anon_sym_use] = ACTIONS(670),
@@ -64786,6 +65106,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1084),
     [anon_sym_stream] = ACTIONS(1084),
     [anon_sym_channel] = ACTIONS(1084),
+    [anon_sym_peer] = ACTIONS(1084),
     [anon_sym_effect] = ACTIONS(1084),
     [anon_sym_action] = ACTIONS(1084),
     [anon_sym_use] = ACTIONS(1084),
@@ -64933,6 +65254,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(670),
     [anon_sym_stream] = ACTIONS(670),
     [anon_sym_channel] = ACTIONS(670),
+    [anon_sym_peer] = ACTIONS(670),
     [anon_sym_effect] = ACTIONS(670),
     [anon_sym_action] = ACTIONS(670),
     [anon_sym_use] = ACTIONS(670),
@@ -65079,6 +65401,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(783),
     [anon_sym_stream] = ACTIONS(783),
     [anon_sym_channel] = ACTIONS(783),
+    [anon_sym_peer] = ACTIONS(783),
     [anon_sym_effect] = ACTIONS(783),
     [anon_sym_action] = ACTIONS(783),
     [anon_sym_use] = ACTIONS(783),
@@ -65225,6 +65548,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1123),
     [anon_sym_stream] = ACTIONS(1123),
     [anon_sym_channel] = ACTIONS(1123),
+    [anon_sym_peer] = ACTIONS(1123),
     [anon_sym_effect] = ACTIONS(1123),
     [anon_sym_action] = ACTIONS(1123),
     [anon_sym_use] = ACTIONS(1123),
@@ -65370,6 +65694,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1129),
     [anon_sym_stream] = ACTIONS(1129),
     [anon_sym_channel] = ACTIONS(1129),
+    [anon_sym_peer] = ACTIONS(1129),
     [anon_sym_effect] = ACTIONS(1129),
     [anon_sym_action] = ACTIONS(1129),
     [anon_sym_use] = ACTIONS(1129),
@@ -65515,6 +65840,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1133),
     [anon_sym_stream] = ACTIONS(1133),
     [anon_sym_channel] = ACTIONS(1133),
+    [anon_sym_peer] = ACTIONS(1133),
     [anon_sym_effect] = ACTIONS(1133),
     [anon_sym_action] = ACTIONS(1133),
     [anon_sym_use] = ACTIONS(1133),
@@ -65661,6 +65987,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1129),
     [anon_sym_stream] = ACTIONS(1129),
     [anon_sym_channel] = ACTIONS(1129),
+    [anon_sym_peer] = ACTIONS(1129),
     [anon_sym_effect] = ACTIONS(1129),
     [anon_sym_action] = ACTIONS(1129),
     [anon_sym_use] = ACTIONS(1129),
@@ -65806,6 +66133,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1133),
     [anon_sym_stream] = ACTIONS(1133),
     [anon_sym_channel] = ACTIONS(1133),
+    [anon_sym_peer] = ACTIONS(1133),
     [anon_sym_effect] = ACTIONS(1133),
     [anon_sym_action] = ACTIONS(1133),
     [anon_sym_use] = ACTIONS(1133),
@@ -65951,6 +66279,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1123),
     [anon_sym_stream] = ACTIONS(1123),
     [anon_sym_channel] = ACTIONS(1123),
+    [anon_sym_peer] = ACTIONS(1123),
     [anon_sym_effect] = ACTIONS(1123),
     [anon_sym_action] = ACTIONS(1123),
     [anon_sym_use] = ACTIONS(1123),
@@ -66095,6 +66424,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1139),
     [anon_sym_stream] = ACTIONS(1139),
     [anon_sym_channel] = ACTIONS(1139),
+    [anon_sym_peer] = ACTIONS(1139),
     [anon_sym_effect] = ACTIONS(1139),
     [anon_sym_action] = ACTIONS(1139),
     [anon_sym_use] = ACTIONS(1139),
@@ -66240,6 +66570,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1143),
     [anon_sym_stream] = ACTIONS(1143),
     [anon_sym_channel] = ACTIONS(1143),
+    [anon_sym_peer] = ACTIONS(1143),
     [anon_sym_effect] = ACTIONS(1143),
     [anon_sym_action] = ACTIONS(1143),
     [anon_sym_use] = ACTIONS(1143),
@@ -66384,6 +66715,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1143),
     [anon_sym_stream] = ACTIONS(1143),
     [anon_sym_channel] = ACTIONS(1143),
+    [anon_sym_peer] = ACTIONS(1143),
     [anon_sym_effect] = ACTIONS(1143),
     [anon_sym_action] = ACTIONS(1143),
     [anon_sym_use] = ACTIONS(1143),
@@ -66529,6 +66861,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1139),
     [anon_sym_stream] = ACTIONS(1139),
     [anon_sym_channel] = ACTIONS(1139),
+    [anon_sym_peer] = ACTIONS(1139),
     [anon_sym_effect] = ACTIONS(1139),
     [anon_sym_action] = ACTIONS(1139),
     [anon_sym_use] = ACTIONS(1139),
@@ -66674,6 +67007,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1147),
     [anon_sym_stream] = ACTIONS(1147),
     [anon_sym_channel] = ACTIONS(1147),
+    [anon_sym_peer] = ACTIONS(1147),
     [anon_sym_effect] = ACTIONS(1147),
     [anon_sym_action] = ACTIONS(1147),
     [anon_sym_use] = ACTIONS(1147),
@@ -66818,6 +67152,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1151),
     [anon_sym_stream] = ACTIONS(1151),
     [anon_sym_channel] = ACTIONS(1151),
+    [anon_sym_peer] = ACTIONS(1151),
     [anon_sym_effect] = ACTIONS(1151),
     [anon_sym_action] = ACTIONS(1151),
     [anon_sym_use] = ACTIONS(1151),
@@ -66962,6 +67297,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1028),
     [anon_sym_stream] = ACTIONS(1028),
     [anon_sym_channel] = ACTIONS(1028),
+    [anon_sym_peer] = ACTIONS(1028),
     [anon_sym_effect] = ACTIONS(1028),
     [anon_sym_action] = ACTIONS(1028),
     [anon_sym_use] = ACTIONS(1028),
@@ -67106,6 +67442,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1155),
     [anon_sym_stream] = ACTIONS(1155),
     [anon_sym_channel] = ACTIONS(1155),
+    [anon_sym_peer] = ACTIONS(1155),
     [anon_sym_effect] = ACTIONS(1155),
     [anon_sym_action] = ACTIONS(1155),
     [anon_sym_use] = ACTIONS(1155),
@@ -67250,6 +67587,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1159),
     [anon_sym_stream] = ACTIONS(1159),
     [anon_sym_channel] = ACTIONS(1159),
+    [anon_sym_peer] = ACTIONS(1159),
     [anon_sym_effect] = ACTIONS(1159),
     [anon_sym_action] = ACTIONS(1159),
     [anon_sym_use] = ACTIONS(1159),
@@ -67394,6 +67732,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1163),
     [anon_sym_stream] = ACTIONS(1163),
     [anon_sym_channel] = ACTIONS(1163),
+    [anon_sym_peer] = ACTIONS(1163),
     [anon_sym_effect] = ACTIONS(1163),
     [anon_sym_action] = ACTIONS(1163),
     [anon_sym_use] = ACTIONS(1163),
@@ -67538,6 +67877,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1167),
     [anon_sym_stream] = ACTIONS(1167),
     [anon_sym_channel] = ACTIONS(1167),
+    [anon_sym_peer] = ACTIONS(1167),
     [anon_sym_effect] = ACTIONS(1167),
     [anon_sym_action] = ACTIONS(1167),
     [anon_sym_use] = ACTIONS(1167),
@@ -67682,6 +68022,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1171),
     [anon_sym_stream] = ACTIONS(1171),
     [anon_sym_channel] = ACTIONS(1171),
+    [anon_sym_peer] = ACTIONS(1171),
     [anon_sym_effect] = ACTIONS(1171),
     [anon_sym_action] = ACTIONS(1171),
     [anon_sym_use] = ACTIONS(1171),
@@ -67826,6 +68167,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1175),
     [anon_sym_stream] = ACTIONS(1175),
     [anon_sym_channel] = ACTIONS(1175),
+    [anon_sym_peer] = ACTIONS(1175),
     [anon_sym_effect] = ACTIONS(1175),
     [anon_sym_action] = ACTIONS(1175),
     [anon_sym_use] = ACTIONS(1175),
@@ -67971,6 +68313,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1155),
     [anon_sym_stream] = ACTIONS(1155),
     [anon_sym_channel] = ACTIONS(1155),
+    [anon_sym_peer] = ACTIONS(1155),
     [anon_sym_effect] = ACTIONS(1155),
     [anon_sym_action] = ACTIONS(1155),
     [anon_sym_use] = ACTIONS(1155),
@@ -68115,6 +68458,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1171),
     [anon_sym_stream] = ACTIONS(1171),
     [anon_sym_channel] = ACTIONS(1171),
+    [anon_sym_peer] = ACTIONS(1171),
     [anon_sym_effect] = ACTIONS(1171),
     [anon_sym_action] = ACTIONS(1171),
     [anon_sym_use] = ACTIONS(1171),
@@ -68258,6 +68602,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1179),
     [anon_sym_stream] = ACTIONS(1179),
     [anon_sym_channel] = ACTIONS(1179),
+    [anon_sym_peer] = ACTIONS(1179),
     [anon_sym_effect] = ACTIONS(1179),
     [anon_sym_action] = ACTIONS(1179),
     [anon_sym_use] = ACTIONS(1179),
@@ -68403,6 +68748,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1183),
     [anon_sym_stream] = ACTIONS(1183),
     [anon_sym_channel] = ACTIONS(1183),
+    [anon_sym_peer] = ACTIONS(1183),
     [anon_sym_effect] = ACTIONS(1183),
     [anon_sym_action] = ACTIONS(1183),
     [anon_sym_use] = ACTIONS(1183),
@@ -68547,6 +68893,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1187),
     [anon_sym_stream] = ACTIONS(1187),
     [anon_sym_channel] = ACTIONS(1187),
+    [anon_sym_peer] = ACTIONS(1187),
     [anon_sym_effect] = ACTIONS(1187),
     [anon_sym_action] = ACTIONS(1187),
     [anon_sym_use] = ACTIONS(1187),
@@ -68691,6 +69038,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1191),
     [anon_sym_stream] = ACTIONS(1191),
     [anon_sym_channel] = ACTIONS(1191),
+    [anon_sym_peer] = ACTIONS(1191),
     [anon_sym_effect] = ACTIONS(1191),
     [anon_sym_action] = ACTIONS(1191),
     [anon_sym_use] = ACTIONS(1191),
@@ -68835,6 +69183,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1147),
     [anon_sym_stream] = ACTIONS(1147),
     [anon_sym_channel] = ACTIONS(1147),
+    [anon_sym_peer] = ACTIONS(1147),
     [anon_sym_effect] = ACTIONS(1147),
     [anon_sym_action] = ACTIONS(1147),
     [anon_sym_use] = ACTIONS(1147),
@@ -68979,6 +69328,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1195),
     [anon_sym_stream] = ACTIONS(1195),
     [anon_sym_channel] = ACTIONS(1195),
+    [anon_sym_peer] = ACTIONS(1195),
     [anon_sym_effect] = ACTIONS(1195),
     [anon_sym_action] = ACTIONS(1195),
     [anon_sym_use] = ACTIONS(1195),
@@ -69122,6 +69472,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1199),
     [anon_sym_stream] = ACTIONS(1199),
     [anon_sym_channel] = ACTIONS(1199),
+    [anon_sym_peer] = ACTIONS(1199),
     [anon_sym_effect] = ACTIONS(1199),
     [anon_sym_action] = ACTIONS(1199),
     [anon_sym_use] = ACTIONS(1199),
@@ -69266,6 +69617,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1203),
     [anon_sym_stream] = ACTIONS(1203),
     [anon_sym_channel] = ACTIONS(1203),
+    [anon_sym_peer] = ACTIONS(1203),
     [anon_sym_effect] = ACTIONS(1203),
     [anon_sym_action] = ACTIONS(1203),
     [anon_sym_use] = ACTIONS(1203),
@@ -69411,6 +69763,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1207),
     [anon_sym_stream] = ACTIONS(1207),
     [anon_sym_channel] = ACTIONS(1207),
+    [anon_sym_peer] = ACTIONS(1207),
     [anon_sym_effect] = ACTIONS(1207),
     [anon_sym_action] = ACTIONS(1207),
     [anon_sym_use] = ACTIONS(1207),
@@ -69555,6 +69908,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1211),
     [anon_sym_stream] = ACTIONS(1211),
     [anon_sym_channel] = ACTIONS(1211),
+    [anon_sym_peer] = ACTIONS(1211),
     [anon_sym_effect] = ACTIONS(1211),
     [anon_sym_action] = ACTIONS(1211),
     [anon_sym_use] = ACTIONS(1211),
@@ -69699,6 +70053,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1215),
     [anon_sym_stream] = ACTIONS(1215),
     [anon_sym_channel] = ACTIONS(1215),
+    [anon_sym_peer] = ACTIONS(1215),
     [anon_sym_effect] = ACTIONS(1215),
     [anon_sym_action] = ACTIONS(1215),
     [anon_sym_use] = ACTIONS(1215),
@@ -69842,6 +70197,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1219),
     [anon_sym_stream] = ACTIONS(1219),
     [anon_sym_channel] = ACTIONS(1219),
+    [anon_sym_peer] = ACTIONS(1219),
     [anon_sym_effect] = ACTIONS(1219),
     [anon_sym_action] = ACTIONS(1219),
     [anon_sym_use] = ACTIONS(1219),
@@ -69986,6 +70342,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1223),
     [anon_sym_stream] = ACTIONS(1223),
     [anon_sym_channel] = ACTIONS(1223),
+    [anon_sym_peer] = ACTIONS(1223),
     [anon_sym_effect] = ACTIONS(1223),
     [anon_sym_action] = ACTIONS(1223),
     [anon_sym_use] = ACTIONS(1223),
@@ -70130,6 +70487,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1227),
     [anon_sym_stream] = ACTIONS(1227),
     [anon_sym_channel] = ACTIONS(1227),
+    [anon_sym_peer] = ACTIONS(1227),
     [anon_sym_effect] = ACTIONS(1227),
     [anon_sym_action] = ACTIONS(1227),
     [anon_sym_use] = ACTIONS(1227),
@@ -70275,6 +70633,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1231),
     [anon_sym_stream] = ACTIONS(1231),
     [anon_sym_channel] = ACTIONS(1231),
+    [anon_sym_peer] = ACTIONS(1231),
     [anon_sym_effect] = ACTIONS(1231),
     [anon_sym_action] = ACTIONS(1231),
     [anon_sym_use] = ACTIONS(1231),
@@ -70419,6 +70778,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1235),
     [anon_sym_stream] = ACTIONS(1235),
     [anon_sym_channel] = ACTIONS(1235),
+    [anon_sym_peer] = ACTIONS(1235),
     [anon_sym_effect] = ACTIONS(1235),
     [anon_sym_action] = ACTIONS(1235),
     [anon_sym_use] = ACTIONS(1235),
@@ -70562,6 +70922,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1239),
     [anon_sym_stream] = ACTIONS(1239),
     [anon_sym_channel] = ACTIONS(1239),
+    [anon_sym_peer] = ACTIONS(1239),
     [anon_sym_effect] = ACTIONS(1239),
     [anon_sym_action] = ACTIONS(1239),
     [anon_sym_use] = ACTIONS(1239),
@@ -70707,6 +71068,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1243),
     [anon_sym_stream] = ACTIONS(1243),
     [anon_sym_channel] = ACTIONS(1243),
+    [anon_sym_peer] = ACTIONS(1243),
     [anon_sym_effect] = ACTIONS(1243),
     [anon_sym_action] = ACTIONS(1243),
     [anon_sym_use] = ACTIONS(1243),
@@ -70850,6 +71212,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1247),
     [anon_sym_stream] = ACTIONS(1247),
     [anon_sym_channel] = ACTIONS(1247),
+    [anon_sym_peer] = ACTIONS(1247),
     [anon_sym_effect] = ACTIONS(1247),
     [anon_sym_action] = ACTIONS(1247),
     [anon_sym_use] = ACTIONS(1247),
@@ -70995,6 +71358,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1243),
     [anon_sym_stream] = ACTIONS(1243),
     [anon_sym_channel] = ACTIONS(1243),
+    [anon_sym_peer] = ACTIONS(1243),
     [anon_sym_effect] = ACTIONS(1243),
     [anon_sym_action] = ACTIONS(1243),
     [anon_sym_use] = ACTIONS(1243),
@@ -71139,6 +71503,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1243),
     [anon_sym_stream] = ACTIONS(1243),
     [anon_sym_channel] = ACTIONS(1243),
+    [anon_sym_peer] = ACTIONS(1243),
     [anon_sym_effect] = ACTIONS(1243),
     [anon_sym_action] = ACTIONS(1243),
     [anon_sym_use] = ACTIONS(1243),
@@ -71282,6 +71647,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1251),
     [anon_sym_stream] = ACTIONS(1251),
     [anon_sym_channel] = ACTIONS(1251),
+    [anon_sym_peer] = ACTIONS(1251),
     [anon_sym_effect] = ACTIONS(1251),
     [anon_sym_action] = ACTIONS(1251),
     [anon_sym_use] = ACTIONS(1251),
@@ -71426,6 +71792,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1255),
     [anon_sym_stream] = ACTIONS(1255),
     [anon_sym_channel] = ACTIONS(1255),
+    [anon_sym_peer] = ACTIONS(1255),
     [anon_sym_effect] = ACTIONS(1255),
     [anon_sym_action] = ACTIONS(1255),
     [anon_sym_use] = ACTIONS(1255),
@@ -71570,6 +71937,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1183),
     [anon_sym_stream] = ACTIONS(1183),
     [anon_sym_channel] = ACTIONS(1183),
+    [anon_sym_peer] = ACTIONS(1183),
     [anon_sym_effect] = ACTIONS(1183),
     [anon_sym_action] = ACTIONS(1183),
     [anon_sym_use] = ACTIONS(1183),
@@ -71714,6 +72082,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1187),
     [anon_sym_stream] = ACTIONS(1187),
     [anon_sym_channel] = ACTIONS(1187),
+    [anon_sym_peer] = ACTIONS(1187),
     [anon_sym_effect] = ACTIONS(1187),
     [anon_sym_action] = ACTIONS(1187),
     [anon_sym_use] = ACTIONS(1187),
@@ -71858,6 +72227,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1191),
     [anon_sym_stream] = ACTIONS(1191),
     [anon_sym_channel] = ACTIONS(1191),
+    [anon_sym_peer] = ACTIONS(1191),
     [anon_sym_effect] = ACTIONS(1191),
     [anon_sym_action] = ACTIONS(1191),
     [anon_sym_use] = ACTIONS(1191),
@@ -72002,6 +72372,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1259),
     [anon_sym_stream] = ACTIONS(1259),
     [anon_sym_channel] = ACTIONS(1259),
+    [anon_sym_peer] = ACTIONS(1259),
     [anon_sym_effect] = ACTIONS(1259),
     [anon_sym_action] = ACTIONS(1259),
     [anon_sym_use] = ACTIONS(1259),
@@ -72146,6 +72517,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1263),
     [anon_sym_stream] = ACTIONS(1263),
     [anon_sym_channel] = ACTIONS(1263),
+    [anon_sym_peer] = ACTIONS(1263),
     [anon_sym_effect] = ACTIONS(1263),
     [anon_sym_action] = ACTIONS(1263),
     [anon_sym_use] = ACTIONS(1263),
@@ -72290,6 +72662,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1267),
     [anon_sym_stream] = ACTIONS(1267),
     [anon_sym_channel] = ACTIONS(1267),
+    [anon_sym_peer] = ACTIONS(1267),
     [anon_sym_effect] = ACTIONS(1267),
     [anon_sym_action] = ACTIONS(1267),
     [anon_sym_use] = ACTIONS(1267),
@@ -72434,6 +72807,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1271),
     [anon_sym_stream] = ACTIONS(1271),
     [anon_sym_channel] = ACTIONS(1271),
+    [anon_sym_peer] = ACTIONS(1271),
     [anon_sym_effect] = ACTIONS(1271),
     [anon_sym_action] = ACTIONS(1271),
     [anon_sym_use] = ACTIONS(1271),
@@ -72578,6 +72952,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1275),
     [anon_sym_stream] = ACTIONS(1275),
     [anon_sym_channel] = ACTIONS(1275),
+    [anon_sym_peer] = ACTIONS(1275),
     [anon_sym_effect] = ACTIONS(1275),
     [anon_sym_action] = ACTIONS(1275),
     [anon_sym_use] = ACTIONS(1275),
@@ -72723,6 +73098,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1279),
     [anon_sym_stream] = ACTIONS(1279),
     [anon_sym_channel] = ACTIONS(1279),
+    [anon_sym_peer] = ACTIONS(1279),
     [anon_sym_effect] = ACTIONS(1279),
     [anon_sym_action] = ACTIONS(1279),
     [anon_sym_use] = ACTIONS(1279),
@@ -72867,6 +73243,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1283),
     [anon_sym_stream] = ACTIONS(1283),
     [anon_sym_channel] = ACTIONS(1283),
+    [anon_sym_peer] = ACTIONS(1283),
     [anon_sym_effect] = ACTIONS(1283),
     [anon_sym_action] = ACTIONS(1283),
     [anon_sym_use] = ACTIONS(1283),
@@ -73010,6 +73387,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1287),
     [anon_sym_stream] = ACTIONS(1287),
     [anon_sym_channel] = ACTIONS(1287),
+    [anon_sym_peer] = ACTIONS(1287),
     [anon_sym_effect] = ACTIONS(1287),
     [anon_sym_action] = ACTIONS(1287),
     [anon_sym_use] = ACTIONS(1287),
@@ -73154,6 +73532,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1291),
     [anon_sym_stream] = ACTIONS(1291),
     [anon_sym_channel] = ACTIONS(1291),
+    [anon_sym_peer] = ACTIONS(1291),
     [anon_sym_effect] = ACTIONS(1291),
     [anon_sym_action] = ACTIONS(1291),
     [anon_sym_use] = ACTIONS(1291),
@@ -73298,6 +73677,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1295),
     [anon_sym_stream] = ACTIONS(1295),
     [anon_sym_channel] = ACTIONS(1295),
+    [anon_sym_peer] = ACTIONS(1295),
     [anon_sym_effect] = ACTIONS(1295),
     [anon_sym_action] = ACTIONS(1295),
     [anon_sym_use] = ACTIONS(1295),
@@ -73442,6 +73822,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1299),
     [anon_sym_stream] = ACTIONS(1299),
     [anon_sym_channel] = ACTIONS(1299),
+    [anon_sym_peer] = ACTIONS(1299),
     [anon_sym_effect] = ACTIONS(1299),
     [anon_sym_action] = ACTIONS(1299),
     [anon_sym_use] = ACTIONS(1299),
@@ -73586,6 +73967,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1303),
     [anon_sym_stream] = ACTIONS(1303),
     [anon_sym_channel] = ACTIONS(1303),
+    [anon_sym_peer] = ACTIONS(1303),
     [anon_sym_effect] = ACTIONS(1303),
     [anon_sym_action] = ACTIONS(1303),
     [anon_sym_use] = ACTIONS(1303),
@@ -73731,6 +74113,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1307),
     [anon_sym_stream] = ACTIONS(1307),
     [anon_sym_channel] = ACTIONS(1307),
+    [anon_sym_peer] = ACTIONS(1307),
     [anon_sym_effect] = ACTIONS(1307),
     [anon_sym_action] = ACTIONS(1307),
     [anon_sym_use] = ACTIONS(1307),
@@ -73874,6 +74257,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1311),
     [anon_sym_stream] = ACTIONS(1311),
     [anon_sym_channel] = ACTIONS(1311),
+    [anon_sym_peer] = ACTIONS(1311),
     [anon_sym_effect] = ACTIONS(1311),
     [anon_sym_action] = ACTIONS(1311),
     [anon_sym_use] = ACTIONS(1311),
@@ -74019,6 +74403,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1315),
     [anon_sym_stream] = ACTIONS(1315),
     [anon_sym_channel] = ACTIONS(1315),
+    [anon_sym_peer] = ACTIONS(1315),
     [anon_sym_effect] = ACTIONS(1315),
     [anon_sym_action] = ACTIONS(1315),
     [anon_sym_use] = ACTIONS(1315),
@@ -74162,6 +74547,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1319),
     [anon_sym_stream] = ACTIONS(1319),
     [anon_sym_channel] = ACTIONS(1319),
+    [anon_sym_peer] = ACTIONS(1319),
     [anon_sym_effect] = ACTIONS(1319),
     [anon_sym_action] = ACTIONS(1319),
     [anon_sym_use] = ACTIONS(1319),
@@ -74306,6 +74692,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1323),
     [anon_sym_stream] = ACTIONS(1323),
     [anon_sym_channel] = ACTIONS(1323),
+    [anon_sym_peer] = ACTIONS(1323),
     [anon_sym_effect] = ACTIONS(1323),
     [anon_sym_action] = ACTIONS(1323),
     [anon_sym_use] = ACTIONS(1323),
@@ -74450,6 +74837,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1327),
     [anon_sym_stream] = ACTIONS(1327),
     [anon_sym_channel] = ACTIONS(1327),
+    [anon_sym_peer] = ACTIONS(1327),
     [anon_sym_effect] = ACTIONS(1327),
     [anon_sym_action] = ACTIONS(1327),
     [anon_sym_use] = ACTIONS(1327),
@@ -74595,6 +74983,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1331),
     [anon_sym_stream] = ACTIONS(1331),
     [anon_sym_channel] = ACTIONS(1331),
+    [anon_sym_peer] = ACTIONS(1331),
     [anon_sym_effect] = ACTIONS(1331),
     [anon_sym_action] = ACTIONS(1331),
     [anon_sym_use] = ACTIONS(1331),
@@ -74739,6 +75128,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1335),
     [anon_sym_stream] = ACTIONS(1335),
     [anon_sym_channel] = ACTIONS(1335),
+    [anon_sym_peer] = ACTIONS(1335),
     [anon_sym_effect] = ACTIONS(1335),
     [anon_sym_action] = ACTIONS(1335),
     [anon_sym_use] = ACTIONS(1335),
@@ -74883,6 +75273,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1339),
     [anon_sym_stream] = ACTIONS(1339),
     [anon_sym_channel] = ACTIONS(1339),
+    [anon_sym_peer] = ACTIONS(1339),
     [anon_sym_effect] = ACTIONS(1339),
     [anon_sym_action] = ACTIONS(1339),
     [anon_sym_use] = ACTIONS(1339),
@@ -75027,6 +75418,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1343),
     [anon_sym_stream] = ACTIONS(1343),
     [anon_sym_channel] = ACTIONS(1343),
+    [anon_sym_peer] = ACTIONS(1343),
     [anon_sym_effect] = ACTIONS(1343),
     [anon_sym_action] = ACTIONS(1343),
     [anon_sym_use] = ACTIONS(1343),
@@ -75171,6 +75563,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1347),
     [anon_sym_stream] = ACTIONS(1347),
     [anon_sym_channel] = ACTIONS(1347),
+    [anon_sym_peer] = ACTIONS(1347),
     [anon_sym_effect] = ACTIONS(1347),
     [anon_sym_action] = ACTIONS(1347),
     [anon_sym_use] = ACTIONS(1347),
@@ -75315,6 +75708,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1151),
     [anon_sym_stream] = ACTIONS(1151),
     [anon_sym_channel] = ACTIONS(1151),
+    [anon_sym_peer] = ACTIONS(1151),
     [anon_sym_effect] = ACTIONS(1151),
     [anon_sym_action] = ACTIONS(1151),
     [anon_sym_use] = ACTIONS(1151),
@@ -75459,6 +75853,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1028),
     [anon_sym_stream] = ACTIONS(1028),
     [anon_sym_channel] = ACTIONS(1028),
+    [anon_sym_peer] = ACTIONS(1028),
     [anon_sym_effect] = ACTIONS(1028),
     [anon_sym_action] = ACTIONS(1028),
     [anon_sym_use] = ACTIONS(1028),
@@ -75602,6 +75997,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1351),
     [anon_sym_stream] = ACTIONS(1351),
     [anon_sym_channel] = ACTIONS(1351),
+    [anon_sym_peer] = ACTIONS(1351),
     [anon_sym_effect] = ACTIONS(1351),
     [anon_sym_action] = ACTIONS(1351),
     [anon_sym_use] = ACTIONS(1351),
@@ -75747,6 +76143,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1163),
     [anon_sym_stream] = ACTIONS(1163),
     [anon_sym_channel] = ACTIONS(1163),
+    [anon_sym_peer] = ACTIONS(1163),
     [anon_sym_effect] = ACTIONS(1163),
     [anon_sym_action] = ACTIONS(1163),
     [anon_sym_use] = ACTIONS(1163),
@@ -75891,6 +76288,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1167),
     [anon_sym_stream] = ACTIONS(1167),
     [anon_sym_channel] = ACTIONS(1167),
+    [anon_sym_peer] = ACTIONS(1167),
     [anon_sym_effect] = ACTIONS(1167),
     [anon_sym_action] = ACTIONS(1167),
     [anon_sym_use] = ACTIONS(1167),
@@ -76035,6 +76433,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1175),
     [anon_sym_stream] = ACTIONS(1175),
     [anon_sym_channel] = ACTIONS(1175),
+    [anon_sym_peer] = ACTIONS(1175),
     [anon_sym_effect] = ACTIONS(1175),
     [anon_sym_action] = ACTIONS(1175),
     [anon_sym_use] = ACTIONS(1175),
@@ -76179,6 +76578,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1179),
     [anon_sym_stream] = ACTIONS(1179),
     [anon_sym_channel] = ACTIONS(1179),
+    [anon_sym_peer] = ACTIONS(1179),
     [anon_sym_effect] = ACTIONS(1179),
     [anon_sym_action] = ACTIONS(1179),
     [anon_sym_use] = ACTIONS(1179),
@@ -76322,6 +76722,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1195),
     [anon_sym_stream] = ACTIONS(1195),
     [anon_sym_channel] = ACTIONS(1195),
+    [anon_sym_peer] = ACTIONS(1195),
     [anon_sym_effect] = ACTIONS(1195),
     [anon_sym_action] = ACTIONS(1195),
     [anon_sym_use] = ACTIONS(1195),
@@ -76467,6 +76868,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1359),
     [anon_sym_stream] = ACTIONS(1359),
     [anon_sym_channel] = ACTIONS(1359),
+    [anon_sym_peer] = ACTIONS(1359),
     [anon_sym_effect] = ACTIONS(1359),
     [anon_sym_action] = ACTIONS(1359),
     [anon_sym_use] = ACTIONS(1359),
@@ -76610,6 +77012,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1361),
     [anon_sym_stream] = ACTIONS(1361),
     [anon_sym_channel] = ACTIONS(1361),
+    [anon_sym_peer] = ACTIONS(1361),
     [anon_sym_effect] = ACTIONS(1361),
     [anon_sym_action] = ACTIONS(1361),
     [anon_sym_use] = ACTIONS(1361),
@@ -76755,6 +77158,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1263),
     [anon_sym_stream] = ACTIONS(1263),
     [anon_sym_channel] = ACTIONS(1263),
+    [anon_sym_peer] = ACTIONS(1263),
     [anon_sym_effect] = ACTIONS(1263),
     [anon_sym_action] = ACTIONS(1263),
     [anon_sym_use] = ACTIONS(1263),
@@ -76899,6 +77303,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1199),
     [anon_sym_stream] = ACTIONS(1199),
     [anon_sym_channel] = ACTIONS(1199),
+    [anon_sym_peer] = ACTIONS(1199),
     [anon_sym_effect] = ACTIONS(1199),
     [anon_sym_action] = ACTIONS(1199),
     [anon_sym_use] = ACTIONS(1199),
@@ -77043,6 +77448,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1203),
     [anon_sym_stream] = ACTIONS(1203),
     [anon_sym_channel] = ACTIONS(1203),
+    [anon_sym_peer] = ACTIONS(1203),
     [anon_sym_effect] = ACTIONS(1203),
     [anon_sym_action] = ACTIONS(1203),
     [anon_sym_use] = ACTIONS(1203),
@@ -77187,6 +77593,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1219),
     [anon_sym_stream] = ACTIONS(1219),
     [anon_sym_channel] = ACTIONS(1219),
+    [anon_sym_peer] = ACTIONS(1219),
     [anon_sym_effect] = ACTIONS(1219),
     [anon_sym_action] = ACTIONS(1219),
     [anon_sym_use] = ACTIONS(1219),
@@ -77331,6 +77738,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1223),
     [anon_sym_stream] = ACTIONS(1223),
     [anon_sym_channel] = ACTIONS(1223),
+    [anon_sym_peer] = ACTIONS(1223),
     [anon_sym_effect] = ACTIONS(1223),
     [anon_sym_action] = ACTIONS(1223),
     [anon_sym_use] = ACTIONS(1223),
@@ -77475,6 +77883,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1227),
     [anon_sym_stream] = ACTIONS(1227),
     [anon_sym_channel] = ACTIONS(1227),
+    [anon_sym_peer] = ACTIONS(1227),
     [anon_sym_effect] = ACTIONS(1227),
     [anon_sym_action] = ACTIONS(1227),
     [anon_sym_use] = ACTIONS(1227),
@@ -77619,6 +78028,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1239),
     [anon_sym_stream] = ACTIONS(1239),
     [anon_sym_channel] = ACTIONS(1239),
+    [anon_sym_peer] = ACTIONS(1239),
     [anon_sym_effect] = ACTIONS(1239),
     [anon_sym_action] = ACTIONS(1239),
     [anon_sym_use] = ACTIONS(1239),
@@ -77763,6 +78173,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1247),
     [anon_sym_stream] = ACTIONS(1247),
     [anon_sym_channel] = ACTIONS(1247),
+    [anon_sym_peer] = ACTIONS(1247),
     [anon_sym_effect] = ACTIONS(1247),
     [anon_sym_action] = ACTIONS(1247),
     [anon_sym_use] = ACTIONS(1247),
@@ -77907,6 +78318,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1251),
     [anon_sym_stream] = ACTIONS(1251),
     [anon_sym_channel] = ACTIONS(1251),
+    [anon_sym_peer] = ACTIONS(1251),
     [anon_sym_effect] = ACTIONS(1251),
     [anon_sym_action] = ACTIONS(1251),
     [anon_sym_use] = ACTIONS(1251),
@@ -78050,6 +78462,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1207),
     [anon_sym_stream] = ACTIONS(1207),
     [anon_sym_channel] = ACTIONS(1207),
+    [anon_sym_peer] = ACTIONS(1207),
     [anon_sym_effect] = ACTIONS(1207),
     [anon_sym_action] = ACTIONS(1207),
     [anon_sym_use] = ACTIONS(1207),
@@ -78194,6 +78607,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1347),
     [anon_sym_stream] = ACTIONS(1347),
     [anon_sym_channel] = ACTIONS(1347),
+    [anon_sym_peer] = ACTIONS(1347),
     [anon_sym_effect] = ACTIONS(1347),
     [anon_sym_action] = ACTIONS(1347),
     [anon_sym_use] = ACTIONS(1347),
@@ -78338,6 +78752,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1211),
     [anon_sym_stream] = ACTIONS(1211),
     [anon_sym_channel] = ACTIONS(1211),
+    [anon_sym_peer] = ACTIONS(1211),
     [anon_sym_effect] = ACTIONS(1211),
     [anon_sym_action] = ACTIONS(1211),
     [anon_sym_use] = ACTIONS(1211),
@@ -78482,6 +78897,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1215),
     [anon_sym_stream] = ACTIONS(1215),
     [anon_sym_channel] = ACTIONS(1215),
+    [anon_sym_peer] = ACTIONS(1215),
     [anon_sym_effect] = ACTIONS(1215),
     [anon_sym_action] = ACTIONS(1215),
     [anon_sym_use] = ACTIONS(1215),
@@ -78627,6 +79043,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1259),
     [anon_sym_stream] = ACTIONS(1259),
     [anon_sym_channel] = ACTIONS(1259),
+    [anon_sym_peer] = ACTIONS(1259),
     [anon_sym_effect] = ACTIONS(1259),
     [anon_sym_action] = ACTIONS(1259),
     [anon_sym_use] = ACTIONS(1259),
@@ -78771,6 +79188,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1365),
     [anon_sym_stream] = ACTIONS(1365),
     [anon_sym_channel] = ACTIONS(1365),
+    [anon_sym_peer] = ACTIONS(1365),
     [anon_sym_effect] = ACTIONS(1365),
     [anon_sym_action] = ACTIONS(1365),
     [anon_sym_use] = ACTIONS(1365),
@@ -78915,6 +79333,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1271),
     [anon_sym_stream] = ACTIONS(1271),
     [anon_sym_channel] = ACTIONS(1271),
+    [anon_sym_peer] = ACTIONS(1271),
     [anon_sym_effect] = ACTIONS(1271),
     [anon_sym_action] = ACTIONS(1271),
     [anon_sym_use] = ACTIONS(1271),
@@ -79059,6 +79478,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1287),
     [anon_sym_stream] = ACTIONS(1287),
     [anon_sym_channel] = ACTIONS(1287),
+    [anon_sym_peer] = ACTIONS(1287),
     [anon_sym_effect] = ACTIONS(1287),
     [anon_sym_action] = ACTIONS(1287),
     [anon_sym_use] = ACTIONS(1287),
@@ -79203,6 +79623,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1291),
     [anon_sym_stream] = ACTIONS(1291),
     [anon_sym_channel] = ACTIONS(1291),
+    [anon_sym_peer] = ACTIONS(1291),
     [anon_sym_effect] = ACTIONS(1291),
     [anon_sym_action] = ACTIONS(1291),
     [anon_sym_use] = ACTIONS(1291),
@@ -79347,6 +79768,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1295),
     [anon_sym_stream] = ACTIONS(1295),
     [anon_sym_channel] = ACTIONS(1295),
+    [anon_sym_peer] = ACTIONS(1295),
     [anon_sym_effect] = ACTIONS(1295),
     [anon_sym_action] = ACTIONS(1295),
     [anon_sym_use] = ACTIONS(1295),
@@ -79491,6 +79913,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1299),
     [anon_sym_stream] = ACTIONS(1299),
     [anon_sym_channel] = ACTIONS(1299),
+    [anon_sym_peer] = ACTIONS(1299),
     [anon_sym_effect] = ACTIONS(1299),
     [anon_sym_action] = ACTIONS(1299),
     [anon_sym_use] = ACTIONS(1299),
@@ -79635,6 +80058,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1303),
     [anon_sym_stream] = ACTIONS(1303),
     [anon_sym_channel] = ACTIONS(1303),
+    [anon_sym_peer] = ACTIONS(1303),
     [anon_sym_effect] = ACTIONS(1303),
     [anon_sym_action] = ACTIONS(1303),
     [anon_sym_use] = ACTIONS(1303),
@@ -79779,6 +80203,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1311),
     [anon_sym_stream] = ACTIONS(1311),
     [anon_sym_channel] = ACTIONS(1311),
+    [anon_sym_peer] = ACTIONS(1311),
     [anon_sym_effect] = ACTIONS(1311),
     [anon_sym_action] = ACTIONS(1311),
     [anon_sym_use] = ACTIONS(1311),
@@ -79922,6 +80347,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1231),
     [anon_sym_stream] = ACTIONS(1231),
     [anon_sym_channel] = ACTIONS(1231),
+    [anon_sym_peer] = ACTIONS(1231),
     [anon_sym_effect] = ACTIONS(1231),
     [anon_sym_action] = ACTIONS(1231),
     [anon_sym_use] = ACTIONS(1231),
@@ -80067,6 +80493,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1319),
     [anon_sym_stream] = ACTIONS(1319),
     [anon_sym_channel] = ACTIONS(1319),
+    [anon_sym_peer] = ACTIONS(1319),
     [anon_sym_effect] = ACTIONS(1319),
     [anon_sym_action] = ACTIONS(1319),
     [anon_sym_use] = ACTIONS(1319),
@@ -80211,6 +80638,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1323),
     [anon_sym_stream] = ACTIONS(1323),
     [anon_sym_channel] = ACTIONS(1323),
+    [anon_sym_peer] = ACTIONS(1323),
     [anon_sym_effect] = ACTIONS(1323),
     [anon_sym_action] = ACTIONS(1323),
     [anon_sym_use] = ACTIONS(1323),
@@ -80355,6 +80783,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1327),
     [anon_sym_stream] = ACTIONS(1327),
     [anon_sym_channel] = ACTIONS(1327),
+    [anon_sym_peer] = ACTIONS(1327),
     [anon_sym_effect] = ACTIONS(1327),
     [anon_sym_action] = ACTIONS(1327),
     [anon_sym_use] = ACTIONS(1327),
@@ -80498,6 +80927,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1235),
     [anon_sym_stream] = ACTIONS(1235),
     [anon_sym_channel] = ACTIONS(1235),
+    [anon_sym_peer] = ACTIONS(1235),
     [anon_sym_effect] = ACTIONS(1235),
     [anon_sym_action] = ACTIONS(1235),
     [anon_sym_use] = ACTIONS(1235),
@@ -80643,6 +81073,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1351),
     [anon_sym_stream] = ACTIONS(1351),
     [anon_sym_channel] = ACTIONS(1351),
+    [anon_sym_peer] = ACTIONS(1351),
     [anon_sym_effect] = ACTIONS(1351),
     [anon_sym_action] = ACTIONS(1351),
     [anon_sym_use] = ACTIONS(1351),
@@ -80786,6 +81217,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1371),
     [anon_sym_stream] = ACTIONS(1371),
     [anon_sym_channel] = ACTIONS(1371),
+    [anon_sym_peer] = ACTIONS(1371),
     [anon_sym_effect] = ACTIONS(1371),
     [anon_sym_action] = ACTIONS(1371),
     [anon_sym_use] = ACTIONS(1371),
@@ -80930,6 +81362,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1243),
     [anon_sym_stream] = ACTIONS(1243),
     [anon_sym_channel] = ACTIONS(1243),
+    [anon_sym_peer] = ACTIONS(1243),
     [anon_sym_effect] = ACTIONS(1243),
     [anon_sym_action] = ACTIONS(1243),
     [anon_sym_use] = ACTIONS(1243),
@@ -81074,6 +81507,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1243),
     [anon_sym_stream] = ACTIONS(1243),
     [anon_sym_channel] = ACTIONS(1243),
+    [anon_sym_peer] = ACTIONS(1243),
     [anon_sym_effect] = ACTIONS(1243),
     [anon_sym_action] = ACTIONS(1243),
     [anon_sym_use] = ACTIONS(1243),
@@ -81218,6 +81652,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1375),
     [anon_sym_stream] = ACTIONS(1375),
     [anon_sym_channel] = ACTIONS(1375),
+    [anon_sym_peer] = ACTIONS(1375),
     [anon_sym_effect] = ACTIONS(1375),
     [anon_sym_action] = ACTIONS(1375),
     [anon_sym_use] = ACTIONS(1375),
@@ -81362,6 +81797,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1243),
     [anon_sym_stream] = ACTIONS(1243),
     [anon_sym_channel] = ACTIONS(1243),
+    [anon_sym_peer] = ACTIONS(1243),
     [anon_sym_effect] = ACTIONS(1243),
     [anon_sym_action] = ACTIONS(1243),
     [anon_sym_use] = ACTIONS(1243),
@@ -81506,6 +81942,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1365),
     [anon_sym_stream] = ACTIONS(1365),
     [anon_sym_channel] = ACTIONS(1365),
+    [anon_sym_peer] = ACTIONS(1365),
     [anon_sym_effect] = ACTIONS(1365),
     [anon_sym_action] = ACTIONS(1365),
     [anon_sym_use] = ACTIONS(1365),
@@ -81650,6 +82087,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1279),
     [anon_sym_stream] = ACTIONS(1279),
     [anon_sym_channel] = ACTIONS(1279),
+    [anon_sym_peer] = ACTIONS(1279),
     [anon_sym_effect] = ACTIONS(1279),
     [anon_sym_action] = ACTIONS(1279),
     [anon_sym_use] = ACTIONS(1279),
@@ -81794,6 +82232,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1283),
     [anon_sym_stream] = ACTIONS(1283),
     [anon_sym_channel] = ACTIONS(1283),
+    [anon_sym_peer] = ACTIONS(1283),
     [anon_sym_effect] = ACTIONS(1283),
     [anon_sym_action] = ACTIONS(1283),
     [anon_sym_use] = ACTIONS(1283),
@@ -81939,6 +82378,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1375),
     [anon_sym_stream] = ACTIONS(1375),
     [anon_sym_channel] = ACTIONS(1375),
+    [anon_sym_peer] = ACTIONS(1375),
     [anon_sym_effect] = ACTIONS(1375),
     [anon_sym_action] = ACTIONS(1375),
     [anon_sym_use] = ACTIONS(1375),
@@ -82083,6 +82523,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1381),
     [anon_sym_stream] = ACTIONS(1381),
     [anon_sym_channel] = ACTIONS(1381),
+    [anon_sym_peer] = ACTIONS(1381),
     [anon_sym_effect] = ACTIONS(1381),
     [anon_sym_action] = ACTIONS(1381),
     [anon_sym_use] = ACTIONS(1381),
@@ -82227,6 +82668,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1385),
     [anon_sym_stream] = ACTIONS(1385),
     [anon_sym_channel] = ACTIONS(1385),
+    [anon_sym_peer] = ACTIONS(1385),
     [anon_sym_effect] = ACTIONS(1385),
     [anon_sym_action] = ACTIONS(1385),
     [anon_sym_use] = ACTIONS(1385),
@@ -82370,6 +82812,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1381),
     [anon_sym_stream] = ACTIONS(1381),
     [anon_sym_channel] = ACTIONS(1381),
+    [anon_sym_peer] = ACTIONS(1381),
     [anon_sym_effect] = ACTIONS(1381),
     [anon_sym_action] = ACTIONS(1381),
     [anon_sym_use] = ACTIONS(1381),
@@ -82514,6 +82957,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1307),
     [anon_sym_stream] = ACTIONS(1307),
     [anon_sym_channel] = ACTIONS(1307),
+    [anon_sym_peer] = ACTIONS(1307),
     [anon_sym_effect] = ACTIONS(1307),
     [anon_sym_action] = ACTIONS(1307),
     [anon_sym_use] = ACTIONS(1307),
@@ -82659,6 +83103,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1159),
     [anon_sym_stream] = ACTIONS(1159),
     [anon_sym_channel] = ACTIONS(1159),
+    [anon_sym_peer] = ACTIONS(1159),
     [anon_sym_effect] = ACTIONS(1159),
     [anon_sym_action] = ACTIONS(1159),
     [anon_sym_use] = ACTIONS(1159),
@@ -82802,6 +83247,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1385),
     [anon_sym_stream] = ACTIONS(1385),
     [anon_sym_channel] = ACTIONS(1385),
+    [anon_sym_peer] = ACTIONS(1385),
     [anon_sym_effect] = ACTIONS(1385),
     [anon_sym_action] = ACTIONS(1385),
     [anon_sym_use] = ACTIONS(1385),
@@ -82946,6 +83392,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1315),
     [anon_sym_stream] = ACTIONS(1315),
     [anon_sym_channel] = ACTIONS(1315),
+    [anon_sym_peer] = ACTIONS(1315),
     [anon_sym_effect] = ACTIONS(1315),
     [anon_sym_action] = ACTIONS(1315),
     [anon_sym_use] = ACTIONS(1315),
@@ -83091,6 +83538,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1267),
     [anon_sym_stream] = ACTIONS(1267),
     [anon_sym_channel] = ACTIONS(1267),
+    [anon_sym_peer] = ACTIONS(1267),
     [anon_sym_effect] = ACTIONS(1267),
     [anon_sym_action] = ACTIONS(1267),
     [anon_sym_use] = ACTIONS(1267),
@@ -83234,6 +83682,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1359),
     [anon_sym_stream] = ACTIONS(1359),
     [anon_sym_channel] = ACTIONS(1359),
+    [anon_sym_peer] = ACTIONS(1359),
     [anon_sym_effect] = ACTIONS(1359),
     [anon_sym_action] = ACTIONS(1359),
     [anon_sym_use] = ACTIONS(1359),
@@ -83379,6 +83828,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1275),
     [anon_sym_stream] = ACTIONS(1275),
     [anon_sym_channel] = ACTIONS(1275),
+    [anon_sym_peer] = ACTIONS(1275),
     [anon_sym_effect] = ACTIONS(1275),
     [anon_sym_action] = ACTIONS(1275),
     [anon_sym_use] = ACTIONS(1275),
@@ -83523,6 +83973,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1361),
     [anon_sym_stream] = ACTIONS(1361),
     [anon_sym_channel] = ACTIONS(1361),
+    [anon_sym_peer] = ACTIONS(1361),
     [anon_sym_effect] = ACTIONS(1361),
     [anon_sym_action] = ACTIONS(1361),
     [anon_sym_use] = ACTIONS(1361),
@@ -83667,6 +84118,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1371),
     [anon_sym_stream] = ACTIONS(1371),
     [anon_sym_channel] = ACTIONS(1371),
+    [anon_sym_peer] = ACTIONS(1371),
     [anon_sym_effect] = ACTIONS(1371),
     [anon_sym_action] = ACTIONS(1371),
     [anon_sym_use] = ACTIONS(1371),
@@ -83810,6 +84262,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1331),
     [anon_sym_stream] = ACTIONS(1331),
     [anon_sym_channel] = ACTIONS(1331),
+    [anon_sym_peer] = ACTIONS(1331),
     [anon_sym_effect] = ACTIONS(1331),
     [anon_sym_action] = ACTIONS(1331),
     [anon_sym_use] = ACTIONS(1331),
@@ -83954,6 +84407,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1335),
     [anon_sym_stream] = ACTIONS(1335),
     [anon_sym_channel] = ACTIONS(1335),
+    [anon_sym_peer] = ACTIONS(1335),
     [anon_sym_effect] = ACTIONS(1335),
     [anon_sym_action] = ACTIONS(1335),
     [anon_sym_use] = ACTIONS(1335),
@@ -84098,6 +84552,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1339),
     [anon_sym_stream] = ACTIONS(1339),
     [anon_sym_channel] = ACTIONS(1339),
+    [anon_sym_peer] = ACTIONS(1339),
     [anon_sym_effect] = ACTIONS(1339),
     [anon_sym_action] = ACTIONS(1339),
     [anon_sym_use] = ACTIONS(1339),
@@ -84242,6 +84697,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1343),
     [anon_sym_stream] = ACTIONS(1343),
     [anon_sym_channel] = ACTIONS(1343),
+    [anon_sym_peer] = ACTIONS(1343),
     [anon_sym_effect] = ACTIONS(1343),
     [anon_sym_action] = ACTIONS(1343),
     [anon_sym_use] = ACTIONS(1343),
@@ -84387,6 +84843,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1255),
     [anon_sym_stream] = ACTIONS(1255),
     [anon_sym_channel] = ACTIONS(1255),
+    [anon_sym_peer] = ACTIONS(1255),
     [anon_sym_effect] = ACTIONS(1255),
     [anon_sym_action] = ACTIONS(1255),
     [anon_sym_use] = ACTIONS(1255),
@@ -84530,6 +84987,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1391),
     [anon_sym_stream] = ACTIONS(1391),
     [anon_sym_channel] = ACTIONS(1391),
+    [anon_sym_peer] = ACTIONS(1391),
     [anon_sym_effect] = ACTIONS(1391),
     [anon_sym_action] = ACTIONS(1391),
     [anon_sym_use] = ACTIONS(1391),
@@ -84672,6 +85130,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_socket] = ACTIONS(1391),
     [anon_sym_stream] = ACTIONS(1391),
     [anon_sym_channel] = ACTIONS(1391),
+    [anon_sym_peer] = ACTIONS(1391),
     [anon_sym_effect] = ACTIONS(1391),
     [anon_sym_action] = ACTIONS(1391),
     [anon_sym_use] = ACTIONS(1391),

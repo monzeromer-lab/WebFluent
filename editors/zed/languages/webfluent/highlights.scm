@@ -116,6 +116,7 @@
   "socket"
   "stream"
   "channel"
+  "peer"
   "send"
   "receive"
   "try"

@@ -505,6 +505,20 @@ Opted into in the config; nothing changes for a project that does not name it.
 - **Under `wf serve`** the worker unregisters itself: a page kept from the
   network by its own cache would hide every edit.
 
+#### Peers, as built (4.1)
+
+`peer link = rtc(signal: f, initiator: Bool, ice: [...], ordered: Bool)` — a
+connection like the others, with no address: the parser refuses one without
+`signal:`. The runtime's `peer` module (built in only where a page opens
+one) makes the `RTCPeerConnection`; the initiator creates the data channel
+and the offer, the other side answers from `ondatachannel`, and candidates
+that arrive before the remote description are held until it does. What
+goes out is `{ type: "offer" | "answer" | "candidate", … }` through
+`signal`; what comes back is handed to `link.signal(m)`. The handle is a
+socket's, so a `match` over it needs nothing new. A page that leaves closes
+its peer on `pagehide`, and the far side's SCTP abort — cause 12, which
+Chrome reports as an error — is read as the peer leaving, not failing.
+
 
 ### Touches
 New `ast::ApiDecl`, `SocketDecl`, `StreamDecl`, `ChannelDecl` and parser support;

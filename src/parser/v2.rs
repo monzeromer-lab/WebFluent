@@ -1411,6 +1411,9 @@ impl ParserV2 {
             "channel" if matches!(self.kind_at(2), TokenType::Equals) => {
                 self.parse_connection(ConnectionKind::Channel)
             }
+            "peer" if matches!(self.kind_at(2), TokenType::Equals) => {
+                self.parse_connection(ConnectionKind::Peer)
+            }
             "if" => self.parse_if(false),
             "for" => self.parse_for(false),
             "show" => {
@@ -2224,6 +2227,7 @@ impl ParserV2 {
             ConnectionKind::Socket => "socket",
             ConnectionKind::Stream => "stream",
             ConnectionKind::Channel => "channel",
+            ConnectionKind::Peer => "peer",
         };
         self.expect_word(word)?;
         let name = self.expect_ident("the connection's name")?;
@@ -2232,6 +2236,7 @@ impl ParserV2 {
             ConnectionKind::Socket => "ws",
             ConnectionKind::Stream => "sse",
             ConnectionKind::Channel => "broadcast",
+            ConnectionKind::Peer => "rtc",
         };
         if !self.is_word(opener) {
             return Err(self.error_with_hint(
@@ -2244,9 +2249,17 @@ impl ParserV2 {
         }
         self.advance();
         self.expect(&TokenType::OpenParen, "`(`")?;
-        let url = self.parse_expression()?;
+        // A peer has no address: it is reached through its signalling, and
+        // everything in `rtc(…)` is an option.
+        let url = if kind == ConnectionKind::Peer {
+            None
+        } else {
+            Some(self.parse_expression()?)
+        };
         let mut options = Vec::new();
-        while self.eat(&TokenType::Comma) {
+        let mut first = url.is_none();
+        while first || self.eat(&TokenType::Comma) {
+            first = false;
             if self.check(&TokenType::CloseParen) {
                 break;
             }
@@ -2255,6 +2268,12 @@ impl ParserV2 {
             options.push((key, self.parse_expression()?));
         }
         self.expect(&TokenType::CloseParen, "`)`")?;
+        if kind == ConnectionKind::Peer && !options.iter().any(|(k, _)| k == "signal") {
+            return Err(self.error_with_hint(
+                "A `peer` needs `signal:` — how what it offers reaches the other side".to_string(),
+                "Write `peer link = rtc(signal: m => room.post(m))`, and hand what arrives to `link.signal(m)`",
+            ));
+        }
 
         // `{ send Outgoing  receive Incoming  on message(m) { … } }`.
         let mut sends = None;
