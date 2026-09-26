@@ -484,7 +484,13 @@ impl JsCodegen {
             if let Declaration::Page(p) = decl
                 && let Some(layout) = &p.layout
             {
+                // The layout is called with the route's parameters, so its
+                // arguments read them: `layout: Shell(crumb: "Build {hash}")`.
+                // Without them in scope a parameter named after a browser
+                // value — `hash` — compiled to `location.hash`.
+                self.page_params = p.params.iter().map(|p| p.name.clone()).collect();
                 let args = self.emit_component_args(&layout.name, &layout.args);
+                self.page_params.clear();
                 self.page_layouts
                     .insert(p.name.clone(), (layout.name.clone(), args));
             }
@@ -6819,6 +6825,24 @@ mod tests {
             out.contains("Page_Deploy(params)") && out.contains("params.id"),
             "{out}"
         );
+    }
+
+    /// A layout is called with the route's parameters, so its arguments may
+    /// read them. Compiled without them in scope, a parameter named after a
+    /// browser value — `hash` — became `location.hash`.
+    #[test]
+    fn a_layout_argument_reads_the_routes_parameters() {
+        let out = compile(
+            r#"
+            component Shell(crumb: String) { slot  Text(crumb)  children }
+            page Build(path: "/b/:hash", hash: String, title: "Build", layout: Shell(crumb: "Build {hash}")) {
+                Text(hash)
+            }
+            app { Router }
+            "#,
+        );
+        assert!(out.contains("`Build ${params.hash}`"), "{out}");
+        assert!(!out.contains("WF.hash()"), "{out}");
     }
 
     #[test]
