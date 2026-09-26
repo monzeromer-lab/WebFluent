@@ -1186,7 +1186,7 @@ module.exports = grammar({
 
     block_string_content: (_) =>
       choice(
-        token.immediate(prec(1, /([^"\\{]|"[^"]|""[^"])+/)),
+        token.immediate(prec(2, /([^"\\{]|"[^"]|""[^"])+/)),
         token.immediate(/\{[^a-zA-Z_"\\{\[(]/),
         token.immediate(/\{\\./),
       ),
@@ -1194,9 +1194,11 @@ module.exports = grammar({
     // A `{` opens an interpolation only when a name, a `[` or a `(` follows
     // it; `"{ a: 1 }"` and `"{"` are text, as they are for the compiler. A
     // `{` right before the closing quote is text too.
+    // Precedence 2, above a `///` doc comment's 1: a string that begins
+    // `"/// A doc comment…"` — a sample of code — is text, not a comment.
     string_content: (_) =>
       choice(
-        token.immediate(prec(1, /[^"\\{]+/)),
+        token.immediate(prec(2, /[^"\\{]+/)),
         token.immediate(/\{[^a-zA-Z_"\\{\[(]/),
         // A `{` before an escape opens nothing either: `"{\n}"`.
         token.immediate(/\{\\./),

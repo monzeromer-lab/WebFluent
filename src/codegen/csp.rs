@@ -137,7 +137,11 @@ pub fn check(page: &str, html: &str, policy: &str) -> Vec<Violation> {
             );
         }
     }
-    if html.contains(" style=\"") && !allows("style-src", "'unsafe-inline'") {
+    if html
+        .match_indices(" style=\"")
+        .any(|(at, _)| inside_tag(html, at))
+        && !allows("style-src", "'unsafe-inline'")
+    {
         say(
             &mut out,
             "style-src",
@@ -222,6 +226,17 @@ fn external_origin(url: &str) -> Option<String> {
 }
 
 /// The name of the first `on*` attribute in `html`, if it has one.
+/// Whether `at` is inside a tag — after a `<` with no `>` since — rather
+/// than in text, where the characters of markup arrive escaped.
+fn inside_tag(html: &str, at: usize) -> bool {
+    let before = &html[..at];
+    match (before.rfind('<'), before.rfind('>')) {
+        (Some(open), Some(close)) => open > close,
+        (Some(_), None) => true,
+        _ => false,
+    }
+}
+
 fn inline_handler(html: &str) -> Option<String> {
     let bytes = html.as_bytes();
     let mut from = 0;
@@ -231,7 +246,9 @@ fn inline_handler(html: &str) -> Option<String> {
             .find(|c: char| !c.is_ascii_alphabetic())
             .map(|n| start + n)?;
         // `on…=` and nothing else: ` only` and ` once` are words in text.
-        if bytes.get(end) == Some(&b'=') && end > start + 2 {
+        // And inside a tag: a page that shows code (`<button onClick={…}>`
+        // in a sample, escaped as text) holds no attribute at all.
+        if bytes.get(end) == Some(&b'=') && end > start + 2 && inside_tag(html, start) {
             return Some(html[start..end].to_string());
         }
         from = start;
@@ -339,6 +356,17 @@ mod tests {
     use super::*;
 
     const POLICY: &str = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; object-src 'none'";
+
+    #[test]
+    fn markup_shown_as_text_is_not_markup() {
+        // A page that shows a JSX sample: its `onClick=` and `style="` are
+        // text, escaped, and nothing the policy governs.
+        let html =
+            "<pre><code>&lt;button onClick={save} style=\"x\"&gt;Save&lt;/button&gt;</code></pre>";
+        assert_eq!(check("p", html, POLICY), Vec::new());
+        // In a tag it is still an attribute.
+        assert!(!check("p", "<button onclick=\"x()\">b</button>", POLICY).is_empty());
+    }
 
     #[test]
     fn what_the_engine_writes_satisfies_the_policy_it_writes() {

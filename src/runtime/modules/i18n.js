@@ -40,5 +40,14 @@
     }
 
     i18nInstance = { t, locale, dir, setLocale };
+    // `?lang=ar` opens the page in that locale. It is the address the
+    // build's `hreflang` alternates give each language, so a reader who
+    // follows one from a search result gets the page they were promised.
+    try {
+      const asked = typeof location !== "undefined" && location.search
+        ? new URLSearchParams(location.search).get("lang")
+        : null;
+      if (asked && asked !== defaultLocale && translations[asked]) setLocale(asked);
+    } catch (e) { /* no location to read */ }
     return i18nInstance;
   }

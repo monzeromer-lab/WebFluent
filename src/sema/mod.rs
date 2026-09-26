@@ -520,7 +520,7 @@ impl Checker<'_, '_> {
                 self.warning(
                     handler.span,
                     format!("`{}` is not an event {name} fires", handler.event),
-                    "The DOM events are click, input, change, submit, focus, blur, keydown, keyup, keypress, mouseenter, mouseleave",
+                    "A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares",
                 );
             }
         }

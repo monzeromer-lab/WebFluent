@@ -411,7 +411,7 @@ fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String
 }
 
 /// Plain Levenshtein distance; the inputs are single words, so O(n·m) is fine.
-fn levenshtein(a: &str, b: &str) -> usize {
+pub(crate) fn levenshtein(a: &str, b: &str) -> usize {
     let a: Vec<char> = a.chars().collect();
     let b: Vec<char> = b.chars().collect();
     let mut prev: Vec<usize> = (0..=b.len()).collect();

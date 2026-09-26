@@ -734,6 +734,20 @@ impl ProjectConfig {
         name.starts_with("PUBLIC_") || self.public_env.iter().any(|n| n == name)
     }
 
+    /// The `env` values a page may read, and so the only ones the bundle may
+    /// carry. The rest reach `wf render`, which runs on a server.
+    ///
+    /// The whole map used to be written into `app.js` as `const env = {…}`:
+    /// the compiler refused a page that read `env.STRIPE_SECRET`, and then
+    /// shipped the secret to every reader anyway.
+    pub fn public_env_values(&self) -> std::collections::BTreeMap<String, serde_json::Value> {
+        self.env
+            .iter()
+            .filter(|(name, _)| self.env_is_public(name))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect()
+    }
+
     pub fn load(project_dir: &Path) -> Result<Self> {
         let config_path = project_dir.join("webfluent.app.json");
         if !config_path.exists() {
@@ -746,6 +760,64 @@ impl ProjectConfig {
             WebFluentError::ConfigError(format!("Failed to parse webfluent.app.json: {}", e))
         })?;
         Ok(config)
+    }
+
+    /// The keys of `webfluent.app.json` that nothing reads, each with the
+    /// path to it and the key it most likely meant.
+    ///
+    /// A key the loader does not know was dropped without a word — the
+    /// documentation site's own config carried `"defaultLocale"` for months,
+    /// and the build read `default_locale` and never said so. The parsed
+    /// config, written back out, holds every key there is (a free-form map
+    /// such as `env` or `theme.tokens` holds exactly what it was given), so a
+    /// key in the file that is not in that is one nothing reads.
+    pub fn unknown_keys(project_dir: &Path) -> Vec<String> {
+        let Ok(content) = fs::read_to_string(project_dir.join("webfluent.app.json")) else {
+            return Vec::new();
+        };
+        let Ok(given) = serde_json::from_str::<serde_json::Value>(&content) else {
+            return Vec::new();
+        };
+        let Ok(parsed) = serde_json::from_value::<ProjectConfig>(given.clone()) else {
+            return Vec::new();
+        };
+        let Ok(known) = serde_json::to_value(&parsed) else {
+            return Vec::new();
+        };
+        let mut out = Vec::new();
+        unknown_in(&given, &known, "", &mut out);
+        out
+    }
+
+    /// Adds to `env` what the build's surroundings say: a `.env` file beside
+    /// the config, then the shell's own variables — so a pipeline can give
+    /// staging and production different values without editing a file.
+    ///
+    /// The later source wins: the config, then `.env`, then the shell. The
+    /// shell supplies a name the config or `.env` already declares, or one
+    /// that is public (`PUBLIC_…`, or listed in `public_env`) — not every
+    /// variable the build happens to run with, which would put `PATH` and
+    /// `HOME` in `wf audit` and in reach of `wf render`.
+    pub fn resolve_env(&mut self, project_dir: &Path) {
+        self.resolve_env_from(project_dir, std::env::vars());
+    }
+
+    /// [`resolve_env`](Self::resolve_env) with the shell's variables given.
+    pub fn resolve_env_from(
+        &mut self,
+        project_dir: &Path,
+        shell: impl IntoIterator<Item = (String, String)>,
+    ) {
+        if let Ok(text) = fs::read_to_string(project_dir.join(".env")) {
+            for (name, value) in parse_dotenv(&text) {
+                self.env.insert(name, serde_json::Value::String(value));
+            }
+        }
+        for (name, value) in shell {
+            if self.env.contains_key(&name) || self.env_is_public(&name) {
+                self.env.insert(name, serde_json::Value::String(value));
+            }
+        }
     }
 
     pub fn default_config(name: &str) -> Self {
@@ -766,6 +838,189 @@ impl ProjectConfig {
             env: Default::default(),
             offline: None,
         }
+    }
+}
+
+/// Every key of `given` that `known` lacks, as a path (`i18n.defaultLocale`),
+/// with the key at that level it most likely meant.
+fn unknown_in(
+    given: &serde_json::Value,
+    known: &serde_json::Value,
+    at: &str,
+    out: &mut Vec<String>,
+) {
+    let (Some(given), Some(known)) = (given.as_object(), known.as_object()) else {
+        return;
+    };
+    for (key, value) in given {
+        let path = if at.is_empty() {
+            key.clone()
+        } else {
+            format!("{at}.{key}")
+        };
+        match known.get(key) {
+            Some(expected) => unknown_in(value, expected, &path, out),
+            None => {
+                let hint = known
+                    .keys()
+                    .map(|k| {
+                        (
+                            crate::linter::vocabulary::levenshtein(&normalise(key), &normalise(k)),
+                            k,
+                        )
+                    })
+                    .filter(|(d, _)| *d <= 3)
+                    .min()
+                    .map(|(_, k)| format!(" — did you mean `{k}`?"))
+                    .unwrap_or_default();
+                out.push(format!(
+                    "`{path}` is not a setting, and nothing reads it{hint}"
+                ));
+            }
+        }
+    }
+}
+
+/// A key without its case or separators, so `defaultLocale` is one step
+/// from `default_locale` rather than four.
+fn normalise(key: &str) -> String {
+    key.chars()
+        .filter(|c| c.is_alphanumeric())
+        .collect::<String>()
+        .to_lowercase()
+}
+
+/// The `NAME=value` lines of a `.env` file. A `#` line and a blank one are
+/// skipped, an `export ` before the name is allowed, and a value in quotes
+/// loses them (in double quotes, `\n` is a line break).
+fn parse_dotenv(text: &str) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    for line in text.lines() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        let line = line.strip_prefix("export ").unwrap_or(line);
+        let Some((name, value)) = line.split_once('=') else {
+            continue;
+        };
+        let name = name.trim();
+        if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+            continue;
+        }
+        let value = value.trim();
+        let value = if value.len() >= 2 && value.starts_with('"') && value.ends_with('"') {
+            value[1..value.len() - 1].replace("\\n", "\n")
+        } else if value.len() >= 2 && value.starts_with('\'') && value.ends_with('\'') {
+            value[1..value.len() - 1].to_string()
+        } else {
+            // An unquoted value ends at a ` #` comment.
+            value
+                .split(" #")
+                .next()
+                .unwrap_or("")
+                .trim_end()
+                .to_string()
+        };
+        out.push((name.to_string(), value));
+    }
+    out
+}
+
+#[cfg(test)]
+mod env_and_key_tests {
+    use super::*;
+
+    struct Dir(std::path::PathBuf);
+    impl Dir {
+        fn path(&self) -> &Path {
+            &self.0
+        }
+    }
+    impl Drop for Dir {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn project(config: &str, dotenv: Option<&str>) -> Dir {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        static N: AtomicUsize = AtomicUsize::new(0);
+        let dir = std::env::temp_dir().join(format!(
+            "wf-config-{}-{}",
+            std::process::id(),
+            N.fetch_add(1, Ordering::SeqCst)
+        ));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("webfluent.app.json"), config).unwrap();
+        if let Some(text) = dotenv {
+            fs::write(dir.join(".env"), text).unwrap();
+        }
+        Dir(dir)
+    }
+
+    #[test]
+    fn the_shell_beats_dotenv_which_beats_the_config() {
+        let dir = project(
+            r#"{ "name": "t", "env": { "PUBLIC_API": "/config", "SECRET": "from-config" } }"#,
+            Some(
+                "# a comment\nexport PUBLIC_API=\"/dotenv\"\nPUBLIC_MODE='quiet'\nOTHER=x # trailing\n",
+            ),
+        );
+        let mut config = ProjectConfig::load(dir.path()).unwrap();
+        config.resolve_env_from(
+            dir.path(),
+            [
+                ("PUBLIC_API".to_string(), "/shell".to_string()),
+                ("SECRET".to_string(), "from-shell".to_string()),
+                ("HOME".to_string(), "/home/someone".to_string()),
+            ],
+        );
+        assert_eq!(config.env["PUBLIC_API"], "/shell");
+        assert_eq!(config.env["PUBLIC_MODE"], "quiet");
+        assert_eq!(config.env["OTHER"], "x");
+        assert_eq!(
+            config.env["SECRET"], "from-shell",
+            "a declared name is overridden"
+        );
+        assert!(
+            !config.env.contains_key("HOME"),
+            "an undeclared, non-public shell variable stays out"
+        );
+    }
+
+    #[test]
+    fn a_key_nothing_reads_is_named_with_the_one_it_meant() {
+        let dir = project(
+            r#"{ "name": "t", "i18n": { "defaultLocale": "en", "locales": ["en"] },
+                 "build": { "minfy": true }, "env": { "ANYTHING": 1 },
+                 "theme": { "tokens": { "brand-new-token": "red" } } }"#,
+            None,
+        );
+        let found = ProjectConfig::unknown_keys(dir.path());
+        assert_eq!(found.len(), 2, "{found:?}");
+        assert!(
+            found
+                .iter()
+                .any(|f| f.contains("`i18n.defaultLocale`") && f.contains("`default_locale`")),
+            "{found:?}"
+        );
+        assert!(
+            found
+                .iter()
+                .any(|f| f.contains("`build.minfy`") && f.contains("`minify`")),
+            "{found:?}"
+        );
+    }
+
+    #[test]
+    fn a_config_that_is_all_known_keys_draws_nothing() {
+        let dir = project(
+            r#"{ "name": "t", "version": "1", "build": { "ssg": true, "budget": { "app.js": "40 kB" } },
+                 "offline": { "precache": ["/"], "cache": { "/api/*": "network-first" } } }"#,
+            None,
+        );
+        assert!(ProjectConfig::unknown_keys(dir.path()).is_empty());
     }
 }
 

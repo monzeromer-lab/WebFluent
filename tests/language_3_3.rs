@@ -11,7 +11,7 @@ fn scratch(name: &str) -> std::path::PathBuf {
     std::fs::create_dir_all(dir.join("tests")).unwrap();
     std::fs::write(
         dir.join("webfluent.app.json"),
-        r#"{ "name": "scratch", "entry": "src/App.wf", "output": "build" }"#,
+        r#"{ "name": "scratch", "build": { "output": "build" } }"#,
     )
     .unwrap();
     dir
@@ -101,7 +101,7 @@ fn a_data_file_is_a_constant_and_paths_render_a_param_page_per_value() {
     .unwrap();
     std::fs::write(
         dir.join("webfluent.app.json"),
-        r#"{ "name": "scratch", "entry": "src/App.wf", "output": "build", "build": { "ssg": true }, "meta": { "site_url": "https://x.y", "sitemap": true } }"#,
+        r#"{ "name": "scratch", "build": { "output": "build", "ssg": true }, "meta": { "site_url": "https://x.y", "sitemap": true } }"#,
     )
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);
@@ -156,7 +156,7 @@ fn markdown_renders_at_build_time_and_a_md_file_is_a_page() {
     .unwrap();
     std::fs::write(
         dir.join("webfluent.app.json"),
-        r#"{ "name": "scratch", "entry": "src/App.wf", "output": "build", "build": { "ssg": true } }"#,
+        r#"{ "name": "scratch", "build": { "output": "build", "ssg": true } }"#,
     )
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);
@@ -231,7 +231,7 @@ fn a_message_with_a_count_picks_its_plural_form_at_build_time_and_live() {
     .unwrap();
     std::fs::write(
         dir.join("webfluent.app.json"),
-        r#"{ "name": "scratch", "entry": "src/App.wf", "output": "build", "build": { "ssg": true }, "i18n": { "default_locale": "en", "locales": ["en"] } }"#,
+        r#"{ "name": "scratch", "build": { "output": "build", "ssg": true }, "i18n": { "default_locale": "en", "locales": ["en"] } }"#,
     )
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);
@@ -379,7 +379,7 @@ page Home(path: "/", title: "Home", description: "d", layout: Shell(chapter: t("
     .unwrap();
     std::fs::write(
         dir.join("webfluent.app.json"),
-        r#"{ "name": "scratch", "entry": "src/App.wf", "output": "build", "build": { "ssg": true }, "i18n": { "default_locale": "en", "locales": ["en"] } }"#,
+        r#"{ "name": "scratch", "build": { "output": "build", "ssg": true }, "i18n": { "default_locale": "en", "locales": ["en"] } }"#,
     )
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);

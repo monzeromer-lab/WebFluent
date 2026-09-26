@@ -1002,6 +1002,13 @@ impl LexerV2 {
                     // A trailing comment after the value.
                     break;
                 }
+                // Two spaces and the next declaration: `color-primary: #0F766E
+                // radius-md: 14px` on one line is two tokens, as two
+                // statements on one line are everywhere else in the language.
+                // The first value used to run on to the end of the line and
+                // swallow the second, so a one-line theme set only its first
+                // token, to a value no browser understands.
+                ' ' if parens == 0 && braces == 0 && self.next_declaration_after_spaces() => break,
                 _ => {
                     text.push(ch);
                     self.advance();
@@ -1016,6 +1023,35 @@ impl LexerV2 {
         self.current() == '/'
             && (self.peek() == Some('*')
                 || (self.peek() == Some('/') && self.source.get(self.pos + 2) != Some(&'/')))
+    }
+
+    /// At a space: whether two or more spaces here are followed by what
+    /// starts another declaration — a property (`name:`, `--name:`), a nested
+    /// rule (`&…`) or an at-rule (`@…`).
+    fn next_declaration_after_spaces(&self) -> bool {
+        let mut i = self.pos;
+        while i < self.source.len() && self.source[i] == ' ' {
+            i += 1;
+        }
+        if i - self.pos < 2 || i >= self.source.len() {
+            return false;
+        }
+        match self.source[i] {
+            '&' | '@' => true,
+            c if c.is_ascii_alphabetic() || c == '-' => {
+                let mut j = i;
+                while j < self.source.len()
+                    && (self.source[j].is_ascii_alphanumeric() || self.source[j] == '-')
+                {
+                    j += 1;
+                }
+                while j < self.source.len() && self.source[j] == ' ' {
+                    j += 1;
+                }
+                j < self.source.len() && self.source[j] == ':'
+            }
+            _ => false,
+        }
     }
 
     fn current(&self) -> char {
@@ -1180,6 +1216,35 @@ mod tests {
                 ident("y"),
             ]
         );
+    }
+
+    #[test]
+    fn two_spaces_end_a_value_before_the_next_declaration() {
+        let values: Vec<String> = kinds(
+            "theme T { color-primary: #0F766E  radius-md: 14px  font-family: \"A  b: c\", serif  --x: 1  &:hover { color: red } }",
+        )
+        .into_iter()
+        .filter_map(|t| match t {
+            TokenType::RawValue(v) => Some(v),
+            _ => None,
+        })
+        .collect();
+        assert_eq!(values[0], "#0F766E");
+        assert_eq!(values[1], "14px");
+        assert_eq!(
+            values[2], "\"A  b: c\", serif",
+            "two spaces inside quotes are the value's"
+        );
+        assert_eq!(values[3], "1");
+        // One space and a colon is still one value: `url(data:…)`, `a b: c`.
+        let one: Vec<String> = kinds("style { background: url(data:x)  grid-area: a b }")
+            .into_iter()
+            .filter_map(|t| match t {
+                TokenType::RawValue(v) => Some(v),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(one, vec!["url(data:x)".to_string(), "a b".to_string()]);
     }
 
     #[test]

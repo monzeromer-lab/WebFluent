@@ -42,6 +42,21 @@ impl Diagnostic {
     }
 }
 
+impl Diagnostic {
+    /// The finding written as a warning: the same place and hint, without
+    /// the `Error:` a warning printed as `Warning: Error: …` used to carry.
+    pub fn as_warning(&self) -> String {
+        let mut out = format!(
+            "Warning: {} at {}:{}:{}",
+            self.message, self.file, self.line, self.column
+        );
+        if let Some(hint) = &self.hint {
+            out.push_str(&format!("\n  {hint}"));
+        }
+        out
+    }
+}
+
 impl fmt::Display for Diagnostic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

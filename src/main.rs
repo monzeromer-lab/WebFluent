@@ -28,7 +28,7 @@ use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "wf")]
-#[command(about = "WebFluent — Build SPAs with a web-first language", long_about = None)]
+#[command(about = "WebFluent — a language for websites: one source, compiled to a static site, a single-page app, a PDF or a slide deck", long_about = None)]
 #[command(version)]
 struct Cli {
     #[command(subcommand)]
@@ -89,7 +89,7 @@ enum Commands {
         #[arg(long)]
         theme: Option<String>,
     },
-    /// Rewrite a project's .wf files from the original grammar to WebFluent 3
+    /// Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
     Migrate {
         /// Project directory (default: current directory), or one .wf file
         #[arg(default_value = ".")]

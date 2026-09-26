@@ -4,7 +4,7 @@
 //! the semantic checks. That stops short of the back end: a block can parse,
 //! type-check and still compile to JavaScript that throws on the first click.
 //!
-//! So the three applications in `md-docs/21-cookbook.md` are extracted from the
+//! So the three applications in `md-docs/35-recipes.md` are extracted from the
 //! guide itself — not copied into a fixture, which would drift from what the
 //! reader sees — built with the `wf` binary, and then run by
 //! `tests/js/cookbook.test.mjs` against the fake DOM.
@@ -53,21 +53,21 @@ const APPS: &[App] = &[
     App {
         name: "cookbook-todos",
         heading: "## App 1: Todos",
-        config: r#"{ "name": "todos", "entry": "src/App.wf", "output": "build" }"#,
+        config: r#"{ "name": "todos", "build": { "output": "build" } }"#,
         files: &[],
     },
     App {
         name: "cookbook-blog",
         // Two themes, so the build is told which one is the light default.
         heading: "## App 2: A blog, statically built",
-        config: r#"{ "name": "blog", "entry": "src/App.wf", "output": "build",
-                     "theme": { "name": "Paper" }, "build": { "ssg": true } }"#,
+        config: r#"{ "name": "blog", "build": { "output": "build", "ssg": true },
+                     "theme": { "name": "Paper" } }"#,
         files: &[("src/posts.json", POSTS)],
     },
     App {
         name: "cookbook-dashboard",
         heading: "## App 3: A dashboard behind a login",
-        config: r#"{ "name": "dashboard", "entry": "src/App.wf", "output": "build" }"#,
+        config: r#"{ "name": "dashboard", "build": { "output": "build" } }"#,
         files: &[],
     },
 ];
@@ -98,7 +98,7 @@ fn build(app: &App, cookbook: &str) -> (bool, String) {
 }
 
 fn cookbook() -> String {
-    std::fs::read_to_string(repo_root().join("md-docs/21-cookbook.md")).expect("read the cookbook")
+    std::fs::read_to_string(repo_root().join("md-docs/35-recipes.md")).expect("read the cookbook")
 }
 
 /// Every application built once, however many tests ask for them: each build

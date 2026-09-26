@@ -66,14 +66,14 @@ fn generate_page(name: &str, project_dir: &Path) -> Result<()> {
 
     let path_slug = name.to_lowercase();
     let content = format!(
-        r#"page {}(path: "/{}", title: "{}") {{
+        r#"page {}(path: "/{}", title: "{}", description: "What the {} page is for, in a sentence.") {{
     Container {{
         Heading("{}").h1
         Text("This is the {} page.")
     }}
 }}
 "#,
-        name, path_slug, name, name, name
+        name, path_slug, name, name, name, name
     );
 
     if let Some(path) = write_source(&dir, name, &content, "Page")? {

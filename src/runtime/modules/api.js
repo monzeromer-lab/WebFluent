@@ -139,6 +139,9 @@
         attempt = 0;
         state.set("open");
         while (waiting.length) socket.send(waiting.shift());
+        // `on open { }`, as a peer and a channel already had it — and each
+        // time a reconnection opens the line again.
+        if (opts.onOpen) opts.onOpen();
         if (opts.heartbeat) {
           pong = true;
           heart = setInterval(() => {

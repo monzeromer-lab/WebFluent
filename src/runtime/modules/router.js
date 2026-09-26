@@ -106,7 +106,12 @@
         if (typeof dropRouteStores === "function") dropRouteStores();
         // The tab, the history entry and a screen reader all read the title;
         // a single-page app used to keep the entry page's title on every route.
-        if (match.route.title) document.title = match.route.title;
+        // A parameter named in the title — `title: "{slug} — Posts"` — is
+        // this route's value, as the pre-rendered file has it.
+        if (match.route.title) {
+          document.title = match.route.title.replace(/\{(\w+)\}/g, (all, k) =>
+            match.params && match.params[k] != null ? String(match.params[k]) : all);
+        }
         // Untrack: don't subscribe the router effect to signals read during page render
         const prev = currentEffect;
         currentEffect = null;
@@ -130,6 +135,10 @@
         // top, and the title is announced.
         if (rendered) {
           settleOnNewPage(container, !fromHistory);
+        } else {
+          // The first paint replaced a pre-rendered page, and with it the
+          // browser's jump to the address's `#fragment`.
+          landOnHash();
         }
         rendered = true;
         fromHistory = false;
@@ -261,7 +270,9 @@
     if (target && target.focus) {
       try { target.focus({ preventScroll: true }); } catch (_) { target.focus(); }
     }
-    if (resetScroll && typeof window.scrollTo === "function") {
+    // A link to a section of the new page lands on it; any other lands at
+    // the top, as a page load does.
+    if (resetScroll && !landOnHash() && typeof window.scrollTo === "function") {
       window.scrollTo(0, 0);
     }
     announce(document.title || "");

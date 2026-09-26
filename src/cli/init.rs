@@ -36,6 +36,14 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
         }
     }
 
+    // What a build writes and what a machine holds, kept out of version
+    // control from the first commit: the output, the image cache, the sizes
+    // the last build weighed, and the `.env` a build reads values from.
+    fs::write(
+        project_dir.join(".gitignore"),
+        "build/\n.wf-cache/\n.wf-sizes.json\n.env\n",
+    )?;
+
     println!(
         "Created new WebFluent project: {} (template: {})",
         name, template
@@ -592,7 +600,7 @@ fn generate_static(name: &str, dir: &Path) -> Result<()> {
     "lang": "en"
   }},
   "i18n": {{
-    "defaultLocale": "en",
+    "default_locale": "en",
     "locales": ["en", "ar"],
     "dir": "src/translations"
   }}

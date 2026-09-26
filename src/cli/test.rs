@@ -83,7 +83,10 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
     // start: one is opened for all of them, and only if any test asks.
     let mut stage = if tests.iter().any(|(_, t)| t.acts()) {
         match crate::cli::act::Stage::open() {
-            Ok(stage) => Some(stage),
+            Ok(stage) => Some(match crate::config::ProjectConfig::load(&project_dir) {
+                Ok(config) => stage.with_theme(config.theme),
+                Err(_) => stage,
+            }),
             Err(e) => {
                 println!(
                     "  {} test(s) act, and there is no browser to run them in",

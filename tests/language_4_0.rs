@@ -1433,7 +1433,7 @@ fn an_import_is_a_module_of_its_own_so_the_page_chunks_still_see_the_bundle() {
         "{module}"
     );
     assert!(
-        module.contains("globalThis.Chart = Chart;"),
+        module.contains("globalThis.Chart = __wfCallable(Chart);"),
         "a module has its own scope, and the page chunks are classic scripts: {module}"
     );
     // The bundle itself stays a classic script — nothing of the import is

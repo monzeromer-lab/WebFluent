@@ -178,6 +178,18 @@
         : () => (options && options.args) || {};
     let generation = 0;
     let controller = null;
+    // `paginate: .page` — the pages gathered so far, and whether the last
+    // one had anything in it. `by` names the argument that is the page
+    // number; `set` moves the state it came from, when it came from one.
+    const paging = options && options.paginate;
+    const items = signal([]);
+    const hasMore = signal(true);
+    let extraPage = null;
+    const pageArgs = () => {
+      const args = argsOf();
+      if (paging && extraPage != null) args[paging.by] = extraPage;
+      return args;
+    };
 
     const load = () => {
       const gen = ++generation;
@@ -187,13 +199,20 @@
       state.set("loading");
       error.set(null);
       // An endpoint is a call; an address is a request.
+      const args = options && options.call ? pageArgs() : null;
       const made = options && options.call
-        ? url({ ...argsOf(), signal: signalOf })
+        ? url({ ...args, signal: signalOf })
         : send(typeof url === "function" ? url() : url, { ...opts, signal: signalOf });
       made.then(
         (value) => {
           if (gen !== generation) return;
           data.set(value);
+          if (paging) {
+            const page = Number(args && args[paging.by]) || 1;
+            const got = Array.isArray(value) ? value : (value && Array.isArray(value.items) ? value.items : []);
+            items.set(page <= 1 ? got : [...items(), ...got]);
+            hasMore.set(got.length > 0);
+          }
           state.set("ready");
         },
         (e) => {
@@ -228,6 +247,15 @@
       state,
       data,
       error,
+      items,
+      hasMore,
+      /// The next page, gathered onto `items`.
+      loadMore() {
+        if (!paging || !hasMore() || state() === "loading") return;
+        const next = (Number(pageArgs()[paging.by]) || 1) + 1;
+        if (paging.set) paging.set(next);
+        else { extraPage = next; load(); }
+      },
       reload: load,
       /// Drop what was cached for it, and ask again.
       invalidate() {

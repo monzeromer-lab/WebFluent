@@ -301,7 +301,10 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
         }
 
         // S04: two pages on one route is a ranking split and an ambiguous build.
-        if let Some((other, _)) = seen_paths.iter().find(|(p, _)| *p == page.path) {
+        // `seen_paths` holds `(name, path)`: this compared a page's path with
+        // the names of the pages before it, so two pages on one route were
+        // never reported.
+        if let Some((other, _)) = seen_paths.iter().find(|(_, p)| *p == page.path) {
             warnings.push(A11yWarning::new(
                 "S04",
                 format!(
@@ -477,14 +480,17 @@ fn lint_statements(
     for stmt in stmts {
         match &stmt.kind {
             StatementKind::UIElement(ui) => lint_ui_element(ui, file, warnings, heading_tracker),
+            // Only one branch of an `if`, one arm of a `match` and one state
+            // of a resource is ever on the page, so their headings are
+            // alternatives rather than a sequence: an `h1` in the `if` and
+            // another in the `else` is one `h1`, not two.
             StatementKind::If(if_stmt) => {
-                lint_statements(&if_stmt.then_body, file, warnings, heading_tracker);
-                for (_, body) in &if_stmt.else_if_branches {
-                    lint_statements(body, file, warnings, heading_tracker);
-                }
+                let mut bodies: Vec<&[Statement]> = vec![&if_stmt.then_body];
+                bodies.extend(if_stmt.else_if_branches.iter().map(|(_, b)| b.as_slice()));
                 if let Some(else_body) = &if_stmt.else_body {
-                    lint_statements(else_body, file, warnings, heading_tracker);
+                    bodies.push(else_body);
                 }
+                lint_alternatives(&bodies, file, warnings, heading_tracker);
             }
             StatementKind::For(for_stmt) => {
                 lint_statements(&for_stmt.body, file, warnings, heading_tracker);
@@ -493,23 +499,60 @@ fn lint_statements(
                 lint_statements(&show_stmt.body, file, warnings, heading_tracker);
             }
             StatementKind::Fetch(fetch) => {
+                let mut bodies: Vec<&[Statement]> = Vec::new();
                 if let Some(loading) = &fetch.loading_block {
-                    lint_statements(loading, file, warnings, heading_tracker);
+                    bodies.push(loading);
                 }
                 if let Some((_, error_body)) = &fetch.error_block {
-                    lint_statements(error_body, file, warnings, heading_tracker);
+                    bodies.push(error_body);
                 }
                 if let Some(success) = &fetch.success_block {
-                    lint_statements(success, file, warnings, heading_tracker);
+                    bodies.push(success);
                 }
+                lint_alternatives(&bodies, file, warnings, heading_tracker);
             }
             StatementKind::Match(m) => {
-                for arm in &m.arms {
-                    lint_statements(&arm.body, file, warnings, heading_tracker);
-                }
+                let bodies: Vec<&[Statement]> = m.arms.iter().map(|a| a.body.as_slice()).collect();
+                lint_alternatives(&bodies, file, warnings, heading_tracker);
             }
             _ => {}
         }
+    }
+}
+
+/// Bodies of which only one is on the page at a time. Each is checked from
+/// the outline as it stood before them; afterwards the outline is the one the
+/// body with the most headings left, so a later heading is measured against
+/// what a reader could actually have seen.
+fn lint_alternatives(
+    bodies: &[&[Statement]],
+    file: &str,
+    warnings: &mut Vec<A11yWarning>,
+    heading_tracker: &mut HeadingTracker,
+) {
+    let (levels, h1s) = (
+        heading_tracker.levels_seen.clone(),
+        heading_tracker.h1_count,
+    );
+    let mut widest: Option<(Vec<u8>, usize)> = None;
+    for body in bodies {
+        heading_tracker.levels_seen = levels.clone();
+        heading_tracker.h1_count = h1s;
+        lint_statements(body, file, warnings, heading_tracker);
+        let after = (
+            heading_tracker.levels_seen.clone(),
+            heading_tracker.h1_count,
+        );
+        if widest
+            .as_ref()
+            .is_none_or(|w| after.1 > w.1 || (after.1 == w.1 && after.0.len() > w.0.len()))
+        {
+            widest = Some(after);
+        }
+    }
+    if let Some((levels, h1s)) = widest {
+        heading_tracker.levels_seen = levels;
+        heading_tracker.h1_count = h1s;
     }
 }
 
@@ -1199,6 +1242,36 @@ mod structure_tests {
     fn warnings(src: &str) -> Vec<A11yWarning> {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_accessibility(&program)
+    }
+
+    #[test]
+    fn two_pages_on_one_route_are_reported() {
+        let src = "page A(path: \"/about\", title: \"A\", description: \"d\") { Heading(\"A\").h1 }\npage B(path: \"/about\", title: \"B\", description: \"d\") { Heading(\"B\").h1 }\n";
+        let found = warnings(src);
+        assert!(
+            found.iter().any(|w| w.rule_id == "S04"
+                && w.message
+                    .contains("Pages A and B both claim the route /about")),
+            "{found:?}"
+        );
+        let apart = "page A(path: \"/a\", title: \"A\", description: \"d\") { Heading(\"A\").h1 }\npage B(path: \"/b\", title: \"B\", description: \"d\") { Heading(\"B\").h1 }\n";
+        assert!(warnings(apart).iter().all(|w| w.rule_id != "S04"));
+    }
+
+    #[test]
+    fn an_h1_in_each_branch_is_one_h1() {
+        // Only one branch shows, so a page that heads each with an `h1` has
+        // exactly one — which is what a detail page with a "not found" branch
+        // always looked like, and what A12 used to count as two.
+        let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    state found = true\n    if found {\n        Heading(\"A\").h1\n    } else {\n        Heading(\"B\").h1\n    }\n}\n";
+        let found = warnings(src);
+        assert!(found.iter().all(|w| w.rule_id != "A12"), "{found:?}");
+        // Two in one branch are still two.
+        let twice = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    state found = true\n    if found {\n        Heading(\"A\").h1\n        Heading(\"B\").h1\n    }\n}\n";
+        assert!(warnings(twice).iter().any(|w| w.rule_id == "A12"));
+        // And a page whose only h1 is in one branch of several has one.
+        let one = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    state found = true\n    if found {\n        Heading(\"A\").h1\n    } else {\n        Text(\"none\")\n    }\n}\n";
+        assert!(warnings(one).iter().all(|w| w.rule_id != "A12"));
     }
 
     #[test]

@@ -17,7 +17,8 @@ use crate::parser::ast::{
 use std::path::Path;
 
 pub fn run_audit(project_dir: &Path, json: bool) -> Result<()> {
-    let config = ProjectConfig::load(project_dir)?;
+    let mut config = ProjectConfig::load(project_dir)?;
+    config.resolve_env(project_dir);
     let (program, files) = crate::cli::build::read_project_with(project_dir, None)?;
     let report = audit(&program, &config, &files);
     if json {

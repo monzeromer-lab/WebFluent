@@ -17,8 +17,13 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
 /// modules it carries.
 pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     let mut config = ProjectConfig::load(project_dir)?;
+    // `env` from a `.env` file and the shell, on top of the config's own.
+    config.resolve_env(project_dir);
 
     println!("Building {}...", config.name);
+    for unknown in ProjectConfig::unknown_keys(project_dir) {
+        eprintln!("Warning: webfluent.app.json: {unknown}");
+    }
 
     // The images the program names are written at every width a page will
     // ask for, before anything checks the program — so a name resolves to
@@ -128,7 +133,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     findings.errors.extend(typed.findings.errors);
     findings.warnings.extend(typed.findings.warnings);
     for warning in &findings.warnings {
-        eprintln!("Warning: {}", warning);
+        eprintln!("{}", warning.as_warning());
     }
     if !findings.errors.is_empty() {
         for error in &findings.errors {
@@ -309,7 +314,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     }
     js_codegen.set_split_pages(config.build.split);
     js_codegen.set_full_runtime(config.build.runtime == crate::config::RuntimeMode::Full);
-    js_codegen.set_env(config.env.clone());
+    js_codegen.set_env(config.public_env_values());
     if let Some(offline) = &config.offline {
         check_offline(offline, &config, &program)?;
         js_codegen.set_offline(offline.sync);

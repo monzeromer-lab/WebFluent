@@ -22,11 +22,14 @@ function findBinary() {
 
   // Common locations
   const candidates = [
+    // Where install.sh and install.ps1 put it.
+    path.join(os.homedir(), ".webfluent", "bin", "wf"),
     path.join(os.homedir(), ".cargo", "bin", "wf"),
     "/usr/local/bin/wf",
     "/usr/bin/wf",
   ];
   if (process.platform === "win32") {
+    candidates.push(path.join(os.homedir(), ".webfluent", "bin", "wf.exe"));
     candidates.push(path.join(os.homedir(), ".cargo", "bin", "wf.exe"));
   }
   for (const p of candidates) {

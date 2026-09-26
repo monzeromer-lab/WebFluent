@@ -6592,7 +6592,7 @@
           "type": "IMMEDIATE_TOKEN",
           "content": {
             "type": "PREC",
-            "value": 1,
+            "value": 2,
             "content": {
               "type": "PATTERN",
               "value": "([^\"\\\\{]|\"[^\"]|\"\"[^\"])+"
@@ -6622,7 +6622,7 @@
           "type": "IMMEDIATE_TOKEN",
           "content": {
             "type": "PREC",
-            "value": 1,
+            "value": 2,
             "content": {
               "type": "PATTERN",
               "value": "[^\"\\\\{]+"

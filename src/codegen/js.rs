@@ -1417,29 +1417,6 @@ impl JsCodegen {
         }
         self.validated = validated_names(&page.body);
         self.current_body = page.body.clone();
-        if !page.head.is_empty() {
-            let tags: Vec<String> = page
-                .head
-                .iter()
-                .map(|t| {
-                    let attrs: Vec<String> = t
-                        .attrs
-                        .iter()
-                        .map(|(k, v)| {
-                            let value = self.emit_expr(v);
-                            let value = if self.is_reactive(&value) {
-                                format!("() => {value}")
-                            } else {
-                                value
-                            };
-                            format!("\"{k}\": {value}")
-                        })
-                        .collect();
-                    format!("[\"{}\", {{ {} }}]", t.tag, attrs.join(", "))
-                })
-                .collect();
-            self.emit_line(&format!("WF.head([{}]);", tags.join(", ")));
-        }
         for name in handles {
             self.emit_line(&format!("const {name} = WF.ref();"));
         }
@@ -1463,6 +1440,34 @@ impl JsCodegen {
             }
         }
 
+        // The page's own head tags, last: a tag may read any `derived` of the
+        // page, and those are declared in the body's order as it is built.
+        // Emitted first, `meta(content: post?.title)` read `_post` before
+        // its `const` and threw, and the page drew nothing.
+        if !page.head.is_empty() {
+            let tags: Vec<String> = page
+                .head
+                .iter()
+                .map(|t| {
+                    let attrs: Vec<String> = t
+                        .attrs
+                        .iter()
+                        .map(|(k, v)| {
+                            let value = self.emit_expr(v);
+                            let value = if self.is_reactive(&value) {
+                                format!("() => {value}")
+                            } else {
+                                value
+                            };
+                            format!("\"{k}\": {value}")
+                        })
+                        .collect();
+                    format!("[\"{}\", {{ {} }}]", t.tag, attrs.join(", "))
+                })
+                .collect();
+            self.emit_line(&format!("WF.head([{}]);", tags.join(", ")));
+        }
+
         self.emit_line("return _root;");
         self.indent -= 1;
         self.emit_line("}");
@@ -1477,6 +1482,21 @@ impl JsCodegen {
         self.indent += 1;
         self.emit_line("const _app = document.getElementById('app');");
         self.emit_line("_app.innerHTML = '';");
+
+        // The app's own state, declared before anything reads it — as a
+        // page's is. An `app { state chosen = "en" … }` compiled every read
+        // of `chosen` and never the `const` behind it, so the site threw on
+        // load.
+        self.own_names = declared_names(&app.body);
+        self.own_actions = action_names(&app.body);
+        self.resources = resource_names(&app.body);
+        for stmt in &app.body {
+            if let StatementKind::State(s) = &stmt.kind {
+                let val = self.emit_expr(&s.value);
+                let init = self.state_init("App", s, &val);
+                self.emit_line(&format!("const _{} = {};", s.name, init));
+            }
+        }
 
         // The routes: the Router's own `Route` children when it lists any,
         // else every page's declared path — pages own their routes.
@@ -1766,9 +1786,18 @@ impl JsCodegen {
                     self.emit_line("return await WF.attempt(async () => {");
                     self.indent += 1;
                 }
+                // The parameters are the function's own locals. They were read
+                // as the page's signals — `n = n + by` compiled to `_by()`,
+                // which does not exist — so an action that took an argument
+                // threw the first time it ran.
+                let depth = self.lambda_params.borrow().len();
+                self.lambda_params
+                    .borrow_mut()
+                    .extend(params.iter().cloned());
                 for s in &a.body {
                     self.emit_statement(s);
                 }
+                self.lambda_params.borrow_mut().truncate(depth);
                 if optimistic {
                     self.indent -= 1;
                     self.emit_line("});");
@@ -5413,8 +5442,45 @@ impl JsCodegen {
                     "prompt",
                     "requestAnimationFrame",
                     "cancelAnimationFrame",
+                    // What a page reaches for beyond those. `navigator` and
+                    // `location` were missing, so `navigator.clipboard`
+                    // compiled to a signal read, `_navigator()`, that threw.
+                    "navigator",
+                    "location",
+                    "history",
+                    "screen",
+                    "performance",
+                    "crypto",
+                    "globalThis",
+                    "Intl",
+                    "Symbol",
+                    "Reflect",
+                    "URL",
+                    "URLSearchParams",
+                    "FormData",
+                    "Blob",
+                    "File",
+                    "FileReader",
+                    "Event",
+                    "CustomEvent",
+                    "AbortController",
+                    "TextEncoder",
+                    "TextDecoder",
+                    "Notification",
+                    "matchMedia",
+                    "getComputedStyle",
+                    "structuredClone",
+                    "queueMicrotask",
                 ];
-                if BROWSER_GLOBALS.contains(&name.as_str()) {
+                // A global, unless the program declared the name itself: a
+                // `state history` is the page's, not the browser's.
+                if BROWSER_GLOBALS.contains(&name.as_str())
+                    && !self.own_names.contains(name)
+                    && !self.current_props.contains(name)
+                    && !self.page_params.contains(name)
+                    && !self.loop_bindings.contains(name)
+                    && !self.lambda_params.borrow().contains(name)
+                {
                     return name.to_string();
                 }
                 // The browser as values, kept current by the runtime, unless
@@ -5445,6 +5511,13 @@ impl JsCodegen {
                 // wins: a `state key` used to compile to a bare global,
                 // so it rendered as nothing and never updated.
                 const IMPLICIT: &[&str] = &["params", "value", "key", "event", "e"];
+                // An action named as a value — `addEventListener("scroll",
+                // track)`, a callback handed to a library — is the function
+                // itself. It used to be read as a signal, `_track()`, which
+                // does not exist.
+                if self.own_actions.contains(name) && !self.lambda_params.borrow().contains(name) {
+                    return name.to_string();
+                }
                 if self.stores.contains(name)
                     || self.consts.contains(name)
                     || self.refs.contains(name)
@@ -5467,6 +5540,23 @@ impl JsCodegen {
                     Expr::Identifier(name) => format!("_{name}_pending()"),
                     other => format!("{}.pending()", self.emit_expr(other)),
                 }
+            }
+            // What a resource or a connection holds — `rows.state`,
+            // `rows.data`, `rows.error`, a paged resource's `rows.items` and
+            // `rows.hasMore`, a socket's `chat.messages` and `chat.closure` —
+            // is a signal on the handle. It is read where it is written, so
+            // `Text("{rows.state}")` shows the state and follows it; it used to
+            // show the signal's own source, once.
+            Expr::PropertyAccess(base, prop)
+                if matches!(
+                    prop.as_str(),
+                    "state" | "data" | "error" | "items" | "hasMore" | "messages" | "closure"
+                ) && matches!(base.as_ref(), Expr::Identifier(n)
+                    if self.resources.contains(n)
+                        && !self.lambda_params.borrow().contains(n)
+                        && !self.loop_bindings.contains(n)) =>
+            {
+                format!("{}.{}()", self.emit_expr(base), prop)
             }
             Expr::PropertyAccess(base, prop) => {
                 let base_str = self.emit_expr(base);
@@ -5601,6 +5691,13 @@ impl JsCodegen {
                     return format!("WF.i18n.setLocale({})", args_str.join(", "));
                 }
 
+                // `now(every: 1.seconds)`: the browser's clock, ticking as often
+                // as the page asks. It compiled to a bare `now(…)`, which
+                // nothing declares, and threw where the page read it.
+                if name == "now" && !self.own_names.contains(name) {
+                    let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("WF.now({})", args_str.join(", "));
+                }
                 // WF runtime functions
                 if name == "replayAnimation" {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
@@ -6287,8 +6384,18 @@ pub fn externals_module(program: &Program) -> Option<String> {
             serde_json::to_string(&e.from).unwrap_or_default()
         ));
     }
+    // A module's export may be a class — Chart.js's `Chart`, most modern
+    // libraries' main export — and a WebFluent call has no `new`. Calling a
+    // class without it throws, so each export is copied onto a plain object
+    // (a module namespace cannot be proxied), a class behind a proxy that
+    // constructs it when it is called, its static members as they were.
+    out.push_str(
+        "const __wfCallable = (ns) => { const o = {}; for (const k of Object.keys(ns)) { const v = ns[k]; \
+         o[k] = typeof v === \"function\" && /^class[\\s{]/.test(Function.prototype.toString.call(v)) \
+         ? new Proxy(v, { apply: (c, _, args) => Reflect.construct(c, args) }) : v; } return o; };\n",
+    );
     for e in &modules {
-        out.push_str(&format!("globalThis.{0} = {0};\n", e.name));
+        out.push_str(&format!("globalThis.{0} = __wfCallable({0});\n", e.name));
     }
     Some(out)
 }

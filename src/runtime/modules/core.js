@@ -426,6 +426,24 @@
     if (_pathSignal) _pathSignal.set(_stripBase(window.location.pathname));
   }
 
+  /// Where the reader was sent: the element the address's `#fragment`
+  /// names, scrolled into view. A pre-rendered page is replaced when its
+  /// script takes over, and the browser's own jump to the fragment — made
+  /// while the HTML was parsed — is lost with the nodes it jumped to; a
+  /// route change scrolled to the top even when the link named a section.
+  /// Returns whether there was somewhere to go.
+  function landOnHash() {
+    if (typeof window === "undefined" || typeof document === "undefined") return false;
+    const hash = window.location && window.location.hash;
+    if (!hash || hash.length < 2) return false;
+    let id = hash.slice(1);
+    try { id = decodeURIComponent(id); } catch (e) { /* as written */ }
+    const target = document.getElementById && document.getElementById(id);
+    if (!target || typeof target.scrollIntoView !== "function") return false;
+    target.scrollIntoView();
+    return true;
+  }
+
   function navigate(path) {
     if (_ssgMode) {
       // SSG: full page load to the pre-rendered HTML file

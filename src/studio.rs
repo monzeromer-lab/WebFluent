@@ -149,7 +149,7 @@ pub fn compile_studio(
         js_gen.set_i18n(i18n.default_locale.clone(), translations.clone());
     }
     js_gen.set_ssg(true); // preview boots from the SSG paint, then hydrates
-    js_gen.set_env(config.env.clone());
+    js_gen.set_env(config.public_env_values());
     if !config.build.base_path.is_empty() {
         js_gen.set_base_path(config.build.base_path.clone());
     }

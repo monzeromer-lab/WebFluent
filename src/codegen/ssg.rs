@@ -30,6 +30,17 @@ pub fn render_page_html_with_params(
     // The file is one concrete route: its canonical link, its sharing card
     // and its asset paths are that route's, not the pattern's.
     seeded.path = route.to_string();
+    // `title: "{slug} — Posts"`: a parameter named in the title or the
+    // description is that route's value, so each file has its own.
+    let fill = |text: &str| {
+        let mut out = text.to_string();
+        for (k, v) in params {
+            out = out.replace(&format!("{{{k}}}"), &v.to_text());
+        }
+        out
+    };
+    seeded.title = seeded.title.as_deref().map(fill);
+    seeded.description = seeded.description.as_deref().map(fill);
     // Seed as declarations at the top of the body: `params` as a map, and
     // each parameter as a constant of the page.
     let mut extra: Vec<Statement> = Vec::new();

@@ -305,6 +305,11 @@ struct World<'p> {
     consts: HashMap<String, Type>,
     /// The services the program declares.
     apis: HashMap<&'p str, &'p ApiDecl>,
+    /// The shapes an `external` declares a library hands back. The checker
+    /// cannot see the other side, so a value annotated with one is taken
+    /// as the library gives it; it used to be read as a record with no
+    /// fields, and every method called on it was a `T05`.
+    opaque: std::collections::HashSet<&'p str>,
 }
 
 impl<'p> World<'p> {
@@ -334,6 +339,12 @@ impl<'p> World<'p> {
     fn resolve(&self, ty: Type) -> Type {
         match ty {
             Type::Record(name) if self.enums.contains_key(name.as_str()) => Type::Enum(name),
+            Type::Record(name)
+                if self.opaque.contains(name.as_str())
+                    && !self.types.contains_key(name.as_str()) =>
+            {
+                Type::Any
+            }
             // A name the language knows, unless the program declares a type
             // of its own by that name — which wins, so nothing the language
             // adds can take a name away.
@@ -406,9 +417,15 @@ pub fn check_in(
         stores: HashMap::new(),
         consts: HashMap::new(),
         apis: HashMap::new(),
+        opaque: std::collections::HashSet::new(),
     };
     for decl in &program.declarations {
         match decl {
+            Declaration::External(e) => {
+                for t in &e.types {
+                    world.opaque.insert(t.name.as_str());
+                }
+            }
             Declaration::Type(t) => {
                 world.types.insert(t.name.as_str(), t);
             }
@@ -2248,6 +2265,14 @@ impl<'a, 'p> Checker<'a, 'p> {
             // `save.pending`: whether a call of the action is under way.
             Type::Func(..) => match field {
                 "pending" => Type::Bool,
+                // `Backend.avatar.progress`: how far an upload has got, 0 to 1
+                // — a service's endpoint's, which an action does not have.
+                "progress"
+                    if matches!(base, Expr::PropertyAccess(owner, _)
+                        if matches!(owner.as_ref(), Expr::Identifier(n) if self.world.apis.contains_key(n.as_str()))) =>
+                {
+                    Type::Number
+                }
                 _ => {
                     self.error_at_current(
                         "T05",
@@ -2255,7 +2280,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                             "`{}` is an action; it has no field `{field}`",
                             expr_text(base)
                         ),
-                        "An action has `pending`, true while a call of it runs",
+                        "An action has `pending`, true while a call of it runs; a service's endpoint also has `progress`",
                     );
                     Type::Any
                 }
@@ -2382,8 +2407,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                                             "",
                                         );
                                     }
-                                    // `cache`, `on`, `timeout` and `signal`
-                                    // are the call's own, not the service's.
+                                    // `cache`, `on`, `timeout`, `signal` and
+                                    // `paginate` are the call's own, not the
+                                    // service's.
                                     None if !matches!(
                                         key,
                                         "cache"
@@ -2393,6 +2419,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                                             | "headers"
                                             | "as"
                                             | "retry"
+                                            | "paginate"
                                     ) =>
                                     {
                                         let names: Vec<String> =

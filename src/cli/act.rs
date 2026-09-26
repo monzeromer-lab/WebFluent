@@ -22,6 +22,11 @@ use crate::parser::ast::{Declaration, Expr, PageDecl, Program, Statement, Statem
 pub struct Stage {
     browser: Browser,
     work: std::path::PathBuf,
+    /// The project's `theme` settings: which of its themes is the one, and
+    /// which stands in for dark mode. A project that declares a dark theme
+    /// declares two, and a page built without knowing which to use refuses
+    /// to build — so every test that clicked failed in such a project.
+    theme: crate::config::project::ThemeConfig,
 }
 
 impl Stage {
@@ -29,7 +34,14 @@ impl Stage {
         Ok(Stage {
             browser: Browser::start()?,
             work: std::env::temp_dir().join(format!("wf-act-{}", std::process::id())),
+            theme: crate::config::project::ThemeConfig::default(),
         })
+    }
+
+    /// The project's theme settings, for every page this stage builds.
+    pub fn with_theme(mut self, theme: crate::config::project::ThemeConfig) -> Self {
+        self.theme = theme;
+        self
     }
 
     /// Run one test, and say what went wrong — nothing, when it passed.
@@ -55,7 +67,7 @@ impl Stage {
         // there is no printer from the tree to the text, and a test does
         // not need one — the compiler takes the tree.
         let program = crate::sema::lower(as_program(shared, test));
-        write_site(&program, &dir)?;
+        write_site(&program, &dir, &self.theme)?;
 
         let server = super::preview::serve_directory(dir.clone(), "")?;
         let origin = server.origin.clone();
@@ -160,8 +172,13 @@ impl Stage {
 /// everything a site has. This is the same code generators over a program
 /// already in hand, for a page that exists for one test and is then
 /// thrown away.
-fn write_site(program: &Program, dir: &Path) -> Result<()> {
+fn write_site(
+    program: &Program,
+    dir: &Path,
+    theme: &crate::config::project::ThemeConfig,
+) -> Result<()> {
     let mut config = crate::config::ProjectConfig::default_config("test");
+    config.theme = theme.clone();
     // One page, one file: a split build links a chunk that this does not
     // write, and the shell would be served in its place.
     config.build.split = false;
