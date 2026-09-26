@@ -149,6 +149,14 @@ A `headers { }` block names what every call carries. Each value is read
 token that has just been refreshed is the one that is sent:
 
 ```wf
+type User { id: String, name: String }
+
+store Session {
+    state token = ""
+    state language = "en"
+    action refresh() { token = await fetch("/api/token") }
+}
+
 api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     headers {
         Authorization: "Bearer {Session.token}"
@@ -156,7 +164,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     }
 
     on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { Metrics.record(r.status) }
+    on response(r) { log("{r.status} {r.url}") }
     on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
 
     get me() -> User

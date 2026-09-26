@@ -87,6 +87,7 @@ page P(path: "/") {
 // md-docs/05-language-basics.md
 const SAMPLE = #"page Home(path: "/") { state n = 0 }"#
 const TRICKY = ##"a raw string ends with "# — like that"##
+const name = "Ada"
 const LETTER = """
     Dear {name},
       thank you.

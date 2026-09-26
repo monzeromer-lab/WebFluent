@@ -80,6 +80,12 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 }
 
 // md-docs/17-data.md
+type User { id: String, name: String }
+store Session {
+    state token = ""
+    state language = "en"
+    action refresh() { token = await fetch("/api/token") }
+}
 api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     headers {
         Authorization: "Bearer {Session.token}"
@@ -87,7 +93,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     }
 
     on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { Metrics.record(r.status) }
+    on response(r) { log("{r.status} {r.url}") }
     on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
 
     get me() -> User

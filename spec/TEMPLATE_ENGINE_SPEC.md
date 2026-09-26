@@ -203,13 +203,13 @@ impl Template {
 ### Installation
 
 ```bash
-npm install @aspect/webfluent
+npm install webfluent
 ```
 
 ### Usage
 
 ```javascript
-const { Template } = require('@aspect/webfluent');
+const { Template } = require('webfluent');
 
 // From string
 const tpl = Template.fromString(`
@@ -243,7 +243,7 @@ const html = tpl
 
 ```javascript
 const express = require('express');
-const { Template } = require('@aspect/webfluent');
+const { Template } = require('webfluent');
 
 const app = express();
 

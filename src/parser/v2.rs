@@ -358,6 +358,7 @@ impl ParserV2 {
             name,
             path: String::new(),
             title: None,
+            title_expr: None,
             guard: None,
             redirect: None,
             description: None,
@@ -380,7 +381,21 @@ impl ParserV2 {
                 self.expect(&TokenType::Colon, "`:` after the attribute name")?;
                 match key.as_str() {
                     "path" => page.path = self.expect_string("the page's path")?,
-                    "title" => page.title = Some(self.expect_string("the page's title")?),
+                    "title" => {
+                        let expr = match self.kind() {
+                            TokenType::StringLiteral(lit) => Some(self.string_expr(&lit.clone())?),
+                            _ => None,
+                        };
+                        page.title = Some(self.expect_string("the page's title")?);
+                        // A splice that is only a parameter's name is filled
+                        // in as text; anything more is worked out.
+                        page.title_expr = expr.filter(|e| match e {
+                            Expr::InterpolatedString(parts) => parts.iter().any(|p| {
+                                matches!(p, StringPart::Expression(x) if !matches!(x, Expr::Identifier(_)))
+                            }),
+                            _ => false,
+                        });
+                    }
                     "description" => {
                         page.description = Some(self.expect_string("the description")?)
                     }

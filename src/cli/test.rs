@@ -166,6 +166,7 @@ pub fn render_test(shared: &[Declaration], test: &TestDecl) -> Result<String> {
         name: "__Test".to_string(),
         path: "/__test".to_string(),
         title: None,
+        title_expr: None,
         guard: None,
         redirect: None,
         description: None,

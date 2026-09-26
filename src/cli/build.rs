@@ -132,6 +132,9 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     let typed = crate::sema::types::check_in(&program, &file_of, &source_of);
     findings.errors.extend(typed.findings.errors);
     findings.warnings.extend(typed.findings.warnings);
+    // A name nothing declares is a ReferenceError the first time the page
+    // reads it; the build says so where it is written.
+    findings.errors.extend(typed.unresolved);
     for warning in &findings.warnings {
         eprintln!("{}", warning.as_warning());
     }

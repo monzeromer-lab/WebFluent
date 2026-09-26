@@ -181,6 +181,24 @@ pub fn render_page_html_studio(
     studio: bool,
     node_map: &NodeMap,
 ) -> String {
+    // `title: "{post.title} — Blog"`: the title this file shows, worked out
+    // from what is known at build time.
+    let worked;
+    let page = match &page.title_expr {
+        Some(expr) => {
+            let scope = Scope::from_program_with_env(site.program, &page.body, &site.config.env);
+            match eval(expr, &scope) {
+                Some(value) => {
+                    let mut p = page.clone();
+                    p.title = Some(value.to_text());
+                    worked = p;
+                    &worked
+                }
+                None => page,
+            }
+        }
+        None => page,
+    };
     let SiteContext {
         config,
         app_body,

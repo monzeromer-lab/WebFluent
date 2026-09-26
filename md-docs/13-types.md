@@ -388,6 +388,7 @@ types its calls the same way: `get users() -> [User]`.
 | `T10` | A call with the wrong number of arguments |
 | `T11` | A `match` on something that is neither a resource nor an enum, or an arm the value cannot take |
 | `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
+| `T13` | A name, or a function called, that nothing declares — which the browser would throw on |
 
 Each comes with a hint: a conversion (`Number(value)`, `"{value}"`), the
 cases an enum takes, the fields a record has, the unwrapping forms above.

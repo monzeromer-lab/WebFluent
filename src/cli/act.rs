@@ -215,6 +215,7 @@ fn as_program(shared: &[Declaration], test: &crate::parser::ast::TestDecl) -> Pr
         name: "Test".to_string(),
         path: "/".to_string(),
         title: Some(test.name.clone()),
+        title_expr: None,
         description: Some("A test.".to_string()),
         guard: None,
         redirect: None,

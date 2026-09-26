@@ -250,6 +250,28 @@ Error: [T12] `token` is a `Secret`, and `Text` would show it at src/App.wf:4:10
 
 **Fix:** Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.
 
+### T13 — A name nothing declares
+
+```wf expect T13
+page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    Heading("Counter").h1
+    Button("+") { on click { cuont = count + 1 } }
+}
+```
+
+```text
+Error: [T13] nothing declares `cuont` at src/App.wf:4:30
+  Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
+```
+
+**Fix:** Correct the spelling, or declare the name. The browser's own
+globals (`window`, `navigator`, `Math` …) and the language's values
+(`viewport`, `query`, `now` …) need no declaration; a call to a function
+nothing declares — `uid()` for `uuid()` — is reported the same way. A
+template rendered with data (`wf render`) reads its data's keys by name, so
+it is not held to this.
+
 ## Accessibility
 
 Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.
@@ -726,7 +748,7 @@ page P(path: "/", title: "T", description: "D") {
 Warning [V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary` at src/App.wf:3:12
 ```
 
-**Fix:** Write the flag with its dot — `Button("Save").primary` — or declare the name.
+**Fix:** Write the flag with its dot — `Button("Save").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.
 
 ### V03 — Markup put in as markup
 

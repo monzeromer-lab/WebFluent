@@ -260,6 +260,56 @@ fn a_routes_parameter_may_be_in_its_title() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// `title: "{entry?.name ?? slug} — Reference"` was written into every file
+/// as those characters: only a bare parameter name was filled in, and a
+/// title that looked a value up printed its own source. It is worked out
+/// per file at build time, and by the router on each visit.
+#[test]
+fn a_title_may_splice_an_expression_over_the_parameters() {
+    let dir = std::env::temp_dir().join(format!("wf-audit-title-expr-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "t", "build": { "ssg": true } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "const ENTRIES = [{ slug: \"icon-button\", name: \"IconButton\" }, { slug: \"card\", name: \"Card\" }]\n\
+         page Entry(path: \"/ref/:slug\", slug: String, title: \"{ENTRIES.find(e => e.slug == slug)?.name ?? slug} — Reference\", description: \"One entry.\", paths: ENTRIES.map(e => e.slug)) {\n\
+         \x20   Heading(slug).h1\n\
+         }\n\
+         page Home(path: \"/\", title: \"Home\", description: \"Home.\") { Heading(\"Home\").h1 }\n",
+    )
+    .unwrap();
+    let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["build", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let page = std::fs::read_to_string(dir.join("build/ref/icon-button/index.html")).unwrap();
+    assert!(
+        page.contains("<title>IconButton — Reference</title>"),
+        "{page}"
+    );
+    assert!(
+        page.contains(r#"content="IconButton — Reference""#),
+        "the sharing card too: {page}"
+    );
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    assert!(
+        js.contains("title:(params)=>") && js.contains("params.slug"),
+        "the router works the title out from the route: {js}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// `app { state chosen = "en" … }` compiled every read of `chosen` and never
 /// the `const` behind it — the site threw on load — though the guide shows an
 /// app with state of its own.

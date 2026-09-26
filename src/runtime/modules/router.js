@@ -108,7 +108,9 @@
         // a single-page app used to keep the entry page's title on every route.
         // A parameter named in the title — `title: "{slug} — Posts"` — is
         // this route's value, as the pre-rendered file has it.
-        if (match.route.title) {
+        if (typeof match.route.title === "function") {
+          try { document.title = match.route.title(match.params || {}); } catch (e) { /* keep the last title */ }
+        } else if (match.route.title) {
           document.title = match.route.title.replace(/\{(\w+)\}/g, (all, k) =>
             match.params && match.params[k] != null ? String(match.params[k]) : all);
         }

@@ -26,7 +26,7 @@ The header takes these attributes:
 | Attribute | Required | Meaning |
 |---|---|---|
 | `path:` | yes | The route: `"/"`, `"/about"`, `"/posts/:slug"`, or `"*"` for the catch-all |
-| `title:` | strongly | The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `"{slug} — Blog"` |
+| `title:` | strongly | The `<title>`, the history entry, what a screen reader announces on arrival; may name the page's parameters, `"{slug} — Blog"`, or splice an expression over them and the program's constants |
 | `description:` | strongly | The meta description and the snippet a search result and a link preview show (~150 characters) |
 | `image:` | | The image a shared link previews with, site-relative or absolute |
 | `type:` | | `og:type` — `website` (default) or `article` |

@@ -10,15 +10,22 @@ pub fn run_render(
     format: &str,
     output_path: Option<&Path>,
     theme: Option<&str>,
+    tokens: &[String],
 ) -> Result<()> {
-    // Read template
-    let source = fs::read_to_string(template_path).map_err(|e| {
-        WebFluentError::IoError(format!(
-            "Failed to read template '{}': {}",
-            template_path.display(),
-            e
-        ))
-    })?;
+    // `--token color-primary=#8B5CF6`, as many as are given.
+    let tokens: Vec<(&str, &str)> = tokens
+        .iter()
+        .map(|t| {
+            t.split_once('=')
+                .map(|(k, v)| (k.trim(), v.trim()))
+                .filter(|(k, _)| !k.is_empty())
+                .ok_or_else(|| {
+                    WebFluentError::ConfigError(format!(
+                        "`--token {t}` is not `NAME=VALUE`, e.g. `--token color-primary=#8B5CF6`"
+                    ))
+                })
+        })
+        .collect::<Result<_>>()?;
 
     // Read JSON data
     let json_str = if let Some(dp) = data_path {
@@ -37,9 +44,14 @@ pub fn run_render(
     let data: serde_json::Value = serde_json::from_str(&json_str)
         .map_err(|e| WebFluentError::ConfigError(format!("Invalid JSON data: {}", e)))?;
 
-    let mut tpl = Template::from_str(&source)?;
+    // From the file, so an indented `.wfx` template reads and a `data` file
+    // it names is found beside it.
+    let mut tpl = Template::from_file(&template_path.to_string_lossy())?;
     if let Some(name) = theme {
         tpl = tpl.with_theme(name);
+    }
+    if !tokens.is_empty() {
+        tpl = tpl.with_tokens(&tokens);
     }
 
     match format {

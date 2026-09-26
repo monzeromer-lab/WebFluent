@@ -481,6 +481,11 @@ pub struct PageDecl {
     pub name: String,
     pub path: String,
     pub title: Option<String>,
+    /// The title as an expression, when it splices more than a route
+    /// parameter's name — `title: "{post.title} — Blog"`. The build paints
+    /// it for each file and the router works it out on each visit; a title
+    /// that only names parameters (`"{slug} — Blog"`) needs none.
+    pub title_expr: Option<Expr>,
     pub guard: Option<Expr>,
     pub redirect: Option<String>,
 

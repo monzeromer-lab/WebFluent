@@ -97,6 +97,9 @@ a:hover { text-decoration: underline; opacity: 0.85; }
    the navbar wraps to two rows on a narrow screen, and the old constant left the
    sidebar overlapping it. */
 .wf-sidebar { width: 260px; max-width: 85vw; background: var(--color-surface); border-inline-end: 1px solid var(--color-border); box-shadow: inset -1px 0 0 rgba(0,0,0,0.04); padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs); flex-shrink: 0; position: sticky; top: var(--wf-header-height); height: calc(100vh - var(--wf-header-height)); overflow-y: auto; }
+/* A sidebar is a column of fixed height that scrolls: what is in it keeps
+   its size and the column scrolls, instead of every item being squeezed. */
+.wf-sidebar > * { flex-shrink: 0; }
 .wf-sidebar__header { padding: var(--spacing-sm) 0; font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); }
 .wf-sidebar__item { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); color: var(--color-text); cursor: pointer; transition: background var(--transition-fast); }
 .wf-sidebar__item:hover { background: var(--color-border); text-decoration: none; }
@@ -486,7 +489,10 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
     transition: transform var(--transition-normal);
     box-shadow: var(--shadow-lg);
   }
-  .wf-sidebar[data-open="true"] { transform: none; }
+  /* It waits off its own edge: the left in a left-to-right page, the right
+     in a right-to-left one. */
+  [dir="rtl"] .wf-sidebar { transform: translateX(100%); }
+  .wf-sidebar[data-open="true"], [dir="rtl"] .wf-sidebar[data-open="true"] { transform: none; }
   .wf-sidebar__toggle { display: inline-flex; position: fixed; inset-inline-start: var(--spacing-sm); top: var(--spacing-sm); z-index: 201; }
   .wf-sidebar__scrim { display: block; }
   .wf-container { padding: 0 var(--spacing-sm); }

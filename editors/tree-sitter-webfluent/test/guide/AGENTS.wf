@@ -248,15 +248,20 @@ page Doc(path: "/") {
 }
 
 // AGENTS.md
+api Backend(base: "/api") {
+    get emailTaken(email: String) -> Bool
+    post signUp(body: Map)
+}
 page Signup(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
+    state note = ""
 
     validate email {
         required
         email
-        async "That address is taken" { !(await Backend.emailTaken(email)) }
+        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
     }
     validate password {
         required
@@ -266,7 +271,7 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     validate confirm { matches(password) "The two passwords differ" }
 
     Form(bind: form, show: .onBlur) {        // .onBlur (default) · .onSubmit · .live
-        on submit { Backend.signUp(email, password) }
+        on submit { Backend.signUp(body: { email: email, password: password }) }
         Input(bind: email, label: "Email").email
         Input(bind: password, label: "Password").password
         Input(bind: confirm, label: "Confirm").password
@@ -433,7 +438,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                                        // session belongs; `persist` is not
 
     on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { Metrics.record(r.status) }
+    on response(r) { log("{r.status} {r.url}") }
 
     get    users(page: Number = 1, q: String?)   -> [User]
     get    user(id: String) at "users/:id"       -> User

@@ -659,11 +659,17 @@ fn the_build_reports_dead_modifier_words_and_names_the_file() {
         "app { Router }\n",
         "page Home(path: \"/\", title: \"Home\", description: \"d\") {\n  Heading(\"Hi\").h1\n  Button(huge)\n}\n",
     );
-    assert!(ok, "a dead word is a warning, not an error:\n{out}");
-    assert!(out.contains("Warning [V01]"), "no V01 reported:\n{out}");
+    // It compiles to a read of `_huge()`, which nothing declares: a
+    // ReferenceError on load. So the build refuses it (T13), naming the
+    // file, where it once only warned (V01, which the editor still shows).
+    assert!(!ok, "a word nothing declares must fail the build:\n{out}");
+    assert!(
+        out.contains("[T13] nothing declares `huge`"),
+        "no T13 reported:\n{out}"
+    );
     assert!(
         out.contains("src/pages/Home.wf:"),
-        "the warning must name the file it came from:\n{out}"
+        "the error must name the file it came from:\n{out}"
     );
 }
 
@@ -1293,7 +1299,7 @@ fn unresolvable_lists_still_defer_to_the_client() {
     .unwrap();
     std::fs::write(
         root.join("src/pages/Home.wf"),
-        "page Home(path: \"/\", title: \"D\") {\n  state rows = []\n  Container {\n    Heading(\"D\").h1\n    for row in loadRows(rows) { Text(row.name) }\n  }\n}\n",
+        "page Home(path: \"/\", title: \"D\") {\n  state rows = []\n  action loadRows(r: [Map]) { return r }\n  Container {\n    Heading(\"D\").h1\n    for row in loadRows(rows) { Text(row.name) }\n  }\n}\n",
     )
     .unwrap();
 

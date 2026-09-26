@@ -88,6 +88,10 @@ enum Commands {
         /// when the template declares more than one.
         #[arg(long)]
         theme: Option<String>,
+        /// A design token over the theme's, `NAME=VALUE`; may be given more
+        /// than once
+        #[arg(long = "token", value_name = "NAME=VALUE")]
+        tokens: Vec<String>,
     },
     /// Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
     Migrate {
@@ -193,12 +197,14 @@ fn main() {
             format,
             output,
             theme,
+            tokens,
         } => cli::render::run_render(
             &tpl,
             data.as_deref(),
             &format,
             output.as_deref(),
             theme.as_deref(),
+            &tokens,
         ),
         Commands::Migrate {
             path,

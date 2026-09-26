@@ -310,6 +310,8 @@ struct World<'p> {
     /// as the library gives it; it used to be read as a record with no
     /// fields, and every method called on it was a `T05`.
     opaque: std::collections::HashSet<&'p str>,
+    /// The modules an `external` imports, reachable by their name.
+    externals: std::collections::HashSet<&'p str>,
 }
 
 impl<'p> World<'p> {
@@ -377,6 +379,11 @@ pub struct Typed {
 pub struct TypeInfo {
     pub findings: Findings,
     pub bindings: Vec<Typed>,
+    /// Names read or called that nothing declares — not the program, not
+    /// the language, not the browser. The build refuses them (`T13`); a
+    /// template rendered with data reads its data's keys by name, so the
+    /// template engine does not.
+    pub unresolved: Vec<Diagnostic>,
 }
 
 impl TypeInfo {
@@ -418,10 +425,12 @@ pub fn check_in(
         consts: HashMap::new(),
         apis: HashMap::new(),
         opaque: std::collections::HashSet::new(),
+        externals: std::collections::HashSet::new(),
     };
     for decl in &program.declarations {
         match decl {
             Declaration::External(e) => {
+                world.externals.insert(e.name.as_str());
                 for t in &e.types {
                     world.opaque.insert(t.name.as_str());
                 }
@@ -780,6 +789,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                 StatementKind::Use(u) => {
                     self.bind(&u.store_name, Type::Store(u.store_name.clone()), stmt.span);
                 }
+                // `socket chat = ws(…)`, `peer link = rtc(…)`: the handle,
+                // bound before the body so a handler may name another
+                // connection declared after it.
+                StatementKind::Connection(c) => {
+                    self.bind(&c.name, Type::Any, stmt.span);
+                }
                 _ => {}
             }
             // `ref: name` anywhere in the body declares `name`: a handle on
@@ -1054,9 +1069,17 @@ impl<'a, 'p> Checker<'a, 'p> {
             StatementKind::Match(m) => self.match_statement(m, span, body),
             StatementKind::Assignment(a) => {
                 let target = match &a.target {
-                    // An undeclared name is a plain variable; the compiler
-                    // has always let it be.
-                    Expr::Identifier(name) => self.lookup(name).unwrap_or(Type::Any),
+                    // A name nothing declares compiles to a signal's
+                    // `.set`, `_name.set(…)`, which throws: `T13`.
+                    Expr::Identifier(name) => match self.lookup(name) {
+                        Some(ty) => ty,
+                        None => {
+                            if !self.is_known_name(name) {
+                                self.unresolved(name, false);
+                            }
+                            Type::Any
+                        }
+                    },
                     other => self.infer(other, None),
                 };
                 let value = self.infer(&a.value, Some(&target));
@@ -1892,7 +1915,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                         .contains_key(name.as_str())
                         .then(|| Type::Store(name.clone()))
                 })
-                .unwrap_or_else(|| global_type(name)),
+                .unwrap_or_else(|| {
+                    if !self.is_known_name(name) {
+                        self.unresolved(name, false);
+                    }
+                    global_type(name)
+                }),
             // A plain access after a `?.` in the same chain is short-circuited
             // with it: `a?.b.c` is null when `a` is, never a fault.
             Expr::PropertyAccess(base, field) if in_optional_chain(base) => {
@@ -2774,6 +2802,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                 for a in args {
                     self.infer(a, None);
                 }
+                if !self.is_known_name(name) && !BUILT_IN_FUNCTIONS.contains(&name) {
+                    self.unresolved(name, true);
+                }
                 match name {
                     "String" | "t" => Type::String,
                     "Number" => Type::Number,
@@ -2871,6 +2902,56 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     /// An error at the statement or argument being checked. Expressions
     /// carry no span of their own; the nearest enclosing one is used.
+    /// Whether `name` means something without the program declaring it:
+    /// the browser's globals and values, the names a handler, a loop or a
+    /// route brings with it, a service, a store or an imported module.
+    fn is_known_name(&self, name: &str) -> bool {
+        crate::codegen::js::BROWSER_GLOBALS.contains(&name)
+            || crate::codegen::js::BROWSER_VALUES.contains(&name)
+            || matches!(
+                name,
+                "event"
+                    | "e"
+                    | "params"
+                    | "value"
+                    | "key"
+                    | "env"
+                    | "locale"
+                    | "dir"
+                    | "undefined"
+                    | "NaN"
+                    | "Infinity"
+                    | "globalThis"
+                    | "this"
+            )
+            || self.world.externals.contains(name)
+            || self.world.apis.contains_key(name)
+            || self.world.stores.contains_key(name)
+            || self.world.consts.contains_key(name)
+            || self.world.components.contains_key(name)
+    }
+
+    /// `name` resolves to nothing: recorded, for the build to refuse.
+    fn unresolved(&mut self, name: &str, called: bool) {
+        let message = if called {
+            format!("[T13] `{name}(…)` calls a function nothing declares")
+        } else {
+            format!("[T13] nothing declares `{name}`")
+        };
+        let span = self.located(self.current_span, &message);
+        let d = Diagnostic::new(message, self.file, span.line as usize, span.col as usize).with_hint(
+            "Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError",
+        );
+        if !self
+            .info
+            .unresolved
+            .iter()
+            .any(|u| u.message == d.message && u.line == d.line)
+        {
+            self.info.unresolved.push(d);
+        }
+    }
+
     fn error_at_current(&mut self, code: &str, message: String, hint: &str) {
         let span = self.located(self.current_span, &message);
         self.error(span, code, message, hint);
@@ -2975,6 +3056,36 @@ fn in_optional_chain(expr: &Expr) -> bool {
 }
 
 /// The types of the names every program can read.
+/// The functions the language gives a program, which it calls by name.
+const BUILT_IN_FUNCTIONS: &[&str] = &[
+    "log",
+    "navigate",
+    "format",
+    "ago",
+    "t",
+    "setLocale",
+    "setTheme",
+    "uuid",
+    "sanitize",
+    "fetch",
+    "optimistic",
+    "beacon",
+    "animate",
+    "replayAnimation",
+    "every",
+    "after",
+    "now",
+    "ws",
+    "sse",
+    "broadcast",
+    "rtc",
+    "String",
+    "Number",
+    "Boolean",
+    "Bool",
+    "Money",
+];
+
 fn global_type(name: &str) -> Type {
     match name {
         "event" | "params" | "window" | "document" | "console" | "localStorage"

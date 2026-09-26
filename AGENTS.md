@@ -155,7 +155,8 @@ page Home(path: "/", title: "Home") {
 - `path` — URL route. A dynamic segment is a typed parameter of the page:
   `page User(path: "/user/:id", id: String) { Text(id) }`
 - `title` — Browser tab title, and the heading of a search result; may name
-  the page's parameters: `title: "{slug} — Blog"`
+  the page's parameters, `title: "{slug} — Blog"`, or splice an expression
+  over them and the constants: `"{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`
 - `description` — The snippet a search result and a link preview show
 - `image` — Link-preview image, site-relative or absolute
 - `type` — `"website"` (default) or `"article"`
@@ -703,15 +704,21 @@ accessible plumbing (`role="alert"`, `aria-invalid`, `aria-describedby`)
 is the same one `error:` has always used.
 
 ```wf
+api Backend(base: "/api") {
+    get emailTaken(email: String) -> Bool
+    post signUp(body: Map)
+}
+
 page Signup(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
+    state note = ""
 
     validate email {
         required
         email
-        async "That address is taken" { !(await Backend.emailTaken(email)) }
+        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
     }
     validate password {
         required
@@ -721,7 +728,7 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     validate confirm { matches(password) "The two passwords differ" }
 
     Form(bind: form, show: .onBlur) {        // .onBlur (default) · .onSubmit · .live
-        on submit { Backend.signUp(email, password) }
+        on submit { Backend.signUp(body: { email: email, password: password }) }
         Input(bind: email, label: "Email").email
         Input(bind: password, label: "Password").password
         Input(bind: confirm, label: "Confirm").password
@@ -957,7 +964,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                                        // session belongs; `persist` is not
 
     on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { Metrics.record(r.status) }
+    on response(r) { log("{r.status} {r.url}") }
 
     get    users(page: Number = 1, q: String?)   -> [User]
     get    user(id: String) at "users/:id"       -> User
@@ -2413,6 +2420,7 @@ checker finds:
 | `T10` | A call with the wrong number or kind of arguments |
 | `T11` | A `match` on something that is neither a resource nor an enum, or with arms of the wrong kind |
 | `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
+| `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. Not applied to a template rendered with data |
 
 Two more are errors of the same kind, reported where they are written: an
 `on*` attribute (script in an attribute), and a `href`/`src`/`to` literal
@@ -2422,7 +2430,8 @@ stops the build too.
 An endpoint a service does not have is `T06`, and an argument it does not
 take is `T10`.
 
-Anything the checker cannot resolve is `Any`, which agrees with everything.
+A value whose type the checker cannot work out is `Any`, which agrees with
+everything; a *name* nothing declares is `T13`.
 
 **Warnings.**
 
@@ -2577,6 +2586,9 @@ echo '{"name":"Monzer"}' | wf render template.wf --format html
 
 # With theme
 wf render template.wf --data data.json --format html --theme Brand
+
+# With a design token over the theme's (repeatable)
+wf render template.wf --data data.json --token color-primary=#8B5CF6
 ```
 
 ### Rust API
@@ -2602,9 +2614,8 @@ let html = tpl.with_theme("Brand")
 ### Node.js API
 
 ```javascript
-// bindings/node — a wrapper around `wf render`, not on npm yet:
-// npm install /path/to/WebFluent/bindings/node
-const { Template } = require('@aspect/webfluent');
+// npm install webfluent — a wrapper around `wf render`; needs `wf` installed
+const { Template } = require('webfluent');
 
 const tpl = Template.fromString('Container { Heading("Hello, {name}!").h1 }');
 // or: Template.fromFile('templates/invoice.wf');

@@ -137,6 +137,9 @@ pub struct JsCodegen {
     /// Each page's title, so the router can set `document.title` when it
     /// shows the page; a SPA otherwise keeps the entry page's title forever.
     page_titles: HashMap<String, String>,
+    /// A title that splices more than a parameter's name, compiled to a
+    /// function of the route's parameters.
+    page_title_fns: HashMap<String, String>,
     /// Whether the element being emitted sits inside a `Thead`, where a
     /// `Tcell` is a column header (`<th scope="col">`), not a data cell.
     in_thead: bool,
@@ -218,6 +221,7 @@ impl JsCodegen {
             ssg_mode: false,
             base_path: String::new(),
             page_titles: HashMap::new(),
+            page_title_fns: HashMap::new(),
             in_thead: false,
             studio: false,
             node_ids: NodeMap::default(),
@@ -365,12 +369,13 @@ impl JsCodegen {
     /// One entry of the router's table: the path, the page's title (so the
     /// router can set `document.title`), and how to render it.
     fn route_entry(&self, path: &str, page: &str) -> String {
-        let title = match self.page_titles.get(page) {
-            Some(t) => format!(
+        let title = match (self.page_title_fns.get(page), self.page_titles.get(page)) {
+            (Some(f), _) => format!("title: (params) => {f}, "),
+            (None, Some(t)) => format!(
                 "title: \"{}\", ",
                 t.replace('\\', "\\\\").replace('"', "\\\"")
             ),
-            None => String::new(),
+            (None, None) => String::new(),
         };
         // The layout that frames the page, called with the page as its
         // default slot.
@@ -482,6 +487,17 @@ impl JsCodegen {
                 let args = self.emit_component_args(&layout.name, &layout.args);
                 self.page_layouts
                     .insert(p.name.clone(), (layout.name.clone(), args));
+            }
+            // `title: "{post.title} — Blog"`: worked out from the route's
+            // parameters on each visit, as the build worked it out per file.
+            if let Declaration::Page(p) = decl
+                && let Some(expr) = &p.title_expr
+            {
+                self.page_params = p.params.iter().map(|p| p.name.clone()).collect();
+                let js = self.emit_expr(expr);
+                self.page_params.clear();
+                self.page_title_fns
+                    .insert(p.name.clone(), format!("String({js})"));
             }
             // A guard reads stores, which are in scope at the route table.
             if let Declaration::Page(p) = decl
@@ -5402,76 +5418,7 @@ impl JsCodegen {
                     return format!("WF.i18n.{}()", name);
                 }
                 // Browser globals should NOT be prefixed
-                const BROWSER_GLOBALS: &[&str] = &[
-                    "window",
-                    "document",
-                    "console",
-                    "localStorage",
-                    "sessionStorage",
-                    "JSON",
-                    "Math",
-                    "Date",
-                    "setTimeout",
-                    "setInterval",
-                    "clearTimeout",
-                    "clearInterval",
-                    "parseInt",
-                    "parseFloat",
-                    "Array",
-                    "Object",
-                    "String",
-                    "Number",
-                    "Boolean",
-                    "Promise",
-                    "Error",
-                    "Map",
-                    "Set",
-                    "RegExp",
-                    "Infinity",
-                    "NaN",
-                    "undefined",
-                    "encodeURIComponent",
-                    "decodeURIComponent",
-                    "encodeURI",
-                    "decodeURI",
-                    "atob",
-                    "btoa",
-                    "fetch",
-                    "alert",
-                    "confirm",
-                    "prompt",
-                    "requestAnimationFrame",
-                    "cancelAnimationFrame",
-                    // What a page reaches for beyond those. `navigator` and
-                    // `location` were missing, so `navigator.clipboard`
-                    // compiled to a signal read, `_navigator()`, that threw.
-                    "navigator",
-                    "location",
-                    "history",
-                    "screen",
-                    "performance",
-                    "crypto",
-                    "globalThis",
-                    "Intl",
-                    "Symbol",
-                    "Reflect",
-                    "URL",
-                    "URLSearchParams",
-                    "FormData",
-                    "Blob",
-                    "File",
-                    "FileReader",
-                    "Event",
-                    "CustomEvent",
-                    "AbortController",
-                    "TextEncoder",
-                    "TextDecoder",
-                    "Notification",
-                    "matchMedia",
-                    "getComputedStyle",
-                    "structuredClone",
-                    "queueMicrotask",
-                ];
+                // `BROWSER_GLOBALS`, below: shared with the type checker.
                 // A global, unless the program declared the name itself: a
                 // `state history` is the page's, not the browser's.
                 if BROWSER_GLOBALS.contains(&name.as_str())
@@ -5993,6 +5940,77 @@ fn is_reactive_expr(expr_str: &str) -> bool {
 
 /// The names the language reads from the browser, each a live value:
 /// `viewport.md`, `query.tab`, `now`, `network.online`, `update.available`.
+/// The browser's own names a program may use unprefixed: each compiles to
+/// itself. The type checker reads the same list, so a name here is never
+/// reported as declared by nothing.
+pub const BROWSER_GLOBALS: &[&str] = &[
+    "window",
+    "document",
+    "console",
+    "localStorage",
+    "sessionStorage",
+    "JSON",
+    "Math",
+    "Date",
+    "setTimeout",
+    "setInterval",
+    "clearTimeout",
+    "clearInterval",
+    "parseInt",
+    "parseFloat",
+    "Array",
+    "Object",
+    "String",
+    "Number",
+    "Boolean",
+    "Promise",
+    "Error",
+    "Map",
+    "Set",
+    "RegExp",
+    "Infinity",
+    "NaN",
+    "undefined",
+    "encodeURIComponent",
+    "decodeURIComponent",
+    "encodeURI",
+    "decodeURI",
+    "atob",
+    "btoa",
+    "fetch",
+    "alert",
+    "confirm",
+    "prompt",
+    "requestAnimationFrame",
+    "cancelAnimationFrame",
+    "navigator",
+    "location",
+    "history",
+    "screen",
+    "performance",
+    "crypto",
+    "globalThis",
+    "Intl",
+    "Symbol",
+    "Reflect",
+    "URL",
+    "URLSearchParams",
+    "FormData",
+    "Blob",
+    "File",
+    "FileReader",
+    "Event",
+    "CustomEvent",
+    "AbortController",
+    "TextEncoder",
+    "TextDecoder",
+    "Notification",
+    "matchMedia",
+    "getComputedStyle",
+    "structuredClone",
+    "queueMicrotask",
+];
+
 pub const BROWSER_VALUES: &[&str] = &[
     "viewport", "query", "hash", "theme", "now", "network", "update",
 ];
@@ -6513,6 +6531,7 @@ mod tests {
             name: name.to_string(),
             path: "/".to_string(),
             title: None,
+            title_expr: None,
             guard: None,
             redirect: None,
             description: None,

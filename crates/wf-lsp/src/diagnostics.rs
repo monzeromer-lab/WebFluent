@@ -62,6 +62,7 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
     };
     let typed = webfluent::sema::types::check_in(&project.program, &file_of, &source_of);
     findings.errors.extend(typed.findings.errors);
+    findings.errors.extend(typed.unresolved);
     findings.warnings.extend(typed.findings.warnings);
     for (finding, severity) in findings
         .errors

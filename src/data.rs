@@ -187,6 +187,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             name,
             path,
             title: get("title"),
+            title_expr: None,
             guard: None,
             redirect: None,
             description: get("description"),

@@ -59,8 +59,11 @@ wf render invoice.wf --data invoice.json --format html-fragment
 
 `--format` is `html` (a whole document with its CSS), `html-fragment`
 (the body only), `pdf` or `slides`; `-o file` writes instead of printing;
-`--theme Name` picks one of several `theme` declarations; the data is read
-from stdin when `--data` is omitted.
+`--theme Name` picks one of several `theme` declarations; `--token
+NAME=VALUE` sets a design token over the theme's; the data is read from
+stdin when `--data` is omitted. A template that names a component nothing
+declares, or a flag a component does not take, is refused, as a build
+would refuse it.
 
 Rust:
 
@@ -74,13 +77,12 @@ let pdf: Vec<u8> = tpl.render_pdf(&json!({ "number": "INV-001", "items": [], "to
 let themed = tpl.with_theme("Night").with_tokens(&[("color-primary", "#8B5CF6")]).render_html(&json!({}))?;
 ```
 
-Node — the binding in `bindings/node` is a small wrapper around `wf render`,
-so it needs `wf` installed (it looks on `PATH`, in `~/.webfluent/bin` and
-`~/.cargo/bin`, or at `WF_BIN`). It is not on npm yet; install it from a
-clone of the repository with `npm install /path/to/WebFluent/bindings/node`:
+Node — `npm install webfluent`, a small wrapper around `wf render`. It
+needs `wf` itself installed: it looks on `PATH`, in `~/.webfluent/bin` and
+`~/.cargo/bin`, or at `WF_BIN`. Its version is the compiler's.
 
 ```js
-const { Template } = require("@aspect/webfluent");
+const { Template } = require("webfluent");
 const tpl = Template.fromFile("templates/invoice.wf");
 res.send(tpl.renderHtml(invoice));
 res.type("application/pdf").send(tpl.renderPdf(invoice));

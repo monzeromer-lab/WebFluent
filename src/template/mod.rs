@@ -79,8 +79,28 @@ impl Template {
     /// Returns [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`]
     /// if the source is invalid.
     pub fn from_str(source: &str) -> Result<Self> {
-        // Validate that it parses
-        let _program = crate::syntax::parse_source(source, "<template>")?;
+        let program = crate::syntax::parse_source(source, "<template>")?;
+        // Held to what a build is held to: a component nothing declares, a
+        // flag or case a component does not take, a value of the wrong type.
+        // A name the template reads is its data's, known only at render
+        // time, so an undeclared name is not one of them.
+        let file_of = |_: usize| "<template>".to_string();
+        let mut errors = crate::linter::validate_semantics_in(&program, &file_of);
+        errors.extend(crate::sema::check(&program, &file_of).errors);
+        errors.extend(
+            crate::sema::types::check_in(&program, &file_of, &|_| None)
+                .findings
+                .errors,
+        );
+        if !errors.is_empty() {
+            return Err(WebFluentError::CodegenError(
+                errors
+                    .iter()
+                    .map(|d| d.to_string())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
+            ));
+        }
 
         Ok(Self {
             source: source.to_string(),

@@ -202,6 +202,7 @@ const TRICKY = ##"a raw string ends with "# — like that"##
 
 // Block: over as many lines as it likes, escapes and splices on, and
 // the indentation the source gave it removed.
+const name = "Ada"
 const LETTER = """
     Dear {name},
       thank you.

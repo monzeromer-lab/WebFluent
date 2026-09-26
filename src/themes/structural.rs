@@ -132,6 +132,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
    page has to be opaque or the content reads straight through it. Structural
    mode used to omit it entirely, which is why it looked transparent. */
 .wf-sidebar { width: 260px; max-width: 85vw; background: var(--color-surface); padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs); flex-shrink: 0; position: sticky; top: var(--wf-header-height); height: calc(100vh - var(--wf-header-height)); overflow-y: auto; }
+/* A sidebar is a column of fixed height that scrolls: what is in it keeps
+   its size and the column scrolls, instead of every item being squeezed. */
+.wf-sidebar > * { flex-shrink: 0; }
 .wf-sidebar__header { padding: var(--spacing-sm) 0; }
 .wf-sidebar__toggle, .wf-navbar__toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; cursor: pointer; }
 .wf-sidebar__scrim { display: none; position: fixed; inset: 0; z-index: 199; background: rgba(0,0,0,0.4); }
@@ -441,7 +444,10 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
     transform: translateX(-100%);
     transition: transform var(--transition-normal);
   }
-  .wf-sidebar[data-open="true"] { transform: none; }
+  /* It waits off its own edge: the left in a left-to-right page, the right
+     in a right-to-left one. */
+  [dir="rtl"] .wf-sidebar { transform: translateX(100%); }
+  .wf-sidebar[data-open="true"], [dir="rtl"] .wf-sidebar[data-open="true"] { transform: none; }
   .wf-sidebar__toggle { display: inline-flex; position: fixed; inset-inline-start: var(--spacing-sm); top: var(--spacing-sm); z-index: 201; }
   .wf-sidebar__scrim { display: block; }
   .wf-container { padding: 0 var(--spacing-sm); }

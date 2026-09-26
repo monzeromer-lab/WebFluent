@@ -84,9 +84,10 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
 - Each value is seeded as the parameter (and `params.slug`), painted, and
   listed in the sitemap.
 - `title:` and `description:` may name the page's parameters —
-  `title: "{slug} — Blog"` — and each file gets its own. For a title that
-  comes from the data rather than the address, set `og:title` in `head { }`,
-  as above ([Content](27-content.md#search-and-sharing)).
+  `title: "{slug} — Blog"` — and each file gets its own. A title may also
+  look the entry up —
+  `title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`
+  ([Content](27-content.md#search-and-sharing)).
 - A value that is not in `paths:` has no file, so a static host answers with
   `404.html`. In a single-page build `paths:` is not needed at all.
 

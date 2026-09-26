@@ -317,6 +317,11 @@ fn check_strictly(path: &str) -> Vec<String> {
         let mut findings = webfluent::sema::check(&program, &file_of);
         let typed = webfluent::sema::types::check(&program, &file_of);
         findings.errors.extend(typed.findings.errors);
+        // A template reads its data's keys by name; everything else must
+        // declare what it reads.
+        if !path.contains("server-rendering") && !path.contains("TEMPLATE_ENGINE") {
+            findings.errors.extend(typed.unresolved);
+        }
         for e in &findings.errors {
             failures.push(format!("{path}:{line}: {e}"));
         }
@@ -882,9 +887,12 @@ fn the_sites_search_and_registry_are_current() {
         String::from_utf8_lossy(&run.stderr)
     );
     let mut stale = Vec::new();
-    for name in ["search-index.json", "registry.json"] {
+    for (name, committed) in [
+        ("search-index.json", "site/public/search-index.json"),
+        ("registry.json", "site/src/registry.json"),
+    ] {
         let want = std::fs::read_to_string(out.join(name)).unwrap();
-        let have = std::fs::read_to_string(root.join("site/src").join(name)).unwrap_or_default();
+        let have = std::fs::read_to_string(root.join(committed)).unwrap_or_default();
         if want != have {
             stale.push(name);
         }
@@ -945,6 +953,7 @@ fn every_finding(src: &str) -> Vec<String> {
     let typed = webfluent::sema::types::check(&program, &file_of);
     out.extend(typed.findings.errors.iter().map(|d| d.to_string()));
     out.extend(typed.findings.warnings.iter().map(|d| d.to_string()));
+    out.extend(typed.unresolved.iter().map(|d| d.to_string()));
     out.extend(
         webfluent::linter::validate_semantics_in(&program, &file_of)
             .iter()

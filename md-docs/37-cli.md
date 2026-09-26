@@ -26,7 +26,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf verify [PATH] [--json] [--budget MS]` | Loads every built page in headless Chrome |
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
-| `wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME]` | Renders a template with data |
+| `wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
 | `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2 or 3 project forward |
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
@@ -188,8 +188,11 @@ echo '{"name":"Ada"}' | wf render greeting.wf
 Renders one template with JSON data: `-f` / `--format` is `html` (a whole
 document, the default), `html-fragment` (the body only), `pdf` or `slides`;
 `-o` writes a file instead of printing; `--theme` picks one of several
-themes the template declares; without `--data` the JSON is read from stdin.
-[Server rendering](34-server-rendering.md).
+themes the template declares; `--token color-primary=#8B5CF6` sets a design
+token over the theme's, as often as it is given; without `--data` the JSON
+is read from stdin. The template is held to what a build is — a component
+nothing declares or a flag it does not take stops the render — except that
+the names it reads are its data's. [Server rendering](34-server-rendering.md).
 
 ## Upgrading
 
