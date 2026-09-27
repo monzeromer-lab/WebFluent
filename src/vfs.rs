@@ -151,7 +151,9 @@ impl OverlayVfs {
     /// Hide `path` — and, for a directory, everything under it — as though
     /// it were deleted. A buffer set under it later shows.
     pub fn delete(&mut self, path: impl AsRef<Path>) {
-        self.layers.insert(key(path.as_ref()), Layer::Deleted);
+        let gone = key(path.as_ref());
+        self.layers.retain(|at, _| !at.starts_with(&gone));
+        self.layers.insert(gone, Layer::Deleted);
     }
 
     /// Take away whatever lay over `path`, so the file shows through again.
@@ -444,6 +446,12 @@ mod tests {
             "again"
         );
         assert_eq!(names(&vfs, &tree.0.join("src/pages")), ["Home.wf"]);
+
+        // A buffer in a directory deleted after it goes with it.
+        vfs.set(tree.0.join("src/stores/new.wf"), "store");
+        vfs.delete(tree.0.join("src/stores"));
+        assert!(!vfs.is_file(&tree.0.join("src/stores/new.wf")));
+        assert_eq!(names(&vfs, &tree.0.join("src")), ["App.wf", "pages"]);
     }
 
     #[test]
