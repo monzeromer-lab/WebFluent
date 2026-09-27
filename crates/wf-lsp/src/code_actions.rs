@@ -1,5 +1,5 @@
+use lsp_types::*;
 use std::collections::HashMap;
-use tower_lsp::lsp_types::*;
 
 /// Generate QuickFix code actions for diagnostics that have actionable suggestions.
 pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActionOrCommand> {

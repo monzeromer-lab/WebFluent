@@ -1138,6 +1138,7 @@ name = "wf-lsp"
 version = "4.1.2"
 dependencies = [
  "dashmap 6.1.0",
+ "lsp-types",
  "serde_json",
  "tokio",
  "tower-lsp",

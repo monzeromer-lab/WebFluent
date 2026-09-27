@@ -21,7 +21,7 @@
 //!
 //! Nothing is offered inside a string or a comment.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::lexer::{Token, TokenType};
 use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, PropType};

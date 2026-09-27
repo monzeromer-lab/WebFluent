@@ -19,7 +19,7 @@ use std::sync::Arc;
 use std::time::SystemTime;
 
 use dashmap::DashMap;
-use tower_lsp::lsp_types::Url;
+use lsp_types::Url;
 use webfluent::config::project::{ProjectConfig, ThemeConfig};
 use webfluent::error::WebFluentError;
 use webfluent::parser::{Declaration, Program};

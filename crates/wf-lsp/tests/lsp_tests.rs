@@ -3,7 +3,7 @@
 //! Each test names the mistake it guards against: the ones a user notices as
 //! "the language server is not accurate".
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use wf_lsp::completion::provide_completions;
 use wf_lsp::definition::find_definition;
 use wf_lsp::diagnostics::project_diagnostics;

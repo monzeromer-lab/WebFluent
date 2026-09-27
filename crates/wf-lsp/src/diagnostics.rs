@@ -6,7 +6,7 @@
 //! about. Severity follows the compiler: a broken reference stops a build, so
 //! it is an error; a lint is a warning.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::error::{Diagnostic as WfDiagnostic, WebFluentError};
 use webfluent::linter::{
     lint_accessibility_in, lint_contrast_in, lint_unused_in, lint_vocabulary_with,

@@ -7,7 +7,7 @@
 //! declares it in the enclosing declaration — the nearest one, not the
 //! first one in the file.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::lexer::Token;
 use webfluent::parser::ast::*;
 

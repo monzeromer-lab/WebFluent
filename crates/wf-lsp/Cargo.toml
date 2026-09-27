@@ -13,10 +13,22 @@ path = "src/lib.rs"
 [[bin]]
 name = "wf-lsp"
 path = "src/main.rs"
+required-features = ["server"]
+
+[features]
+default = ["server"]
+# The server: JSON-RPC over stdio, on an async runtime. Without it the crate
+# is the analysis alone — completion, hover, diagnostics, definitions,
+# symbols, rename, code actions — for a program that links it and calls it
+# directly.
+server = ["dep:tower-lsp", "dep:tokio"]
 
 [dependencies]
 webfluent = { path = "../.." }
-tower-lsp = "0.20"
-tokio = { version = "1", features = ["full"] }
+# The version tower-lsp 0.20 re-exports, so the types are the same with the
+# server and without it.
+lsp-types = "0.94.1"
+tower-lsp = { version = "0.20", optional = true }
+tokio = { version = "1", features = ["full"], optional = true }
 serde_json = "1"
 dashmap = "6"

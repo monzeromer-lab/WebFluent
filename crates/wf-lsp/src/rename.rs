@@ -10,7 +10,7 @@
 
 use std::collections::HashMap;
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::lexer::{Token, TokenType};
 
 use crate::analysis;

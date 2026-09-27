@@ -7,7 +7,7 @@
 //! is the `count` of the page the cursor is in — not the first `count` in
 //! the file.
 
-use tower_lsp::lsp_types::*;
+use lsp_types::*;
 use webfluent::codegen::builtin::{builtin_to_html, implicit_role, landmark_label};
 use webfluent::lexer::TokenType;
 use webfluent::parser::ast::*;

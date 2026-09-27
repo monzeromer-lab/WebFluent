@@ -8,7 +8,7 @@
 //! Mixing the three is the classic way an editor's squiggles drift on lines
 //! with Arabic, an em dash or an emoji, so every conversion goes through here.
 
-use tower_lsp::lsp_types::{Position, Range};
+use lsp_types::{Position, Range};
 use webfluent::parser::ast::Span;
 
 #[derive(Debug, Clone)]
