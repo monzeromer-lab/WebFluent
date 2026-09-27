@@ -198,6 +198,10 @@ pub mod studio;
 /// and every finding, with its code and place.
 pub mod build;
 
+/// `wf generate` as a library call: the source of a new page, component or
+/// store, and [`generate::create`] to write one in the project's layout.
+pub mod generate;
+
 /// Where a project is read from: the disk ([`vfs::FsVfs`]), or the disk with
 /// an editor's unsaved buffers over it ([`vfs::OverlayVfs`]).
 pub mod vfs;

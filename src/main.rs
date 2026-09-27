@@ -9,6 +9,7 @@ mod data;
 mod edit;
 mod error;
 mod fmt;
+mod generate;
 mod i18n;
 mod layout;
 mod lexer;
