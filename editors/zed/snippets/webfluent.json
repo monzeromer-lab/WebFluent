@@ -1,7 +1,7 @@
 {
   "page": {
     "prefix": "page",
-    "description": "A routed page",
+    "description": "Page with a path and a title",
     "body": [
       "page ${1:Name}(path: \"${2:/}\", title: \"${3:$1}\") {",
       "    $0",
@@ -10,7 +10,7 @@
   },
   "component": {
     "prefix": "component",
-    "description": "A reusable component with props",
+    "description": "Component with props",
     "body": [
       "component ${1:Name}(_ ${2:label}: ${3:String}) {",
       "    $0",
@@ -19,7 +19,7 @@
   },
   "store": {
     "prefix": "store",
-    "description": "A shared state store",
+    "description": "Store with state and an action",
     "body": [
       "store ${1:Name}Store {",
       "    state ${2:items} = ${3:[]}",
@@ -30,13 +30,55 @@
       "}"
     ]
   },
+  "state": {
+    "prefix": "state",
+    "description": "State variable with a starting value",
+    "body": "state ${1:name} = ${2:0}"
+  },
+  "derived": {
+    "prefix": "derived",
+    "description": "Value computed from other state",
+    "body": "derived ${1:name} = ${2:expression}"
+  },
+  "action": {
+    "prefix": "action",
+    "description": "Action inside a store",
+    "body": [
+      "action ${1:name}(${2:param}: ${3:Type}) {",
+      "    $0",
+      "}"
+    ]
+  },
+  "effect": {
+    "prefix": "effect",
+    "description": "Runs when the state it reads changes",
+    "body": [
+      "effect {",
+      "    $0",
+      "}"
+    ]
+  },
+  "event": {
+    "prefix": "event",
+    "description": "An event the component fires with emit",
+    "body": "event ${1:name}(${2:id}: ${3:String})"
+  },
   "theme": {
     "prefix": "theme",
-    "description": "A theme overriding design tokens",
+    "description": "Theme tokens",
     "body": [
       "theme ${1:Brand} {",
       "    color-primary: ${2:#3B82F6}",
       "    $0",
+      "}"
+    ]
+  },
+  "type": {
+    "prefix": "type",
+    "description": "Record type",
+    "body": [
+      "type ${1:Name} {",
+      "    ${2:id}: ${3:String}",
       "}"
     ]
   },
@@ -50,52 +92,10 @@
       "}"
     ]
   },
-  "type": {
-    "prefix": "type",
-    "description": "A record type",
-    "body": [
-      "type ${1:Name} {",
-      "    ${2:id}: ${3:String}",
-      "}"
-    ]
-  },
   "enum": {
     "prefix": "enum",
     "description": "A set of cases",
     "body": "enum ${1:Name} { ${2:a}, ${3:b} }"
-  },
-  "state": {
-    "prefix": "state",
-    "description": "A reactive state variable",
-    "body": "state ${1:name} = ${2:0}"
-  },
-  "derived": {
-    "prefix": "derived",
-    "description": "A value computed from state",
-    "body": "derived ${1:name} = ${2:expression}"
-  },
-  "effect": {
-    "prefix": "effect",
-    "description": "Runs when the state it reads changes",
-    "body": [
-      "effect {",
-      "    $0",
-      "}"
-    ]
-  },
-  "action": {
-    "prefix": "action",
-    "description": "An action that changes state",
-    "body": [
-      "action ${1:name}(${2}) {",
-      "    $0",
-      "}"
-    ]
-  },
-  "event": {
-    "prefix": "event",
-    "description": "An event the component fires with emit",
-    "body": "event ${1:name}(${2:id}: ${3:String})"
   },
   "slot": {
     "prefix": "slot",
