@@ -193,6 +193,10 @@ pub mod edit;
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;
 
+/// Where a project is read from: the disk ([`vfs::FsVfs`]), or the disk with
+/// an editor's unsaved buffers over it ([`vfs::OverlayVfs`]).
+pub mod vfs;
+
 pub use codegen::node_id::{NodeInfo, NodeMap};
 pub use edit::{ArgRef, EditOp, apply_edits};
 pub use error::{Diagnostic, Result, WebFluentError};

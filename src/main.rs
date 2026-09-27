@@ -22,6 +22,7 @@ mod sema;
 mod syntax;
 mod template;
 mod themes;
+mod vfs;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
