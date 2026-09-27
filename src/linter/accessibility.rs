@@ -49,7 +49,7 @@ pub fn lint_accessibility_in(
                     &comp.body,
                     &file_of(index),
                     &mut warnings,
-                    &mut HeadingTracker::with_components(&components),
+                    &mut HeadingTracker::new(&components),
                 );
             }
             Declaration::App(app) => {
@@ -57,7 +57,7 @@ pub fn lint_accessibility_in(
                     &app.body,
                     &file_of(index),
                     &mut warnings,
-                    &mut HeadingTracker::with_components(&components),
+                    &mut HeadingTracker::new(&components),
                 );
             }
             // None of these holds UI.
@@ -324,7 +324,10 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
 }
 
 /// Track heading levels within a page for skip detection.
-struct HeadingTracker {
+///
+/// It borrows the program it walks: the component map is built once per
+/// lint and shared by every tracker, not copied into each.
+struct HeadingTracker<'p> {
     levels_seen: Vec<u8>,
     h1_count: usize,
     /// Whether the document-outline rules (A11, A12) apply here.
@@ -336,7 +339,7 @@ struct HeadingTracker {
     /// on its own first build.
     checks_outline: bool,
     /// The program's components by name (see [`Self::component`]).
-    components: std::collections::HashMap<String, ComponentDecl>,
+    components: &'p HashMap<&'p str, &'p ComponentDecl>,
     /// Components being expanded, so a component that calls itself stops.
     expanding: Vec<String>,
     /// While a component is expanded: its `Bool` props, resolved from the
@@ -347,48 +350,39 @@ struct HeadingTracker {
     props: std::collections::HashMap<String, bool>,
     /// While a page's layout is walked: the page's body, placed where the
     /// layout's `children` is, and the warnings it produces there.
-    page_body: Option<(Vec<Statement>, String)>,
+    page_body: Option<(&'p [Statement], String)>,
     page_warnings: Vec<A11yWarning>,
 }
 
-impl HeadingTracker {
-    fn new() -> Self {
+impl<'p> HeadingTracker<'p> {
+    /// A tracker that knows the program's components.
+    fn new(components: &'p HashMap<&'p str, &'p ComponentDecl>) -> Self {
         Self {
             levels_seen: Vec::new(),
             h1_count: 0,
             checks_outline: true,
-            components: std::collections::HashMap::new(),
+            components,
             expanding: Vec::new(),
-            props: std::collections::HashMap::new(),
+            props: HashMap::new(),
             page_body: None,
             page_warnings: Vec::new(),
         }
     }
 
-    /// A tracker that knows the program's components.
-    fn with_components(components: &std::collections::HashMap<&str, &ComponentDecl>) -> Self {
-        let mut tracker = Self::new();
-        tracker.components = components
-            .iter()
-            .map(|(k, v)| (k.to_string(), (*v).clone()))
-            .collect();
-        tracker
-    }
-
     /// A tracker for output that is not one HTML page — a deck or a paginated
     /// document. Every other accessibility rule still runs.
-    fn without_outline_checks() -> Self {
+    fn without_outline_checks(components: &'p HashMap<&'p str, &'p ComponentDecl>) -> Self {
         Self {
             checks_outline: false,
-            ..Self::new()
+            ..Self::new(components)
         }
     }
 
-    /// The program's components, so a call to one contributes the headings
-    /// of its body to the outline being checked. Empty when linting a
-    /// component or the app on its own.
-    fn component(&self, name: &str) -> Option<ComponentDecl> {
-        self.components.get(name).cloned()
+    /// The program's component by that name, so a call to one contributes
+    /// the headings of its body to the outline being checked. It borrows
+    /// from the program, not from the tracker, so the tracker can walk it.
+    fn component(&self, name: &str) -> Option<&'p ComponentDecl> {
+        self.components.get(name).copied()
     }
 
     /// The one branch of an `if` a call renders, when its condition is a
@@ -438,18 +432,17 @@ fn is_document_or_deck(body: &[Statement]) -> bool {
     })
 }
 
-fn lint_page(
-    page: &PageDecl,
+fn lint_page<'p>(
+    page: &'p PageDecl,
     file: &str,
     warnings: &mut Vec<A11yWarning>,
-    components: &std::collections::HashMap<&str, &ComponentDecl>,
+    components: &'p HashMap<&'p str, &'p ComponentDecl>,
 ) {
     let mut tracker = if is_document_or_deck(&page.body) {
-        HeadingTracker::without_outline_checks()
+        HeadingTracker::without_outline_checks(components)
     } else {
-        HeadingTracker::new()
+        HeadingTracker::new(components)
     };
-    tracker.components = HeadingTracker::with_components(components).components;
     // A page framed by a layout is the layout's outline with the page's
     // body at its `children`: the `h1` a layout draws is the page's.
     match page
@@ -458,7 +451,7 @@ fn lint_page(
         .and_then(|l| tracker.component(&l.name))
     {
         Some(layout) => {
-            tracker.page_body = Some((page.body.clone(), file.to_string()));
+            tracker.page_body = Some((&page.body, file.to_string()));
             let mut quiet = Vec::new();
             lint_statements(&layout.body, file, &mut quiet, &mut tracker);
             warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
@@ -466,7 +459,7 @@ fn lint_page(
                 // The layout placed the page: its findings are the page's.
                 None => warnings.append(&mut tracker.page_warnings),
                 // A layout without `children`: the page still gets checked.
-                Some((body, _)) => lint_statements(&body, file, warnings, &mut tracker),
+                Some((body, _)) => lint_statements(body, file, warnings, &mut tracker),
             }
         }
         None => lint_statements(&page.body, file, warnings, &mut tracker),
@@ -505,7 +498,7 @@ fn lint_statements(
     stmts: &[Statement],
     file: &str,
     warnings: &mut Vec<A11yWarning>,
-    heading_tracker: &mut HeadingTracker,
+    heading_tracker: &mut HeadingTracker<'_>,
 ) {
     for stmt in stmts {
         match &stmt.kind {
@@ -562,7 +555,7 @@ fn lint_alternatives(
     bodies: &[&[Statement]],
     file: &str,
     warnings: &mut Vec<A11yWarning>,
-    heading_tracker: &mut HeadingTracker,
+    heading_tracker: &mut HeadingTracker<'_>,
 ) {
     let (levels, h1s) = (
         heading_tracker.levels_seen.clone(),
@@ -594,7 +587,7 @@ fn lint_ui_element(
     ui: &UIElement,
     file: &str,
     warnings: &mut Vec<A11yWarning>,
-    heading_tracker: &mut HeadingTracker,
+    heading_tracker: &mut HeadingTracker<'_>,
 ) {
     // The element's own position: the parser records a span for every
     // element, so a warning lands on the line that needs the fix rather
@@ -606,7 +599,7 @@ fn lint_ui_element(
         && let Some((body, page_file)) = heading_tracker.page_body.take()
     {
         let mut found = Vec::new();
-        lint_statements(&body, &page_file, &mut found, heading_tracker);
+        lint_statements(body, &page_file, &mut found, heading_tracker);
         heading_tracker.page_warnings.append(&mut found);
         return;
     }
@@ -879,7 +872,7 @@ fn lint_ui_element(
         if !heading_tracker.expanding.contains(name) {
             if let Some(comp) = heading_tracker.component(name) {
                 heading_tracker.expanding.push(name.clone());
-                let outer = std::mem::replace(&mut heading_tracker.props, bool_props(&comp, ui));
+                let outer = std::mem::replace(&mut heading_tracker.props, bool_props(comp, ui));
                 let mut quiet = Vec::new();
                 lint_statements(&comp.body, file, &mut quiet, heading_tracker);
                 heading_tracker.props = outer;
@@ -908,7 +901,7 @@ fn lint_aria_structure(
     line: usize,
     col: usize,
     warnings: &mut Vec<A11yWarning>,
-    tracker: &HeadingTracker,
+    tracker: &HeadingTracker<'_>,
 ) {
     let Some(role) = named_arg_literal(&ui.args, "role") else {
         return;
@@ -938,7 +931,6 @@ fn lint_aria_structure(
         // which is what it renders in this position. A root whose role is a
         // prop — `Button(role: role)` with `role: String = "menuitem"` — has
         // the role the call passed, or the prop's default.
-        let expanded;
         let mut prop_role: Option<Option<String>> = None;
         let inner = match &inner.component {
             ComponentRef::UserDefined(component) => {
@@ -967,8 +959,7 @@ fn lint_aria_structure(
                         _ => None,
                     });
                 }
-                expanded = root.clone();
-                &expanded
+                root
             }
             _ => inner,
         };
@@ -1037,7 +1028,7 @@ fn lint_label_in_name(
     line: usize,
     col: usize,
     warnings: &mut Vec<A11yWarning>,
-    tracker: &HeadingTracker,
+    tracker: &HeadingTracker<'_>,
 ) {
     let ComponentRef::BuiltIn(name) = &ui.component else {
         return;
@@ -1077,7 +1068,7 @@ fn lint_label_in_name(
 fn visible_text(
     body: &[Statement],
     props: &HashMap<String, String>,
-    tracker: &HeadingTracker,
+    tracker: &HeadingTracker<'_>,
     depth: usize,
     out: &mut Vec<String>,
 ) {
