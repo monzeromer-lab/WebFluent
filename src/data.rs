@@ -25,6 +25,16 @@ pub fn resolve_data_with(
     root: &Path,
     media: Option<(&Path, &crate::media::Settings, &str)>,
 ) -> Result<()> {
+    resolve_data_via(&crate::vfs::FsVfs, program, root, media)
+}
+
+/// [`resolve_data_with`], reading the files through `vfs`.
+pub fn resolve_data_via(
+    vfs: &dyn crate::vfs::Vfs,
+    program: &mut Program,
+    root: &Path,
+    media: Option<(&Path, &crate::media::Settings, &str)>,
+) -> Result<()> {
     for decl in &mut program.declarations {
         let Declaration::Data(d) = decl else {
             continue;
@@ -37,7 +47,7 @@ pub fn resolve_data_with(
                 root.join("src").join(&d.file),
                 root.join("public").join(&d.file),
             ];
-            let Some(path) = candidates.iter().find(|p| p.is_file()) else {
+            let Some(path) = candidates.iter().find(|p| vfs.is_file(p)) else {
                 return Err(WebFluentError::IoError(format!(
                     "`image {}`: no file `{}` under {}, its src/ or its public/",
                     d.name,
@@ -60,7 +70,8 @@ pub fn resolve_data_with(
                     continue;
                 }
             };
-            let asset = crate::media::process(
+            let asset = crate::media::process_via(
+                vfs,
                 &d.name,
                 path,
                 out_dir,
@@ -78,7 +89,7 @@ pub fn resolve_data_with(
             continue;
         }
         let candidates = [root.join(&d.file), root.join("src").join(&d.file)];
-        let Some(path) = candidates.iter().find(|p| p.is_file()) else {
+        let Some(path) = candidates.iter().find(|p| vfs.is_file(p)) else {
             return Err(WebFluentError::IoError(format!(
                 "`data {}`: no file `{}` under {} or its src/",
                 d.name,
@@ -86,7 +97,7 @@ pub fn resolve_data_with(
                 root.display()
             )));
         };
-        let text = std::fs::read_to_string(path)?;
+        let text = vfs.read_to_string(path)?;
         let json: serde_json::Value = serde_json::from_str(&text).map_err(|e| {
             WebFluentError::IoError(format!(
                 "`data {}`: {} is not JSON: {e}",

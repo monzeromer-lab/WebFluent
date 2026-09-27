@@ -193,6 +193,11 @@ pub mod edit;
 /// [`studio::CompiledSite`] (SSG pages + CSS + JS + node map) for the preview.
 pub mod studio;
 
+/// `wf build` as a library call: [`build::build`] reads a project through a
+/// [`vfs::Vfs`], writes the site, and reports every line the command prints
+/// and every finding, with its code and place.
+pub mod build;
+
 /// Where a project is read from: the disk ([`vfs::FsVfs`]), or the disk with
 /// an editor's unsaved buffers over it ([`vfs::OverlayVfs`]).
 pub mod vfs;

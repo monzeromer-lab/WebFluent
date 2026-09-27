@@ -14,27 +14,31 @@
 //! An element picks a rule up by naming its class: `Card(class: "feature")`.
 //! `build.split` keeps these sheets shared: a class is global by nature.
 
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::error::Result;
+use crate::vfs::{FsVfs, Vfs};
 
 /// Every `.css` file under `dir`, sorted by path so the bundle is stable.
 pub fn find_stylesheets(dir: &Path) -> Vec<PathBuf> {
+    find_stylesheets_via(&FsVfs, dir)
+}
+
+/// [`find_stylesheets`], looking through `vfs`.
+pub fn find_stylesheets_via(vfs: &dyn Vfs, dir: &Path) -> Vec<PathBuf> {
     let mut files = Vec::new();
-    walk(dir, &mut files);
+    walk(vfs, dir, &mut files);
     files.sort();
     files
 }
 
-fn walk(dir: &Path, files: &mut Vec<PathBuf>) {
-    let Ok(entries) = fs::read_dir(dir) else {
+fn walk(vfs: &dyn Vfs, dir: &Path, files: &mut Vec<PathBuf>) {
+    let Ok(entries) = vfs.read_dir(dir) else {
         return;
     };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            walk(&path, files);
+    for path in entries {
+        if vfs.is_dir(&path) {
+            walk(vfs, &path, files);
         } else if path.extension().is_some_and(|ext| ext == "css") {
             files.push(path);
         }
@@ -44,9 +48,14 @@ fn walk(dir: &Path, files: &mut Vec<PathBuf>) {
 /// The author's stylesheets under `src_dir`, bundled in path order, each
 /// under a marker that names its file. Empty when there are none.
 pub fn bundle(project_dir: &Path, src_dir: &Path) -> Result<String> {
+    bundle_via(&FsVfs, project_dir, src_dir)
+}
+
+/// [`bundle`], reading through `vfs`.
+pub fn bundle_via(vfs: &dyn Vfs, project_dir: &Path, src_dir: &Path) -> Result<String> {
     let mut out = String::new();
-    for path in find_stylesheets(src_dir) {
-        let css = fs::read_to_string(&path)?;
+    for path in find_stylesheets_via(vfs, src_dir) {
+        let css = vfs.read_to_string(&path)?;
         let name = path
             .strip_prefix(project_dir)
             .unwrap_or(&path)
@@ -62,6 +71,7 @@ pub fn bundle(project_dir: &Path, src_dir: &Path) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     #[test]
     fn stylesheets_under_src_are_bundled_in_path_order() {

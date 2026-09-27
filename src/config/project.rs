@@ -2,7 +2,6 @@ use crate::error::{Result, WebFluentError};
 use crate::themes::BuiltinCss;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs;
 use std::path::Path;
 
 /// The output format for the build pipeline.
@@ -756,13 +755,18 @@ impl ProjectConfig {
     }
 
     pub fn load(project_dir: &Path) -> Result<Self> {
+        Self::load_via(&crate::vfs::FsVfs, project_dir)
+    }
+
+    /// [`load`](Self::load), reading through `vfs`.
+    pub fn load_via(vfs: &dyn crate::vfs::Vfs, project_dir: &Path) -> Result<Self> {
         let config_path = project_dir.join("webfluent.app.json");
-        if !config_path.exists() {
+        if !vfs.exists(&config_path) {
             return Err(WebFluentError::ConfigError(
                 "webfluent.app.json not found. Run 'wf init' to create a project.".to_string(),
             ));
         }
-        let content = fs::read_to_string(&config_path)?;
+        let content = vfs.read_to_string(&config_path)?;
         let config: ProjectConfig = serde_json::from_str(&content).map_err(|e| {
             WebFluentError::ConfigError(format!("Failed to parse webfluent.app.json: {}", e))
         })?;
@@ -779,7 +783,12 @@ impl ProjectConfig {
     /// such as `env` or `theme.tokens` holds exactly what it was given), so a
     /// key in the file that is not in that is one nothing reads.
     pub fn unknown_keys(project_dir: &Path) -> Vec<String> {
-        let Ok(content) = fs::read_to_string(project_dir.join("webfluent.app.json")) else {
+        Self::unknown_keys_via(&crate::vfs::FsVfs, project_dir)
+    }
+
+    /// [`unknown_keys`](Self::unknown_keys), reading through `vfs`.
+    pub fn unknown_keys_via(vfs: &dyn crate::vfs::Vfs, project_dir: &Path) -> Vec<String> {
+        let Ok(content) = vfs.read_to_string(&project_dir.join("webfluent.app.json")) else {
             return Vec::new();
         };
         let Ok(given) = serde_json::from_str::<serde_json::Value>(&content) else {
@@ -815,7 +824,18 @@ impl ProjectConfig {
         project_dir: &Path,
         shell: impl IntoIterator<Item = (String, String)>,
     ) {
-        if let Ok(text) = fs::read_to_string(project_dir.join(".env")) {
+        self.resolve_env_via(&crate::vfs::FsVfs, project_dir, shell);
+    }
+
+    /// [`resolve_env_from`](Self::resolve_env_from), reading `.env` through
+    /// `vfs`.
+    pub fn resolve_env_via(
+        &mut self,
+        vfs: &dyn crate::vfs::Vfs,
+        project_dir: &Path,
+        shell: impl IntoIterator<Item = (String, String)>,
+    ) {
+        if let Ok(text) = vfs.read_to_string(&project_dir.join(".env")) {
             for (name, value) in parse_dotenv(&text) {
                 self.env.insert(name, serde_json::Value::String(value));
             }
@@ -937,6 +957,7 @@ fn parse_dotenv(text: &str) -> Vec<(String, String)> {
 #[cfg(test)]
 mod env_and_key_tests {
     use super::*;
+    use std::fs;
 
     struct Dir(std::path::PathBuf);
     impl Dir {

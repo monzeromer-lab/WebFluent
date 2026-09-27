@@ -396,6 +396,9 @@ pub struct PdfCodegen {
     /// build has one. Without it an image is the box it always was.
     asset_root: Option<std::path::PathBuf>,
     warned_styles: HashSet<String>,
+    /// The warnings a build reports with its other findings, kept here
+    /// rather than printed once [`hold_warnings`](Self::hold_warnings) asks.
+    held_warnings: Option<Vec<String>>,
 }
 
 impl PdfCodegen {
@@ -429,6 +432,7 @@ impl PdfCodegen {
             images: Vec::new(),
             asset_root: None,
             warned_styles: HashSet::new(),
+            held_warnings: None,
         };
         cg.register_font(&config.default_font);
         cg.register_font("Helvetica-Bold");
@@ -531,6 +535,28 @@ impl PdfCodegen {
     /// Where the pictures are, which a build knows and a template does not.
     pub fn set_asset_root(&mut self, root: std::path::PathBuf) {
         self.asset_root = Some(root);
+    }
+
+    /// Keep each warning for [`take_warnings`](Self::take_warnings) instead
+    /// of printing it to stderr.
+    pub fn hold_warnings(&mut self) {
+        self.held_warnings.get_or_insert_with(Vec::new);
+    }
+
+    /// The warnings held since [`hold_warnings`](Self::hold_warnings), in
+    /// the order they were found.
+    pub fn take_warnings(&mut self) -> Vec<String> {
+        self.held_warnings
+            .as_mut()
+            .map(std::mem::take)
+            .unwrap_or_default()
+    }
+
+    fn warn(&mut self, text: String) {
+        match &mut self.held_warnings {
+            Some(held) => held.push(text),
+            None => eprintln!("{text}"),
+        }
     }
 
     fn add_object(&mut self, data: &[u8]) -> usize {
@@ -1937,10 +1963,10 @@ impl PdfCodegen {
         for prop in unknown {
             let key = format!("{}::{}", component, prop);
             if self.warned_styles.insert(key) {
-                eprintln!(
+                self.warn(format!(
                     "warning[pdf]: unsupported style property '{}' on {}",
                     prop, component
-                );
+                ));
             }
         }
     }

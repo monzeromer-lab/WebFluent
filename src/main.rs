@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod browser;
+mod build;
 mod cli;
 mod codegen;
 mod config;

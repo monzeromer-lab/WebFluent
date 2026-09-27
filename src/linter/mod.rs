@@ -14,7 +14,7 @@
 //!   unknown route targets, duplicate declarations
 
 pub mod secrets;
-pub use secrets::lint_env;
+pub use secrets::{lint_env, lint_env_via};
 pub mod accessibility;
 pub mod contrast;
 pub mod pdf_validation;
