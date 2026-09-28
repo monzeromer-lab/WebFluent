@@ -155,6 +155,7 @@ pub fn ssg_html_as(src: &str, file: &str) -> String {
             translations: &HashMap::new(),
             components: &components,
             program: &program,
+            program_scope: None,
         },
     )
 }

@@ -185,6 +185,24 @@ impl Scope {
         page_body: &[Statement],
         env: &std::collections::BTreeMap<String, serde_json::Value>,
     ) -> Self {
+        Self::for_page(&Self::for_program(program, env), page_body)
+    }
+
+    /// `base` — a [`Scope::for_program`] — with a page's own state on top.
+    pub fn for_page(base: &Scope, page_body: &[Statement]) -> Self {
+        let mut scope = base.clone();
+        scope.push_state(page_body);
+        scope
+    }
+
+    /// The part of every page's scope that is the program's: `env`, each
+    /// store's values and the constants. It is the same for every page of
+    /// a build, and evaluating it is most of what a scope costs, so a build
+    /// works it out once ([`Scope::for_page`] adds each page's own).
+    pub fn for_program(
+        program: &Program,
+        env: &std::collections::BTreeMap<String, serde_json::Value>,
+    ) -> Self {
         let mut frame = HashMap::new();
         frame.insert(
             "env".to_string(),
@@ -214,7 +232,6 @@ impl Scope {
                 scope.set(&c.name, v);
             }
         }
-        scope.push_state(page_body);
         scope
     }
 

@@ -768,6 +768,11 @@ fn run(options: &BuildOptions, out: &mut Out) -> Result<()> {
                 })
                 .collect();
 
+        // The program's part of every page's build-time scope — `env`, the
+        // stores' values, the constants — is the same for all of them:
+        // worked out once rather than twice a page, it was most of what an
+        // SSG build of a project with many pages cost.
+        let program_scope = crate::codegen::static_eval::Scope::for_program(&program, &config.env);
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
                 let site = crate::codegen::ssg::SiteContext {
@@ -776,6 +781,7 @@ fn run(options: &BuildOptions, out: &mut Out) -> Result<()> {
                     translations: &translations,
                     components: &components,
                     program: &program,
+                    program_scope: Some(&program_scope),
                 };
                 // A `:param` route is rendered once per value its `paths:`
                 // names, and not at all without them.

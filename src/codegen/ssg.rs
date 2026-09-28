@@ -153,6 +153,19 @@ pub struct SiteContext<'a> {
     pub components: &'a HashMap<String, ComponentDecl>,
     /// The whole program, for the build-time scope that resolves seeded lists.
     pub program: &'a Program,
+    /// The program's part of that scope, worked out once for the build
+    /// ([`Scope::for_program`]); without it each page works it out again.
+    pub program_scope: Option<&'a Scope>,
+}
+
+impl SiteContext<'_> {
+    /// The build-time scope of a page whose body is `body`.
+    fn page_scope(&self, body: &[Statement]) -> Scope {
+        match self.program_scope {
+            Some(base) => Scope::for_page(base, body),
+            None => Scope::from_program_with_env(self.program, body, &self.config.env),
+        }
+    }
 }
 
 impl<'a> SiteContext<'a> {
@@ -168,6 +181,7 @@ impl<'a> SiteContext<'a> {
             translations: EMPTY_T.get_or_init(HashMap::new),
             components: EMPTY_C.get_or_init(HashMap::new),
             program,
+            program_scope: None,
         }
     }
 }
@@ -186,7 +200,7 @@ pub fn render_page_html_studio(
     let worked;
     let page = match &page.title_expr {
         Some(expr) => {
-            let scope = Scope::from_program_with_env(site.program, &page.body, &site.config.env);
+            let scope = site.page_scope(&page.body);
             match eval(expr, &scope) {
                 Some(value) => {
                     let mut p = page.clone();
@@ -205,6 +219,7 @@ pub fn render_page_html_studio(
         translations,
         components,
         program,
+        ..
     } = *site;
     let title = page.title.as_deref().unwrap_or(&config.name);
     let lang = if config.meta.lang.is_empty() {
@@ -236,7 +251,8 @@ pub fn render_page_html_studio(
 
     let link_base = config.build.base_path.clone();
 
-    let scope = Scope::from_program_with_env(program, &page.body, &site.config.env)
+    let scope = site
+        .page_scope(&page.body)
         .with_locale(default_locale)
         .with_messages(&default_messages);
 
@@ -310,7 +326,11 @@ pub fn render_page_html_studio(
     let mut description_meta = crate::codegen::seo::head_tags(page, config, program);
     // The page's own `head { }` tags, with what is known at build time; the
     // runtime replaces them once live, so each is marked as its own.
-    let head_scope = Scope::from_program_with_env(program, &page.body, &site.config.env);
+    let head_scope = if page.head.is_empty() {
+        Scope::default()
+    } else {
+        site.page_scope(&page.body)
+    };
     for tag in &page.head {
         let mut attrs = String::new();
         for (k, v) in &tag.attrs {
@@ -2024,6 +2044,7 @@ mod component_expansion_tests {
                 translations: &Default::default(),
                 components: &components,
                 program: &program,
+                program_scope: None,
             },
         )
     }
@@ -2138,5 +2159,54 @@ mod component_expansion_tests {
         let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
         let html = render_page_html(page, &SiteContext::bare(&cfg, &program));
         assert!(html.contains("wf-component"));
+    }
+}
+
+#[cfg(test)]
+mod program_scope_tests {
+    //! A build works out the program's part of the build-time scope once and
+    //! hands it to every page; a page painted with it must be the page
+    //! painted with a scope of its own.
+    use super::*;
+
+    #[test]
+    fn a_page_is_the_same_with_the_builds_program_scope() {
+        let src = "const Brand = \"Halyard\"\n\
+                   store Deploys {\n  state items = [{ service: \"api\" }, { service: \"web\" }]\n  derived count = items.length\n}\n\
+                   page Home(path: \"/\", title: \"Deploys\", description: \"Deploys.\") {\n  use Deploys\n  state env = \"prod\"\n  head { meta(name: \"brand\", content: Brand) }\n  Heading(\"{Deploys.count} deploys in {env}\").h1\n  for d in Deploys.items by d.service { Text(d.service) }\n}\n";
+        let program = crate::syntax::parse_source(src, "<t>")
+            .map(crate::sema::lower)
+            .expect("parse");
+        let page = program
+            .declarations
+            .iter()
+            .find_map(|d| match d {
+                Declaration::Page(p) => Some(p),
+                _ => None,
+            })
+            .expect("a page");
+        let cfg: ProjectConfig = serde_json::from_str(r#"{"name":"t","env":{"PUBLIC_REGION":"eu"}}"#).unwrap();
+        let components = HashMap::new();
+        let with = |program_scope: Option<&Scope>| {
+            render_page_html(
+                page,
+                &SiteContext {
+                    config: &cfg,
+                    app_body: None,
+                    translations: &Default::default(),
+                    components: &components,
+                    program: &program,
+                    program_scope,
+                },
+            )
+        };
+        let shared = Scope::for_program(&program, &cfg.env);
+        let html = with(Some(&shared));
+        assert_eq!(html, with(None));
+        // And the shared scope did its work: the store, the constant and the
+        // page's own state all reached the paint.
+        assert!(html.contains("2 deploys in prod"), "{html}");
+        assert!(html.contains("content=\"Halyard\""), "{html}");
+        assert!(html.contains(">web<"), "{html}");
     }
 }

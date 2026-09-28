@@ -177,6 +177,8 @@ pub fn compile_studio(
         })
         .collect();
 
+    // The program's part of each page's build-time scope, once.
+    let program_scope = crate::codegen::static_eval::Scope::for_program(program, &config.env);
     let mut pages = Vec::new();
     for decl in &program.declarations {
         if let Declaration::Page(page) = decl {
@@ -189,6 +191,7 @@ pub fn compile_studio(
                 translations,
                 components: &components,
                 program,
+                program_scope: Some(&program_scope),
             };
             let html = render_page_html_studio(page, &site, true, &node_map);
             pages.push(CompiledPage {
