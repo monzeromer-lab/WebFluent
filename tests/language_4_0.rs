@@ -1606,6 +1606,23 @@ fn a_state_named_like_a_generated_binding_is_still_the_state() {
 }
 
 #[test]
+fn a_state_named_env_is_the_state_not_the_projects_env() {
+    // `env` is the project's map of public values — unless the page
+    // declares its own. A `state env` used to read the config's map:
+    // `Badge("Live in {env}")` showed `Live in [object Object]` and never
+    // followed the state.
+    let js = spa_generated(&page(
+        "state env = \"prod\"\n    Badge(\"Live in {env}\").success\n    Button(\"dev\") { on click { env = \"dev\" } }",
+    ));
+    assert!(js.contains("`Live in ${_env()}`"), "{js}");
+    assert!(!js.contains("${env}"), "{js}");
+    assert!(js.contains("_env.set(\"dev\")"), "{js}");
+    // Without a declaration, `env` is still the project's.
+    let js = spa_generated(&page("Text(\"API at {env.PUBLIC_API}\")"));
+    assert!(js.contains("${env.PUBLIC_API}"), "{js}");
+}
+
+#[test]
 fn a_store_member_binds_like_a_state() {
     // A store's member is a property with a getter and a setter. It used
     // to compile to a control with no binding at all — a silent no-op,

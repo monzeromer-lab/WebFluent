@@ -5484,7 +5484,10 @@ impl JsCodegen {
                 if self.stores.contains(name)
                     || self.consts.contains(name)
                     || self.refs.contains(name)
-                    || name == "env"
+                    // The project's `env`, unless the page declares its
+                    // own: a `state env` read the config's map, and
+                    // `Text("Live in {env}")` showed `[object Object]`.
+                    || (name == "env" && !self.own_names.contains(name))
                     || self.loop_bindings.contains(name)
                     || self.lambda_params.borrow().contains(name)
                     || (IMPLICIT.contains(&name.as_str()) && !self.own_names.contains(name))
