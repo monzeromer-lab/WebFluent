@@ -457,6 +457,13 @@ fn run(options: &BuildOptions, out: &mut Out) -> Result<()> {
     // A name nothing declares is a ReferenceError the first time the page
     // reads it; the build says so where it is written.
     findings.errors.extend(typed.unresolved);
+    // One mistake is one error, however many checks find it: a store
+    // member that does not exist was reported twice, and the build said
+    // "2 error(s)" for one typo.
+    let mut seen = std::collections::HashSet::new();
+    findings.errors.retain(|e| seen.insert(e.to_string()));
+    let mut seen = std::collections::HashSet::new();
+    findings.warnings.retain(|w| seen.insert(w.as_warning()));
     for warning in &findings.warnings {
         out.warning(BuildDiagnostic::of(warning, warning.as_warning()));
     }

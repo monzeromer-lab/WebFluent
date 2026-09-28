@@ -157,6 +157,27 @@ fn a_finding_carries_its_code_its_place_and_what_the_cli_prints() {
 }
 
 #[test]
+fn a_typo_in_a_derived_value_is_one_error() {
+    // `derived live = Deploys.lve` was found twice at the same place — as
+    // the derived value's own expression and as what it declares — and
+    // the build said "2 error(s)" for one typo, printing it twice.
+    let dir = project("derived");
+    let mut vfs = OverlayVfs::over_disk();
+    vfs.set(
+        dir.join("src/pages/Home.wf"),
+        "page Home(path: \"/\", title: \"Home\", description: \"Deploys.\") {\n    use Deploys\n    derived live = Deploys.lve\n    Text(\"{live} live\")\n}\n",
+    );
+    let failure = build(&BuildOptions::new(&dir, &vfs)).unwrap_err();
+    let t06: Vec<_> = failure.report.errors.iter().filter(|e| e.code.as_deref() == Some("T06")).collect();
+    assert_eq!(t06.len(), 1, "{:?}", failure.report.errors);
+    assert_eq!((t06[0].line, t06[0].column), (3, 20));
+    assert!(failure.error.to_string().starts_with("Codegen Error: 1 error(s)"), "{}", failure.error);
+    let printed = failure.report.lines.iter().filter(|l| l.stream == Stream::Stderr && l.text == t06[0].text).count();
+    assert_eq!(printed, 1);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn a_parse_error_is_a_finding_with_a_place() {
     let dir = project("parse");
     let mut vfs = OverlayVfs::over_disk();
