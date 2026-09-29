@@ -106,7 +106,8 @@ pub const MODULES: &[Module] = &[
     module!("pages", exports: [same("page"), same("loadPage"), same("loadSheet")],
         deps: [], triggers: []),
     module!("host", exports: [same("attach")], deps: [], triggers: []),
-    module!("sanitize", exports: [same("sanitize")], deps: [], triggers: ["markup:"]),
+    // `Unsafe.Html(markup)` is written `html: …`, and the hook answers it.
+    module!("sanitize", exports: [same("sanitize")], deps: [], triggers: ["html: "]),
     module!("keep", exports: [same("persist")], deps: [], triggers: []),
     module!("store", exports: [
         same("store"), same("dropRouteStores"), same("watchStores"), same("storeSnapshot"),
