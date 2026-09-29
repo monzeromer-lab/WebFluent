@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+mod audit;
 mod browser;
 mod build;
 mod cli;
@@ -9,8 +10,10 @@ mod data;
 mod edit;
 mod error;
 mod fmt;
+mod gallery;
 mod generate;
 mod i18n;
+mod init;
 mod layout;
 mod lexer;
 mod linter;
@@ -23,7 +26,9 @@ mod runtime;
 mod sema;
 mod syntax;
 mod template;
+mod testing;
 mod themes;
+mod verify;
 mod vfs;
 
 use clap::{Parser, Subcommand};

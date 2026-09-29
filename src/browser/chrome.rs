@@ -264,28 +264,8 @@ impl Browser {
             json!({ "expression": PAGE_REPORT, "returnByValue": true }),
             Some(&session),
         )?;
-        let visit = &mut page.visit;
-        if let Some(text) = settled["result"]["value"].as_str()
-            && let Ok(report) = serde_json::from_str::<Value>(text)
-        {
-            visit.title = report["title"].as_str().unwrap_or_default().to_string();
-            visit.first_contentful_paint = report["fcp"].as_i64().unwrap_or(-1);
-            visit.elements = report["elements"].as_u64().unwrap_or(0);
-            visit.text = report["text"].as_u64().unwrap_or(0);
-            visit.drew = report["drew"]
-                .as_array()
-                .map(|a| {
-                    a.iter()
-                        .filter_map(|v| v.as_str().map(str::to_string))
-                        .collect()
-                })
-                .unwrap_or_default();
-            for broken in report["images"].as_array().into_iter().flatten() {
-                visit.errors.push(format!(
-                    "an image did not load: {}",
-                    broken.as_str().unwrap_or("")
-                ));
-            }
+        if let Some(text) = settled["result"]["value"].as_str() {
+            read_report(&mut page.visit, text);
         }
 
         self.close(page)
@@ -371,8 +351,34 @@ impl Drop for Browser {
     }
 }
 
-/// What the page says about itself once it has settled.
-const PAGE_REPORT: &str = r#"(() => {
+/// What [`PAGE_REPORT`] said, into `visit`: its title, first paint,
+/// elements, text, the built-ins it drew and the images that failed.
+pub fn read_report(visit: &mut Visit, text: &str) {
+    let Ok(report) = serde_json::from_str::<Value>(text) else {
+        return;
+    };
+    visit.title = report["title"].as_str().unwrap_or_default().to_string();
+    visit.first_contentful_paint = report["fcp"].as_i64().unwrap_or(-1);
+    visit.elements = report["elements"].as_u64().unwrap_or(0);
+    visit.text = report["text"].as_u64().unwrap_or(0);
+    visit.drew = report["drew"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    for broken in report["images"].as_array().into_iter().flatten() {
+        visit.errors.push(format!(
+            "an image did not load: {}",
+            broken.as_str().unwrap_or("")
+        ));
+    }
+}
+
+/// What the page says about itself once it has settled: a JSON string.
+pub const PAGE_REPORT: &str = r#"(() => {
   const paint = performance.getEntriesByType("paint");
   const fcp = paint.find((p) => p.name === "first-contentful-paint");
   return JSON.stringify({

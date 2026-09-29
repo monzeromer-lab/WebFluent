@@ -5,7 +5,7 @@ use crate::error::Result;
 use crate::vfs::FsVfs;
 use std::path::Path;
 
-pub use crate::build::{read_project, read_project_with};
+pub use crate::build::read_project;
 
 pub fn run_build(project_dir: &Path) -> Result<()> {
     run_build_with(project_dir, false)

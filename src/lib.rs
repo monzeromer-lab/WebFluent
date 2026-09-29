@@ -126,6 +126,25 @@ pub mod sema;
 /// `wf migrate`: the original grammar rewritten as WebFluent 3.
 pub mod migrate;
 
+/// `wf test`: a project's tests, rendered or played in a browser, and what
+/// each came to.
+pub mod testing;
+
+/// `wf docs`: the component gallery, one self-contained HTML page.
+pub mod gallery;
+
+/// `wf verify`: every page of a built project in a browser — what each
+/// route did, and the built-ins no page drew.
+pub mod verify;
+
+/// `wf init`: a new project from a template.
+pub mod init;
+
+/// `wf audit`: what a project trusts — markup it did not write, other
+/// origins, what it keeps on the reader's machine, its `env` names, its
+/// policy and its dependencies.
+pub mod audit;
+
 /// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
 /// indentation.
 pub mod data;

@@ -26,7 +26,7 @@ pub fn run_verify(project_dir: &Path, json: bool, budget_ms: Option<u64>) -> Res
         )));
     }
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
-    let routes = routes(&output_dir, project_dir, &base_path)?;
+    let routes = crate::verify::routes(&output_dir, project_dir, &base_path)?;
     if routes.is_empty() {
         return Err(WebFluentError::IoError(
             "the build wrote no pages to load".to_string(),
@@ -46,17 +46,7 @@ pub fn run_verify(project_dir: &Path, json: bool, budget_ms: Option<u64>) -> Res
         let url = format!("{}{}{}", server.origin, base_path, route);
         let mut visit = browser.visit(&url, 900)?;
         visit.url = route.clone();
-        if visit.text == 0 && !route.contains("404") {
-            visit.errors.push("the page rendered no text".to_string());
-        }
-        if let Some(budget) = budget_ms
-            && visit.first_contentful_paint > budget as i64
-        {
-            visit.errors.push(format!(
-                "first paint at {}ms, over the {budget}ms this build allows",
-                visit.first_contentful_paint
-            ));
-        }
+        crate::verify::judge(&mut visit, route, budget_ms);
         drew.extend(visit.drew.iter().cloned());
         problems += visit.errors.len();
         if !json {
@@ -83,7 +73,7 @@ pub fn run_verify(project_dir: &Path, json: bool, budget_ms: Option<u64>) -> Res
 
     // What the project declares and no page drew. A component nothing
     // builds is a component nothing has run.
-    let undrawn = undrawn(&drew);
+    let undrawn = crate::verify::undrawn(&drew);
     if json {
         println!(
             "{}",
@@ -114,94 +104,3 @@ pub fn run_verify(project_dir: &Path, json: bool, budget_ms: Option<u64>) -> Res
     Ok(())
 }
 
-/// Every route the build serves: the files it wrote, and the pages the
-/// project declares that a single-page build serves from one shell.
-fn routes(output_dir: &Path, project_dir: &Path, base_path: &str) -> Result<Vec<String>> {
-    let mut found: BTreeSet<String> = BTreeSet::new();
-    let mut walk = vec![output_dir.to_path_buf()];
-    while let Some(dir) = walk.pop() {
-        for entry in std::fs::read_dir(&dir)? {
-            let path = entry?.path();
-            if path.is_dir() {
-                walk.push(path);
-                continue;
-            }
-            if path.file_name().and_then(|n| n.to_str()) != Some("index.html") {
-                continue;
-            }
-            let route = path
-                .parent()
-                .and_then(|p| p.strip_prefix(output_dir).ok())
-                .map(|p| format!("/{}", p.display()))
-                .unwrap_or_else(|| "/".to_string());
-            found.insert(route);
-        }
-    }
-    // A single-page build writes one shell, so its routes are what the
-    // program says they are.
-    if let Ok((program, _)) = super::build::read_project(project_dir) {
-        for decl in &program.declarations {
-            if let crate::parser::ast::Declaration::Page(page) = decl
-                && !page.path.contains(':')
-                && page.path != "*"
-                && !page.path.is_empty()
-            {
-                found.insert(page.path.clone());
-            }
-        }
-    }
-    let _ = base_path;
-    Ok(found.into_iter().collect())
-}
-
-/// The built-ins no page drew.
-///
-/// Every built-in renders a root with a class of its own, so the classes
-/// the pages carried are the list of what actually ran. The registry is
-/// the list of what exists, and the difference is what nothing in this
-/// project has exercised — a component can be in the registry, in the
-/// tests and in the documentation and still be broken in a page.
-///
-/// A project is not expected to draw all of them. The number is a fact
-/// about this project's coverage, not a failure.
-fn undrawn(drew: &BTreeSet<String>) -> Vec<String> {
-    crate::registry::components()
-        .filter(|sig| {
-            let crate::registry::Ir::BuiltIn(name) = sig.ir else {
-                return false;
-            };
-            // What never reaches a browser: a PDF or slide component, and
-            // the few whose root is somebody else's element.
-            if matches!(
-                name,
-                "Children"
-                    | "Router"
-                    | "Unsafe"
-                    | "UnsafeHtml"
-                    | "Host"
-                    | "Document"
-                    | "Header"
-                    | "Footer"
-                    | "PageBreak"
-                    | "Paragraph"
-                    | "Presentation"
-                    | "Slide"
-                    | "TitleSlide"
-                    | "SectionSlide"
-                    | "TwoColumn"
-                    | "ImageSlide"
-            ) {
-                return false;
-            }
-            let (_, class) = crate::codegen::builtin::builtin_to_html(name);
-            // `wf-input wf-textarea`: the last class is the one that names it.
-            let Some(base) = class.split_whitespace().last() else {
-                return false;
-            };
-            !drew
-                .iter()
-                .any(|c| c == base || c.starts_with(&format!("{base}--")))
-        })
-        .map(|sig| sig.name.to_string())
-        .collect()
-}

@@ -17,6 +17,8 @@
 //! What has no mechanical spelling is left as it was and reported as a
 //! note, so a migrated project builds or says exactly what is left to do.
 
+pub mod project;
+
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
