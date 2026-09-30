@@ -2,7 +2,7 @@
 
 # WebFluent
 
-**One binary in, a website out.** Write `.wf`, get HTML, CSS and JavaScript — no framework, no `node_modules`, no build config. The same source also compiles to PDF documents and slide decks.
+**One binary in, a website out.** Write `.wf`, get HTML, CSS and JavaScript — no framework, no `node_modules`, no build config. The same source also compiles to PDF documents and slide decks, and ships as an Android app.
 
 **[Docs](https://monzeromer-lab.github.io/WebFluent)** · **[Tutorial](https://monzeromer-lab.github.io/WebFluent/docs/guide/tutorial)** · **[Components](https://monzeromer-lab.github.io/WebFluent/docs/reference)** · **[Guide source](md-docs/)**
 
@@ -48,7 +48,7 @@ curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/inst
 
 ```bash
 wf --version
-wf init my-app        # -t spa (default) · static · pdf · slides
+wf init my-app        # -t spa (default) · static · pdf · slides · android
 cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
 ```
@@ -163,10 +163,21 @@ page Deck(path: "/", title: "Q1 Review") {
 Set `"output_type": "slides"` (or `"pdf"`) and `wf build` writes the PDF. Raw PDF 1.7 bytes, no external dependencies — and interactive components are rejected at compile time rather than silently dropped.
 </details>
 
+<details>
+<summary><b>Android apps</b></summary>
+
+```json
+{ "build": { "output_type": "android",
+             "android": { "application_id": "com.yourname.ledger", "icon": "public/icon.png" } } }
+```
+
+`wf build` writes the site, then an Android project around it: the pages in a WebView, served from the app's own files over `https`, so they work offline from the first launch. Back, external links, file uploads, the system bars and the launcher icon are handled; the Gradle files and the activity are written once and are yours to change. Open `android/` in Android Studio.
+</details>
+
 ## CLI
 
 ```
-wf init <name> [-t spa|static|pdf|slides]   Create a project
+wf init <name> [-t spa|static|pdf|slides|android]   Create a project
 wf build [-d DIR] [--stats]                 Compile; --stats prints what it weighs
 wf serve [-d DIR]                           Dev server with live reload
 wf generate page|component|store <name>     Scaffold a file

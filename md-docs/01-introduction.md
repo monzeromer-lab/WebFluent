@@ -51,8 +51,9 @@ Graph tags are all there after `wf build`.
   WebSockets and WebRTC, offline support with a service worker, i18n with
   automatic right-to-left, animations and dark mode.
 - **More than websites.** The same language compiles to PDF documents and
-  slide decks, renders templates with JSON on a server, and publishes
-  components as custom elements any framework can use.
+  slide decks, renders templates with JSON on a server, publishes
+  components as custom elements any framework can use, and ships a site as
+  an Android app.
 
 ## The five ideas
 
@@ -90,7 +91,8 @@ Reach for something else when:
   WebFluent site is static files plus a browser runtime; your server stays
   your server (though [server rendering](34-server-rendering.md) of templates
   covers emails, invoices and fragments);
-- you need a native mobile app.
+- you need native mobile screens: [an Android app](29-deploying.md#an-android-app)
+  is two settings away, but what it shows is your pages, in a WebView.
 
 ## How to read this guide
 

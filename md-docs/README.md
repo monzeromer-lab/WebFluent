@@ -59,7 +59,7 @@ suite, so what you read is what the compiler accepts.
 | 26 | [Static or single-page](26-static-and-spa.md) | The same source builds as pre-rendered pages or as one app shell. What each gives you, what the static paint knows, and how dynamic routes are rendered. |
 | 27 | [Content](27-content.md) | Markdown, pages written as .md files, code on the page, and what the build writes for search engines and link previews. |
 | 28 | [Media](28-media.md) | Pictures the build resizes for every screen, video with captions, audio with a transcript, icons and carousels. |
-| 29 | [Deploying](29-deploying.md) | The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container. |
+| 29 | [Deploying](29-deploying.md) | The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container — or ship it as an Android app. |
 | 30 | [Environments](30-environments.md) | Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read. |
 | 31 | [Performance](31-performance.md) | What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow. |
 | 32 | [JavaScript interop](32-javascript-interop.md) | Use a JavaScript library — a chart, a map, an editor — with a typed declaration and a node with a lifetime; place other people's custom elements; publish your components for any framework. |

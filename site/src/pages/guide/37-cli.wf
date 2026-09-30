@@ -15,7 +15,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`wf init NAME [-t, --template spa|static|pdf|slides]`") }
+                    Table.Cell { Markdown("`wf init NAME [-t, --template spa|static|pdf|slides|android]`") }
                     Table.Cell("Creates a project from a template")
                 }
                 Table.Row {
@@ -77,7 +77,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf init my-site -t static")
             ])
 
-        Markdown("Makes a directory `NAME` with a config, a `.gitignore` and a small working application for the template: `spa` (the default — an interactive app), `static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a deck). It refuses a directory that already exists.")
+        Markdown("Makes a directory `NAME` with a config, a `.gitignore` and a small working application for the template: `spa` (the default — an interactive app), `static` (a marketing site, pre-rendered), `pdf` (a document), `slides` (a deck) or `android` (the interactive app, built as an Android app — see [Deploying](/docs/guide/deploying#an-android-app)). It refuses a directory that already exists.")
 
         Heading("wf build", id: "wf-build").h3
 

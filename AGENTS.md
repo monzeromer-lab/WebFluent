@@ -23,7 +23,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ## CLI
 
 ```bash
-wf init <name> -t spa|static|pdf|slides   # Create project
+wf init <name> -t spa|static|pdf|slides|android   # Create project
 wf build [-d DIR] [--stats]               # Compile (--stats: what it weighs)
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name>   # Scaffold a file, in the project's layout
@@ -2360,6 +2360,60 @@ page Deck(path: "/", title: "Q1 Review") {
 }
 ```
 
+## Android Output
+
+The site, as an Android app: its pages in a WebView, in an Android project
+Android Studio opens. `wf init <name> -t android` starts one.
+
+```json
+{
+    "build": {
+        "output_type": "android",
+        "android": {
+            "application_id": "com.yourname.ledger",
+            "app_name": "Ledger",
+            "icon": "public/icon.png"
+        }
+    }
+}
+```
+
+`wf build` writes the web build to `build/` as always, then an Android
+project to `build.android.dir` (`android/`) with that build in
+`app/src/main/assets/www/`. The Gradle files, `AndroidManifest.xml` and
+`MainActivity.java` are written once, when missing, and are the author's
+from then on (signing, permissions, native code); the web build, the
+launcher icons, `res/values*/webfluent.xml` (name, colours, window theme)
+and `app/webfluent.properties` (id, version, Android levels, which
+`app/build.gradle.kts` reads) are rewritten on every build, only where they
+changed. The activity uses platform classes only: the project's one
+dependency is the Android Gradle plugin. Build it in Android Studio, or
+`gradle assembleDebug` in `android/` with the Android SDK installed.
+
+- Pages are served from the app's assets on
+  `https://appassets.androidplatform.net` (a host Android reserves), so
+  storage, `fetch` and the CSP behave as on the web and the app works
+  offline from its first launch; other hosts go to the network.
+- Back walks the WebView's history, then leaves (predictive back on 13+);
+  a link to another site, `mailto:` or `tel:` opens outside the app; an
+  upload field opens the file picker.
+- The system bars take `color-background` (the dark theme's at night);
+  from Android 15 the page is kept clear of the bars, the cutout and the
+  keyboard.
+- Inside the app the build drops `base_path`, `offline`, `.gz`, `_headers`
+  and the sitemap. `versionName` is `version`; the version code is worked
+  out from it (`1.4.2` → `1004002`) unless `version_code` says otherwise.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `application_id` | — (required) | The app's permanent id on a phone and in Google Play; `com.example.*` draws a note |
+| `app_name` | `name` | The launcher label |
+| `icon` | `meta.touch_icon`, else a plain icon in `color-primary` | A square PNG, 512×512 or larger |
+| `icon_background` | the icon's corner colour, else `color-background` | Fills the adaptive icon's shape |
+| `version_code` | from `version` | Google Play's upload order |
+| `min_sdk` / `target_sdk` | `24` / `36` | Oldest Android it installs on / the one it targets |
+| `dir` | `"android"` | Not under `src/`, `public/` or the output |
+
 ## Strings
 
 A plain `"…"` string reads the escapes `\n \t \r \\ \" \{ \}` and `{…}`
@@ -2536,6 +2590,16 @@ site's other tabs, and `WF.store`/`WF.host` were renamed.
             "background_color": null,
             "chrome_color": null,
             "output_filename": null
+        },
+        "android": {
+            "application_id": "",
+            "app_name": "",
+            "icon": "",
+            "icon_background": "",
+            "version_code": null,
+            "min_sdk": 24,
+            "target_sdk": 36,
+            "dir": "android"
         }
     },
     "dev": { "port": 3000, "hot_reload": true },

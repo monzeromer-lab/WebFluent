@@ -73,6 +73,16 @@ absent unless you add them.
       "background_color": null,
       "chrome_color": null,
       "output_filename": null
+    },
+    "android": {
+      "application_id": "",
+      "app_name": "",
+      "icon": "",
+      "icon_background": "",
+      "version_code": null,
+      "min_sdk": 24,
+      "target_sdk": 36,
+      "dir": "android"
     }
   },
   "dev": { "port": 3000, "hot_reload": true },
@@ -111,7 +121,7 @@ absent unless you add them.
 | Key | Default | Meaning |
 |---|---|---|
 | `output` | `"./build"` | Where the build is written, relative to the project. |
-| `output_type` | `"spa"` | `spa` (a website), `pdf`, `slides` or `elements` ([chapter 33](33-pdf-and-slides.md)). |
+| `output_type` | `"spa"` | `spa` (a website), `pdf`, `slides` or `elements` ([chapter 33](33-pdf-and-slides.md)), or `android` — the website as an Android app ([chapter 29](29-deploying.md#an-android-app)). |
 | `ssg` | `false` | Pre-render every page to its own HTML ([chapter 26](26-static-and-spa.md)). |
 | `base_path` | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed. |
 | `split` | `true` | One script and stylesheet chunk per page, loaded when its route shows. |
@@ -124,6 +134,7 @@ absent unless you add them.
 | `elements` | `[]` | With `output_type: "elements"`, the components to publish as custom elements. |
 | `media` | below | The image pipeline. |
 | `pdf`, `slides` | below | The paper outputs. |
+| `android` | below | The Android app. |
 
 ### `build.media`
 
@@ -157,6 +168,22 @@ absent unless you add them.
 | `background_color` | `null` | A full-bleed colour for every slide. |
 | `chrome_color` | `null` | The colour of the numbers and footer; unset, it flips between dark and light on the slide's background. |
 | `output_filename` | the project's name | The file written. |
+
+### `build.android`
+
+With `output_type: "android"`, the app the build writes around the site
+([chapter 29](29-deploying.md#an-android-app)).
+
+| Key | Default | Meaning |
+|---|---|---|
+| `application_id` | — | Required. The id the app is known by on a phone and in Google Play, such as `com.yourname.ledger`. It can never change once the app is published. |
+| `app_name` | the project's `name` | The name under the launcher icon. |
+| `icon` | `""` | A square PNG, 512 × 512 or larger, in the project or in `public/`: the launcher icon at every screen density. Without one, `meta.touch_icon`; without that, a plain icon in `color-primary`. |
+| `icon_background` | the icon's corner colour | What fills the launcher's shape around the icon. An icon on a transparent background sits on `color-background`. |
+| `version_code` | from `version` | The number Google Play orders uploads by. `1.4.2` is `1004002`, so raising `version` raises it. |
+| `min_sdk` | `24` | The oldest Android the app installs on: 24 is Android 7.0, the least it runs on. |
+| `target_sdk` | `36` | The Android the app is built to behave on; Google Play asks for a recent one. |
+| `dir` | `"android"` | Where the Android project is written, in the project; not under `src/`, `public/` or the output. |
 
 ## `dev`
 

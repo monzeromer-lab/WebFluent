@@ -20,7 +20,7 @@ The language ships with a **built-in component library** that covers the most co
 
 ### Core Principles
 
-1. **Web-Only** — WebFluent targets the browser. It compiles to standard HTML, CSS, and JS. No native, no desktop, no mobile. The web is the platform.
+1. **Web-Only** — WebFluent targets the browser. It compiles to standard HTML, CSS, and JS. No native UI, no desktop toolkit. The web is the platform — an Android app (`output_type: "android"`) is the web build in a WebView, one more way to deliver the web rather than another platform to target.
 
 2. **Batteries Included** — Common components (Navbar, Card, Modal, Form, etc.) are built into the language. You don't import a UI library — the language *is* the UI library.
 
@@ -491,7 +491,7 @@ These are explicitly **not** goals for WebFluent:
 
 - **Server-side rendering (SSR)** — WebFluent is client-side only
 - **Backend/API development** — It's a frontend language
-- **Native mobile apps** — Web only
+- **Native mobile UI** — an Android app is the web build, in a WebView
 - **Package manager / ecosystem** — Built-in components cover common needs; no third-party component system initially
 - **TypeScript/JavaScript interop** — WebFluent is its own language, not a JS superset
 

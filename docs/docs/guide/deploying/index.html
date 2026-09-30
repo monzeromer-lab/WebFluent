@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deploying</title>
-    <meta name="description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
+    <meta name="description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers, or as an Android app.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying?lang=ar">
@@ -12,15 +12,15 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Deploying">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
+    <meta property="og:description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers, or as an Android app.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying">
     <meta property="og:locale" content="en">
     <meta property="og:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deploying">
-    <meta name="twitter:description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.">
+    <meta name="twitter:description" content="Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers, or as an Android app.">
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying","name":"Deploying","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Deploying","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying","name":"Deploying","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers, or as an Android app."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Deploying","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/deploying"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="../../../apple-touch-icon.png">
@@ -273,12 +273,12 @@
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Deploying</h1>
-                        <p class="wf-text wf-sfd35f593">The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container.</p>
+                        <p class="wf-text wf-sfd35f593">The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container — or ship it as an Android app.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <div class="wf-markdown">
-<p><code>wf build</code> writes <code>build/</code>: HTML, CSS, JavaScript, images, <code>sitemap.xml</code>, <code>robots.txt</code>, <code>_headers</code>, and a <code>.gz</code> beside every text file. That folder is the whole site. Any host that serves static files can serve it; there is no server process to run.</p>
+<p><code>wf build</code> writes <code>build/</code>: HTML, CSS, JavaScript, images, <code>sitemap.xml</code>, <code>robots.txt</code>, <code>_headers</code>, and a <code>.gz</code> beside every text file. That folder is the whole site. Any host that serves static files can serve it; there is no server process to run. The same build can also ship as <a href="#an-android-app">an Android app</a>.</p>
 <p>Before the first deploy:</p>
 <ol>
 <li>Set <code>meta.site_url</code> to the address the site will have, and <code>build.base_path</code> if it lives under a sub-path (<code>/docs</code>).</li>
@@ -585,6 +585,64 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
 <li>Run a link-preview debugger on a page, and submit <code>sitemap.xml</code> to search consoles.</li>
 </ul>
                             </div>
+                            <h2 class="wf-heading">An Android app</h2>
+                            <div class="wf-markdown">
+<p>The same build can be an Android app: its pages, in a WebView, in a project Android Studio opens. <code>wf init ledger -t android</code> starts one; in an existing project it is two settings:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">{
+  &quot;build&quot;: {
+    &quot;output_type&quot;: &quot;android&quot;,
+    &quot;android&quot;: {
+      &quot;application_id&quot;: &quot;com.yourname.ledger&quot;,
+      &quot;app_name&quot;: &quot;Ledger&quot;,
+      &quot;icon&quot;: &quot;public/icon.png&quot;
+    }
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>application_id</code> is the app's identity on a phone and in Google Play, and it can never change once the app is published, so the build refuses to guess one. The other settings are under <code>build.android</code> in <a href="/WebFluent/docs/guide/config">Configuration</a>.</p>
+<p><code>wf build</code> then writes the site to <code>build/</code>, as always, and an Android project to <code>android/</code> with the site inside it:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">android/
+├── settings.gradle.kts, build.gradle.kts     written once
+└── app/
+    ├── build.gradle.kts                      written once: signing, dependencies
+    ├── webfluent.properties                  every build: id, version, Android levels
+    └── src/main/
+        ├── AndroidManifest.xml               written once: permissions, deep links
+        ├── java/…/MainActivity.java          written once: the WebView
+        ├── assets/www/                       every build: the site
+        └── res/                              every build: icons, name, colours</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A file written once is yours: no build touches it again, so signing, a permission or a screen of native code goes there. The rest follows the project, and is written only where it changed, so Gradle has nothing to redo after a build that changed nothing. <code>android/.gitignore</code> keeps it out of version control, since <code>wf build</code> writes it again.</p>
+<p>Open <code>android/</code> in Android Studio and run the app. From the command line, with Gradle and the Android SDK installed, <code>gradle assembleDebug</code> in <code>android/</code> builds it, and <code>gradle wrapper</code> once gives the project its own <code>./gradlew</code>. A release for Google Play is <code>bundleRelease</code>, signed with your upload key: Android Studio's <em>Build › Generate Signed App Bundle</em>, or a <code>signingConfigs</code> block in <code>app/build.gradle.kts</code>.</p>
+<p>What the app does:</p>
+<ul>
+<li><strong>Its pages are on the phone.</strong> They are served from the app's own files on <code>https://appassets.androidplatform.net</code>, a host Android keeps for this, so storage, <code>fetch</code> and the Content-Security-Policy behave as on the web, and the app opens with no network. A request anywhere else goes to the network, as it would from a browser.</li>
+<li><strong>The WebView is Chromium</strong>, the engine <code>wf verify</code> and <code>wf test</code> drive: what they check in <code>build/</code> is what the app shows. <code>wf serve</code> shows the pages in a browser while you work, and a debug build can be inspected from desktop Chrome at <code>chrome://inspect</code>.</li>
+<li><strong>Back goes back</strong> through the pages the reader visited, then leaves the app. Android 13 and later preview that with the back gesture.</li>
+<li><strong>A link out of the app</strong> — another site, <code>mailto:</code>, <code>tel:</code> — opens where the phone opens it. An upload field opens the phone's file picker.</li>
+<li><strong>The system bars take the page's <code>color-background</code></strong>, and the dark theme's at night, with icons that can be read on it. From Android 15 the app draws edge to edge, and the page is kept clear of the bars, a camera cutout and the keyboard.</li>
+<li><strong>The launcher icon</strong> is made from <code>icon</code> at every screen density, and as an adaptive icon, whose shape the launcher chooses.</li>
+</ul>
+<p>Inside an app the build leaves out what only a host needs: <code>base_path</code>, the <code>offline</code> service worker, the <code>.gz</code> files, <code>_headers</code> and the sitemap. The version the phone shows is <code>version</code>, and the version code Google Play orders uploads by is worked out from it — <code>1.4.2</code> is <code>1004002</code> — so raising <code>version</code> is the one step a release takes.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
@@ -614,6 +672,7 @@ COPY --from=build /site/build /usr/share/nginx/html</code>
                         <a class="wf-link wf-sdae384de" href="#security-headers">Security headers</a>
                         <a class="wf-link wf-sdae384de" href="#an-api-on-the-same-origin">An API on the same origin</a>
                         <a class="wf-link wf-sdae384de" href="#after-deploying">After deploying</a>
+                        <a class="wf-link wf-sdae384de" href="#an-android-app">An Android app</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">

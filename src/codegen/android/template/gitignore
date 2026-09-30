@@ -1,0 +1,12 @@
+.gradle/
+.kotlin/
+.idea/
+*.iml
+build/
+local.properties
+
+# Written by `wf build` on every build, from the WebFluent project.
+app/webfluent.properties
+app/src/main/assets/www/
+app/src/main/res/values*/webfluent.xml
+app/src/main/res/mipmap-*/ic_launcher*

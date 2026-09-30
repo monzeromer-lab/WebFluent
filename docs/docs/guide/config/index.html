@@ -351,6 +351,16 @@
       &quot;background_color&quot;: null,
       &quot;chrome_color&quot;: null,
       &quot;output_filename&quot;: null
+    },
+    &quot;android&quot;: {
+      &quot;application_id&quot;: &quot;&quot;,
+      &quot;app_name&quot;: &quot;&quot;,
+      &quot;icon&quot;: &quot;&quot;,
+      &quot;icon_background&quot;: &quot;&quot;,
+      &quot;version_code&quot;: null,
+      &quot;min_sdk&quot;: 24,
+      &quot;target_sdk&quot;: 36,
+      &quot;dir&quot;: &quot;android&quot;
     }
   },
   &quot;dev&quot;: { &quot;port&quot;: 3000, &quot;hot_reload&quot;: true },
@@ -452,7 +462,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>spa</code> (a website), <code>pdf</code>, <code>slides</code> or <code>elements</code> (<a href="/WebFluent/docs/guide/pdf-and-slides">chapter 33</a>).</p>
+<p><code>spa</code> (a website), <code>pdf</code>, <code>slides</code> or <code>elements</code> (<a href="/WebFluent/docs/guide/pdf-and-slides">chapter 33</a>), or <code>android</code> — the website as an Android app (<a href="/WebFluent/docs/guide/deploying#an-android-app">chapter 29</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -631,6 +641,15 @@
                                         </td>
                                         <td>below</td>
                                         <td>The paper outputs.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>android</code></p>
+                                            </div>
+                                        </td>
+                                        <td>below</td>
+                                        <td>The Android app.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -928,6 +947,138 @@
                                         </td>
                                         <td>the project&#x27;s name</td>
                                         <td>The file written.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h3 class="wf-heading">build.android</h3>
+                            <div class="wf-markdown">
+<p>With <code>output_type: &quot;android&quot;</code>, the app the build writes around the site (<a href="/WebFluent/docs/guide/deploying#an-android-app">chapter 29</a>).</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">build.android</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Default</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>application_id</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Required. The id the app is known by on a phone and in Google Play, such as <code>com.yourname.ledger</code>. It can never change once the app is published.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>app_name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the project's <code>name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The name under the launcher icon.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>icon</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A square PNG, 512 × 512 or larger, in the project or in <code>public/</code>: the launcher icon at every screen density. Without one, <code>meta.touch_icon</code>; without that, a plain icon in <code>color-primary</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>icon_background</code></p>
+                                            </div>
+                                        </td>
+                                        <td>the icon&#x27;s corner colour</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>What fills the launcher's shape around the icon. An icon on a transparent background sits on <code>color-background</code>.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>version_code</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>from <code>version</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The number Google Play orders uploads by. <code>1.4.2</code> is <code>1004002</code>, so raising <code>version</code> raises it.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>min_sdk</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>24</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The oldest Android the app installs on: 24 is Android 7.0, the least it runs on.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>target_sdk</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>36</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The Android the app is built to behave on; Google Play asks for a recent one.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>dir</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;android&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Where the Android project is written, in the project; not under <code>src/</code>, <code>public/</code> or the output.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>

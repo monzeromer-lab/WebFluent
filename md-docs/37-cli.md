@@ -19,7 +19,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 
 | Command | Does |
 |---|---|
-| `wf init NAME [-t, --template spa\|static\|pdf\|slides]` | Creates a project from a template |
+| `wf init NAME [-t, --template spa\|static\|pdf\|slides\|android]` | Creates a project from a template |
 | `wf build [-d, --dir DIR] [--stats]` | Compiles the project; fails on errors, prints warnings |
 | `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, rebuilds and reloads on every save |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
@@ -43,8 +43,10 @@ wf init my-site -t static
 
 Makes a directory `NAME` with a config, a `.gitignore` and a small working
 application for the template: `spa` (the default — an interactive app),
-`static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a
-deck). It refuses a directory that already exists.
+`static` (a marketing site, pre-rendered), `pdf` (a document), `slides` (a
+deck) or `android` (the interactive app, built as an Android app — see
+[Deploying](29-deploying.md#an-android-app)). It refuses a directory that
+already exists.
 
 ### `wf build`
 

@@ -60,6 +60,16 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
       "background_color": null,
       "chrome_color": null,
       "output_filename": null
+    },
+    "android": {
+      "application_id": "",
+      "app_name": "",
+      "icon": "",
+      "icon_background": "",
+      "version_code": null,
+      "min_sdk": 24,
+      "target_sdk": 36,
+      "dir": "android"
     }
   },
   "dev": { "port": 3000, "hot_reload": true },
@@ -127,7 +137,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                 Table.Row {
                     Table.Cell { Markdown("`output_type`") }
                     Table.Cell { Markdown("`\"spa\"`") }
-                    Table.Cell { Markdown("`spa` (a website), `pdf`, `slides` or `elements` ([chapter 33](/docs/guide/pdf-and-slides)).") }
+                    Table.Cell { Markdown("`spa` (a website), `pdf`, `slides` or `elements` ([chapter 33](/docs/guide/pdf-and-slides)), or `android` — the website as an Android app ([chapter 29](/docs/guide/deploying#an-android-app)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ssg`") }
@@ -188,6 +198,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`pdf`, `slides`") }
                     Table.Cell("below")
                     Table.Cell("The paper outputs.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`android`") }
+                    Table.Cell("below")
+                    Table.Cell("The Android app.")
                 }
             }
         }
@@ -320,6 +335,62 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`output_filename`") }
                     Table.Cell("the project's name")
                     Table.Cell("The file written.")
+                }
+            }
+        }
+
+        Heading("build.android", id: "build-android").h3
+
+        Markdown("With `output_type: \"android\"`, the app the build writes around the site ([chapter 29](/docs/guide/deploying#an-android-app)).")
+
+        Table(caption: "build.android") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Default").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`application_id`") }
+                    Table.Cell("—")
+                    Table.Cell { Markdown("Required. The id the app is known by on a phone and in Google Play, such as `com.yourname.ledger`. It can never change once the app is published.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`app_name`") }
+                    Table.Cell { Markdown("the project's `name`") }
+                    Table.Cell("The name under the launcher icon.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`icon`") }
+                    Table.Cell { Markdown("`\"\"`") }
+                    Table.Cell { Markdown("A square PNG, 512 × 512 or larger, in the project or in `public/`: the launcher icon at every screen density. Without one, `meta.touch_icon`; without that, a plain icon in `color-primary`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`icon_background`") }
+                    Table.Cell("the icon's corner colour")
+                    Table.Cell { Markdown("What fills the launcher's shape around the icon. An icon on a transparent background sits on `color-background`.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`version_code`") }
+                    Table.Cell { Markdown("from `version`") }
+                    Table.Cell { Markdown("The number Google Play orders uploads by. `1.4.2` is `1004002`, so raising `version` raises it.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`min_sdk`") }
+                    Table.Cell { Markdown("`24`") }
+                    Table.Cell("The oldest Android the app installs on: 24 is Android 7.0, the least it runs on.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`target_sdk`") }
+                    Table.Cell { Markdown("`36`") }
+                    Table.Cell("The Android the app is built to behave on; Google Play asks for a recent one.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`dir`") }
+                    Table.Cell { Markdown("`\"android\"`") }
+                    Table.Cell { Markdown("Where the Android project is written, in the project; not under `src/`, `public/` or the output.") }
                 }
             }
         }
