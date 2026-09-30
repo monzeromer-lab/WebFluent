@@ -41,7 +41,7 @@ enum Commands {
     Init {
         /// Project name
         name: String,
-        /// Template: "spa" (default), "static", "pdf", or "slides"
+        /// Template: "spa" (default), "static", "pdf", "slides", or "android"
         #[arg(short, long, default_value = "spa")]
         template: String,
     },

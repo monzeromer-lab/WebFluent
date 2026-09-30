@@ -1,8 +1,8 @@
 /// Chapter 29 of the guide, written from md-docs/29-deploying.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page DeployingGuide(path: "/docs/guide/deploying", title: "Deploying", description: "Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers.", layout: DocsShell("Deploying", chapter: t("guide.chapter", { n: "29" }), blurb: "The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container.", source: "md-docs/29-deploying.md", sections: [Anchor(id: "installing-wf-on-a-build-machine", label: "Installing wf on a build machine"), Anchor(id: "github-pages", label: "GitHub Pages"), Anchor(id: "netlify", label: "Netlify"), Anchor(id: "cloudflare-pages", label: "Cloudflare Pages"), Anchor(id: "vercel", label: "Vercel"), Anchor(id: "nginx", label: "nginx"), Anchor(id: "apache", label: "Apache"), Anchor(id: "caddy", label: "Caddy"), Anchor(id: "docker", label: "Docker"), Anchor(id: "cache-headers", label: "Cache headers"), Anchor(id: "security-headers", label: "Security headers"), Anchor(id: "an-api-on-the-same-origin", label: "An API on the same origin"), Anchor(id: "after-deploying", label: "After deploying")], prevTo: "/docs/guide/media", prevLabel: "28. {t("ch.28")}", nextTo: "/docs/guide/environments", nextLabel: "30. {t("ch.30")}")) {
+page DeployingGuide(path: "/docs/guide/deploying", title: "Deploying", description: "Deploying a build to GitHub Pages, Netlify, Vercel, Cloudflare Pages, nginx, Apache, Caddy or Docker, with cache and security headers, or as an Android app.", layout: DocsShell("Deploying", chapter: t("guide.chapter", { n: "29" }), blurb: "The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container — or ship it as an Android app.", source: "md-docs/29-deploying.md", sections: [Anchor(id: "installing-wf-on-a-build-machine", label: "Installing wf on a build machine"), Anchor(id: "github-pages", label: "GitHub Pages"), Anchor(id: "netlify", label: "Netlify"), Anchor(id: "cloudflare-pages", label: "Cloudflare Pages"), Anchor(id: "vercel", label: "Vercel"), Anchor(id: "nginx", label: "nginx"), Anchor(id: "apache", label: "Apache"), Anchor(id: "caddy", label: "Caddy"), Anchor(id: "docker", label: "Docker"), Anchor(id: "cache-headers", label: "Cache headers"), Anchor(id: "security-headers", label: "Security headers"), Anchor(id: "an-api-on-the-same-origin", label: "An API on the same origin"), Anchor(id: "after-deploying", label: "After deploying"), Anchor(id: "an-android-app", label: "An Android app")], prevTo: "/docs/guide/media", prevLabel: "28. {t("ch.28")}", nextTo: "/docs/guide/environments", nextLabel: "30. {t("ch.30")}")) {
     Stack(gap: .lg) {
-        Markdown("`wf build` writes `build/`: HTML, CSS, JavaScript, images, `sitemap.xml`, `robots.txt`, `_headers`, and a `.gz` beside every text file. That folder is the whole site. Any host that serves static files can serve it; there is no server process to run.\n\nBefore the first deploy:\n\n1. Set `meta.site_url` to the address the site will have, and `build.base_path` if it lives under a sub-path (`/docs`).\n2. Decide static or single-page ([chapter 26](/docs/guide/static-and-spa)): a single-page build needs the host to answer every path with `index.html`.\n3. Run `wf build` and `wf verify` — the second loads every page in a real browser and fails on errors.")
+        Markdown("`wf build` writes `build/`: HTML, CSS, JavaScript, images, `sitemap.xml`, `robots.txt`, `_headers`, and a `.gz` beside every text file. That folder is the whole site. Any host that serves static files can serve it; there is no server process to run. The same build can also ship as [an Android app](#an-android-app).\n\nBefore the first deploy:\n\n1. Set `meta.site_url` to the address the site will have, and `build.base_path` if it lives under a sub-path (`/docs`).\n2. Decide static or single-page ([chapter 26](/docs/guide/static-and-spa)): a single-page build needs the host to answer every path with `index.html`.\n3. Run `wf build` and `wf verify` — the second loads every page in a real browser and fails on errors.")
 
         Heading("Installing wf on a build machine", id: "installing-wf-on-a-build-machine").h2
 
@@ -191,5 +191,35 @@ COPY --from=build /site/build /usr/share/nginx/html"#, title: "dockerfile")
         Heading("After deploying", id: "after-deploying").h2
 
         Markdown("- Open a deep link directly and reload it: a 404 means the host is not falling back to `index.html` (single-page) or the `base_path` is wrong.\n- View a page's source: the text should be in the HTML (static builds).\n- Check the response headers in the browser's network panel.\n- Run a link-preview debugger on a page, and submit `sitemap.xml` to search consoles.")
+
+        Heading("An Android app", id: "an-android-app").h2
+
+        Markdown("The same build can be an Android app: its pages, in a WebView, in a project Android Studio opens. `wf init ledger -t android` starts one; in an existing project it is two settings:")
+
+        CodeBlock(#"{
+  "build": {
+    "output_type": "android",
+    "android": {
+      "application_id": "com.yourname.ledger",
+      "app_name": "Ledger",
+      "icon": "public/icon.png"
+    }
+  }
+}"#, title: "json")
+
+        Markdown("`application_id` is the app's identity on a phone and in Google Play, and it can never change once the app is published, so the build refuses to guess one. The other settings are under `build.android` in [Configuration](/docs/guide/config).\n\n`wf build` then writes the site to `build/`, as always, and an Android project to `android/` with the site inside it:")
+
+        CodeBlock(#"android/
+├── settings.gradle.kts, build.gradle.kts     written once
+└── app/
+    ├── build.gradle.kts                      written once: signing, dependencies
+    ├── webfluent.properties                  every build: id, version, Android levels
+    └── src/main/
+        ├── AndroidManifest.xml               written once: permissions, deep links
+        ├── java/…/MainActivity.java          written once: the WebView
+        ├── assets/www/                       every build: the site
+        └── res/                              every build: icons, name, colours"#, title: "text")
+
+        Markdown("A file written once is yours: no build touches it again, so signing, a permission or a screen of native code goes there. The rest follows the project, and is written only where it changed, so Gradle has nothing to redo after a build that changed nothing. `android/.gitignore` keeps it out of version control, since `wf build` writes it again.\n\nOpen `android/` in Android Studio and run the app. From the command line, with Gradle and the Android SDK installed, `gradle assembleDebug` in `android/` builds it, and `gradle wrapper` once gives the project its own `./gradlew`. A release for Google Play is `bundleRelease`, signed with your upload key: Android Studio's *Build › Generate Signed App Bundle*, or a `signingConfigs` block in `app/build.gradle.kts`.\n\nWhat the app does:\n\n- **Its pages are on the phone.** They are served from the app's own files on `https://appassets.androidplatform.net`, a host Android keeps for this, so storage, `fetch` and the Content-Security-Policy behave as on the web, and the app opens with no network. A request anywhere else goes to the network, as it would from a browser.\n- **The WebView is Chromium**, the engine `wf verify` and `wf test` drive: what they check in `build/` is what the app shows. `wf serve` shows the pages in a browser while you work, and a debug build can be inspected from desktop Chrome at `chrome://inspect`.\n- **Back goes back** through the pages the reader visited, then leaves the app. Android 13 and later preview that with the back gesture.\n- **A link out of the app** — another site, `mailto:`, `tel:` — opens where the phone opens it. An upload field opens the phone's file picker.\n- **The system bars take the page's `color-background`**, and the dark theme's at night, with icons that can be read on it. From Android 15 the app draws edge to edge, and the page is kept clear of the bars, a camera cutout and the keyboard.\n- **The launcher icon** is made from `icon` at every screen density, and as an adaptive icon, whose shape the launcher chooses.\n\nInside an app the build leaves out what only a host needs: `base_path`, the `offline` service worker, the `.gz` files, `_headers` and the sitemap. The version the phone shows is `version`, and the version code Google Play orders uploads by is worked out from it — `1.4.2` is `1004002` — so raising `version` is the one step a release takes.")
     }
 }

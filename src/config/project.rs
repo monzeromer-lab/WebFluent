@@ -24,6 +24,10 @@ pub enum OutputType {
     /// The shared interface between frameworks is the platform, so this is
     /// one output rather than an adapter per framework.
     Elements,
+    /// An Android app: the web build, shown by a WebView, in an Android
+    /// project `build.android` describes. The web is still the platform —
+    /// a store is one more way to deliver it.
+    Android,
 }
 
 fn default_output_type() -> OutputType {
@@ -256,7 +260,8 @@ pub struct BuildConfig {
     /// What the build does with the images the program names.
     #[serde(default)]
     pub media: MediaConfig,
-    /// Output type: "spa" (default), "static", "pdf", or "slides"
+    /// Output type: "spa" (default), "static", "pdf", "slides", "elements"
+    /// or "android"
     #[serde(default = "default_output_type")]
     pub output_type: OutputType,
     /// PDF-specific configuration
@@ -265,6 +270,73 @@ pub struct BuildConfig {
     /// Slides-specific configuration
     #[serde(default)]
     pub slides: SlidesConfig,
+    /// What `output_type: "android"` makes of the project.
+    #[serde(default)]
+    pub android: AndroidConfig,
+}
+
+/// The Android app `output_type: "android"` writes: its identity, its icon,
+/// the Android versions it runs on, and where its project goes.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AndroidConfig {
+    /// The id the app is known by on a phone and in Google Play —
+    /// `com.yourname.ledger`. It has no default: once the app is published
+    /// it can never change, so it is a decision, not a guess.
+    #[serde(default)]
+    pub application_id: String,
+    /// The name under the launcher icon. The project's `name` when empty.
+    #[serde(default)]
+    pub app_name: String,
+    /// A square PNG, 512×512 or larger, the launcher icons are made from:
+    /// a path in the project, like `public/icon.png`. Without one the app
+    /// uses `meta.touch_icon`, and without that a plain icon in the theme's
+    /// primary colour.
+    #[serde(default)]
+    pub icon: String,
+    /// The colour behind the icon where a launcher's mask shows it. The
+    /// icon's own corner colour when empty, if that is opaque, and the
+    /// theme's background otherwise.
+    #[serde(default)]
+    pub icon_background: String,
+    /// The number Google Play orders uploads by, which every upload must
+    /// raise. Worked out from `version` when not set: `1.4.2` is `1004002`.
+    #[serde(default)]
+    pub version_code: Option<u32>,
+    /// The oldest Android the app installs on: 24 is Android 7.0.
+    #[serde(default = "default_min_sdk")]
+    pub min_sdk: u32,
+    /// The Android version the app is built to behave on. Google Play asks
+    /// for a recent one.
+    #[serde(default = "default_target_sdk")]
+    pub target_sdk: u32,
+    /// Where the Android project is written, in the project directory.
+    #[serde(default = "default_android_dir")]
+    pub dir: String,
+}
+
+fn default_min_sdk() -> u32 {
+    24
+}
+fn default_target_sdk() -> u32 {
+    36
+}
+fn default_android_dir() -> String {
+    "android".to_string()
+}
+
+impl Default for AndroidConfig {
+    fn default() -> Self {
+        Self {
+            application_id: String::new(),
+            app_name: String::new(),
+            icon: String::new(),
+            icon_background: String::new(),
+            version_code: None,
+            min_sdk: default_min_sdk(),
+            target_sdk: default_target_sdk(),
+            dir: default_android_dir(),
+        }
+    }
 }
 
 /// What the build does with the images a program names.
@@ -699,6 +771,7 @@ impl Default for BuildConfig {
             output_type: OutputType::Spa,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
+            android: AndroidConfig::default(),
         }
     }
 }

@@ -27,9 +27,10 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
         "static" => generate_static(name, project_dir)?,
         "pdf" => generate_pdf(name, project_dir)?,
         "slides" => generate_slides(name, project_dir)?,
+        "android" => generate_android(name, project_dir)?,
         _ => {
             eprintln!(
-                "Unknown template '{}'. Use 'spa', 'static', 'pdf', or 'slides'.",
+                "Unknown template '{}'. Use 'spa', 'static', 'pdf', 'slides', or 'android'.",
                 template
             );
             std::process::exit(1);
@@ -52,8 +53,75 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
     println!("  cd {}", name);
     println!("  wf build");
     println!("  wf serve");
+    if template == "android" {
+        println!();
+        println!("  `wf build` writes the Android project to android/: open it in Android Studio.");
+        println!("  Give `build.android.application_id` an id of your own before you publish.");
+    }
 
     Ok(())
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Android Template — the SPA dashboard, as an app
+// ═══════════════════════════════════════════════════════════
+
+fn generate_android(name: &str, dir: &Path) -> Result<()> {
+    generate_spa(name, dir)?;
+
+    // The same site, built as an app: an id to replace before publishing,
+    // and an icon to replace whenever.
+    fs::write(
+        dir.join("webfluent.app.json"),
+        format!(
+            r#"{{
+  "name": "{name}",
+  "version": "1.0.0",
+  "author": "",
+  "theme": {{}},
+  "build": {{
+    "output": "./build",
+    "minify": true,
+    "csp": true,
+    "output_type": "android",
+    "android": {{
+      "application_id": "com.example.{}",
+      "app_name": "{name}",
+      "icon": "public/icon.png"
+    }}
+  }},
+  "dev": {{
+    "port": 3000
+  }},
+  "meta": {{
+    "title": "{name}",
+    "description": "Built with WebFluent",
+    "lang": "en"
+  }}
+}}"#,
+            id_part(name)
+        ),
+    )?;
+    // The baseline theme's primary colour, which the dashboard is drawn in.
+    crate::codegen::android::placeholder_icon(512, [0xFF, 0x3B, 0x82, 0xF6])
+        .save(dir.join("public/icon.png"))
+        .map_err(|e| crate::error::WebFluentError::IoError(format!("public/icon.png: {e}")))?;
+    Ok(())
+}
+
+/// A project name as the last part of an application id: its letters and
+/// digits, made into a part an id can have when they are not one.
+fn id_part(name: &str) -> String {
+    let part = name
+        .chars()
+        .filter(char::is_ascii_alphanumeric)
+        .collect::<String>()
+        .to_ascii_lowercase();
+    if crate::codegen::android::check_application_id(&format!("com.example.{part}")).is_ok() {
+        part
+    } else {
+        format!("app{part}")
+    }
 }
 
 // ═══════════════════════════════════════════════════════════

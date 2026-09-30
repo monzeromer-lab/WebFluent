@@ -169,7 +169,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/scaffolds && cd /tmp/scaffolds
-          for template in spa static pdf slides; do
+          for template in spa static pdf slides android; do
             "$GITHUB_WORKSPACE/target/release/wf" init "s_$template" -t "$template"
             output=$(cd "s_$template" && "$GITHUB_WORKSPACE/target/release/wf" build 2>&1)
             echo "$output"

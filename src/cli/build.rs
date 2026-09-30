@@ -25,6 +25,20 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         eprintln!("Warning: webfluent.app.json: {unknown}");
     }
 
+    // An Android app is this web build in a WebView, so what `build.android`
+    // asks for is checked before anything is built, and the build leaves out
+    // what only a host needs — decided here, since a sub-path shapes every
+    // URL the build writes.
+    if config.build.output_type == OutputType::Android {
+        let problems = crate::codegen::android::check(&config, project_dir);
+        if !problems.is_empty() {
+            return Err(WebFluentError::ConfigError(problems.join("\n")));
+        }
+        for note in crate::codegen::android::prepare(&mut config) {
+            println!("  Note: {note}");
+        }
+    }
+
     // The images the program names are written at every width a page will
     // ask for, before anything checks the program — so a name resolves to
     // the asset it became, with its real size and colour.
@@ -573,6 +587,23 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // everything else the build wrote.
     if let Some(offline) = &config.offline {
         write_service_worker(&output_dir, &config, offline, &program, &written_html)?;
+    }
+
+    // The app around the finished web build: what it shows is what `wf
+    // serve` serves and `wf verify` checks.
+    if config.build.output_type == OutputType::Android {
+        let app =
+            crate::codegen::android::write_project(project_dir, &output_dir, &config, &program)?;
+        for note in &app.notes {
+            println!("  Note: {note}");
+        }
+        println!("  Android: {}, in {}/", app.summary, app.dir);
+        if app.created {
+            println!(
+                "    A new Android project: open {}/ in Android Studio, or run `gradle assembleDebug` there",
+                app.dir
+            );
+        }
     }
 
     // A `.gz` beside every text file, for a host that serves one when it has
