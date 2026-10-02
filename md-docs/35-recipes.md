@@ -845,8 +845,9 @@ page Share(path: "/share", title: "Share", description: "Copy the link.") {
 
 ### A chart
 
-A charting library goes through `external` and `Host`; the full example is in
-[JavaScript interop](32-javascript-interop.md#a-library-end-to-end).
+A charting library is a URL in `meta.scripts`, called from a script of your
+own and handed a canvas with `Host`; the full example is in
+[JavaScript interop](32-javascript-interop.md#a-library-from-a-cdn).
 
 ## Where to go next
 

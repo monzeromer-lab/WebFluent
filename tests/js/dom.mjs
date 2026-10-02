@@ -277,7 +277,19 @@ export function makeDom() {
     body: new Element("body"),
     head: new Element("head"),
     documentElement: new Element("html"),
-    addEventListener() {},
+    // What a script listens for on the document, `wf:render` among it.
+    _listeners: new Map(),
+    addEventListener(type, fn) {
+      if (!document._listeners.has(type)) document._listeners.set(type, []);
+      document._listeners.get(type).push(fn);
+    },
+    removeEventListener(type, fn) {
+      document._listeners.set(type, (document._listeners.get(type) || []).filter((f) => f !== fn));
+    },
+    dispatchEvent(event) {
+      for (const fn of document._listeners.get(event.type) || []) fn(event);
+      return true;
+    },
     querySelector: (s) => document.body.querySelector(s),
     querySelectorAll: (s) => document.body.querySelectorAll(s),
     getElementById: (id) => document.body.querySelectorAll(`[id="${id}"]`)[0] || null,

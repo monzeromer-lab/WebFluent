@@ -62,17 +62,17 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
                             | "test"
                             | "data"
                             | "image"
-                            | "external"
                     ) || l.starts_with("//")
                 });
             whole
                 && src.lines().any(|l| l.starts_with("page "))
                 && !src.contains('…')
-                // Paper, a module fetched from a CDN, a file on disk, or a
-                // deliberate failure: nothing a fake DOM can stand for.
+                // Paper, a canvas a library from a CDN draws into, a file on
+                // disk, or a deliberate failure: nothing a fake DOM can stand
+                // for.
                 && !src.contains("Document(")
+                && !src.contains("Host(tag: \"canvas\"")
                 && !src.contains("Presentation")
-                && !src.contains("external ")
                 && !src.contains("data ")
                 && !src.contains("image ")
                 && !src.contains(" from \"")
@@ -99,6 +99,7 @@ fn build_all() -> (Vec<String>, Vec<String>) {
     let mut failures = Vec::new();
     for name in names {
         let markdown = std::fs::read_to_string(guide.join(&name)).unwrap();
+        let scripts = chapter_scripts(&markdown);
         for (line, src) in page_examples(&markdown) {
             let dir_name = format!("{}-{line}", &name[..name.len() - 3]);
             let dir = out_root.join(&dir_name);
@@ -129,6 +130,12 @@ fn build_all() -> (Vec<String>, Vec<String>) {
             )
             .unwrap();
             std::fs::write(dir.join("src/App.wf"), &src).unwrap();
+            // The scripts the chapter shows beside it, as its project has them.
+            for (path, text) in &scripts {
+                let at = dir.join(path);
+                std::fs::create_dir_all(at.parent().unwrap()).unwrap();
+                std::fs::write(at, text).unwrap();
+            }
             let out = Command::new(env!("CARGO_BIN_EXE_wf"))
                 .args(["build", "-d"])
                 .arg(&dir)
@@ -145,6 +152,30 @@ fn build_all() -> (Vec<String>, Vec<String>) {
         }
     }
     (built, failures)
+}
+
+/// The scripts a chapter shows: each ```` ```js ```` block whose first line
+/// is `// src/<file>.js`, as `(src/<file>.js, its text)`.
+fn chapter_scripts(markdown: &str) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    let mut lines = markdown.lines();
+    while let Some(line) = lines.next() {
+        if line.trim_end() != "```js" {
+            continue;
+        }
+        let body: Vec<&str> = lines
+            .by_ref()
+            .take_while(|l| l.trim_end() != "```")
+            .collect();
+        if let Some(path) = body
+            .first()
+            .and_then(|l| l.strip_prefix("// "))
+            .filter(|p| p.starts_with("src/"))
+        {
+            out.push((path.trim().to_string(), body.join("\n") + "\n"));
+        }
+    }
+    out
 }
 
 fn node_available() -> bool {

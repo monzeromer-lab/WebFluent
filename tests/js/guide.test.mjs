@@ -16,7 +16,17 @@ const examples = existsSync(new URL("examples.json", root))
 
 function bundle(name) {
   const build = new URL(`${name}/build/`, root);
-  let src = readFileSync(new URL("app.js", build), "utf8");
+  // The project's own scripts first, as a page links them.
+  let src = "";
+  const scripts = (dir) => {
+    if (!existsSync(dir)) return;
+    for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      if (entry.isDirectory()) scripts(new URL(`${entry.name}/`, dir));
+      else if (entry.name.endsWith(".js")) src += readFileSync(new URL(entry.name, dir), "utf8") + "\n";
+    }
+  };
+  scripts(new URL("js/", build));
+  src += readFileSync(new URL("app.js", build), "utf8");
   const pages = new URL("pages/", build);
   if (existsSync(pages)) {
     for (const file of readdirSync(pages).sort()) {

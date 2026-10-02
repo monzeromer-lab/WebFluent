@@ -147,6 +147,12 @@ page Post(path: "/p/:slug", title: "Post", slug: String, paths: posts.map(p => p
 }
 
 // AGENTS.md
+page Doc(path: "/") {
+    Text(t.title, class: { "is-done": t.done, "is-urgent": t.priority > 2 })
+    Card(class: ["feature", tone, if open { "is-open" }])
+}
+
+// AGENTS.md
 app {
     Navbar {
         Navbar.Brand { Link("Ledger", to: "/") }
@@ -515,16 +521,15 @@ page Doc(path: "/") {
 }
 
 // AGENTS.md
-page Doc(path: "/") {
-    Host(tag: "canvas",                            // div · span · canvas · svg · section · figure · pre · p · ul · table
-         mount: (node) => Chart.Chart(node, config),
-         update: (chart) => chart.update(rows),    // again whenever the state it reads changes
-         cleanup: (chart) => chart.destroy())      // when its page, branch or item leaves
-}
-
-// AGENTS.md
-page Doc(path: "/") {
-    Stripe(publishableKey: key) { on ready { loaded = true } }
+page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
+    state max = 15
+    Heading("Gallery").h1
+    Card(class: "tilt",
+         mount: (n) => initTilt(n, max),      // each time the element is made
+         update: (t) => t.setMax(max),        // again when what it reads changes
+         cleanup: (t) => t.destroy()) {       // when its page, branch or item leaves
+        Text("Lean on me.")
+    }
 }
 
 // AGENTS.md

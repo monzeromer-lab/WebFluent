@@ -71,11 +71,13 @@ jobs:
   # What only a real browser has — a service worker, WebRTC — is driven in a
   # real Chrome: `offline` (the site stored, served with the server gone, a
   # write kept and sent once, an update taken with one reload, pre-rendered
-  # and as a single page) and `peer` (two pages connecting, a message each
-  # way, one seeing the other leave). The runner has Chrome;
+  # and as a single page), `peer` (two pages connecting, a message each
+  # way, one seeing the other leave) and `scripts` (the project's own `.js`
+  # called from `.wf`, `mount:`/`cleanup:` across an `if` and a route,
+  # `Element`, `wf:render`, under the CSP). The runner has Chrome;
   # `puppeteer-core` drives it.
   browser:
-    name: Offline and peers in a real browser
+    name: Offline, peers and scripts in a real browser
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,6 +103,10 @@ jobs:
       - name: Peers
         working-directory: tests/browser
         run: node peer.mjs
+
+      - name: Scripts
+        working-directory: tests/browser
+        run: node scripts.mjs
 
   check:
     name: Build, lint and test

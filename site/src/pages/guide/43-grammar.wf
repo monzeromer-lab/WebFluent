@@ -10,7 +10,7 @@ page GrammarGuide(path: "/docs/guide/grammar", title: "Grammar", description: "T
 
         Heading("Keywords", id: "keywords").h2
 
-        Markdown("Where a statement starts, these words have meaning: `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `external`, `const`, `data`, `image`, `animation` and `test` at the top of a file; `state`, `persist`, `derived`, `effect`, `cleanup`, `action`, `use`, `resource`, `validate`, `socket`, `stream`, `channel`, `peer`, `every`, `after`, `on key`, `head`, `if`, `if let`, `for`, `show`, `match`, `sequence` and `step` in a render block; `slot`, `event`, `part` and `children` in a component; `let`, `return`, `try`, `catch`, `await` and `emit` in an action; `expect`, `click`, `type`, `press` in a test. Everywhere else they are ordinary names.")
+        Markdown("Where a statement starts, these words have meaning: `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation` and `test` at the top of a file; `state`, `persist`, `derived`, `effect`, `cleanup`, `action`, `use`, `resource`, `validate`, `socket`, `stream`, `channel`, `peer`, `every`, `after`, `on key`, `head`, `if`, `if let`, `for`, `show`, `match`, `sequence` and `step` in a render block; `slot`, `event`, `part` and `children` in a component; `let`, `return`, `try`, `catch`, `await` and `emit` in an action; `expect`, `click`, `type`, `press` in a test. Everywhere else they are ordinary names.")
 
         Heading("Declarations", id: "declarations").h2
 
@@ -27,8 +27,6 @@ type Name { field: Type = default, … }        type Name = Other { … }
 enum Name { case, case(part: Type, …), … }
 api Name(base: expr, …) { settings  headers { … }  on request|response|error(x) { … }  endpoints }
 api Name from "spec.json" (base: expr)
-external Name from "module" { integrity: "…"  fn f(params) -> Type  type T { method(params) -> Type  field: Type } }
-external element Name("tag-name") { prop name: Type  event name(params) }
 const NAME: Type = expr
 data name: Type = "file.json"
 image name = "picture.jpg"
@@ -276,7 +274,7 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
             }
         }
 
-        Markdown("So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.\n\nValues that are expressions: `if c \{ a \} else \{ b \}`, `if let x = v \{ a \} else \{ b \}`, `match v \{ .case \{ a \} else \{ b \} \}`, lambdas `x => expr`, `(a, b) => expr`, `() => expr`, spreads `...x` in a list or map.")
+        Markdown("So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.\n\nValues that are expressions: `if c \{ a \} else \{ b \}` (`null` when there is no `else` and `c` fails), `if let x = v \{ a \} else \{ b \}`, `match v \{ .case \{ a \} else \{ b \} \}`, lambdas `x => expr`, `(a, b) => expr`, `() => expr`, spreads `...x` in a list or map.")
 
         Heading("Literals", id: "literals").h2
 

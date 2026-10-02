@@ -305,13 +305,9 @@ struct World<'p> {
     consts: HashMap<String, Type>,
     /// The services the program declares.
     apis: HashMap<&'p str, &'p ApiDecl>,
-    /// The shapes an `external` declares a library hands back. The checker
-    /// cannot see the other side, so a value annotated with one is taken
-    /// as the library gives it; it used to be read as a record with no
-    /// fields, and every method called on it was a `T05`.
-    opaque: std::collections::HashSet<&'p str>,
-    /// The modules an `external` imports, reachable by their name.
-    externals: std::collections::HashSet<&'p str>,
+    /// What the project's scripts make global, by name, with the file each
+    /// is in.
+    scripts: HashMap<&'p str, (&'p str, &'p crate::project_js::scan::Name)>,
 }
 
 impl<'p> World<'p> {
@@ -341,12 +337,6 @@ impl<'p> World<'p> {
     fn resolve(&self, ty: Type) -> Type {
         match ty {
             Type::Record(name) if self.enums.contains_key(name.as_str()) => Type::Enum(name),
-            Type::Record(name)
-                if self.opaque.contains(name.as_str())
-                    && !self.types.contains_key(name.as_str()) =>
-            {
-                Type::Any
-            }
             // A name the language knows, unless the program declares a type
             // of its own by that name — which wins, so nothing the language
             // adds can take a name away.
@@ -424,15 +414,16 @@ pub fn check_in(
         stores: HashMap::new(),
         consts: HashMap::new(),
         apis: HashMap::new(),
-        opaque: std::collections::HashSet::new(),
-        externals: std::collections::HashSet::new(),
+        scripts: HashMap::new(),
     };
     for decl in &program.declarations {
         match decl {
-            Declaration::External(e) => {
-                world.externals.insert(e.name.as_str());
-                for t in &e.types {
-                    world.opaque.insert(t.name.as_str());
+            Declaration::Script(script) => {
+                for n in &script.names {
+                    world
+                        .scripts
+                        .entry(n.name.as_str())
+                        .or_insert((script.path.as_str(), n));
                 }
             }
             Declaration::Type(t) => {
@@ -600,7 +591,7 @@ pub fn check_in(
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Enum(_)
-            | Declaration::External(_)
+            | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -706,6 +697,66 @@ impl<'a, 'p> Checker<'a, 'p> {
         } else {
             d.with_hint(hint)
         });
+    }
+
+    /// A `class:` value: a string, a map whose values are conditions, a list
+    /// of strings and maps, or a value holding one of those.
+    fn check_class_value(&mut self, value: &Expr, at: Span, element: &str) {
+        match value {
+            Expr::MapLiteral(pairs) => {
+                for (key, on) in pairs {
+                    if key == "..." {
+                        self.infer(on, None);
+                        continue;
+                    }
+                    let given = self.infer(on, Some(&Type::Bool));
+                    if !given.unwrapped().assignable_to(&Type::Bool) {
+                        self.error(
+                            at,
+                            "T01",
+                            format!(
+                                "`{}` in `class:` on `{element}` is `{given}`, but `Bool` is wanted",
+                                key.trim_matches('"')
+                            ),
+                            "Each key of a `class:` map is a class, on while its value is true: `{ \"is-done\": todo.done }`",
+                        );
+                    }
+                }
+            }
+            Expr::ListLiteral(items) => {
+                for item in items {
+                    self.check_class_value(item, at, element);
+                }
+            }
+            _ => {
+                let given = self.infer(value, Some(&Type::String));
+                let fits = |t: &Type| {
+                    matches!(
+                        t,
+                        Type::Any
+                            | Type::String
+                            | Type::Null
+                            | Type::Map
+                            | Type::Shape(_)
+                            | Type::List(_)
+                    )
+                };
+                // A bare `Bool` would paint the class `true`: a condition
+                // belongs in a map, `{ "is-on": on }`.
+                let ok = match &given {
+                    Type::Optional(inner) => fits(inner),
+                    other => fits(other),
+                };
+                if !ok {
+                    self.error(
+                        at,
+                        "T01",
+                        format!("`class:` on `{element}` is `{given}`, but a class name is wanted"),
+                        "Give a string, a map of class to condition (`{ \"is-on\": on }`) or a list of those",
+                    );
+                }
+            }
+        }
     }
 
     /// Report `given` where `wanted` was expected, at `span`, naming `what`.
@@ -1632,6 +1683,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             // each checked as the prop itself; the widths are the
             // stylesheet's, not a type's.
             if crate::codegen::scoped_css::is_responsive(value)
+                && !matches!(arg, Arg::Named(k, _) if k == "class")
                 && let Some(prop) = prop
             {
                 let wanted = match prop.ty {
@@ -1696,6 +1748,8 @@ impl<'a, 'p> Checker<'a, 'p> {
                 );
             }
             match (prop.ty, prop.name) {
+                // `class:` — a string, `{ "is-on": cond }`, or a list of either.
+                (_, "class") => self.check_class_value(value, at, &name),
                 // `bind:` — the control's value type.
                 (PropType::State, "ref") => {
                     if !matches!(value, Expr::Identifier(_)) {
@@ -2767,6 +2821,11 @@ impl<'a, 'p> Checker<'a, 'p> {
     }
 
     fn function_call(&mut self, name: &str, args: &[Expr]) -> Type {
+        if self.lookup(name).is_none()
+            && let Some((file, script)) = self.world.scripts.get(name).copied()
+        {
+            return self.script_call(file, script, args);
+        }
         match self.lookup(name) {
             Some(Type::Func(params, ret)) => {
                 self.call_args(&params, args, &format!("`{name}`"));
@@ -2831,6 +2890,115 @@ impl<'a, 'p> Checker<'a, 'p> {
                     _ => Type::Any,
                 }
             }
+        }
+    }
+
+    /// A call to a function or class a project script declares: as many
+    /// arguments as it takes — fewer where the last have defaults, any
+    /// number past a `...rest`.
+    fn script_call(
+        &mut self,
+        file: &str,
+        script: &crate::project_js::scan::Name,
+        args: &[Expr],
+    ) -> Type {
+        use crate::project_js::scan::NameKind;
+        let name = script.name.as_str();
+        let params = match &script.kind {
+            NameKind::Function { params, .. } | NameKind::Class { params, .. } => params,
+            NameKind::Value => {
+                // A value a script declares may hold a function the scanner
+                // could not see; the browser decides.
+                for a in args {
+                    self.infer(a, None);
+                }
+                return Type::Any;
+            }
+        };
+        let documented = script
+            .doc
+            .as_deref()
+            .map(crate::project_js::jsdoc::parse)
+            .unwrap_or_default();
+        // A default in the code or `[name]` in the comment: either says a
+        // call may leave it out.
+        let optional = |p: &crate::project_js::scan::Param| {
+            p.optional || documented.param(&p.name).is_some_and(|d| d.optional)
+        };
+        let rest = params.last().is_some_and(|p| p.rest);
+        let fixed = params.iter().filter(|p| !p.rest).count();
+        let required = params
+            .iter()
+            .rposition(|p| !optional(p) && !p.rest)
+            .map_or(0, |i| i + 1);
+        if args.len() < required || (!rest && args.len() > fixed) {
+            let takes = match (required == fixed, rest) {
+                (true, false) => format!("{fixed}"),
+                (false, false) => format!("{required} to {fixed}"),
+                (_, true) => format!("at least {required}"),
+            };
+            let shape = params
+                .iter()
+                .map(|p| {
+                    if p.rest {
+                        format!("...{}", p.name)
+                    } else if optional(p) {
+                        format!("{}?", p.name)
+                    } else {
+                        p.name.clone()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            self.error_at_current(
+                "T10",
+                format!(
+                    "`{name}` takes {takes} argument{}, but {} {} given",
+                    if takes == "1" { "" } else { "s" },
+                    args.len(),
+                    if args.len() == 1 { "is" } else { "are" }
+                ),
+                &format!(
+                    "It is `{name}({shape})`, at {file}:{}:{}",
+                    script.line, script.col
+                ),
+            );
+        }
+        // What its doc comment says each parameter is, and what it gives
+        // back; without one, everything is `Any`.
+        let doc = script
+            .doc
+            .as_deref()
+            .map(crate::project_js::jsdoc::parse)
+            .unwrap_or_default();
+        for (i, arg) in args.iter().enumerate() {
+            let param = params.get(i).or_else(|| params.last().filter(|p| p.rest));
+            let wanted = param
+                .and_then(|p| doc.param(&p.name))
+                .and_then(|d| d.ty.as_deref())
+                .map(jsdoc_type)
+                .unwrap_or(Type::Any);
+            let given = self.infer(arg, Some(&wanted));
+            if !given.assignable_to(&wanted) {
+                self.error_at_current(
+                    "T01",
+                    format!(
+                        "`{}` of `{name}` is `{wanted}`, but `{}` is `{given}`",
+                        param.map(|p| p.name.as_str()).unwrap_or("an argument"),
+                        expr_text(arg)
+                    ),
+                    &format!(
+                        "As its doc comment says, at {file}:{}:{}",
+                        script.line, script.col
+                    ),
+                );
+            }
+        }
+        match &script.kind {
+            // A class's call is the instance, which the checker takes as
+            // given.
+            NameKind::Class { .. } => Type::Any,
+            _ => doc.returns.as_deref().map(jsdoc_type).unwrap_or(Type::Any),
         }
     }
 
@@ -2941,7 +3109,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                     | "globalThis"
                     | "this"
             )
-            || self.world.externals.contains(name)
+            || self.world.scripts.contains_key(name)
             || self.world.apis.contains_key(name)
             || self.world.stores.contains_key(name)
             || self.world.consts.contains_key(name)
@@ -3074,7 +3242,7 @@ fn in_optional_chain(expr: &Expr) -> bool {
 
 /// The types of the names every program can read.
 /// The functions the language gives a program, which it calls by name.
-const BUILT_IN_FUNCTIONS: &[&str] = &[
+pub(crate) const BUILT_IN_FUNCTIONS: &[&str] = &[
     "log",
     "navigate",
     "format",
@@ -3149,6 +3317,182 @@ fn global_type(name: &str) -> Type {
 
 /// What `Form(bind: form)` binds: whether every control is valid, the
 /// values by field name, and `reset()`.
+/// What a JSDoc type expression means here. What the checker has no word
+/// for — `HTMLElement`, a class of the page's own, a generic it does not
+/// know — is `Any`, which agrees with everything, so a comment can only
+/// ever narrow a call, never break a correct one.
+pub fn jsdoc_type(text: &str) -> Type {
+    /// Split `text` at `sep` where no bracket is open.
+    fn split_top(text: &str, sep: char) -> Vec<&str> {
+        let mut parts = Vec::new();
+        let (mut depth, mut start) = (0i32, 0);
+        let mut prev = '\0';
+        for (i, c) in text.char_indices() {
+            match c {
+                '(' | '[' | '{' | '<' => depth += 1,
+                // `=>` closes nothing.
+                '>' if prev == '=' => {}
+                ')' | ']' | '}' | '>' => depth -= 1,
+                _ if c == sep && depth == 0 => {
+                    parts.push(&text[start..i]);
+                    start = i + c.len_utf8();
+                }
+                _ => {}
+            }
+            prev = c;
+        }
+        parts.push(&text[start..]);
+        parts
+    }
+    /// The index just past the bracket closing the one `text` opens with.
+    fn close_of(text: &str) -> Option<usize> {
+        let mut depth = 0;
+        for (i, c) in text.char_indices() {
+            match c {
+                '(' | '[' | '{' | '<' => depth += 1,
+                ')' | ']' | '}' | '>' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        return Some(i + 1);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+    /// `name: T` / `name?: T` / `T`, as a parameter or a field.
+    fn field(text: &str) -> (String, bool, Type) {
+        let text = text.trim();
+        match split_top(text, ':').as_slice() {
+            [name, ty] => {
+                let optional = name.trim().ends_with('?');
+                let name = name.trim().trim_end_matches('?').trim().to_string();
+                (name, optional, jsdoc_type(ty))
+            }
+            _ => (String::new(), false, jsdoc_type(text)),
+        }
+    }
+
+    let t = text.trim();
+    let t = t.strip_prefix("...").unwrap_or(t).trim();
+    if t.is_empty() {
+        return Type::Any;
+    }
+    if let Some(inner) = t.strip_prefix('?') {
+        return Type::optional(jsdoc_type(inner));
+    }
+    let t = t.strip_prefix('!').unwrap_or(t);
+    let alternatives = split_top(t, '|');
+    if alternatives.len() > 1 {
+        let (nulls, others): (Vec<&str>, Vec<&str>) = alternatives
+            .iter()
+            .map(|a| a.trim())
+            .partition(|a| matches!(*a, "null" | "undefined"));
+        let joined = match others.as_slice() {
+            [one] => jsdoc_type(one),
+            // `string | number`: the language has no union to say it with.
+            _ => Type::Any,
+        };
+        return if nulls.is_empty() {
+            joined
+        } else {
+            Type::optional(joined)
+        };
+    }
+    // `(a: T) => R`, or `(T)` for grouping.
+    if t.starts_with('(')
+        && let Some(end) = close_of(t)
+    {
+        let rest = t[end..].trim();
+        if let Some(ret) = rest.strip_prefix("=>") {
+            let inside = &t[1..end - 1];
+            let params = if inside.trim().is_empty() {
+                Vec::new()
+            } else {
+                split_top(inside, ',')
+                    .into_iter()
+                    .map(|p| field(p).2)
+                    .collect()
+            };
+            return Type::Func(params, Box::new(jsdoc_type(ret)));
+        }
+        if rest.is_empty() {
+            return jsdoc_type(&t[1..end - 1]);
+        }
+    }
+    // `function(T, U): R`
+    if let Some(after) = t.strip_prefix("function")
+        && after.trim_start().starts_with('(')
+    {
+        let after = after.trim_start();
+        if let Some(end) = close_of(after) {
+            let inside = &after[1..end - 1];
+            let params = if inside.trim().is_empty() {
+                Vec::new()
+            } else {
+                split_top(inside, ',')
+                    .into_iter()
+                    .map(|p| field(p).2)
+                    .collect()
+            };
+            let ret = after[end..]
+                .trim()
+                .strip_prefix(':')
+                .map_or(Type::Any, jsdoc_type);
+            return Type::Func(params, Box::new(ret));
+        }
+    }
+    // `{ a: T, b?: U }`: a shape of the fields written; a method in it
+    // (`destroy(): void`) is a field the checker takes as given.
+    if t.starts_with('{') && t.ends_with('}') {
+        let fields = split_top(&t[1..t.len() - 1], ',')
+            .into_iter()
+            .filter(|f| !f.trim().is_empty())
+            .map(|f| {
+                let f = f.trim();
+                if let Some(paren) = f.find('(')
+                    && f[..paren]
+                        .chars()
+                        .all(|c| c.is_alphanumeric() || c == '_' || c == '$')
+                {
+                    return (f[..paren].to_string(), Type::Any);
+                }
+                let (name, optional, ty) = field(f);
+                (name, if optional { Type::optional(ty) } else { ty })
+            })
+            .filter(|(name, _)| !name.is_empty())
+            .collect::<Vec<_>>();
+        return Type::Shape(fields);
+    }
+    if let Some(element) = t.strip_suffix("[]") {
+        return Type::list(jsdoc_type(element));
+    }
+    // `Name<T>` and Closure's `Name.<T>`.
+    if let Some(open) = t.find('<')
+        && t.ends_with('>')
+    {
+        let name = t[..open].trim_end_matches('.');
+        let args = split_top(&t[open + 1..t.len() - 1], ',');
+        return match (name, args.as_slice()) {
+            ("Array", [element]) => Type::list(jsdoc_type(element)),
+            // What a call awaits is the value; an action awaits it.
+            ("Promise", [value]) => jsdoc_type(value),
+            ("Object" | "Record" | "Map", _) => Type::Map,
+            _ => Type::Any,
+        };
+    }
+    match t {
+        "string" | "String" => Type::String,
+        "number" | "Number" => Type::Number,
+        "boolean" | "Boolean" | "bool" => Type::Bool,
+        "object" | "Object" => Type::Map,
+        "Array" | "array" => Type::list(Type::Any),
+        "void" | "undefined" | "null" => Type::Null,
+        _ => Type::Any,
+    }
+}
+
 pub fn form_type() -> Type {
     Type::Shape(vec![
         ("valid".to_string(), Type::Bool),

@@ -44,14 +44,74 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // What the pages will contain, decided before any of them is written:
     // the policy each one ships has to describe that page.
     config.build.inline_styles = crate::codegen::csp::writes_inline_styles(&program);
-    config.build.script_origins = crate::codegen::js::external_modules(&program)
-        .iter()
-        .filter_map(|(url, _)| {
-            let at = url.find("://")?;
-            let host = url[at + 3..].split('/').next()?;
-            (!host.is_empty()).then(|| format!("{}//{host}", &url[..at + 1]))
-        })
-        .collect();
+    // The project's own scripts: every `.js` under `src/`, a plain browser
+    // script each, copied as written and linked before the compiled code.
+    // A module cannot run from a `<script src>`, so one stops the build; a
+    // file the scanner cannot read is still linked — the browser may read
+    // it fine — but its names are not in scope.
+    let scripts = crate::project_js::load(project_dir, &project_dir.join("src"))?;
+    let mut script_warnings: Vec<crate::error::Diagnostic> = Vec::new();
+    let mut script_errors: Vec<crate::error::Diagnostic> = Vec::new();
+    for script in &scripts {
+        if let Some((line, col)) = script.scan.module_at {
+            script_errors.push(
+                crate::error::Diagnostic::new(
+                    format!(
+                        "`{}` is an ES module, and a script under `src/` is a plain browser script",
+                        script.path
+                    ),
+                    &script.path,
+                    line,
+                    col,
+                )
+                .with_hint(
+                    "Take off its `import` and `export`: a top-level `function` is global as it is",
+                ),
+            );
+        }
+        // `public/` is copied over the output afterwards: a file there at the
+        // same address would replace the script without a word.
+        if project_dir.join("public").join(&script.href).exists() {
+            script_errors.push(
+                crate::error::Diagnostic::new(
+                    format!(
+                        "`{}` and `public/{}` both claim `/{}`",
+                        script.path, script.href, script.href
+                    ),
+                    &script.path,
+                    1,
+                    1,
+                )
+                .with_hint(
+                    "Keep one of the two: a script under `src/` is written to `js/` in the output",
+                ),
+            );
+        }
+        for problem in &script.scan.problems {
+            script_warnings.push(
+                crate::error::Diagnostic::new(
+                    format!(
+                        "{} — the names it declares are not in scope",
+                        problem.message
+                    ),
+                    &script.path,
+                    problem.line,
+                    problem.col,
+                )
+                .with_hint("The file is still linked; the compiler only could not read it"),
+            );
+        }
+    }
+    if !script_errors.is_empty() {
+        for diagnostic in &script_errors {
+            eprintln!("{diagnostic}");
+        }
+        return Err(WebFluentError::CodegenError(format!(
+            "{} problem(s) with the scripts under src/",
+            script_errors.len()
+        )));
+    }
+    config.build.scripts = scripts.iter().map(|s| s.href.clone()).collect();
     let config = config;
     let file_of = |index: usize| {
         declaration_files
@@ -76,6 +136,9 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         .fonts
         .iter()
         .chain(config.meta.stylesheets.iter())
+        .map(String::as_str)
+        .chain(config.meta.scripts.iter().map(|s| s.src()))
+        .collect::<std::collections::BTreeSet<_>>()
     {
         if !url.contains("://") || config.meta.integrity.contains_key(url) {
             continue;
@@ -89,6 +152,20 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         println!(
             "    Add one to `meta.integrity`, so a change at that origin cannot reach your readers"
         );
+    }
+
+    // A module is imported and put on a global; without one to put it on,
+    // nothing could reach it.
+    for entry in &config.meta.scripts {
+        if let crate::config::project::ScriptEntry::Spec(spec) = entry
+            && spec.module
+            && spec.as_name.is_none()
+        {
+            return Err(WebFluentError::CodegenError(format!(
+                "`meta.scripts` imports `{}` as a module but names no global for it — add `\"as\": \"Name\"`",
+                spec.src
+            )));
+        }
     }
 
     // A value in `env` the page reads is a value in the bundle. A name
@@ -192,7 +269,13 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     for warning in &vocab_warnings {
         eprintln!("{}", warning);
     }
-    let mut warning_count = a11y_warnings.len() + vocab_warnings.len() + findings.warnings.len();
+    for warning in &script_warnings {
+        eprintln!("{}", warning.as_warning());
+    }
+    let mut warning_count = a11y_warnings.len()
+        + vocab_warnings.len()
+        + findings.warnings.len()
+        + script_warnings.len();
 
     // PDF output mode
     if config.build.output_type == OutputType::Pdf {
@@ -464,8 +547,18 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // The modules a program's `external` declarations import, in a file of
     // their own — a module, so `import` works, and separate so the page
     // chunks keep reading the bundle's names from the global scope.
-    if let Some(module) = crate::codegen::js::externals_module(&program) {
+    if let Some(module) = crate::codegen::js::externals_module(&config) {
         fs::write(output_dir.join("externals.js"), module)?;
+    }
+
+    // The project's own scripts, byte for byte: what the browser runs is
+    // what is in `src/`, so a stack trace points at the author's own line.
+    for script in &scripts {
+        let to = output_dir.join(&script.href);
+        if let Some(dir) = to.parent() {
+            fs::create_dir_all(dir)?;
+        }
+        fs::write(to, &script.source)?;
     }
 
     // `build.minify` — on by default, and read for the first time here: the
@@ -974,6 +1067,42 @@ pub fn read_project_with(
         };
         declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
         all_declarations.extend(program.declarations);
+    }
+    // The names the project's scripts make global, one declaration per
+    // file, so the checker, the codegen and the editor read the same ones.
+    for script in crate::project_js::load(project_dir, &src_dir)? {
+        if script.scan.module_at.is_some() || !script.scan.problems.is_empty() {
+            continue;
+        }
+        declaration_files.push(script.path.clone());
+        all_declarations.push(Declaration::Script(crate::parser::ast::ScriptDecl {
+            path: script.path,
+            names: script.scan.names,
+        }));
+    }
+    // And what `meta.scripts` says a library defines: the compiler cannot
+    // read a file on another origin, so each name is in scope as `Any`.
+    if let Ok(config) = ProjectConfig::load(project_dir) {
+        let names: Vec<crate::project_js::scan::Name> = config
+            .meta
+            .scripts
+            .iter()
+            .flat_map(|s| s.names())
+            .map(|name| crate::project_js::scan::Name {
+                name: name.to_string(),
+                kind: crate::project_js::scan::NameKind::Value,
+                line: 1,
+                col: 1,
+                doc: None,
+            })
+            .collect();
+        if !names.is_empty() {
+            declaration_files.push("webfluent.app.json".to_string());
+            all_declarations.push(Declaration::Script(crate::parser::ast::ScriptDecl {
+                path: "webfluent.app.json".to_string(),
+                names,
+            }));
+        }
     }
     let mut program = Program {
         declarations: all_declarations,

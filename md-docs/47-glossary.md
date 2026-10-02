@@ -29,8 +29,8 @@ when its route first shows (`build.split`).
 parts: `component UserCard(…) { … }`. [Chapter 11](11-components.md).
 
 **Declaration.** A top-level statement of a file: `page`, `component`,
-`store`, `theme`, `app`, `type`, `enum`, `api`, `external`, `const`, `data`,
-`image`, `animation` or `test`. [Chapter 5](05-language-basics.md).
+`store`, `theme`, `app`, `type`, `enum`, `api`, `const`, `data`, `image`,
+`animation` or `test`. [Chapter 5](05-language-basics.md).
 
 **Derived.** A value computed from state, recomputed when what it read
 changes: `derived total = …`.
@@ -61,6 +61,10 @@ that do things. Its opposite is a render block.
 
 **Positional argument.** The one value an element takes without a name — a
 button's label, a heading's text.
+
+**Project script.** A `.js` file under `src/`: a plain browser script,
+linked on every page as written, whose top-level names `.wf` code calls
+directly. [Chapter 32](32-javascript-interop.md).
 
 **Registry.** The compiler's table of every built-in's props, cases, flags,
 events, slots and parts; the checker, the linters, the editor and the

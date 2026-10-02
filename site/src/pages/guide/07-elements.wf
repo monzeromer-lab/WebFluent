@@ -61,6 +61,11 @@ page ElementsGuide(path: "/docs/guide/elements", title: "Elements", description:
                     Table.Cell { Markdown("[8](/docs/guide/state#element-handles)") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`mount:`, `update:`, `cleanup:`") }
+                    Table.Cell { Markdown("Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves") }
+                    Table.Cell { Markdown("[32](/docs/guide/interop#mount-update-cleanup-on-any-element)") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`animate:` or a flag (`.fadeIn`)") }
                     Table.Cell("The animation it enters with")
                     Table.Cell { Markdown("[20](/docs/guide/motion)") }

@@ -657,5 +657,17 @@ page P(path: "/", title: "T", description: "D") {
         Heading("V02 — A flag no stylesheet styles", id: "v02-a-flag-no-stylesheet-styles").h3
 
         Markdown("A flag on one of your components whose class no stylesheet — the engine's or one of the project's `.css` files — defines, so it changes nothing on screen. The built-ins cannot draw it: the registry and the engine's stylesheet are held to each other. **Fix:** define the class in a `.css` file under `src/`, or drop the flag.")
+
+        Heading("V04 — A class that is the engine's", id: "v04-a-class-that-is-the-engine-s").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Classes").h1
+    Card(class: "wf-btn") { Text("x") }
+}"#, title: "wf · draws V04")
+
+        CodeBlock(#"Warning [V04]: `class:` names `wf-btn`, one of the engine's own classes at src/App.wf:3:5
+  `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look"#, title: "text")
+
+        Markdown("**Fix:** Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).")
     }
 }

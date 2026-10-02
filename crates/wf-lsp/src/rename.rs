@@ -79,6 +79,10 @@ pub fn rename(
 
     let mut changes: HashMap<Url, Vec<TextEdit>> = HashMap::new();
     for (ix, other) in project.files.iter().enumerate() {
+        // A script is JavaScript; its text is not WebFluent's to rewrite.
+        if other.script {
+            continue;
+        }
         let src: &str = &other.source;
         let Some(toks) = analysis::tokens_of(other) else {
             continue;

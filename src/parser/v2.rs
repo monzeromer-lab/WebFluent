@@ -308,7 +308,16 @@ impl ParserV2 {
                 "type" => self.parse_type_decl(doc)?,
                 "enum" => self.parse_enum_decl(doc)?,
                 "api" => self.parse_api(doc)?,
-                "external" => self.parse_external(doc)?,
+                // `external` is gone: a library is a URL in `meta.scripts`,
+                // the project's own code a `.js` file under `src/`, and a
+                // custom element `Element("tag-name", …)`.
+                "external" => {
+                    let _ = doc;
+                    return Err(self.error_with_hint(
+                        "`external` was removed in WebFluent 4.2".to_string(),
+                        "Put the project's own code in a `.js` file under `src/` — its functions are in scope by name — list a library's URL in `meta.scripts`, and place a custom element with `Element(\"tag-name\", …)`. `wf migrate` rewrites an `external` for you",
+                    ));
+                }
                 "const" => self.parse_const_decl(doc)?,
                 "animation" => self.parse_animation_decl(doc)?,
                 "test" if matches!(self.kind_at(1), TokenType::StringLiteral(_)) => {
@@ -1855,170 +1864,6 @@ impl ParserV2 {
     /// `resource name[: Type] = fetch(url, key: value, …)`.
     /// `api Backend(base: "/api/v1") { … }` — one place a service is
     /// described, so every call site is typed, cached and cancellable.
-    /// `external Chart from "chart.js" { fn Chart(…) -> Handle  type Handle { … } }`
-    /// and `external element Stripe("stripe-pricing-table") { prop … event … }`.
-    ///
-    /// The compiler cannot read the other side, so the declaration **is**
-    /// the contract: every call site is checked against what is written
-    /// here, and nothing else about the module is assumed.
-    fn parse_external(&mut self, doc: Option<String>) -> Result<Declaration> {
-        let mark = self.mark();
-        self.expect_word("external")?;
-        let element = self.is_word("element");
-        if element {
-            self.advance();
-        }
-        let name = self.expect_ident("the name this project calls it by")?;
-        let (kind, from) = if element {
-            self.expect(&TokenType::OpenParen, "`(` and the element's tag name")?;
-            let tag = self.expect_string("the custom element's tag name")?;
-            if !tag.contains('-') {
-                return Err(self.error_with_hint(
-                    format!("`{tag}` is not a custom element's name"),
-                    "A custom element's tag holds a hyphen: `stripe-pricing-table`",
-                ));
-            }
-            self.expect(&TokenType::CloseParen, "`)`")?;
-            (ExternalKind::Element, tag)
-        } else {
-            self.expect_word("from")?;
-            (
-                ExternalKind::Module,
-                self.expect_string("the module it comes from")?,
-            )
-        };
-
-        let mut decl = ExternalDecl {
-            name,
-            kind,
-            from,
-            integrity: None,
-            functions: Vec::new(),
-            types: Vec::new(),
-            props: Vec::new(),
-            events: Vec::new(),
-            doc,
-            span: Span::default(),
-        };
-        if self.eat(&TokenType::OpenBrace) {
-            while !self.check(&TokenType::CloseBrace) && !self.at_end() {
-                let doc = self.take_docs();
-                let word = self.ident().map(str::to_string).unwrap_or_default();
-                match word.as_str() {
-                    "fn" => {
-                        self.advance();
-                        decl.functions.push(self.parse_external_fn(doc)?);
-                    }
-                    "type" => {
-                        self.advance();
-                        decl.types.push(self.parse_external_type()?);
-                    }
-                    "prop" => {
-                        self.advance();
-                        decl.props.push(self.parse_prop_decl(false)?);
-                    }
-                    "event" => {
-                        let at = self.mark();
-                        self.advance();
-                        let name = self.expect_ident("the event's name")?;
-                        let params = if self.check(&TokenType::OpenParen) {
-                            self.parse_params()?
-                        } else {
-                            Vec::new()
-                        };
-                        decl.events.push(EventDecl {
-                            name,
-                            params,
-                            doc,
-                            span: self.span_since(at),
-                        });
-                    }
-                    // `integrity: "sha384-…"` for a module from another origin.
-                    "integrity" => {
-                        self.advance();
-                        self.expect(&TokenType::Colon, "`:`")?;
-                        decl.integrity = Some(self.expect_string("the hash")?);
-                    }
-                    other => {
-                        return Err(self.error_with_hint(
-                            format!("`{other}` is not part of an `external`"),
-                            "It holds `fn`, `type`, `prop`, `event` and `integrity:`",
-                        ));
-                    }
-                }
-            }
-            self.expect(&TokenType::CloseBrace, "`}`")?;
-        }
-        decl.span = self.span_since(mark);
-        Ok(Declaration::External(decl))
-    }
-
-    /// `fn Chart(canvas: Any, config: Map) -> ChartHandle`, and the same
-    /// shape for a type's method.
-    fn parse_external_fn(&mut self, doc: Option<String>) -> Result<ExternalFn> {
-        let mark = self.mark();
-        let name = self.expect_ident("the function's name")?;
-        let mut params = Vec::new();
-        if self.eat(&TokenType::OpenParen) {
-            while !self.check(&TokenType::CloseParen) && !self.at_end() {
-                params.push(self.parse_prop_decl(false)?);
-                if !self.check(&TokenType::CloseParen) {
-                    self.expect(&TokenType::Comma, "`,`")?;
-                }
-            }
-            self.expect(&TokenType::CloseParen, "`)`")?;
-        }
-        let returns = if self.eat(&TokenType::Minus) {
-            self.expect(&TokenType::GreaterThan, "`->` and what it gives back")?;
-            Some(self.parse_type_ref()?)
-        } else {
-            None
-        };
-        Ok(ExternalFn {
-            name,
-            params,
-            returns,
-            doc,
-            span: self.span_since(mark),
-        })
-    }
-
-    /// `type ChartHandle { update(data: Map), destroy(), width: Number }`
-    fn parse_external_type(&mut self) -> Result<ExternalType> {
-        let mark = self.mark();
-        let name = self.expect_ident("the type's name")?;
-        let mut methods = Vec::new();
-        let mut fields = Vec::new();
-        self.expect(&TokenType::OpenBrace, "`{` and what it has")?;
-        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
-            let doc = self.take_docs();
-            // A method takes arguments; a field takes a type.
-            if matches!(self.kind_at(1), TokenType::OpenParen) {
-                methods.push(self.parse_external_fn(doc)?);
-            } else {
-                let at = self.mark();
-                let field = self.expect_ident("a method or a field")?;
-                self.expect(&TokenType::Colon, "`:` and the field's type")?;
-                let ty = self.parse_type_ref()?;
-                fields.push(FieldDecl {
-                    name: field,
-                    ty,
-                    default: None,
-                    doc,
-                    span: self.span_since(at),
-                });
-            }
-            self.eat(&TokenType::Comma);
-        }
-        self.expect(&TokenType::CloseBrace, "`}`")?;
-        Ok(ExternalType {
-            name,
-            methods,
-            fields,
-            span: self.span_since(mark),
-        })
-    }
-
     fn parse_api(&mut self, doc: Option<String>) -> Result<Declaration> {
         let mark = self.mark();
         self.expect_word("api")?;
@@ -3688,7 +3533,9 @@ impl ParserV2 {
     }
 
     /// `if c { a } else { b }`, or `if let x = e { a } else { b }`, which
-    /// binds `x` to `e` in `a` when `e` is not null. The binding form is
+    /// binds `x` to `e` in `a` when `e` is not null. Without an `else` the
+    /// value is `null` when the condition fails — `class: ["card", if open
+    /// { "is-open" }]`. The binding form is
     /// encoded as `e.__iflet(x => a, b)`, so every reader of the tree sees a
     /// lambda whose parameter is the name.
     fn parse_if_expression(&mut self) -> Result<Expr> {
@@ -3700,8 +3547,9 @@ impl ParserV2 {
             self.expect(&TokenType::OpenBrace, "`{`")?;
             let then_expr = self.parse_expression()?;
             self.expect(&TokenType::CloseBrace, "`}`")?;
-            self.expect_word("else")?;
-            let else_expr = if self.is_word("if") {
+            let else_expr = if !self.eat_word("else") {
+                Expr::Null
+            } else if self.is_word("if") {
                 self.parse_if_expression()?
             } else {
                 self.expect(&TokenType::OpenBrace, "`{`")?;
@@ -3719,8 +3567,9 @@ impl ParserV2 {
         self.expect(&TokenType::OpenBrace, "`{`")?;
         let then_expr = self.parse_expression()?;
         self.expect(&TokenType::CloseBrace, "`}`")?;
-        self.expect_word("else")?;
-        let else_expr = if self.is_word("if") {
+        let else_expr = if !self.eat_word("else") {
+            Expr::Null
+        } else if self.is_word("if") {
             self.parse_if_expression()?
         } else {
             self.expect(&TokenType::OpenBrace, "`{`")?;

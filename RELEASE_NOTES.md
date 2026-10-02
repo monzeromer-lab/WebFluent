@@ -1,3 +1,50 @@
+# WebFluent v4.2 Release Notes (unreleased)
+
+JavaScript is part of a project the way CSS is. A `.js` file under `src/`
+is a plain browser script, linked on every page as written, and what it
+declares is in scope by name — checked, documented and offered by the
+editor. `external` is gone; `wf migrate` rewrites it.
+
+## Breaking
+
+- **`external` is removed.** A remote module is a `meta.scripts` entry, a
+  local one a script under `src/`, and a custom element
+  `Element("tag", …)`. `wf migrate` does all three; a call into a remote
+  module `external` typed is `Any` afterwards.
+- **Every `.js` under `src/` ships**, on every page. `wf migrate` lists the
+  ones a project already has.
+
+## New
+
+- **Your own scripts.** Top-level `function`, `class`, `const`, `let`,
+  `var` and `window.x = …` are names `.wf` calls directly. A call is held to
+  the parameters (`T10`) and to the JSDoc types (`T01`); `@returns` types
+  the result; a class is constructed. Collisions with another script, a
+  declaration or a name the language owns are errors. An ES module under
+  `src/` stops the build; an unreadable file is linked with a warning.
+- **`meta.scripts`**: libraries by URL, linked before the project's
+  scripts, their origins added to the policy; `module: true, as:` imports
+  an ES module; `globals` puts a library's names in scope as `Any`.
+- **`mount:`, `update:`, `cleanup:` on every element and component call**,
+  and **`wf:render`** on `document` once per drawing.
+- **`Element("tag-name", …)`** places any custom element, in the SPA, the
+  static paint and the template engine.
+- **`class:` takes a map and a list**, and an `if` with no `else` is `null`
+  when it fails. **`V04`** flags a borrowed `wf-` class.
+- **Editor**: completion, hover and go-to-definition for script names and
+  for the classes `.css` files define, inside `class:`; the server watches
+  `.js` and `.css` files.
+- `wf audit` lists the scripts and their names; `wf types` their
+  signatures; acting `wf test` pages link them.
+
+## Fixed
+
+- **What an `if` branch, `match` arm, list item or slot fill made is
+  disposed of with its page.** A route change used to leave its effects,
+  timers and `Host` cleanups running.
+- An `IconButton` whose `class:` reads state kept its own classes; it used
+  to have them replaced.
+
 # WebFluent v4.1.2 Release Notes
 
 Six fixes, all found by moving a nineteen-screen application

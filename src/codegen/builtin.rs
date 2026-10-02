@@ -270,26 +270,80 @@ pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
     classes
 }
 
-/// The `class:` argument of an element: its value, when it is one the build
-/// can read, or `None` when there is no such argument.
-///
-/// A class named here is one the author's own stylesheet defines (a `.css`
-/// file under `src/`, bundled into `styles.css`); the engine's classes stay
-/// beside it. A literal is `Some(Some(text))`; a value that reads state is
-/// `Some(None)`, which the runtime follows after hydration.
-pub fn class_arg(args: &[Arg]) -> Option<Option<&str>> {
-    args.iter().find_map(|a| match a {
-        Arg::Named(k, Expr::StringLiteral(s)) if k == "class" => Some(Some(s.as_str())),
-        Arg::Named(k, _) if k == "class" => Some(None),
-        _ => None,
-    })
-}
-
 /// The classes a literal `class:` argument names, split on whitespace.
 pub fn author_classes(args: &[Arg]) -> Vec<String> {
-    match class_arg(args) {
-        Some(Some(text)) => text.split_whitespace().map(str::to_string).collect(),
-        _ => Vec::new(),
+    args.iter()
+        .find_map(|a| match a {
+            Arg::Named(k, v) if k == "class" => literal_classes(v),
+            _ => None,
+        })
+        .unwrap_or_default()
+}
+
+/// The classes a `class:` value names when every part of it is written out:
+/// a string, a map whose values are `true`/`false`, a list of those, with
+/// `null` and `false` skipped. `None` when any part reads a value.
+pub fn literal_classes(value: &Expr) -> Option<Vec<String>> {
+    fn push(text: &str, out: &mut Vec<String>) {
+        for c in text.split_whitespace() {
+            if !out.iter().any(|o| o == c) {
+                out.push(c.to_string());
+            }
+        }
+    }
+    fn walk(value: &Expr, out: &mut Vec<String>) -> Option<()> {
+        match value {
+            Expr::StringLiteral(s) => push(s, out),
+            Expr::Null | Expr::BoolLiteral(false) => {}
+            Expr::ListLiteral(items) => {
+                for item in items {
+                    walk(item, out)?;
+                }
+            }
+            Expr::MapLiteral(pairs) => {
+                for (key, on) in pairs {
+                    match on {
+                        _ if key == "..." => return None,
+                        Expr::BoolLiteral(true) => push(key.trim_matches('"'), out),
+                        Expr::BoolLiteral(false) => {}
+                        _ => return None,
+                    }
+                }
+            }
+            _ => return None,
+        }
+        Some(())
+    }
+    let mut out = Vec::new();
+    walk(value, &mut out)?;
+    Some(out)
+}
+
+/// The classes a `class:` value names, from what the build knows of it:
+/// a string, a map (each key whose value is truthy) or a list of either.
+pub fn static_classes(value: &crate::codegen::static_eval::Static, out: &mut Vec<String>) {
+    use crate::codegen::static_eval::Static;
+    match value {
+        Static::Null | Static::Bool(false) => {}
+        Static::List(items) => {
+            for item in items {
+                static_classes(item, out);
+            }
+        }
+        Static::Map(pairs) => {
+            for (key, on) in pairs {
+                if on.truthy() {
+                    static_classes(&Static::Str(key.trim_matches('"').to_string()), out);
+                }
+            }
+        }
+        other => {
+            for c in other.to_text().split_whitespace() {
+                if !out.iter().any(|o| o == c) {
+                    out.push(c.to_string());
+                }
+            }
+        }
     }
 }
 

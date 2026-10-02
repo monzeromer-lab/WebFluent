@@ -17,6 +17,8 @@
 //! What has no mechanical spelling is left as it was and reported as a
 //! note, so a migrated project builds or says exactly what is left to do.
 
+pub mod externals;
+
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
@@ -451,7 +453,7 @@ impl<'a> Rewriter<'a> {
                 Declaration::Type(_)
                 | Declaration::Enum(_)
                 | Declaration::Api(_)
-                | Declaration::External(_)
+                | Declaration::Script(_)
                 | Declaration::Const(_)
                 | Declaration::Animation(_)
                 | Declaration::Test(_)

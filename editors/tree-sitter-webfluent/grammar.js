@@ -166,7 +166,6 @@ module.exports = grammar({
         $.page_declaration,
         $.component_declaration,
         $.store_declaration,
-        $.external_declaration,
         $.theme_declaration,
         $.app_declaration,
         $.type_declaration,
@@ -297,53 +296,6 @@ module.exports = grammar({
         optional(field("parameters", $.parameter_list)),
         field("body", $.block),
       ),
-
-    // `external Chart from "chart.js" { fn … type … }`, and
-    // `external element Stripe("stripe-pricing-table") { prop … event … }`.
-    external_declaration: ($) =>
-      seq(
-        "external",
-        optional("element"),
-        field("name", $._name),
-        choice(
-          seq("from", field("from", $.string)),
-          seq("(", field("tag", $.string), ")"),
-        ),
-        optional(field("body", $.external_body)),
-      ),
-
-    external_body: ($) =>
-      braced(
-        $,
-        repeat(
-          choice(
-            $.external_fn,
-            $.external_type,
-            $.external_prop,
-            $.event_declaration,
-            seq("integrity", ":", $.string),
-          ),
-        ),
-      ),
-
-    external_fn: ($) =>
-      seq(
-        "fn",
-        field("name", $._name),
-        optional(field("parameters", $.parameter_list)),
-        optional(seq("-", ">", field("returns", $._type))),
-      ),
-
-    external_type: ($) =>
-      seq(
-        "type",
-        field("name", $._name),
-        braced($, repeat(seq(choice($.external_member, $.parameter), optional(",")))),
-      ),
-
-    external_member: ($) => seq(field("name", $._name), field("parameters", $.parameter_list)),
-
-    external_prop: ($) => seq("prop", $.parameter),
 
     store_declaration: ($) =>
       seq(
@@ -1129,8 +1081,10 @@ module.exports = grammar({
           "{",
           field("consequence", $._expression),
           "}",
-          "else",
-          choice($.if_expression, seq("{", field("alternative", $._expression), "}")),
+          // Without an `else` the value is `null` when the condition fails.
+          optional(
+            seq("else", choice($.if_expression, seq("{", field("alternative", $._expression), "}"))),
+          ),
         ),
       ),
 

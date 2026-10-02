@@ -16,6 +16,7 @@ mod media;
 mod migrate;
 mod openapi;
 mod parser;
+mod project_js;
 mod registry;
 mod runtime;
 mod sema;

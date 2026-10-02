@@ -202,13 +202,13 @@ pub struct BuildConfig {
     /// skipped by serde for that reason.
     #[serde(skip)]
     pub inline_styles: bool,
-    /// The origins this build's `external` modules are imported from.
+    /// The project's own scripts — every `.js` under `src/` — by where the
+    /// build writes them, relative to the output root (`js/tilt.js`).
     ///
-    /// Not a setting either: it is read from the program, and the policy
-    /// names them under `script-src` so a declared import is never blocked
-    /// by the policy shipped beside it.
+    /// Not a setting: the build reads `src/` for them, and every page links
+    /// each one, in this order, before the compiled code.
     #[serde(skip)]
-    pub script_origins: Vec<String>,
+    pub scripts: Vec<String>,
     #[serde(default = "default_output_dir")]
     pub output: String,
     #[serde(default = "default_true")]
@@ -535,6 +535,68 @@ pub struct MetaConfig {
     /// where it is bundled into `styles.css`.
     #[serde(default)]
     pub stylesheets: Vec<String>,
+
+    /// Scripts the build does not own — a library on a CDN, or a file in
+    /// `public/` — linked on every page before the project's own scripts,
+    /// which use them as any script uses a library.
+    ///
+    /// A URL alone is a plain script. `{ "src": "…", "module": true, "as":
+    /// "Confetti" }` is an ES module, imported and its exports put on
+    /// `window.Confetti`. `"globals": ["Chart"]` names what a library
+    /// defines, so `.wf` code may call it straight; the compiler cannot
+    /// read a remote file, so each is `Any`.
+    #[serde(default)]
+    pub scripts: Vec<ScriptEntry>,
+}
+
+/// One entry of `meta.scripts`.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ScriptEntry {
+    Url(String),
+    Spec(ScriptSpec),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ScriptSpec {
+    pub src: String,
+    /// An ES module: imported rather than linked, since only a module can
+    /// `import` it.
+    #[serde(default)]
+    pub module: bool,
+    /// The global a module's exports are put on. A module needs one.
+    #[serde(default, rename = "as")]
+    pub as_name: Option<String>,
+    /// The globals a plain script defines that `.wf` code calls directly.
+    #[serde(default)]
+    pub globals: Vec<String>,
+}
+
+impl ScriptEntry {
+    pub fn src(&self) -> &str {
+        match self {
+            ScriptEntry::Url(src) => src,
+            ScriptEntry::Spec(spec) => &spec.src,
+        }
+    }
+
+    pub fn is_module(&self) -> bool {
+        matches!(self, ScriptEntry::Spec(spec) if spec.module)
+    }
+
+    /// Every name `.wf` code may read from it: its `globals`, and a
+    /// module's `as`.
+    pub fn names(&self) -> Vec<&str> {
+        match self {
+            ScriptEntry::Url(_) => Vec::new(),
+            ScriptEntry::Spec(spec) => spec
+                .globals
+                .iter()
+                .map(String::as_str)
+                .chain(spec.as_name.as_deref())
+                .collect(),
+        }
+    }
 }
 
 /// The origin (`scheme://host`) of an absolute URL, or `None` for a
@@ -614,13 +676,12 @@ pub fn csp_policy(config: &ProjectConfig) -> String {
             &format!("font-src 'self' {};", font.join(" ")),
         );
     }
-    // And the origins a program's `external` modules are imported from,
-    // which the config cannot know because they are in the source.
-    let mut origins: Vec<&str> = config
-        .build
-        .script_origins
+    // And the origins the libraries `meta.scripts` names are served from,
+    // so a declared library is never blocked by the policy beside it.
+    let mut origins: Vec<String> = meta
+        .scripts
         .iter()
-        .map(String::as_str)
+        .filter_map(|s| url_origin(s.src()))
         .collect();
     origins.sort();
     origins.dedup();
@@ -684,7 +745,7 @@ impl Default for BuildConfig {
         Self {
             elements: Vec::new(),
             inline_styles: false,
-            script_origins: Vec::new(),
+            scripts: Vec::new(),
             output: default_output_dir(),
             minify: true,
             sourcemap: false,
@@ -727,6 +788,7 @@ impl Default for MetaConfig {
             sitemap: true,
             fonts: Vec::new(),
             stylesheets: Vec::new(),
+            scripts: Vec::new(),
         }
     }
 }
@@ -1040,6 +1102,7 @@ mod head_asset_tests {
         config.meta = MetaConfig {
             fonts: fonts.iter().map(|s| s.to_string()).collect(),
             stylesheets: sheets.iter().map(|s| s.to_string()).collect(),
+            scripts: Vec::new(),
             ..MetaConfig::default()
         };
         config

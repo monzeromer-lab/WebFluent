@@ -24,6 +24,18 @@ pub fn provide_hover(project: &Project, file_ix: usize, position: Position) -> O
     let source: &str = &file.source;
     let offset = file.index.position_to_offset(source, position)?;
     let tokens = analysis::tokens_of(file).unwrap_or_default();
+    // A class in `class: "…"`: the rule that defines it.
+    if crate::classes::in_class_value(&tokens, offset)
+        && let Some(class) = crate::classes::class_word_at(source, offset)
+    {
+        return crate::classes::hover(project, class).map(|value| Hover {
+            contents: HoverContents::Markup(MarkupContent {
+                kind: MarkupKind::Markdown,
+                value,
+            }),
+            range: None,
+        });
+    }
     if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
         return None;
     }
@@ -203,6 +215,9 @@ fn hover_text(
     if let Some(sig) = registry::component(word) {
         return Some(builtin_doc(sig));
     }
+    if let Some((script_ix, name)) = project.script_name(word) {
+        return Some(script_doc(project, script_ix, name));
+    }
     if let Some(decl) = find_declaration(project, word) {
         return Some(declaration_doc(project, decl));
     }
@@ -213,6 +228,33 @@ fn hover_text(
         ));
     }
     None
+}
+
+/// A name a project script declares: how a call reads, what its doc
+/// comment says, and where it is.
+fn script_doc(
+    project: &Project,
+    script_ix: usize,
+    name: &webfluent::project_js::scan::Name,
+) -> String {
+    let doc = name
+        .doc
+        .as_deref()
+        .map(webfluent::project_js::jsdoc::parse)
+        .unwrap_or_default();
+    let mut out = format!("```js\n{}\n```", webfluent::project_js::signature(name));
+    if !doc.summary.is_empty() {
+        out.push_str(&format!("\n\n{}", doc.summary));
+    }
+    if let webfluent::project_js::scan::NameKind::Class { methods, .. } = &name.kind
+        && !methods.is_empty()
+    {
+        let list: Vec<String> = methods.iter().map(|m| format!("`{}`", m.name)).collect();
+        out.push_str(&format!("\n\nMethods: {}", list.join(", ")));
+    }
+    let label = project.label_of(script_ix);
+    out.push_str(&format!("\n\nDeclared in `{label}:{}`.", name.line));
+    out
 }
 
 /// A `type` by name, for the fields an extending record inherits.
@@ -235,8 +277,8 @@ fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declarat
         Declaration::Animation(a) => a.name == name,
         Declaration::Data(d) => d.name == name,
         Declaration::Api(a) => a.name == name,
-        Declaration::External(e) => e.name == name,
-        Declaration::Test(_) | Declaration::App(_) => false,
+        // A script's names are found by `Project::script_name`.
+        Declaration::Script(_) | Declaration::Test(_) | Declaration::App(_) => false,
     })
 }
 
@@ -585,14 +627,8 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
             a.name,
             a.name
         ),
+        Declaration::Script(script) => format!("**{}** — a script under `src/`", script.path),
         // A service: where it is, and what it has.
-        Declaration::External(e) => {
-            let what = match e.kind {
-                webfluent::parser::ExternalKind::Module => "module",
-                webfluent::parser::ExternalKind::Element => "element",
-            };
-            format!("**external {}** — the {} `{}`", e.name, what, e.from)
-        }
         Declaration::Api(a) => {
             let endpoints: Vec<String> = a
                 .endpoints

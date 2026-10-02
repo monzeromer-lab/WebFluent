@@ -84,9 +84,6 @@ pub struct JsCodegen {
     components: Vec<String>,
     /// Track store names
     stores: Vec<String>,
-    /// `external element Stripe("stripe-pricing-table")`: the tag each
-    /// one is placed as.
-    external_elements: HashMap<String, String>,
     /// The program's `const` names: plain values, read as written.
     consts: Vec<String>,
     /// `env.NAME` values from the project's config, emitted once.
@@ -169,6 +166,11 @@ pub struct JsCodegen {
     /// Each user component's declared events, which a call passes handlers
     /// for as `on: { name: fn }`.
     component_events: HashMap<String, Vec<String>>,
+    /// The classes the project's scripts declare: a call to one is a
+    /// construction, `new C(…)`, since the language has no `new`.
+    script_classes: std::collections::HashSet<String>,
+    /// Each user component's declared prop names.
+    component_props: HashMap<String, Vec<String>>,
     /// The names of what each component's scoped slots hand over, by
     /// component and slot: what a fill's own names stand for.
     component_slot_params: HashMap<String, HashMap<String, Vec<String>>>,
@@ -231,8 +233,9 @@ impl JsCodegen {
             next_var: std::cell::Cell::new(0),
             resources: Vec::new(),
             component_positional: HashMap::new(),
-            external_elements: HashMap::new(),
             component_events: HashMap::new(),
+            script_classes: std::collections::HashSet::new(),
+            component_props: HashMap::new(),
             component_slot_params: HashMap::new(),
             page_params: Vec::new(),
             page_layouts: HashMap::new(),
@@ -425,8 +428,19 @@ impl JsCodegen {
         // First pass: collect component and store names
         for decl in &program.declarations {
             match decl {
+                Declaration::Script(script) => {
+                    for n in &script.names {
+                        if matches!(n.kind, crate::project_js::scan::NameKind::Class { .. }) {
+                            self.script_classes.insert(n.name.clone());
+                        }
+                    }
+                }
                 Declaration::Component(c) => {
                     self.components.push(c.name.clone());
+                    self.component_props.insert(
+                        c.name.clone(),
+                        c.props.iter().map(|p| p.name.clone()).collect(),
+                    );
                     let positional = c
                         .props
                         .iter()
@@ -458,15 +472,6 @@ impl JsCodegen {
                 // A service is a name in scope like a store's, not a
                 // signal, so it is read as it is written.
                 Declaration::Api(a) => self.stores.push(a.name.clone()),
-                // An import is a name in scope, read as it is written; an
-                // element is a component, placed like one.
-                Declaration::External(e) => match e.kind {
-                    crate::parser::ast::ExternalKind::Module => self.stores.push(e.name.clone()),
-                    crate::parser::ast::ExternalKind::Element => {
-                        self.external_elements
-                            .insert(e.name.clone(), e.from.clone());
-                    }
-                },
                 Declaration::Const(c) => self.consts.push(c.name.clone()),
                 Declaration::Page(p) => {
                     if let Some(title) = &p.title {
@@ -1098,6 +1103,8 @@ impl JsCodegen {
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
                     format!("WF.request({})", args_str.join(", "))
+                } else if self.script_classes.contains(name) {
+                    format!("new {}({})", name, args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -1890,6 +1897,10 @@ impl JsCodegen {
                         return;
                     }
                     "_StyleBlock" => return, // Style blocks handled via attrs
+                    "Element" => {
+                        self.emit_custom_element(&var, ui, parent);
+                        return;
+                    }
                     _ => {}
                 }
 
@@ -2033,9 +2044,10 @@ impl JsCodegen {
                                 // Motion the runtime reads, not attributes
                                 // the element carries.
                                 "shared" | "on" | "count" => {}
-                                // `Host(mount:, update:, cleanup:)`: the
-                                // three are a lifetime, emitted below.
-                                "mount" | "update" | "cleanup" | "tag" if name == "Host" => {}
+                                // `mount:`, `update:`, `cleanup:`: a lifetime,
+                                // emitted below, on any element.
+                                "mount" | "update" | "cleanup" => {}
+                                "tag" if name == "Host" => {}
                                 // `maxLength` and `rows` are the textarea's,
                                 // written as HTML writes them.
                                 "maxLength" => {
@@ -2274,17 +2286,14 @@ impl JsCodegen {
                 // it loads lazily is the runtime's call: the first image of a
                 // page is the one the largest paint waits for, and is fetched
                 // first; the rest load lazily. An explicit `loading:` wins.
-                if name == "Image" {
-                    for (key, default) in [("decoding", "async")] {
-                        if !attrs.iter().any(|a| a.starts_with(&format!("{}:", key)))
-                            && !ui
-                                .args
-                                .iter()
-                                .any(|a| matches!(a, Arg::Named(k, _) if k == key))
-                        {
-                            attrs.push(format!("{}: \"{}\"", key, default));
-                        }
-                    }
+                if name == "Image"
+                    && !attrs.iter().any(|a| a.starts_with("decoding:"))
+                    && !ui
+                        .args
+                        .iter()
+                        .any(|a| matches!(a, Arg::Named(k, _) if k == "decoding"))
+                {
+                    attrs.push("decoding: \"async\"".to_string());
                 }
 
                 // A live region has to be announced when it appears; a class
@@ -2749,48 +2758,6 @@ impl JsCodegen {
                 self.emit_line(&format!("{}.appendChild({});", parent, var));
             }
 
-            ComponentRef::UserDefined(name) if self.external_elements.contains_key(name) => {
-                // Somebody else's custom element: the tag it registered, the
-                // props it declared as attributes, and the events it fires
-                // as listeners. Nothing is guessed — the declaration is the
-                // whole of what the compiler knows about it.
-                let tag = self.external_elements[name].clone();
-                let mut attrs: Vec<String> = Vec::new();
-                for arg in &ui.args {
-                    let Arg::Named(key, value) = arg else {
-                        continue;
-                    };
-                    let attribute = kebab_case(key);
-                    let emitted = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
-                        self.url_value(value)
-                    } else {
-                        self.emit_expr(value)
-                    };
-                    if self.is_reactive(&emitted) {
-                        attrs.push(format!("\"{attribute}\": () => {emitted}"));
-                    } else {
-                        attrs.push(format!("\"{attribute}\": {emitted}"));
-                    }
-                }
-                self.emit_line(&format!(
-                    "const {var} = WF.el(\"{tag}\", {{ {} }});",
-                    attrs.join(", ")
-                ));
-                for handler in &ui.events {
-                    let body = self.emit_event_body(handler);
-                    self.emit_line(&format!(
-                        "WF.onRoot({}, \"{}\", {} => {{ {} }});",
-                        var,
-                        handler.event,
-                        Self::handler_head(handler, "event"),
-                        body
-                    ));
-                }
-                for child in &ui.children {
-                    self.emit_statement_dom(child, &var);
-                }
-                self.emit_line(&format!("{}.appendChild({});", parent, var));
-            }
             ComponentRef::UserDefined(name) => {
                 // A handler for an event the component declares is passed in
                 // as `on: { name: fn }`; a DOM event's handler attaches to the
@@ -2799,7 +2766,16 @@ impl JsCodegen {
                 let declared = self.component_events.get(name).cloned().unwrap_or_default();
                 let (emitted, attached): (Vec<&EventHandler>, Vec<&EventHandler>) =
                     ui.events.iter().partition(|h| declared.contains(&h.event));
-                let mut args_obj = self.emit_component_args(name, &ui.args);
+                // `mount:`, `update:`, `cleanup:` a component does not take
+                // itself are a lifetime for its root element, like a DOM
+                // event's handler.
+                let own = self.component_props.get(name).cloned().unwrap_or_default();
+                let (lifetime, passed): (Vec<Arg>, Vec<Arg>) =
+                    ui.args.iter().cloned().partition(|a| {
+                        matches!(a, Arg::Named(k, _)
+                        if matches!(k.as_str(), "mount" | "update" | "cleanup") && !own.contains(k))
+                    });
+                let mut args_obj = self.emit_component_args(name, &passed);
                 if !emitted.is_empty() {
                     let handlers: Vec<String> = emitted
                         .iter()
@@ -2890,6 +2866,11 @@ impl JsCodegen {
                         body
                     ));
                 }
+                if !lifetime.is_empty() {
+                    let mut root = ui.clone();
+                    root.args = lifetime;
+                    self.emit_host(&var, &root);
+                }
                 // The motion asked of it here: markers on its root element.
                 let marks: Vec<String> = ui
                     .args
@@ -2923,10 +2904,76 @@ impl JsCodegen {
         }
     }
 
-    /// `Host(mount:, update:, cleanup:)`: the element handed to somebody
-    /// else's code, and given back when what owns it leaves.
+    /// `Element("stripe-pricing-table", publishable-key: key) { on ready { … } }`:
+    /// a custom element some script defines, by its tag. Every named
+    /// argument is an attribute (a value that reads state follows it), every
+    /// handler a DOM event it fires, the block its children — and `class:`,
+    /// `style { }`, motion and a lifetime work as on anything else.
+    fn emit_custom_element(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let tag = match ui.args.first() {
+            Some(Arg::Positional(Expr::StringLiteral(tag))) => tag.clone(),
+            _ => "wf-element".to_string(),
+        };
+        let mut attrs: Vec<String> = Vec::new();
+        for arg in &ui.args {
+            let Arg::Named(key, value) = arg else {
+                continue;
+            };
+            // What the generic paths below write themselves.
+            if matches!(
+                key.as_str(),
+                "class" | "ref" | "mount" | "update" | "cleanup" | "shared" | "count"
+            ) || key.starts_with("data-wf-")
+            {
+                continue;
+            }
+            let attribute = kebab_case(key);
+            let emitted = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
+                self.url_value(value)
+            } else {
+                self.emit_expr(value)
+            };
+            if self.is_reactive(&emitted) {
+                attrs.push(format!("\"{attribute}\": () => {emitted}"));
+            } else {
+                attrs.push(format!("\"{attribute}\": {emitted}"));
+            }
+        }
+        if let Some(entry) = self.wf_node_entry(ui) {
+            attrs.push(entry);
+        }
+        self.emit_line(&format!(
+            "const {var} = WF.el({}, {{ {} }});",
+            serde_json::to_string(&tag).unwrap_or_default(),
+            attrs.join(", ")
+        ));
+        for handler in &ui.events {
+            let body = self.emit_event_body(handler);
+            self.emit_line(&format!(
+                "{var}.addEventListener(\"{}\", {} => {{ {} }});",
+                handler.event,
+                Self::handler_head(handler, "event"),
+                body
+            ));
+        }
+        self.emit_style_and_transition(var, ui);
+        self.emit_motion(var, ui);
+        self.emit_host(var, ui);
+        for child in &ui.children {
+            self.emit_statement_dom(child, var);
+        }
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
+    /// `mount:`, `update:`, `cleanup:` — on `Host` or any other element: the
+    /// node handed to somebody else's code, and given back when what owns
+    /// it leaves.
     fn emit_host(&mut self, var: &str, ui: &UIElement) {
-        if !matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Host") {
+        // `mount:`, `update:`, `cleanup:` on any element: the lifetime `Host`
+        // gives a bare node, given to every element there is.
+        if !ui.args.iter().any(|a| {
+            matches!(a, Arg::Named(k, _) if matches!(k.as_str(), "mount" | "update" | "cleanup"))
+        }) {
             return;
         }
         let lambda = |out: &mut Self, key: &str| {
@@ -3072,8 +3119,14 @@ impl JsCodegen {
         // `class:` names rules in the author's own stylesheet. A literal is
         // added once, beside the engine's classes; a value that reads state
         // is followed, and the classes it named last time are taken off.
-        match crate::codegen::builtin::class_arg(&ui.args) {
-            Some(Some(_)) => {
+        let class_value = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "class" => Some(v),
+            _ => None,
+        });
+        // Written out in full — a string, `{ "x": true }`, `["a", "b"]` — it
+        // is a fixed list; anything that reads a value is followed.
+        match class_value.map(|v| crate::codegen::builtin::literal_classes(v).is_some()) {
+            Some(true) => {
                 let classes = crate::codegen::builtin::author_classes(&ui.args);
                 if !classes.is_empty() {
                     let list = classes
@@ -3084,15 +3137,8 @@ impl JsCodegen {
                     self.emit_line(&format!("{}.classList.add({});", var, list));
                 }
             }
-            Some(None) => {
-                let expr = ui
-                    .args
-                    .iter()
-                    .find_map(|a| match a {
-                        Arg::Named(k, v) if k == "class" => Some(self.emit_expr(v)),
-                        _ => None,
-                    })
-                    .unwrap_or_default();
+            Some(false) => {
+                let expr = class_value.map(|v| self.emit_expr(v)).unwrap_or_default();
                 self.emit_line(&format!("WF.classes({}, () => {});", var, expr));
             }
             None => {}
@@ -4104,14 +4150,11 @@ impl JsCodegen {
             }
         }
         // A `class:` joins the engine's classes; it used to replace them, so
-        // the button lost its size and shape.
-        if let Some(Arg::Named(_, Expr::StringLiteral(extra))) = ui
-            .args
-            .iter()
-            .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
-        {
+        // the button lost its size and shape. One that reads a value is
+        // followed by the generic path, never written as an attribute.
+        for extra in crate::codegen::builtin::author_classes(&ui.args) {
             cls.push(' ');
-            cls.push_str(extra);
+            cls.push_str(&extra);
         }
 
         let icon_attr = if self.is_reactive(&icon) {
@@ -4141,9 +4184,7 @@ impl JsCodegen {
         // state is a thunk the runtime keeps in step with it.
         for arg in &ui.args {
             if let Arg::Named(k, v) = arg {
-                if matches!(k.as_str(), "icon" | "label")
-                    || (k == "class" && matches!(v, Expr::StringLiteral(_)))
-                {
+                if matches!(k.as_str(), "icon" | "label" | "class") {
                     continue;
                 }
                 let value = self.emit_expr(v);
@@ -5695,6 +5736,9 @@ impl JsCodegen {
                         args_str.first().unwrap_or(&String::new()),
                         args_str.get(1..).unwrap_or(&[]).join(", ")
                     )
+                } else if self.script_classes.contains(name) && !self.own_names.contains(name) {
+                    // A class a project script declares: constructed.
+                    format!("new {}({})", name, args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -6387,63 +6431,88 @@ fn camel_to_kebab(s: &str) -> String {
     result
 }
 
-/// The module a program's `external` declarations compile to.
+/// The loader for the libraries `meta.scripts` names: each ES module
+/// imported and put on the global its `as` names, and every class a
+/// library hands over made callable.
 ///
 /// It is a **separate file**, not part of the bundle, for one reason: a
 /// module has its own scope, and the page chunks a split build writes are
 /// classic scripts that read the bundle's names from the global one. So
 /// the imports live here, each bound to a global, and the bundle stays
-/// what it was. A module script and a deferred classic script run in the
-/// order they appear in the document, so this has run before `app.js`
-/// reads any of it.
-pub fn externals_module(program: &Program) -> Option<String> {
-    let modules: Vec<&crate::parser::ast::ExternalDecl> = program
-        .declarations
+/// what it was. It is linked after the plain library scripts and before
+/// the project's own, and a module script and a deferred classic script
+/// run in the order they appear in the document, so it has run before
+/// anything that reads it.
+pub fn externals_module(config: &crate::config::ProjectConfig) -> Option<String> {
+    use crate::config::project::ScriptEntry;
+    let modules: Vec<(&str, &str)> = config
+        .meta
+        .scripts
         .iter()
-        .filter_map(|d| match d {
-            Declaration::External(e) if e.kind == crate::parser::ast::ExternalKind::Module => {
-                Some(e)
+        .filter_map(|s| match s {
+            ScriptEntry::Spec(spec) if spec.module => {
+                Some((spec.src.as_str(), spec.as_name.as_deref()?))
             }
             _ => None,
         })
         .collect();
-    if modules.is_empty() {
+    let globals: Vec<&str> = config
+        .meta
+        .scripts
+        .iter()
+        .filter_map(|s| match s {
+            ScriptEntry::Spec(spec) if !spec.module => Some(spec.globals.iter()),
+            _ => None,
+        })
+        .flatten()
+        .map(String::as_str)
+        .collect();
+    if modules.is_empty() && globals.is_empty() {
         return None;
     }
-    let mut out = String::from("// Somebody else's code, named as this project names it.\n");
-    for e in &modules {
+    let mut out =
+        String::from("// The libraries `meta.scripts` names, as this project names them.\n");
+    for (src, name) in &modules {
         out.push_str(&format!(
-            "import * as {} from {};\n",
-            e.name,
-            serde_json::to_string(&e.from).unwrap_or_default()
+            "import * as {name} from {};\n",
+            serde_json::to_string(src).unwrap_or_default()
         ));
     }
-    // A module's export may be a class — Chart.js's `Chart`, most modern
+    // A library's export may be a class — Chart.js's `Chart`, most modern
     // libraries' main export — and a WebFluent call has no `new`. Calling a
-    // class without it throws, so each export is copied onto a plain object
-    // (a module namespace cannot be proxied), a class behind a proxy that
-    // constructs it when it is called, its static members as they were.
+    // class without it throws, so a class is put behind a proxy that
+    // constructs it when it is called, its static members as they were; a
+    // module's exports are copied onto a plain object first, since a module
+    // namespace cannot be proxied.
     out.push_str(
-        "const __wfCallable = (ns) => { const o = {}; for (const k of Object.keys(ns)) { const v = ns[k]; \
-         o[k] = typeof v === \"function\" && /^class[\\s{]/.test(Function.prototype.toString.call(v)) \
-         ? new Proxy(v, { apply: (c, _, args) => Reflect.construct(c, args) }) : v; } return o; };\n",
+        "const __wfClass = (v) => typeof v === \"function\" && /^class[\\s{]/.test(Function.prototype.toString.call(v)) \
+         ? new Proxy(v, { apply: (c, _, args) => Reflect.construct(c, args) }) : v;\n\
+         const __wfCallable = (ns) => { const o = {}; for (const k of Object.keys(ns)) o[k] = __wfClass(ns[k]); return o; };\n",
     );
-    for e in &modules {
-        out.push_str(&format!("globalThis.{0} = __wfCallable({0});\n", e.name));
+    for (_, name) in &modules {
+        out.push_str(&format!("globalThis.{name} = __wfCallable({name});\n"));
+    }
+    for name in &globals {
+        out.push_str(&format!(
+            "globalThis.{name} = __wfClass(globalThis.{name});\n"
+        ));
     }
     Some(out)
 }
 
-/// Every module a program imports, with the hash it declared for it.
-pub fn external_modules(program: &Program) -> Vec<(String, Option<String>)> {
-    program
-        .declarations
+/// Every module `meta.scripts` imports, with the hash `meta.integrity`
+/// gives it.
+pub fn external_modules(config: &crate::config::ProjectConfig) -> Vec<(String, Option<String>)> {
+    config
+        .meta
+        .scripts
         .iter()
-        .filter_map(|d| match d {
-            Declaration::External(e) if e.kind == crate::parser::ast::ExternalKind::Module => {
-                Some((e.from.clone(), e.integrity.clone()))
-            }
-            _ => None,
+        .filter(|s| s.is_module())
+        .map(|s| {
+            (
+                s.src().to_string(),
+                config.meta.integrity.get(s.src()).cloned(),
+            )
         })
         .collect()
 }

@@ -387,6 +387,21 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         PropType::State,
         "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`",
     ),
+    special(
+        "mount",
+        PropType::Any,
+        "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get",
+    ),
+    special(
+        "update",
+        PropType::Any,
+        "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`",
+    ),
+    special(
+        "cleanup",
+        PropType::Any,
+        "Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`",
+    ),
 ];
 
 /// The DOM events any element accepts in an `on` handler.
@@ -1681,31 +1696,28 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Layout",
         "An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.",
         None,
-        &[
-            special(
-                "mount",
-                PropType::Any,
-                "`(node) => …` — run once with the element, giving back whatever the library hands over",
-            ),
-            special(
-                "update",
-                PropType::Any,
-                "`(handle) => …` — run again whenever the state it reads changes",
-            ),
-            special(
-                "cleanup",
-                PropType::Any,
-                "`(handle) => …` — run when what owns it leaves, so nothing is left behind",
-            ),
-            special(
-                "tag",
-                PropType::Str,
-                "The element to make, `div` by default",
-            ),
-        ],
+        &[special(
+            "tag",
+            PropType::Str,
+            "The element to make, `div` by default",
+        )],
         &[],
         G,
         Children::None,
+    ),
+    comp(
+        "Element",
+        "Layout",
+        "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishable-key: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
+        Some(special(
+            "tag",
+            PropType::Str,
+            "The custom element's tag: lower case, with a hyphen, as every custom element's is",
+        )),
+        &[],
+        &[],
+        &[AttrFamily::Any],
+        Children::Elements,
     ),
     comp(
         "Unsafe",

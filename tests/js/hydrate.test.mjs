@@ -428,6 +428,23 @@ test("classes an expression names follow it, and leave the element's other class
   assert.equal(el.className, "wf-card wf-s0123abcd");
 });
 
+test("a class map turns each key on with its condition, and a list joins strings and maps", () => {
+  const { WF } = loadRuntime();
+  const done = WF.signal(true);
+  const open = WF.signal(false);
+  const el = WF.el("div", { className: "wf-card" });
+  WF.classes(el, () => ["feature", { "is-done": done(), "is-open glow": open() }, open() ? "x" : null, false]);
+  assert.equal(el.className, "wf-card feature is-done");
+
+  // A class a script put on is not WebFluent's to take off.
+  el.classList.add("from-script");
+  open.set(true);
+  assert.equal(el.className, "wf-card feature is-done from-script is-open glow x");
+  done.set(false);
+  open.set(false);
+  assert.equal(el.className, "wf-card feature from-script");
+});
+
 test("a match shows the arm its key names and swaps it when the key changes", () => {
   const { WF, document } = loadRuntime();
   const parent = document.createElement("div");
@@ -1196,4 +1213,53 @@ test("the language's own types do the same arithmetic in the browser as at build
   // A value with a method of its own answers for itself: nothing the
   // language adds takes a name away from a record.
   assert.equal(WF.plus({ plus: () => "mine" }, {}), "mine");
+});
+
+test("what an if branch, a match arm or a list item made goes when what owns it goes", () => {
+  const { WF, document } = loadRuntime();
+  const gone = [];
+  const parent = document.createElement("div");
+  const on = WF.signal(true);
+  const [, disposePage] = WF.scoped(() => {
+    WF.when(parent, () => on(), () => { WF.onCleanup(() => gone.push("branch")); return WF.el("p", {}, ["x"]); });
+    WF.match(parent, () => "ready", () => null, { ready: () => { WF.onCleanup(() => gone.push("arm")); return WF.el("p", {}, ["y"]); } });
+    WF.each(parent, () => [1, 2], (n) => { WF.onCleanup(() => gone.push(`item ${n}`)); return WF.el("p", {}, [String(n)]); }, { key: (n) => n });
+    WF.each(parent, () => [3], (n) => { WF.onCleanup(() => gone.push(`item ${n}`)); return WF.el("p", {}, [String(n)]); });
+  });
+  assert.deepEqual(gone, []);
+  // A route change disposes the page: everything nested in it goes too.
+  disposePage();
+  assert.deepEqual(gone.sort(), ["arm", "branch", "item 1", "item 2", "item 3"]);
+  // And a branch already gone is not disposed twice.
+  on.set(false);
+  assert.equal(gone.length, 5);
+});
+
+test("a lifetime on a component's call belongs to its root element", () => {
+  const { WF, document } = loadRuntime();
+  const frag = document.createDocumentFragment();
+  const root = WF.el("span", { className: "chip" });
+  frag.appendChild(root);
+  const seen = [];
+  const [, dispose] = WF.scoped(() => {
+    WF.attach(frag, (n) => { seen.push(n.className); return "handle"; }, null, (h) => seen.push(`cleanup ${h}`));
+  });
+  assert.deepEqual(seen, ["chip"]);
+  dispose();
+  assert.deepEqual(seen, ["chip", "cleanup handle"]);
+});
+
+test("wf:render is said on the document once a route is drawn, with the route", async () => {
+  const { WF, document } = loadRuntime();
+  const heard = [];
+  document.addEventListener("wf:render", (e) => heard.push(e.detail.route));
+  const container = document.createElement("div");
+  WF.router([
+    { path: "/", render: () => WF.el("p", {}, ["home"]) },
+    { path: "/about", render: () => WF.el("p", {}, ["about"]) },
+  ], container);
+  await Promise.resolve();
+  WF.navigate("/about");
+  await Promise.resolve();
+  assert.deepEqual(heard, ["/", "/about"]);
 });

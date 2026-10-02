@@ -114,7 +114,7 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
-            | Declaration::External(_)
+            | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -513,9 +513,36 @@ impl Checker<'_, '_> {
                 }
             }
         }
+        // `Element("tag-name")`: the tag is written out, and is one a
+        // browser lets a script define — lower case, with a hyphen.
+        if sig.name == "Element" {
+            let tag = match el.args.first() {
+                Some(Arg::Positional(Expr::StringLiteral(tag))) => Some(tag.as_str()),
+                _ => None,
+            };
+            let valid = tag.is_some_and(|t| {
+                t.starts_with(|c: char| c.is_ascii_lowercase())
+                    && t.contains('-')
+                    && t.chars().all(|c| {
+                        c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '-' | '.' | '_')
+                    })
+            });
+            if !valid {
+                self.error(
+                    el.span,
+                    match tag {
+                        Some(t) => format!("`{t}` is not a custom element's tag"),
+                        None => "`Element` names its tag first, as a string".to_string(),
+                    },
+                    "A custom element's tag is lower case with a hyphen: `Element(\"stripe-pricing-table\", …)`",
+                );
+            }
+        }
         for handler in &el.events {
+            // A custom element fires events of its own naming.
             if !registry::is_dom_event(&handler.event)
                 && !sig.events.contains(&handler.event.as_str())
+                && sig.name != "Element"
             {
                 self.warning(
                     handler.span,
@@ -805,7 +832,7 @@ pub fn lower(mut program: Program) -> Program {
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
-            | Declaration::External(_)
+            | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)

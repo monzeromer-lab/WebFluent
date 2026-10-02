@@ -88,7 +88,8 @@ absent unless you add them.
     "image": "",
     "sitemap": true,
     "fonts": [],
-    "stylesheets": []
+    "stylesheets": [],
+    "scripts": []
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -186,6 +187,7 @@ absent unless you add them.
 | `sitemap` | `true` | Write `sitemap.xml` and `robots.txt`. |
 | `fonts` | `[]` | Web-font stylesheet URLs to link, each with a `preconnect`; their origins join the policy. |
 | `stylesheets` | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |
+| `scripts` | `[]` | Libraries to load before the project's own scripts: a URL or a file in `public/`, or `{ "src", "module": true, "as": "Name" }` for an ES module, or `{ "src", "globals": ["Chart"] }` to call a library's names from `.wf`. Their origins join the policy ([JavaScript interop](32-javascript-interop.md#a-library-from-a-cdn)). |
 | `integrity` | `{}` | Subresource-integrity hashes of external assets, by URL. |
 
 ## `theme`

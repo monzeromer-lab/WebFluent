@@ -775,6 +775,22 @@ screen. The built-ins cannot draw it: the registry and the engine's
 stylesheet are held to each other. **Fix:** define the class in a `.css`
 file under `src/`, or drop the flag.
 
+### V04 — A class that is the engine's
+
+```wf expect V04
+page P(path: "/", title: "T", description: "D") {
+    Heading("Classes").h1
+    Card(class: "wf-btn") { Text("x") }
+}
+```
+
+```text
+Warning [V04]: `class:` names `wf-btn`, one of the engine's own classes at src/App.wf:3:5
+  `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
+```
+
+**Fix:** Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).
+
 ## Next
 
 [Built-ins](40-built-ins.md).

@@ -38,6 +38,8 @@ pub struct Backend {
     documents: DashMap<PathBuf, OpenDocument>,
     cache: FileCache,
     hierarchical_symbols: AtomicBool,
+    /// Whether the client lets the server ask to hear of file changes.
+    watch_files: AtomicBool,
 }
 
 impl Backend {
@@ -47,6 +49,7 @@ impl Backend {
             documents: DashMap::new(),
             cache: FileCache::default(),
             hierarchical_symbols: AtomicBool::new(true),
+            watch_files: AtomicBool::new(false),
         }
     }
 
@@ -127,6 +130,14 @@ impl LanguageServer for Backend {
             .unwrap_or(false);
         self.hierarchical_symbols
             .store(hierarchical, Ordering::Relaxed);
+        let watch = params
+            .capabilities
+            .workspace
+            .as_ref()
+            .and_then(|w| w.did_change_watched_files.as_ref())
+            .and_then(|d| d.dynamic_registration)
+            .unwrap_or(false);
+        self.watch_files.store(watch, Ordering::Relaxed);
 
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
@@ -185,6 +196,24 @@ impl LanguageServer for Backend {
                 format!("WebFluent language server v{}", env!("CARGO_PKG_VERSION")),
             )
             .await;
+        // Every editor, not only the one whose extension says so, tells the
+        // server when a script or a stylesheet changes on disk.
+        if self.watch_files.load(Ordering::Relaxed) {
+            let options = DidChangeWatchedFilesRegistrationOptions {
+                watchers: vec![FileSystemWatcher {
+                    glob_pattern: GlobPattern::String("**/*.{wf,wfx,js,css}".to_string()),
+                    kind: None,
+                }],
+            };
+            let _ = self
+                .client
+                .register_capability(vec![Registration {
+                    id: "webfluent-files".to_string(),
+                    method: "workspace/didChangeWatchedFiles".to_string(),
+                    register_options: serde_json::to_value(options).ok(),
+                }])
+                .await;
+        }
     }
 
     async fn shutdown(&self) -> Result<()> {
@@ -207,6 +236,26 @@ impl LanguageServer for Backend {
         // that read it from the disk are re-reported.
         let project = self.project(&params.text_document.uri);
         self.publish(&project).await;
+    }
+
+    async fn did_change_watched_files(&self, _: DidChangeWatchedFilesParams) {
+        // A script, a stylesheet or a closed `.wf` file changed on disk: what
+        // the open files say may have changed with it — a call to a function
+        // a script no longer declares, a class a sheet no longer defines.
+        // Each open file's project is reported once.
+        let open: Vec<PathBuf> = self.documents.iter().map(|d| d.key().clone()).collect();
+        let mut done: Vec<Option<PathBuf>> = Vec::new();
+        for path in open {
+            let Ok(uri) = Url::from_file_path(&path) else {
+                continue;
+            };
+            let project = self.project(&uri);
+            if done.contains(&project.root) && project.root.is_some() {
+                continue;
+            }
+            done.push(project.root.clone());
+            self.publish(&project).await;
+        }
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {

@@ -761,7 +761,7 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 
         Heading("A chart", id: "a-chart").h3
 
-        Markdown("A charting library goes through `external` and `Host`; the full example is in [JavaScript interop](/docs/guide/interop#a-library-end-to-end).")
+        Markdown("A charting library is a URL in `meta.scripts`, called from a script of your own and handed a canvas with `Host`; the full example is in [JavaScript interop](/docs/guide/interop#a-library-from-a-cdn).")
 
         Heading("Where to go next", id: "where-to-go-next").h2
 

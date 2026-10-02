@@ -85,69 +85,19 @@ pub enum Declaration {
     Enum(EnumDecl),
     /// A service, described once: `api Backend(base: "/api") { … }`.
     Api(ApiDecl),
-    /// Somebody else's code, described so the compiler can check every use
-    /// of it: `external Chart from "chart.js" { fn Chart(…) -> Handle }`.
-    External(ExternalDecl),
+    /// A plain script under `src/` and the names it makes global. Nothing
+    /// writes one: the build reads `src/` and puts one here per `.js` file,
+    /// so every reader of a project sees the same names.
+    Script(ScriptDecl),
 }
 
-// ─── Somebody else's code ────────────────────────────────
-
-/// `external Name from "specifier" { … }` — a module the build imports, or
-/// `external element Name("tag-name") { … }` — a custom element the page
-/// places.
-///
-/// Either way it is a **description**: the compiler cannot read the other
-/// side, so what is written here is what every call site is checked
-/// against. It is the difference between reaching another library and
-/// reaching for `window.X` and hoping.
+/// A `.js` file under `src/` (`project_js`), as the build read it.
 #[derive(Debug, Clone)]
-pub struct ExternalDecl {
-    pub name: String,
-    /// What the declaration is of.
-    pub kind: ExternalKind,
-    /// The module specifier, or the custom element's tag name.
-    pub from: String,
-    /// `integrity: "sha384-…"` for a module served from another origin.
-    pub integrity: Option<String>,
-    /// `fn name(args) -> T` — what the module has.
-    pub functions: Vec<ExternalFn>,
-    /// `type Handle { m(a: T), field: T }` — the shapes it hands back.
-    pub types: Vec<ExternalType>,
-    /// `prop name: T` — what a custom element takes.
-    pub props: Vec<PropDecl>,
-    /// `event name(args)` — what a custom element fires.
-    pub events: Vec<EventDecl>,
-    pub doc: Option<String>,
-    pub span: Span,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ExternalKind {
-    /// A module the build imports.
-    Module,
-    /// A custom element the page places by its tag name.
-    Element,
-}
-
-/// `fn Chart(canvas: Any, config: Map) -> ChartHandle`
-#[derive(Debug, Clone)]
-pub struct ExternalFn {
-    pub name: String,
-    pub params: Vec<PropDecl>,
-    pub returns: Option<TypeRef>,
-    pub doc: Option<String>,
-    pub span: Span,
-}
-
-/// `type ChartHandle { update(data: Map), destroy() }`
-#[derive(Debug, Clone)]
-pub struct ExternalType {
-    pub name: String,
-    /// The methods it has, and what each gives back.
-    pub methods: Vec<ExternalFn>,
-    /// The fields it has.
-    pub fields: Vec<FieldDecl>,
-    pub span: Span,
+pub struct ScriptDecl {
+    /// The file, relative to the project, `/`-separated.
+    pub path: String,
+    /// What it declares at its top level, or assigns to `window`.
+    pub names: Vec<crate::project_js::scan::Name>,
 }
 
 // ─── A service ───────────────────────────────────────────

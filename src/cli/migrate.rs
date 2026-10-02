@@ -24,6 +24,14 @@ pub fn run_migrate(path: &Path, check: bool, stdout: bool, wfx: bool) -> Result<
         )));
     }
 
+    // 4 → 4.2 first: `external` is gone, and nothing after this step can
+    // parse a file that still has one.
+    let files = if path.is_dir() {
+        migrate_to_4_2(path, files, check || stdout)?
+    } else {
+        files
+    };
+
     let outcomes = migrate_project(&files);
     let mut changed = 0;
     let mut failed = 0;
@@ -189,6 +197,101 @@ fn migrate_to_4(project_dir: &Path, files: &[(PathBuf, String)], check: bool) ->
     println!("    A hand-written script calling `WF.store(def)` wants `WF.store(name, define,");
     println!("    options)`, and `WF.host(…)` is now `WF.attach(…)`.");
     Ok(())
+}
+
+/// The WebFluent 4 → 4.2 step: every `external` moved to where 4.2 says it
+/// belongs (`migrate::externals`), the config given the libraries it
+/// loads, and a word about every `.js` under `src/`, which now ships.
+fn migrate_to_4_2(
+    project_dir: &Path,
+    files: Vec<(PathBuf, String)>,
+    check: bool,
+) -> Result<Vec<(PathBuf, String)>> {
+    // What is under `src/` before this step moves anything there: each now
+    // ships on every page.
+    let already: Vec<PathBuf> = crate::project_js::find_scripts(&project_dir.join("src"));
+    let outcome = crate::migrate::externals::migrate(project_dir, &files);
+    let anything =
+        !outcome.changed.is_empty() || !outcome.moved.is_empty() || !outcome.modules.is_empty();
+    if anything {
+        println!("\n  `external` is gone in 4.2:");
+        for path in &outcome.changed {
+            println!("    {}", path.display());
+        }
+        for (from, to, _) in &outcome.moved {
+            println!(
+                "    {} → {} (a plain script now)",
+                from.display(),
+                to.display()
+            );
+        }
+        for (src, name) in &outcome.modules {
+            println!("    `{name}` from {src} → `meta.scripts`");
+        }
+    }
+    for note in &outcome.notes {
+        println!("    note: {note}");
+    }
+    if !already.is_empty() {
+        println!(
+            "\n  These scripts under src/ now ship on every page, linked before the page code:"
+        );
+        for path in &already {
+            println!(
+                "    {}",
+                path.strip_prefix(project_dir).unwrap_or(path).display()
+            );
+        }
+        println!("  Move any that are not meant for the browser out of src/.");
+    }
+    if check || !anything {
+        return Ok(outcome.files);
+    }
+    for path in &outcome.changed {
+        if let Some((_, text)) = outcome.files.iter().find(|(p, _)| p == path) {
+            std::fs::write(path, text)?;
+        }
+    }
+    for (from, to, source) in &outcome.moved {
+        if let Some(dir) = to.parent() {
+            std::fs::create_dir_all(dir)?;
+        }
+        std::fs::write(to, source)?;
+        std::fs::remove_file(from)?;
+    }
+    if !outcome.modules.is_empty() {
+        let path = project_dir.join("webfluent.app.json");
+        let text = std::fs::read_to_string(&path)?;
+        let mut value: serde_json::Value = serde_json::from_str(&text)
+            .map_err(|e| WebFluentError::ConfigError(format!("{}: {e}", path.display())))?;
+        if let Some(map) = value.as_object_mut() {
+            let meta = map.entry("meta").or_insert_with(|| serde_json::json!({}));
+            if let Some(meta) = meta.as_object_mut() {
+                let scripts = meta
+                    .entry("scripts")
+                    .or_insert_with(|| serde_json::json!([]));
+                if let Some(list) = scripts.as_array_mut() {
+                    for (src, name) in &outcome.modules {
+                        list.push(serde_json::json!({ "src": src, "module": true, "as": name }));
+                    }
+                }
+                let integrity = meta
+                    .entry("integrity")
+                    .or_insert_with(|| serde_json::json!({}));
+                if let Some(hashes) = integrity.as_object_mut() {
+                    for (src, hash) in &outcome.integrity {
+                        hashes.insert(src.clone(), serde_json::Value::String(hash.clone()));
+                    }
+                }
+            }
+        }
+        std::fs::write(
+            &path,
+            serde_json::to_string_pretty(&value).unwrap_or(text) + "\n",
+        )?;
+        println!("  {}", path.display());
+    }
+    Ok(outcome.files)
 }
 
 /// The text between two markers, when both are there.

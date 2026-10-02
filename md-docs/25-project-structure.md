@@ -22,6 +22,7 @@ my-site/
 │   ├── components/         components
 │   ├── stores/             stores
 │   ├── styles.css          your own stylesheets, anywhere under src/
+│   ├── tilt.js             your own scripts, anywhere under src/
 │   ├── translations/       en.json, ar.json (with "i18n" in the config)
 │   ├── posts.json          data files a `data` declaration reads
 │   └── about.md            Markdown pages
@@ -60,6 +61,7 @@ is documentation for the reader and the editor; it scopes nothing.
 | File | Where | Becomes |
 |---|---|---|
 | `*.css` | anywhere under `src/` | bundled into `styles.css`, in path order, after the built-ins' rules |
+| `*.js` | anywhere under `src/` | copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([JavaScript interop](32-javascript-interop.md)) |
 | `*.md` | under `src/` | a page ([Content](27-content.md#md-pages)) |
 | `*.json` | named by a `data` declaration | a constant, read at build time |
 | images | named by an `image` declaration | resized, hashed files and a `<picture>` ([Media](28-media.md)) |

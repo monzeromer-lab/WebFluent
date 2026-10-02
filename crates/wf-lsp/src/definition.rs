@@ -24,6 +24,12 @@ pub fn find_definition(
     let source: &str = &file.source;
     let offset = file.index.position_to_offset(source, position)?;
     let tokens = analysis::tokens_of(file).unwrap_or_default();
+    // A class in `class: "…"`: its rule, in the stylesheet that defines it.
+    if crate::classes::in_class_value(&tokens, offset) {
+        return crate::classes::class_word_at(source, offset)
+            .and_then(|class| crate::classes::location(project, class))
+            .map(GotoDefinitionResponse::Scalar);
+    }
     if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
         return None;
     }
@@ -147,6 +153,20 @@ pub fn definition_at(
                 _ => Some(location(project, file_ix, binding_span(&binding)).into()),
             };
         }
+    }
+
+    // A name a project script declares: where it is written.
+    if let Some((script_ix, name)) = project.script_name(word) {
+        let script = &project.files[script_ix];
+        return Some(
+            Location {
+                uri: script.uri.clone(),
+                range: script
+                    .index
+                    .word_range_at_line_col(&script.source, name.line, name.col),
+            }
+            .into(),
+        );
     }
 
     // A name used where the tree gives no context: any declaration of it.

@@ -122,6 +122,8 @@ pub enum AttrFamily {
     Form,
     /// `colspan`, `rowspan`, `scope`.
     Table,
+    /// Any attribute at all: a custom element's are its own.
+    Any,
 }
 
 impl AttrFamily {
@@ -132,6 +134,7 @@ impl AttrFamily {
                 name,
                 "id" | "role" | "tabindex" | "title" | "hidden" | "lang" | "dir" | "class"
             ),
+            AttrFamily::Any => true,
             AttrFamily::Aria => name.starts_with("aria-"),
             AttrFamily::Data => name.starts_with("data-"),
             AttrFamily::Input => matches!(

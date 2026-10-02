@@ -20,7 +20,15 @@ pub fn run_audit(project_dir: &Path, json: bool) -> Result<()> {
     let mut config = ProjectConfig::load(project_dir)?;
     config.resolve_env(project_dir);
     let (program, files) = crate::cli::build::read_project_with(project_dir, None)?;
-    let report = audit(&program, &config, &files);
+    let mut report = audit(&program, &config, &files);
+    report.scripts = crate::project_js::load(project_dir, &project_dir.join("src"))
+        .unwrap_or_default()
+        .into_iter()
+        .map(|s| Script {
+            names: s.scan.names.iter().map(|n| n.name.clone()).collect(),
+            path: s.path,
+        })
+        .collect();
     if json {
         println!(
             "{}",
@@ -38,6 +46,9 @@ pub struct Report {
     /// Every `Unsafe.*`: where markup comes in, and whether it is
     /// sanitised on the way.
     pub unsafe_html: Vec<Finding>,
+    /// The project's own scripts, which every page runs, and the names
+    /// each makes global.
+    pub scripts: Vec<Script>,
     /// Every origin the pages load from, beyond this site.
     pub origins: Vec<String>,
     /// Everything written to the reader's machine, and where.
@@ -54,6 +65,12 @@ pub struct Report {
 pub struct Finding {
     pub at: String,
     pub sanitized: bool,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct Script {
+    pub path: String,
+    pub names: Vec<String>,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -125,6 +142,8 @@ pub fn audit(program: &Program, config: &ProjectConfig, files: &[String]) -> Rep
         .fonts
         .iter()
         .chain(config.meta.stylesheets.iter())
+        .map(String::as_str)
+        .chain(config.meta.scripts.iter().map(|s| s.src()))
     {
         if let Some(origin) = origin_of(url) {
             push_once(&mut report.origins, origin);
@@ -278,6 +297,18 @@ fn print(report: &Report) {
                 "NOT sanitised"
             }
         );
+    }
+
+    println!("\n  Scripts every page runs");
+    if report.scripts.is_empty() {
+        println!("    none — no `.js` under src/");
+    }
+    for script in &report.scripts {
+        if script.names.is_empty() {
+            println!("    {}", script.path);
+        } else {
+            println!("    {}  declares {}", script.path, script.names.join(", "));
+        }
     }
 
     println!("\n  Other origins");

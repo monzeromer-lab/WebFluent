@@ -4,7 +4,7 @@
 route: guide/upgrading
 group: help
 blurb: What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.
-description: Installing a new version, what changed in 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.
+description: Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.
 -->
 
 ## Installing a newer version
@@ -18,7 +18,38 @@ The full notes for every release are in
 [`RELEASE_NOTES.md`](../RELEASE_NOTES.md); what follows is what an upgrade
 asks of you.
 
-## 4.1 (next release)
+## 4.2 (next release)
+
+**`external` is gone.** Run `wf migrate`: a remote module becomes a
+`meta.scripts` entry, a local module a plain script under `src/` with its
+signatures as JSDoc, and an `external element` call `Element("tag", …)`.
+A call into a remote module that `external` typed is `Any` afterwards.
+
+**Every `.js` file under `src/` now ships**, linked on every page before the
+compiled code. `wf migrate` lists the ones it finds; move any that are not
+meant for the browser out of `src/`.
+
+New:
+
+- **Your own JavaScript**: a plain `.js` file under `src/`, its top-level
+  functions in scope by name, typed by its JSDoc
+  ([chapter 32](32-javascript-interop.md)).
+- **`meta.scripts`** loads a library from a CDN, a module with `as:`, and
+  names its `globals`.
+- **`mount:`, `update:`, `cleanup:` on any element**, and a `wf:render`
+  event for a script that finds elements itself.
+- **`Element("tag-name", …)`** places any custom element.
+- **`class:` takes a map and a list**: `{ "is-done": done }`,
+  `["card", tone, if open { "is-open" }]`; an `if` with no `else` is `null`
+  when it fails ([chapter 15](15-styling.md#classes-and-your-own-stylesheet)).
+- **`V04`** warns about a `class:` that borrows one of the built-ins' `wf-`
+  classes.
+
+Fixed: what an `if` branch, a `match` arm, a list item or a slot fill made
+— a timer, an effect, a `Host`'s cleanup — now goes when its page does; a
+route change used to leave it running.
+
+## 4.1
 
 Nothing to change in your code. New:
 

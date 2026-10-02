@@ -69,6 +69,7 @@ pub fn run_types(project_dir: &Path, json: bool) -> Result<()> {
         ("component", "components"),
         ("store", "stores"),
         ("page", "pages"),
+        ("script", "scripts"),
     ] {
         for item in value[key].as_array().into_iter().flatten() {
             let name = item["name"].as_str().unwrap_or("");
@@ -123,6 +124,35 @@ pub fn run_types(project_dir: &Path, json: bool) -> Result<()> {
                             .join(", ")
                     })
                     .unwrap_or_default(),
+                "script" => {
+                    let params = item["params"]
+                        .as_array()
+                        .map(|ps| {
+                            ps.iter()
+                                .map(|p| {
+                                    format!(
+                                        "{}{}{}: {}",
+                                        if p["rest"] == true { "..." } else { "" },
+                                        p["name"].as_str().unwrap_or(""),
+                                        if p["optional"] == true { "?" } else { "" },
+                                        p["type"].as_str().unwrap_or("")
+                                    )
+                                })
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        })
+                        .unwrap_or_default();
+                    match item["kind"].as_str() {
+                        Some("value") => String::new(),
+                        _ => format!(
+                            "({params}){}",
+                            item["returns"]
+                                .as_str()
+                                .map(|r| format!(" -> {r}"))
+                                .unwrap_or_default()
+                        ),
+                    }
+                }
                 _ => item["path"].as_str().unwrap_or("").to_string(),
             };
             println!(

@@ -21,8 +21,8 @@ are capitalised; everything else is camelCase.
 ## Keywords
 
 Where a statement starts, these words have meaning: `page`, `component`,
-`store`, `app`, `theme`, `type`, `enum`, `api`, `external`, `const`, `data`,
-`image`, `animation` and `test` at the top of a file; `state`, `persist`,
+`store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`,
+`animation` and `test` at the top of a file; `state`, `persist`,
 `derived`, `effect`, `cleanup`, `action`, `use`, `resource`, `validate`,
 `socket`, `stream`, `channel`, `peer`, `every`, `after`, `on key`, `head`,
 `if`, `if let`, `for`, `show`, `match`, `sequence` and `step` in a render
@@ -46,8 +46,6 @@ type Name { field: Type = default, … }        type Name = Other { … }
 enum Name { case, case(part: Type, …), … }
 api Name(base: expr, …) { settings  headers { … }  on request|response|error(x) { … }  endpoints }
 api Name from "spec.json" (base: expr)
-external Name from "module" { integrity: "…"  fn f(params) -> Type  type T { method(params) -> Type  field: Type } }
-external element Name("tag-name") { prop name: Type  event name(params) }
 const NAME: Type = expr
 data name: Type = "file.json"
 image name = "picture.jpg"
@@ -166,7 +164,7 @@ From weakest to strongest binding:
 
 So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.
 
-Values that are expressions: `if c { a } else { b }`, `if let x = v { a } else { b }`,
+Values that are expressions: `if c { a } else { b }` (`null` when there is no `else` and `c` fails), `if let x = v { a } else { b }`,
 `match v { .case { a } else { b } }`, lambdas `x => expr`, `(a, b) => expr`,
 `() => expr`, spreads `...x` in a list or map.
 

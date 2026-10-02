@@ -430,6 +430,8 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Markdown",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
+    // A custom element a script defines, by its tag.
+    "Element",
     // `Unsafe.Html(markup)`: the one element whose content is markup.
     // The part lowers to `UnsafeHtml`, which is an IR name, not one a
     // program writes.

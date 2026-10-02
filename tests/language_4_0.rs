@@ -1406,64 +1406,65 @@ fn sema_errors(src: &str) -> String {
 
 // ─── Interop, in both directions ─────────────────────────
 
-/// A program that reaches a module, and one that reaches an element.
-fn imports(body: &str) -> String {
-    format!(
-        "external Chart from \"https://cdn.example.com/chart.js\" {{\n\
-         \x20   integrity: \"sha384-abc\"\n\
-         \x20   fn Chart(canvas: Any, config: Map) -> ChartHandle\n\
-         \x20   type ChartHandle {{\n\
-         \x20       update(data: Map)\n\
-         \x20       destroy()\n\
-         \x20       width: Number\n\
-         \x20   }}\n\
-         }}\n{}",
-        page(body)
-    )
+/// A project that loads a module from another origin through `meta.scripts`.
+fn with_module() -> webfluent::config::ProjectConfig {
+    let mut config = webfluent::config::ProjectConfig::default_config("t");
+    config.meta.scripts = vec![
+        webfluent::config::project::ScriptEntry::Url(
+            "https://cdn.example.com/chart.umd.js".to_string(),
+        ),
+        webfluent::config::project::ScriptEntry::Spec(webfluent::config::project::ScriptSpec {
+            src: "https://esm.example.com/confetti.mjs".to_string(),
+            module: true,
+            as_name: Some("Confetti".to_string()),
+            globals: Vec::new(),
+        }),
+    ];
+    config.meta.integrity.insert(
+        "https://esm.example.com/confetti.mjs".to_string(),
+        "sha384-abc".to_string(),
+    );
+    config
 }
 
 #[test]
 fn an_import_is_a_module_of_its_own_so_the_page_chunks_still_see_the_bundle() {
-    let src =
-        imports("state d: Map = {}\n    Host(tag: \"canvas\", mount: (n) => Chart.Chart(n, d))");
-    let program = parse_source(&src, "t.wf").unwrap();
-    let module = webfluent::codegen::js::externals_module(&program).expect("a module");
+    let module = webfluent::codegen::js::externals_module(&with_module()).expect("a module");
     assert!(
-        module.contains("import * as Chart from \"https://cdn.example.com/chart.js\""),
+        module.contains("import * as Confetti from \"https://esm.example.com/confetti.mjs\""),
         "{module}"
     );
     assert!(
-        module.contains("globalThis.Chart = __wfCallable(Chart);"),
+        module.contains("globalThis.Confetti = __wfCallable(Confetti);"),
         "a module has its own scope, and the page chunks are classic scripts: {module}"
     );
     // The bundle itself stays a classic script — nothing of the import is
     // in it, so a split build's chunks read what they always did.
-    let js = spa_generated(&src);
+    let js = spa_generated(&page("Text(\"x\")"));
     assert!(!js.contains("import "), "{js}");
 }
 
 #[test]
-fn a_page_says_where_it_imports_from_and_what_it_expects_to_get() {
-    let src = imports("Text(\"x\")");
-    let program = parse_source(&src, "t.wf").unwrap();
-    let mut config = webfluent::config::ProjectConfig::default_config("t");
-    config.build.script_origins = vec!["https://cdn.example.com".to_string()];
-    let tags = webfluent::codegen::html::externals_tags(&config, &program, "");
+fn a_page_says_where_it_loads_from_and_what_it_expects_to_get() {
+    let config = with_module();
+    let tags = webfluent::codegen::html::script_tags(&config, "");
     // The hash goes on a `modulepreload`, which is the one place the
     // platform lets subresource integrity reach a module.
     assert!(
-        tags.contains("<link rel=\"modulepreload\" href=\"https://cdn.example.com/chart.js\" integrity=\"sha384-abc\" crossorigin=\"anonymous\">"),
+        tags.contains("<link rel=\"modulepreload\" href=\"https://esm.example.com/confetti.mjs\" integrity=\"sha384-abc\" crossorigin=\"anonymous\">"),
         "{tags}"
     );
-    assert!(
-        tags.contains("<script type=\"module\" src=\"/externals.js\">"),
-        "{tags}"
-    );
-    // And the policy names the origin, so a declared import is never
+    let at = |needle: &str| {
+        tags.find(needle)
+            .unwrap_or_else(|| panic!("{needle} in {tags}"))
+    };
+    // The plain library, then the loader for the module.
+    assert!(at("chart.umd.js\" defer") < at("<script type=\"module\" src=\"/externals.js\">"));
+    // And the policy names both origins, so a declared library is never
     // blocked by the policy shipped beside it.
     let policy = webfluent::config::project::csp_policy(&config);
     assert!(
-        policy.contains("script-src 'self' https://cdn.example.com;"),
+        policy.contains("script-src 'self' https://cdn.example.com https://esm.example.com;"),
         "{policy}"
     );
 }
@@ -1491,13 +1492,9 @@ fn a_host_is_a_node_with_a_lifetime() {
 }
 
 #[test]
-fn somebody_elses_custom_element_is_placed_like_a_component() {
-    let src = format!(
-        "external element Stripe(\"stripe-pricing-table\") {{\n\
-         \x20   prop publishableKey: String\n\
-         \x20   event ready()\n\
-         }}\n{}",
-        page("state k = \"pk\"\n    Stripe(publishableKey: k) { on ready { log(1) } }")
+fn somebody_elses_custom_element_is_placed_by_its_tag() {
+    let src = page(
+        "state k = \"pk\"\n    Element(\"stripe-pricing-table\", publishableKey: k) { on ready { log(1) } }",
     );
     let js = spa_generated(&src);
     assert!(js.contains("WF.el(\"stripe-pricing-table\""), "{js}");
@@ -1505,26 +1502,43 @@ fn somebody_elses_custom_element_is_placed_like_a_component() {
         js.contains("\"publishable-key\": () => _k()"),
         "a prop is the attribute a framework would write, and follows state: {js}"
     );
-    assert!(js.contains("WF.onRoot(_e0, \"ready\""), "{js}");
-    // It is a known component, so nothing reports it as undeclared.
+    assert!(
+        js.contains(".addEventListener(\"ready\""),
+        "an event of its own naming: {js}"
+    );
+    // Its attributes and its events are its own: nothing to warn about.
     let program = parse_source(&src, "t.wf").unwrap();
-    let text: String = webfluent::linter::validate_semantics_in(&program, &|_| "t.wf".to_string())
-        .iter()
-        .map(|e| e.to_string())
-        .collect();
-    assert!(!text.contains("unknown component"), "{text}");
+    let findings = webfluent::sema::check(&program, &|_| "t.wf".to_string());
+    assert!(
+        findings.errors.is_empty() && findings.warnings.is_empty(),
+        "{findings:?}"
+    );
     // A tag without a hyphen is not a custom element's name.
-    let bad = parse_source(
+    let bad = parse_source(&page("Element(\"table\") { Text(\"x\") }"), "t.wf").unwrap();
+    let errors = webfluent::sema::check(&bad, &|_| "t.wf".to_string()).errors;
+    assert!(
+        errors.iter().any(|e| e
+            .to_string()
+            .contains("`table` is not a custom element's tag")),
+        "{errors:?}"
+    );
+}
+
+#[test]
+fn external_is_gone_and_says_where_to_go() {
+    let err = parse_source(
         &format!(
-            "external element X(\"table\") {{ prop a: String }}\n{}",
+            "external Chart from \"https://x.example/c.js\" {{ fn Chart(a: Any) }}\n{}",
             page("Text(\"x\")")
         ),
         "t.wf",
     )
     .unwrap_err();
+    let text = format!("{err:?}");
+    assert!(text.contains("`external` was removed"), "{text}");
     assert!(
-        format!("{bad}").contains("not a custom element's name"),
-        "{bad}"
+        text.contains("meta.scripts") && text.contains("Element("),
+        "{text}"
     );
 }
 

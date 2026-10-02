@@ -132,17 +132,22 @@ zip-windows:
 test:
     cargo test
 
-# Run clippy lints
+# Formatting, clippy and the build, one by one, as CI runs them
+# (`just check --fix` formats first; `just check --test` runs the tests too)
+check *args:
+    scripts/check.sh {{args}}
+
+# Run clippy lints, as CI does: the whole workspace, warnings are errors
 lint:
-    cargo clippy -- -W clippy::all
+    cargo clippy --workspace --all-targets -- -D warnings
 
 # Format code
 fmt:
-    cargo fmt
+    cargo fmt --all
 
 # Check formatting without modifying
 fmt-check:
-    cargo fmt -- --check
+    cargo fmt --all -- --check
 
 # ── Editors ──────────────────────────────────────────
 

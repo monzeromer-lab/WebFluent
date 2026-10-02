@@ -52,6 +52,7 @@ pub fn validate_semantics_in(
     let mut diags = Vec::new();
 
     check_duplicate_names(program, file_of, &mut diags);
+    check_script_names(program, file_of, &mut diags);
 
     for (index, decl) in program.declarations.iter().enumerate() {
         let body = match decl {
@@ -64,7 +65,7 @@ pub fn validate_semantics_in(
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
-            | Declaration::External(_)
+            | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -92,13 +93,6 @@ fn name_set(program: &Program, kind: DeclKind) -> HashSet<&str> {
         .filter_map(|d| match (kind, d) {
             (DeclKind::Page, Declaration::Page(p)) => Some(p.name.as_str()),
             (DeclKind::Component, Declaration::Component(c)) => Some(c.name.as_str()),
-            // An `external element` is placed like a component; the
-            // declaration is what its call sites are checked against.
-            (DeclKind::Component, Declaration::External(e))
-                if e.kind == crate::parser::ast::ExternalKind::Element =>
-            {
-                Some(e.name.as_str())
-            }
             _ => None,
         })
         .collect()
@@ -129,6 +123,90 @@ fn check_duplicate_names(
             _ => None,
         });
     check_dupes(components, "component", file_of, diags);
+}
+
+/// What the project's scripts make global must mean one thing: not two
+/// files' names at once, not a name the program declares, and not one the
+/// language, the browser or the compiled code already owns — the codegen
+/// relies on those meaning what they mean.
+fn check_script_names(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let mut declared: std::collections::HashMap<&str, &str> = std::collections::HashMap::new();
+    for decl in &program.declarations {
+        let (name, kind) = match decl {
+            Declaration::Component(c) => (c.name.as_str(), "a component"),
+            Declaration::Store(s) => (s.name.as_str(), "a store"),
+            Declaration::Const(c) => (c.name.as_str(), "a `const`"),
+            Declaration::Data(d) => (d.name.as_str(), "a `data` constant"),
+            Declaration::Api(a) => (a.name.as_str(), "an `api`"),
+            Declaration::Type(t) => (t.name.as_str(), "a `type`"),
+            Declaration::Enum(e) => (e.name.as_str(), "an `enum`"),
+            _ => continue,
+        };
+        declared.insert(name, kind);
+    }
+    let mut seen: std::collections::HashMap<&str, String> = std::collections::HashMap::new();
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let Declaration::Script(script) = decl else {
+            continue;
+        };
+        for n in &script.names {
+            let at = Span {
+                line: n.line as u32,
+                col: n.col as u32,
+                ..Span::default()
+            };
+            let name = n.name.as_str();
+            let owned = if crate::codegen::js::BROWSER_GLOBALS.contains(&name)
+                || crate::codegen::js::BROWSER_VALUES.contains(&name)
+            {
+                Some("the browser")
+            } else if crate::sema::types::BUILT_IN_FUNCTIONS.contains(&name) {
+                Some("the language")
+            } else if name == "WF"
+                || name == "env"
+                || name.starts_with("Page_")
+                || name.starts_with("__wf")
+            {
+                Some("the compiled pages")
+            } else {
+                None
+            };
+            let problem = if let Some(owner) = owned {
+                Some((
+                    format!(
+                        "`{name}` in `{}` is a name {owner} already has",
+                        script.path
+                    ),
+                    "Name it something of your own: what the page code calls must mean one thing"
+                        .to_string(),
+                ))
+            } else if let Some(kind) = declared.get(name) {
+                Some((
+                    format!(
+                        "`{name}` in `{}` is also {kind} the program declares",
+                        script.path
+                    ),
+                    format!("Rename one of the two `{name}`s"),
+                ))
+            } else {
+                seen.get(name).map(|first| {
+                    (
+                        format!("`{name}` is declared by both `{first}` and `{}`", script.path),
+                        "Every script shares one global scope, where the second would replace the first — rename one".to_string(),
+                    )
+                })
+            };
+            if let Some((message, hint)) = problem {
+                diags.push(diag(message, &file_of(index), at).with_hint(hint));
+            } else {
+                seen.insert(name, script.path.clone());
+            }
+        }
+    }
 }
 
 fn check_dupes<'a>(

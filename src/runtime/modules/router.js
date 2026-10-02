@@ -127,6 +127,7 @@
         } finally {
           currentEffect = prev;
         }
+        drawn({ route: path, params: match.params || {} });
       };
       const settle = () => {
         // A full page load lands the reader at the top with focus on the

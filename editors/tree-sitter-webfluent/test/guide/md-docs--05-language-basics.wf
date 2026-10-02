@@ -7,7 +7,6 @@ app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: "/api/v1") { get todos() -> [Todo] }
-external Confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/+esm" { fn confetti(options: Map) }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"

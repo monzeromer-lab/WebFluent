@@ -57,9 +57,9 @@ Graph tags are all there after `wf build`.
 ## The five ideas
 
 1. **A file is a list of declarations.** `page`, `component`, `store`,
-   `theme`, `app`, `type`, `enum`, `api`, `external`, `const`, `data`,
-   `image`, `animation` and `test` — fourteen kinds, each covered in this
-   guide. Pages own their routes; there is no separate route table.
+   `theme`, `app`, `type`, `enum`, `api`, `const`, `data`, `image`,
+   `animation` and `test` — thirteen kinds, each covered in this guide; a
+   `.js` or `.css` file under `src/` is part of the project too. Pages own their routes; there is no separate route table.
 2. **An element is a typed call.** `Button("Save", tone: .primary).lg { on click { save() } }`:
    one positional argument, named props, `.flag`s, then a block. The compiler
    knows every built-in's props and cases, and every component you declare.

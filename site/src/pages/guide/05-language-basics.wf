@@ -1,10 +1,10 @@
 /// Chapter 5 of the guide, written from md-docs/05-language-basics.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page LanguageBasicsGuide(path: "/docs/guide/language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.", layout: DocsShell("Language basics", chapter: t("guide.chapter", { n: "5" }), blurb: "A file is a list of declarations. This chapter covers all fourteen kinds, naming, comments, bodies, strings and the two layouts.", source: "md-docs/05-language-basics.md", sections: [Anchor(id: "a-file-is-a-list-of-declarations", label: "A file is a list of declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings")], prevTo: "/docs/guide/coming-from", prevLabel: "4. {t("ch.04")}", nextTo: "/docs/guide/pages-and-routing", nextLabel: "6. {t("ch.06")}")) {
+page LanguageBasicsGuide(path: "/docs/guide/language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.", layout: DocsShell("Language basics", chapter: t("guide.chapter", { n: "5" }), blurb: "A file is a list of declarations. This chapter covers all thirteen kinds, naming, comments, bodies, strings and the two layouts.", source: "md-docs/05-language-basics.md", sections: [Anchor(id: "a-file-is-a-list-of-declarations", label: "A file is a list of declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings")], prevTo: "/docs/guide/coming-from", prevLabel: "4. {t("ch.04")}", nextTo: "/docs/guide/pages-and-routing", nextLabel: "6. {t("ch.06")}")) {
     Stack(gap: .lg) {
         Heading("A file is a list of declarations", id: "a-file-is-a-list-of-declarations").h2
 
-        Markdown("Every `.wf` file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are fourteen kinds:")
+        Markdown("Every `.wf` file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are thirteen kinds:")
 
         CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
 component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
@@ -14,7 +14,6 @@ app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: "/api/v1") { get todos() -> [Todo] }
-external Confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/+esm" { fn confetti(options: Map) }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
@@ -66,11 +65,6 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
                     Table.Cell { Markdown("[17](/docs/guide/data#api-a-service-described-once)") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`external`") }
-                    Table.Cell("A JavaScript module or custom element, typed")
-                    Table.Cell { Markdown("[32](/docs/guide/interop)") }
-                }
-                Table.Row {
                     Table.Cell { Markdown("`const`") }
                     Table.Cell("A value read everywhere")
                     Table.Cell { Markdown("[14](/docs/guide/expressions#constants)") }
@@ -90,15 +84,10 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
                     Table.Cell("Keyframes")
                     Table.Cell { Markdown("[20](/docs/guide/motion#custom-animations)") }
                 }
-                Table.Row {
-                    Table.Cell { Markdown("`test`") }
-                    Table.Cell("A render held to expectations and a snapshot")
-                    Table.Cell { Markdown("[24](/docs/guide/testing)") }
-                }
             }
         }
 
-        Markdown("Inside a body there are more statements — `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and the rest. [Grammar](/docs/guide/grammar) lists every keyword and where it may appear.\n\nAll the files under `src/` merge into one program, so a component declared in `components/Chip.wf` is usable from every page. `App.wf` is read first; the rest in name order.")
+        Markdown("Beside them, a `.css` file under `src/` is a stylesheet the build bundles, and a `.js` file under `src/` is a plain browser script whose top-level functions are in scope by name ([32](/docs/guide/interop)). | `test` | A render held to expectations and a snapshot | [24](/docs/guide/testing) |\n\nInside a body there are more statements — `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and the rest. [Grammar](/docs/guide/grammar) lists every keyword and where it may appear.\n\nAll the files under `src/` merge into one program, so a component declared in `components/Chip.wf` is usable from every page. `App.wf` is read first; the rest in name order.")
 
         Heading("Naming", id: "naming").h2
 

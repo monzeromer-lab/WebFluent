@@ -115,8 +115,9 @@ is `Unsafe.Html(…)`, which the build flags every time. Inline handlers and
 ## Things you might look for
 
 - **npm packages.** There is no package manager for WebFluent code. A
-  JavaScript library is used through `external` — a typed declaration of what
-  you call — and `Host`, which gives it a DOM node with a lifetime.
+  JavaScript library is a URL in `meta.scripts`; your own JavaScript is a
+  plain `.js` file under `src/`, whose functions `.wf` code calls by name;
+  and `mount:`/`cleanup:` hand any element to a script with a lifetime.
   [JavaScript interop](32-javascript-interop.md) shows a chart library end
   to end.
 - **Server components / SSR per request.** Not here: a WebFluent site is

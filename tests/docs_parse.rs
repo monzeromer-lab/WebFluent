@@ -37,7 +37,6 @@ fn wf_blocks(markdown: &str) -> Vec<(usize, String, bool)> {
 
 const DECLARATIONS: &[&str] = &[
     "api",
-    "external",
     "page",
     "component",
     "store",
@@ -294,6 +293,7 @@ fn check_strictly(path: &str) -> Vec<String> {
     let markdown =
         std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(path)).unwrap();
     failures.extend(public_env(path, &markdown));
+    let scripts = chapter_scripts(&markdown);
     for (line, block, wfx) in wf_blocks(&markdown) {
         if abbreviates(&block) {
             continue;
@@ -310,9 +310,12 @@ fn check_strictly(path: &str) -> Vec<String> {
         if !loose.trim().is_empty() || declarations.trim().is_empty() {
             continue;
         }
-        let Ok(program) = parse_source(&declarations, path) else {
+        let Ok(mut program) = parse_source(&declarations, path) else {
             continue;
         };
+        // What the chapter's own scripts declare is in scope, as it would be
+        // in the project the chapter describes.
+        program.declarations.extend(scripts.iter().cloned());
         let file_of = |_: usize| format!("{path}:{line}");
         let mut findings = webfluent::sema::check(&program, &file_of);
         let typed = webfluent::sema::types::check(&program, &file_of);
@@ -343,6 +346,37 @@ fn check_strictly(path: &str) -> Vec<String> {
         }
     }
     failures
+}
+
+/// The scripts a chapter shows: every ```` ```js ```` block whose first line
+/// is `// src/<file>.js`, read as the build reads a script under `src/`.
+fn chapter_scripts(markdown: &str) -> Vec<webfluent::parser::ast::Declaration> {
+    let mut out = Vec::new();
+    let mut lines = markdown.lines();
+    while let Some(line) = lines.next() {
+        if line.trim_end() != "```js" {
+            continue;
+        }
+        let body: Vec<&str> = lines
+            .by_ref()
+            .take_while(|l| l.trim_end() != "```")
+            .collect();
+        let Some(path) = body.first().and_then(|l| l.strip_prefix("// src/")) else {
+            continue;
+        };
+        let scan = webfluent::project_js::scan::scan(&body.join("\n"));
+        assert!(
+            scan.problems.is_empty() && scan.module_at.is_none(),
+            "src/{path}: {scan:?}"
+        );
+        out.push(webfluent::parser::ast::Declaration::Script(
+            webfluent::parser::ast::ScriptDecl {
+                path: format!("src/{}", path.trim()),
+                names: scan.names,
+            },
+        ));
+    }
+    out
 }
 
 /// What the JavaScript for `program` gets wrong, read back from the emission.

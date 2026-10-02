@@ -957,6 +957,48 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             None => String::new(),
         };
     }
+    // A custom element, by its tag, with the attributes the data gives it.
+    if name == "Element" {
+        let tag = match ui.args.first() {
+            Some(Arg::Positional(Expr::StringLiteral(tag))) => tag.clone(),
+            _ => "wf-element".to_string(),
+        };
+        let mut attrs = String::new();
+        for arg in &ui.args {
+            let Arg::Named(key, value) = arg else {
+                continue;
+            };
+            if matches!(
+                key.as_str(),
+                "class" | "ref" | "mount" | "update" | "cleanup"
+            ) || key.starts_with("data-wf-")
+            {
+                continue;
+            }
+            let attribute = camel_to_kebab(key);
+            match ctx.eval_expr(value) {
+                Value::Bool(true) => attrs.push_str(&format!(" {attribute}")),
+                Value::Bool(false) | Value::Null | Value::Array(_) | Value::Object(_) => {}
+                v => attrs.push_str(&format!(
+                    " {attribute}=\"{}\"",
+                    html_escape(&value_to_string(&v))
+                )),
+            }
+        }
+        let classes = extra_classes(ui, ctx).join(" ");
+        let class = if classes.is_empty() {
+            String::new()
+        } else {
+            format!(" class=\"{classes}\"")
+        };
+        let indent = ctx.indent_str();
+        let mut out = format!("{indent}<{tag}{class}{attrs}>\n");
+        ctx.indent += 1;
+        out.push_str(&render_statements(&ui.children, ctx));
+        ctx.indent -= 1;
+        out.push_str(&format!("{indent}</{tag}>\n"));
+        return out;
+    }
     let (_, base_class) = builtin_to_html(name);
     let mut classes = class_list(base_class, &ui.modifiers);
     classes.extend(layout_arg_classes(&ui.args));
@@ -1383,8 +1425,7 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
         .iter()
         .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
     {
-        let text = value_to_string(&ctx.eval_expr(value));
-        classes.extend(text.split_whitespace().map(str::to_string));
+        class_names(&ctx.eval_expr(value), &mut classes);
     }
     classes
 }
@@ -1553,6 +1594,29 @@ fn value_to_expr(val: &Value) -> Expr {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
+
+/// What a `class:` names: a string, a map of class to condition (each key
+/// whose value is truthy), or a list of either.
+fn class_names(val: &Value, out: &mut Vec<String>) {
+    match val {
+        Value::Null | Value::Bool(false) => {}
+        Value::Array(items) => items.iter().for_each(|v| class_names(v, out)),
+        Value::Object(map) => {
+            for (key, on) in map {
+                if is_truthy(on) {
+                    class_names(&Value::String(key.trim_matches('"').to_string()), out);
+                }
+            }
+        }
+        other => {
+            for c in value_to_string(other).split_whitespace() {
+                if !out.iter().any(|o| o == c) {
+                    out.push(c.to_string());
+                }
+            }
+        }
+    }
+}
 
 fn value_to_string(val: &Value) -> String {
     match val {

@@ -23,6 +23,13 @@ module nothing else uses needs `"build": { "runtime": "full" }`
 compiler emits for the language's features; the ones worth calling yourself
 are marked **●**.
 
+## Events the runtime says
+
+`wf:render` is dispatched on `document` once a drawing lands — the first
+mount, the takeover of a pre-rendered page, and every route change — with
+`{ route, params }` in `detail`. A script that finds elements itself listens
+for it ([JavaScript interop](32-javascript-interop.md#wf-render-for-a-script-that-finds-elements-itself)).
+
 ## State — `core`
 
 | Function | Does |
@@ -148,7 +155,7 @@ The list and string helpers (`sortBy`, `groupBy`, `unique`, `take`,
 | `i18n` | `locales(default, tables)` → `WF.i18n`, with `t`, `locale`, `dir`, `setLocale` |
 | `offline` | `offline(options)`, `update()` — the service worker and the update flow |
 | `head` | `head(tags)` — a page's own head tags |
-| `host` | `attach(node, mount, update, cleanup)` — what `Host` compiles to |
+| `host` | `attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element |
 | `picture` | `picture(…)` — an `image`'s `<picture>` |
 | `hydrate` | `hydrate(fn, container)` — takes over a pre-rendered page |
 | `core` | `mount(fn, container)`, `mainOf(root)` — boot |

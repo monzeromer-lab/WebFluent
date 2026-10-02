@@ -298,9 +298,11 @@ shown on hover in the editor and in `wf docs`.
 
 ## Other people's code
 
-A JavaScript library — a chart, a map, an editor — is declared with
-`external` and given a node with `Host`; a component can be published as a
-custom element for another framework to place. Both are in
+A JavaScript library — a chart, a map, an editor — is called from a `.js`
+file under `src/` and handed an element with `mount:` and `cleanup:`;
+somebody else's custom element is placed with `Element("tag-name", …)`; and
+a component can be published as a custom element for another framework to
+place. Both are in
 [JavaScript interop](32-javascript-interop.md).
 
 ## Components in the static paint

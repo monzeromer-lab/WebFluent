@@ -1,0 +1,35 @@
+app { Router }
+
+page Home(path: "/", title: "Scripts", description: "The project's own JavaScript, in a real browser.") {
+    state show = true
+    state max = 10
+    state visible = false
+    state ready = false
+    state label = "one"
+    action setVisible(v: Bool) { visible = v }
+
+    Heading("Scripts").h1
+    Text(money(12), id: "money")
+    if show {
+        Card(id: "tilt", class: { "is-on": show, "is-max": max > 10 },
+            mount: (n) => initTilt(n, max),
+            update: (t) => t.setMax(max),
+            cleanup: (t) => t.destroy()) {
+            Text("Lean")
+        }
+    }
+    Card(id: "seen", class: { "is-visible": visible }, mount: (n) => watchVisible(n, setVisible)) {
+        Text("Seen")
+    }
+    Element("x-badge", id: "badge", label: label) { on ready { ready = true } }
+    Text(if ready { "badge ready" } else { "badge waiting" }, id: "ready")
+    Button("Toggle") { on click { show = !show } }
+    Button("More") { on click { max = max + 5 } }
+    Button("Relabel") { on click { label = "two" } }
+    Link("Away", to: "/away")
+}
+
+page Away(path: "/away", title: "Away", description: "Somewhere else.") {
+    Heading("Away").h1
+    Link("Home", to: "/")
+}

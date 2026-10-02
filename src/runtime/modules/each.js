@@ -16,6 +16,12 @@
     const exiting = new Set();
     // What each item's body created, disposed of when the item leaves.
     let disposers = [];
+    // And when the list itself goes — a route change, an enclosing branch.
+    onCleanup(() => {
+      for (const d of disposers.splice(0)) d();
+      for (const entry of entries.values()) if (entry.dispose) entry.dispose();
+      entries = new Map();
+    });
 
     const toNodes = (result) =>
       result instanceof DocumentFragment

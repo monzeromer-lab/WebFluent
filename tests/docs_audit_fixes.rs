@@ -174,35 +174,6 @@ fn an_actions_parameters_are_its_own() {
     assert!(js.contains("m.count = 1"), "{js}");
 }
 
-/// A shape an `external` declares — `type ChartHandle { update() }` — was
-/// a record with no fields to the checker, so annotating a parameter with it
-/// made every method called on it a `T05`.
-#[test]
-fn an_external_types_name_may_annotate_a_value() {
-    let src = "external Charts from \"https://cdn.example.com/chart.js\" {\n\
-               \x20   fn Chart(canvas: Any, config: Map) -> ChartHandle\n\
-               \x20   type ChartHandle {\n\
-               \x20       update()\n\
-               \x20       data: Map\n\
-               \x20   }\n\
-               }\n\
-               page P(path: \"/\", title: \"T\", description: \"D\") {\n\
-               \x20   state values: [Number] = [1]\n\
-               \x20   action redraw(chart: ChartHandle) {\n\
-               \x20       chart.data.datasets[0].data = values\n\
-               \x20       chart.update()\n\
-               \x20   }\n\
-               \x20   Host(tag: \"canvas\", mount: (node) => Charts.Chart(node, {}), update: (chart) => redraw(chart))\n\
-               }\n";
-    let program = webfluent::parse_source(src, "t.wf").expect("parses");
-    let typed = webfluent::sema::types::check(&program, &|_| "t.wf".to_string());
-    assert!(
-        typed.findings.errors.is_empty(),
-        "{:?}",
-        typed.findings.errors
-    );
-}
-
 /// `navigator` and `location` were not among the browser's globals, so
 /// `navigator.clipboard.writeText(…)` compiled to `_navigator()`, a signal
 /// nothing declared — while the guide listed both as usable.

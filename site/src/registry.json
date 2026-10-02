@@ -2700,24 +2700,9 @@
    "group": "Layout",
    "summary": "An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.",
    "plain": "An element handed to somebody else's code, with a lifetime. mount: runs once with the node, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves.",
-   "signature": "Host(mount: \u2026, update: \u2026, cleanup: \u2026)",
+   "signature": "Host(tag: \u2026)",
    "block": false,
    "props": [
-    {
-     "name": "mount:",
-     "type": "Any",
-     "meaning": "`(node) => \u2026` \u2014 run once with the element, giving back whatever the library hands over"
-    },
-    {
-     "name": "update:",
-     "type": "Any",
-     "meaning": "`(handle) => \u2026` \u2014 run again whenever the state it reads changes"
-    },
-    {
-     "name": "cleanup:",
-     "type": "Any",
-     "meaning": "`(handle) => \u2026` \u2014 run when what owns it leaves, so nothing is left behind"
-    },
     {
      "name": "tag:",
      "type": "String",
@@ -2740,6 +2725,36 @@
    ],
    "example": "Host(tag: \"canvas\", mount: (node) => node.getContext(\"2d\"), cleanup: (ctx) => log(\"gone\"))",
    "cssClass": "wf-host"
+  },
+  {
+   "name": "Element",
+   "slug": "element",
+   "group": "Layout",
+   "summary": "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishable-key: key) { on ready { \u2026 } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
+   "plain": "A custom element a script defines, placed by its tag: Element(\"stripe-pricing-table\", publishable-key: key) { on ready { \u2026 } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.",
+   "signature": "Element(tag) { \u2026 }",
+   "block": true,
+   "props": [
+    {
+     "name": "tag",
+     "type": "String  (positional)",
+     "meaning": "The custom element's tag: lower case, with a hyphen, as every custom element's is"
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "parts": [],
+   "attributes": [
+    "any"
+   ],
+   "nearby": [
+    "Container",
+    "Row",
+    "Column",
+    "Grid"
+   ],
+   "example": "",
+   "cssClass": ""
   },
   {
    "name": "Unsafe",
@@ -3346,6 +3361,21 @@
     "name": "ref:",
     "type": "State",
     "meaning": "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`"
+   },
+   {
+    "name": "mount:",
+    "type": "Any",
+    "meaning": "Run with the element each time it is made \u2014 `mount: (n) => initTilt(n)` \u2014 and what it returns is the handle `update:` and `cleanup:` get"
+   },
+   {
+    "name": "update:",
+    "type": "Any",
+    "meaning": "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`"
+   },
+   {
+    "name": "cleanup:",
+    "type": "Any",
+    "meaning": "Run with the handle when the element leaves \u2014 a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`"
    }
   ],
   "events": [
@@ -3601,5 +3631,5 @@
   "sun",
   "moon"
  ],
- "count": 66
+ "count": 67
 }

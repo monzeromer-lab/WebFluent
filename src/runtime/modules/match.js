@@ -10,6 +10,9 @@
     let currentNodes = [];
     let lastKey;
     let dispose = null;
+    // What it holds now goes when what owns it does — a route change, an
+    // enclosing branch — not only when it changes its mind.
+    onCleanup(() => { if (dispose) { dispose(); dispose = null; } });
     effect(() => {
       const k = key();
       if (k === lastKey) return;

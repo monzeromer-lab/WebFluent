@@ -47,6 +47,9 @@ pub struct SourceFile {
     /// Whether this file's declarations in the merged program come from an
     /// earlier parse, because the current text does not parse.
     pub stale: bool,
+    /// A plain script under `src/`, not WebFluent: its one declaration is
+    /// what it makes global, and nothing reads its text as `.wf`.
+    pub script: bool,
 }
 
 /// A project: its files, and their declarations merged into one program.
@@ -64,6 +67,8 @@ pub struct Project {
     /// build bundles them — so a class one of them defines is not reported
     /// as one no stylesheet has.
     pub stylesheets: String,
+    /// The same stylesheets one by one, for a class's definition.
+    pub stylesheet_files: Vec<(PathBuf, Arc<str>)>,
 }
 
 /// Parsed disk files, keyed by path, reused while the file is unchanged.
@@ -115,24 +120,37 @@ impl Project {
             .unwrap_or_else(|_| PathBuf::from(uri.path()));
 
         let root = find_root(&path);
+        let mut stylesheet_files: Vec<(PathBuf, Arc<str>)> = Vec::new();
+        let mut script_paths: Vec<PathBuf> = Vec::new();
+        // What `meta.scripts` says its libraries define, in scope as `Any`.
+        let mut library_globals: Vec<String> = Vec::new();
         let (theme, paths, stylesheets) = match &root {
             Some(root) if path.starts_with(root.join("src")) => {
-                let theme = ProjectConfig::load(root)
-                    .map(|config| config.theme)
-                    .unwrap_or_default();
+                let config = ProjectConfig::load(root).ok();
+                library_globals = config
+                    .iter()
+                    .flat_map(|c| c.meta.scripts.iter().flat_map(|s| s.names()))
+                    .map(str::to_string)
+                    .collect();
+                let theme = config.map(|config| config.theme).unwrap_or_default();
                 let src = root.join("src");
                 let mut paths = source_files(&src);
                 if !paths.iter().any(|p| p == &path) {
                     paths.push(path.clone());
                 }
-                let stylesheets = webfluent::codegen::project_css::find_stylesheets(&src)
-                    .iter()
-                    .filter_map(|css| cache.read(css))
-                    .fold(String::new(), |mut all, css| {
-                        all.push_str(&css);
-                        all.push('\n');
-                        all
-                    });
+                stylesheet_files = webfluent::codegen::project_css::find_stylesheets(&src)
+                    .into_iter()
+                    .filter_map(|css| cache.read(&css).map(|text| (css, text)))
+                    .collect();
+                let stylesheets =
+                    stylesheet_files
+                        .iter()
+                        .fold(String::new(), |mut all, (_, css)| {
+                            all.push_str(css);
+                            all.push('\n');
+                            all
+                        });
+                script_paths = webfluent::project_js::find_scripts(&src);
                 (theme, paths, stylesheets)
             }
             _ => (ThemeConfig::default(), vec![path.clone()], String::new()),
@@ -167,6 +185,76 @@ impl Project {
                 parsed,
                 open,
                 stale,
+                script: false,
+            });
+        }
+
+        // The project's scripts, each a file whose one declaration is the
+        // names it makes global — the build's reading of it, so the editor
+        // and the compiler agree on what is in scope.
+        for script_path in script_paths {
+            let Some(source) = cache.read(&script_path) else {
+                continue;
+            };
+            let scan = webfluent::project_js::scan::scan(&source);
+            if scan.module_at.is_some() || !scan.problems.is_empty() {
+                continue;
+            }
+            let label = root
+                .as_ref()
+                .and_then(|root| script_path.strip_prefix(root).ok())
+                .unwrap_or(&script_path)
+                .to_string_lossy()
+                .replace('\\', "/");
+            let declaration = Declaration::Script(webfluent::parser::ast::ScriptDecl {
+                path: label,
+                names: scan.names,
+            });
+            fallbacks.push(None);
+            files.push(SourceFile {
+                uri: Url::from_file_path(&script_path).unwrap_or_else(|_| uri.clone()),
+                path: script_path,
+                index: LineIndex::new(&source),
+                source,
+                parsed: Ok(Program {
+                    declarations: vec![declaration],
+                }),
+                open: false,
+                stale: false,
+                script: true,
+            });
+        }
+
+        if !library_globals.is_empty()
+            && let Some(root) = &root
+        {
+            let config_path = root.join("webfluent.app.json");
+            let source: Arc<str> = cache.read(&config_path).unwrap_or_else(|| "".into());
+            let names = library_globals
+                .into_iter()
+                .map(|name| webfluent::project_js::scan::Name {
+                    name,
+                    kind: webfluent::project_js::scan::NameKind::Value,
+                    line: 1,
+                    col: 1,
+                    doc: None,
+                })
+                .collect();
+            fallbacks.push(None);
+            files.push(SourceFile {
+                uri: Url::from_file_path(&config_path).unwrap_or_else(|_| uri.clone()),
+                path: config_path,
+                index: LineIndex::new(&source),
+                source,
+                parsed: Ok(Program {
+                    declarations: vec![Declaration::Script(webfluent::parser::ast::ScriptDecl {
+                        path: "webfluent.app.json".to_string(),
+                        names,
+                    })],
+                }),
+                open: false,
+                stale: false,
+                script: true,
             });
         }
 
@@ -192,6 +280,7 @@ impl Project {
             program: Program { declarations },
             decl_file,
             stylesheets,
+            stylesheet_files,
         }
     }
 
@@ -214,6 +303,7 @@ impl Project {
             parsed,
             open: true,
             stale: false,
+            script: false,
         };
         let declarations = file
             .parsed
@@ -228,6 +318,7 @@ impl Project {
             program: Program { declarations },
             decl_file,
             stylesheets: String::new(),
+            stylesheet_files: Vec::new(),
         }
     }
 
@@ -314,5 +405,24 @@ fn walk(dir: &Path, app: Option<&Path>, files: &mut Vec<PathBuf>) {
             }
             files.push(path);
         }
+    }
+}
+
+impl Project {
+    /// A name a project script makes global: the script's file and the
+    /// name as the scanner read it.
+    pub fn script_name(&self, name: &str) -> Option<(usize, &webfluent::project_js::scan::Name)> {
+        self.program
+            .declarations
+            .iter()
+            .enumerate()
+            .find_map(|(ix, decl)| match decl {
+                Declaration::Script(script) => script
+                    .names
+                    .iter()
+                    .find(|n| n.name == name)
+                    .map(|n| (self.decl_file[ix], n)),
+                _ => None,
+            })
     }
 }

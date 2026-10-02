@@ -42,6 +42,10 @@ pub fn provide_completions(
         return Vec::new();
     };
     let tokens = analysis::tokens_of(file).unwrap_or_else(|| tokens_until_error(source));
+    // Inside `class: "…"`: the classes the project's stylesheets define.
+    if crate::classes::in_class_value(&tokens, offset) {
+        return crate::classes::completions(project);
+    }
     if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
         return Vec::new();
     }
@@ -134,6 +138,7 @@ pub fn provide_completions(
             ParenOwner::Element(name) => {
                 items.extend(element_props(project, &name, &previous));
                 items.extend(scope_items(&scope));
+                items.extend(script_items(project));
                 return items;
             }
             ParenOwner::PageHeader => {
@@ -143,10 +148,12 @@ pub fn provide_completions(
             ParenOwner::Fetch => {
                 items.extend(args(reference::RESOURCE_OPTIONS, "fetch option"));
                 items.extend(scope_items(&scope));
+                items.extend(script_items(project));
                 return items;
             }
             ParenOwner::Call | ParenOwner::Unknown => {
                 items.extend(scope_items(&scope));
+                items.extend(script_items(project));
                 return items;
             }
         }
@@ -193,7 +200,46 @@ pub fn provide_completions(
     }
     items.extend(keywords(in_store, in_component));
     items.extend(scope_items(&scope));
+    items.extend(script_items(project));
     items
+}
+
+/// What the project's scripts make global, with how a call reads.
+fn script_items(project: &Project) -> Vec<CompletionItem> {
+    let mut out = Vec::new();
+    for decl in &project.program.declarations {
+        let Declaration::Script(script) = decl else {
+            continue;
+        };
+        for n in &script.names {
+            let callable = !matches!(n.kind, webfluent::project_js::scan::NameKind::Value);
+            let doc = n
+                .doc
+                .as_deref()
+                .map(webfluent::project_js::jsdoc::parse)
+                .map(|d| d.summary)
+                .unwrap_or_default();
+            out.push(CompletionItem {
+                label: n.name.clone(),
+                kind: Some(if callable {
+                    CompletionItemKind::FUNCTION
+                } else {
+                    CompletionItemKind::VARIABLE
+                }),
+                detail: Some(format!(
+                    "{} — {}",
+                    webfluent::project_js::signature(n),
+                    script.path
+                )),
+                documentation: (!doc.is_empty()).then_some(Documentation::String(doc)),
+                insert_text: callable.then(|| format!("{}($0)", n.name)),
+                insert_text_format: callable.then_some(InsertTextFormat::SNIPPET),
+                sort_text: Some(format!("3{}", n.name)),
+                ..Default::default()
+            });
+        }
+    }
+    out
 }
 
 /// Tokens of a source that fails to lex, up to the failure, line by line

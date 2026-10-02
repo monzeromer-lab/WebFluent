@@ -29,12 +29,7 @@
   "const"
   "image"
   "api"
-  "external"
-  "element"
   "from"
-  "fn"
-  "prop"
-  "integrity"
 ] @keyword
 
 (page_declaration name: (_) @type.definition)
@@ -91,10 +86,6 @@
 (resource_declaration name: (_) @variable)
 (let_declaration name: (_) @variable)
 (action_declaration name: (_) @function.definition)
-(external_declaration name: (_) @type.definition)
-(external_fn name: (_) @function.definition)
-(external_type name: (_) @type.definition)
-(external_member name: (_) @function.definition)
 (event_declaration name: (_) @function.definition)
 (slot_declaration name: (identifier) @label)
 (emit_statement event: (_) @function)

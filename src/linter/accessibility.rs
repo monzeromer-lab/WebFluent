@@ -66,7 +66,7 @@ pub fn lint_accessibility_in(
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
-            | Declaration::External(_)
+            | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)

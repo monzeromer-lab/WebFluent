@@ -58,9 +58,9 @@ the host to answer every path with `index.html`
 
 **"Refused to load the script" / "violates the following Content Security
 Policy".** `build.csp` ships a strict policy. A script from another origin
-has to be declared: load a module through `external`, fonts and stylesheets
-through `meta.fonts` and `meta.stylesheets` — each widens the policy for
-exactly that origin. An inline `<script>` in `public/` HTML is never
+has to be declared: a library in `meta.scripts`, fonts and stylesheets in
+`meta.fonts` and `meta.stylesheets` — each widens the policy for exactly
+that origin. An inline `<script>` in `public/` HTML is never
 allowed; move it to a file.
 
 **An icon shows as a word.** Its name is not one of the 32 built-in icons
@@ -117,8 +117,9 @@ or `.env` declares, or `PUBLIC_` ones.
 
 ## Questions people ask
 
-**Can I use npm packages?** A JavaScript module, yes, through `external`
-from a CDN or your import map ([JavaScript interop](32-javascript-interop.md)).
+**Can I use npm packages?** A library, yes, by its CDN URL in `meta.scripts`
+([JavaScript interop](32-javascript-interop.md)); your own JavaScript is a
+plain `.js` file under `src/`.
 There is no package manager for WebFluent code itself.
 
 **Can I use it with React or Vue?** Publish components as custom elements

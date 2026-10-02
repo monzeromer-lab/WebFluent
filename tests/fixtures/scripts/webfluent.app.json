@@ -1,0 +1,4 @@
+{
+  "name": "scripts",
+  "build": { "ssg": true, "csp": true }
+}

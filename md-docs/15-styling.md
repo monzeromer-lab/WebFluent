@@ -131,9 +131,30 @@ page Classes(path: "/") {
 }
 ```
 
-The value may be an expression, so a class can follow state. Built-ins wear
-`wf-*` classes (`wf-btn`, `wf-btn--primary`, `wf-card`), stable across
-releases, so a stylesheet may target them.
+The value may be an expression, so a class can follow state. When several
+classes each have their own condition, give a map — each key is a class, on
+while its value is true — or a list, which joins strings and maps and skips
+what is `null`:
+
+```wf
+page Todos(path: "/") {
+    state done = false
+    state urgent = true
+    state tone = "calm"
+    Text("Water the plants", class: { "is-done": done, "is-urgent": urgent })
+    Container(class: ["panel", tone, if urgent { "is-loud" }]) { Text("…") }
+}
+```
+
+A map's values must be conditions (`Bool`), and a bare condition is not a
+class (`T01`) — `{ "is-on": on }` says what `on` turns on. Only the classes
+`class:` itself named come off when its value changes, so a class a script
+added with `classList.add` stays where it is.
+
+Built-ins wear `wf-*` classes (`wf-btn`, `wf-btn--primary`, `wf-card`),
+stable across releases, so a stylesheet may target them. Adding one to an
+element with `class:` brings another built-in's rules with it, and draws a
+`V04`.
 
 ## When your rule and a built-in's disagree
 

@@ -282,17 +282,6 @@
           "match": "\\b(test)\\b(?=\\s*\")"
         },
         {
-          "match": "\\b(external)\\b(?:\\s+(element)\\b)?(?=\\s+[A-Za-z_])",
-          "captures": {
-            "1": {
-              "name": "keyword.declaration.webfluent"
-            },
-            "2": {
-              "name": "keyword.declaration.webfluent"
-            }
-          }
-        },
-        {
           "name": "keyword.declaration.webfluent",
           "match": "\\b(from)\\b(?=\\s*\")"
         },

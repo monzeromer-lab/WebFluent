@@ -396,7 +396,7 @@ pub fn render_page_html_studio(
         crate::codegen::html::head_links(config, &base),
         base,
         page_sheet,
-        crate::codegen::html::externals_tags(config, program, &base),
+        crate::codegen::html::script_tags(config, &base),
         base,
         page_chunk,
         crate::codegen::html::SKIP_LINK,
@@ -1010,6 +1010,50 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         }
     };
     match name {
+        // A custom element, by its tag: its attributes as far as the build
+        // knows them, and its children. The script that defines it upgrades
+        // it once it runs.
+        "Element" => {
+            let tag = match ui.args.first() {
+                Some(Arg::Positional(Expr::StringLiteral(tag))) => tag.clone(),
+                _ => "wf-element".to_string(),
+            };
+            let mut attrs = String::new();
+            for arg in &ui.args {
+                let Arg::Named(key, value) = arg else {
+                    continue;
+                };
+                if matches!(
+                    key.as_str(),
+                    "class" | "ref" | "mount" | "update" | "cleanup" | "shared" | "count"
+                ) || key.starts_with("data-wf-")
+                {
+                    continue;
+                }
+                let attribute = camel_to_kebab(key);
+                match eval(value, &ctx.scope) {
+                    Some(Static::Bool(true)) => attrs.push_str(&format!(" {attribute}")),
+                    Some(Static::Bool(false)) | Some(Static::Null) | None => {}
+                    Some(Static::List(_) | Static::Map(_)) => {}
+                    Some(v) => {
+                        attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&v.to_text())))
+                    }
+                }
+            }
+            let class = extra_classes(ui, ctx).join(" ");
+            let class = if class.is_empty() {
+                String::new()
+            } else {
+                format!(" class=\"{class}\"")
+            };
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<{tag}{class}{attrs}{wf}{inline_style}>\n");
+            ctx.indent += 1;
+            out.push_str(&render_statements(&ui.children, ctx));
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</{tag}>\n"));
+            return out;
+        }
         "Spacer" | "Spinner" => {
             return format!(
                 "{}<div class=\"{}\"{}{}></div>\n",
@@ -1872,13 +1916,15 @@ fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
         .collect();
     // The rules a responsive prop compiled to, carried by name.
     classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+    // A string, a map of class to condition, or a list of either — what
+    // the build can evaluate, painted as the live page will have it.
     if let Some(Arg::Named(_, value)) = ui
         .args
         .iter()
         .find(|a| matches!(a, Arg::Named(k, _) if k == "class"))
-        && let Some(text) = static_attr(value, &ctx.scope)
+        && let Some(value) = eval(value, &ctx.scope)
     {
-        classes.extend(text.split_whitespace().map(str::to_string));
+        crate::codegen::builtin::static_classes(&value, &mut classes);
     }
     classes
 }

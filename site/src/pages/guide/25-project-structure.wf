@@ -16,6 +16,7 @@ page ProjectStructureGuide(path: "/docs/guide/project-structure", title: "Projec
 │   ├── components/         components
 │   ├── stores/             stores
 │   ├── styles.css          your own stylesheets, anywhere under src/
+│   ├── tilt.js             your own scripts, anywhere under src/
 │   ├── translations/       en.json, ar.json (with "i18n" in the config)
 │   ├── posts.json          data files a `data` declaration reads
 │   └── about.md            Markdown pages
@@ -44,6 +45,11 @@ page ProjectStructureGuide(path: "/docs/guide/project-structure", title: "Projec
                     Table.Cell { Markdown("`*.css`") }
                     Table.Cell { Markdown("anywhere under `src/`") }
                     Table.Cell { Markdown("bundled into `styles.css`, in path order, after the built-ins' rules") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`*.js`") }
+                    Table.Cell { Markdown("anywhere under `src/`") }
+                    Table.Cell { Markdown("copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([JavaScript interop](/docs/guide/interop))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`*.md`") }

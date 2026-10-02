@@ -467,10 +467,23 @@
     }
   }
 
+  // What a `class:` names: a string, `{ "is-on": cond }` (each key while its
+  // value is true), or a list of either, null and `false` skipped.
+  function classNames(v, out = []) {
+    if (v == null || v === false) return out;
+    if (Array.isArray(v)) { for (const x of v) classNames(x, out); return out; }
+    if (typeof v === "object") {
+      for (const k of Object.keys(v)) if (v[k]) classNames(k, out);
+      return out;
+    }
+    for (const c of String(v).split(/\s+/)) if (c && !out.includes(c)) out.push(c);
+    return out;
+  }
+
   function classes(el, get) {
     let prev = [];
     effect(() => {
-      const next = String(get() || "").split(/\s+/).filter(Boolean);
+      const next = classNames(get());
       for (const c of prev) if (!next.includes(c)) el.classList.remove(c);
       for (const c of next) el.classList.add(c);
       prev = next;
@@ -537,6 +550,27 @@
     themeSignal().set(chosen);
   }
 
+  // ─── Rendered ────────────────────────────────────────
+  // A plain script that drives the DOM itself — `querySelectorAll(".tilt")`
+  // — has to know when there is a DOM to drive: the page is drawn after it
+  // runs, drawn again over a pre-rendered one, and drawn anew on every
+  // route. `wf:render` on `document` says so, once per drawing: the first
+  // load's mount and its router's paint are one event, not two.
+  let renderPending = null;
+  function drawn(detail) {
+    if (typeof document === "undefined" || typeof CustomEvent !== "function") return;
+    const first = renderPending === null;
+    renderPending = detail;
+    if (!first) return;
+    queueMicrotask(() => {
+      const d = renderPending;
+      renderPending = null;
+      if (typeof document.dispatchEvent === "function") {
+        document.dispatchEvent(new CustomEvent("wf:render", { detail: d }));
+      }
+    });
+  }
+
   // ─── Mount ───────────────────────────────────────────
   function mount(renderFn, container) {
     themeSignal();
@@ -546,4 +580,6 @@
       container.innerHTML = "";
       container.appendChild(el);
     }
+    const path = typeof location !== "undefined" ? location.pathname : "/";
+    if (renderPending === null) drawn({ route: path, params: {} });
   }

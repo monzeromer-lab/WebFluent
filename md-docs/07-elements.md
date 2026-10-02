@@ -80,6 +80,7 @@ each one:
 |---|---|---|
 | `class:` | Adds classes from your own stylesheets (it adds, it never replaces) | [15](15-styling.md#classes-and-your-own-stylesheet) |
 | `ref:` | Names a handle on the element: `box.focus()` | [8](08-state-and-reactivity.md#element-handles) |
+| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](32-javascript-interop.md#mount-update-cleanup-on-any-element) |
 | `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](20-motion.md) |
 | `exit:` | The animation it leaves with | [20](20-motion.md#exit-animations) |
 | `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](20-motion.md) |

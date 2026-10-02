@@ -14,12 +14,18 @@
   ///
   /// `attach` rather than `host`, because `host` is a `Url`'s.
   function attach(node, mount, update, cleanup) {
+    // A component's call hands over what it rendered, which may be a
+    // fragment: the lifetime belongs to its root element.
+    if (node && (node.nodeType === 11 || node.tagName === "#DOCUMENT-FRAGMENT")) {
+      node = [...node.childNodes].find((n) => n.nodeType === 1);
+      if (!node) return undefined;
+    }
     let handle;
     try {
       handle = typeof mount === "function" ? mount(node) : undefined;
     } catch (e) {
       // A library that throws on mount takes itself out; the page stays.
-      console.error("Host: mount failed", e);
+      console.error("mount failed", e);
       return undefined;
     }
     if (typeof update === "function") {
@@ -31,15 +37,15 @@
           // Read what the update reads, so the effect subscribes to it,
           // without acting on it yet.
           first = false;
-          try { update(handle); } catch (e) { console.error("Host: update failed", e); }
+          try { update(handle); } catch (e) { console.error("update failed", e); }
           return;
         }
-        try { update(handle); } catch (e) { console.error("Host: update failed", e); }
+        try { update(handle); } catch (e) { console.error("update failed", e); }
       });
     }
     if (typeof cleanup === "function") {
       onCleanup(() => {
-        try { cleanup(handle); } catch (e) { console.error("Host: cleanup failed", e); }
+        try { cleanup(handle); } catch (e) { console.error("cleanup failed", e); }
       });
     }
     return handle;

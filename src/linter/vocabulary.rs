@@ -82,7 +82,7 @@ pub fn lint_vocabulary_with(
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
-            | Declaration::External(_)
+            | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
@@ -141,12 +141,15 @@ fn global_names(program: &Program) -> HashSet<String> {
             Declaration::Data(d) => {
                 names.insert(d.name.clone());
             }
+            // What a project script makes global is read bare too.
+            Declaration::Script(script) => {
+                names.extend(script.names.iter().map(|n| n.name.clone()));
+            }
             Declaration::App(_)
             | Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
-            | Declaration::External(_)
             | Declaration::Animation(_)
             | Declaration::Test(_) => {}
         }
@@ -238,6 +241,7 @@ fn walk(
             StatementKind::UIElement(el) => {
                 check_element(el, file, scope, out);
                 check_dead_variants(el, file, sheets, out);
+                check_engine_classes(el, file, out);
                 walk(&el.children, file, scope, sheets, out);
             }
             StatementKind::If(i) => {
@@ -271,6 +275,49 @@ fn walk(
             // statements.
             _ => {}
         }
+    }
+}
+
+/// V04: a `class:` that names one of the engine's own classes.
+///
+/// `wf-*` is the built-ins' namespace. A stylesheet may target those classes
+/// — they are stable — but adding one to an element puts another built-in's
+/// rules on it (`Card(class: "wf-btn")` is half a card and half a button),
+/// and the engine's state hooks (`wf-active`, `wf-open`) are its to set.
+fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>) {
+    fn names(value: &Expr, out: &mut Vec<String>) {
+        match value {
+            Expr::StringLiteral(s) => out.extend(s.split_whitespace().map(str::to_string)),
+            Expr::ListLiteral(items) => items.iter().for_each(|i| names(i, out)),
+            Expr::MapLiteral(pairs) => {
+                for (key, _) in pairs {
+                    out.extend(key.trim_matches('"').split_whitespace().map(str::to_string));
+                }
+            }
+            // `if c { "a" } else { "b" }`: both branches are written out.
+            Expr::MethodCall(_, m, args) if m == "__if" => args.iter().for_each(|a| names(a, out)),
+            _ => {}
+        }
+    }
+    let Some(value) = el.args.iter().find_map(|a| match a {
+        Arg::Named(k, v) if k == "class" => Some(v),
+        _ => None,
+    }) else {
+        return;
+    };
+    let mut found = Vec::new();
+    names(value, &mut found);
+    for class in found.iter().filter(|c| c.starts_with("wf-")) {
+        out.push(VocabWarning {
+            rule_id: "V04".to_string(),
+            message: format!("`class:` names `{class}`, one of the engine's own classes"),
+            file: file.to_string(),
+            line: el.span.line as usize,
+            column: el.span.col as usize,
+            hint: Some(
+                "`wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look".to_string(),
+            ),
+        });
     }
 }
 

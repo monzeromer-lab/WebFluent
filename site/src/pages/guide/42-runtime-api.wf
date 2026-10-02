@@ -1,6 +1,6 @@
 /// Chapter 42 of the guide, written from md-docs/42-runtime-api.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page RuntimeGuide(path: "/docs/guide/runtime", title: "Runtime API", description: "The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot.", layout: DocsShell("Runtime API", chapter: t("guide.chapter", { n: "42" }), blurb: "window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback.", source: "md-docs/42-runtime-api.md", sections: [Anchor(id: "state-core", label: "State — core"), Anchor(id: "elements-and-bodies-core-when-each-show-match-slot", label: "Elements and bodies — core, when, each, show, match, slot"), Anchor(id: "motion-motion", label: "Motion — motion"), Anchor(id: "routing-core-router-pages", label: "Routing — core, router, pages"), Anchor(id: "browser-values-browser-core", label: "Browser values — browser, core"), Anchor(id: "data-net-http-api", label: "Data — net, http, api"), Anchor(id: "stores-store-keep", label: "Stores — store, keep"), Anchor(id: "widgets-toast-overlay-announce-field-tooltip-carousel-drawer-form", label: "Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form"), Anchor(id: "safety-core-sanitize", label: "Safety — core, sanitize"), Anchor(id: "text-text-format", label: "Text — text, format"), Anchor(id: "values-helpers-scalars", label: "Values — helpers, scalars"), Anchor(id: "everything-else", label: "Everything else")], prevTo: "/docs/guide/tokens", prevLabel: "41. {t("ch.41")}", nextTo: "/docs/guide/grammar", nextLabel: "43. {t("ch.43")}")) {
+page RuntimeGuide(path: "/docs/guide/runtime", title: "Runtime API", description: "The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety and boot.", layout: DocsShell("Runtime API", chapter: t("guide.chapter", { n: "42" }), blurb: "window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback.", source: "md-docs/42-runtime-api.md", sections: [Anchor(id: "events-the-runtime-says", label: "Events the runtime says"), Anchor(id: "state-core", label: "State — core"), Anchor(id: "elements-and-bodies-core-when-each-show-match-slot", label: "Elements and bodies — core, when, each, show, match, slot"), Anchor(id: "motion-motion", label: "Motion — motion"), Anchor(id: "routing-core-router-pages", label: "Routing — core, router, pages"), Anchor(id: "browser-values-browser-core", label: "Browser values — browser, core"), Anchor(id: "data-net-http-api", label: "Data — net, http, api"), Anchor(id: "stores-store-keep", label: "Stores — store, keep"), Anchor(id: "widgets-toast-overlay-announce-field-tooltip-carousel-drawer-form", label: "Widgets — toast, overlay, announce, field, tooltip, carousel, drawer, form"), Anchor(id: "safety-core-sanitize", label: "Safety — core, sanitize"), Anchor(id: "text-text-format", label: "Text — text, format"), Anchor(id: "values-helpers-scalars", label: "Values — helpers, scalars"), Anchor(id: "everything-else", label: "Everything else")], prevTo: "/docs/guide/tokens", prevLabel: "41. {t("ch.41")}", nextTo: "/docs/guide/grammar", nextLabel: "43. {t("ch.43")}")) {
     Stack(gap: .lg) {
         Markdown("`app.js` opens with the runtime, and the page can reach it as `window.WF`. Compiled code calls it; so may a hand-written script in `public/`, a library's callback, or you in the browser's console:")
 
@@ -9,6 +9,10 @@ WF.toast("Saved", "success");
 WF.storeSnapshot("Cart");"#, title: "js")
 
         Markdown("A build keeps only the modules its own code reaches, so a script calling a module nothing else uses needs `\"build\": \{ \"runtime\": \"full\" \}` ([chapter 32](/docs/guide/interop)). Most names here are what the compiler emits for the language's features; the ones worth calling yourself are marked **●**.")
+
+        Heading("Events the runtime says", id: "events-the-runtime-says").h2
+
+        Markdown("`wf:render` is dispatched on `document` once a drawing lands — the first mount, the takeover of a pre-rendered page, and every route change — with `\{ route, params \}` in `detail`. A script that finds elements itself listens for it ([JavaScript interop](/docs/guide/interop#wf-render-for-a-script-that-finds-elements-itself)).")
 
         Heading("State — core", id: "state-core").h2
 
@@ -358,7 +362,7 @@ WF.storeSnapshot("Cart");"#, title: "js")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`host`") }
-                    Table.Cell { Markdown("`attach(node, mount, update, cleanup)` — what `Host` compiles to") }
+                    Table.Cell { Markdown("`attach(node, mount, update, cleanup)` — what `mount:`, `update:` and `cleanup:` compile to, on `Host` or any element; a component's fragment is attached at its root element") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`picture`") }

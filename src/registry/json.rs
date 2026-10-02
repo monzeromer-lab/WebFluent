@@ -153,6 +153,7 @@ fn attr_family_name(family: AttrFamily) -> &'static str {
         AttrFamily::Media => "media",
         AttrFamily::Form => "form",
         AttrFamily::Table => "table",
+        AttrFamily::Any => "any",
     }
 }
 
@@ -168,7 +169,7 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
     let mut components = Vec::new();
     let mut stores = Vec::new();
     let mut pages = Vec::new();
-    let mut externals: Vec<Value> = Vec::new();
+    let mut scripts: Vec<Value> = Vec::new();
     for (ix, decl) in program.declarations.iter().enumerate() {
         let file = file_of(ix);
         match decl {
@@ -203,51 +204,13 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
                     "doc": f.doc,
                 })).collect::<Vec<_>>(),
             })),
-            // Somebody else's code, as this project described it — the
-            // studio's inspector needs it for the same reason it needs a
-            // component's: to know what a call site may pass.
-            Declaration::External(e) => externals.push(json!({
-                "name": e.name,
-                "kind": match e.kind {
-                    crate::parser::ast::ExternalKind::Module => "module",
-                    crate::parser::ast::ExternalKind::Element => "element",
-                },
-                "from": e.from,
-                "integrity": e.integrity,
-                "doc": e.doc,
-                "file": file,
-                "line": e.span.line,
-                "functions": e.functions.iter().map(|f| json!({
-                    "name": f.name,
-                    "params": f.params.iter().map(|p| json!({
-                        "name": p.name,
-                        "type": type_ref_json(&p.prop_type),
-                    })).collect::<Vec<_>>(),
-                    "returns": f.returns.as_ref().map(type_ref_json),
-                    "doc": f.doc,
-                })).collect::<Vec<_>>(),
-                "types": e.types.iter().map(|t| json!({
-                    "name": t.name,
-                    "methods": t.methods.iter().map(|m| json!({
-                        "name": m.name,
-                        "params": m.params.iter().map(|p| json!({
-                            "name": p.name,
-                            "type": type_ref_json(&p.prop_type),
-                        })).collect::<Vec<_>>(),
-                        "returns": m.returns.as_ref().map(type_ref_json),
-                    })).collect::<Vec<_>>(),
-                    "fields": t.fields.iter().map(|f| json!({
-                        "name": f.name,
-                        "type": type_ref_json(&f.ty),
-                    })).collect::<Vec<_>>(),
-                })).collect::<Vec<_>>(),
-                "props": e.props.iter().map(|p| json!({
-                    "name": p.name,
-                    "type": type_ref_json(&p.prop_type),
-                    "flag": p.prop_type == TypeRef::Bool,
-                })).collect::<Vec<_>>(),
-                "events": e.events.iter().map(|v| json!(v.name)).collect::<Vec<_>>(),
-            })),
+            // What a project script makes global, typed by its JSDoc as
+            // the checker reads it.
+            Declaration::Script(script) => {
+                for n in &script.names {
+                    scripts.push(script_name_json(&script.path, n));
+                }
+            }
             Declaration::Component(c) => {
                 let mut slots: Vec<Value> = c
                     .slots
@@ -323,7 +286,54 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
         "components": components,
         "stores": stores,
         "pages": pages,
-        "externals": externals,
+        "scripts": scripts,
+    })
+}
+
+/// One name a project script makes global: what it is, what a call takes
+/// and gives back, and its documentation.
+fn script_name_json(file: &str, n: &crate::project_js::scan::Name) -> Value {
+    use crate::project_js::scan::NameKind;
+    let doc = n
+        .doc
+        .as_deref()
+        .map(crate::project_js::jsdoc::parse)
+        .unwrap_or_default();
+    let params = |params: &[crate::project_js::scan::Param]| {
+        params
+            .iter()
+            .map(|p| {
+                let documented = doc.param(&p.name);
+                json!({
+                    "name": p.name,
+                    "type": documented
+                        .and_then(|d| d.ty.as_deref())
+                        .map(|t| crate::sema::types::jsdoc_type(t).to_string())
+                        .unwrap_or_else(|| "Any".to_string()),
+                    "optional": p.optional || documented.is_some_and(|d| d.optional),
+                    "rest": p.rest,
+                })
+            })
+            .collect::<Vec<_>>()
+    };
+    let (kind, params, methods) = match &n.kind {
+        NameKind::Function { params: p, .. } => ("function", params(p), Vec::new()),
+        NameKind::Class { params: p, methods } => (
+            "class",
+            params(p),
+            methods.iter().map(|m| m.name.clone()).collect::<Vec<_>>(),
+        ),
+        NameKind::Value => ("value", Vec::new(), Vec::new()),
+    };
+    json!({
+        "name": n.name,
+        "kind": kind,
+        "params": params,
+        "returns": doc.returns.as_deref().map(|t| crate::sema::types::jsdoc_type(t).to_string()),
+        "methods": methods,
+        "doc": (!doc.summary.is_empty()).then_some(doc.summary.clone()),
+        "file": file,
+        "line": n.line,
     })
 }
 

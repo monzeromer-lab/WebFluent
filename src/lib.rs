@@ -143,6 +143,10 @@ pub mod codegen;
 pub mod media;
 pub mod openapi;
 
+/// The project's own JavaScript — plain browser scripts under `src/`, and the
+/// names each makes global.
+pub mod project_js;
+
 /// JavaScript runtime — embedded runtime for reactivity, routing, and DOM helpers.
 ///
 /// The runtime provides signal-based reactivity, conditional/list rendering,

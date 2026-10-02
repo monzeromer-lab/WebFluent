@@ -1,5 +1,6 @@
 pub mod analysis;
 pub mod backend;
+pub mod classes;
 pub mod code_actions;
 pub mod completion;
 pub mod definition;

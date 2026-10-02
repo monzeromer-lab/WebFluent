@@ -261,7 +261,7 @@ page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
 
         Heading("Other people's code", id: "other-people-s-code").h2
 
-        Markdown("A JavaScript library — a chart, a map, an editor — is declared with `external` and given a node with `Host`; a component can be published as a custom element for another framework to place. Both are in [JavaScript interop](/docs/guide/interop).")
+        Markdown("A JavaScript library — a chart, a map, an editor — is called from a `.js` file under `src/` and handed an element with `mount:` and `cleanup:`; somebody else's custom element is placed with `Element(\"tag-name\", …)`; and a component can be published as a custom element for another framework to place. Both are in [JavaScript interop](/docs/guide/interop).")
 
         Heading("Components in the static paint", id: "components-in-the-static-paint").h2
 

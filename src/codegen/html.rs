@@ -96,32 +96,40 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         csp_meta(config),
         head_links,
         entry_sheet,
-        externals_tags(config, program, &root),
+        script_tags(config, &root),
         entry_chunk,
         SKIP_LINK,
     )
 }
 
-/// The tags a program's `external` modules need: the module that imports
-/// them, and a `modulepreload` carrying the hash for each one that
-/// declared it.
-///
-/// A module script and a deferred classic script run in the order they
-/// appear, so this has finished before `app.js` reads any of it. The
-/// preload is also where subresource integrity can be applied: an ESM
-/// `import` takes no `integrity` attribute, and a `<link rel=modulepreload
-/// integrity>` is the way the platform gives you one.
-pub fn externals_tags(config: &ProjectConfig, program: &Program, root: &str) -> String {
-    let modules = crate::codegen::js::external_modules(program);
-    if modules.is_empty() {
-        return String::new();
-    }
-    let _ = config;
+/// The `<script>` tags every page carries ahead of `app.js`, each `defer`
+/// so the document parses first and the order holds: the plain libraries
+/// `meta.scripts` names, the loader for its modules, and the project's own
+/// scripts in path order — so a library is there for the scripts that use
+/// it, and a name a script declares is there when the page's code runs.
+pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
     let mut out = String::new();
+    let mut linked: Vec<&str> = Vec::new();
+    for entry in config.meta.scripts.iter().filter(|s| !s.is_module()) {
+        // One library listed twice — once plain, once for its globals — is
+        // loaded once.
+        if linked.contains(&entry.src()) {
+            continue;
+        }
+        linked.push(entry.src());
+        out.push_str(&format!(
+            "    <script src=\"{}\" defer{}></script>\n",
+            href_from(entry.src(), root),
+            integrity_attrs(config, entry.src())
+        ));
+    }
+    let modules = crate::codegen::js::external_modules(config);
     for (url, integrity) in &modules {
         if !url.contains("://") {
             continue;
         }
+        // An ESM `import` takes no `integrity` attribute; a preload is
+        // where the platform lets a module carry one.
         let hash = integrity
             .as_ref()
             .map(|h| format!(" integrity=\"{h}\" crossorigin=\"anonymous\""))
@@ -130,9 +138,16 @@ pub fn externals_tags(config: &ProjectConfig, program: &Program, root: &str) -> 
             "    <link rel=\"modulepreload\" href=\"{url}\"{hash}>\n"
         ));
     }
-    out.push_str(&format!(
-        "    <script type=\"module\" src=\"{root}/externals.js\"></script>\n"
-    ));
+    if crate::codegen::js::externals_module(config).is_some() {
+        out.push_str(&format!(
+            "    <script type=\"module\" src=\"{root}/externals.js\"></script>\n"
+        ));
+    }
+    for href in &config.build.scripts {
+        out.push_str(&format!(
+            "    <script src=\"{root}/{href}\" defer></script>\n"
+        ));
+    }
     out
 }
 

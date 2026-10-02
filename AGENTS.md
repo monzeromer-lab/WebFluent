@@ -13,6 +13,7 @@ project/
 │   ├── components/           # Reusable components
 │   ├── stores/               # Shared state stores
 │   ├── *.css                 # The project's own stylesheets, anywhere under src/
+│   ├── *.js                  # The project's own plain browser scripts, anywhere under src/
 │   └── translations/         # i18n JSON files (en.json, ar.json)
 ├── public/                   # Static assets → copied to build root
 └── build/                    # Compiled output
@@ -119,8 +120,9 @@ built-in — props, cases, flags, events, slots, parts — and of the
 project's own components, enums, types, stores and pages, read from the
 same registry the compiler and the editor read.
 
-`wf types --json` lists a project's `external` declarations beside its own,
-so a tool knows what a call site may pass to either.
+`wf types --json` lists what the project's scripts declare beside its own
+declarations — each function's parameters and return as its JSDoc types
+them — so a tool knows what a call site may pass to either.
 
 `wf registry --json` and `wf types --json` are the registry and a project's
 declarations as a tool reads them — the studio's inspector offers a dropdown
@@ -522,8 +524,15 @@ omitted.
 `class:` does not replace the element's classes, it adds to them.
 `Card(class: "feature wide")` renders `class="wf-card feature wide"`, and a
 value that reads state is followed — the classes it named last time come
-off, the ones it names now go on. It is how an element picks up a rule from
-the project's own stylesheets (see [Stylesheets](#stylesheets)).
+off, the ones it names now go on, and a class a script added is left alone.
+It is how an element picks up a rule from the project's own stylesheets (see
+[Stylesheets](#stylesheets)). A map turns each class on with its own
+condition, and a list joins strings and maps, skipping `null`:
+
+```wf
+Text(t.title, class: { "is-done": t.done, "is-urgent": t.priority > 2 })
+Card(class: ["feature", tone, if open { "is-open" }])
+```
 
 ### App (Router + Layout)
 
@@ -823,7 +832,7 @@ setTimeout(callback, 1000)
 
 `x => expr` and `(a, b) => expr` are lambdas with one expression as the
 body, returning a map with `(x) => { key: value }`; `a ?? b` takes `b` when
-`a` is null; `if c { a } else { b }`, `if let x = v { a } else { b }` and
+`a` is null; `if c { a } else { b }` (with no `else`, `null` when `c` fails), `if let x = v { a } else { b }` and
 `match t { .calm { 1 } else { 2 } }` are values; `$token` is a design
 token; `.case` is a case of an enum; `a?.b`, `a?.m()`, `a?.[i]` read
 through null; `/…/flags` is a regular expression; `...x` spreads a list or
@@ -1169,44 +1178,104 @@ action rename(id: String, name: String) {
 }
 ```
 
-### Somebody else's code
+### Your own JavaScript
 
-The compiler cannot read the other side, so an `external` **is** the
-contract: every call site is checked against it.
+A `.js` file under `src/` is part of the project, as a `.css` file is: a
+**plain browser script** — no `export`, no `import`, no build step — copied
+to `build/js/` byte for byte and linked with `<script defer>` on every page,
+before the compiled code. What it declares at the top level (`function`,
+`class`, `const`, `let`, `var`, and anything assigned to `window.x`) is in
+scope by name.
 
-```wf
-external Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm" {
-    integrity: "sha384-…"                      // emitted as a modulepreload hash
-    fn Chart(canvas: Any, config: Map) -> ChartHandle
-    type ChartHandle { update(data: Map)  destroy()  width: Number }
+```js
+// src/tilt.js
+/**
+ * Tilt an element toward the pointer.
+ * @param {HTMLElement} node
+ * @param {number} [max] degrees
+ */
+function initTilt(node, max = 15) {
+  return { setMax(m) { max = m; }, destroy() {} };
 }
+```
 
-external element Stripe("stripe-pricing-table") {
-    prop publishableKey: String                // the attribute `publishable-key`
-    event ready()
+```wf
+page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
+    state max = 15
+    Heading("Gallery").h1
+    Card(class: "tilt",
+         mount: (n) => initTilt(n, max),      // each time the element is made
+         update: (t) => t.setMax(max),        // again when what it reads changes
+         cleanup: (t) => t.destroy()) {       // when its page, branch or item leaves
+        Text("Lean on me.")
+    }
 }
 ```
 
-A module goes in `externals.js` — its own file, linked with `<script
-type="module">`, because a module has its own scope and a split build's
-page chunks are classic scripts — and its origin joins `script-src`.
+- **A call is checked**: the number of arguments (`T10`, defaults and
+  `...rest` allowed for), and each argument's type from the JSDoc (`T01`) —
+  `string`/`number`/`boolean` → `String`/`Number`/`Bool`, `T[]` → `[T]`,
+  `?T`/`[name]` → optional, `(v: T) => R` → a function (an action may be
+  passed), anything else `Any`; `@returns` types the result. No comment, no
+  narrowing: adding a script never breaks a build.
+- **A class is constructed**: a call to one compiles to `new C(…)`.
+- **One name, one meaning**: two scripts declaring one name, or a script
+  name that is also a component, store, `const`, `type` or a name the
+  language or browser owns (`format`, `log`, `fetch`, `WF`, `env`), is an
+  error naming both.
+- **A module is refused**: a top-level `import`/`export` stops the build; a
+  file the scanner cannot read is still linked, with a warning, and its names
+  are not in scope; a `public/` file at the same address is an error.
+- **A script reports, WebFluent owns the class**: hand the script an action
+  (`mount: (n) => watchVisible(n, setVisible)`) and keep the look in
+  `class: { "is-visible": visible }`.
+- **`wf:render`** is dispatched on `document` once per drawing — the first
+  mount, the takeover of a pre-rendered page, every route — with
+  `{ route, params }`, for a script that runs its own `querySelectorAll`.
 
-`Host` is a node with a lifetime: the `ref` + `effect` + `cleanup` written
-by hand, with the cleanup impossible to forget.
+`mount:`, `update:` and `cleanup:` are on every element and component call
+(a component's root, unless it declares the prop); `Host(tag: "canvas", …)`
+is the same lifetime on a bare node (`div` · `span` · `canvas` · `svg` ·
+`section` · `figure` · `pre` · `p` · `ul` · `table`).
 
-```wf
-Host(tag: "canvas",                            // div · span · canvas · svg · section · figure · pre · p · ul · table
-     mount: (node) => Chart.Chart(node, config),
-     update: (chart) => chart.update(rows),    // again whenever the state it reads changes
-     cleanup: (chart) => chart.destroy())      // when its page, branch or item leaves
+### A library from somewhere else
+
+The compiler never fetches anything, so a library on another origin is a URL
+in the config, used from your own scripts:
+
+```json
+{ "meta": {
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+      { "src": "https://esm.example.com/confetti.mjs", "module": true, "as": "Confetti" },
+      { "src": "https://cdn.example.com/lib.js", "globals": ["Lib"] }
+    ],
+    "integrity": { "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js": "sha384-…" }
+} }
 ```
 
-An `external element` is placed like a component, its props the attributes
-a framework would write and its events DOM events the page hears:
+Each is linked `defer` in the order listed, before the project's scripts; a
+module is imported by a generated `externals.js` and its exports put on
+`window.<as>`; `globals` are names `.wf` may call directly, each `Any`, and a
+class among them is constructed when called. Their origins join
+`script-src`, and one without an integrity hash draws a warning.
+
+### Somebody else's custom element
 
 ```wf
-Stripe(publishableKey: key) { on ready { loaded = true } }
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
+    state loaded = false
+    Heading("Pricing").h1
+    Element("stripe-pricing-table", publishableKey: "pk_live_…") {   // the attribute `publishable-key`
+        on ready { loaded = true }                                   // any event it fires
+    }
+}
 ```
+
+`Element` takes the tag first (lower case, with a hyphen); every named
+argument is an attribute and follows state; `class:`, `style { }` and
+`mount:` work as anywhere. `external` — 4.1's typed declaration of a module
+or element — is gone; `wf migrate` rewrites it.
 
 ### Publishing the project as custom elements
 
@@ -1303,6 +1372,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 |-----------|-------|
 | `Container` | `Container { ... }` — centered max-width wrapper |
 | `Host` | `Host(tag: "canvas", mount: (n) => …, update: (h) => …, cleanup: (h) => …)` — a node handed to somebody else's code, with a lifetime |
+| `Element` | `Element("stripe-pricing-table", publishableKey: key) { on ready { … } }` — any custom element, by its tag; named arguments are attributes, handlers its events |
 | `Row` | `Row(gap: md, align: center, justify: between) { ... }` — horizontal flex. `gap`: xs sm md lg xl · `align`: start center end stretch baseline · `justify`: start center end between around evenly |
 | `Column` | `Column(span: 6) { ... }` — 12-column grid child |
 | `Grid` | `Grid(columns: 3, gap: md) { ... }` — CSS grid; takes the same `gap`/`align`/`justify` as `Row` |
@@ -1559,7 +1629,8 @@ flag or `animate:`, `exit:`, `delay:`, `duration:`, `speed:` (`.fast`,
 `stagger:` inside a list, `easing:`, `on:` (when the animation plays —
 `.mount` or `.enterView`), `shared:` (a name it keeps across a route
 change) and `count:` (a number that counts to its new value). Beside
-them, every element also takes `class:` and `ref:`.
+them, every element also takes `class:`, `ref:`, and `mount:`/`update:`/
+`cleanup:` (see [Your own JavaScript](#your-own-javascript)).
 
 An element that stands still plays its enter animation as a stylesheet
 rule, so a static page animates before its script has loaded. Everything
@@ -1869,6 +1940,10 @@ scoping: a class is global, and named on purpose.
 `meta.stylesheets` in the config still links a sheet that is *not* built —
 a file in `public/` or a URL — ahead of `styles.css`.
 
+
+A `.js` file under `src/` is part of the build the same way — see
+[Your own JavaScript](#your-own-javascript).
+
 ### Themes
 
 A theme is written in WebFluent, in your own `src/`:
@@ -2030,7 +2105,7 @@ may too. Its surface:
 | Widgets | `toast(message, tone, ms)`; `dialog(el, read, write)`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
 | Text | `markdown(text)` → HTML; `highlight(code, lang)` → HTML with `wf-tok-*` spans (`wf`, `json`, `bash`, `css`), the twin of `codegen::highlight` |
-| Interop | `attach(node, mount, update, cleanup)` — what `Host` compiles to; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
+| Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
 | Boot | `mount(fn, container)`; `hydrate(fn, container)`; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)` — what `on key("ctrl+k")` compiles to |
@@ -2404,7 +2479,8 @@ reference to nothing — an undeclared component, a page's `layout:` that
 names no component or one without a default slot, two pages or two
 components with one name; a flag, case, part, event, slot or `emit` the
 registry or the component's declaration does not know (`Button has no
-flag or enum case `huge``, with the flags it takes); and what the type
+flag or enum case `huge``, with the flags it takes); a name a project
+script declares that something else already means; and what the type
 checker finds:
 
 | Code | What it means |
@@ -2462,6 +2538,7 @@ everything; a *name* nothing declares is `T13`.
 | `V01` | A bare word in an argument that nothing in scope declares — a name misspelled, or a flag written without its dot (`did you mean `.center`?`) |
 | `V02` | A flag whose class no stylesheet — the engine's or one of the project's `.css` files — defines; the registry keeps this from happening for the built-ins |
 | `V03` | An `Unsafe.Html`, and whether what it puts in went through `sanitize` |
+| `V04` | A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it |
 | `U01`–`U02` | A `state` or `derived` value nothing in its page or component reads (an assignment alone does not read it) |
 | `U03` | A component nothing places, names as a layout, or reaches as a part |
 | `U04` | A store member — state, derived, action — nothing reads, inside the store or as `Store.member` |
@@ -2473,7 +2550,7 @@ The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 
 ## Migrating
 
-`wf migrate [path] [--check] [--stdout]` does two things.
+`wf migrate [path] [--check] [--stdout]` does three things.
 
 **WebFluent 2 → 3** rewrites every `.wf` under `src/` in place, with a
 note for anything that needed a decision. It is a change of spelling and
@@ -2490,6 +2567,14 @@ line, everything 4 refuses that 3 allowed: an `on*` attribute, a
 states the changes that need no edit and are worth knowing: a store is
 built on first read rather than at boot, a `persist` value follows the
 site's other tabs, and `WF.store`/`WF.host` were renamed.
+
+**WebFluent 4 → 4.2** runs first, since 4.2 refuses `external`: a remote
+module becomes a `meta.scripts` entry (`module: true, as:`, its integrity
+moved to `meta.integrity`; its calls keep working, typed `Any`), a local one
+a plain script under `src/` with its `export`s off and its declared
+signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element`
+call `Element("tag", …)`. It lists every `.js` already under `src/`, which
+now ships on every page.
 
 ## Configuration Reference (webfluent.app.json)
 
@@ -2548,6 +2633,7 @@ site's other tabs, and `WF.store`/`WF.host` were renamed.
         "lang": "en",
         "fonts": [],
         "stylesheets": [],
+        "scripts": [],
         "integrity": {}
     },
     "env": {},

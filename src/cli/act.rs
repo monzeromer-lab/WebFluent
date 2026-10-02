@@ -27,6 +27,9 @@ pub struct Stage {
     /// declares two, and a page built without knowing which to use refuses
     /// to build — so every test that clicked failed in such a project.
     theme: crate::config::project::ThemeConfig,
+    /// The project's own scripts, linked on every page this stage builds as
+    /// a site links them, so a test that clicks runs the code they define.
+    scripts: Vec<crate::project_js::Script>,
 }
 
 impl Stage {
@@ -35,7 +38,14 @@ impl Stage {
             browser: Browser::start()?,
             work: std::env::temp_dir().join(format!("wf-act-{}", std::process::id())),
             theme: crate::config::project::ThemeConfig::default(),
+            scripts: Vec::new(),
         })
+    }
+
+    /// The project's own scripts, for every page this stage builds.
+    pub fn with_scripts(mut self, scripts: Vec<crate::project_js::Script>) -> Self {
+        self.scripts = scripts;
+        self
     }
 
     /// The project's theme settings, for every page this stage builds.
@@ -67,7 +77,7 @@ impl Stage {
         // there is no printer from the tree to the text, and a test does
         // not need one — the compiler takes the tree.
         let program = crate::sema::lower(as_program(shared, test));
-        write_site(&program, &dir, &self.theme)?;
+        write_site(&program, &dir, &self.theme, &self.scripts)?;
 
         let server = super::preview::serve_directory(dir.clone(), "")?;
         let origin = server.origin.clone();
@@ -176,9 +186,18 @@ fn write_site(
     program: &Program,
     dir: &Path,
     theme: &crate::config::project::ThemeConfig,
+    scripts: &[crate::project_js::Script],
 ) -> Result<()> {
     let mut config = crate::config::ProjectConfig::default_config("test");
     config.theme = theme.clone();
+    for script in scripts {
+        let to = dir.join(&script.href);
+        if let Some(parent) = to.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::write(to, &script.source)?;
+        config.build.scripts.push(script.href.clone());
+    }
     // One page, one file: a split build links a chunk that this does not
     // write, and the shell would be served in its place.
     config.build.split = false;

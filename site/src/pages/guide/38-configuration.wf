@@ -75,7 +75,8 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
     "image": "",
     "sitemap": true,
     "fonts": [],
-    "stylesheets": []
+    "stylesheets": [],
+    "scripts": []
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
@@ -432,6 +433,11 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`stylesheets`") }
                     Table.Cell { Markdown("`[]`") }
                     Table.Cell { Markdown("Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`scripts`") }
+                    Table.Cell { Markdown("`[]`") }
+                    Table.Cell { Markdown("Libraries to load before the project's own scripts: a URL or a file in `public/`, or `\{ \"src\", \"module\": true, \"as\": \"Name\" \}` for an ES module, or `\{ \"src\", \"globals\": [\"Chart\"] \}` to call a library's names from `.wf`. Their origins join the policy ([JavaScript interop](/docs/guide/interop#a-library-from-a-cdn)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`integrity`") }

@@ -3,14 +3,14 @@
 <!--
 route: guide/language-basics
 group: basics
-blurb: A file is a list of declarations. This chapter covers all fourteen kinds, naming, comments, bodies, strings and the two layouts.
+blurb: A file is a list of declarations. This chapter covers all thirteen kinds, naming, comments, bodies, strings and the two layouts.
 description: Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how strings are written.
 -->
 
 ## A file is a list of declarations
 
 Every `.wf` file holds top-level declarations and nothing else — no loose
-elements, no statements outside a body. There are fourteen kinds:
+elements, no statements outside a body. There are thirteen kinds:
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Text("hi") }
@@ -21,7 +21,6 @@ app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: "/api/v1") { get todos() -> [Todo] }
-external Confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/+esm" { fn confetti(options: Map) }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
@@ -38,11 +37,14 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }
 | `app` | The shell every page renders inside, with the `Router` | [6](06-pages-and-routing.md#the-app-shell) |
 | `type`, `enum` | Records and enumerations the checker enforces | [13](13-types.md) |
 | `api` | An HTTP service: its address, its endpoints and what they return | [17](17-data.md#api-a-service-described-once) |
-| `external` | A JavaScript module or custom element, typed | [32](32-javascript-interop.md) |
 | `const` | A value read everywhere | [14](14-expressions.md#constants) |
 | `data` | A JSON file read at build time, as a constant | [17](17-data.md#data-a-file-at-build-time) |
 | `image` | A picture the build resizes and hands to `Image` | [28](28-media.md) |
 | `animation` | Keyframes | [20](20-motion.md#custom-animations) |
+
+Beside them, a `.css` file under `src/` is a stylesheet the build bundles,
+and a `.js` file under `src/` is a plain browser script whose top-level
+functions are in scope by name ([32](32-javascript-interop.md)).
 | `test` | A render held to expectations and a snapshot | [24](24-testing.md) |
 
 Inside a body there are more statements — `state`, `derived`, `effect`,

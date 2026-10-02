@@ -33,7 +33,7 @@ suite, so what you read is what the compiler accepts.
 | 3 | [Tutorial](03-tutorial.md) | Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web. |
 | 4 | [Coming from React, Vue or Svelte](04-coming-from.md) | What you already know, mapped to what is here — and the few places WebFluent works differently. |
 | | **The basics** | |
-| 5 | [Language basics](05-language-basics.md) | A file is a list of declarations. This chapter covers all fourteen kinds, naming, comments, bodies, strings and the two layouts. |
+| 5 | [Language basics](05-language-basics.md) | A file is a list of declarations. This chapter covers all thirteen kinds, naming, comments, bodies, strings and the two layouts. |
 | 6 | [Pages and routing](06-pages-and-routing.md) | A page is a route and what it shows. Pages own their paths; the app shell frames them; a layout wraps them. |
 | 7 | [Elements](07-elements.md) | Everything on screen is an element: a call with one positional value, named props, flags, and a block. |
 | 8 | [State and reactivity](08-state-and-reactivity.md) | Reactivity here is fine-grained: a state is a signal, and only the thing that read it updates. |
@@ -62,7 +62,7 @@ suite, so what you read is what the compiler accepts.
 | 29 | [Deploying](29-deploying.md) | The build is a folder of static files. Here is how to put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container. |
 | 30 | [Environments](30-environments.md) | Values fixed per build — an API address, a feature switch, a public key — from the config, a .env file or the shell, and which of them a page may read. |
 | 31 | [Performance](31-performance.md) | What a build already does to be fast, how to see what it weighs, budgets that warn, and the few things that make a site slow. |
-| 32 | [JavaScript interop](32-javascript-interop.md) | Use a JavaScript library — a chart, a map, an editor — with a typed declaration and a node with a lifetime; place other people's custom elements; publish your components for any framework. |
+| 32 | [JavaScript interop](32-javascript-interop.md) | Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script and get it back; place custom elements; publish your components for any framework. |
 | 33 | [PDF and slides](33-pdf-and-slides.md) | The same language, compiled to a paginated PDF document or a slide deck — invoices, reports and talks. |
 | 34 | [Server rendering](34-server-rendering.md) | Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node. |
 | 35 | [Cookbook](35-recipes.md) | Three complete applications you can paste into a fresh project, and recipes for the things every site needs. |
