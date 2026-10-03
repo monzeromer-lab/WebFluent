@@ -3,9 +3,9 @@
 //!
 //! The parser cannot know whether `.lg` on a `Button` is a size or a typo:
 //! that is the registry's knowledge for a built-in, and the `component`
-//! declaration's for one the author wrote. [`check`] asks, and reports
+//! declaration's for one the author wrote. [`check`](crate::sema::check) asks, and reports
 //! every flag, prop, case, event, slot and part that resolves to nothing;
-//! [`lower`] rewrites the ones that resolve into the vocabulary the code
+//! [`lower`](crate::sema::lower) rewrites the ones that resolve into the vocabulary the code
 //! generators have always read — the legacy modifier words, string cases,
 //! attribute arguments — so that a program in either grammar is one program
 //! by the time it is compiled.

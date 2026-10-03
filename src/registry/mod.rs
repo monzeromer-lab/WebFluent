@@ -17,7 +17,7 @@
 //! the new grammar lowers onto the code generators unchanged, and the
 //! migration knows the reverse map.
 //!
-//! The table lives in [`builtins`]; this file is its vocabulary and the
+//! The table lives in [`builtins`](crate::registry::builtins); this file is its vocabulary and the
 //! lookups over it.
 
 pub mod builtins;

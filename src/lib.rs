@@ -177,8 +177,8 @@ pub mod project_js;
 ///
 /// The runtime provides signal-based reactivity, conditional/list rendering,
 /// client-side routing, store management, i18n, animations, and toast notifications.
-/// It is embedded as a constant string ([`runtime::RUNTIME_JS`]) and included in
-/// compiled output.
+/// It is a set of feature modules, and a build ships only the ones its program
+/// reaches ([`runtime::assemble`]); [`runtime::full`] is every module at once.
 pub mod runtime;
 
 /// Design system — theme tokens and component CSS.

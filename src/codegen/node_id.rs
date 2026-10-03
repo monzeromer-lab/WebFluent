@@ -34,7 +34,7 @@ pub type NodeId = String;
 pub struct NodeInfo {
     /// The element's whole-node source span.
     pub span: Span,
-    /// The node id (same string used as the map key in [`NodeMap::nodes`]).
+    /// The node id (the same string the [`NodeMap`] is keyed by).
     pub path: NodeId,
     /// The owning page/component name (`"App"` for the app shell).
     pub component: String,

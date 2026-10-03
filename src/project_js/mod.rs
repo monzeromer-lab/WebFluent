@@ -7,7 +7,7 @@
 //! compiled code. Every classic script on a page shares one global scope,
 //! which the compiled pages run in too, so what a script declares at its top
 //! level is simply there for them: the compiler reads those names
-//! ([`scan`]), puts them in scope, and the editor offers them.
+//! ([`scan`](crate::project_js::scan)), puts them in scope, and the editor offers them.
 
 pub mod jsdoc;
 pub mod scan;

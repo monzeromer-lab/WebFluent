@@ -1,4 +1,8 @@
 #![allow(dead_code)]
+// The binary compiles the library's modules without the docs `lib.rs` puts on
+// each `pub mod`; a module's own docs therefore link by full path, which the
+// published (library) docs need and which this crate sees as redundant.
+#![allow(rustdoc::redundant_explicit_links)]
 
 mod browser;
 mod cli;

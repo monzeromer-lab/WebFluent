@@ -133,6 +133,13 @@ jobs:
       - name: Build
         run: cargo build --workspace
 
+      # What docs.rs builds, held to zero warnings: a broken link in the
+      # crate's documentation is a page a reader lands on and cannot follow.
+      - name: Docs
+        run: cargo doc --workspace --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
       # Covers the unit suites, the component conformance suite, the CSS
       # invariants, both end-to-end suites, and — through `e2e_rendered` — the
       # JavaScript suites that run the compiled bundles in a DOM.

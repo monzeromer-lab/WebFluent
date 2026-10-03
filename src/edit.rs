@@ -16,7 +16,7 @@
 //! prop (`SetProp`), a handler (`SetHandler`), a slot fill (`SetSlot`), a raw
 //! style value (`SetStyle`); the older names (`AddModifier`, `SetArg`) stay
 //! as aliases where their meaning survives. A `.wfx` file is edited through
-//! its braced spelling — [`apply_edits_to`] converts, edits and converts
+//! its braced spelling — [`apply_edits_to`](crate::edit::apply_edits_to) converts, edits and converts
 //! back — because node ids are structural and survive the change of layout.
 //!
 //! Node ids are per source version: structural paths (`Home:2.0.3`) that a

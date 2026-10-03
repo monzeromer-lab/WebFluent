@@ -410,7 +410,7 @@ impl Parser {
         Ok(self.parse_block_spanned()?.0)
     }
 
-    /// Like [`parse_block`], but also returns the span of the block's interior
+    /// Like [`Self::parse_block`], but also returns the span of the block's interior
     /// (between the braces, exclusive of them) for declaration `body_span`s.
     fn parse_block_spanned(&mut self) -> Result<(Vec<Statement>, Span)> {
         // Interior starts one byte past `{` and ends at the byte before `}`.

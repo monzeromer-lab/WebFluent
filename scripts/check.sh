@@ -2,7 +2,7 @@
 # The checks CI's "Build, lint and test" job runs first, one by one, with the
 # same commands — so a tree that passes here passes there.
 #
-#   scripts/check.sh          formatting, clippy, build
+#   scripts/check.sh          formatting, clippy, build, docs
 #   scripts/check.sh --fix    format the tree first, then the same checks
 #   scripts/check.sh --test   and the test suite after the build
 #
@@ -53,6 +53,7 @@ fi
 step "Formatting" cargo fmt --all -- --check
 step "Clippy" cargo clippy --workspace --all-targets -- -D warnings
 step "Build" cargo build --workspace
+step "Docs" env RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --quiet
 if [ "$test" = 1 ]; then
     step "Tests" cargo test --workspace
 fi
