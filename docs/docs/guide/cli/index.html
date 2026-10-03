@@ -434,6 +434,7 @@
                             </div>
                             <div class="wf-markdown">
 <p>Makes a directory <code>NAME</code> with a config, a <code>.gitignore</code> and a small working application for the template: <code>spa</code> (the default — an interactive app), <code>static</code> (a marketing site, pre-rendered), <code>pdf</code> (a document) or <code>slides</code> (a deck). It refuses a directory that already exists.</p>
+<p>It also writes <code>AGENTS.md</code>: the language reference, the file a coding agent reads before it changes a project — so an assistant asked to add a page writes the WebFluent of the <code>wf</code> that made it, flags and all, rather than guessing. Its first line names the version it describes; a newer <code>wf</code> brings a newer one, and an older project can take it from the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md">repository</a>.</p>
                             </div>
                             <h3 class="wf-heading">wf build</h3>
                             <div class="wf-markdown">
