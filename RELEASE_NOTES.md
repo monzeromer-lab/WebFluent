@@ -1,3 +1,22 @@
+# WebFluent v4.3.1 Release Notes
+
+The crate's documentation builds clean. Nothing the compiler or the
+template engine does changed.
+
+## Fixed
+
+- **docs.rs builds the crate's documentation without warnings.** 4.3.0's
+  build linked to `runtime::RUNTIME_JS`, which no longer exists, and from
+  public docs to a private field; a stable rustdoc found seventeen more —
+  module docs that linked to their own items by a name that did not
+  resolve. Every link now lands.
+
+## Tooling
+
+- `scripts/check.sh` (`just check`) and CI build the documentation with
+  warnings as errors, as docs.rs reads it, so a broken link fails before a
+  release rather than after.
+
 # WebFluent v4.3.0 Release Notes
 
 WebFluent as a template engine, from Rust first and from Node: templates
