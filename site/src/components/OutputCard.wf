@@ -5,7 +5,7 @@ component OutputCard(_ title: String, value: String, body: String) {
         style {
             gap: 8px
             padding: 20px
-            border: 1px solid $border
+            border: 1px solid $color-border
             border-radius: 10px
             background: $color-surface
             & h3 { margin: 0; font-size: 15px; line-height: 20px; font-weight: 600 }

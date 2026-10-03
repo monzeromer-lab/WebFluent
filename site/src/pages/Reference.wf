@@ -32,7 +32,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
                                     flex-direction: column
                                     gap: 4px
                                     padding: 12px 14px
-                                    border: 1px solid $border
+                                    border: 1px solid $color-border
                                     border-radius: 10px
                                     background: $surface-raised
                                     text-decoration: none
@@ -58,7 +58,7 @@ page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", 
             Grid(columns: { base: 1, xl: 2 }, gap: .sm, class: "events-grid") {
                 for e in registry.universal.events by e.name {
                     Row(align: .baseline, gap: .sm) {
-                        style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
+                        style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $color-border; & p { margin: 0 } }
                         Text(e.name) { style { width: 110px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $brand-ink } }
                         Text(e.meaning) { style { font-size: 13px; line-height: 20px; color: $color-text-muted } }
                     }
@@ -89,7 +89,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
         rail {
             if let c = entry {
                 Stack(gap: .xs) {
-                    style { gap: 8px; & button { text-align: start; padding: 0 0 0 10px; height: 22px; background: transparent; border: 0; border-inline-start: 2px solid $border; border-radius: 0; font-family: inherit; font-size: 13px; line-height: 22px; font-weight: 400; color: $color-text-muted; cursor: pointer } & button:hover { background: transparent; color: $brand-ink; border-color: $brand-ring } & button.active { color: $brand-ink; font-weight: 600; border-color: $color-primary } }
+                    style { gap: 8px; & button { text-align: start; padding: 0 0 0 10px; height: 22px; background: transparent; border: 0; border-inline-start: 2px solid $color-border; border-radius: 0; font-family: inherit; font-size: 13px; line-height: 22px; font-weight: 400; color: $color-text-muted; cursor: pointer } & button:hover { background: transparent; color: $brand-ink; border-color: $brand-ring } & button.active { color: $brand-ink; font-weight: 600; border-color: $color-primary } }
                     Text(t("ref.onthisentry"), class: "overline")
                     Button(t("ref.tab.props"), class: if tab == "props" { "active" } else { "" }) { on click { tab = "props" } }
                     Button(t("ref.tab.flags"), class: if tab == "flags" { "active" } else { "" }) { on click { tab = "flags" } }
@@ -98,9 +98,9 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
                         Button(t("ref.tab.parts"), class: if tab == "parts" { "active" } else { "" }) { on click { tab = "parts" } }
                     }
                 }
-                Divider { style { margin: 0; border-color: $border } }
+                Divider { style { margin: 0; border-color: $color-border } }
                 Stack(gap: .xs) {
-                    style { gap: 8px; padding: 12px 14px; background: $surface-raised; border: 1px solid $border; border-radius: 10px; & p { margin: 0 } }
+                    style { gap: 8px; padding: 12px 14px; background: $surface-raised; border: 1px solid $color-border; border-radius: 10px; & p { margin: 0 } }
                     Text(t("ref.generated.title")) { style { font-size: 13px; line-height: 20px; font-weight: 600 } }
                     Text(t("ref.generated.body")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle } }
                     Text("wf registry --json") { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }
@@ -133,12 +133,12 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
                 }
                 Markdown(c.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
                 Code(c.signature, language: "wf").block {
-                    style { margin: 4px 0 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                    style { margin: 4px 0 0; padding: 12px 14px; background: $term-bg; border: 1px solid $color-border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
                 }
                 if c.example != "" {
                     Text(t("ref.example"), class: "overline") { style { margin: 8px 0 0 } }
                     Code(c.example, language: "wf").block {
-                        style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                        style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $color-border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
                     }
                 }
                 if c.cssClass != "" {
@@ -150,7 +150,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
                 style {
                     gap: 4px
                     flex-wrap: nowrap
-                    border-bottom: 1px solid $border
+                    border-bottom: 1px solid $color-border
                     & button { height: 36px; padding: 0 14px; background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; font-family: inherit; font-size: 14px; line-height: 20px; font-weight: 500; color: $color-text-muted; cursor: pointer }
                     & button:hover { background: transparent; color: $color-text }
                     & button.active { color: $color-text; font-weight: 600; border-bottom-color: $color-primary }
@@ -196,14 +196,14 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
                     Grid(columns: { base: 1, xl: 2 }, gap: .sm, class: "events-grid") {
                         for e in c.events by e.name {
                             Row(align: .baseline, gap: .sm) {
-                                style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
+                                style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $color-border; & p { margin: 0 } }
                                 Text(e.name) { style { width: 110px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink } }
                                 Text(t("ref.own.event")) { style { font-size: 13px; line-height: 20px; color: $color-text-muted } }
                             }
                         }
                         for e in events by e.name {
                             Row(align: .baseline, gap: .sm) {
-                                style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $border; & p { margin: 0 } }
+                                style { gap: 10px; flex-wrap: nowrap; padding: 6px 0; border-bottom: 1px solid $color-border; & p { margin: 0 } }
                                 Text(e.name) { style { width: 110px; flex-shrink: 0; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $brand-ink } }
                                 Text(e.meaning) { style { font-size: 13px; line-height: 20px; color: $color-text-muted } }
                             }
@@ -220,7 +220,7 @@ page ReferenceEntry(path: "/docs/reference/:slug", slug: String, title: "{regist
                             Heading(part.name).h2 { style { margin: 0; font-family: $font-family-mono; font-size: 18px; line-height: 24px; font-weight: 500 } }
                             Markdown(part.summary) { style { max-width: 680px; & p { margin: 0; font-size: 15px; line-height: 23px; color: $color-text-muted } } }
                             Code(part.signature, language: "wf").block {
-                                style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
+                                style { margin: 0; padding: 12px 14px; background: $term-bg; border: 1px solid $color-border; border-radius: 6px; font-size: 13px; line-height: 22px; color: $syntax-punct; white-space: pre; overflow-x: auto }
                             }
                             if part.props.length > 0 { PropsTable(rows: part.props, caption: "Props of {part.name}") }
                             if part.flags.length > 0 {

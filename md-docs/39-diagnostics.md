@@ -44,6 +44,7 @@ The code — `T05` — is the thing to search this page for. The families:
 | `C` | components and their props |
 | `R` | routes and navigation |
 | `X` | state and reactivity |
+| `I` | translations |
 | `F` | forms and bindings |
 | `D` | data, assets and what is kept in the browser |
 | `A` | accessibility |
@@ -414,6 +415,28 @@ The build holds every page it writes to the content security policy it
 ships beside it; something on this page — an inline script, a `style=`, a
 script from an origin the policy never named — would be blocked. **Fix:**
 what the message says; a library's origin goes in `meta.scripts`.
+
+### E117 — A key combination no keyboard sends
+
+```wf expect E117
+page P(path: "/", title: "T", description: "D") {
+    on key("ctrl+shfit+k") { log("search") }
+    Heading("Search").h1
+}
+```
+
+```text
+error[E117]: `on key("ctrl+shfit+k")` names `shfit`, which is not a modifier
+ --> src/App.wf:2:12
+  |
+2 |     on key("ctrl+shfit+k") { log("search") }
+  |            ^
+  = help: Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e117
+```
+
+**Fix:** Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:
+a letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.
 
 ## Components
 
@@ -879,6 +902,72 @@ warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is f
 
 ## Data and assets
 
+### D01 — A file the project does not have
+
+Warning. `Image(src: "/img/hero.png")` when `public/img/hero.png` does not
+exist (also `poster:`, `captions:`, `transcript:`): the page asks for it and
+gets a 404. **Fix:** put the file in `public/`, or correct the path.
+
+### D02 — A persisted value storage cannot keep
+
+```wf expect D02
+page P(path: "/", title: "T", description: "D") {
+    persist pick = (x) => x + 1
+    Heading("Pick").h1
+}
+```
+
+```text
+error[D02]: `persist pick` keeps a function, which cannot be written to the browser's storage
+ --> src/App.wf:2:5
+  |
+2 |     persist pick = (x) => x + 1
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Keep what it is made from — a name, an id, the data — and build it again when it is read
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d02
+```
+
+**Fix:** Keep what it is made from — a name, an id, the data — and build
+the rest when it is read.
+
+### D03 — A persisted value every instance shares
+
+Warning.
+
+```wf expect D03
+component Panel(_ title: String) {
+    persist open = false
+    Card { Text(title) }
+}
+page P(path: "/", title: "T", description: "D") {
+    Heading("Panels").h1
+    Panel("One")
+    Panel("Two")
+}
+```
+
+```text
+warning[D03]: `persist open` is in `Panel`, which is placed more than once, so every one of them reads and writes one stored value
+ --> src/App.wf:2:5
+  |
+2 |     persist open = false
+  |     ^^^^^^^
+  = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d03
+```
+
+**Fix:** Give each instance its own key: `persist open = false { key: title
+}`, with a prop that tells them apart.
+
+### D04 — A persisted shape changed with no new version
+
+Warning. The build remembers what each `persist` held (in
+`.wf-cache/persist.json`); when that changes — `persist items = []` becomes
+`persist items = { open: [], done: [] }` — and `version:` does not, a
+returning reader's browser hands the old shape to code written for the new
+one. **Fix:** raise `version:` and add `migrate 1 -> 2 { … }` to bring the
+old value forward.
+
 ### D05 — An asset from another origin with no integrity hash
 
 Warning. A font, stylesheet or script in `meta.fonts`, `meta.stylesheets`
@@ -1336,6 +1425,56 @@ warning[T21]: this `match` on `users` has no `error` arm, so a failed request sh
 
 **Fix:** `error(e) { Alert(e.message).danger }`, or an `else`.
 
+### T20 — A list or a record shown as text
+
+Warning.
+
+```wf expect T20
+page P(path: "/", title: "T", description: "D") {
+    state tags = ["a", "b"]
+    Heading("Tags").h1
+    Text("Tagged {tags}")
+}
+```
+
+```text
+warning[T20]: `tags` is `[String]`, and in text it shows as its items run together with commas
+ --> src/App.wf:4:19
+  |
+4 |     Text("Tagged {tags}")
+  |                   ^^^^
+  = help: Show a field of it, or `.join(", ")` a list of text
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t20
+```
+
+**Fix:** `{tags.join(", ")}` for a list of text; a field of a record.
+
+## Translations
+
+These need the project's translation files, so the examples are described
+rather than run.
+
+### I01 — A message no translation has
+
+`t("nav.blgo")` when no locale's file holds `nav.blgo`: the page shows
+`nav.blgo`. **Fix:** the key the message suggests, or add it to the files.
+
+### I02 — A message and its call that disagree
+
+`t("greeting", { nme: user.name })` against `"greeting": "Hello, {name}!"`:
+`nme` is not used, and `{name}` shows as written. **Fix:** pass what the
+message shows, by the name it shows it.
+
+### I03 — A message one locale has and another does not
+
+Warning. `nav.blog` in `en.json` and not in `ar.json`: a reader in Arabic
+sees `nav.blog`. **Fix:** translate it, or remove it from the others.
+
+### I04 — A locale the project does not have
+
+`setLocale("fr")` when `i18n.locales` is `["en", "ar"]`. **Fix:** add the
+locale and its file, or name one that exists.
+
 ## Accessibility
 
 Warnings. What makes a page unusable with a screen reader, a keyboard or a voice.
@@ -1663,6 +1802,30 @@ warning[A15]: Button shows "save" but its aria-label says "Submit the form"
 
 **Fix:** Start the `aria-label` with the visible words: `aria-label: "Save the draft"`.
 
+### A16 — One id on several elements
+
+Warning.
+
+```wf expect A16
+page P(path: "/", title: "T", description: "D") {
+    state rows = ["a", "b"]
+    Heading("Rows").h1
+    for r in rows by r { Text(r, id: "row") }
+}
+```
+
+```text
+warning[A16]: `id: "row"` is inside a `for`, so the page has several elements with one id
+ --> src/App.wf:4:26
+  |
+4 |     for r in rows by r { Text(r, id: "row") }
+  |                          ^^^^
+  = help: Make it unique — `id: "row-{item.id}"` — or drop it; a label's `for` and `aria-*` find one element by id
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a16
+```
+
+**Fix:** Make it unique — `id: "row-{r}"` — or drop it.
+
 ## Search and sharing
 
 Warnings. What a search engine or a link preview would act on.
@@ -1930,6 +2093,78 @@ warning[U05]: `reset` is declared but never read
 
 **Fix:** Call it, remove it, or name it `_reset`.
 
+### U06 — Code after return
+
+```wf expect U06
+page P(path: "/", title: "T", description: "D") {
+    state n = 0
+    action reset() {
+        n = 0
+        return n
+        log("reset")
+    }
+    Heading("Count {n}").h1
+    Button("Reset") { on click { reset() } }
+}
+```
+
+```text
+warning[U06]: this never runs: the `return` above leaves first
+ --> src/App.wf:6:9
+  |
+6 |         log("reset")
+  |         ^^^^^^^^^^^^
+  = help: Remove it, or move it above the `return`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u06
+```
+
+**Fix:** Remove it, or move it above the `return`.
+
+### U08 — A condition that is always the same
+
+```wf expect U08
+page P(path: "/", title: "T", description: "D") {
+    Heading("Beta").h1
+    if false { Text("Coming soon") }
+}
+```
+
+```text
+warning[U08]: `false` is always false, so one branch never runs
+ --> src/App.wf:3:8
+  |
+3 |     if false { Text("Coming soon") }
+  |        ^^^^^
+  = help: Use the value that decides, or remove the branch that cannot run
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u08
+```
+
+**Fix:** Use the value that decides, or remove the branch that cannot run.
+
+### U09 — An unkeyed loop whose items hold state
+
+Warning.
+
+```wf expect U09
+page P(path: "/", title: "T", description: "D") {
+    state rows = [{ id: 1, name: "a" }]
+    Heading("Rows").h1
+    for r in rows { Input(bind: r.name, label: "Name") }
+}
+```
+
+```text
+warning[U09]: this `for` has no `by`, and each item holds a `Input`, which starts again whenever the list changes
+ --> src/App.wf:4:5
+  |
+4 |     for r in rows { Input(bind: r.name, label: "Name") }
+  |     ^^^
+  = help: Key it: `for r in … by r.id`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u09
+```
+
+**Fix:** Key it: `for r in rows by r.id`.
+
 ### U10 — An `else` no value reaches
 
 ```wf expect U10
@@ -2031,6 +2266,79 @@ warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
 ```
 
 **Fix:** Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).
+
+### V05 — A CSS property no browser knows
+
+Warning.
+
+```wf expect V05
+page P(path: "/", title: "T", description: "D") {
+    Heading("Hello") {
+        style { colr: red }
+    }
+}
+```
+
+```text
+warning[V05]: `colr` is not a CSS property, so the browser ignores it
+ --> src/App.wf:3:17
+  |
+3 |         style { colr: red }
+  |                 ^^^^
+  = help: Did you mean `color`?
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v05
+```
+
+**Fix:** The property the message suggests — here `color`. A custom
+property is written `--name`.
+
+### V06 — A design token the theme does not declare
+
+```wf expect V06
+page P(path: "/", title: "T", description: "D") {
+    Heading("Hello") {
+        style { color: $brnad }
+    }
+}
+```
+
+```text
+error[V06]: `$brnad` is no token the theme declares, so it is never set
+ --> src/App.wf:3:17
+  |
+3 |         style { color: $brnad }
+  |                 ^^^^^
+  = help: Declare it in your `theme { … }`, or use one the theme has
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v06
+```
+
+**Fix:** A token the theme has — a short name resolves through the
+property (`padding: $lg`, `border: 1px solid $border`) — or declare it in
+your `theme { … }`.
+
+### V07 — A number where CSS wants a length
+
+Warning.
+
+```wf expect V07
+page P(path: "/", title: "T", description: "D") {
+    state pct = 40
+    Heading("Progress").h1
+    Card { style { width: {pct} } }
+}
+```
+
+```text
+warning[V07]: `width: {pct}` is a number with no unit, which the browser drops
+ --> src/App.wf:4:20
+  |
+4 |     Card { style { width: {pct} } }
+  |                    ^^^^^^^^^^^^
+  = help: Give it one: `width: {pct}px` (or `%`, `rem`)
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v07
+```
+
+**Fix:** Give it a unit: `width: {pct}%`.
 
 ### V08 — An icon the runtime does not draw
 

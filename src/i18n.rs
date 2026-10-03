@@ -7,8 +7,30 @@
 //! the values given.
 
 use std::collections::HashMap;
+use std::path::Path;
 
 use crate::codegen::static_eval::Static;
+
+/// Every locale's messages, read from `<dir>/<locale>.json`. A locale with
+/// no file has none; a file that is not a JSON map of strings is an error.
+pub fn load(
+    project_dir: &Path,
+    config: &crate::config::project::I18nConfig,
+) -> crate::error::Result<HashMap<String, HashMap<String, String>>> {
+    let mut out = HashMap::new();
+    let dir = project_dir.join(&config.dir);
+    for locale in &config.locales {
+        let file = dir.join(format!("{locale}.json"));
+        let Ok(content) = std::fs::read_to_string(&file) else {
+            continue;
+        };
+        let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {
+            crate::error::WebFluentError::ConfigError(format!("Failed to parse {locale}.json: {e}"))
+        })?;
+        out.insert(locale.clone(), messages);
+    }
+    Ok(out)
+}
 
 /// The plural category of `count` under the English rules: `one` for
 /// exactly one, `other` for the rest.

@@ -542,3 +542,127 @@ fn f03_f04_f05_validation_and_controls_that_cannot_work() {
     );
     assert_eq!(with(&select, "F05").len(), 1);
 }
+
+// ─── C9: secrets ─────────────────────────────────────────────────────
+
+#[test]
+fn t12_a_secret_does_not_escape_through_joins_the_browser_or_its_members() {
+    let src = page(
+        "    state token: Secret = \"\"\n    Button(\"x\") { on click {\n        log(\"/a?t=\" + token)\n        console.log(token)\n        localStorage.setItem(\"t\", token)\n        alert(token)\n        log(token.length)\n    } }",
+    );
+    let found = with(&src, "T12");
+    assert!(found.len() >= 5, "{found:?}");
+    assert!(
+        found.iter().any(|f| f.contains("`+` would put it in text")),
+        "{found:?}"
+    );
+    assert!(
+        found.iter().any(|f| f.contains("`console.log`")),
+        "{found:?}"
+    );
+    assert!(
+        found.iter().any(|f| f.contains("has no `length`")),
+        "{found:?}"
+    );
+    // Handed to a request's headers, it is where it belongs.
+    clean(&page(
+        "    state token: Secret = \"\"\n    resource me = fetch(\"/me\", headers: { \"Authorization\": token })\n    Text(\"{me.state}\")",
+    ));
+}
+
+// ─── C10: data ───────────────────────────────────────────────────────
+
+#[test]
+fn d02_d03_what_persist_cannot_keep_and_what_every_instance_shares() {
+    assert_eq!(with(&page("    persist f = (x) => x"), "D02").len(), 1);
+    let shared = "component Panel(_ title: String) {\n    persist open = false\n    Text(title)\n}\npage P(path: \"/\", title: \"T\", description: \"D\") { Heading(\"p\").h1  Panel(\"a\")  Panel(\"b\") }\n";
+    assert_eq!(with(shared, "D03").len(), 1);
+    let keyed = shared.replace(
+        "persist open = false",
+        "persist open = false { key: title }",
+    );
+    assert!(with(&keyed, "D03").is_empty());
+    // The key reaches the storage key.
+    let program = webfluent::parse_source(&keyed, "t.wf").unwrap();
+    let js = webfluent::codegen::js::JsCodegen::new().generate(&program);
+    assert!(
+        js.contains("WF.persist(\"Panel.open:\" + String(_p.title)"),
+        "{js}"
+    );
+}
+
+#[test]
+fn t10_an_endpoint_path_parameter_nothing_fills() {
+    let src = format!(
+        "api B(base: \"/api\") {{\n    get user(userId: String) at \"users/:id\"\n    get ok(id: String) at \"users/:id\"\n}}\n{}",
+        page("")
+    );
+    let found = with(&src, "T10");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("no parameter fills `:id`"), "{found:?}");
+}
+
+// ─── C12: literals, styles, text ─────────────────────────────────────
+
+#[test]
+fn calendar_dates_money_and_key_combinations_are_held_to_what_they_can_be() {
+    let src = page(
+        "    state d: Date = @2026-02-30\n    state e: Date = \"2026-13-01\"\n    state ok: Date = @2028-02-29\n    Text(\"{d}{e}{ok}\")",
+    );
+    let found = with(&src, "T01");
+    assert_eq!(found.len(), 2, "{found:?}");
+    let money = webfluent::syntax::parse_source(
+        &page("    state p = €12.999\n    Text(\"{p.amount}\")"),
+        "t.wf",
+    )
+    .unwrap_err()
+    .diagnostics();
+    assert_eq!(money[0].code, "T01");
+    assert!(
+        money[0].message.contains("more decimals than EUR has"),
+        "{money:?}"
+    );
+    let key =
+        webfluent::syntax::parse_source(&page("    on key(\"ctrl+shfit+k\") { log(1) }"), "t.wf")
+            .unwrap_err()
+            .diagnostics();
+    assert_eq!(key[0].code, "E117");
+    clean(&page(
+        "    on key(\"cmd+K\") { log(1) }\n    on key(\"Escape\") { log(2) }\n    on key(\"shift+F2\") { log(3) }",
+    ));
+}
+
+#[test]
+fn v05_v06_v07_styles_that_the_browser_drops() {
+    let src = page(
+        "    state pct = 40\n    Card { style { colr: red\n background: $brnad\n border: 1px solid $border\n width: {pct}\n height: {pct}%\n --mine: 3px } }",
+    );
+    assert_eq!(with(&src, "V05").len(), 1);
+    assert_eq!(
+        with(&src, "V06").len(),
+        1,
+        "a short token resolves through a border's colour"
+    );
+    assert_eq!(with(&src, "V07").len(), 1);
+}
+
+#[test]
+fn t20_a16_a_list_in_text_and_one_id_on_many_elements() {
+    let src = page(
+        "    state tags = [\"a\"]\n    Text(\"{tags}\")\n    Text(\"{tags.join(\\\", \\\")}\")\n    for t in tags by t { Text(t, id: \"tag\") }",
+    );
+    assert_eq!(with(&src, "T20").len(), 1);
+    assert_eq!(with(&src, "A16").len(), 1);
+}
+
+// ─── C13: dead code ──────────────────────────────────────────────────
+
+#[test]
+fn u06_u08_u09_code_that_never_runs_and_loops_that_lose_state() {
+    let src = page(
+        "    state n = 0\n    state rows = [{ id: 1, name: \"a\" }]\n    action go() {\n        return n\n        log(1)\n    }\n    if false { Text(\"x\") }\n    if n == n { Text(\"y\") }\n    for r in rows { Input(bind: r.name, label: \"N\") }\n    for r in rows by r.id { Input(bind: r.name, label: \"M\") }\n    Button(\"go\") { on click { go() } }",
+    );
+    assert_eq!(with(&src, "U06").len(), 1);
+    assert_eq!(with(&src, "U08").len(), 2);
+    assert_eq!(with(&src, "U09").len(), 1);
+}

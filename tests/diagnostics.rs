@@ -47,6 +47,7 @@ fn one_build_reports_every_file_and_every_stage_then_one_line() {
                 "src/pages/Profile.wf",
                 "page Profile(path: \"/\", title: \"P\", description: \"D\") {\n    state user: User = User(id: \"1\", name: \"Ada\")\n    Heading(user.nmae).h1\n    Image(src: \"/a.png\")\n}\n",
             ),
+            ("public/a.png", "png"),
             (
                 "src/pages/Broken.wf",
                 "page Broken(path: \"/b\", title: \"B\", description: \"D\") {\n    Text(\"a\"\n}\nstore S { state = 1 }\n",
@@ -84,10 +85,13 @@ fn warnings_alone_let_the_build_finish_and_are_summed_up() {
     let dir = project(
         "warnings",
         r#"{ "name": "d" }"#,
-        &[(
-            "src/App.wf",
-            "app { Router }\npage P(path: \"/\", title: \"P\", description: \"D\") {\n    Heading(\"Hi\").h1\n    Image(src: \"/a.png\")\n}\n",
-        )],
+        &[
+            (
+                "src/App.wf",
+                "app { Router }\npage P(path: \"/\", title: \"P\", description: \"D\") {\n    Heading(\"Hi\").h1\n    Image(src: \"/a.png\")\n}\n",
+            ),
+            ("public/a.png", "png"),
+        ],
     );
     let (code, out, err) = wf(&dir, &["build"]);
     assert_eq!(code, 0, "{err}");
@@ -294,4 +298,68 @@ fn lints_lower_or_raise_what_may_be_and_refuse_what_may_not() {
         "{err}"
     );
     assert!(err.contains("`lints.S01` is `loud`"), "{err}");
+}
+
+#[test]
+fn a_project_s_files_translations_and_stored_shapes_are_held_to_its_program() {
+    let dir = project(
+        "project-level",
+        r#"{ "name": "d", "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#,
+        &[
+            (
+                "src/App.wf",
+                "app { Router }\npage P(path: \"/\", title: \"P\", description: \"D\") {\n    persist items = []\n    Heading(t(\"title\")).h1\n    Text(t(\"greet\", { nme: \"Ada\" }))\n    Text(t(\"missing.key\"))\n    Image(src: \"/hero.png\", alt: \"\")\n    Image(src: \"/here.png\", alt: \"\")\n    Button(\"FR\") { on click { setLocale(\"fr\") } }\n    Text(\"{items.length}\")\n}\n",
+            ),
+            (
+                "src/translations/en.json",
+                r#"{ "title": "Hi", "greet": "Hello, {name}!", "only.en": "x" }"#,
+            ),
+            (
+                "src/translations/ar.json",
+                r#"{ "title": "مرحبا", "greet": "أهلاً، {name}!" }"#,
+            ),
+            ("public/here.png", "png"),
+        ],
+    );
+    let (_, _, err) = wf(&dir, &["build"]);
+    for code in ["D01", "I01", "I02", "I03", "I04"] {
+        assert!(err.contains(&format!("[{code}]")), "{code}: {err}");
+    }
+    assert_eq!(
+        err.matches("[D01]").count(),
+        1,
+        "only the missing file: {err}"
+    );
+    assert_eq!(
+        err.matches("[I02]").count(),
+        2,
+        "an unused `nme` and an unpassed `{{name}}`: {err}"
+    );
+
+    // D04: the shape a persisted value had at the last build is remembered.
+    let app = dir.join("src/App.wf");
+    let fixed = std::fs::read_to_string(&app)
+        .unwrap()
+        .replace("    Text(t(\"missing.key\"))\n", "")
+        .replace("    Text(t(\"greet\", { nme: \"Ada\" }))\n", "")
+        .replace("    Image(src: \"/hero.png\", alt: \"\")\n", "")
+        .replace(
+            "    Button(\"FR\") { on click { setLocale(\"fr\") } }\n",
+            "",
+        );
+    std::fs::write(&app, &fixed).unwrap();
+    std::fs::write(
+        dir.join("src/translations/ar.json"),
+        r#"{ "title": "مرحبا", "greet": "أهلاً، {name}!", "only.en": "x" }"#,
+    )
+    .unwrap();
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    std::fs::write(
+        &app,
+        fixed.replace("persist items = []", "persist items = { open: [] }"),
+    )
+    .unwrap();
+    let (_, _, err) = wf(&dir, &["build"]);
+    assert!(err.contains("warning[D04]"), "{err}");
 }

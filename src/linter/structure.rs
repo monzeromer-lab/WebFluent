@@ -129,6 +129,13 @@ struct Ctx<'a> {
     page_path: Option<&'a str>,
     /// The states the body declares with a literal value, for a select's.
     literals: HashMap<String, Expr>,
+    /// How deep in `for` loops the walk is.
+    loops: usize,
+    /// Whether the body being walked is a component's that is placed more
+    /// than once, or inside a loop: what it holds exists many times.
+    many: bool,
+    /// The components whose body holds state of its own.
+    stateful: &'a HashSet<&'a str>,
     out: Vec<Diagnostic>,
 }
 
@@ -155,6 +162,21 @@ pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
         .iter()
         .filter_map(|d| match d {
             Declaration::Component(c) => Some(c.name.as_str()),
+            _ => None,
+        })
+        .collect();
+    let placed = placements(program);
+    let stateful: HashSet<&str> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c)
+                if c.body
+                    .iter()
+                    .any(|s| matches!(s.kind, StatementKind::State(_))) =>
+            {
+                Some(c.name.as_str())
+            }
             _ => None,
         })
         .collect();
@@ -200,6 +222,12 @@ pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
                 );
             }
         }
+        let many = match decl {
+            Declaration::Component(c) => placed
+                .get(c.name.as_str())
+                .is_some_and(|(count, in_loop)| *count > 1 || *in_loop),
+            _ => false,
+        };
         let mut cx = Ctx {
             file,
             decl: index,
@@ -208,8 +236,34 @@ pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
             components: &components,
             page_path,
             literals: literal_states(body),
+            loops: 0,
+            many,
+            stateful: &stateful,
             out: Vec::new(),
         };
+        // D03: a `persist` every instance of the component shares.
+        if many && let Declaration::Component(c) = decl {
+            for stmt in &c.body {
+                if let StatementKind::State(st) = &stmt.kind
+                    && st.persist
+                    && st.policy.as_ref().is_none_or(|p| p.key.is_none())
+                {
+                    cx.out.push(
+                        Diagnostic::coded(
+                            "D03",
+                            format!(
+                                "`persist {}` is in `{}`, which is placed more than once, so every one of them reads and writes one stored value",
+                                st.name, c.name
+                            ),
+                            &cx.file,
+                            stmt.span.line.max(1) as usize,
+                            stmt.span.col.max(1) as usize,
+                        )
+                        .with_hint("Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart"),
+                    );
+                }
+            }
+        }
         let mut ancestors: Vec<&UIElement> = Vec::new();
         walk(
             body,
@@ -274,6 +328,83 @@ fn route_parameters(p: &PageDecl, file: &str, out: &mut Vec<Diagnostic>) {
     }
 }
 
+/// How many times each of the program's components is placed, and whether
+/// any placement is inside a loop.
+fn placements(program: &Program) -> HashMap<&str, (usize, bool)> {
+    fn walk<'p>(stmts: &'p [Statement], loops: usize, out: &mut HashMap<&'p str, (usize, bool)>) {
+        for stmt in stmts {
+            match &stmt.kind {
+                StatementKind::UIElement(ui) => {
+                    if let ComponentRef::UserDefined(name) = &ui.component {
+                        let e = out.entry(name.as_str()).or_insert((0, false));
+                        e.0 += 1;
+                        e.1 |= loops > 0;
+                    }
+                    walk(&ui.children, loops, out);
+                    for fill in &ui.slot_fills {
+                        walk(&fill.body, loops, out);
+                    }
+                }
+                StatementKind::For(f) => walk(&f.body, loops + 1, out),
+                other => {
+                    for body in other.bodies() {
+                        walk(body, loops, out);
+                    }
+                }
+            }
+        }
+    }
+    let mut out = HashMap::new();
+    for decl in &program.declarations {
+        let body = match decl {
+            Declaration::Page(p) => &p.body,
+            Declaration::Component(c) => &c.body,
+            Declaration::App(a) => &a.body,
+            _ => continue,
+        };
+        walk(body, 0, &mut out);
+    }
+    out
+}
+
+/// What in a loop's body holds state of its own, said for a finding: a
+/// control the reader types or clicks into, or a component with state.
+fn stateful_item(stmts: &[Statement], stateful: &HashSet<&str>) -> Option<String> {
+    const CONTROLS: &[&str] = &[
+        "Input",
+        "Select",
+        "Textarea",
+        "Checkbox",
+        "Radio",
+        "Switch",
+        "Slider",
+        "DatePicker",
+        "FileUpload",
+    ];
+    for stmt in stmts {
+        if let StatementKind::UIElement(ui) = &stmt.kind {
+            match &ui.component {
+                ComponentRef::BuiltIn(n) if CONTROLS.contains(&n.as_str()) => {
+                    return Some(format!("a `{n}`"));
+                }
+                ComponentRef::UserDefined(n) if stateful.contains(n.as_str()) => {
+                    return Some(format!("a `{n}` with state of its own"));
+                }
+                _ => {}
+            }
+            if let Some(found) = stateful_item(&ui.children, stateful) {
+                return Some(found);
+            }
+        }
+        for body in stmt.kind.bodies() {
+            if let Some(found) = stateful_item(body, stateful) {
+                return Some(found);
+            }
+        }
+    }
+    None
+}
+
 fn count_routers(stmts: &[Statement]) -> usize {
     let mut n = 0;
     for stmt in stmts {
@@ -331,6 +462,28 @@ fn walk<'a>(
                 ancestors.pop();
             }
             StatementKind::Navigate(target) => link(target, stmt.span, cx),
+            StatementKind::For(f) => {
+                // U09: with no `by`, a change to the list redraws every
+                // item, and what an item holds — a field being typed in, a
+                // component's own state — starts again.
+                if f.key.is_none()
+                    && let Some(what) = stateful_item(&f.body, cx.stateful)
+                {
+                    cx.out.push(
+                        Diagnostic::coded(
+                            "U09",
+                            format!("this `for` has no `by`, and each item holds {what}, which starts again whenever the list changes"),
+                            &cx.file,
+                            stmt.span.line.max(1) as usize,
+                            stmt.span.col.max(1) as usize,
+                        )
+                        .with_hint(format!("Key it: `for {} in … by {}.id`", f.item, f.item)),
+                    );
+                }
+                cx.loops += 1;
+                walk(&f.body, cx, ancestors, in_component);
+                cx.loops -= 1;
+            }
             StatementKind::Use(u) if !cx.stores.contains(u.store_name.as_str()) => {
                 let mut names: Vec<&&str> = cx.stores.iter().collect();
                 names.sort();
@@ -409,6 +562,28 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
     // R01: a link to a route no page has.
     if let Some(target) = named(ui, "to") {
         link(target, ui.span, cx);
+    }
+
+    // A16: one literal `id` on an element drawn many times.
+    if let Some(Expr::StringLiteral(id)) = named(ui, "id")
+        && (cx.loops > 0 || cx.many)
+    {
+        let (line, col) = at(ui);
+        let why = if cx.loops > 0 {
+            "inside a `for`"
+        } else {
+            "in a component placed more than once"
+        };
+        cx.out.push(
+            Diagnostic::coded(
+                "A16",
+                format!("`id: \"{id}\"` is {why}, so the page has several elements with one id"),
+                &cx.file,
+                line,
+                col,
+            )
+            .with_hint("Make it unique — `id: \"row-{item.id}\"` — or drop it; a label's `for` and `aria-*` find one element by id"),
+        );
     }
 
     // R04: a relative URL on a nested route.

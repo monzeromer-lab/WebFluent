@@ -480,7 +480,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
         r#"component StatCard(title: String, value: Number, color: String) {
     Card.elevated.fadeIn {
         style {
-            borderLeft: 4px solid $color-primary
+            border-left: 4px solid $color-primary
         }
         Card.Body {
             Text(title).muted.sm

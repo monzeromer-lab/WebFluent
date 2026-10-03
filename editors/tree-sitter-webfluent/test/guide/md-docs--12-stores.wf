@@ -101,6 +101,13 @@ store Cart {
 }
 
 // md-docs/12-stores.md
+component Panel(_ title: String) {
+    persist open = false { key: title }
+    Button(title) { on click { open = !open } }
+    if open { children }
+}
+
+// md-docs/12-stores.md
 store Deploys {
     state rows: [Map] = []
     state loaded = false

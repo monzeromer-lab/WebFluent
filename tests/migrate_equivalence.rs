@@ -251,7 +251,8 @@ fn every_migrated_project_builds_the_same_by_indentation_and_comes_back() {
         let root = repo_root().join("target/layout").join(&name);
         let _ = std::fs::remove_dir_all(&root);
         copy_tree(&corpus.join(&name), &root);
-        let _ = std::fs::remove_dir_all(root.join("src"));
+        // The migrated sources over the corpus's: what is not a source —
+        // the translations — stays as the project has it.
         copy_tree(&expected.join(&name).join("src"), &root.join("src"));
         let braced: BTreeMap<PathBuf, String> = sources(&root.join("src"), "wf")
             .into_iter()

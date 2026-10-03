@@ -4,7 +4,7 @@ component SiteFooter {
     Footer {
         style {
             padding: 24px 16px
-            border-top: 1px solid $border
+            border-top: 1px solid $color-border
             background: $color-background
             @md { padding: 32px 40px }
         }
@@ -76,7 +76,7 @@ component SiteFooter {
             }
 
             Row(justify: .between, align: .center, gap: .md) {
-                style { flex-wrap: wrap; padding-top: 16px; border-top: 1px solid $border; & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
+                style { flex-wrap: wrap; padding-top: 16px; border-top: 1px solid $color-border; & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
                 Text(t("footer.licence"))
                 Text(t("footer.copyright"))
             }

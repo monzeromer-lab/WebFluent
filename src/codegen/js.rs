@@ -333,7 +333,12 @@ impl JsCodegen {
                 Some(_) => format!(", {}", self.persist_policy(s)),
                 None => String::new(),
             };
-            let init = format!("WF.persist(\"{key}\", {value}{policy})");
+            // `key: id` tells one instance's value from another's.
+            let key = match s.policy.as_ref().and_then(|p| p.key.as_ref()) {
+                Some(part) => format!("\"{key}:\" + String({})", self.emit_expr(part)),
+                None => format!("\"{key}\""),
+            };
+            let init = format!("WF.persist({key}, {value}{policy})");
             if self.studio {
                 format!("WF.__reg(\"{}\", {init})", s.name)
             } else {

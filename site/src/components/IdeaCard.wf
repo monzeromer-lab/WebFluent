@@ -7,10 +7,10 @@ component IdeaCard(_ title: String, number: String = "", body: String = "", code
         style {
             gap: 10px
             padding: 20px
-            border: 1px solid $border
+            border: 1px solid $color-border
             border-radius: 10px
             background: $surface-raised
-            &.idea-card-highlight { background: $brand-subtle; border-color: $border-brand; justify-content: center }
+            &.idea-card-highlight { background: $brand-subtle; border-color: $brand-ring; justify-content: center }
             & h3 { margin: 0; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.004em }
             & .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted }
             &.idea-card-highlight .wf-markdown p { color: $color-text }

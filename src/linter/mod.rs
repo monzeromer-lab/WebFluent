@@ -18,9 +18,11 @@ pub use secrets::lint_env;
 pub mod accessibility;
 pub mod contrast;
 pub mod pdf_validation;
+pub mod project;
 pub mod semantic;
 pub mod slides_validation;
 pub mod structure;
+pub mod styles;
 pub mod unused;
 pub mod vocabulary;
 

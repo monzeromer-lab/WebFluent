@@ -16,7 +16,7 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
     Stack(class: "code-block") {
         style {
             gap: 0
-            border: 1px solid $border
+            border: 1px solid $color-border
             border-radius: 6px
             overflow: hidden
             background: $term-bg
@@ -28,7 +28,7 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
                 height: 40px
                 padding: 0 8px 0 12px
                 background: $color-background
-                border-bottom: 1px solid $border
+                border-bottom: 1px solid $color-border
                 @md { height: 32px; padding: 0 12px }
             }
             Row(align: .center, gap: .sm) {
@@ -44,7 +44,7 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
                     height: 30px
                     padding: 0 10px
                     background: transparent
-                    border: 1px solid $border
+                    border: 1px solid $color-border
                     border-radius: 4px
                     color: $ink-subtle
                     font-family: inherit

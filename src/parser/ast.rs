@@ -797,6 +797,10 @@ pub struct PersistPolicy {
     pub sync: Option<bool>,
     /// `migrate 1 -> 2 { old.map(…) }`, in the order written.
     pub migrations: Vec<Migration>,
+    /// `key: id`: what tells this value apart from another of its kind —
+    /// one per instance of a component placed more than once, which would
+    /// otherwise share one key in storage.
+    pub key: Option<Expr>,
     /// The whole block, for an editor.
     pub span: Span,
 }

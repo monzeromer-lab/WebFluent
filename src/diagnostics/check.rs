@@ -58,9 +58,22 @@ pub fn check_project(p: &Project) -> Checked {
     let mut out = Vec::new();
     if let Some(dir) = p.dir {
         out.extend(script_checks(dir, p.scripts));
+        out.extend(crate::linter::project::missing_assets(
+            p.program, dir, p.file_of,
+        ));
+        out.extend(crate::linter::project::persist_changes(
+            p.program, dir, p.file_of,
+        ));
         if let Some(config) = p.config {
             out.extend(config_checks(dir, config, p.program));
             out.extend(crate::linter::lint_env(dir, config, p.declaration_files));
+            if let Some(i18n) = &config.i18n
+                && let Ok(messages) = crate::i18n::load(dir, i18n)
+            {
+                out.extend(crate::linter::project::translations(
+                    p.program, i18n, &messages, p.file_of,
+                ));
+            }
         }
     }
     out.extend(program_checks(p.program, p.file_of, p.source_of));
@@ -72,9 +85,21 @@ pub fn check_project(p: &Project) -> Checked {
     let mut lints: Vec<crate::error::A11yWarning> =
         crate::linter::lint_accessibility_in(&lowered, p.file_of);
     let theme = p.config.map(|c| c.theme.clone()).unwrap_or_default();
-    if let Ok(tokens) = crate::themes::resolve_tokens(&lowered, &theme) {
+    if let Ok(mut tokens) = crate::themes::resolve_tokens(&lowered, &theme) {
         lints.extend(crate::linter::lint_contrast_in(
             &lowered, &tokens, p.file_of,
+        ));
+        if let Some(config) = p.config {
+            crate::themes::apply_motion(&mut tokens, &config.motion);
+        }
+        out.extend(crate::linter::styles::lint_styles(
+            &lowered,
+            Some(&tokens),
+            p.file_of,
+        ));
+    } else {
+        out.extend(crate::linter::styles::lint_styles(
+            &lowered, None, p.file_of,
         ));
     }
     lints.extend(crate::linter::lint_unused_in(&lowered, p.file_of));

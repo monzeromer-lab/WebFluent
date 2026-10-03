@@ -251,7 +251,8 @@ or `"error"`, the code first, then the family:
 
 A warning may be turned off or made an error. An error may be lowered only
 when it cannot ship a broken page — `R01` (a link to a route that is
-missing), `C02` (a prop nothing reads) and `S04` (two pages on one route);
+missing), `C02` (a prop nothing reads), `S04` (two pages on one route) and
+`I01`, `I02`, `I04` (a message that shows its key or a placeholder);
 asking to lower any other is itself refused, and so is a key that is no code
 or family. Every code is in [Diagnostics](39-diagnostics.md).
 

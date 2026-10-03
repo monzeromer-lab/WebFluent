@@ -66,7 +66,7 @@ Graph tags are all there after `wf build`.
 3. **State is a signal.** `state count = 0`; anything that reads `count`
    follows it. `derived` values recompute, `effect`s re-run, the DOM updates.
 4. **Styles are CSS, written where the element is.**
-   `style { padding: $md; &:hover { background: $surface-hover } }` — raw
+   `style { padding: $md; &:hover { background: $surface } }` — raw
    values, design tokens with `$`, nested rules as CSS nesting spells them.
 5. **The build is the whole site.** `wf build` writes everything a host
    needs, and `wf serve` rebuilds it on every save.

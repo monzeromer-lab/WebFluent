@@ -85,6 +85,18 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         return Err(WebFluentError::Diagnostics(diagnostics));
     }
     let mut warning_count = diagnostics.len();
+    // What each `persist` holds now, for the next build to compare with.
+    let shapes = crate::linter::project::persist_shapes(&program);
+    if !shapes.is_empty() {
+        let cache = project_dir.join(crate::linter::project::PERSIST_CACHE);
+        if let Some(parent) = cache.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        let _ = fs::write(
+            cache,
+            serde_json::to_string_pretty(&shapes).unwrap_or_default(),
+        );
+    }
     let program = checked.lowered;
 
     // PDF output mode
@@ -997,33 +1009,14 @@ fn load_translations(
     project_dir: &Path,
     i18n_config: &crate::config::project::I18nConfig,
 ) -> Result<HashMap<String, HashMap<String, String>>> {
-    let mut translations = HashMap::new();
-    let trans_dir = project_dir.join(&i18n_config.dir);
-
-    if !trans_dir.exists() {
+    let dir = project_dir.join(&i18n_config.dir);
+    if !dir.exists() {
         println!(
             "  Warning: translations directory '{}' not found",
             i18n_config.dir
         );
-        return Ok(translations);
     }
-
-    for locale in &i18n_config.locales {
-        let file_path = trans_dir.join(format!("{}.json", locale));
-        if !file_path.exists() {
-            println!("  Warning: translation file '{}.json' not found", locale);
-            continue;
-        }
-
-        let content = fs::read_to_string(&file_path)?;
-        let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {
-            WebFluentError::ConfigError(format!("Failed to parse {}.json: {}", locale, e))
-        })?;
-
-        translations.insert(locale.clone(), messages);
-    }
-
-    Ok(translations)
+    crate::i18n::load(project_dir, i18n_config)
 }
 
 /// Write `<file>.gz` beside every text file under `dir` that is worth it —

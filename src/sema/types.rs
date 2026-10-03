@@ -642,6 +642,43 @@ pub fn check_in(
                         cx.current_span = endpoint.span;
                         cx.infer(e, None);
                     }
+                    // Every `:name` in the path is filled by the parameter of
+                    // that name; one that is not stays `:name` in the
+                    // address, and the value it was meant to carry goes as a
+                    // query instead (`/users/:id?userId=42`).
+                    let params: Vec<&str> =
+                        endpoint.params.iter().map(|p| p.name.as_str()).collect();
+                    for segment in endpoint.path.split('/') {
+                        let Some(name) = segment.strip_prefix(':') else {
+                            continue;
+                        };
+                        if !params.contains(&name) {
+                            let hint = if params.is_empty() {
+                                format!(
+                                    "Give it the parameter: `{}({name}: String)`",
+                                    endpoint.name
+                                )
+                            } else {
+                                format!(
+                                    "Name a parameter `{name}`; it takes {}",
+                                    params
+                                        .iter()
+                                        .map(|p| format!("`{p}`"))
+                                        .collect::<Vec<_>>()
+                                        .join(", ")
+                                )
+                            };
+                            cx.error(
+                                endpoint.span,
+                                "T10",
+                                format!(
+                                    "`{}.{}` is at `{}`, and no parameter fills `:{name}`",
+                                    a.name, endpoint.name, endpoint.path
+                                ),
+                                &hint,
+                            );
+                        }
+                    }
                 }
                 for hook in &a.hooks {
                     cx.push_scope();
@@ -1098,6 +1135,19 @@ impl<'a, 'p> Checker<'a, 'p> {
     // ─── Statements ──────────────────────────────────────
 
     fn statements(&mut self, stmts: &[Statement], body: Body) {
+        // What follows a `return` in the same block never runs.
+        if let Some(at) = stmts
+            .iter()
+            .position(|s| matches!(s.kind, StatementKind::Return(_)))
+            && let Some(next) = stmts.get(at + 1)
+        {
+            self.current_span = next.span;
+            self.warn(
+                "U06",
+                "this never runs: the `return` above leaves first".to_string(),
+                "Remove it, or move it above the `return`",
+            );
+        }
         for stmt in stmts {
             self.statement(stmt, body);
             // `if x == null { return }`: what follows runs only when `x`
@@ -1125,6 +1175,19 @@ impl<'a, 'p> Checker<'a, 'p> {
                 let given = self.infer(&s.value, declared.as_ref());
                 if let Some(declared) = &declared {
                     self.expect(&given, declared, span, &format!("`{}`", s.name));
+                }
+                // What `persist` keeps is written as JSON: a function, a
+                // file or a promise does not survive it.
+                if s.persist {
+                    let kept = declared.clone().unwrap_or_else(|| given.clone());
+                    if let Some(what) = not_serialisable(&kept) {
+                        self.error(
+                            span,
+                            "D02",
+                            format!("`persist {}` keeps {what}, which cannot be written to the browser's storage", s.name),
+                            "Keep what it is made from — a name, an id, the data — and build it again when it is read",
+                        );
+                    }
                 }
                 // A secret must not outlive the visit.
                 if s.persist
@@ -1398,6 +1461,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             StatementKind::Show(s) => {
                 let cond = self.infer(&s.condition, Some(&Type::Bool));
                 self.condition(&cond, &s.condition, span, "show");
+                self.constant_condition(&s.condition);
                 self.statements(&s.body, body);
             }
             StatementKind::Match(m) => self.match_statement(m, span, body),
@@ -1544,6 +1608,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             None => {
                 let ty = self.infer(&i.condition, Some(&Type::Bool));
                 self.condition(&ty, &i.condition, span, "if");
+                self.constant_condition(&i.condition);
                 // `if x != null { }`, `if x { }`: `x` is not null inside.
                 for name in narrowed_names(&i.condition) {
                     if let Some(Type::Optional(inner)) = self.lookup(&name) {
@@ -2062,7 +2127,31 @@ impl<'a, 'p> Checker<'a, 'p> {
         if let Some(style) = &el.style_block {
             for prop in &style.properties {
                 self.current_span = prop.span;
-                self.infer(&prop.value, None);
+                let ty = self.infer(&prop.value, None);
+                // V07: a number spliced alone where CSS wants a length is
+                // a length with no unit, which the browser drops.
+                let bare = !matches!(
+                    prop.value,
+                    Expr::StringLiteral(_)
+                        | Expr::InterpolatedString(_)
+                        | Expr::NumberLiteral(_)
+                        | Expr::Token(_)
+                );
+                if bare && ty.unwrapped() == Type::Number && takes_length(&prop.name) {
+                    self.warn(
+                        "V07",
+                        format!(
+                            "`{}: {{{}}}` is a number with no unit, which the browser drops",
+                            prop.name,
+                            expr_text(&prop.value)
+                        ),
+                        &format!(
+                            "Give it one: `{}: {{{}}}px` (or `%`, `rem`)",
+                            prop.name,
+                            expr_text(&prop.value)
+                        ),
+                    );
+                }
             }
         }
         self.current_span = span;
@@ -2592,6 +2681,31 @@ impl<'a, 'p> Checker<'a, 'p> {
                 for part in parts {
                     if let StringPart::Expression(e) = part {
                         let ty = self.infer(e, None);
+                        // A list, a map or a record in text shows as
+                        // `[object Object]` or its items run together.
+                        if matches!(
+                            ty.unwrapped(),
+                            Type::List(_)
+                                | Type::Map
+                                | Type::Shape(_)
+                                | Type::Record(_)
+                                | Type::Func(..)
+                        ) {
+                            let shown = if matches!(ty.unwrapped(), Type::List(_)) {
+                                "its items run together with commas"
+                            } else {
+                                "`[object Object]`"
+                            };
+                            self.warn(
+                                "T20",
+                                format!(
+                                    "`{}` is `{}`, and in text it shows as {shown}",
+                                    expr_text(e),
+                                    ty.unwrapped()
+                                ),
+                                "Show a field of it, or `.join(\", \")` a list of text",
+                            );
+                        }
                         // A value that may be null shows as "null" (or
                         // "undefined") in the text.
                         if let Type::Optional(inner) = &ty
@@ -2626,6 +2740,12 @@ impl<'a, 'p> Checker<'a, 'p> {
             // A literal of one of the language's own types. The carrier is
             // checked as itself, and the value is what the name says.
             Expr::Typed(name, carrier) => {
+                if let (Some(scalar), Expr::StringLiteral(text)) =
+                    (Scalar::of_name(name), carrier.as_ref())
+                    && let Some(shape) = ill_formed(scalar, text)
+                {
+                    self.error_at_current("T01", format!("`@{text}` is not a `{name}`"), &shape);
+                }
                 self.infer(carrier, None);
                 self.world.resolve(Type::Record(name.clone()))
             }
@@ -2827,6 +2947,15 @@ impl<'a, 'p> Checker<'a, 'p> {
                 };
                 match op {
                     BinOp::Add => {
+                        for (side, ty) in [(l, &lt), (r, &rt)] {
+                            if ty.unwrapped() == Type::Scalar(Scalar::Secret) {
+                                self.error_at_current(
+                                    "T12",
+                                    format!("`{}` is a `Secret`, and `+` would put it in text", expr_text(side)),
+                                    "A secret must not be shown, logged or put in a URL; send it as a value",
+                                );
+                            }
+                        }
                         if lt.unwrapped() == Type::String || rt.unwrapped() == Type::String {
                             Type::String
                         } else if lt == Type::Number && rt == Type::Number {
@@ -3106,6 +3235,16 @@ impl<'a, 'p> Checker<'a, 'p> {
                 (Scalar::Money, "currency") => Type::String,
                 (Scalar::File, "name" | "type") => Type::String,
                 (Scalar::File, "size") => Type::Number,
+                // A secret is not a string: reading it apart is how it
+                // leaks a character at a time.
+                (Scalar::Secret, _) => {
+                    self.error_at_current(
+                        "T12",
+                        format!("`{}` is a `Secret`, which has no `{field}`: it is not read apart", expr_text(base)),
+                        "Hand it on whole — to `api` headers, or a request body — and read what it unlocks",
+                    );
+                    Type::Any
+                }
                 (s, "length") if s.is_text() => Type::Number,
                 (s, _) => {
                     self.error_at_current(
@@ -3334,6 +3473,14 @@ impl<'a, 'p> Checker<'a, 'p> {
             let else_ty = self.infer(&args[1], None);
             self.in_chain = was;
             return Type::join(then_ty, else_ty);
+        }
+        // A secret handed to the browser itself — logged, stored, written
+        // into the document — is a secret anyone at the keyboard can read.
+        if let Expr::Identifier(global) = obj
+            && SECRET_SINKS.contains(&global.as_str())
+            && self.lookup(global).is_none()
+        {
+            self.secret_args(&format!("{global}.{method}"), args);
         }
         let obj_ty = self.infer(obj, None);
         // `Backend.users(page: 2)`: an endpoint of a service, whose
@@ -3643,6 +3790,20 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             // The language's own types: a date's arithmetic, money's, a
             // URL's parts, a colour's mixing.
+            Type::Scalar(Scalar::Secret) => {
+                for a in args {
+                    self.infer(a, None);
+                }
+                self.error_at_current(
+                    "T12",
+                    format!(
+                        "`{}` is a `Secret`, which has no `{method}()`: it is not read or changed",
+                        expr_text(obj)
+                    ),
+                    "Hand it on whole — to `api` headers, or a request body",
+                );
+                Type::Any
+            }
             Type::Scalar(scalar) => {
                 for a in args {
                     self.infer(a, None);
@@ -3845,6 +4006,41 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
     }
 
+    /// U08: a condition that is always the same — a literal, or a value
+    /// compared with itself — so one branch never runs.
+    fn constant_condition(&mut self, cond: &Expr) {
+        let always = match cond {
+            Expr::BoolLiteral(b) => Some(if *b { "true" } else { "false" }),
+            Expr::NumberLiteral(n) => Some(if *n != 0.0 { "true" } else { "false" }),
+            Expr::StringLiteral(t) => Some(if t.is_empty() { "false" } else { "true" }),
+            Expr::Null => Some("false"),
+            Expr::BinaryOp(l, op, r)
+                if matches!(
+                    op,
+                    BinOp::Eq | BinOp::Neq | BinOp::Lte | BinOp::Gte | BinOp::Lt | BinOp::Gt
+                ) && expr_text(l) == expr_text(r)
+                    && !matches!(**l, Expr::FunctionCall(..) | Expr::MethodCall(..)) =>
+            {
+                Some(if matches!(op, BinOp::Eq | BinOp::Lte | BinOp::Gte) {
+                    "true"
+                } else {
+                    "false"
+                })
+            }
+            _ => None,
+        };
+        if let Some(always) = always {
+            self.warn(
+                "U08",
+                format!(
+                    "`{}` is always {always}, so one branch never runs",
+                    expr_text(cond)
+                ),
+                "Use the value that decides, or remove the branch that cannot run",
+            );
+        }
+    }
+
     /// `==` or `!=` between values that can never be equal: a string and a
     /// number (`"1" == 1` is `false` in the compiled code), a record and a
     /// string, or an enum and a case it does not have. The comparison is
@@ -3970,7 +4166,29 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
     }
 
+    /// T12 for each argument that is a `Secret`, handed to `to`.
+    fn secret_args(&mut self, to: &str, args: &[Expr]) {
+        for arg in args {
+            if self.infer_quiet(arg).unwrapped() == Type::Scalar(Scalar::Secret) {
+                self.error_at_current(
+                    "T12",
+                    format!("`{}` is a `Secret`, and `{to}` would give it to anyone who opens the page", expr_text(arg)),
+                    "A secret goes to the server only — an `api`'s headers, a request body — never into the browser's own hands",
+                );
+            }
+        }
+    }
+
     fn function_call(&mut self, name: &str, args: &[Expr]) -> Type {
+        if self.lookup(name).is_none() {
+            match name {
+                "alert" | "confirm" | "prompt" => self.secret_args(name, args),
+                // In a request's address it is in every log the request
+                // passes; as a header or body it is where it belongs.
+                "fetch" => self.secret_args("a fetch's address", &args[..args.len().min(1)]),
+                _ => {}
+            }
+        }
         if self.lookup(name).is_none()
             && let Some((file, script)) = self.world.scripts.get(name).copied()
         {
@@ -4406,6 +4624,51 @@ fn disjoint(a: &Type, b: &Type) -> bool {
     }
 }
 
+/// Whether a CSS property takes a length, which a bare number is not.
+fn takes_length(name: &str) -> bool {
+    matches!(
+        name,
+        "width"
+            | "height"
+            | "min-width"
+            | "max-width"
+            | "min-height"
+            | "max-height"
+            | "top"
+            | "left"
+            | "right"
+            | "bottom"
+            | "inset"
+            | "gap"
+            | "row-gap"
+            | "column-gap"
+            | "font-size"
+            | "border-radius"
+            | "radius"
+            | "border-width"
+            | "outline-width"
+            | "outline-offset"
+            | "letter-spacing"
+            | "word-spacing"
+            | "text-indent"
+            | "flex-basis"
+            | "inline-size"
+            | "block-size"
+    ) || name.starts_with("margin")
+        || name.starts_with("padding")
+}
+
+/// The browser's own objects a secret must not be handed to.
+const SECRET_SINKS: &[&str] = &[
+    "console",
+    "localStorage",
+    "sessionStorage",
+    "document",
+    "window",
+    "navigator",
+    "history",
+];
+
 /// Every method a list has: the browser's own, and the helpers the
 /// runtime adds (`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`,
 /// `sum`, `remove`, `contains`).
@@ -4661,6 +4924,20 @@ fn match_arm(expr: &Expr) -> Option<(&Expr, String, &Expr)> {
     };
     match (test.as_str() == wanted, test_args.as_slice(), args.get(1)) {
         (true, [Expr::StringLiteral(case)], Some(rest)) => Some((subject, case.clone(), rest)),
+        _ => None,
+    }
+}
+
+/// What in `ty` the browser's storage cannot keep as JSON, said for a
+/// finding.
+fn not_serialisable(ty: &Type) -> Option<&'static str> {
+    match ty {
+        Type::Func(..) => Some("a function"),
+        Type::Scalar(Scalar::File) => Some("a `File`"),
+        Type::Promise(_) => Some("a promise"),
+        Type::Resource(_) => Some("a resource"),
+        Type::Optional(inner) | Type::List(inner) => not_serialisable(inner),
+        Type::Shape(fields) => fields.iter().find_map(|(_, t)| not_serialisable(t)),
         _ => None,
     }
 }
@@ -5108,11 +5385,35 @@ fn ill_formed(scalar: Scalar, text: &str) -> Option<String> {
     let fits = match scalar {
         Scalar::Date => {
             let p: Vec<&str> = text.split('-').collect();
-            p.len() == 3
+            let shaped = p.len() == 3
                 && p[0].len() == 4
                 && p[1].len() == 2
                 && p[2].len() == 2
-                && p.iter().all(|s| s.chars().all(|c| c.is_ascii_digit()))
+                && p.iter().all(|s| s.chars().all(|c| c.is_ascii_digit()));
+            if shaped {
+                // A day the calendar has: `2026-02-30` is not one.
+                let (y, m, d): (u32, u32, u32) = (
+                    p[0].parse().unwrap_or(0),
+                    p[1].parse().unwrap_or(0),
+                    p[2].parse().unwrap_or(0),
+                );
+                let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+                let days = match m {
+                    1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+                    4 | 6 | 9 | 11 => 30,
+                    2 if leap => 29,
+                    2 => 28,
+                    _ => 0,
+                };
+                if days == 0 || d == 0 || d > days {
+                    return Some(if days == 0 {
+                        format!("There is no month `{}`: months are `01` to `12`", p[1])
+                    } else {
+                        format!("{} has {days} days", month_name(m))
+                    });
+                }
+            }
+            shaped
         }
         Scalar::Time => {
             let head = text.split(['+', 'Z']).next().unwrap_or(text);
@@ -5183,6 +5484,24 @@ fn ill_formed(scalar: Scalar, text: &str) -> Option<String> {
 /// Only a value the compiler can read is checked — a literal, or an
 /// expression over literals. Anything that arrives at run time is
 /// validation's to refuse, from the same condition.
+fn month_name(m: u32) -> &'static str {
+    [
+        "",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ][m as usize]
+}
+
 pub fn refinement_fault(ty: &TypeRef, value: &Expr) -> Option<String> {
     use crate::codegen::static_eval::{Scope, Static, eval};
     let args = ty.refinement();

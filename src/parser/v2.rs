@@ -34,6 +34,70 @@ pub fn parse_v2(source: &str, file: &str) -> Result<Program> {
     ParserV2::new(tokens, file).parse()
 }
 
+/// What is wrong with a key combination the runtime would never match:
+/// a modifier it does not know, no key, or a key no keyboard has.
+fn key_problem(spelling: &str) -> Option<String> {
+    let parts: Vec<String> = spelling
+        .to_ascii_lowercase()
+        .split('+')
+        .map(|p| p.trim().to_string())
+        .collect();
+    let (key, modifiers) = parts.split_last()?;
+    if key.is_empty() {
+        return Some("names no key after its modifiers".to_string());
+    }
+    for m in modifiers {
+        if !matches!(m.as_str(), "ctrl" | "shift" | "alt" | "meta" | "cmd") {
+            return Some(format!("names `{m}`, which is not a modifier"));
+        }
+    }
+    const NAMED: &[&str] = &[
+        "enter",
+        "return",
+        "escape",
+        "esc",
+        "tab",
+        "backspace",
+        "delete",
+        "insert",
+        "home",
+        "end",
+        "pageup",
+        "pagedown",
+        "arrowup",
+        "arrowdown",
+        "arrowleft",
+        "arrowright",
+        "up",
+        "down",
+        "left",
+        "right",
+        "space",
+        "plus",
+        "capslock",
+        "contextmenu",
+        "pause",
+        "printscreen",
+        "scrolllock",
+        "numlock",
+    ];
+    let function_key = key
+        .strip_prefix('f')
+        .and_then(|n| n.parse::<u8>().ok())
+        .is_some_and(|n| (1..=24).contains(&n));
+    if key.chars().count() == 1 || NAMED.contains(&key.as_str()) || function_key {
+        None
+    } else {
+        Some(format!("names `{key}`, which is no key a keyboard sends"))
+    }
+}
+
+/// `amount` rounded to `places` decimals, for a hint.
+fn round_to(amount: &str, places: usize) -> String {
+    let value: f64 = amount.parse().unwrap_or(0.0);
+    format!("{value:.places$}")
+}
+
 /// The clause a render block is at, so the order is enforced.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Stage {
@@ -1824,9 +1888,10 @@ impl ParserV2 {
                 });
                 continue;
             }
-            let key = self.expect_ident("`in`, `version`, `sync` or `migrate`")?;
+            let key = self.expect_ident("`in`, `version`, `sync`, `key` or `migrate`")?;
             self.expect(&TokenType::Colon, "`:`")?;
             match key.as_str() {
+                "key" => policy.key = Some(self.parse_expression()?),
                 "in" => {
                     self.expect(&TokenType::Dot, "`.local` or `.session`")?;
                     let case = self.expect_ident("a case")?;
@@ -2681,8 +2746,17 @@ impl ParserV2 {
             if event == "key" {
                 match self.kind().clone() {
                     TokenType::StringLiteral(spelling) => {
+                        let text = string_text(&spelling);
+                        if let Some(problem) = key_problem(&text) {
+                            return Err(self
+                                .error_with_hint(
+                                    format!("`on key(\"{text}\")` {problem}"),
+                                    "Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`",
+                                )
+                                .with_code("E117"));
+                        }
                         self.advance();
-                        key = Some(string_text(&spelling));
+                        key = Some(text);
                     }
                     _ => {
                         return Err(self.error_with_hint(
@@ -3476,7 +3550,20 @@ impl ParserV2 {
                     "¥" => "JPY",
                     _ => "USD",
                 };
-                // Minor units, so the arithmetic is a whole number's.
+                // A currency has as many decimals as its minor unit: two
+                // for most, none for the yen. More would be rounded away.
+                let places = if currency == "JPY" { 0 } else { 2 };
+                let given = amount.split_once('.').map_or(0, |(_, d)| d.len());
+                if given > places {
+                    return Err(self
+                        .error_with_hint(
+                            format!("`{symbol}{amount}` has more decimals than {currency} has, which is {places}"),
+                            &format!("Write it to the {}: `{symbol}{}`", if places == 0 { "whole unit" } else { "cent" }, round_to(&amount, places)),
+                        )
+                        .with_code("T01"));
+                }
+                // Hundredths, so the arithmetic is a whole number's; the
+                // runtime reads every amount that way.
                 let minor = (amount.parse::<f64>().unwrap_or(0.0) * 100.0).round();
                 Ok(Expr::Typed(
                     "Money".to_string(),

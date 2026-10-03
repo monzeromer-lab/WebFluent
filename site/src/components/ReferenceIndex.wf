@@ -12,7 +12,7 @@ component ReferenceIndex(current: String = "") {
             flex-shrink: 0
             padding: 20px 16px
             gap: 6px
-            border-inline-end: 1px solid $border
+            border-inline-end: 1px solid $color-border
             background: $color-background
             & .wf-sidebar__item { height: 28px; padding: 0 10px; gap: 8px; border-radius: 4px; font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text-muted }
             & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
@@ -28,7 +28,7 @@ component ReferenceIndex(current: String = "") {
                 height: 34px
                 padding: 0 12px
                 background: $color-surface
-                border: 1px solid $border
+                border: 1px solid $color-border
                 border-radius: 4px
                 &:focus-within { border-color: $brand-ring }
                 & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }

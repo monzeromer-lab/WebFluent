@@ -200,6 +200,26 @@ drops the store, and the next read builds it again — from storage, so the
 value comes straight back. The build says so (`P03`). What the route owns
 is `state`; what outlives it wants a wider scope.
 
+**One stored value per instance.** A `persist` in a component is one key
+for every place the component is drawn: three `Panel`s that each persist
+`open` share one value, and opening one opens them all. `key:` names what
+tells the instances apart, and each gets its own stored value; the build
+warns (`D03`) about a component placed more than once, or in a loop, that
+persists without one.
+
+```wf
+component Panel(_ title: String) {
+    persist open = false { key: title }
+    Button(title) { on click { open = !open } }
+    if open { children }
+}
+```
+
+**A changed shape needs a new version.** The build remembers the shape of
+every persisted value (in `.wf-cache/persist.json`) and warns (`D04`) when
+it changes with no `version:` raised: a returning reader's browser holds
+the old shape, which the page would read as the new one.
+
 **A `Secret` is never written down.** `persist token: Secret = ""` is a
 `T12` — the whole point of the type is that it does not reach a place any
 script can read.

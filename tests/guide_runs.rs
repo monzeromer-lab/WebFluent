@@ -125,10 +125,13 @@ fn build_all() -> (Vec<String>, Vec<String>) {
                 _ => String::new(),
             };
             // An example is a page of a bigger site: a link it shows to a
-            // page it does not is the site's, so `R01` is off here.
+            // page it does not, and the translations it reads, are the
+            // site's, so `R01` and the `I` family are off here.
             std::fs::write(
                 dir.join("webfluent.app.json"),
-                format!(r#"{{ "name": "guide"{i18n}{theme}, "lints": {{ "R01": "off" }} }}"#),
+                format!(
+                    r#"{{ "name": "guide"{i18n}{theme}, "lints": {{ "R01": "off", "I": "off" }} }}"#
+                ),
             )
             .unwrap();
             std::fs::write(dir.join("src/App.wf"), &src).unwrap();

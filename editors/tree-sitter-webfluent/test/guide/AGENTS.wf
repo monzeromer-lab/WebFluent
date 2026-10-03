@@ -558,7 +558,7 @@ page Home(path: "/", title: "Todos") {
         style {
             padding: 6px 0
             &:hover {
-                background: $surface-hover
+                background: $surface
             }
         }
         on click {

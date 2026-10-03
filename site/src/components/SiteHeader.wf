@@ -35,7 +35,7 @@ component SiteHeader(docs: Bool = false) {
             padding: 0 16px
             gap: 12px
             flex-wrap: nowrap
-            border-bottom: 1px solid $border
+            border-bottom: 1px solid $color-border
             background: $color-background
             position: sticky
             top: 0
@@ -74,7 +74,7 @@ component SiteHeader(docs: Bool = false) {
                             font-size: 12px
                             line-height: 18px
                             color: $ink-subtle
-                            border: 1px solid $border
+                            border: 1px solid $color-border
                             border-radius: 999px
                             padding: 1px 8px
                             @sm { display: inline-block }
@@ -110,7 +110,7 @@ component SiteHeader(docs: Bool = false) {
                         height: 34px
                         padding: 0 12px
                         background: $color-surface
-                        border: 1px solid $border
+                        border: 1px solid $color-border
                         border-radius: 4px
                         &:focus-within { border-color: $brand-ring }
                         & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }
@@ -130,7 +130,7 @@ component SiteHeader(docs: Bool = false) {
                             font-size: 12px
                             line-height: 18px
                             color: $ink-subtle
-                            border: 1px solid $border
+                            border: 1px solid $color-border
                             border-radius: 4px
                             padding: 0 5px
                         }
@@ -148,7 +148,7 @@ component SiteHeader(docs: Bool = false) {
                             max-width: calc(100vw - 32px)
                             padding: 6px
                             background: $surface-overlay
-                            border: 1px solid $border
+                            border: 1px solid $color-border
                             border-radius: 6px
                             box-shadow: $shadow-lg
                             z-index: 200
@@ -192,7 +192,7 @@ component SiteHeader(docs: Bool = false) {
                 max-height: calc(100vh - 56px)
                 overflow-y: auto
                 padding: 8px 16px 16px
-                border-bottom: 1px solid $border
+                border-bottom: 1px solid $color-border
                 background: $color-background
                 box-shadow: $shadow-md
                 @md { top: 60px; max-height: calc(100vh - 60px) }
@@ -209,7 +209,7 @@ component SiteHeader(docs: Bool = false) {
                         @md { display: none }
                         padding: 0 12px
                         background: $color-surface
-                        border: 1px solid $border
+                        border: 1px solid $color-border
                         border-radius: 4px
                         &:focus-within { border-color: $brand-ring }
                         & .wf-icon { color: $ink-subtle; font-size: 16px; display: inline-flex }
@@ -223,7 +223,7 @@ component SiteHeader(docs: Bool = false) {
                 }
                 if hits.length > 0 {
                     Stack(role: "listbox", aria-label: t("search.results")) {
-                        style { gap: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid $border; & a { height: auto; min-height: 44px; padding: 8px 10px } @md { display: none } }
+                        style { gap: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid $color-border; & a { height: auto; min-height: 44px; padding: 8px 10px } @md { display: none } }
                         SearchHits(hits: hits) { on pick { q = ""  menu = false } }
                     }
                 }

@@ -129,7 +129,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
     Row(gap: .sm) {
         style {
             padding: 6px 0
-            &:hover { background: $surface-hover }
+            &:hover { background: $surface }
         }
         on click { open = !open }
         Text("a").bold
@@ -149,7 +149,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
         style
             padding: 6px 0
             &:hover
-                background: $surface-hover
+                background: $surface
         on click { open = !open }
         Text("a").bold
     if open

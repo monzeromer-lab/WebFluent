@@ -32,7 +32,7 @@ component ReferenceShell(current: String = "") {
                 flex-shrink: 0
                 gap: 20px
                 padding: 32px 20px
-                border-inline-start: 1px solid $border
+                border-inline-start: 1px solid $color-border
                 background: $color-background
                 @media (min-width: 1100px) { display: flex }
             }

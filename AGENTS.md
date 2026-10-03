@@ -653,6 +653,7 @@ persist items: [Item] = [] {          // and what a value says about itself
     in: .local                        // .local (default) · .session (this tab)
     version: 2                        // the version of the shape this build writes
     sync: false                       // don't adopt what another tab wrote
+    key: listId                       // one stored value per instance (a prop that tells them apart)
     migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }
 }
 every(1000) { tick = tick + 1 }       // a timer; stops when its page, branch or item leaves
@@ -1327,7 +1328,7 @@ page Home(path: "/", title: "Todos")
         style
             padding: 6px 0
             &:hover
-                background: $surface-hover
+                background: $surface
         on click
             draft = ""
         Text("Todos").bold
@@ -2502,7 +2503,7 @@ guide's chapter, the editor's links and the tests read.
 `"lints": { "A11": "off", "U": "error", "R01": "warn" }` in the config says
 what a finding counts as, by code or family. A warning may be turned off or
 raised; an error may be lowered only when it cannot ship a broken page
-(`R01`, `C02`, `S04`).
+(`R01`, `C02`, `S04`, `I01`, `I02`, `I04`).
 
 | Family | What |
 |---|---|
@@ -2554,7 +2555,7 @@ And what the type checker finds:
 | `T09` | An `emit` whose arguments do not match the event's |
 | `T10` | A call with the wrong number or kind of arguments |
 | `T11` | A `match` on something that is neither a resource nor an enum, or with arms of the wrong kind |
-| `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
+| `T12` | A `Secret` where it would escape — shown, spliced into text, joined with `+`, handed to a browser global (`console`, storage, a `fetch` address), logged, or kept with `persist`. A secret has no string members |
 | `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. `event` (`e`), `value` and `key` are names only inside a handler. Not applied to a template rendered with data |
 | `T14` | A comparison that is always the same: `"1" == 1`, a record against a string, an enum against a case it does not have |
 | `T15` | A `match` with no `else` that misses a case of the enum, or one with a case twice. A `match` expression that covers every case needs no `else` |
@@ -2573,6 +2574,12 @@ And what the type checker finds:
 | `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
 | `R02` | A route's `:param` with no page parameter of that name, or the reverse |
 | `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
+| `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist |
+| `D02` | A `persist` of a value storage cannot keep as JSON — a function, a `File`, a promise |
+| `I01` | A literal `t("key")` that no locale's translations have, so the page shows the key |
+| `I02` | A message and its call that disagree: a value passed the message does not use, or a placeholder the call does not pass |
+| `I04` | `setLocale("xx")` naming a locale `i18n.locales` does not list |
+| `V06` | A `$token` the resolved theme does not declare, so the property falls back to nothing |
 
 An endpoint a service does not have is `T06`, and an argument it does not
 take is `T10`.
@@ -2638,6 +2645,17 @@ paint alike.
 | `R04` | A relative `src:`/`href:` literal on a nested route, which resolves against the page's address |
 | `F04` | `Checkbox(checked: x)` with no `bind:` and no `on change`: the box toggles, the state does not |
 | `F05` | A `Select` whose bound state starts as none of its options |
+| `T20` | A list or a record shown as text — a list's items run together, a record shows `[object Object]` |
+| `D01` | A site-relative `src:`, `poster:`, `captions:` or `transcript:` naming a file `public/` does not have |
+| `D03` | A `persist` in a component placed more than once, or in a loop, which every instance shares; `key:` gives each its own (`persist open = false { key: item.id }`) |
+| `D04` | A persisted value's shape changed since the last build with no `version:` raised (the shapes are kept in `.wf-cache/persist.json`) |
+| `I03` | A message one locale has and another does not |
+| `A16` | A literal `id:` inside a `for`, or in a component placed more than once, which several elements then share |
+| `U06` | Code after a `return` in the same block |
+| `U08` | A condition that is always the same — a literal, or a value compared with itself |
+| `U09` | A `for` with no `by` whose items hold state, a control or a stateful component, which starts again when the list changes |
+| `V05` | A style property no CSS defines (`colr:`), with the nearest one that it does |
+| `V07` | A bare number spliced as a whole length (`width: {pct}`), which the browser drops |
 | `T21` | A resource `match` with no `error` arm and no `else` |
 | `U10` | A `match`'s `else` that no value reaches: every case has its arm |
 | `E112` | A key in `webfluent.app.json` nothing reads, with the nearest one that is |

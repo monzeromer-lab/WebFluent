@@ -4,12 +4,12 @@ component PropsTable(rows: [Map], caption: String = "Props") {
     Table(caption: caption, class: "props-table") {
         style {
             width: 100%
-            border: 1px solid $border
+            border: 1px solid $color-border
             border-radius: 0
-            & th { text-align: start; padding: 8px 12px; background: $color-background; border-bottom: 1px solid $border; font-size: 12px; line-height: 18px; font-weight: 600; color: $color-text-muted }
+            & th { text-align: start; padding: 8px 12px; background: $color-background; border-bottom: 1px solid $color-border; font-size: 12px; line-height: 18px; font-weight: 600; color: $color-text-muted }
             & th:first-child { width: 22% }
             & th:nth-child(2) { width: 34% }
-            & td { padding: 7px 12px; border-bottom: 1px solid $border; vertical-align: top; font-size: 13px; line-height: 20px; color: $color-text-muted }
+            & td { padding: 7px 12px; border-bottom: 1px solid $color-border; vertical-align: top; font-size: 13px; line-height: 20px; color: $color-text-muted }
             & td:first-child { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $brand-ink; white-space: nowrap }
             & td:nth-child(2) { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $accent-ink }
             & td .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $color-text-muted }

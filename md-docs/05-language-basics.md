@@ -124,7 +124,7 @@ page Home(path: "/") {
     Row(gap: .sm) {
         style {
             padding: 6px 0
-            &:hover { background: $surface-hover }
+            &:hover { background: $surface }
         }
         on click { open = !open }
         Text("a").bold
@@ -146,7 +146,7 @@ page Home(path: "/")
         style
             padding: 6px 0
             &:hover
-                background: $surface-hover
+                background: $surface
         on click { open = !open }
         Text("a").bold
     if open

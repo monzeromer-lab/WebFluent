@@ -196,6 +196,12 @@ pub static CODES: &[CodeInfo] = &[
         "`Element` names a custom element by its tag, first and as a string: lower case, with a hyphen (`\"stripe-pricing-table\"`).",
     ),
     code(
+        "E117",
+        Error,
+        "A key combination no keyboard sends",
+        "`on key(…)` names modifiers (`ctrl`, `shift`, `alt`, `meta`) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.",
+    ),
+    code(
         "E901",
         Error,
         "The compiler wrote JavaScript a browser would refuse",
@@ -303,6 +309,12 @@ pub static CODES: &[CodeInfo] = &[
         Warning,
         "A value that may be null, shown as text",
         "Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.",
+    ),
+    code(
+        "T20",
+        Warning,
+        "A list or a record shown as text",
+        "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.",
     ),
     code(
         "T18",
@@ -442,10 +454,59 @@ pub static CODES: &[CodeInfo] = &[
     ),
     // ── D: data and assets ───────────────────────────────────────────
     code(
+        "D01",
+        Warning,
+        "A file the project does not have",
+        "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.",
+    ),
+    code(
+        "D02",
+        Error,
+        "A persisted value storage cannot keep",
+        "`persist` writes its value to the browser's storage as JSON; a function, a file or a promise does not survive it.",
+    ),
+    code(
+        "D03",
+        Warning,
+        "A persisted value every instance shares",
+        "A `persist` in a component placed more than once, or in a loop, is one stored value for all of them. `key:` gives each its own.",
+    ),
+    code(
+        "D04",
+        Warning,
+        "A persisted shape changed with no new version",
+        "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.",
+    ),
+    code(
         "D05",
         Warning,
         "An asset from another origin with no integrity hash",
         "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.",
+    ),
+    // ── I: translations ──────────────────────────────────────────────
+    code(
+        "I01",
+        Error,
+        "A message no translation has",
+        "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.",
+    ),
+    code(
+        "I02",
+        Error,
+        "A message and its call that disagree",
+        "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.",
+    ),
+    code(
+        "I03",
+        Warning,
+        "A message one locale has and another does not",
+        "A reader in the locale that lacks it sees the key instead of the words.",
+    ),
+    code(
+        "I04",
+        Error,
+        "A locale the project does not have",
+        "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.",
     ),
     // ── A: accessibility ─────────────────────────────────────────────
     code(
@@ -538,6 +599,12 @@ pub static CODES: &[CodeInfo] = &[
         "A label that does not contain the visible text",
         "A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.",
     ),
+    code(
+        "A16",
+        Warning,
+        "One id on several elements",
+        "A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.",
+    ),
     // ── S: search and sharing ────────────────────────────────────────
     code(
         "S01",
@@ -609,6 +676,22 @@ pub static CODES: &[CodeInfo] = &[
         "An action nothing calls; a name that starts with `_` is understood to be unused on purpose.",
     ),
     unused(
+        "U06",
+        "Code after return",
+        "What follows a `return` in the same block never runs.",
+    ),
+    unused(
+        "U08",
+        "A condition that is always the same",
+        "A literal condition, or a value compared with itself, decides the same way every time; one branch never runs.",
+    ),
+    code(
+        "U09",
+        Warning,
+        "An unkeyed loop whose items hold state",
+        "With no `by`, a change to the list redraws every item, and what an item holds — a field being typed in, a component's own state — starts again.",
+    ),
+    unused(
         "U10",
         "An `else` no value reaches",
         "Every case of the enum has its own arm, so the `match`'s `else` never runs.",
@@ -639,6 +722,24 @@ pub static CODES: &[CodeInfo] = &[
         "A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it.",
     ),
     code(
+        "V05",
+        Warning,
+        "A CSS property no browser knows",
+        "A misspelled property — `colr:` — is ignored by the browser; nothing tells you why the style did not take.",
+    ),
+    code(
+        "V06",
+        Error,
+        "A design token the theme does not declare",
+        "`$name` compiles to `var(--name)`; a token the theme does not declare is never set, so the property falls back to nothing.",
+    ),
+    code(
+        "V07",
+        Warning,
+        "A number where CSS wants a length",
+        "`width: {pct}` with a number is a length with no unit, which the browser drops. Give it one: `{pct}%`.",
+    ),
+    code(
         "V08",
         Warning,
         "An icon the runtime does not draw",
@@ -654,8 +755,8 @@ pub static CODES: &[CodeInfo] = &[
 
 /// The errors a project may lower with `lints`: each is a mistake, and none
 /// ships a page that breaks — a link to a route that is missing, a prop
-/// nothing reads, a page no route reaches.
-const LOWERABLE_ERRORS: &[&str] = &["R01", "C02", "S04"];
+/// nothing reads, a page no route reaches, a message that shows its key.
+const LOWERABLE_ERRORS: &[&str] = &["R01", "C02", "S04", "I01", "I02", "I04"];
 
 /// Whether `lints` may lower a code: any warning, and the errors that do
 /// not ship a broken page.

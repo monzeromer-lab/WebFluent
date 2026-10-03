@@ -70,6 +70,24 @@ fn token_group(css_prop: &str) -> Option<&'static str> {
         "border-radius" => "radius",
         "box-shadow" => "shadow",
         "color" | "background" | "background-color" | "border-color" | "fill" | "stroke" => "color",
+        // A border's or an outline's shorthand draws a colour: `border: 1px
+        // solid $border` is `$color-border`, as the guide writes it.
+        "border"
+        | "border-top"
+        | "border-right"
+        | "border-bottom"
+        | "border-left"
+        | "border-block"
+        | "border-inline"
+        | "border-block-start"
+        | "border-block-end"
+        | "border-inline-start"
+        | "border-inline-end"
+        | "outline"
+        | "outline-color"
+        | "text-decoration-color"
+        | "caret-color"
+        | "accent-color" => "color",
         // Spacing: every box-space property (physical + logical), gaps, and sizes.
         p if is_spacing_prop(p) => "spacing",
         _ => return None,
@@ -95,7 +113,7 @@ fn group_suffixes(group: &str) -> &'static [&'static str] {
     match group {
         "font-size" => &["xs", "sm", "base", "lg", "xl", "2xl", "3xl"],
         "spacing" => &["xs", "sm", "md", "lg", "xl", "2xl", "3xl"],
-        // `text-muted` can't be a bare identifier (the `-`), so it's not listed.
+        // `text-muted` cannot be a bare word, but `$text-muted` is a token.
         "color" => &[
             "primary",
             "secondary",
@@ -106,6 +124,7 @@ fn group_suffixes(group: &str) -> &'static [&'static str] {
             "background",
             "surface",
             "text",
+            "text-muted",
             "border",
         ],
         "radius" => &["none", "sm", "md", "lg", "xl", "full"],
