@@ -80,9 +80,15 @@ if [ "$resume" = 1 ] && [ "$(git rev-parse HEAD)" != "$(git rev-parse "$upstream
     # The release commit only changes versions; CI ran on the commit before it.
     echo "  ..  the release commit is not pushed yet; CI ran on what it bumps"
 elif command -v gh >/dev/null; then
-    run=$(gh run list --commit "$(git rev-parse HEAD)" --workflow CI --limit 1 \
-        --json databaseId,status,conclusion --jq '.[0] | "\(.databaseId) \(.status) \(.conclusion)"' || true)
-    [ -n "$run" ] || stop "CI has not run on this commit"
+    # A push a moment ago may not have its CI run yet: wait for it to appear.
+    run=""
+    for _ in $(seq 1 24); do
+        run=$(gh run list --commit "$(git rev-parse HEAD)" --workflow CI --limit 1 \
+            --json databaseId,status,conclusion --jq '.[] | "\(.databaseId) \(.status) \(.conclusion)"' || true)
+        [ -n "$run" ] && break
+        sleep 5
+    done
+    [ -n "$run" ] || stop "CI has not started on this commit after two minutes"
     read -r id status conclusion <<<"$run"
     if [ "$status" != "completed" ]; then
         echo "  CI is $status; waiting for it"
