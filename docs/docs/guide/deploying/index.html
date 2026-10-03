@@ -300,7 +300,7 @@
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
-<p>Pin a version so a release cannot change a deploy under you: <code>WF_VERSION=v5.0.0</code>. Or build locally and upload <code>build/</code> — it is only files.</p>
+<p>Pin a version so a release cannot change a deploy under you: <code>WF_VERSION=v5.0.1</code>. Or build locally and upload <code>build/</code> — it is only files.</p>
                             </div>
                             <h2 class="wf-heading">GitHub Pages</h2>
                             <div class="wf-markdown">
@@ -329,7 +329,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.0.0 bash
+      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v5.0.1 bash
       - run: ~/.webfluent/bin/wf build
       - uses: actions/upload-pages-artifact@v3
         with:

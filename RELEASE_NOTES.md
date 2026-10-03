@@ -1,3 +1,31 @@
+# WebFluent v5.0.1 Release Notes
+
+A new project comes with the language reference its coding agent needs.
+
+## New
+
+- **`wf init` writes `AGENTS.md`**: the WebFluent language reference, in
+  the file an AI coding agent reads before it changes a project, headed by
+  the version of the `wf` that made it. An assistant asked to add a page
+  writes this WebFluent — its flags, its slots, its checks — instead of
+  guessing at a language it may never have seen. An older project can take
+  the current one from the
+  [repository](https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md).
+
+## Changed
+
+- **`AGENTS.md`** names `wf init`'s copy and `tests/` in the project
+  layout, pins the Rust engine at version 5, says what moving from 4 to 5
+  asks (`wf check`, quick fixes, `lints` and `// wf-allow` while a project
+  catches up), and that a service call with an empty path parameter is not
+  sent.
+
+## Tooling
+
+- CI's check that every `wf init` template builds clean looked for 4.x's
+  warning format, so it could no longer fail on a warning; it runs `wf
+  check --deny-warnings` and requires the new `AGENTS.md`.
+
 # WebFluent v5.0.0 Release Notes
 
 The compiler now refuses most of what used to compile and then fail in the

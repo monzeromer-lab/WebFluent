@@ -38,7 +38,7 @@ page GettingStartedGuide(path: "/docs/guide/getting-started", title: "Getting st
                 Line(command: "wf --version")
             ])
 
-        Markdown("If the shell cannot find `wf`, open a new terminal: the installer adds its directory to your `PATH` in your shell's startup file, which the session you ran it in had already read.\n\nBoth installers read two environment variables: `WF_INSTALL_DIR` puts the binary somewhere other than `~/.webfluent/bin`, and `WF_VERSION` pins a release (`WF_VERSION=v5.0.0`) rather than taking the latest. Running the installer again upgrades in place.\n\nTo build from a clone instead — for an unreleased change, or to work on the compiler itself:")
+        Markdown("If the shell cannot find `wf`, open a new terminal: the installer adds its directory to your `PATH` in your shell's startup file, which the session you ran it in had already read.\n\nBoth installers read two environment variables: `WF_INSTALL_DIR` puts the binary somewhere other than `~/.webfluent/bin`, and `WF_VERSION` pins a release (`WF_VERSION=v5.0.1`) rather than taking the latest. Running the installer again upgrades in place.\n\nTo build from a clone instead — for an unreleased change, or to work on the compiler itself:")
 
         Terminal(lines: [
                 Line(command: "git clone https://github.com/monzeromer-lab/WebFluent.git"),
