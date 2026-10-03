@@ -1,5 +1,15 @@
 # Releasing
 
+Write the version's section at the top of `RELEASE_NOTES.md`, then:
+
+```bash
+just ship 4.2.1
+```
+
+It does every step below, in order, and asks before it pushes anything:
+CI and the checks on the commit being released, the Zed pin, the bump, the
+docs site, the preflight, the commit, the push and the tag. By hand:
+
 ```bash
 just bump 4.0.2            # both crates and the lock file
 # write `# WebFluent v4.0.2 Release Notes` at the top of RELEASE_NOTES.md

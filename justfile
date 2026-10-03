@@ -68,6 +68,11 @@ bump version:
     @grep -H '^version' Cargo.toml crates/wf-lsp/Cargo.toml
     @grep -H '"version"' bindings/node/package.json
 
+# Release VERSION, start to finish: checks, Zed pin, bump, docs site,
+# preflight, commit, push, tag (`just ship 4.2.1`; `--yes` skips the prompt)
+ship version *args:
+    scripts/ship.sh {{version}} {{args}}
+
 # What the release workflow checks before it builds anything for TAG
 preflight tag:
     scripts/release-preflight.sh {{tag}}

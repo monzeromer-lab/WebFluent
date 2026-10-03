@@ -1,3 +1,22 @@
+# WebFluent v4.2.1 Release Notes
+
+The editor grammars catch up with 4.2. Nothing in the compiler changed.
+
+## Fixed
+
+- **`Element` is highlighted as a built-in** in Zed and VS Code; 4.2.0
+  left it out of both grammars.
+- **A state named `show` parses in the editor.** The grammar read `show`
+  at the start of a line as the `show { }` statement, so `show = !show`
+  in a handler was an error in Zed, though the compiler accepts it. It is
+  a name wherever that statement cannot start, as `on` and `event` are.
+
+## Tooling
+
+- `scripts/ship.sh` (`just ship VERSION`) releases a version end to end:
+  CI and the checks on the commit, the Zed pin, the bump, the docs site,
+  the preflight, then the commit, the push and the tag after a prompt.
+
 # WebFluent v4.2.0 Release Notes
 
 JavaScript is part of a project the way CSS is. A `.js` file under `src/`
