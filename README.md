@@ -65,6 +65,7 @@ wf serve              # http://localhost:3000, rebuilds on save
 - **Ships small** — the build keeps only the runtime modules your program reaches, splits a chunk per page, and precompresses everything. A page of static text ships under 4 kB of script, gzipped.
 - **Four targets, one language** — SPA, pre-rendered static site, PDF, or a slide deck, by one config flag.
 - **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
+- **A template engine for Rust and Node** — render a `.wf` template with your own data to HTML, a fragment or a PDF: `Template::from_dir("templates")?.page("Invoice")?.render_pdf(&invoice)` with any `Serialize` struct, or `npm install webfluent`. Untrusted data is escaped, and a URL that would run script is dropped.
 - **Your own JavaScript, by name** — a plain `.js` file under `src/` is linked as written, and `.wf` code calls its functions directly, checked against their JSDoc. Libraries load from a CDN through `meta.scripts`; any element can be handed to a script with `mount:` and `cleanup:`.
 - **Editor support** — a language server for [Zed](editors/zed) and [VS Code](editors/vscode): completion, hover, go to definition, rename, quick fixes.
 
@@ -175,7 +176,7 @@ wf fmt [path] [--check] [--to wfx|wf]       Format, or switch layout
 wf test [path] [--update]                   Run the project's tests, in a browser when one acts
 wf verify [path] [--json] [--budget MS]     Visit every route in a headless browser
 wf docs [-d DIR] [-o OUT]                   Write a component gallery
-wf render <tpl> [--data f.json] [-f pdf]    Use WebFluent as a template engine
+wf render <tpl|dir> [--data f.json] [-f pdf] [--page P]   Use WebFluent as a template engine
 wf audit [path] [--json]                    What the project trusts
 wf registry|types [--json]                  The registry, and what a project declares
 wf migrate [path] [--check] [--wfx]         WebFluent 2, 3 or 4.1 → 4.2

@@ -1,0 +1,12 @@
+/// A money amount, in the invoice's currency.
+component Amount(_ value: Number) {
+    Text(format(value, .currency)).bold
+}
+
+/// One line of an invoice.
+component LineItem(_ label: String, amount: Number) {
+    Row(justify: .between) {
+        Text(label)
+        Amount(amount)
+    }
+}

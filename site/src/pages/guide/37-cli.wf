@@ -43,7 +43,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Writes a starter file")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME] [--token NAME=VALUE]`") }
+                    Table.Cell { Markdown("`wf render FILE|DIR [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]`") }
                     Table.Cell("Renders a template with data")
                 }
                 Table.Row {
@@ -155,10 +155,11 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
 
         Terminal(lines: [
                 Line(command: "wf render invoice.wf --data invoice.json -f pdf -o invoice.pdf"),
-                Line(command: "echo '\{\"name\":\"Ada\"\}' | wf render greeting.wf")
+                Line(command: "echo '\{\"name\":\"Ada\"\}' | wf render greeting.wf"),
+                Line(command: "wf render templates/ --page Receipt --lang ar --data receipt.json")
             ])
 
-        Markdown("Renders one template with JSON data: `-f` / `--format` is `html` (a whole document, the default), `html-fragment` (the body only), `pdf` or `slides`; `-o` writes a file instead of printing; `--theme` picks one of several themes the template declares; `--token color-primary=#8B5CF6` sets a design token over the theme's, as often as it is given; without `--data` the JSON is read from stdin. The template is held to what a build is — a component nothing declares or a flag it does not take stops the render — except that the names it reads are its data's. [Server rendering](/docs/guide/server-rendering).")
+        Markdown("Renders one template with JSON data: `-f` / `--format` is `html` (a whole document, the default), `html-fragment` (the body only), `pdf` or `slides`; `-o` writes a file instead of printing; `--theme` picks one of several themes the template declares; `--token color-primary=#8B5CF6` sets a design token over the theme's, as often as it is given; `--lang` sets the document's `<html lang>`; without `--data` the JSON is read from stdin. The template may be a directory — every `.wf` and `.wfx` under it as one, components shared — and `--page` names the page to render when there are several. The template is held to what a build is — a component nothing declares or a flag it does not take stops the render — except that the names it reads are its data's. [Server rendering](/docs/guide/server-rendering).")
 
         Heading("Upgrading", id: "upgrading").h2
 

@@ -1,6 +1,6 @@
 "use strict";
 
-const { execFileSync } = require("child_process");
+const { execFileSync, spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
@@ -53,157 +53,182 @@ function bin() {
 /**
  * Write data to a temp file and return the path.
  */
-function tmpFile(content, ext) {
+// A template given as a string is written to a file once, the first time
+// it renders, and the file goes when the process does.
+const written = new Set();
+process.on("exit", () => {
+  for (const file of written) {
+    try {
+      fs.rmSync(path.dirname(file), { recursive: true, force: true });
+    } catch {}
+  }
+});
+
+function writeSource(source) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wf-"));
-  const file = path.join(dir, `data${ext}`);
-  fs.writeFileSync(file, content);
+  const file = path.join(dir, "template.wf");
+  fs.writeFileSync(file, source);
+  written.add(file);
   return file;
 }
 
-function cleanup(filepath) {
-  try {
-    fs.unlinkSync(filepath);
-    fs.rmdirSync(path.dirname(filepath));
-  } catch {}
-}
+const FORMATS = { html: "html", fragment: "html-fragment", pdf: "pdf", slides: "slides" };
 
 class Template {
-  /**
-   * @param {string} source - The .wf template source code
-   * @param {object} [options]
-   * @param {string} [options.theme] - Which `theme` the template declares to
-   *   render with; only needed when it declares more than one
-   * @param {object} [options.tokens={}] - Design tokens over the theme's
-   */
   constructor(source, options = {}) {
     this._source = source;
+    this._path = null;
     this._theme = options.theme || null;
-    this._tokens = options.tokens || {};
-    this._templateFile = null;
+    this._tokens = { ...(options.tokens || {}) };
+    this._page = options.page || null;
+    this._lang = options.lang || null;
   }
 
-  /**
-   * Create a Template from a .wf source string.
-   * @param {string} source
-   * @param {object} [options]
-   * @returns {Template}
-   */
+  /** A template from `.wf` source text. */
   static fromString(source, options) {
     return new Template(source, options);
   }
 
-  /**
-   * Create a Template from a .wf file path.
-   * @param {string} filePath
-   * @param {object} [options]
-   * @returns {Template}
-   */
+  /** A template from a `.wf` or `.wfx` file. */
   static fromFile(filePath, options) {
-    const tpl = new Template("", options);
-    tpl._templateFile = path.resolve(filePath);
+    const tpl = new Template(null, options);
+    tpl._path = path.resolve(filePath);
     return tpl;
   }
 
   /**
-   * Render with one of the `theme` declarations the template makes.
-   * @param {string} theme
-   * @returns {Template}
+   * Every `.wf` and `.wfx` file under a directory, as one template: the
+   * components, themes and constants are shared, and `page(name)` picks a
+   * page to render.
    */
+  static fromDir(dirPath, options) {
+    return Template.fromFile(dirPath, options);
+  }
+
+  /** The same template, rendering only the page called `name`. */
+  page(name) {
+    const copy = this._copy();
+    copy._page = name;
+    return copy;
+  }
+
   withTheme(theme) {
     this._theme = theme;
     return this;
   }
 
-  /**
-   * Set custom design tokens.
-   * @param {object} tokens - e.g. { "color-primary": "#8B5CF6" }
-   * @returns {Template}
-   */
   withTokens(tokens) {
     this._tokens = { ...this._tokens, ...tokens };
     return this;
   }
 
-  /**
-   * Render to a full HTML document string.
-   * @param {object} data - JSON data context
-   * @returns {string}
-   */
+  /** The language `renderHtml` declares, `<html lang>`; `en` unless set. */
+  withLang(lang) {
+    this._lang = lang;
+    return this;
+  }
+
   renderHtml(data) {
-    return this._render(data, "html");
+    return this._run("html", data).toString("utf-8");
   }
 
-  /**
-   * Render to an HTML fragment string (no <html> wrapper).
-   * @param {object} data - JSON data context
-   * @returns {string}
-   */
   renderHtmlFragment(data) {
-    return this._render(data, "fragment");
+    return this._run("fragment", data).toString("utf-8");
   }
 
-  /**
-   * Render to a PDF Buffer.
-   * @param {object} data - JSON data context
-   * @returns {Buffer}
-   */
   renderPdf(data) {
-    return this._renderFile(data, "pdf");
+    return this._run("pdf", data);
   }
 
-  /**
-   * Render a `Presentation` to a PDF slide deck.
-   * @param {object} data - JSON data context
-   * @returns {Buffer}
-   */
   renderSlides(data) {
-    return this._renderFile(data, "slides");
+    return this._run("slides", data);
+  }
+
+  /** `renderHtml`, without blocking the event loop. */
+  async renderHtmlAsync(data) {
+    return (await this._runAsync("html", data)).toString("utf-8");
+  }
+
+  /** `renderHtmlFragment`, without blocking the event loop. */
+  async renderHtmlFragmentAsync(data) {
+    return (await this._runAsync("fragment", data)).toString("utf-8");
+  }
+
+  /** `renderPdf`, without blocking the event loop. */
+  renderPdfAsync(data) {
+    return this._runAsync("pdf", data);
+  }
+
+  /** `renderSlides`, without blocking the event loop. */
+  renderSlidesAsync(data) {
+    return this._runAsync("slides", data);
   }
 
   /** @private */
-  _renderFile(data, format) {
-    const outFile = tmpFile("", ".pdf");
-    try {
-      this._render(data, format, outFile);
-      return fs.readFileSync(outFile);
-    } finally {
-      cleanup(outFile);
-    }
+  _copy() {
+    const copy = new Template(this._source, {
+      theme: this._theme,
+      tokens: this._tokens,
+      page: this._page,
+      lang: this._lang,
+    });
+    copy._path = this._path;
+    return copy;
   }
 
-  /** @private */
-  _render(data, format, outputFile) {
-    const tplFile = this._getTemplateFile();
-    const dataFile = tmpFile(JSON.stringify(data === undefined ? {} : data), ".json");
-    const args = ["render", tplFile, "--data", dataFile, "--format", format];
+  /** @private — the `wf render` arguments for `format`; the data goes on stdin. */
+  _args(format) {
+    if (!this._path) this._path = writeSource(this._source);
+    const args = ["render", this._path, "--format", FORMATS[format]];
     if (this._theme) args.push("--theme", this._theme);
+    if (this._page) args.push("--page", this._page);
+    if (this._lang) args.push("--lang", this._lang);
     for (const [name, value] of Object.entries(this._tokens)) {
       args.push("--token", `${name}=${value}`);
     }
-    if (outputFile) args.push("-o", outputFile);
+    return args;
+  }
+
+  /** @private */
+  _run(format, data) {
     try {
-      const result = execFileSync(bin(), args, {
-        encoding: "utf-8",
-        maxBuffer: 50 * 1024 * 1024,
+      return execFileSync(bin(), this._args(format), {
+        input: JSON.stringify(data === undefined ? {} : data),
+        maxBuffer: 64 * 1024 * 1024,
         stdio: ["pipe", "pipe", "pipe"],
       });
-      return outputFile ? undefined : result;
     } catch (e) {
-      // What `wf` said, not the child process's own report around it.
-      const said = e.stderr ? String(e.stderr).trim() : "";
-      throw new Error(said || e.message);
-    } finally {
-      cleanup(dataFile);
-      if (!this._templateFile) cleanup(tplFile);
+      throw failure(e.stderr, e.message);
     }
   }
 
   /** @private */
-  _getTemplateFile() {
-    if (this._templateFile) return this._templateFile;
-    const f = tmpFile(this._source, ".wf");
-    return f;
+  _runAsync(format, data) {
+    return new Promise((resolve, reject) => {
+      let child;
+      try {
+        child = spawn(bin(), this._args(format), { stdio: ["pipe", "pipe", "pipe"] });
+      } catch (e) {
+        return reject(e);
+      }
+      const out = [];
+      const err = [];
+      child.stdout.on("data", (c) => out.push(c));
+      child.stderr.on("data", (c) => err.push(c));
+      child.on("error", reject);
+      child.on("close", (code) => {
+        if (code === 0) resolve(Buffer.concat(out));
+        else reject(failure(Buffer.concat(err), `wf exited with code ${code}`));
+      });
+      child.stdin.end(JSON.stringify(data === undefined ? {} : data));
+    });
   }
+}
+
+/** What `wf` said, not the child process's own report around it. */
+function failure(stderr, fallback) {
+  const said = stderr ? String(stderr).trim() : "";
+  return new Error(said || fallback);
 }
 
 module.exports = { Template };

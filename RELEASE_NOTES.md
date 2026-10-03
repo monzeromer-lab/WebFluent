@@ -1,3 +1,56 @@
+# WebFluent v4.3.0 Release Notes
+
+WebFluent as a template engine, from Rust first and from Node: templates
+load once and render on every request, spread over files, with your own
+data types, and untrusted data cannot put script in the page.
+
+## Security
+
+- **A URL from the data that a browser would run is dropped.** The template
+  engine wrote `Link("Pay", to: url)` with `url = "javascript:…"` as a live
+  link, and the static paint did the same for an `Image`, `Video`,
+  `Audio`, a `Sidebar.Item` and an `Element` attribute. Every URL attribute
+  now goes through the scheme check the browser build applies.
+
+## New, in Rust
+
+- `Template::from_files`, `from_dir` and `from_sources`: one template from
+  several files — components, themes, types and constants shared — each
+  finding naming its file. `pages()` lists the pages and `page(name)` picks
+  the one to render.
+- Data is any `serde::Serialize` value — your own structs — as well as a
+  `serde_json::Value`.
+- `render_html` writes a `<title>` from the page's, filled from the data,
+  and `with_lang` sets `<html lang>` (and `dir="rtl"` for an RTL language).
+- `with_pdf(PdfConfig)` and `with_slides(SlidesConfig)` set page size,
+  margins and fonts; `PdfConfig`, `PdfMargins` and `SlidesConfig` are
+  exported at the crate root.
+- A `Template` parses and checks once and shares the result: `Clone` is
+  cheap and it is `Send + Sync`, for a server's state.
+- The `cli` feature (default) holds the `wf` command's own dependencies;
+  `default-features = false` builds the engine without them — 43 crates
+  instead of 62.
+- `cargo run --example invoice` renders a directory of templates to HTML,
+  a fragment and a PDF.
+
+## New, in Node
+
+- `renderHtmlAsync`, `renderHtmlFragmentAsync`, `renderPdfAsync` and
+  `renderSlidesAsync` render without blocking the event loop.
+- `Template.fromDir(dir)`, `page(name)` and `withLang(lang)`, as in Rust.
+- The data goes to `wf` over stdin and a PDF comes back on stdout: nothing
+  is written to disk per render.
+- `wf render` takes a directory, `--page` and `--lang`.
+
+## Fixed
+
+- **A template's components are drawn in its PDF and slides.** The PDF
+  path left every component call out, so an invoice's line items were
+  missing; it also left a function or method call unevaluated —
+  `format(price, .currency)` drew nothing.
+- **`const` and `data` files are in scope in a template.** `Text("{LIMIT}")`
+  rendered empty.
+
 # WebFluent v4.2.1 Release Notes
 
 The editor grammars catch up with 4.2. Nothing in the compiler changed.

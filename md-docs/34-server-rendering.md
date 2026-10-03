@@ -4,7 +4,7 @@
 route: guide/server-rendering
 group: shipping
 blurb: Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node.
-description: WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, themes and the data context.
+description: WebFluent as a template engine: wf render, the Rust API, the Node binding, HTML, fragment and PDF output, pages, themes and the data context.
 -->
 
 A WebFluent site is static files. When HTML has to be made on a server — an
@@ -51,7 +51,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 }
 ```
 
-CLI:
+### From the command line
 
 ```bash
 wf render invoice.wf --data invoice.json --format html-fragment
@@ -60,33 +60,108 @@ wf render invoice.wf --data invoice.json --format html-fragment
 `--format` is `html` (a whole document with its CSS), `html-fragment`
 (the body only), `pdf` or `slides`; `-o file` writes instead of printing;
 `--theme Name` picks one of several `theme` declarations; `--token
-NAME=VALUE` sets a design token over the theme's; the data is read from
-stdin when `--data` is omitted. A template that names a component nothing
-declares, or a flag a component does not take, is refused, as a build
-would refuse it.
+NAME=VALUE` sets a design token over the theme's; `--lang ar` sets the
+document's language; the data is read from stdin when `--data` is omitted.
+The template may be a directory — every `.wf` and `.wfx` under it as one,
+components shared — with `--page Name` choosing the page to render. A
+template that names a component nothing declares, or a flag a component
+does not take, is refused, as a build would refuse it.
 
-Rust:
+### From Rust
 
-```rust
-use webfluent::Template;
-use serde_json::json;
+The template engine is the `webfluent` crate. Without the `wf` command's
+own dependencies (its argument parser and dev server):
 
-let tpl = Template::from_file("templates/invoice.wf")?;
-let html = tpl.render_html(&json!({ "number": "INV-001", "items": [], "total": 0, "paid": true }))?;
-let pdf: Vec<u8> = tpl.render_pdf(&json!({ "number": "INV-001", "items": [], "total": 0, "paid": true }))?;
-let themed = tpl.with_theme("Night").with_tokens(&[("color-primary", "#8B5CF6")]).render_html(&json!({}))?;
+```toml
+[dependencies]
+webfluent = { version = "4", default-features = false }
+serde = { version = "1", features = ["derive"] }
 ```
 
-Node — `npm install webfluent`, a small wrapper around `wf render`. It
-needs `wf` itself installed: it looks on `PATH`, in `~/.webfluent/bin` and
+Load the templates once, at start-up; render on every request:
+
+```rust
+use serde::Serialize;
+use webfluent::{PdfConfig, Template};
+
+#[derive(Serialize)]
+struct Customer { name: String }
+
+#[derive(Serialize)]
+struct Item { name: String, qty: u32, price: f64 }
+
+#[derive(Serialize)]
+struct Invoice { number: u32, customer: Customer, items: Vec<Item>, total: f64, paid: bool }
+
+// Every .wf and .wfx under the directory, as one template: components,
+// themes, types and constants shared; each `page` a document.
+let templates = Template::from_dir("templates")?;
+let invoice: Invoice = load_invoice();
+
+let html = templates.page("Invoice")?.render_html(&invoice)?;          // a whole document
+let body = templates.page("Invoice")?.render_html_fragment(&invoice)?; // the markup alone
+let pdf: Vec<u8> = templates
+    .page("Invoice")?
+    .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() })
+    .render_pdf(&invoice)?;
+```
+
+- **Loading.** `Template::from_str(source)`, `from_file(path)` (a `.wfx`
+  file is read as its indented layout), `from_files(&[..])`, `from_dir(dir)`,
+  and `from_sources(&[(name, source), ..])` for templates embedded in the
+  binary with `include_str!`. Each parses and checks once; an error names
+  the file and line. `pages()` lists the pages, `page(name)` picks one —
+  without it, every page of the template renders.
+- **Data** is anything `serde` serializes: your own `#[derive(Serialize)]`
+  structs, or a `serde_json::Value`. Its top-level fields are the names the
+  template reads; a `const` and a `data` file are in scope too.
+- **Output.** `render_html` is a whole document: `<html lang>`, a `<title>`
+  from the page's (its `{…}` filled from the data), the CSS in a `<style>`
+  block. `render_html_parts` hands the CSS and the markup back separately,
+  for a server that links its stylesheet and keeps a strict
+  Content-Security-Policy. `render_html_fragment` is the markup alone;
+  `render_pdf` and `render_slides` are PDF bytes.
+- **Settings.** `with_theme(name)`, `with_tokens(&[(name, value)])`,
+  `with_lang("ar")` (an RTL language also sets `dir="rtl"`),
+  `with_pdf(PdfConfig { .. })` for page size, margins and fonts, and
+  `with_slides(SlidesConfig { .. })`.
+- **In a server.** A `Template` is `Send + Sync` and cheap to clone — the
+  parsed program is shared — so keep it in your framework's state (an
+  `Arc`, or a clone per handler) and render from any thread. A render takes
+  tens of microseconds.
+- **Untrusted data.** Every value the data supplies is escaped as text, and a
+  URL from the data that a browser would run — `javascript:`, `data:` — is
+  dropped from `href` and `src`, as the browser build drops it.
+
+`cargo run --example invoice` in the repository renders a directory of
+templates to HTML, a fragment and a PDF.
+
+### From Node
+
+`npm install webfluent` — a small wrapper around `wf render`. It needs `wf`
+itself installed: it looks on `PATH`, in `~/.webfluent/bin` and
 `~/.cargo/bin`, or at `WF_BIN`. Its version is the compiler's.
 
 ```js
 const { Template } = require("webfluent");
-const tpl = Template.fromFile("templates/invoice.wf");
-res.send(tpl.renderHtml(invoice));
-res.type("application/pdf").send(tpl.renderPdf(invoice));
+
+const templates = Template.fromDir("templates");          // or fromFile, fromString
+const invoice = templates.page("Invoice");
+
+app.get("/invoices/:id", async (req, res) => {
+  const data = await loadInvoice(req.params.id);
+  res.send(await invoice.renderHtmlAsync(data));
+});
+app.get("/invoices/:id.pdf", async (req, res) => {
+  res.type("application/pdf").send(await invoice.renderPdfAsync(await loadInvoice(req.params.id)));
+});
 ```
+
+Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`,
+`renderPdf`, `renderSlides`) and an `…Async` one that does not block the
+event loop — use those in a server. `withTheme`, `withTokens` and
+`withLang` set what the Rust API sets. A render runs `wf` once, a few
+milliseconds; the data goes over stdin, so nothing is written to disk.
 
 A template may declare `type`s and a `theme` like any file; `data` files
 are read relative to the template. `format` and `ago` speak the data's

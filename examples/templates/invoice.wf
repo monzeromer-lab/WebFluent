@@ -1,0 +1,25 @@
+page Invoice(path: "/", title: "Invoice #{number}") {
+    Container {
+        Heading("Invoice #{number}").h1
+        Text("Billed to {customer.name}").muted
+        Divider
+        for line in lines {
+            LineItem(line.label, amount: line.amount)
+        }
+        Divider
+        LineItem("Total", amount: total)
+        if paid {
+            Badge("Paid").success
+        } else {
+            Badge("Due").warning
+        }
+    }
+}
+
+page Receipt(path: "/receipt", title: "Receipt #{number}") {
+    Container {
+        Heading("Thank you, {customer.name}").h1
+        Text("We received your payment for invoice #{number}.")
+        LineItem("Paid", amount: total)
+    }
+}

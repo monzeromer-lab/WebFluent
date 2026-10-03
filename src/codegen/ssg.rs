@@ -1036,7 +1036,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     Some(Static::Bool(false)) | Some(Static::Null) | None => {}
                     Some(Static::List(_) | Static::Map(_)) => {}
                     Some(v) => {
-                        attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&v.to_text())))
+                        let text = v.to_text();
+                        let text = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
+                            crate::codegen::url::guard(&text).to_string()
+                        } else {
+                            text
+                        };
+                        attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&text)))
                     }
                 }
             }
@@ -1574,6 +1580,11 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     let mut attrs = vec![format!("class=\"{class}\"")];
     for key in ["src", "poster", "width", "height"] {
         if let Some(value) = named(key).and_then(|v| static_attr(v, &ctx.scope)) {
+            let value = if matches!(key, "src" | "poster") {
+                crate::codegen::url::guard(&value).to_string()
+            } else {
+                value
+            };
             attrs.push(format!("{key}=\"{}\"", html_escape(&value)));
         }
     }
@@ -1586,7 +1597,7 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     if let Some(captions) = named("captions").and_then(|v| static_attr(v, &ctx.scope)) {
         out.push_str(&format!(
             "<track kind=\"captions\" src=\"{}\" srclang=\"{}\" default />",
-            html_escape(&captions),
+            html_escape(crate::codegen::url::guard(&captions)),
             // The captions are in the page's language; the browser reads
             // the document's own when this says nothing more.
             "en"
@@ -1596,7 +1607,7 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     if let Some(transcript) = named("transcript").and_then(|v| static_attr(v, &ctx.scope)) {
         out.push_str(&format!(
             "<a class=\"wf-transcript\" href=\"{}\">Read the transcript</a>",
-            html_escape(&transcript)
+            html_escape(crate::codegen::url::guard(&transcript))
         ));
     }
     out
@@ -1633,7 +1644,10 @@ fn render_picture(class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let sizes = named("sizes").and_then(|v| static_attr(v, &ctx.scope));
 
     let mut img = vec![format!("class=\"{class}\"")];
-    img.push(format!("src=\"{}\"", html_escape(&text("src"))));
+    img.push(format!(
+        "src=\"{}\"",
+        html_escape(crate::codegen::url::guard(&text("src")))
+    ));
     img.push(format!("alt=\"{}\"", html_escape(&alt)));
     for key in ["width", "height"] {
         let value = text(key);
@@ -1843,7 +1857,7 @@ fn render_linked_item(
         "{}<a class=\"{}\" href=\"{}\"{}{}>\n",
         indent,
         class,
-        html_escape(href),
+        html_escape(crate::codegen::url::guard(href)),
         aria,
         wf
     );

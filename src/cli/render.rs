@@ -4,14 +4,29 @@ use std::fs;
 use std::io::{self, Read};
 use std::path::Path;
 
+/// How `wf render` renders: what it writes, where, and with what settings.
+pub struct RenderOptions<'a> {
+    pub format: &'a str,
+    pub output: Option<&'a Path>,
+    pub theme: Option<&'a str>,
+    pub page: Option<&'a str>,
+    pub lang: Option<&'a str>,
+    pub tokens: &'a [String],
+}
+
 pub fn run_render(
     template_path: &Path,
     data_path: Option<&Path>,
-    format: &str,
-    output_path: Option<&Path>,
-    theme: Option<&str>,
-    tokens: &[String],
+    options: &RenderOptions,
 ) -> Result<()> {
+    let RenderOptions {
+        format,
+        output: output_path,
+        theme,
+        page,
+        lang,
+        tokens,
+    } = *options;
     // `--token color-primary=#8B5CF6`, as many as are given.
     let tokens: Vec<(&str, &str)> = tokens
         .iter()
@@ -46,7 +61,18 @@ pub fn run_render(
 
     // From the file, so an indented `.wfx` template reads and a `data` file
     // it names is found beside it.
-    let mut tpl = Template::from_file(&template_path.to_string_lossy())?;
+    // A directory is every template under it, as one.
+    let mut tpl = if template_path.is_dir() {
+        Template::from_dir(template_path)?
+    } else {
+        Template::from_file(template_path)?
+    };
+    if let Some(name) = page {
+        tpl = tpl.page(name)?;
+    }
+    if let Some(lang) = lang {
+        tpl = tpl.with_lang(lang);
+    }
     if let Some(name) = theme {
         tpl = tpl.with_theme(name);
     }

@@ -90,7 +90,33 @@
 //! 6. **Themes** ([`themes`]) — design tokens and component CSS
 //! 7. **Runtime** ([`runtime`]) — the JavaScript runtime for reactivity, routing and motion
 //!
+//! ## Templates in a server
+//!
+//! A [`Template`] parses and checks once and is `Send + Sync`, so a server
+//! loads its templates at start-up and renders on every request. Data is any
+//! `serde::Serialize` value; a directory of templates shares its components,
+//! and [`Template::page`] picks the document to render:
+//!
+//! ```rust,no_run
+//! use serde::Serialize;
+//! use webfluent::Template;
+//!
+//! #[derive(Serialize)]
+//! struct Receipt { number: u32, total: f64 }
+//!
+//! let templates = Template::from_dir("templates").unwrap();
+//! let html = templates
+//!     .page("Receipt").unwrap()
+//!     .render_html(&Receipt { number: 7, total: 12.5 })
+//!     .unwrap();
+//! ```
+//!
 //! ## Crate Features
+//!
+//! - **`cli`** (default) — the `wf` command's own dependencies: its argument
+//!   parser and the dev server. A program that only compiles or renders
+//!   templates turns it off:
+//!   `webfluent = { version = "4", default-features = false }`.
 //!
 //! This crate exposes the full compiler pipeline. For most use cases, the [`Template`] API
 //! is the simplest entry point. For full control, use [`parse_source`], [`sema`] and the
@@ -198,6 +224,7 @@ pub mod edit;
 pub mod studio;
 
 pub use codegen::node_id::{NodeInfo, NodeMap};
+pub use config::project::{PdfConfig, PdfMargins, SlidesConfig};
 pub use edit::{ArgRef, EditOp, apply_edits};
 pub use error::{Diagnostic, Result, WebFluentError};
 pub use linter::lint_vocabulary as validate_vocabulary;

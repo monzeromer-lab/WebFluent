@@ -74,7 +74,8 @@ enum Commands {
     },
     /// Render a .wf template with JSON data
     Render {
-        /// Template file (.wf)
+        /// Template file (.wf or .wfx), or a directory: every template under
+        /// it as one, components shared
         template: PathBuf,
         /// JSON data file (reads stdin if omitted)
         #[arg(long)]
@@ -93,6 +94,12 @@ enum Commands {
         /// than once
         #[arg(long = "token", value_name = "NAME=VALUE")]
         tokens: Vec<String>,
+        /// The page to render, by name, when the template has several
+        #[arg(long)]
+        page: Option<String>,
+        /// The document's language, `<html lang>` (default `en`)
+        #[arg(long)]
+        lang: Option<String>,
     },
     /// Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
     Migrate {
@@ -199,13 +206,19 @@ fn main() {
             output,
             theme,
             tokens,
+            page,
+            lang,
         } => cli::render::run_render(
             &tpl,
             data.as_deref(),
-            &format,
-            output.as_deref(),
-            theme.as_deref(),
-            &tokens,
+            &cli::render::RenderOptions {
+                format: &format,
+                output: output.as_deref(),
+                theme: theme.as_deref(),
+                page: page.as_deref(),
+                lang: lang.as_deref(),
+                tokens: &tokens,
+            },
         ),
         Commands::Migrate {
             path,

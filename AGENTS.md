@@ -2673,32 +2673,51 @@ wf render template.wf --data data.json --format pdf -o report.pdf
 # Pipe JSON from stdin
 echo '{"name":"Monzer"}' | wf render template.wf --format html
 
-# With theme
-wf render template.wf --data data.json --format html --theme Brand
+# A directory of templates (components shared), one page of it, in Arabic
+wf render templates/ --page Invoice --lang ar --data data.json
 
-# With a design token over the theme's (repeatable)
-wf render template.wf --data data.json --token color-primary=#8B5CF6
+# With theme, and a design token over the theme's (repeatable)
+wf render template.wf --data data.json --theme Brand --token color-primary=#8B5CF6
 ```
 
 ### Rust API
 
-```rust
-use webfluent::Template;
-use serde_json::json;
-
-let tpl = Template::from_str("Container { Heading(\"Hello, {name}!\").h1 }")?;
-// or: Template::from_file("templates/invoice.wf")?;
-
-let html   = tpl.render_html(&json!({"name": "World"}))?;           // Full HTML doc
-let frag   = tpl.render_html_fragment(&json!({"name": "World"}))?;  // Fragment only
-let pdf    = tpl.render_pdf(&json!({"name": "World"}))?;            // Vec<u8>
-let slides = tpl.render_slides(&json!({"name": "World"}))?;         // Vec<u8> (PDF deck)
-
-// Selecting one of several themes declared in the template
-let html = tpl.with_theme("Brand")
-    .with_tokens(&[("color-primary", "#8B5CF6")])
-    .render_html(&data)?;
+```toml
+webfluent = { version = "4", default-features = false }   # the engine, without the `wf` command's deps
 ```
+
+```rust
+use serde::Serialize;
+use webfluent::{PdfConfig, Template};
+
+#[derive(Serialize)]
+struct Hello { name: String }
+
+let tpl = Template::from_str(r#"page Hello(path: "/", title: "Hi {name}") { Heading("Hello, {name}!").h1 }"#)?;
+// or: Template::from_file("invoice.wf")?, Template::from_files(&[..])?,
+//     Template::from_dir("templates")?, Template::from_sources(&[("a.wf", SRC)])?
+
+let data = Hello { name: "World".into() };                 // any `Serialize`, or serde_json::Value
+let html   = tpl.render_html(&data)?;                      // whole document: <title>, <html lang>, CSS
+let frag   = tpl.render_html_fragment(&data)?;             // markup only
+let (css, body) = tpl.render_html_parts(&data)?;           // CSS to serve at its own URL
+let pdf    = tpl.render_pdf(&data)?;                       // Vec<u8>
+let slides = tpl.render_slides(&data)?;                    // Vec<u8> (PDF deck)
+
+let templates = Template::from_dir("templates")?;          // components shared across files
+let receipt = templates.page("Receipt")?                   // one page of several; pages() lists them
+    .with_theme("Brand")
+    .with_tokens(&[("color-primary", "#8B5CF6")])
+    .with_lang("ar")
+    .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() })
+    .render_pdf(&data)?;
+```
+
+A `Template` parses and checks once, is `Send + Sync` and cheap to clone,
+so a server builds it at start-up and renders from any thread. Values from
+the data are escaped, and a URL from the data a browser would run
+(`javascript:`, `data:`) is dropped from `href`/`src`. `const`s and `data`
+files are in scope; components expand in HTML, PDF and slides alike.
 
 ### Node.js API
 
@@ -2706,17 +2725,16 @@ let html = tpl.with_theme("Brand")
 // npm install webfluent — a wrapper around `wf render`; needs `wf` installed
 const { Template } = require('webfluent');
 
-const tpl = Template.fromString('Container { Heading("Hello, {name}!").h1 }');
-// or: Template.fromFile('templates/invoice.wf');
+const tpl = Template.fromString('page Hello(path: "/") { Heading("Hello, {name}!").h1 }');
+// or: Template.fromFile('invoice.wf'), Template.fromDir('templates')
 
 const html = tpl.renderHtml({ name: "World" });           // Full HTML string
 const frag = tpl.renderHtmlFragment({ name: "World" });   // Fragment string
 const pdf  = tpl.renderPdf({ name: "World" });             // Buffer
 
-// Selecting one of several themes declared in the template
-const html = tpl.withTheme('Brand')
-    .withTokens({ 'color-primary': '#8B5CF6' })
-    .renderHtml(data);
+// In a server, the …Async forms do not block the event loop
+const page = Template.fromDir('templates').page('Invoice').withLang('en');
+const out = await page.renderHtmlAsync(data);             // renderPdfAsync → Promise<Buffer>
 ```
 
 ### Template Data Context

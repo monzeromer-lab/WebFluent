@@ -11,9 +11,12 @@ use crate::parser::ast::{ArmPattern, ForStmt, IfStmt, PropDecl};
 use crate::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
+use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
+use std::sync::Arc;
 
 /// A compiled WebFluent template ready for rendering with JSON data.
 ///
@@ -55,13 +58,21 @@ use std::fs;
 ///     .unwrap();
 /// assert!(html.contains("--color-primary: #0F766E"));
 /// ```
+#[derive(Clone)]
 pub struct Template {
-    source: String,
+    /// The program, parsed, its `data` files read and lowered — once, when
+    /// the template is made, and shared by every clone, so a server builds a
+    /// template at start-up and renders it on every request.
+    program: Arc<Program>,
+    /// The page a render draws, when [`page`](Template::page) chose one;
+    /// every page of the source otherwise.
+    page: Option<String>,
     theme: Option<String>,
     custom_tokens: HashMap<String, String>,
-    /// Where a `data` declaration's file is looked for: the template file's
-    /// own directory. A template from a string has none.
-    root: Option<std::path::PathBuf>,
+    /// The document's language, for `<html lang>`.
+    lang: String,
+    pdf: PdfConfig,
+    slides: SlidesConfig,
 }
 
 // `Template::from_str` is documented public API used throughout the README and
@@ -71,20 +82,168 @@ pub struct Template {
 impl Template {
     /// Create a template from a `.wf` source string.
     ///
-    /// The source is parsed immediately to validate syntax. Returns an error
-    /// if the source contains lexer or parser errors.
+    /// The source is parsed and checked immediately — a component nothing
+    /// declares, a flag a component does not take, a value of the wrong type
+    /// is an error here, not at render time.
     ///
     /// # Errors
     ///
     /// Returns [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`]
-    /// if the source is invalid.
+    /// if the source is invalid, and [`WebFluentError::CodegenError`] with every
+    /// finding if it does not check.
     pub fn from_str(source: &str) -> Result<Self> {
-        let program = crate::syntax::parse_source(source, "<template>")?;
+        Self::from_sources(&[("<template>", source)])
+    }
+
+    /// Create a template from a `.wf` (or `.wfx`) file on disk. A `data`
+    /// declaration's file is read from beside it.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`WebFluentError::IoError`] if the file cannot be read,
+    /// or a parse error if the content is invalid.
+    pub fn from_file(path: impl AsRef<Path>) -> Result<Self> {
+        Self::from_files(&[path])
+    }
+
+    /// One template from several files: every component, theme, type and
+    /// constant any of them declares is shared, and each `page` is a
+    /// document [`page`](Template::page) can pick by name. `data` files are
+    /// read from beside the first.
+    ///
+    /// ```rust,no_run
+    /// # use webfluent::Template;
+    /// # use serde_json::json;
+    /// let site = Template::from_files(&["templates/components.wf", "templates/invoice.wf"]).unwrap();
+    /// let html = site.page("Invoice").unwrap().render_html(&json!({ "number": 7 })).unwrap();
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// As [`from_file`](Template::from_file), naming the file a finding is in.
+    pub fn from_files<P: AsRef<Path>>(paths: &[P]) -> Result<Self> {
+        let files: Vec<&Path> = paths.iter().map(AsRef::as_ref).collect();
+        let root = files.first().and_then(|p| p.parent());
+        Self::load(&files, root)
+    }
+
+    /// Every `.wf` and `.wfx` file under `dir`, in path order, as one
+    /// template — a project's worth of components and pages, loaded once:
+    ///
+    /// ```rust,no_run
+    /// # use webfluent::Template;
+    /// # use serde_json::json;
+    /// let templates = Template::from_dir("templates").unwrap();
+    /// for name in templates.pages() {
+    ///     println!("{name}");
+    /// }
+    /// let receipt = templates.page("Receipt").unwrap();
+    /// let pdf = receipt.render_pdf(&json!({ "total": 12 })).unwrap();
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the directory cannot be read or holds
+    /// no template; otherwise as [`from_files`](Template::from_files).
+    pub fn from_dir(dir: impl AsRef<Path>) -> Result<Self> {
+        fn walk(dir: &Path, out: &mut Vec<std::path::PathBuf>) -> std::io::Result<()> {
+            for entry in fs::read_dir(dir)? {
+                let path = entry?.path();
+                if path.is_dir() {
+                    walk(&path, out)?;
+                } else if path.extension().is_some_and(|e| e == "wf" || e == "wfx") {
+                    out.push(path);
+                }
+            }
+            Ok(())
+        }
+        let dir = dir.as_ref();
+        let mut files = Vec::new();
+        walk(dir, &mut files).map_err(|e| {
+            WebFluentError::IoError(format!("Failed to read '{}': {}", dir.display(), e))
+        })?;
+        if files.is_empty() {
+            return Err(WebFluentError::IoError(format!(
+                "no .wf or .wfx template under '{}'",
+                dir.display()
+            )));
+        }
+        files.sort();
+        let files: Vec<&Path> = files.iter().map(|p| p.as_path()).collect();
+        // `data` files are read from the directory itself.
+        Self::load(&files, Some(dir))
+    }
+
+    /// Read `files` (a `.wfx` one through its braced spelling) and build
+    /// one template of them, `data` files read from `root`.
+    fn load(files: &[&Path], root: Option<&Path>) -> Result<Self> {
+        let mut sources = Vec::new();
+        for path in files {
+            let source = fs::read_to_string(path).map_err(|e| {
+                WebFluentError::IoError(format!(
+                    "Failed to read template '{}': {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            let label = path.to_string_lossy().replace('\\', "/");
+            // An indented file is read as its braced spelling, which is what
+            // the renderers parse.
+            let source = if label.ends_with(".wfx") {
+                crate::layout::to_braces(&source, &label)?
+            } else {
+                source
+            };
+            sources.push((label, source));
+        }
+        let refs: Vec<(&str, &str)> = sources
+            .iter()
+            .map(|(l, s)| (l.as_str(), s.as_str()))
+            .collect();
+        Self::build(&refs, root)
+    }
+
+    /// One template from several sources held in memory, each with the name
+    /// its findings are reported under — templates embedded in a binary
+    /// with `include_str!`, say:
+    ///
+    /// ```rust
+    /// # use webfluent::Template;
+    /// # use serde_json::json;
+    /// let tpl = Template::from_sources(&[
+    ///     ("card.wf", "component Price(_ amount: Number) { Text(format(amount, .currency)).bold }"),
+    ///     ("quote.wf", r#"page Quote(path: "/") { Heading("Quote").h1  Price(total) }"#),
+    /// ]).unwrap();
+    /// assert!(tpl.render_html_fragment(&json!({ "total": 12.5 })).unwrap().contains("$12.50"));
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// As [`from_str`](Template::from_str); a `data` declaration is an error,
+    /// since there is no directory to read its file from.
+    pub fn from_sources(sources: &[(&str, &str)]) -> Result<Self> {
+        Self::build(sources, None)
+    }
+
+    fn build(sources: &[(&str, &str)], root: Option<&Path>) -> Result<Self> {
+        let mut declarations = Vec::new();
+        let mut files: Vec<String> = Vec::new();
+        for (label, source) in sources {
+            let program = crate::syntax::parse_source(source, label)?;
+            files.extend(program.declarations.iter().map(|_| label.to_string()));
+            declarations.extend(program.declarations);
+        }
+        let mut program = Program { declarations };
         // Held to what a build is held to: a component nothing declares, a
         // flag or case a component does not take, a value of the wrong type.
         // A name the template reads is its data's, known only at render
         // time, so an undeclared name is not one of them.
-        let file_of = |_: usize| "<template>".to_string();
+        let file_of = |i: usize| {
+            files
+                .get(i)
+                .cloned()
+                .unwrap_or_else(|| "<template>".to_string())
+        };
         let mut errors = crate::linter::validate_semantics_in(&program, &file_of);
         errors.extend(crate::sema::check(&program, &file_of).errors);
         errors.extend(
@@ -101,35 +260,66 @@ impl Template {
                     .join("\n"),
             ));
         }
-
+        match root {
+            Some(root) => crate::data::resolve_data(&mut program, root)?,
+            None => {
+                if let Some(Declaration::Data(d)) = program
+                    .declarations
+                    .iter()
+                    .find(|d| matches!(d, Declaration::Data(_)))
+                {
+                    return Err(WebFluentError::IoError(format!(
+                        "`data {}` reads a file, which a template from a string has no place to read from; use `Template::from_file`",
+                        d.name
+                    )));
+                }
+            }
+        }
         Ok(Self {
-            source: source.to_string(),
+            program: Arc::new(crate::sema::lower(program)),
+            page: None,
             theme: None,
             custom_tokens: HashMap::new(),
-            root: None,
+            lang: "en".to_string(),
+            pdf: PdfConfig::default(),
+            slides: SlidesConfig::default(),
         })
     }
 
-    /// Create a template from a `.wf` (or `.wfx`) file on disk.
+    /// The names of the pages the template declares, in source order.
+    pub fn pages(&self) -> Vec<&str> {
+        self.program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Page(p) => Some(p.name.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// The same template, drawing only the page called `name` — what a
+    /// template holding several documents (an invoice, a receipt, an email)
+    /// renders one of. Cheap: the parsed program is shared, not copied.
     ///
     /// # Errors
     ///
-    /// Returns [`WebFluentError::IoError`] if the file cannot be read,
-    /// or a parse error if the content is invalid.
-    pub fn from_file(path: &str) -> Result<Self> {
-        let source = fs::read_to_string(path).map_err(|e| {
-            WebFluentError::IoError(format!("Failed to read template '{}': {}", path, e))
-        })?;
-        // An indented file is read as its braced spelling, which is what
-        // the renderers parse.
-        let source = if path.ends_with(".wfx") {
-            crate::layout::to_braces(&source, path)?
-        } else {
-            source
-        };
-        let mut template = Self::from_str(&source)?;
-        template.root = std::path::Path::new(path).parent().map(|p| p.to_path_buf());
-        Ok(template)
+    /// [`WebFluentError::CodegenError`] naming the pages there are, when none
+    /// is called `name`.
+    pub fn page(&self, name: &str) -> Result<Self> {
+        if !self.pages().contains(&name) {
+            return Err(WebFluentError::CodegenError(format!(
+                "no page called `{name}`; the template has {}",
+                self.pages()
+                    .iter()
+                    .map(|p| format!("`{p}`"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )));
+        }
+        let mut chosen = self.clone();
+        chosen.page = Some(name.to_string());
+        Ok(chosen)
     }
 
     /// Select which `Theme` declared in the template to render with.
@@ -137,34 +327,9 @@ impl Template {
     /// Only needed when the source declares more than one. A template with a
     /// single `Theme` uses it automatically, and one with none renders on the
     /// baseline tokens.
-    ///
-    /// This used to name one of four palettes the engine carried; those are now
-    /// example `.wf` files you copy into your own source.
     pub fn with_theme(mut self, theme: &str) -> Self {
         self.theme = Some(theme.to_string());
         self
-    }
-
-    /// The stylesheet a rendered document links: the engine's sheet over the
-    /// template's tokens, plus the rules its pseudo-state and media blocks
-    /// compile to.
-    fn stylesheet(&self) -> Result<String> {
-        let program = self.parse()?;
-        let mut css = generate_css(&self.tokens()?);
-        css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
-        Ok(css)
-    }
-
-    /// The design tokens this template renders with.
-    fn tokens(&self) -> Result<HashMap<String, String>> {
-        let program = self.parse()?;
-        let config = crate::config::project::ThemeConfig {
-            name: self.theme.clone(),
-            tokens: self.custom_tokens.clone(),
-            builtin: Default::default(),
-            dark: None,
-        };
-        crate::themes::resolve_tokens(&program, &config)
     }
 
     /// Override design tokens (builder pattern).
@@ -178,32 +343,162 @@ impl Template {
         self
     }
 
+    /// The language a document from [`render_html`](Template::render_html)
+    /// declares, `en` unless set: `<html lang="ar">`, which also turns the
+    /// document right to left for an RTL language.
+    pub fn with_lang(mut self, lang: &str) -> Self {
+        self.lang = lang.to_string();
+        self
+    }
+
+    /// The page size, margins and fonts [`render_pdf`](Template::render_pdf)
+    /// lays out with: A4 with 72pt margins unless set.
+    ///
+    /// ```rust
+    /// # use webfluent::{PdfConfig, Template};
+    /// let tpl = Template::from_str(r#"page P(path: "/") { Text("Hi") }"#)
+    ///     .unwrap()
+    ///     .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() });
+    /// assert!(tpl.render_pdf(&serde_json::json!({})).unwrap().starts_with(b"%PDF"));
+    /// ```
+    pub fn with_pdf(mut self, config: PdfConfig) -> Self {
+        self.pdf = config;
+        self
+    }
+
+    /// The slide size, margin and chrome [`render_slides`](Template::render_slides)
+    /// uses: 16:9 unless set.
+    pub fn with_slides(mut self, config: SlidesConfig) -> Self {
+        self.slides = config;
+        self
+    }
+
+    /// The stylesheet a rendered document links: the engine's sheet over the
+    /// template's tokens, plus the rules its pseudo-state and media blocks
+    /// compile to.
+    fn stylesheet(&self) -> Result<String> {
+        let mut css = generate_css(&self.tokens()?);
+        css.push_str(&crate::codegen::scoped_css::scoped_rules(&self.program));
+        Ok(css)
+    }
+
+    /// The design tokens this template renders with.
+    fn tokens(&self) -> Result<HashMap<String, String>> {
+        let config = crate::config::project::ThemeConfig {
+            name: self.theme.clone(),
+            tokens: self.custom_tokens.clone(),
+            builtin: Default::default(),
+            dark: None,
+        };
+        crate::themes::resolve_tokens(&self.program, &config)
+    }
+
+    /// The program a render draws: every page, or the one chosen.
+    fn drawn(&self) -> std::borrow::Cow<'_, Program> {
+        match &self.page {
+            None => std::borrow::Cow::Borrowed(&self.program),
+            Some(name) => std::borrow::Cow::Owned(Program {
+                declarations: self
+                    .program
+                    .declarations
+                    .iter()
+                    .filter(|d| !matches!(d, Declaration::Page(p) if &p.name != name))
+                    .cloned()
+                    .collect(),
+            }),
+        }
+    }
+
+    /// The document's `<title>`: the drawn page's, its `{…}` filled from
+    /// the data.
+    fn title(&self, data: &Value) -> String {
+        let program = self.drawn();
+        let Some(page) = program.declarations.iter().find_map(|d| match d {
+            Declaration::Page(p) => Some(p),
+            _ => None,
+        }) else {
+            return String::new();
+        };
+        let ctx = RenderContext::for_program(&program, data);
+        if let Some(expr) = &page.title_expr {
+            return value_to_string(&ctx.eval_expr(expr));
+        }
+        let Some(title) = &page.title else {
+            return String::new();
+        };
+        // `"Invoice #{number}"`: each name (or path) read from the data.
+        let mut out = String::new();
+        let mut rest = title.as_str();
+        while let Some(open) = rest.find('{') {
+            out.push_str(&rest[..open]);
+            let after = &rest[open + 1..];
+            match after.find('}') {
+                Some(close)
+                    if after[..close]
+                        .chars()
+                        .all(|c| c.is_alphanumeric() || c == '_' || c == '.') =>
+                {
+                    let path = &after[..close];
+                    let expr = path.split('.').fold(None::<Expr>, |acc, part| {
+                        Some(match acc {
+                            None => Expr::Identifier(part.to_string()),
+                            Some(e) => Expr::PropertyAccess(Box::new(e), part.to_string()),
+                        })
+                    });
+                    if let Some(expr) = expr {
+                        out.push_str(&value_to_string(&ctx.eval_expr(&expr)));
+                    }
+                    rest = &after[close + 1..];
+                }
+                _ => {
+                    out.push('{');
+                    rest = after;
+                }
+            }
+        }
+        out.push_str(rest);
+        out
+    }
+
     /// Render to a full HTML document with embedded CSS.
     ///
-    /// Returns a complete `<!DOCTYPE html>` document with `<html>`, `<head>` (including
-    /// a `<style>` block with component CSS and theme tokens), and `<body>`.
+    /// Returns a complete `<!DOCTYPE html>` document: `<html lang>`, a
+    /// `<title>` from the page's, a `<style>` block with the component CSS
+    /// and theme tokens, and the page in `<body>`.
     ///
-    /// Top-level keys in `data` become template variables accessible via `{key}`
-    /// interpolation and in `for`/`if` blocks.
-    pub fn render_html(&self, data: &Value) -> Result<String> {
-        let fragment = self.render_html_fragment(data)?;
+    /// `data` is anything `serde` serializes — a `serde_json::Value`, or a
+    /// struct of your own with `#[derive(Serialize)]`. Its top-level fields
+    /// are the names the template reads.
+    pub fn render_html<T: Serialize + ?Sized>(&self, data: &T) -> Result<String> {
+        let data = to_value(data)?;
+        let fragment = self.render_fragment(&data)?;
         let css = self.stylesheet()?;
+        let lang = html_escape(&self.lang);
+        let dir = if matches!(
+            self.lang.split(['-', '_']).next(),
+            Some("ar" | "he" | "fa" | "ur")
+        ) {
+            " dir=\"rtl\""
+        } else {
+            ""
+        };
+        let title = html_escape(&self.title(&data));
 
         Ok(format!(
             r#"<!DOCTYPE html>
-<html lang="en">
+<html lang="{lang}"{dir}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
     <style>
-{}
+{css}
     </style>
 </head>
 <body>
-{}
+{fragment}
 </body>
-</html>"#,
-            css, fragment
+</html>"#
         ))
     }
 
@@ -227,8 +522,9 @@ impl Template {
     /// assert!(css.contains(":root"));
     /// assert!(body.contains("Hi"));
     /// ```
-    pub fn render_html_parts(&self, data: &Value) -> Result<(String, String)> {
-        Ok((self.stylesheet()?, self.render_html_fragment(data)?))
+    pub fn render_html_parts<T: Serialize + ?Sized>(&self, data: &T) -> Result<(String, String)> {
+        let data = to_value(data)?;
+        Ok((self.stylesheet()?, self.render_fragment(&data)?))
     }
 
     /// Render to an HTML fragment (no `<html>`/`<head>`/`<body>` wrapper).
@@ -237,69 +533,25 @@ impl Template {
     /// Does not include CSS — use [`render_html`](Template::render_html) for a complete
     /// document, or [`render_html_parts`](Template::render_html_parts) to serve the CSS
     /// separately.
-    pub fn render_html_fragment(&self, data: &Value) -> Result<String> {
-        let program = self.parse()?;
-        render_program_fragment(&program, data)
+    pub fn render_html_fragment<T: Serialize + ?Sized>(&self, data: &T) -> Result<String> {
+        self.render_fragment(&to_value(data)?)
     }
-}
 
-/// The HTML fragment of every page of a lowered program, over `data`:
-/// what a template renders, and what `wf test` holds a test to.
-pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
-    {
-        let mut ctx = RenderContext::new(data);
-
-        let mut html = String::new();
-        // Every component first, wherever it is declared, so a page may
-        // use one declared after it.
-        for decl in &program.declarations {
-            if let Declaration::Component(comp) = decl {
-                let handed = comp
-                    .slots
-                    .iter()
-                    .map(|s| {
-                        (
-                            s.name.clone().unwrap_or_else(|| "children".to_string()),
-                            s.params.iter().map(|p| p.name.clone()).collect(),
-                        )
-                    })
-                    .collect();
-                ctx.components.insert(
-                    comp.name.clone(),
-                    TemplateComponent {
-                        body: comp.body.clone(),
-                        handed,
-                        props: comp.props.clone(),
-                    },
-                );
-            }
-        }
-        for decl in &program.declarations {
-            if let Declaration::Page(page) = decl {
-                html.push_str(&render_statements(&page.body, &mut ctx));
-            }
-        }
-        Ok(html)
+    fn render_fragment(&self, data: &Value) -> Result<String> {
+        render_program_fragment(&self.drawn(), data)
     }
-}
 
-#[allow(clippy::should_implement_trait)]
-impl Template {
     /// Render to PDF as raw bytes.
     ///
     /// Returns a valid PDF file as `Vec<u8>`. Write the result to a file
     /// or send it as an HTTP response with `Content-Type: application/pdf`.
     ///
-    /// Uses A4 page size with 72pt margins by default. The template should use
-    /// PDF-compatible components only (no `Button`, `Input`, `Router`, etc.).
-    pub fn render_pdf(&self, data: &Value) -> Result<Vec<u8>> {
-        let program = self.parse()?;
-
-        // Resolve data into the program by substituting expressions
-        let resolved = self.resolve_program(&program, data)?;
-
-        let config = PdfConfig::default();
-        let mut pdf = PdfCodegen::new(&config);
+    /// Lays out with A4 and 72pt margins unless [`with_pdf`](Template::with_pdf)
+    /// says otherwise. The template should use PDF-compatible components only
+    /// (no `Button`, `Input`, `Router`, etc.).
+    pub fn render_pdf<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
+        let resolved = self.resolve_program(&self.drawn(), &to_value(data)?)?;
+        let mut pdf = PdfCodegen::new(&self.pdf);
         Ok(pdf.generate(&resolved))
     }
 
@@ -309,37 +561,17 @@ impl Template {
     /// must wrap its slides in a `Presentation { ... }` block; content that overflows
     /// a slide is clipped and a stderr warning is emitted.
     ///
-    /// Uses 16:9 page size (960×540pt) by default. The template should use slide-compatible
-    /// components only (no `Button`, `Input`, `Router`, etc.).
-    pub fn render_slides(&self, data: &Value) -> Result<Vec<u8>> {
-        let program = self.parse()?;
-        let resolved = self.resolve_program(&program, data)?;
-
-        let config = SlidesConfig::default();
-        let mut slides = SlidesCodegen::new(&config);
+    /// Uses 16:9 (960×540pt) unless [`with_slides`](Template::with_slides) says
+    /// otherwise. The template should use slide-compatible components only.
+    pub fn render_slides<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
+        let resolved = self.resolve_program(&self.drawn(), &to_value(data)?)?;
+        let mut slides = SlidesCodegen::new(&self.slides);
         Ok(slides.generate(&resolved))
-    }
-
-    fn parse(&self) -> Result<Program> {
-        let mut program = crate::syntax::parse_source(&self.source, "<template>")?;
-        if let Some(root) = &self.root {
-            crate::data::resolve_data(&mut program, root)?;
-        } else if let Some(Declaration::Data(d)) = program
-            .declarations
-            .iter()
-            .find(|d| matches!(d, Declaration::Data(_)))
-        {
-            return Err(WebFluentError::IoError(format!(
-                "`data {}` reads a file, which a template from a string has no place to read from; use `Template::from_file`",
-                d.name
-            )));
-        }
-        Ok(crate::sema::lower(program))
     }
 
     /// Resolve all data references in the program for PDF rendering.
     fn resolve_program(&self, program: &Program, data: &Value) -> Result<Program> {
-        let ctx = RenderContext::new(data);
+        let ctx = RenderContext::for_program(program, data);
         let mut new_decls = Vec::new();
 
         for decl in &program.declarations {
@@ -357,6 +589,26 @@ impl Template {
             declarations: new_decls,
         })
     }
+}
+
+/// `data` as the JSON value the renderers read.
+fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
+    serde_json::to_value(data)
+        .map_err(|e| WebFluentError::ConfigError(format!("the data does not serialize: {e}")))
+}
+
+/// The HTML fragment of every page of a lowered program, over `data`:
+/// what a template renders, and what `wf test` holds a test to.
+pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
+    let mut ctx = RenderContext::for_program(program, data);
+
+    let mut html = String::new();
+    for decl in &program.declarations {
+        if let Declaration::Page(page) = decl {
+            html.push_str(&render_statements(&page.body, &mut ctx));
+        }
+    }
+    Ok(html)
 }
 
 // ─── Render Context ──────────────────────────────────────────────────
@@ -379,6 +631,7 @@ struct TemplateComponent {
     props: Vec<PropDecl>,
 }
 
+#[derive(Clone)]
 struct RenderContext<'a> {
     data: &'a Value,
     locals: HashMap<String, Value>,
@@ -394,6 +647,77 @@ struct RenderContext<'a> {
 }
 
 impl<'a> RenderContext<'a> {
+    /// A context over `data` with the program's constants in scope —
+    /// `const LIMIT = 3`, and a `data plans = "plans.json"` file, which is a
+    /// constant once read — each in declaration order, so one may read the
+    /// one before it.
+    fn for_program(program: &Program, data: &'a Value) -> Self {
+        let mut ctx = Self::new(data);
+        for decl in &program.declarations {
+            match decl {
+                Declaration::Const(c) => {
+                    let value = ctx.eval_expr(&c.value);
+                    ctx.locals.insert(c.name.clone(), value);
+                }
+                // Every component, wherever it is declared, so a page may
+                // use one declared after it.
+                Declaration::Component(comp) => {
+                    let handed = comp
+                        .slots
+                        .iter()
+                        .map(|s| {
+                            (
+                                s.name.clone().unwrap_or_else(|| "children".to_string()),
+                                s.params.iter().map(|p| p.name.clone()).collect(),
+                            )
+                        })
+                        .collect();
+                    ctx.components.insert(
+                        comp.name.clone(),
+                        TemplateComponent {
+                            body: comp.body.clone(),
+                            handed,
+                            props: comp.props.clone(),
+                        },
+                    );
+                }
+                _ => {}
+            }
+        }
+        ctx
+    }
+
+    /// The props a call of `component` binds, each evaluated here: a
+    /// positional argument binds the positional prop (or the first), a
+    /// named one its name, and a prop left out takes its default.
+    fn props_of(&self, component: &TemplateComponent, ui: &UIElement) -> Vec<(String, Value)> {
+        let props = &component.props;
+        let mut given: Vec<(String, Value)> = Vec::new();
+        for arg in &ui.args {
+            match arg {
+                Arg::Named(key, val) => given.push((key.clone(), self.eval_expr(val))),
+                Arg::Positional(val) => {
+                    let target = props
+                        .iter()
+                        .find(|p| p.positional)
+                        .or_else(|| props.first())
+                        .map(|p| p.name.clone());
+                    if let Some(key) = target {
+                        given.push((key, self.eval_expr(val)));
+                    }
+                }
+            }
+        }
+        for prop in props {
+            if !given.iter().any(|(k, _)| *k == prop.name)
+                && let Some(default) = &prop.default
+            {
+                given.push((prop.name.clone(), self.eval_expr(default)));
+            }
+        }
+        given
+    }
+
     fn new(data: &'a Value) -> Self {
         Self {
             data,
@@ -825,7 +1149,10 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
                 Arg::Named(k, v) if k == "to" => Some(v.clone()),
                 _ => None,
             }) {
-                let href = value_to_string(&ctx.eval_expr(&dest));
+                // A destination from the data is followed by the browser,
+                // so it is held to the scheme check the live page applies.
+                let href =
+                    crate::codegen::url::guard(&value_to_string(&ctx.eval_expr(&dest))).to_string();
                 let indent = ctx.indent_str();
                 let mut out = format!(
                     "{}<a class=\"{}\" href=\"{}\">\n",
@@ -847,65 +1174,15 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
         }
         ComponentRef::UserDefined(name) => {
             // Expand user component if registered
-            if let Some(TemplateComponent {
-                body,
-                handed,
-                props,
-            }) = ctx.components.get(name).cloned()
-            {
-                // The props as locals: a positional argument binds the
-                // positional prop (or the first), a named one its name, and
-                // a prop left out takes its default.
+            if let Some(component) = ctx.components.get(name).cloned() {
+                // The props as locals, restored afterwards.
                 let mut old_locals = Vec::new();
-                let mut given: Vec<(String, Value)> = Vec::new();
-                for arg in &ui.args {
-                    match arg {
-                        Arg::Named(key, val) => given.push((key.clone(), ctx.eval_expr(val))),
-                        Arg::Positional(val) => {
-                            let target = props
-                                .iter()
-                                .find(|p| p.positional)
-                                .or_else(|| props.first())
-                                .map(|p| p.name.clone());
-                            if let Some(key) = target {
-                                given.push((key, ctx.eval_expr(val)));
-                            }
-                        }
-                    }
-                }
-                for prop in &props {
-                    if !given.iter().any(|(k, _)| *k == prop.name)
-                        && let Some(default) = &prop.default
-                    {
-                        given.push((prop.name.clone(), ctx.eval_expr(default)));
-                    }
-                }
-                for (key, resolved) in given {
+                for (key, resolved) in ctx.props_of(&component, ui) {
                     let old = ctx.locals.insert(key.clone(), resolved);
                     old_locals.push((key, old));
                 }
-
-                let mut slots: HashMap<String, Fill> = HashMap::new();
-                slots.insert(
-                    "children".to_string(),
-                    Fill {
-                        params: Vec::new(),
-                        handed: Vec::new(),
-                        body: ui.children.clone(),
-                    },
-                );
-                for fill in &ui.slot_fills {
-                    slots.insert(
-                        fill.name.clone(),
-                        Fill {
-                            params: fill.params.clone(),
-                            handed: handed.get(&fill.name).cloned().unwrap_or_default(),
-                            body: fill.body.clone(),
-                        },
-                    );
-                }
-                ctx.slots.push(slots);
-                let html = render_statements(&body, ctx);
+                ctx.slots.push(slot_fills(&component, ui));
+                let html = render_statements(&component.body, ctx);
                 ctx.slots.pop();
 
                 // Restore locals
@@ -979,10 +1256,15 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             match ctx.eval_expr(value) {
                 Value::Bool(true) => attrs.push_str(&format!(" {attribute}")),
                 Value::Bool(false) | Value::Null | Value::Array(_) | Value::Object(_) => {}
-                v => attrs.push_str(&format!(
-                    " {attribute}=\"{}\"",
-                    html_escape(&value_to_string(&v))
-                )),
+                v => {
+                    let text = value_to_string(&v);
+                    let text = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
+                        crate::codegen::url::guard(&text).to_string()
+                    } else {
+                        text
+                    };
+                    attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&text)));
+                }
             }
         }
         let classes = extra_classes(ui, ctx).join(" ");
@@ -1073,18 +1355,21 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
                 | "accept" | "role" | "value" | "title" | "width" | "height" | "loading"
                 | "decoding" | "fetchpriority" => {
-                    let resolved = ctx.eval_expr(val);
-                    attrs.push(format!(
-                        "{}=\"{}\"",
-                        key,
-                        html_escape(&value_to_string(&resolved))
-                    ));
+                    let resolved = value_to_string(&ctx.eval_expr(val));
+                    // A URL from the data: `javascript:` and its kind are
+                    // dropped, as `WF.safeUrl` drops them on a live page.
+                    let resolved = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                        crate::codegen::url::guard(&resolved).to_string()
+                    } else {
+                        resolved
+                    };
+                    attrs.push(format!("{}=\"{}\"", key, html_escape(&resolved)));
                 }
                 "to" => {
-                    let resolved = ctx.eval_expr(val);
+                    let resolved = value_to_string(&ctx.eval_expr(val));
                     attrs.push(format!(
                         "href=\"{}\"",
-                        html_escape(&value_to_string(&resolved))
+                        html_escape(crate::codegen::url::guard(&resolved))
                     ));
                 }
                 "label" if name == "IconButton" => {
@@ -1446,6 +1731,35 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -
 
 // ─── Resolve statements for PDF (substitutes data into AST) ─────────
 
+/// The blocks a call of `component` fills its slots with: its own block as
+/// `children`, and each named fill.
+fn slot_fills(component: &TemplateComponent, ui: &UIElement) -> HashMap<String, Fill> {
+    let mut slots: HashMap<String, Fill> = HashMap::new();
+    slots.insert(
+        "children".to_string(),
+        Fill {
+            params: Vec::new(),
+            handed: Vec::new(),
+            body: ui.children.clone(),
+        },
+    );
+    for fill in &ui.slot_fills {
+        slots.insert(
+            fill.name.clone(),
+            Fill {
+                params: fill.params.clone(),
+                handed: component
+                    .handed
+                    .get(&fill.name)
+                    .cloned()
+                    .unwrap_or_default(),
+                body: fill.body.clone(),
+            },
+        );
+    }
+    slots
+}
+
 fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement> {
     let mut result = Vec::new();
 
@@ -1509,6 +1823,45 @@ fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement
                         }
                         result.extend(resolve_statements(&for_stmt.body, &child_ctx));
                     }
+                }
+            }
+            // A component of the template's own: its body, expanded with the
+            // props bound, as the HTML renderer expands it — so what a PDF
+            // or a deck draws is what the page draws.
+            StatementKind::UIElement(UIElement {
+                component: ComponentRef::UserDefined(name),
+                ..
+            }) if ctx.components.contains_key(name) => {
+                let StatementKind::UIElement(ui) = &stmt.kind else {
+                    unreachable!()
+                };
+                let component = ctx.components[name].clone();
+                let mut inner = ctx.clone();
+                for (key, value) in ctx.props_of(&component, ui) {
+                    inner.locals.insert(key, value);
+                }
+                inner.slots.push(slot_fills(&component, ui));
+                result.extend(resolve_statements(&component.body, &inner));
+            }
+            // `children` (or a named slot) inside a component: the caller's
+            // block, its scoped values bound.
+            StatementKind::UIElement(ui) if ui.slot_name().is_some() => {
+                let slot = ui.slot_name().unwrap_or("children");
+                if let Some(fill) = ctx.slots.last().and_then(|s| s.get(slot)).cloned() {
+                    let mut inner = ctx.clone();
+                    for (i, param) in fill.params.iter().enumerate() {
+                        let key = fill.handed.get(i).cloned().unwrap_or_else(|| param.clone());
+                        let value = ui
+                            .args
+                            .iter()
+                            .find_map(|a| match a {
+                                Arg::Named(k, v) if *k == key => Some(ctx.eval_expr(v)),
+                                _ => None,
+                            })
+                            .unwrap_or(Value::Null);
+                        inner.locals.insert(param.clone(), value);
+                    }
+                    result.extend(resolve_statements(&fill.body, &inner));
                 }
             }
             StatementKind::UIElement(ui) => {
@@ -1579,6 +1932,13 @@ fn resolve_expr(expr: &Expr, ctx: &RenderContext) -> Expr {
                 expr.clone()
             }
         }
+        // `format(price, .currency)`, `name.toUpperCase()`, `!paid`, an
+        // `if` as a value: worked out here, as the HTML renderer works them
+        // out, since the PDF writer only draws what is already a value.
+        Expr::FunctionCall(..)
+        | Expr::MethodCall(..)
+        | Expr::OptionalMethod(..)
+        | Expr::UnaryOp(..) => value_to_expr(&ctx.eval_expr(expr)),
         _ => expr.clone(),
     }
 }

@@ -98,3 +98,40 @@ test("a template that does not compile throws what wf said", () => {
     (e) => e instanceof Error && /huge/.test(e.message) && !/Command failed/.test(e.message),
   );
 });
+
+test("a directory is one template, and a page is picked by name", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wf-node-dir-"));
+  fs.writeFileSync(path.join(dir, "parts.wf"), "component Amount(_ v: Number) { Text(format(v, .currency)).bold }\n");
+  fs.writeFileSync(
+    path.join(dir, "docs.wf"),
+    'page Invoice(path: "/i", title: "Invoice #{n}") { Text("invoice")  Amount(total) }\n' +
+      'page Receipt(path: "/r", title: "Receipt") { Text("receipt") }\n'
+  );
+  try {
+    const tpl = Template.fromDir(dir);
+    const invoice = tpl.page("Invoice").renderHtmlFragment({ n: 1, total: 12.5 });
+    assert.match(invoice, /\$12\.50/);
+    assert.doesNotMatch(invoice, /receipt/);
+    const doc = tpl.page("Invoice").withLang("ar").renderHtml({ n: 7, total: 1 });
+    assert.match(doc, /<html lang="ar" dir="rtl">/);
+    assert.match(doc, /<title>Invoice #7<\/title>/);
+    assert.throws(() => tpl.page("Refund").renderHtml({}), /no page called `Refund`/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("the async methods render without blocking, and fail the same way", async () => {
+  const tpl = Template.fromString(SHOP);
+  const [html, pdf] = await Promise.all([tpl.renderHtmlFragmentAsync(DATA), tpl.renderPdfAsync(DATA)]);
+  assert.match(html, /Hello, World!/);
+  assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
+  await assert.rejects(Template.fromString('page P(path: "/") { Butt0n("x") }').renderHtmlAsync({}), /Butt0n/);
+});
+
+test("a URL from the data cannot run script", () => {
+  const html = Template.fromString('page P(path: "/") { Link("Pay", to: url) }').renderHtmlFragment({
+    url: "javascript:alert(1)",
+  });
+  assert.doesNotMatch(html, /javascript/i);
+});
