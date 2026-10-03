@@ -1,7 +1,9 @@
-//! Lexical analysis for WebFluent source code.
+//! Lexical analysis — tokenizes `.wf` source code.
 //!
-//! Converts `.wf` source text into a stream of [`Token`](crate::lexer::Token)s, handling keywords,
-//! identifiers, string literals (with `{var}` interpolation), numbers, and operators.
+//! The lexer converts raw source text into a stream of [`Token`]s:
+//! identifiers, string literals (with `{var}` interpolation), numbers,
+//! `$tokens`, operators, punctuation, and — inside a `style` or `theme`
+//! block — raw CSS values.
 
 // `lexer::lexer` mirrors the crate layout the rest of the tree uses;
 // flattening it would move every public path for no gain.

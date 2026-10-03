@@ -1,4 +1,4 @@
-//! The registry: what every built-in component is, in one place.
+//! The registry: what every built-in component is, in one place — [`COMPONENTS`].
 //!
 //! Sixty-eight built-ins used to be described in twenty-four places — the
 //! lexer's keyword table, the parser's component list, `builtin_to_html`,
@@ -17,7 +17,7 @@
 //! the new grammar lowers onto the code generators unchanged, and the
 //! migration knows the reverse map.
 //!
-//! The table lives in [`builtins`](crate::registry::builtins); this file is its vocabulary and the
+//! The table lives in [`builtins`]; this file is its vocabulary and the
 //! lookups over it.
 
 pub mod builtins;

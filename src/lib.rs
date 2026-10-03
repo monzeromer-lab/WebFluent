@@ -124,29 +124,16 @@
 
 #![allow(dead_code)]
 
-/// Lexical analysis — tokenizes `.wf` source code.
-///
-/// The lexer converts raw source text into a stream of [`lexer::Token`]s:
-/// identifiers, string literals (with `{var}` interpolation), numbers,
-/// `$tokens`, operators, punctuation, and — inside a `style` or `theme`
-/// block — raw CSS values.
 pub mod lexer;
 
-/// Parsing — builds an abstract syntax tree from tokens.
-///
-/// The parser consumes tokens from the lexer and produces a [`parser::Program`] AST
-/// containing pages, components, stores, and an optional app declaration.
 pub mod parser;
 
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in
 /// whichever grammar it is written in.
 pub mod syntax;
 
-/// What every built-in component is: [`registry::COMPONENTS`].
 pub mod registry;
 
-/// Resolution of the new grammar against the registry and the program's own
-/// declarations: [`sema::check`] and [`sema::lower`].
 pub mod sema;
 
 /// `wf migrate`: the original grammar rewritten as WebFluent 3.
@@ -169,8 +156,6 @@ pub mod codegen;
 pub mod media;
 pub mod openapi;
 
-/// The project's own JavaScript — plain browser scripts under `src/`, and the
-/// names each makes global.
 pub mod project_js;
 
 /// JavaScript runtime — embedded runtime for reactivity, routing, and DOM helpers.
@@ -181,12 +166,6 @@ pub mod project_js;
 /// reaches ([`runtime::assemble`]); [`runtime::full`] is every module at once.
 pub mod runtime;
 
-/// Design system — theme tokens and component CSS.
-///
-/// [`themes::resolve_tokens`] layers the baseline token set, the project's
-/// `Theme` declaration and any config overrides into the tokens a build ships.
-/// [`themes::component_css`] and [`themes::structural_css`] are the two
-/// stylesheets that sit under them.
 pub mod themes;
 
 /// Project configuration — loads and manages `webfluent.app.json`.
@@ -202,11 +181,6 @@ pub mod config;
 /// and [`error::A11yWarning`] for accessibility lint results.
 pub mod error;
 
-/// Linting — compile-time checks for accessibility and PDF validation.
-///
-/// [`linter::lint_accessibility`] runs 12 WCAG-based checks (missing alt text, form labels,
-/// heading hierarchy, etc.). [`linter::validate_for_pdf`] ensures interactive components
-/// aren't used in PDF output.
 pub mod linter;
 
 /// Template engine — render `.wf` templates with JSON data.
@@ -215,8 +189,6 @@ pub mod linter;
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
 
-/// Structured edit engine — apply typed [`edit::EditOp`]s to `.wf` source as
-/// minimal, span-based text patches (Slice 3 of the studio engine upgrade).
 pub mod edit;
 
 /// Studio integration facade — [`studio::compile_studio`] turns a program into a

@@ -1,4 +1,5 @@
-//! The project's own JavaScript: every `.js` file under `src/`.
+//! The project's own JavaScript — plain browser scripts under `src/`, and the
+//! names each makes global.
 //!
 //! A `.css` file under `src/` is part of the build with nothing declaring
 //! it, and so is a `.js` file. It is a plain browser script — what a
@@ -7,7 +8,7 @@
 //! compiled code. Every classic script on a page shares one global scope,
 //! which the compiled pages run in too, so what a script declares at its top
 //! level is simply there for them: the compiler reads those names
-//! ([`scan`](crate::project_js::scan)), puts them in scope, and the editor offers them.
+//! ([`scan`]), puts them in scope, and the editor offers them.
 
 pub mod jsdoc;
 pub mod scan;

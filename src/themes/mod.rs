@@ -1,11 +1,11 @@
 //! Design system — theme tokens and the built-in stylesheets.
 //!
-//! - [`resolve_tokens`](crate::themes::resolve_tokens) — the design tokens a build ships, from its `Theme`
+//! - [`resolve_tokens`] — the design tokens a build ships, from its `Theme`
 //!   declaration, the baseline, and any config overrides
-//! - [`component_css`](crate::themes::component_css) — the original sheet: layout *and* the engine's baseline design
-//! - [`structural_css`](crate::themes::structural_css) — the same layout with that baseline design removed
+//! - [`component_css`] — the original sheet: layout *and* the engine's baseline design
+//! - [`structural_css`] — the same layout with that baseline design removed
 //!
-//! Which one a build gets is [`BuiltinCss`](crate::themes::BuiltinCss), carried on `ThemeConfig::builtin`.
+//! Which one a build gets is [`BuiltinCss`], carried on `ThemeConfig::builtin`.
 
 use serde::{Deserialize, Serialize};
 
