@@ -358,7 +358,7 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME] [--token NAME=VALUE]</code></p>
+<p><code>wf render FILE|DIR [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]</code></p>
                                             </div>
                                         </td>
                                         <td>Renders a template with data</td>
@@ -534,7 +534,7 @@
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
-<p>Renders one template with JSON data: <code>-f</code> / <code>--format</code> is <code>html</code> (a whole document, the default), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code>; <code>-o</code> writes a file instead of printing; <code>--theme</code> picks one of several themes the template declares; <code>--token color-primary=#8B5CF6</code> sets a design token over the theme's, as often as it is given; without <code>--data</code> the JSON is read from stdin. The template is held to what a build is — a component nothing declares or a flag it does not take stops the render — except that the names it reads are its data's. <a href="/WebFluent/docs/guide/server-rendering">Server rendering</a>.</p>
+<p>Renders one template with JSON data: <code>-f</code> / <code>--format</code> is <code>html</code> (a whole document, the default), <code>html-fragment</code> (the body only), <code>pdf</code> or <code>slides</code>; <code>-o</code> writes a file instead of printing; <code>--theme</code> picks one of several themes the template declares; <code>--token color-primary=#8B5CF6</code> sets a design token over the theme's, as often as it is given; <code>--lang</code> sets the document's <code>&lt;html lang&gt;</code>; without <code>--data</code> the JSON is read from stdin. The template may be a directory — every <code>.wf</code> and <code>.wfx</code> under it as one, components shared — and <code>--page</code> names the page to render when there are several. The template is held to what a build is — a component nothing declares or a flag it does not take stops the render — except that the names it reads are its data's. <a href="/WebFluent/docs/guide/server-rendering">Server rendering</a>.</p>
                             </div>
                             <h2 class="wf-heading">Upgrading</h2>
                             <h3 class="wf-heading">wf migrate</h3>
