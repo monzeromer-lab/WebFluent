@@ -55,8 +55,18 @@ step "The tree, the branch and the tag"
 branch=$(git rev-parse --abbrev-ref HEAD)
 upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null) || stop "$branch tracks no remote branch"
 git fetch --quiet --tags origin
-[ "$(git rev-parse HEAD)" = "$(git rev-parse "$upstream")" ] ||
-    stop "$branch is not the same commit as $upstream — push or pull first"
+# A run that committed the release and stopped before tagging leaves HEAD
+# at `Release X.Y.Z`, pushed or not: this run picks up from there.
+resume=0
+[ "$(git log -1 --format=%s)" = "Release $version" ] && resume=1
+if [ "$resume" = 1 ]; then
+    git merge-base --is-ancestor "$upstream" HEAD ||
+        stop "$upstream has commits $branch does not — pull first"
+    echo "  ..  HEAD is already \"Release $version\"; going on from there"
+else
+    [ "$(git rev-parse HEAD)" = "$(git rev-parse "$upstream")" ] ||
+        stop "$branch is not the same commit as $upstream — push or pull first"
+fi
 dirty=$(git status --porcelain | grep -v ' RELEASE_NOTES.md$' || true)
 [ -z "$dirty" ] || stop "uncommitted changes besides RELEASE_NOTES.md:
 $dirty"
@@ -66,7 +76,10 @@ grep -Eq "^# WebFluent v$version Release Notes" RELEASE_NOTES.md ||
 echo "  ok  $branch is $upstream at $(git rev-parse --short HEAD); $tag is free; the notes are written"
 
 step "CI on $(git rev-parse --short HEAD)"
-if command -v gh >/dev/null; then
+if [ "$resume" = 1 ] && [ "$(git rev-parse HEAD)" != "$(git rev-parse "$upstream")" ]; then
+    # The release commit only changes versions; CI ran on the commit before it.
+    echo "  ..  the release commit is not pushed yet; CI ran on what it bumps"
+elif command -v gh >/dev/null; then
     run=$(gh run list --commit "$(git rev-parse HEAD)" --workflow CI --limit 1 \
         --json databaseId,status,conclusion --jq '.[0] | "\(.databaseId) \(.status) \(.conclusion)"' || true)
     [ -n "$run" ] || stop "CI has not run on this commit"
@@ -129,7 +142,12 @@ fi
 step "Commit, push, tag"
 git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml bindings/node/package.json \
     RELEASE_NOTES.md editors/zed/extension.toml site docs
-git commit --quiet -m "Release $version"
+if git diff --cached --quiet; then
+    [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
+    echo "  ..  the release commit is already made"
+else
+    git commit --quiet -m "Release $version"
+fi
 git push --quiet origin "HEAD:${upstream#origin/}"
 git tag -a "$tag" -m "WebFluent $version"
 git push --quiet origin "$tag"
