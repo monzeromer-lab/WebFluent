@@ -114,38 +114,62 @@ fn check_duplicate_names(
             _ => None,
         });
     check_dupes(pages, "page", file_of, diags);
+
+    let components = program
+        .declarations
+        .iter()
+        .enumerate()
+        .filter_map(|(i, d)| match d {
+            Declaration::Component(c) => Some((c.name.as_str(), c.header_span, i)),
+            _ => None,
+        });
+    check_dupes(components, "component", file_of, diags);
 }
 
-/// One name, one meaning: a component, a store, a constant, an `api`, a
-/// `type` and an `enum` share the program's one namespace, and what a page,
-/// a component or a store declares — its props, states, deriveds, actions,
-/// resources and connections — shares the body's. Two of one name compiled
-/// to two `const`s of it, which the browser refuses before the page draws,
-/// or to an object where the second silently replaced the first.
+/// One name, one meaning. What exists when the page runs — a store, a
+/// constant, a `data` file, an image, an `api` — shares one namespace, as
+/// every one of them is a `const` of the bundle; a `type` and an `enum`
+/// share another; and what a page, a component or a store declares — its
+/// props, states, deriveds, actions, resources and connections — shares the
+/// body's. Two of one name compiled to two `const`s of it, which the browser
+/// refuses before the page draws, or to an object where the second silently
+/// replaced the first. A component may share its name with a `type` (a
+/// call reads as one or the other by where it is written); two components
+/// of one name are the duplicate check's.
 fn check_one_meaning(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
     diags: &mut Vec<Diagnostic>,
 ) {
-    let top = program
+    let values = program
         .declarations
         .iter()
         .enumerate()
         .filter_map(|(i, d)| {
             let (name, kind, span) = match d {
-                Declaration::Component(c) => (&c.name, "a component", c.header_span),
                 Declaration::Store(s) => (&s.name, "a store", s.header_span),
                 Declaration::Const(c) => (&c.name, "a `const`", c.span),
                 Declaration::Data(d) if d.is_image => (&d.name, "an `image`", d.span),
                 Declaration::Data(d) => (&d.name, "a `data` constant", d.span),
                 Declaration::Api(a) => (&a.name, "an `api`", a.span),
+                _ => return None,
+            };
+            Some((name.as_str(), kind, span, i))
+        });
+    report_clashes(values, file_of, diags);
+    let types = program
+        .declarations
+        .iter()
+        .enumerate()
+        .filter_map(|(i, d)| {
+            let (name, kind, span) = match d {
                 Declaration::Type(t) => (&t.name, "a `type`", t.header_span),
                 Declaration::Enum(e) => (&e.name, "an `enum`", e.header_span),
                 _ => return None,
             };
             Some((name.as_str(), kind, span, i))
         });
-    report_clashes(top, file_of, diags);
+    report_clashes(types, file_of, diags);
 
     for (index, decl) in program.declarations.iter().enumerate() {
         let (props, prop_kind, body): (&[crate::parser::ast::PropDecl], _, &[Statement]) =
@@ -620,6 +644,18 @@ mod tests {
         assert!(check(comp)[0].message.contains("as a prop"));
         let param = "page U(path: \"/u/:id\", id: String) {\n  state id = 1\n  Text(\"{id}\")\n}\n";
         assert!(check(param)[0].message.contains("as a parameter"));
+    }
+
+    #[test]
+    fn a_component_may_share_its_name_with_a_type() {
+        // `DeployRow(…)` placed is the component; in an expression, the record.
+        let src = "type DeployRow { id: String }\ncomponent DeployRow(row: DeployRow) { Text(row.id) }\nenum Tone { calm }\nconst Tone2 = 1\n";
+        assert!(check(src).is_empty(), "{:?}", check(src));
+        assert!(
+            check("type T { a: String }\nenum T { b }\n")[0]
+                .message
+                .contains("declared twice")
+        );
     }
 
     #[test]
