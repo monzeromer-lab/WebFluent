@@ -1,4 +1,4 @@
-# WebFluent v4.2 Release Notes (unreleased)
+# WebFluent v4.2.0 Release Notes
 
 JavaScript is part of a project the way CSS is. A `.js` file under `src/`
 is a plain browser script, linked on every page as written, and what it
@@ -44,6 +44,15 @@ editor. `external` is gone; `wf migrate` rewrites it.
   timers and `Host` cleanups running.
 - An `IconButton` whose `class:` reads state kept its own classes; it used
   to have them replaced.
+
+## Tooling
+
+- `scripts/check.sh` (`just check`) runs formatting, clippy and the build
+  one by one, as CI does; `--fix` formats first, `--test` runs the tests.
+  `just lint` and `just fmt-check` now match CI too.
+- Editors: the VS Code extension (0.4.0) and the Zed extension (3.2.0)
+  drop `external` and re-read the project when a `.js` or `.css` file
+  changes.
 
 # WebFluent v4.1.2 Release Notes
 

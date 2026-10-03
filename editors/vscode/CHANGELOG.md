@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- WebFluent 4.2: `external` is no longer highlighted as a keyword — the
+  language removed it.
+- The language server is told when a `.js` or `.css` file changes, so a
+  script's functions and a stylesheet's classes are current in completion,
+  hover and diagnostics without reopening the file.
+
 ## 0.3.0
 
 - Highlighting for WebFluent 4: `api` services and their endpoints,

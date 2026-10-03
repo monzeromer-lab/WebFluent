@@ -18,7 +18,7 @@ The full notes for every release are in
 [`RELEASE_NOTES.md`](../RELEASE_NOTES.md); what follows is what an upgrade
 asks of you.
 
-## 4.2 (next release)
+## 4.2
 
 **`external` is gone.** Run `wf migrate`: a remote module becomes a
 `meta.scripts` entry, a local module a plain script under `src/` with its

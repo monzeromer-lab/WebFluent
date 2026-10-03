@@ -282,7 +282,7 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
-                            <h2 class="wf-heading">4.2 (next release)</h2>
+                            <h2 class="wf-heading">4.2</h2>
                             <div class="wf-markdown">
 <p><strong><code>external</code> is gone.</strong> Run <code>wf migrate</code>: a remote module becomes a <code>meta.scripts</code> entry, a local module a plain script under <code>src/</code> with its signatures as JSDoc, and an <code>external element</code> call <code>Element(&quot;tag&quot;, …)</code>. A call into a remote module that <code>external</code> typed is <code>Any</code> afterwards.</p>
 <p><strong>Every <code>.js</code> file under <code>src/</code> now ships</strong>, linked on every page before the compiled code. <code>wf migrate</code> lists the ones it finds; move any that are not meant for the browser out of <code>src/</code>.</p>
@@ -370,7 +370,7 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#installing-a-newer-version">Installing a newer version</a>
-                        <a class="wf-link wf-sdae384de" href="#4-2-next-release">4.2 (next release)</a>
+                        <a class="wf-link wf-sdae384de" href="#4-2">4.2</a>
                         <a class="wf-link wf-sdae384de" href="#4-1">4.1</a>
                         <a class="wf-link wf-sdae384de" href="#4-0">4.0</a>
                         <a class="wf-link wf-sdae384de" href="#3-x">3.x</a>
