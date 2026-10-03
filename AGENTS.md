@@ -2551,13 +2551,26 @@ And what the type checker finds:
 | `T10` | A call with the wrong number or kind of arguments |
 | `T11` | A `match` on something that is neither a resource nor an enum, or with arms of the wrong kind |
 | `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
-| `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. Not applied to a template rendered with data |
+| `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. `event` (`e`), `value` and `key` are names only inside a handler. Not applied to a template rendered with data |
+| `T14` | A comparison that is always the same: `"1" == 1`, a record against a string, an enum against a case it does not have |
+| `T15` | A `match` with no `else` that misses a case of the enum, or one with a case twice. A `match` expression that covers every case needs no `else` |
+| `T16` | A method a number, a string or a list does not have, with the nearest one that it does (`joined` → `join`) |
+| `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
+| `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
+| `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
+| `C01` | A required prop or record field left out (`Todo(title: "x")` when `id` has no default) |
 
 An endpoint a service does not have is `T06`, and an argument it does not
 take is `T10`.
 
 A value whose type the checker cannot work out is `Any`, which agrees with
-everything; a *name* nothing declares is `T13`.
+everything; a *name* nothing declares is `T13`. `T04` also covers an item at a
+fixed index (`todos[0]`, which is nothing when the list is empty, unless a
+condition like `todos.length > 0` encloses it) and a field that may be null
+read after a `?.` (`sel?.note.length`). A check for `null` narrows in the
+`else` branch and after `if x == null { return }`. A refined type
+(`Number(1..=30)`) is held to every literal assigned to it, and a `derived`
+value's annotation to what it works out to.
 
 **Warnings.**
 
@@ -2596,6 +2609,9 @@ everything; a *name* nothing declares is `T13`.
 | `C05` | A positional argument a built-in does not take |
 | `C06` | A positional argument bound to a component's first prop, which is not marked `_` |
 | `D05` | A font, stylesheet or script from another origin with no `meta.integrity` hash |
+| `T19` | A value that may be null spliced into text, where it shows as `null` |
+| `T21` | A resource `match` with no `error` arm and no `else` |
+| `U10` | A `match`'s `else` that no value reaches: every case has its arm |
 | `E112` | A key in `webfluent.app.json` nothing reads, with the nearest one that is |
 | `E115` | A project script the compiler could not read (still linked; its names are not in scope) |
 | `V08` | An icon the runtime does not draw |

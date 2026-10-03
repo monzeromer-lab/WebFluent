@@ -1890,12 +1890,14 @@ impl ParserV2 {
     fn parse_derived(&mut self) -> Result<StatementKind> {
         self.expect_word("derived")?;
         let name = self.expect_ident("the derived value's name")?;
-        if self.eat(&TokenType::Colon) {
-            self.parse_type_ref()?;
-        }
+        let ty = if self.eat(&TokenType::Colon) {
+            Some(self.parse_type_ref()?)
+        } else {
+            None
+        };
         self.expect(&TokenType::Equals, "`=` and the expression")?;
         let value = self.parse_expression()?;
-        Ok(StatementKind::Derived(DerivedDecl { name, value }))
+        Ok(StatementKind::Derived(DerivedDecl { name, ty, value }))
     }
 
     fn parse_action(&mut self) -> Result<StatementKind> {
@@ -3695,16 +3697,19 @@ impl ParserV2 {
             arms.push((case, value));
         }
         self.expect(&TokenType::CloseBrace, "`}`")?;
-        let Some(fallback) = arms
+        // With no `else`, the arm no value reaches: the checker proves every
+        // case of the enum has its own, and refuses the `match` otherwise.
+        let fallback = arms
             .iter()
             .find(|(c, _)| c.is_none())
             .map(|(_, e)| e.clone())
-        else {
-            return Err(self.error_with_hint(
-                "A match expression needs an `else` arm".into(),
-                "Every case must produce a value; `else { … }` covers the rest",
-            ));
-        };
+            .unwrap_or_else(|| {
+                Expr::MethodCall(
+                    Box::new(subject.clone()),
+                    "__exhaustive".to_string(),
+                    vec![],
+                )
+            });
         let mut expr = fallback;
         for (case, value) in arms.into_iter().rev() {
             let Some((case, binding)) = case else {
@@ -4617,9 +4622,28 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
     }
 
     #[test]
-    fn a_match_expression_needs_an_else_and_a_match_statement_an_arm() {
-        let err = fails("page P(path: \"/\") { derived x = match t { .a { 1 } } }");
-        assert!(err.contains("needs an `else` arm"), "{err}");
+    fn a_match_expression_without_else_is_left_to_the_checker_and_a_match_statement_needs_an_arm() {
+        // With no `else`, the arms end in the marker the checker reads to
+        // prove every case is covered; the parser no longer decides.
+        let program = crate::syntax::parse_source(
+            "page P(path: \"/\") { derived x = match t { .a { 1 } } }",
+            "t.wf",
+        )
+        .unwrap();
+        let Declaration::Page(page) = &program.declarations[0] else {
+            panic!("a page")
+        };
+        let StatementKind::Derived(d) = &page.body[0].kind else {
+            panic!("a derived")
+        };
+        let Expr::MethodCall(_, _, args) = &d.value else {
+            panic!("{:?}", d.value)
+        };
+        assert!(
+            matches!(&args[1], Expr::MethodCall(_, m, _) if m == "__exhaustive"),
+            "{:?}",
+            args[1]
+        );
         let err = fails("page P(path: \"/\") { match t { } }");
         assert!(err.contains("at least one arm"), "{err}");
         let err = fails("page P(path: \"/\") { match t { loading(x) { } } }");

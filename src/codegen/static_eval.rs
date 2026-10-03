@@ -573,6 +573,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             }
         }
 
+        Expr::MethodCall(_, name, _) if name == "__exhaustive" => Some(Static::Null),
         Expr::MethodCall(subject, name, args) if name == "__case" && args.is_empty() => {
             Some(case_of(&eval_in(subject, scope, fuel)?))
         }

@@ -513,7 +513,11 @@ impl Parser {
         self.expect(&TokenType::Equals)?;
         let value = self.parse_expression()?;
         self.declared_names.push(name.clone());
-        Ok(StatementKind::Derived(DerivedDecl { name, value }))
+        Ok(StatementKind::Derived(DerivedDecl {
+            name,
+            ty: None,
+            value,
+        }))
     }
 
     fn parse_effect_decl(&mut self) -> Result<StatementKind> {

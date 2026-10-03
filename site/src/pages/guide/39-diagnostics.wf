@@ -1,6 +1,6 @@
 /// Chapter 39 of the guide, written from md-docs/39-diagnostics.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.", layout: DocsShell("Diagnostics", chapter: t("guide.chapter", { n: "39" }), blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.", source: "md-docs/39-diagnostics.md", sections: [Anchor(id: "syntax-and-structure", label: "Syntax and structure"), Anchor(id: "components", label: "Components"), Anchor(id: "routes", label: "Routes"), Anchor(id: "data-and-assets", label: "Data and assets"), Anchor(id: "types", label: "Types"), Anchor(id: "accessibility", label: "Accessibility"), Anchor(id: "search-and-sharing", label: "Search and sharing"), Anchor(id: "what-is-kept-in-the-browser", label: "What is kept in the browser"), Anchor(id: "declared-and-never-read", label: "Declared and never read"), Anchor(id: "vocabulary", label: "Vocabulary")], prevTo: "/docs/guide/config", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/built-ins", nextLabel: "40. {t("ch.40")}")) {
+page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.", layout: DocsShell("Diagnostics", chapter: t("guide.chapter", { n: "39" }), blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.", source: "md-docs/39-diagnostics.md", sections: [Anchor(id: "syntax-and-structure", label: "Syntax and structure"), Anchor(id: "components", label: "Components"), Anchor(id: "state-and-reactivity", label: "State and reactivity"), Anchor(id: "routes", label: "Routes"), Anchor(id: "data-and-assets", label: "Data and assets"), Anchor(id: "types", label: "Types"), Anchor(id: "accessibility", label: "Accessibility"), Anchor(id: "search-and-sharing", label: "Search and sharing"), Anchor(id: "what-is-kept-in-the-browser", label: "What is kept in the browser"), Anchor(id: "declared-and-never-read", label: "Declared and never read"), Anchor(id: "vocabulary", label: "Vocabulary")], prevTo: "/docs/guide/config", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/built-ins", nextLabel: "40. {t("ch.40")}")) {
     Stack(gap: .lg) {
         Markdown("`wf build`, `wf serve` and your editor report the same findings, from one pipeline. Each starts with its code and what is wrong, then the place in the `file:line:col` form editors and CI read, the line of source with the part that is wrong underlined, what to do about it, and a link to its entry here:")
 
@@ -37,6 +37,10 @@ page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", des
                 Table.Row {
                     Table.Cell { Markdown("`R`") }
                     Table.Cell("routes and navigation")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`X`") }
+                    Table.Cell("state and reactivity")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`D`") }
@@ -340,6 +344,24 @@ page P(path: "/", title: "T", description: "D") {
 
         Heading("Components", id: "components").h2
 
+        Heading("C01 — A required prop or field left out", id: "c01-a-required-prop-or-field-left-out").h3
+
+        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+page P(path: "/", title: "T", description: "D") {
+    state todo = Todo(title: "Write the docs")
+    Heading(todo.title).h1
+}"#, title: "wf · draws C01")
+
+        CodeBlock(#"error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
+ --> src/App.wf:3:18
+  |
+3 |     state todo = Todo(title: "Write the docs")
+  |                  ^^^^
+  = help: Give it, or declare a default in the type: `field: Type = value`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c01"#, title: "text")
+
+        Markdown("**Fix:** Give it, or declare a default in the type (`id: String = \"\"`) or on the prop.")
+
         Heading("C02 — A prop the component does not declare", id: "c02-a-prop-the-component-does-not-declare").h3
 
         CodeBlock(#"component Badge2(_ label: String) { Text(label) }
@@ -415,6 +437,26 @@ page P(path: "/", title: "T", description: "D") {
   = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c06"#, title: "text")
 
         Markdown("**Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.")
+
+        Heading("State and reactivity", id: "state-and-reactivity").h2
+
+        Heading("X01 — An assignment to something that cannot change", id: "x01-an-assignment-to-something-that-cannot-change").h3
+
+        CodeBlock(#"const LIMIT = 3
+page P(path: "/", title: "T", description: "D") {
+    Heading("Limit {LIMIT}").h1
+    Button("More") { on click { LIMIT = 4 } }
+}"#, title: "wf · draws X01")
+
+        CodeBlock(#"error[X01]: `LIMIT` is a `const`, and nothing may assign to it
+ --> src/App.wf:4:33
+  |
+4 |     Button("More") { on click { LIMIT = 4 } }
+  |                                 ^^^^^
+  = help: Declare it `state` if it changes; a constant is the same on every page
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x01"#, title: "text")
+
+        Markdown("**Fix:** Hold what changes in a `state`. A `derived` value changes when what it reads does; a prop is its caller's (`emit` an event so the caller changes it); a route parameter is the address's (`navigate`); a loop variable is one pass's copy (change the item through its list).")
 
         Heading("Routes", id: "routes").h2
 
@@ -650,6 +692,144 @@ page P(path: "/", title: "T", description: "D") {
   = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t13"#, title: "text")
 
         Markdown("**Fix:** Correct the spelling, or declare the name. The browser's own globals (`window`, `navigator`, `Math` …) and the language's values (`viewport`, `query`, `now` …) need no declaration; a call to a function nothing declares — `uid()` for `uuid()` — is reported the same way. A template rendered with data (`wf render`) reads its data's keys by name, so it is not held to this.")
+
+        Heading("T14 — A comparison that is always the same", id: "t14-a-comparison-that-is-always-the-same").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    Heading("Count").h1
+    if count == "0" { Text("Nothing yet") }
+}"#, title: "wf · draws T14")
+
+        CodeBlock(#"error[T14]: `count` is `Number` and `"0"` is `String`, which are never equal, so this is always false
+ --> src/App.wf:4:8
+  |
+4 |     if count == "0" { Text("Nothing yet") }
+  |        ^^^^^
+  = help: Convert one side: `Number(text) == n`, or `"{n}" == text`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t14"#, title: "text")
+
+        Markdown("**Fix:** Compare values of one type: `count == 0`, or convert one side (`Number(text) == n`). Against an enum, use a case it has.")
+
+        Heading("T15 — A match that misses a case, or has one twice", id: "t15-a-match-that-misses-a-case-or-has-one-twice").h3
+
+        CodeBlock(#"enum Status { draft, review, live }
+page P(path: "/", title: "T", description: "D") {
+    state status: Status = .draft
+    Heading("Status").h1
+    match status {
+        .draft { Text("Draft") }
+        .live { Text("Live") }
+    }
+}"#, title: "wf · draws T15")
+
+        CodeBlock(#"error[T15]: this `match` on `status` has no arm for `.review`, and no `else`
+ --> src/App.wf:5:5
+  |
+5 |     match status {
+  |     ^^^^^
+  = help: Add an arm for each, or `else { … }` for the rest
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t15"#, title: "text")
+
+        Markdown("**Fix:** Give every case its arm, or add `else \{ … \}` for the rest. A `match` expression that covers every case needs no `else`: `derived label = match status \{ .draft \{ \"Draft\" \} .review \{ \"In review\" \} .live \{ \"Live\" \} \}`.")
+
+        Heading("T16 — A method a number, a string or a list does not have", id: "t16-a-method-a-number-a-string-or-a-list-does-not-have").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state names = ["Ada", "Grace"]
+    Heading("People").h1
+    Text(names.joined(", "))
+}"#, title: "wf · draws T16")
+
+        CodeBlock(#"error[T16]: a `[String]` has no method `joined`
+ --> src/App.wf:4:16
+  |
+4 |     Text(names.joined(", "))
+  |                ^^^^^^
+  = help: Did you mean `join`?
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t16"#, title: "text")
+
+        Markdown("**Fix:** The method the message suggests — here `join`.")
+
+        Heading("T17 — An async result used before it is awaited", id: "t17-an-async-result-used-before-it-is-awaited").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state saved = false
+    action save() { saved = true }
+    Heading("Save").h1
+    Button("Save", disabled: save.pending) { on click { save() } }
+}"#, title: "wf · draws T17")
+
+        CodeBlock(#"error[T17]: `save` awaits nothing, so `.pending` is always false
+ --> src/App.wf:5:30
+  |
+5 |     Button("Save", disabled: save.pending) { on click { save() } }
+  |                              ^^^^
+  = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t17"#, title: "text")
+
+        Markdown("**Fix:** `.pending` is for an action that awaits — drop it here. An async action's result is read with `await` inside an action or a handler; a value that arrives over the network is a `resource`, which `derived` values and elements can read.")
+
+        Heading("T18 — Arithmetic on something that is not a number", id: "t18-arithmetic-on-something-that-is-not-a-number").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state price = "12"
+    Heading("Total {price * 2}").h1
+}"#, title: "wf · draws T18")
+
+        CodeBlock(#"error[T18]: `*` takes numbers, but `price` is `String`
+ --> src/App.wf:3:27
+  |
+3 |     Heading("Total {price * 2}").h1
+  |                           ^
+  = help: Convert it: `Number(value)`; `+` joins text when one side is a string
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t18"#, title: "text")
+
+        Markdown("**Fix:** Hold numbers as numbers (`state price = 12`), or convert: `Number(price) * 2`.")
+
+        Heading("T19 — A value that may be null, shown as text", id: "t19-a-value-that-may-be-null-shown-as-text").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"type User { name: String, nickname: String? }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada", nickname: null)
+    Heading("Hello").h1
+    Text("Also known as {user.nickname}")
+}"#, title: "wf · draws T19")
+
+        CodeBlock(#"warning[T19]: `user.nickname` may be null, and in text it would show as `null`
+ --> src/App.wf:5:26
+  |
+5 |     Text("Also known as {user.nickname}")
+  |                          ^^^^^^^^^^^^^
+  = help: Say what to show instead: `{user.nickname ?? ""}`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t19"#, title: "text")
+
+        Markdown("**Fix:** Say what to show instead: `\{user.nickname ?? \"nothing yet\"\}`, or show the line only when there is one: `if let n = user.nickname \{ … \}`.")
+
+        Heading("T21 — A resource match with no error arm", id: "t21-a-resource-match-with-no-error-arm").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    resource users = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        ready(list) { Text("{list.length} users") }
+    }
+}"#, title: "wf · draws T21")
+
+        CodeBlock(#"warning[T21]: this `match` on `users` has no `error` arm, so a failed request shows nothing
+ --> src/App.wf:4:5
+  |
+4 |     match users {
+  |     ^^^^^
+  = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t21"#, title: "text")
+
+        Markdown("**Fix:** `error(e) \{ Alert(e.message).danger \}`, or an `else`.")
 
         Heading("Accessibility", id: "accessibility").h2
 
@@ -1136,6 +1316,29 @@ page P(path: "/", title: "T", description: "D") {
   = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u05"#, title: "text")
 
         Markdown("**Fix:** Call it, remove it, or name it `_reset`.")
+
+        Heading("U10 — An else no value reaches", id: "u10-an-else-no-value-reaches").h3
+
+        CodeBlock(#"enum Tone { calm, loud }
+page P(path: "/", title: "T", description: "D") {
+    state tone: Tone = .calm
+    Heading("Tone").h1
+    match tone {
+        .calm { Text("Calm") }
+        .loud { Text("Loud") }
+        else { Text("?") }
+    }
+}"#, title: "wf · draws U10")
+
+        CodeBlock(#"warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is never reached
+ --> src/App.wf:5:5
+  |
+5 |     match tone {
+  |     ^^^^^
+  = help: Remove the `else`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u10"#, title: "text")
+
+        Markdown("**Fix:** Remove the `else`.")
 
         Heading("Vocabulary", id: "vocabulary").h2
 

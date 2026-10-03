@@ -527,8 +527,7 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
     }
 
     action toggle(id: Number) {
-        let task = tasks.filter(t => t.id == id)[0]
-        task.done = !task.done
+        tasks = tasks.map(t => if t.id == id { { ...t, done: !t.done } } else { t })
     }
 
     action remove(id: Number) {

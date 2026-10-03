@@ -11,7 +11,9 @@ store IncidentStore {
 
     action resolve(id: Number) {
         let hit = incidents.filter(i => i.id == id)[0]
-        hit.resolved = true
+        if hit != null {
+            hit.resolved = true
+        }
     }
 
     action report(title: String) {

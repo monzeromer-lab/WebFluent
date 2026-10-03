@@ -43,6 +43,7 @@ The code — `T05` — is the thing to search this page for. The families:
 | `T` | types |
 | `C` | components and their props |
 | `R` | routes and navigation |
+| `X` | state and reactivity |
 | `D` | data, assets and what is kept in the browser |
 | `A` | accessibility |
 | `S` | search and sharing |
@@ -415,6 +416,29 @@ what the message says; a library's origin goes in `meta.scripts`.
 
 ## Components
 
+### C01 — A required prop or field left out
+
+```wf expect C01
+type Todo { id: String, title: String, done: Bool = false }
+page P(path: "/", title: "T", description: "D") {
+    state todo = Todo(title: "Write the docs")
+    Heading(todo.title).h1
+}
+```
+
+```text
+error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
+ --> src/App.wf:3:18
+  |
+3 |     state todo = Todo(title: "Write the docs")
+  |                  ^^^^
+  = help: Give it, or declare a default in the type: `field: Type = value`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c01
+```
+
+**Fix:** Give it, or declare a default in the type (`id: String = ""`) or
+on the prop.
+
 ### C02 — A prop the component does not declare
 
 ```wf expect C02
@@ -508,6 +532,33 @@ warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
 ```
 
 **Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.
+
+## State and reactivity
+
+### X01 — An assignment to something that cannot change
+
+```wf expect X01
+const LIMIT = 3
+page P(path: "/", title: "T", description: "D") {
+    Heading("Limit {LIMIT}").h1
+    Button("More") { on click { LIMIT = 4 } }
+}
+```
+
+```text
+error[X01]: `LIMIT` is a `const`, and nothing may assign to it
+ --> src/App.wf:4:33
+  |
+4 |     Button("More") { on click { LIMIT = 4 } }
+  |                                 ^^^^^
+  = help: Declare it `state` if it changes; a constant is the same on every page
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x01
+```
+
+**Fix:** Hold what changes in a `state`. A `derived` value changes when
+what it reads does; a prop is its caller's (`emit` an event so the caller
+changes it); a route parameter is the address's (`navigate`); a loop
+variable is one pass's copy (change the item through its list).
 
 ## Routes
 
@@ -800,6 +851,180 @@ globals (`window`, `navigator`, `Math` …) and the language's values
 nothing declares — `uid()` for `uuid()` — is reported the same way. A
 template rendered with data (`wf render`) reads its data's keys by name, so
 it is not held to this.
+
+### T14 — A comparison that is always the same
+
+```wf expect T14
+page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    Heading("Count").h1
+    if count == "0" { Text("Nothing yet") }
+}
+```
+
+```text
+error[T14]: `count` is `Number` and `"0"` is `String`, which are never equal, so this is always false
+ --> src/App.wf:4:8
+  |
+4 |     if count == "0" { Text("Nothing yet") }
+  |        ^^^^^
+  = help: Convert one side: `Number(text) == n`, or `"{n}" == text`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t14
+```
+
+**Fix:** Compare values of one type: `count == 0`, or convert one side
+(`Number(text) == n`). Against an enum, use a case it has.
+
+### T15 — A `match` that misses a case, or has one twice
+
+```wf expect T15
+enum Status { draft, review, live }
+page P(path: "/", title: "T", description: "D") {
+    state status: Status = .draft
+    Heading("Status").h1
+    match status {
+        .draft { Text("Draft") }
+        .live { Text("Live") }
+    }
+}
+```
+
+```text
+error[T15]: this `match` on `status` has no arm for `.review`, and no `else`
+ --> src/App.wf:5:5
+  |
+5 |     match status {
+  |     ^^^^^
+  = help: Add an arm for each, or `else { … }` for the rest
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t15
+```
+
+**Fix:** Give every case its arm, or add `else { … }` for the rest. A
+`match` expression that covers every case needs no `else`:
+`derived label = match status { .draft { "Draft" } .review { "In review" } .live { "Live" } }`.
+
+### T16 — A method a number, a string or a list does not have
+
+```wf expect T16
+page P(path: "/", title: "T", description: "D") {
+    state names = ["Ada", "Grace"]
+    Heading("People").h1
+    Text(names.joined(", "))
+}
+```
+
+```text
+error[T16]: a `[String]` has no method `joined`
+ --> src/App.wf:4:16
+  |
+4 |     Text(names.joined(", "))
+  |                ^^^^^^
+  = help: Did you mean `join`?
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t16
+```
+
+**Fix:** The method the message suggests — here `join`.
+
+### T17 — An async result used before it is awaited
+
+```wf expect T17
+page P(path: "/", title: "T", description: "D") {
+    state saved = false
+    action save() { saved = true }
+    Heading("Save").h1
+    Button("Save", disabled: save.pending) { on click { save() } }
+}
+```
+
+```text
+error[T17]: `save` awaits nothing, so `.pending` is always false
+ --> src/App.wf:5:30
+  |
+5 |     Button("Save", disabled: save.pending) { on click { save() } }
+  |                              ^^^^
+  = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t17
+```
+
+**Fix:** `.pending` is for an action that awaits — drop it here. An async
+action's result is read with `await` inside an action or a handler; a value
+that arrives over the network is a `resource`, which `derived` values and
+elements can read.
+
+### T18 — Arithmetic on something that is not a number
+
+```wf expect T18
+page P(path: "/", title: "T", description: "D") {
+    state price = "12"
+    Heading("Total {price * 2}").h1
+}
+```
+
+```text
+error[T18]: `*` takes numbers, but `price` is `String`
+ --> src/App.wf:3:27
+  |
+3 |     Heading("Total {price * 2}").h1
+  |                           ^
+  = help: Convert it: `Number(value)`; `+` joins text when one side is a string
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t18
+```
+
+**Fix:** Hold numbers as numbers (`state price = 12`), or convert:
+`Number(price) * 2`.
+
+### T19 — A value that may be null, shown as text
+
+Warning.
+
+```wf expect T19
+type User { name: String, nickname: String? }
+page P(path: "/", title: "T", description: "D") {
+    state user = User(name: "Ada", nickname: null)
+    Heading("Hello").h1
+    Text("Also known as {user.nickname}")
+}
+```
+
+```text
+warning[T19]: `user.nickname` may be null, and in text it would show as `null`
+ --> src/App.wf:5:26
+  |
+5 |     Text("Also known as {user.nickname}")
+  |                          ^^^^^^^^^^^^^
+  = help: Say what to show instead: `{user.nickname ?? ""}`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t19
+```
+
+**Fix:** Say what to show instead: `{user.nickname ?? "nothing yet"}`, or
+show the line only when there is one: `if let n = user.nickname { … }`.
+
+### T21 — A resource `match` with no `error` arm
+
+Warning.
+
+```wf expect T21
+page P(path: "/", title: "T", description: "D") {
+    resource users = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        ready(list) { Text("{list.length} users") }
+    }
+}
+```
+
+```text
+warning[T21]: this `match` on `users` has no `error` arm, so a failed request shows nothing
+ --> src/App.wf:4:5
+  |
+4 |     match users {
+  |     ^^^^^
+  = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t21
+```
+
+**Fix:** `error(e) { Alert(e.message).danger }`, or an `else`.
 
 ## Accessibility
 
@@ -1394,6 +1619,33 @@ warning[U05]: `reset` is declared but never read
 ```
 
 **Fix:** Call it, remove it, or name it `_reset`.
+
+### U10 — An `else` no value reaches
+
+```wf expect U10
+enum Tone { calm, loud }
+page P(path: "/", title: "T", description: "D") {
+    state tone: Tone = .calm
+    Heading("Tone").h1
+    match tone {
+        .calm { Text("Calm") }
+        .loud { Text("Loud") }
+        else { Text("?") }
+    }
+}
+```
+
+```text
+warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is never reached
+ --> src/App.wf:5:5
+  |
+5 |     match tone {
+  |     ^^^^^
+  = help: Remove the `else`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u10
+```
+
+**Fix:** Remove the `else`.
 
 ## Vocabulary
 

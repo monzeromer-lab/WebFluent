@@ -67,6 +67,11 @@ pub enum Type {
     /// `.parse`, `.network`, `.status(code, body)` — matched like an enum,
     /// and read like a record.
     NetError,
+    /// What an async action hands back before it is awaited: a promise of
+    /// its result.
+    Promise(Box<Type>),
+    /// What no value is: the arm of a `match` that covers every case.
+    Never,
 }
 
 /// The types the language brings with it.
@@ -196,7 +201,7 @@ impl Type {
     /// Whether a value of `self` may be given where `to` is expected.
     fn assignable_to(&self, to: &Type) -> bool {
         match (self, to) {
-            (Type::Any, _) | (_, Type::Any) => true,
+            (Type::Any, _) | (_, Type::Any) | (Type::Never, _) => true,
             (Type::Case(_), Type::Enum(_)) => true,
             (Type::Null, Type::Optional(_)) => true,
             (Type::Null, Type::Null) => true,
@@ -212,7 +217,14 @@ impl Type {
                     .find(|(n, _)| n == name)
                     .is_none_or(|(_, wanted)| ty.assignable_to(wanted))
             }),
-            (Type::Func(..), Type::Func(..)) => true,
+            // A function fits where one is wanted when it takes no more
+            // arguments than it will be given — JavaScript passes a
+            // function every argument, and one it does not name is
+            // dropped — and can take the ones it is given.
+            (Type::Func(from, _), Type::Func(to, _)) => {
+                from.len() <= to.len()
+                    && from.iter().zip(to.iter()).all(|(f, t)| t.assignable_to(f))
+            }
             // A scalar is a plain value at run time, so it shows wherever
             // text shows — except a `Secret`, which must not be shown at
             // all, and `Duration`, which is a number of milliseconds.
@@ -220,6 +232,7 @@ impl Type {
             (Type::Scalar(Scalar::Duration), Type::Number) => true,
             (Type::Number, Type::Scalar(Scalar::Duration)) => true,
             (Type::Resource(a), Type::Resource(b)) => a.assignable_to(b),
+            (Type::Promise(a), Type::Promise(b)) => a.assignable_to(b),
             (a, b) => a == b,
         }
     }
@@ -228,6 +241,7 @@ impl Type {
     fn join(a: Type, b: Type) -> Type {
         match (a, b) {
             (a, b) if a == b => a,
+            (Type::Never, other) | (other, Type::Never) => other,
             (Type::Any, _) | (_, Type::Any) => Type::Any,
             (Type::Null, other) | (other, Type::Null) => Type::optional(other),
             (Type::Optional(a), b) | (b, Type::Optional(a)) => Type::optional(Type::join(*a, b)),
@@ -287,6 +301,8 @@ impl std::fmt::Display for Type {
                 }
             }
             Type::Resource(inner) => write!(f, "resource<{inner}>"),
+            Type::Promise(inner) => write!(f, "Promise<{inner}>"),
+            Type::Never => write!(f, "never"),
             Type::Scalar(s) => write!(f, "{}", s.name()),
             Type::Api(name) => write!(f, "{name}"),
             Type::NetError => write!(f, "NetworkError"),
@@ -308,6 +324,12 @@ struct World<'p> {
     /// What the project's scripts make global, by name, with the file each
     /// is in.
     scripts: HashMap<&'p str, (&'p str, &'p crate::project_js::scan::Name)>,
+    /// The top-level names nothing may assign to, and what each is: a
+    /// `const`, a `data` constant, an `image`.
+    fixed: HashMap<String, &'static str>,
+    /// Each store's members nothing may assign to: its derived values and
+    /// its actions.
+    store_fixed: HashMap<&'p str, HashMap<String, &'static str>>,
 }
 
 impl<'p> World<'p> {
@@ -415,6 +437,8 @@ pub fn check_in(
         consts: HashMap::new(),
         apis: HashMap::new(),
         scripts: HashMap::new(),
+        fixed: HashMap::new(),
+        store_fixed: HashMap::new(),
     };
     for decl in &program.declarations {
         match decl {
@@ -437,6 +461,34 @@ pub fn check_in(
             }
             Declaration::Component(c) => {
                 world.components.insert(c.name.as_str(), c);
+            }
+            Declaration::Store(store) => {
+                let mut fixed = HashMap::new();
+                for stmt in &store.body {
+                    match &stmt.kind {
+                        StatementKind::Derived(d) => {
+                            fixed.insert(d.name.clone(), "a `derived` value");
+                        }
+                        StatementKind::Action(a) => {
+                            fixed.insert(a.name.clone(), "an action");
+                        }
+                        _ => {}
+                    }
+                }
+                world.store_fixed.insert(store.name.as_str(), fixed);
+            }
+            Declaration::Const(c) => {
+                world.fixed.insert(c.name.clone(), "a `const`");
+            }
+            Declaration::Data(d) => {
+                world.fixed.insert(
+                    d.name.clone(),
+                    if d.is_image {
+                        "an `image`"
+                    } else {
+                        "a `data` constant"
+                    },
+                );
             }
             _ => {}
         }
@@ -507,7 +559,7 @@ pub fn check_in(
                 cx.push_scope();
                 for param in &p.params {
                     let ty = cx.world.resolve(Type::from_ref(&param.prop_type));
-                    cx.bind(&param.name, ty, param.span);
+                    cx.bind_fixed(&param.name, ty, param.span, "a route parameter");
                 }
                 if let Some(layout) = &p.layout {
                     cx.current_span = layout.span;
@@ -534,7 +586,7 @@ pub fn check_in(
                             &format!("the default of `{}`", prop.name),
                         );
                     }
-                    cx.bind(&prop.name, ty, prop.span);
+                    cx.bind_fixed(&prop.name, ty, prop.span, "a prop");
                 }
                 cx.component = Some(c);
                 cx.declare_hoisted(&c.body);
@@ -583,7 +635,11 @@ pub fn check_in(
                         cx.bind(param, Type::Any, hook.span);
                     }
                     cx.returns.push(Vec::new());
+                    cx.async_ok = true;
+                    cx.in_handler += 1;
                     cx.statements(&hook.body, Body::Imperative);
+                    cx.in_handler -= 1;
+                    cx.async_ok = false;
                     cx.returns.pop();
                     cx.pop_scope();
                 }
@@ -601,6 +657,9 @@ pub fn check_in(
     info
 }
 
+/// What a `match` arm's binding is, for a write to it.
+const ARM: &str = "a value a `match` arm binds";
+
 /// The kind of body being checked, for what a statement may be.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Body {
@@ -617,6 +676,9 @@ struct Checker<'a, 'p> {
     decl: usize,
     info: &'a mut TypeInfo,
     scopes: Vec<HashMap<String, Type>>,
+    /// The names in each scope nothing may assign to, and what each is: a
+    /// derived value, a prop, a loop variable. Parallel to `scopes`.
+    fixed: Vec<HashMap<String, &'static str>>,
     /// The component being checked, for `emit`.
     component: Option<&'p ComponentDecl>,
     /// The `return` types met in the action being checked.
@@ -630,6 +692,25 @@ struct Checker<'a, 'p> {
     /// Whether an element's arguments are being checked, where the
     /// resolver already reports a case the prop's enum lacks.
     in_args: bool,
+    /// Whether the body being checked compiles to an async function — an
+    /// action, a handler, a timer, a hook — where `await` may be written.
+    async_ok: bool,
+    /// Whether a `derived` value is being checked, for what `await` there
+    /// should be instead.
+    in_derived: bool,
+    /// How many handlers enclose what is being checked: `event` (`e`),
+    /// and `value` and `key`, are names only there.
+    in_handler: usize,
+    /// The states whose declared type says what their values must be —
+    /// `Number(1..=30)` — held to it at every assignment, not only the
+    /// first.
+    refined: HashMap<String, TypeRef>,
+    /// The lists an enclosing condition proves are not empty — `if
+    /// items.length > 0 { items[0] }` — by their text.
+    non_empty: Vec<String>,
+    /// Whether the expression being checked is a later arm of a `match`
+    /// expression whose first arm has already been checked as a whole.
+    in_chain: bool,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
@@ -646,25 +727,56 @@ impl<'a, 'p> Checker<'a, 'p> {
             decl,
             info,
             scopes: Vec::new(),
+            fixed: Vec::new(),
             component: None,
             returns: Vec::new(),
             current_span: Span::dummy(),
             in_args: false,
+            async_ok: false,
+            in_derived: false,
+            in_handler: 0,
+            refined: HashMap::new(),
+            non_empty: Vec::new(),
+            in_chain: false,
             source,
         }
     }
 
     fn push_scope(&mut self) {
         self.scopes.push(HashMap::new());
+        self.fixed.push(HashMap::new());
     }
 
     fn pop_scope(&mut self) {
         self.scopes.pop();
+        self.fixed.pop();
+    }
+
+    /// Bind a name nothing may assign to, saying what it is.
+    fn bind_fixed(&mut self, name: &str, ty: Type, span: Span, what: &'static str) {
+        self.bind(name, ty, span);
+        if let Some(fixed) = self.fixed.last_mut() {
+            fixed.insert(name.to_string(), what);
+        }
+    }
+
+    /// What `name` is, when it is something nothing may assign to: the
+    /// innermost binding of it decides.
+    fn fixed_kind(&self, name: &str) -> Option<&'static str> {
+        for (i, scope) in self.scopes.iter().enumerate().rev() {
+            if scope.contains_key(name) {
+                return self.fixed.get(i).and_then(|f| f.get(name).copied());
+            }
+        }
+        self.world.fixed.get(name).copied()
     }
 
     fn bind(&mut self, name: &str, ty: Type, span: Span) {
         if let Some(scope) = self.scopes.last_mut() {
             scope.insert(name.to_string(), ty.clone());
+        }
+        if let Some(fixed) = self.fixed.last_mut() {
+            fixed.remove(name);
         }
         self.info.bindings.push(Typed {
             decl: self.decl,
@@ -676,13 +788,33 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     /// Narrow a name within the current scope, without recording a binding.
     fn narrow(&mut self, name: &str, ty: Type) {
+        // A narrowed name is still what it was: a derived value checked
+        // for null is still not assignable.
+        let what = self.fixed_kind(name);
         if let Some(scope) = self.scopes.last_mut() {
             scope.insert(name.to_string(), ty);
+        }
+        if let (Some(what), Some(fixed)) = (what, self.fixed.last_mut()) {
+            fixed.insert(name.to_string(), what);
         }
     }
 
     fn lookup(&self, name: &str) -> Option<Type> {
         self.scopes.iter().rev().find_map(|s| s.get(name).cloned())
+    }
+
+    fn warn(&mut self, code: &'static str, message: String, hint: &str) {
+        let span = self.located(self.current_span, &message);
+        let d = Diagnostic::coded(
+            code,
+            message,
+            self.file,
+            span.line as usize,
+            span.col as usize,
+        )
+        .with_span(span, self.source.as_deref())
+        .with_hint(hint);
+        self.info.findings.warnings.push(d);
     }
 
     fn error(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
@@ -760,7 +892,38 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     /// Report `given` where `wanted` was expected, at `span`, naming `what`.
     fn expect(&mut self, given: &Type, wanted: &Type, span: Span, what: &str) {
+        // A bare case fits an enum only when the enum has it: `.quiet`
+        // given for a `Tone` that has `.calm` and `.loud` is never equal
+        // to anything a `Tone` holds.
+        if let (Type::Case(case), Type::Enum(e)) = (given, wanted.unwrapped())
+            && let Some(decl) = self.world.enums.get(e.as_str())
+            && !decl.case_names().contains(case)
+        {
+            self.error(
+                span,
+                "T02",
+                format!("`{e}` has no case `.{case}`"),
+                &format!(
+                    "`{e}` takes {}",
+                    decl.case_names()
+                        .iter()
+                        .map(|c| format!(".{c}"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            );
+            return;
+        }
         if given.assignable_to(wanted) {
+            return;
+        }
+        if let Type::Promise(inner) = given {
+            self.error(
+                span,
+                "T17",
+                format!("{what} is an async action's result, which is a promise of `{inner}` until it is awaited"),
+                "`await` it inside an action or a handler: `let value = await load()`",
+            );
             return;
         }
         let hint = match (given, wanted) {
@@ -803,6 +966,11 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.current_span = stmt.span;
             match &stmt.kind {
                 StatementKind::State(s) => {
+                    if let Some(t) = &s.ty
+                        && !t.refinement().is_empty()
+                    {
+                        self.refined.insert(s.name.clone(), t.clone());
+                    }
                     let ty = match &s.ty {
                         Some(t) => self.world.resolve(Type::from_ref(t)),
                         // A state that starts as `null` will hold something
@@ -834,27 +1002,37 @@ impl<'a, 'p> Checker<'a, 'p> {
                             _ => Type::Any,
                         },
                     };
-                    self.bind(&r.name, Type::Resource(Box::new(inner)), stmt.span);
+                    self.bind_fixed(
+                        &r.name,
+                        Type::Resource(Box::new(inner)),
+                        stmt.span,
+                        "a `resource`",
+                    );
                 }
                 StatementKind::Use(u) => {
-                    self.bind(&u.store_name, Type::Store(u.store_name.clone()), stmt.span);
+                    self.bind_fixed(
+                        &u.store_name,
+                        Type::Store(u.store_name.clone()),
+                        stmt.span,
+                        "a store",
+                    );
                 }
                 // `socket chat = ws(…)`, `peer link = rtc(…)`: the handle,
                 // bound before the body so a handler may name another
                 // connection declared after it.
                 StatementKind::Connection(c) => {
-                    self.bind(&c.name, Type::Any, stmt.span);
+                    self.bind_fixed(&c.name, Type::Any, stmt.span, "a connection");
                 }
                 _ => {}
             }
             // `ref: name` anywhere in the body declares `name`: a handle on
             // the element, read like the element itself.
             for name in ref_names(std::slice::from_ref(stmt)) {
-                self.bind(&name, Type::Any, stmt.span);
+                self.bind_fixed(&name, Type::Any, stmt.span, "an element's handle");
             }
             // `Form(bind: form)` declares `form`: its validity and values.
             for name in form_names(std::slice::from_ref(stmt)) {
-                self.bind(&name, form_type(), stmt.span);
+                self.bind_fixed(&name, form_type(), stmt.span, "a form's handle");
             }
         }
         // Actions before derived values, and all of them before any is
@@ -869,15 +1047,28 @@ impl<'a, 'p> Checker<'a, 'p> {
                     .iter()
                     .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
                     .collect();
-                // The return type is found when the body is checked.
-                self.bind(&a.name, Type::Func(params, Box::new(Type::Any)), stmt.span);
+                // The return type is found when the body is checked; an
+                // action that awaits hands back a promise of it.
+                let ret = if awaits(&a.body) {
+                    Type::Promise(Box::new(Type::Any))
+                } else {
+                    Type::Any
+                };
+                self.bind_fixed(
+                    &a.name,
+                    Type::Func(params, Box::new(ret)),
+                    stmt.span,
+                    "an action",
+                );
             }
         }
         for stmt in stmts {
             self.current_span = stmt.span;
             if let StatementKind::Derived(d) = &stmt.kind {
-                let ty = self.infer(&d.value, None);
-                self.bind(&d.name, ty, stmt.span);
+                let declared = d.ty.as_ref().map(|t| self.world.resolve(Type::from_ref(t)));
+                let given = self.infer_quiet(&d.value);
+                let ty = declared.unwrap_or(given);
+                self.bind_fixed(&d.name, ty, stmt.span, "a `derived` value");
             }
         }
     }
@@ -887,6 +1078,19 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn statements(&mut self, stmts: &[Statement], body: Body) {
         for stmt in stmts {
             self.statement(stmt, body);
+            // `if x == null { return }`: what follows runs only when `x`
+            // is not null.
+            if let StatementKind::If(i) = &stmt.kind
+                && i.binding.is_none()
+                && i.else_if_branches.is_empty()
+                && i.else_body.is_none()
+                && i.then_body
+                    .last()
+                    .is_some_and(|s| matches!(s.kind, StatementKind::Return(_)))
+            {
+                let names = null_names(&i.condition);
+                self.narrow_all(&names);
+            }
         }
     }
 
@@ -929,8 +1133,16 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             }
             StatementKind::Derived(d) => {
-                let ty = self.infer(&d.value, None);
-                self.narrow(&d.name, ty);
+                let declared = d.ty.as_ref().map(|t| self.world.resolve(Type::from_ref(t)));
+                self.in_derived = true;
+                let given = self.infer(&d.value, declared.as_ref());
+                self.in_derived = false;
+                if let Some(declared) = &declared {
+                    // A derived value says what it is; what it works out to
+                    // must be that.
+                    self.expect(&given, declared, span, &format!("`{}`", d.name));
+                }
+                self.narrow(&d.name, declared.unwrap_or(given));
             }
             StatementKind::Resource(r) => {
                 // An `api` endpoint is a call, not an address.
@@ -963,7 +1175,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                         self.infer(e, None);
                     }
                     if let Some(body) = &rule.body {
+                        // An `async` rule's check is an async function: it
+                        // may `await` the server.
+                        let was = std::mem::replace(&mut self.async_ok, rule.name == "async");
                         let checked = self.infer(body, Some(&Type::Bool));
+                        self.async_ok = was;
                         self.expect(&checked, &Type::Bool, rule.span, "a rule's check");
                     }
                     let Some(wanted) = rule_wants(&rule.name) else {
@@ -1008,7 +1224,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                         };
                         self.bind(param, ty, span);
                     }
+                    let was = std::mem::replace(&mut self.async_ok, true);
+                    self.in_handler += 1;
                     self.statements(&handler.body, Body::Imperative);
+                    self.in_handler -= 1;
+                    self.async_ok = was;
                     self.pop_scope();
                 }
             }
@@ -1020,13 +1240,20 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.bind(&p.name, ty, span);
                 }
                 self.returns.push(Vec::new());
+                let was = std::mem::replace(&mut self.async_ok, true);
                 self.statements(&a.body, Body::Imperative);
+                self.async_ok = was;
                 let returned = self.returns.pop().unwrap_or_default();
                 self.pop_scope();
                 let ret = returned
                     .into_iter()
                     .reduce(Type::join)
                     .unwrap_or(Type::Null);
+                let ret = if awaits(&a.body) {
+                    Type::Promise(Box::new(ret))
+                } else {
+                    ret
+                };
                 let params: Vec<Type> = a
                     .params
                     .iter()
@@ -1044,8 +1271,10 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             StatementKind::Effect(e) => {
                 self.push_scope();
+                let was = std::mem::replace(&mut self.async_ok, false);
                 self.statements(&e.body, Body::Imperative);
                 self.statements(&e.cleanup, Body::Imperative);
+                self.async_ok = was;
                 self.pop_scope();
             }
             StatementKind::Timer(t) => {
@@ -1062,7 +1291,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                     );
                 }
                 self.push_scope();
+                let was = std::mem::replace(&mut self.async_ok, true);
                 self.statements(&t.body, Body::Imperative);
+                self.async_ok = was;
                 self.pop_scope();
             }
             StatementKind::EventHandler(h) => {
@@ -1070,7 +1301,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                 if let Some(param) = &h.param {
                     self.bind(param, Type::Any, h.span);
                 }
+                let was = std::mem::replace(&mut self.async_ok, true);
+                self.in_handler += 1;
                 self.statements(&h.body, Body::Imperative);
+                self.in_handler -= 1;
+                self.async_ok = was;
                 self.pop_scope();
             }
             StatementKind::UIElement(el) => self.element(el, span),
@@ -1105,9 +1340,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                     }
                 };
                 self.push_scope();
-                self.bind(&f.item, item, span);
+                self.bind_fixed(&f.item, item, span, "a loop variable");
                 if let Some(index) = &f.index {
-                    self.bind(index, Type::Number, span);
+                    self.bind_fixed(index, Type::Number, span, "a loop variable");
                 }
                 if let Some(key) = &f.key {
                     self.infer(key, None);
@@ -1122,6 +1357,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             StatementKind::Match(m) => self.match_statement(m, span, body),
             StatementKind::Assignment(a) => {
+                self.check_writable(&a.target, span);
                 let target = match &a.target {
                     // A name nothing declares compiles to a signal's
                     // `.set`, `_name.set(…)`, which throws: `T13`.
@@ -1139,6 +1375,19 @@ impl<'a, 'p> Checker<'a, 'p> {
                 let value = self.infer(&a.value, Some(&target));
                 let what = format!("`{}`", expr_text(&a.target));
                 self.expect(&value, &target, span, &what);
+                // A value the checker can read is held to what the state's
+                // type says its values must be, here as at its declaration.
+                if let Expr::Identifier(name) = &a.target
+                    && let Some(ty) = self.refined.get(name).cloned()
+                    && let Some(fault) = refinement_fault(&ty, &a.value)
+                {
+                    self.error(
+                        span,
+                        "T01",
+                        format!("`{name}` {fault}"),
+                        "The type says what its values may be; this one is outside it",
+                    );
+                }
             }
             StatementKind::MethodCall(mc) => {
                 self.infer(
@@ -1238,10 +1487,14 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     fn if_statement(&mut self, i: &IfStmt, span: Span, body: Body) {
         self.push_scope();
+        let facts = self.non_empty.len();
+        if i.binding.is_none() {
+            self.non_empty.extend(non_empty_lists(&i.condition));
+        }
         match &i.binding {
             Some(name) => {
                 let ty = self.infer(&i.condition, None);
-                self.bind(name, ty.unwrapped(), span);
+                self.bind_fixed(name, ty.unwrapped(), span, "a value `if let` binds");
             }
             None => {
                 let ty = self.infer(&i.condition, Some(&Type::Bool));
@@ -1255,9 +1508,18 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
         }
         self.statements(&i.then_body, body);
+        self.non_empty.truncate(facts);
         self.pop_scope();
+        // A branch after `if x == null { … }` runs only when `x` is not
+        // null: `else { x.title }` needs no unwrapping.
+        let mut ruled_out: Vec<String> = if i.binding.is_none() {
+            null_names(&i.condition)
+        } else {
+            Vec::new()
+        };
         for (cond, branch) in &i.else_if_branches {
             self.push_scope();
+            self.narrow_all(&ruled_out);
             let ty = self.infer(cond, Some(&Type::Bool));
             self.condition(&ty, cond, span, "else if");
             for name in narrowed_names(cond) {
@@ -1267,26 +1529,90 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             self.statements(branch, body);
             self.pop_scope();
+            ruled_out.extend(null_names(cond));
         }
         if let Some(b) = &i.else_body {
             self.push_scope();
+            self.narrow_all(&ruled_out);
             self.statements(b, body);
             self.pop_scope();
         }
     }
 
+    /// Narrow each of `names` out of its `null`, in the current scope.
+    fn narrow_all(&mut self, names: &[String]) {
+        for name in names {
+            if let Some(Type::Optional(inner)) = self.lookup(name) {
+                self.narrow(name, *inner);
+            }
+        }
+    }
+
     fn match_statement(&mut self, m: &MatchStmt, span: Span, body: Body) {
         let scrutinee = self.infer(&m.scrutinee, None);
+        let has_else = m.arms.iter().any(|a| matches!(a.pattern, ArmPattern::Else));
+        // What the arms cover, and what they cover twice.
+        let mut cases: Vec<String> = Vec::new();
+        let mut dupes: Vec<String> = Vec::new();
+        for arm in &m.arms {
+            let key = match &arm.pattern {
+                ArmPattern::Case(c) => c.clone(),
+                ArmPattern::Loading => "loading".into(),
+                ArmPattern::Error => "error".into(),
+                ArmPattern::Ready => "ready".into(),
+                ArmPattern::State(s) => s.clone(),
+                ArmPattern::Else => continue,
+            };
+            if cases.contains(&key) {
+                dupes.push(key);
+            } else {
+                cases.push(key);
+            }
+        }
+        self.current_span = span;
+        match scrutinee.unwrapped() {
+            Type::Enum(_) => {
+                self.match_coverage(
+                    &expr_text(&m.scrutinee),
+                    &scrutinee.unwrapped(),
+                    &cases,
+                    &dupes,
+                    has_else,
+                );
+            }
+            Type::Resource(_) => {
+                for state in &dupes {
+                    self.error_at_current(
+                        "T15",
+                        format!(
+                            "`{state}` has two arms in this `match`; the second is never reached"
+                        ),
+                        "Keep one of them",
+                    );
+                }
+                if !has_else && !cases.iter().any(|c| c == "error") {
+                    self.warn(
+                        "T21",
+                        format!(
+                            "this `match` on `{}` has no `error` arm, so a failed request shows nothing",
+                            expr_text(&m.scrutinee)
+                        ),
+                        "Add `error(e) { Alert(e.message).danger }`, or `else { … }`",
+                    );
+                }
+            }
+            _ => {}
+        }
         match &scrutinee {
             Type::Resource(inner) => {
                 for arm in &m.arms {
                     self.push_scope();
                     match (&arm.pattern, &arm.binding) {
                         (ArmPattern::Ready, Some(name)) => {
-                            self.bind(name, (**inner).clone(), arm.span)
+                            self.bind_fixed(name, (**inner).clone(), arm.span, ARM)
                         }
                         (ArmPattern::Error, Some(name)) => {
-                            self.bind(name, Type::NetError, arm.span)
+                            self.bind_fixed(name, Type::NetError, arm.span, ARM)
                         }
                         (ArmPattern::Case(case), _) => self.error(
                             arm.span,
@@ -1357,13 +1683,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                     }
                     self.push_scope();
                     if let Some(name) = &arm.binding {
-                        self.bind(name, Type::Any, arm.span);
+                        self.bind_fixed(name, Type::Any, arm.span, ARM);
                     }
                     if let ArmPattern::Case(case) = &arm.pattern {
                         let fields = self.payload_of(name, case).unwrap_or_default();
                         for (i, bound) in arm.bindings.iter().enumerate() {
                             let ty = fields.get(i).map(|(_, t)| t.clone()).unwrap_or(Type::Any);
-                            self.bind(bound, ty, arm.span);
+                            self.bind_fixed(bound, ty, arm.span, ARM);
                         }
                     }
                     self.statements(&arm.body, body);
@@ -1374,10 +1700,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                 for arm in &m.arms {
                     self.push_scope();
                     if let Some(name) = &arm.binding {
-                        self.bind(name, Type::Any, arm.span);
+                        self.bind_fixed(name, Type::Any, arm.span, ARM);
                     }
                     for bound in &arm.bindings {
-                        self.bind(bound, Type::Any, arm.span);
+                        self.bind_fixed(bound, Type::Any, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
@@ -1405,7 +1731,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                             ArmPattern::Case(case) if case == "status" => Type::Any,
                             _ => Type::Any,
                         };
-                        self.bind(name, bound, arm.span);
+                        self.bind_fixed(name, bound, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
@@ -1424,13 +1750,147 @@ impl<'a, 'p> Checker<'a, 'p> {
                 for arm in &m.arms {
                     self.push_scope();
                     if let Some(name) = &arm.binding {
-                        self.bind(name, Type::Any, arm.span);
+                        self.bind_fixed(name, Type::Any, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
                 }
             }
         }
+    }
+
+    /// A record built by name, `Todo(id: "1", title: "x")`: each value
+    /// against its field's type, a field the record lacks, and a field it
+    /// needs that is not given.
+    fn record_fields_given(&mut self, record: &str, given: &[(&str, &Expr)], what: &str) {
+        let Some(all) = self.world.record_fields(record) else {
+            return;
+        };
+        let mut spread = false;
+        for (key, value) in given {
+            if *key == "..." {
+                self.infer(value, None);
+                spread = true;
+                continue;
+            }
+            match all.iter().find(|f| f.name == *key) {
+                Some(field) => {
+                    let wanted = self.world.resolve(Type::from_ref(&field.ty));
+                    let ty = self.infer(value, Some(&wanted));
+                    if !ty.assignable_to(&wanted) {
+                        self.error_at_current(
+                            "T01",
+                            format!(
+                                "`{key}` of `{record}` is `{wanted}`, but `{}` is `{ty}`",
+                                expr_text(value)
+                            ),
+                            "",
+                        );
+                    }
+                }
+                None => {
+                    self.infer(value, None);
+                }
+            }
+        }
+        if !spread {
+            let keys: Vec<String> = given.iter().map(|(k, _)| k.to_string()).collect();
+            self.record_keys_given(record, &keys, what);
+        }
+    }
+
+    /// The keys given for a record: one it does not have is `T05`, one it
+    /// needs and does not get is `C01`.
+    fn record_keys_given(&mut self, record: &str, keys: &[String], what: &str) {
+        let Some(all) = self.world.record_fields(record) else {
+            return;
+        };
+        let names: Vec<String> = all.iter().map(|f| format!("`{}`", f.name)).collect();
+        for key in keys {
+            if !all.iter().any(|f| &f.name == key) {
+                self.error_at_current(
+                    "T05",
+                    format!("`{record}` has no field `{key}`"),
+                    &format!("Its fields are {}", names.join(", ")),
+                );
+            }
+        }
+        let missing: Vec<String> = all
+            .iter()
+            .filter(|f| {
+                f.default.is_none()
+                    && !matches!(f.ty, TypeRef::Optional(_))
+                    && !keys.iter().any(|k| k == &f.name)
+            })
+            .map(|f| format!("`{}`", f.name))
+            .collect();
+        if !missing.is_empty() {
+            self.error_at_current(
+                "C01",
+                format!(
+                    "{what} leaves out {} of `{record}`, which {} no default",
+                    missing.join(", "),
+                    if missing.len() == 1 { "has" } else { "have" }
+                ),
+                "Give it, or declare a default in the type: `field: Type = value`",
+            );
+        }
+    }
+
+    /// An assignment's target must be something that can change: a state,
+    /// a `persist`, a `let`, a store's state — not a constant, a derived
+    /// value, a prop, a route parameter or a loop variable. At run time an
+    /// assignment to one throws, or writes a copy nothing reads.
+    fn check_writable(&mut self, target: &Expr, span: Span) {
+        let (name, what) = match target {
+            Expr::Identifier(name) => match self.fixed_kind(name) {
+                Some(what) => (name.clone(), what),
+                None => return,
+            },
+            Expr::PropertyAccess(base, member) => match base.as_ref() {
+                Expr::Identifier(store)
+                    if self
+                        .lookup(store)
+                        .is_none_or(|t| matches!(t, Type::Store(_))) =>
+                {
+                    match self
+                        .world
+                        .store_fixed
+                        .get(store.as_str())
+                        .and_then(|m| m.get(member))
+                    {
+                        Some(what) => (format!("{store}.{member}"), *what),
+                        None => return,
+                    }
+                }
+                _ => return,
+            },
+            _ => return,
+        };
+        let hint = match what {
+            "a `const`" | "a `data` constant" | "an `image`" => {
+                "Declare it `state` if it changes; a constant is the same on every page"
+            }
+            "a `derived` value" => {
+                "It is worked out from what it reads: assign to that, or make it a `state`"
+            }
+            "a prop" => {
+                "The caller owns it: keep a `state` of your own seeded from it, or `emit` an event so the caller changes it"
+            }
+            "a route parameter" => "The address owns it: `navigate` to the new address",
+            "a loop variable" => {
+                "Each pass gets its own copy: change the item through the list it came from"
+            }
+            "an action" => "Call it: `name()`",
+            _ => "Hold what changes in a `state`",
+        };
+        let located = self.located(span, &format!("`{name}`"));
+        self.error(
+            located,
+            "X01",
+            format!("`{name}` is {what}, and nothing may assign to it"),
+            hint,
+        );
     }
 
     fn emit(&mut self, e: &EmitStmt, span: Span) {
@@ -1579,7 +2039,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                 };
                 self.bind(param, ty, handler.span);
             }
+            let was = std::mem::replace(&mut self.async_ok, true);
+            self.in_handler += 1;
             self.statements(&handler.body, Body::Imperative);
+            self.in_handler -= 1;
+            self.async_ok = was;
             self.pop_scope();
         }
         for fill in &el.slot_fills {
@@ -1607,7 +2071,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.push_scope();
             for (i, name) in fill.params.iter().enumerate() {
                 let ty = params.get(i).cloned().unwrap_or(Type::Any);
-                self.bind(name, ty, fill.span);
+                self.bind_fixed(name, ty, fill.span, "a value a slot hands over");
             }
             self.statements(&fill.body, Body::Page);
             self.pop_scope();
@@ -1827,6 +2291,23 @@ impl<'a, 'p> Checker<'a, 'p> {
                 for part in parts {
                     if let StringPart::Expression(e) = part {
                         let ty = self.infer(e, None);
+                        // A value that may be null shows as "null" (or
+                        // "undefined") in the text.
+                        if let Type::Optional(inner) = &ty
+                            && !inner.is_any()
+                        {
+                            self.warn(
+                                "T19",
+                                format!(
+                                    "`{}` may be null, and in text it would show as `null`",
+                                    expr_text(e)
+                                ),
+                                &format!(
+                                    "Say what to show instead: `{{{} ?? \"\"}}`",
+                                    expr_text(e)
+                                ),
+                            );
+                        }
                         // A `Secret` in a string is a secret in a URL, in a
                         // log line, in the page — wherever that string goes.
                         if ty.unwrapped() == Type::Scalar(Scalar::Secret) {
@@ -1966,8 +2447,20 @@ impl<'a, 'p> Checker<'a, 'p> {
             // A plain access after a `?.` in the same chain is short-circuited
             // with it: `a?.b.c` is null when `a` is, never a fault.
             Expr::PropertyAccess(base, field) if in_optional_chain(base) => {
-                let base_ty = self.infer(base, None).unwrapped();
-                Type::optional(self.property(&base_ty, base, field))
+                // `a?.b.c`: the `?.` covers `a` being null, not `b`. When
+                // `b` may itself be null, `.c` may fail.
+                let (base_ty, _) = self.chain(base);
+                if let Type::Optional(_) = base_ty {
+                    self.error_at_current(
+                        "T04",
+                        format!(
+                            "`{}` may be null even when the `?.` before it is not, so `.{field}` may fail",
+                            expr_text(base)
+                        ),
+                        &format!("Read it through null too: `{}?.{field}`", expr_text(base)),
+                    );
+                }
+                Type::optional(self.property(&base_ty.unwrapped(), base, field))
             }
             Expr::PropertyAccess(base, field) => {
                 let base_ty = self.infer(base, None);
@@ -1982,7 +2475,16 @@ impl<'a, 'p> Checker<'a, 'p> {
                     base_ty
                 };
                 self.infer(index, None);
+                // `todos[0]` is nothing when the list is empty: the item
+                // may be null, unless a condition around it says the list
+                // has items.
+                let fixed_index = matches!(**index, Expr::NumberLiteral(_));
                 let ty = match base_ty.unwrapped() {
+                    Type::List(inner)
+                        if fixed_index && !self.non_empty.contains(&expr_text(base)) =>
+                    {
+                        Type::optional(*inner)
+                    }
                     Type::List(inner) => *inner,
                     Type::String => Type::String,
                     _ => Type::Any,
@@ -2010,8 +2512,18 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Type::optional(ty)
             }
             Expr::BinaryOp(l, op, r) => {
+                // A case on one side is read against the other side's enum:
+                // `tone == .quiet` asks the `Tone` enum about `.quiet`.
                 let lt = self.infer(l, None);
-                let rt = self.infer(r, None);
+                let rt = match (op, lt.unwrapped()) {
+                    (BinOp::Eq | BinOp::Neq, Type::Enum(_)) if matches!(**r, Expr::EnumCase(_)) => {
+                        Type::Case(match &**r {
+                            Expr::EnumCase(c) => c.clone(),
+                            _ => unreachable!(),
+                        })
+                    }
+                    _ => self.infer(r, None),
+                };
                 match op {
                     BinOp::Add => {
                         if lt.unwrapped() == Type::String || rt.unwrapped() == Type::String {
@@ -2019,13 +2531,33 @@ impl<'a, 'p> Checker<'a, 'p> {
                         } else if lt == Type::Number && rt == Type::Number {
                             Type::Number
                         } else {
+                            for (side, ty) in [(l, &lt), (r, &rt)] {
+                                if !adds(ty) {
+                                    self.arithmetic_fault("+", side, ty);
+                                }
+                            }
                             Type::Any
                         }
                     }
-                    BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod => Type::Number,
-                    BinOp::Eq | BinOp::Neq | BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte => {
+                    BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod => {
+                        let sign = match op {
+                            BinOp::Sub => "-",
+                            BinOp::Mul => "*",
+                            BinOp::Div => "/",
+                            _ => "%",
+                        };
+                        for (side, ty) in [(l, &lt), (r, &rt)] {
+                            if !counts(ty) {
+                                self.arithmetic_fault(sign, side, ty);
+                            }
+                        }
+                        Type::Number
+                    }
+                    BinOp::Eq | BinOp::Neq => {
+                        self.comparison(l, &lt, r, &rt, matches!(op, BinOp::Eq));
                         Type::Bool
                     }
+                    BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte => Type::Bool,
                     BinOp::And | BinOp::Or => Type::Bool,
                     BinOp::NullCoalesce => Type::join(lt.unwrapped(), rt),
                 }
@@ -2097,6 +2629,16 @@ impl<'a, 'p> Checker<'a, 'p> {
                         None => shape.push((key, ty)),
                     }
                 }
+                // A map written where a record is wanted is that record: a
+                // key it does not have, or a field it needs and lacks, is
+                // a fault here, where it is written.
+                if !spread
+                    && let Some(Type::Record(record)) = expected.map(|t| t.unwrapped())
+                    && self.world.record_fields(&record).is_some()
+                {
+                    let keys: Vec<String> = shape.iter().map(|(k, _)| k.clone()).collect();
+                    self.record_keys_given(&record, &keys, "the map");
+                }
                 // An empty literal says nothing about its keys.
                 if spread || shape.is_empty() {
                     Type::Map
@@ -2137,18 +2679,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Type::list(Type::Number)
             }
             Expr::Record(name, fields) => {
-                if let Some(all) = self.world.record_fields(name) {
-                    for (key, value) in fields {
-                        match all.iter().find(|f| &f.name == key) {
-                            Some(field) => {
-                                let wanted = self.world.resolve(Type::from_ref(&field.ty));
-                                self.infer(value, Some(&wanted));
-                            }
-                            None => {
-                                self.infer(value, None);
-                            }
-                        };
-                    }
+                if self.world.record_fields(name).is_some() {
+                    let given: Vec<(&str, &Expr)> =
+                        fields.iter().map(|(k, v)| (k.as_str(), v)).collect();
+                    self.record_fields_given(name, &given, &format!("`{name}(…)`"));
                     Type::Record(name.clone())
                 } else if self.world.enums.contains_key(name.as_str()) {
                     Type::Enum(name.clone())
@@ -2178,9 +2712,23 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Type::Func(param_types, Box::new(ret))
             }
             Expr::Await(e) => {
+                if !self.async_ok {
+                    let (message, hint) = if self.in_derived {
+                        (
+                            "a `derived` value cannot `await`: it is worked out at once, whenever what it reads changes",
+                            "Fetch it with a `resource`, which is loading until the answer arrives and follows what its address reads",
+                        )
+                    } else {
+                        (
+                            "`await` is written in an action, a handler, a timer or a service's hook, and this is none of them",
+                            "Move the call into an `action` and call that; to show data as it arrives, use a `resource`",
+                        )
+                    };
+                    self.error_at_current("T17", message.to_string(), hint);
+                }
                 let ty = self.infer(e, None);
                 match ty {
-                    Type::Resource(inner) => *inner,
+                    Type::Resource(inner) | Type::Promise(inner) => *inner,
                     other => other,
                 }
             }
@@ -2188,6 +2736,17 @@ impl<'a, 'p> Checker<'a, 'p> {
     }
 
     fn property(&mut self, base_ty: &Type, base: &Expr, field: &str) -> Type {
+        if let Type::Promise(inner) = base_ty {
+            self.error_at_current(
+                "T17",
+                format!(
+                    "`{}` is an async action's result, a promise of `{inner}`; it has no `{field}` until it is awaited",
+                    expr_text(base)
+                ),
+                "`await` it inside an action or a handler: `(await load()).field`",
+            );
+            return Type::Any;
+        }
         match base_ty {
             // What a failed request says about itself.
             Type::NetError => match field {
@@ -2332,9 +2891,29 @@ impl<'a, 'p> Checker<'a, 'p> {
                 "error" => Type::optional(Type::Any),
                 _ => Type::Any,
             },
-            // `save.pending`: whether a call of the action is under way.
-            Type::Func(..) => match field {
-                "pending" => Type::Bool,
+            // `save.pending`: whether a call of the action is under way —
+            // which is only ever for an action that awaits something.
+            Type::Func(_, ret) => match field {
+                "pending" => {
+                    let is_action = match base {
+                        Expr::Identifier(n) => self.fixed_kind(n) == Some("an action"),
+                        Expr::PropertyAccess(store, member) => matches!(store.as_ref(),
+                            Expr::Identifier(s) if self.world.store_fixed.get(s.as_str())
+                                .and_then(|m| m.get(member)).copied() == Some("an action")),
+                        _ => false,
+                    };
+                    if is_action && !matches!(**ret, Type::Promise(_)) {
+                        self.error_at_current(
+                            "T17",
+                            format!(
+                                "`{}` awaits nothing, so `.pending` is always false",
+                                expr_text(base)
+                            ),
+                            "`.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints",
+                        );
+                    }
+                    Type::Bool
+                }
                 // `Backend.avatar.progress`: how far an upload has got, 0 to 1
                 // — a service's endpoint's, which an action does not have.
                 "progress"
@@ -2368,6 +2947,14 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn method_call_on(&mut self, obj: &Expr, method: &str, args: &[Expr], optional: bool) -> Type {
         // `if let x = e { a } else { b }` as a value: `x` is the non-null
         // value in `a`.
+        // The head of a `match` expression's arms is checked as a whole:
+        // every case covered, none twice.
+        if (method == "__if" || method == "__iflet") && !self.in_chain {
+            self.check_match_chain(obj, method, args);
+        }
+        if method == "__exhaustive" {
+            return Type::Never;
+        }
         if method == "__iflet"
             && args.len() == 2
             && let Expr::Lambda(name, then_expr) = &args[0]
@@ -2375,9 +2962,12 @@ impl<'a, 'p> Checker<'a, 'p> {
             let value_ty = self.infer(obj, None);
             self.push_scope();
             self.narrow(name, value_ty.unwrapped());
+            let was = std::mem::replace(&mut self.in_chain, false);
             let then_ty = self.infer(then_expr, None);
             self.pop_scope();
+            self.in_chain = match_arm(&args[1]).is_some();
             let else_ty = self.infer(&args[1], None);
+            self.in_chain = was;
             return Type::join(then_ty, else_ty);
         }
         // `match` over an enum as a value: `__is` asks for a case, `__payload`
@@ -2436,9 +3026,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.narrow(&name, *inner);
                 }
             }
+            let was = std::mem::replace(&mut self.in_chain, false);
             let then_ty = self.infer(&args[0], None);
             self.pop_scope();
+            self.in_chain = match_arm(&args[1]).is_some();
             let else_ty = self.infer(&args[1], None);
+            self.in_chain = was;
             return Type::join(then_ty, else_ty);
         }
         let obj_ty = self.infer(obj, None);
@@ -2540,6 +3133,22 @@ impl<'a, 'p> Checker<'a, 'p> {
             );
         }
         let obj_ty = obj_ty.unwrapped();
+        if let Type::Promise(inner) = &obj_ty
+            && !matches!(method, "then" | "catch" | "finally")
+        {
+            for a in args {
+                self.infer(a, None);
+            }
+            self.error_at_current(
+                "T17",
+                format!(
+                    "`{}` is an async action's result, a promise of `{inner}`; it has no `{method}` until it is awaited",
+                    expr_text(obj)
+                ),
+                "`await` it inside an action or a handler",
+            );
+            return Type::Any;
+        }
         match &obj_ty {
             // A shape's field that is a function: `form.reset()`.
             Type::Shape(fields)
@@ -2590,8 +3199,13 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
             Type::List(item) => {
                 let item = (**item).clone();
-                let lambda =
-                    |ret: Type| Type::Func(vec![item.clone(), Type::Number], Box::new(ret));
+                // JavaScript hands each item, its index and the list itself.
+                let lambda = |ret: Type| {
+                    Type::Func(
+                        vec![item.clone(), Type::Number, Type::list(item.clone())],
+                        Box::new(ret),
+                    )
+                };
                 match method {
                     "map" => {
                         let f = self.infer_arg(args, 0, Some(&lambda(Type::Any)));
@@ -2661,7 +3275,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                             args,
                             0,
                             Some(&Type::Func(
-                                vec![init.clone(), item],
+                                vec![init.clone(), item.clone(), Type::Number, Type::list(item)],
                                 Box::new(init.clone()),
                             )),
                         );
@@ -2697,6 +3311,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                         for a in args {
                             self.infer(a, None);
                         }
+                        if !LIST_METHODS.contains(&method) {
+                            self.unknown_method(&obj_ty, method, LIST_METHODS);
+                        }
                         Type::Any
                     }
                 }
@@ -2716,7 +3333,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                     "split" | "lines" | "words" => Type::list(Type::String),
                     // `"x".match(/…/)`: the matches, or null.
                     "match" => Type::optional(Type::list(Type::String)),
-                    _ => Type::Any,
+                    m if STRING_METHODS.contains(&m) => Type::Any,
+                    _ => {
+                        self.unknown_method(&obj_ty, method, STRING_METHODS);
+                        Type::Any
+                    }
                 }
             }
             // The language's own types: a date's arithmetic, money's, a
@@ -2760,8 +3381,27 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.infer(a, None);
                 }
                 match method {
-                    "toFixed" | "toString" => Type::String,
-                    _ => Type::Any,
+                    "toFixed" | "toString" | "toPrecision" | "toExponential" | "toLocaleString" => {
+                        Type::String
+                    }
+                    "valueOf" => Type::Number,
+                    _ => {
+                        self.unknown_method(&obj_ty, method, NUMBER_METHODS);
+                        Type::Any
+                    }
+                }
+            }
+            Type::Bool => {
+                for a in args {
+                    self.infer(a, None);
+                }
+                match method {
+                    "toString" => Type::String,
+                    "valueOf" => Type::Bool,
+                    _ => {
+                        self.unknown_method(&obj_ty, method, &["toString", "valueOf"]);
+                        Type::Any
+                    }
                 }
             }
             Type::Record(name) => {
@@ -2784,6 +3424,211 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
     }
 
+    /// The type of a step of a `?.` chain as if the chain had not been
+    /// cut short — what the step itself may be — and whether a `?.` in it
+    /// may cut it short.
+    fn chain(&mut self, expr: &Expr) -> (Type, bool) {
+        match expr {
+            Expr::OptionalProperty(base, field) => {
+                let (base_ty, _) = self.chain(base);
+                (self.property(&base_ty.unwrapped(), base, field), true)
+            }
+            Expr::PropertyAccess(base, field) if in_optional_chain(base) => {
+                let (base_ty, short) = self.chain(base);
+                if let Type::Optional(_) = base_ty {
+                    self.error_at_current(
+                        "T04",
+                        format!(
+                            "`{}` may be null even when the `?.` before it is not, so `.{field}` may fail",
+                            expr_text(base)
+                        ),
+                        &format!("Read it through null too: `{}?.{field}`", expr_text(base)),
+                    );
+                }
+                (self.property(&base_ty.unwrapped(), base, field), short)
+            }
+            other => {
+                let ty = self.infer(other, None);
+                let short = in_optional_chain(other);
+                if short {
+                    (ty.unwrapped(), true)
+                } else {
+                    (ty, false)
+                }
+            }
+        }
+    }
+
+    /// A `match` expression's arms, read back from what it lowers to: every
+    /// case of the enum covered when there is no `else`, no case twice, and
+    /// no `else` that no value reaches.
+    fn check_match_chain(&mut self, obj: &Expr, method: &str, args: &[Expr]) {
+        let head = Expr::MethodCall(Box::new(obj.clone()), method.to_string(), args.to_vec());
+        let Some((subject, _, _)) = match_arm(&head) else {
+            return;
+        };
+        let subject_text = expr_text(subject);
+        let mut cases: Vec<String> = Vec::new();
+        let mut dupes: Vec<String> = Vec::new();
+        let mut at = &head;
+        let fallback = loop {
+            match match_arm(at) {
+                Some((s, case, rest)) if expr_text(s) == subject_text => {
+                    if cases.contains(&case) {
+                        dupes.push(case);
+                    } else {
+                        cases.push(case);
+                    }
+                    at = rest;
+                }
+                _ => break at,
+            }
+        };
+        let has_else = !matches!(fallback, Expr::MethodCall(_, m, _) if m == "__exhaustive");
+        let subject_ty = self.infer_quiet(subject).unwrapped();
+        self.match_coverage(&subject_text, &subject_ty, &cases, &dupes, has_else);
+    }
+
+    /// What a `match` — statement or expression — covers of an enum.
+    fn match_coverage(
+        &mut self,
+        subject: &str,
+        ty: &Type,
+        cases: &[String],
+        dupes: &[String],
+        has_else: bool,
+    ) {
+        for case in dupes {
+            self.error_at_current(
+                "T15",
+                format!("`.{case}` has two arms in this `match`; the second is never reached"),
+                "Keep one of them",
+            );
+        }
+        let Type::Enum(name) = ty else {
+            if !has_else {
+                self.error_at_current(
+                    "T15",
+                    format!("this `match` has no `else`, and nothing says `{subject}` is an enum whose every case it covers"),
+                    "Add `else { … }`, or declare its type so the cases can be counted",
+                );
+            }
+            return;
+        };
+        let all = self
+            .world
+            .enums
+            .get(name.as_str())
+            .map(|e| e.case_names())
+            .unwrap_or_default();
+        let missing: Vec<String> = all
+            .iter()
+            .filter(|c| !cases.contains(c))
+            .map(|c| format!("`.{c}`"))
+            .collect();
+        if !has_else && !missing.is_empty() {
+            self.error_at_current(
+                "T15",
+                format!(
+                    "this `match` on `{subject}` has no arm for {}, and no `else`",
+                    missing.join(", ")
+                ),
+                "Add an arm for each, or `else { … }` for the rest",
+            );
+        } else if has_else && missing.is_empty() && !all.is_empty() {
+            self.warn(
+                "U10",
+                format!("every case of `{name}` has its own arm, so this `match`'s `else` is never reached"),
+                "Remove the `else`",
+            );
+        }
+    }
+
+    /// `==` or `!=` between values that can never be equal: a string and a
+    /// number (`"1" == 1` is `false` in the compiled code), a record and a
+    /// string, or an enum and a case it does not have. The comparison is
+    /// always the same, so it is almost always a mistake.
+    fn comparison(&mut self, l: &Expr, lt: &Type, r: &Expr, rt: &Type, eq: bool) {
+        let (a, b) = (lt.unwrapped(), rt.unwrapped());
+        // An enum against a case it does not have.
+        for (e, c) in [(&a, &b), (&b, &a)] {
+            if let (Type::Enum(name), Type::Case(case)) = (e, c)
+                && let Some(decl) = self.world.enums.get(name.as_str())
+                && !decl.case_names().contains(case)
+            {
+                self.error_at_current(
+                    "T14",
+                    format!(
+                        "`{name}` has no case `.{case}`, so this is always {}",
+                        if eq { "false" } else { "true" }
+                    ),
+                    &format!(
+                        "`{name}` takes {}",
+                        decl.case_names()
+                            .iter()
+                            .map(|c| format!(".{c}"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ),
+                );
+                return;
+            }
+        }
+        if disjoint(&a, &b) {
+            let hint = match (&a, &b) {
+                (Type::String, Type::Number) | (Type::Number, Type::String) => {
+                    "Convert one side: `Number(text) == n`, or `\"{n}\" == text`"
+                }
+                _ => "Compare values of one type",
+            };
+            self.error_at_current(
+                "T14",
+                format!(
+                    "`{}` is `{a}` and `{}` is `{b}`, which are never equal, so this is always {}",
+                    expr_text(l),
+                    expr_text(r),
+                    if eq { "false" } else { "true" }
+                ),
+                hint,
+            );
+        }
+    }
+
+    /// Arithmetic on something that is not a number: `"a" - 1` is `NaN`,
+    /// `items * 2` is `NaN`, and `list + 1` is a string nobody wanted.
+    fn arithmetic_fault(&mut self, sign: &str, side: &Expr, ty: &Type) {
+        self.error_at_current(
+            "T18",
+            format!(
+                "`{sign}` takes numbers, but `{}` is `{ty}`",
+                expr_text(side)
+            ),
+            match ty.unwrapped() {
+                Type::String => {
+                    "Convert it: `Number(value)`; `+` joins text when one side is a string"
+                }
+                Type::List(_) => "Use its length, or `sum()` its numbers",
+                _ => "Use a number field of it",
+            },
+        );
+    }
+
+    /// A method a number, a string or a list does not have: in the browser,
+    /// `x.method is not a function`, the first time the line runs.
+    fn unknown_method(&mut self, on: &Type, method: &str, known: &[&str]) {
+        let near = known
+            .iter()
+            .map(|k| (crate::linter::vocabulary::levenshtein(method, k), *k))
+            .filter(|(d, _)| *d <= 2)
+            .min()
+            .map(|(_, k)| format!("Did you mean `{k}`?"))
+            .unwrap_or_else(|| {
+                let shown: Vec<String> = known.iter().take(12).map(|k| format!("`{k}`")).collect();
+                format!("It has {}, …", shown.join(", "))
+            });
+        self.error_at_current("T16", format!("a `{on}` has no method `{method}`"), &near);
+    }
+
     /// The payload of `case` on the enum `name`: its fields and their types,
     /// empty for a bare case, `None` for a case the enum lacks.
     fn payload_of(&self, name: &str, case: &str) -> Option<Vec<(String, Type)>> {
@@ -2799,7 +3644,27 @@ impl<'a, 'p> Checker<'a, 'p> {
 
     fn infer_arg(&mut self, args: &[Expr], i: usize, expected: Option<&Type>) -> Type {
         match args.get(i) {
-            Some(e) => self.infer(e, expected),
+            Some(e) => {
+                let ty = self.infer(e, expected);
+                // A function handed to a list's method takes no more
+                // arguments than the method gives it: `sort` hands two.
+                if let (Type::Func(given, _), Some(Type::Func(offered, _))) = (&ty, expected)
+                    && given.len() > offered.len()
+                {
+                    self.error_at_current(
+                        "T10",
+                        format!(
+                            "`{}` takes {} argument{}, but it is given {}",
+                            expr_text(e),
+                            given.len(),
+                            if given.len() == 1 { "" } else { "s" },
+                            offered.len()
+                        ),
+                        "Name only the arguments the method passes",
+                    );
+                }
+                ty
+            }
             None => Type::Any,
         }
     }
@@ -3077,13 +3942,10 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn is_known_name(&self, name: &str) -> bool {
         crate::codegen::js::BROWSER_GLOBALS.contains(&name)
             || crate::codegen::js::BROWSER_VALUES.contains(&name)
+            || (self.in_handler > 0 && matches!(name, "event" | "e" | "value" | "key"))
             || matches!(
                 name,
-                "event"
-                    | "e"
-                    | "params"
-                    | "value"
-                    | "key"
+                "params"
                     | "env"
                     | "locale"
                     | "dir"
@@ -3195,6 +4057,165 @@ fn arg_value(arg: &Arg) -> &Expr {
     }
 }
 
+/// Whether a value of `ty` takes part in `-`, `*`, `/` and `%`: a number,
+/// a duration (milliseconds), or something the checker cannot see.
+fn counts(ty: &Type) -> bool {
+    matches!(
+        ty.unwrapped(),
+        Type::Number | Type::Any | Type::Scalar(Scalar::Duration) | Type::Null
+    )
+}
+
+/// Whether a value of `ty` takes part in a `+` that is not a string's: as
+/// `counts`, or a string, which `+` joins.
+fn adds(ty: &Type) -> bool {
+    counts(ty)
+        || ty.unwrapped() == Type::String
+        || matches!(ty.unwrapped(), Type::Scalar(s) if s.is_text())
+}
+
+/// Whether no value of `a` can equal a value of `b`.
+fn disjoint(a: &Type, b: &Type) -> bool {
+    fn family(t: &Type) -> Option<u8> {
+        Some(match t {
+            Type::String | Type::Scalar(_) => 0,
+            Type::Number => 1,
+            Type::Bool => 2,
+            Type::List(_) => 3,
+            Type::Record(_) | Type::Shape(_) | Type::Map => 4,
+            Type::Enum(_) | Type::Case(_) => 0,
+            _ => return None,
+        })
+    }
+    // A duration is a number, a text scalar a string, an enum's case a
+    // string at run time.
+    let a_fam = match a {
+        Type::Scalar(Scalar::Duration) => Some(1),
+        Type::Scalar(Scalar::Money) | Type::Scalar(Scalar::File) => Some(4),
+        other => family(other),
+    };
+    let b_fam = match b {
+        Type::Scalar(Scalar::Duration) => Some(1),
+        Type::Scalar(Scalar::Money) | Type::Scalar(Scalar::File) => Some(4),
+        other => family(other),
+    };
+    match (a_fam, b_fam) {
+        (Some(x), Some(y)) => x != y,
+        _ => false,
+    }
+}
+
+/// Every method a list has: the browser's own, and the helpers the
+/// runtime adds (`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`,
+/// `sum`, `remove`, `contains`).
+const LIST_METHODS: &[&str] = &[
+    "map",
+    "filter",
+    "find",
+    "findIndex",
+    "findLast",
+    "findLastIndex",
+    "some",
+    "every",
+    "includes",
+    "indexOf",
+    "lastIndexOf",
+    "join",
+    "slice",
+    "concat",
+    "reverse",
+    "sort",
+    "push",
+    "pop",
+    "shift",
+    "unshift",
+    "splice",
+    "reduce",
+    "reduceRight",
+    "forEach",
+    "flat",
+    "flatMap",
+    "fill",
+    "copyWithin",
+    "entries",
+    "keys",
+    "values",
+    "at",
+    "with",
+    "toReversed",
+    "toSorted",
+    "toSpliced",
+    "toString",
+    "toLocaleString",
+    "sortBy",
+    "groupBy",
+    "unique",
+    "take",
+    "first",
+    "last",
+    "sum",
+    "remove",
+    "contains",
+];
+
+/// Every method a string has: the browser's own and the runtime's
+/// (`capitalize`, `truncate`, `dedent`, `lines`, `words`).
+const STRING_METHODS: &[&str] = &[
+    "toLowerCase",
+    "toUpperCase",
+    "toLocaleLowerCase",
+    "toLocaleUpperCase",
+    "trim",
+    "trimStart",
+    "trimEnd",
+    "replace",
+    "replaceAll",
+    "slice",
+    "substring",
+    "substr",
+    "charAt",
+    "charCodeAt",
+    "codePointAt",
+    "at",
+    "toString",
+    "valueOf",
+    "padStart",
+    "padEnd",
+    "repeat",
+    "normalize",
+    "concat",
+    "indexOf",
+    "lastIndexOf",
+    "search",
+    "localeCompare",
+    "includes",
+    "startsWith",
+    "endsWith",
+    "split",
+    "match",
+    "matchAll",
+    "isWellFormed",
+    "toWellFormed",
+    "capitalize",
+    "truncate",
+    "dedent",
+    "lines",
+    "words",
+    "contains",
+    "toUpper",
+    "toLower",
+];
+
+/// Every method a number has.
+const NUMBER_METHODS: &[&str] = &[
+    "toFixed",
+    "toString",
+    "toPrecision",
+    "toExponential",
+    "toLocaleString",
+    "valueOf",
+];
+
 /// The type a control's `bind:` state must hold.
 fn bound_type(component: &str) -> Option<Type> {
     match component {
@@ -3225,6 +4246,86 @@ fn narrowed_names(cond: &Expr) -> Vec<String> {
             names
         }
         _ => Vec::new(),
+    }
+}
+
+/// One arm of a lowered `match` expression: its subject, its case, and
+/// the rest of the arms after it.
+fn match_arm(expr: &Expr) -> Option<(&Expr, String, &Expr)> {
+    let Expr::MethodCall(obj, method, args) = expr else {
+        return None;
+    };
+    let wanted = match method.as_str() {
+        "__if" => "__is",
+        "__iflet" => "__payload",
+        _ => return None,
+    };
+    let Expr::MethodCall(subject, test, test_args) = obj.as_ref() else {
+        return None;
+    };
+    match (test.as_str() == wanted, test_args.as_slice(), args.get(1)) {
+        (true, [Expr::StringLiteral(case)], Some(rest)) => Some((subject, case.clone(), rest)),
+        _ => None,
+    }
+}
+
+/// The names a condition is true for only when they are null: `x ==
+/// null`, `!x`, either side of an `||`.
+fn null_names(cond: &Expr) -> Vec<String> {
+    match cond {
+        Expr::BinaryOp(l, BinOp::Eq, r) => match (&**l, &**r) {
+            (Expr::Identifier(name), Expr::Null) | (Expr::Null, Expr::Identifier(name)) => {
+                vec![name.clone()]
+            }
+            _ => Vec::new(),
+        },
+        Expr::UnaryOp(UnaryOp::Not, inner) => match &**inner {
+            Expr::Identifier(name) => vec![name.clone()],
+            _ => Vec::new(),
+        },
+        Expr::BinaryOp(l, BinOp::Or, r) => {
+            let mut names = null_names(l);
+            names.extend(null_names(r));
+            names
+        }
+        _ => Vec::new(),
+    }
+}
+
+/// The lists a condition proves have items, by their text: `xs.length >
+/// 0`, `xs.length >= 1`, `xs.length != 0`, `xs.length`, either side of
+/// an `&&`.
+fn non_empty_lists(cond: &Expr) -> Vec<String> {
+    let length_of = |e: &Expr| match e {
+        Expr::PropertyAccess(base, f) if f == "length" => Some(expr_text(base)),
+        _ => None,
+    };
+    let number = |e: &Expr| match e {
+        Expr::NumberLiteral(n) => Some(*n),
+        _ => None,
+    };
+    match cond {
+        Expr::BinaryOp(l, op, r) => match op {
+            BinOp::And => {
+                let mut out = non_empty_lists(l);
+                out.extend(non_empty_lists(r));
+                out
+            }
+            BinOp::Gt => match (length_of(l), number(r)) {
+                (Some(list), Some(n)) if n >= 0.0 => vec![list],
+                _ => Vec::new(),
+            },
+            BinOp::Gte => match (length_of(l), number(r)) {
+                (Some(list), Some(n)) if n >= 1.0 => vec![list],
+                _ => Vec::new(),
+            },
+            BinOp::Neq => match (length_of(l), number(r)) {
+                (Some(list), Some(0.0)) => vec![list],
+                _ => Vec::new(),
+            },
+            _ => Vec::new(),
+        },
+        other => length_of(other).into_iter().collect(),
     }
 }
 

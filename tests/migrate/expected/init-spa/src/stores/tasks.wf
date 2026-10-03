@@ -22,7 +22,9 @@ store TaskStore {
 
     action toggle(id: Number) {
         let task = tasks.filter(t => t.id == id)[0]
-        task.done = !task.done
+        if task != null {
+            task.done = !task.done
+        }
     }
 
     action remove(id: Number) {

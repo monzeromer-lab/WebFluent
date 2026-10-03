@@ -280,7 +280,55 @@ pub static CODES: &[CodeInfo] = &[
         "A name nothing declares",
         "A name, or a function called, that no declaration, parameter, script or browser global provides — a ReferenceError the first time the page reads it.",
     ),
+    code(
+        "T16",
+        Error,
+        "A method a number, a string or a list does not have",
+        "In the browser the call is `x.method is not a function`, the first time the line runs. The message suggests the nearest method there is.",
+    ),
+    code(
+        "T14",
+        Error,
+        "A comparison that is always the same",
+        "`==` or `!=` between values that can never be equal — a string and a number, a record and a string, an enum and a case it does not have — so the answer never changes.",
+    ),
+    code(
+        "T17",
+        Error,
+        "An async result used before it is awaited",
+        "An action that awaits hands back a promise; read as its result without `await` it is not one. `await` is written in an action, a handler, a timer or a hook — not in a `derived` value or an effect, which run at once — and `.pending` is for an action that awaits.",
+    ),
+    code(
+        "T19",
+        Warning,
+        "A value that may be null, shown as text",
+        "Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.",
+    ),
+    code(
+        "T18",
+        Error,
+        "Arithmetic on something that is not a number",
+        "`-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.",
+    ),
+    code(
+        "T15",
+        Error,
+        "A `match` that misses a case, or has one twice",
+        "A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches only the first. A `match` expression that covers every case needs no `else`.",
+    ),
+    code(
+        "T21",
+        Warning,
+        "A resource `match` with no `error` arm",
+        "When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.",
+    ),
     // ── C: components ────────────────────────────────────────────────
+    code(
+        "C01",
+        Error,
+        "A required prop or field left out",
+        "A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.",
+    ),
     code(
         "C02",
         Error,
@@ -311,6 +359,13 @@ pub static CODES: &[CodeInfo] = &[
         Error,
         "A route to nothing",
         "A link, a `navigate()` or a `Route` names a page or a path that no page has.",
+    ),
+    // ── X: state and reactivity ──────────────────────────────────────
+    code(
+        "X01",
+        Error,
+        "An assignment to something that cannot change",
+        "A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy nothing reads.",
     ),
     // ── D: data and assets ───────────────────────────────────────────
     code(
@@ -479,6 +534,11 @@ pub static CODES: &[CodeInfo] = &[
         "U05",
         "An action nothing calls",
         "An action nothing calls; a name that starts with `_` is understood to be unused on purpose.",
+    ),
+    unused(
+        "U10",
+        "An `else` no value reaches",
+        "Every case of the enum has its own arm, so the `match`'s `else` never runs.",
     ),
     // ── V: vocabulary ────────────────────────────────────────────────
     code(

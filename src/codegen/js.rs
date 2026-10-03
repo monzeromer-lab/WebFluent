@@ -1028,6 +1028,10 @@ impl JsCodegen {
                 }
             }
             Expr::MethodCall(obj, method, args) => {
+                // The arm a `match` with no `else` cannot reach.
+                if method == "__exhaustive" {
+                    return "null".to_string();
+                }
                 if method == "__case" && args.is_empty() {
                     return format!("WF.caseOf({})", self.emit_store_expr(obj, store_states));
                 }
@@ -5620,6 +5624,11 @@ impl JsCodegen {
                 }
             }
             Expr::MethodCall(obj, method, args) => {
+                // The arm a `match` with no `else` cannot reach: the checker
+                // proved every case has one.
+                if method == "__exhaustive" {
+                    return "null".to_string();
+                }
                 // The case of an enum value, its payload aside.
                 if method == "__case" && args.is_empty() {
                     return format!("WF.caseOf({})", self.emit_expr(obj));

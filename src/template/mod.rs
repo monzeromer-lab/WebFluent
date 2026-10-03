@@ -857,6 +857,7 @@ impl<'a> RenderContext<'a> {
                     _ => Value::Null,
                 }
             }
+            Expr::MethodCall(_, method, _) if method == "__exhaustive" => Value::Null,
             Expr::MethodCall(subject, method, args) if method == "__case" && args.is_empty() => {
                 case_of(&self.eval_expr(subject))
             }

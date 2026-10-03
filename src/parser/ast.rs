@@ -814,6 +814,9 @@ pub struct Migration {
 #[derive(Debug, Clone)]
 pub struct DerivedDecl {
     pub name: String,
+    /// `derived total: Number = …`: what it says it is, checked against
+    /// what it works out to.
+    pub ty: Option<TypeRef>,
     pub value: Expr,
 }
 
