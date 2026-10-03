@@ -28,12 +28,13 @@ pub struct Imported {
 /// Read `text` as an OpenAPI document, for the service `api`.
 pub fn read(text: &str, api: &ApiDecl, file: &str) -> Result<Imported> {
     let spec: serde_json::Value = serde_json::from_str(text).map_err(|e| {
-        WebFluentError::ParseError(Diagnostic::new(
+        WebFluentError::ParseError(Box::new(Diagnostic::coded(
+            "E111",
             format!("`{file}` is not JSON: {e}"),
             file,
             1,
             1,
-        ))
+        )))
     })?;
     let mut types = Vec::new();
     if let Some(schemas) = spec
@@ -301,12 +302,13 @@ pub fn expand(
             continue;
         };
         let Some(text) = read_file(&file) else {
-            return Err(WebFluentError::ParseError(Diagnostic::new(
+            return Err(WebFluentError::ParseError(Box::new(Diagnostic::coded(
+                "E111",
                 format!("`{file}` was not found"),
                 &file,
                 1,
                 1,
-            )));
+            ))));
         };
         let imported = read(&text, api, &file)?;
         api.endpoints.extend(imported.endpoints);

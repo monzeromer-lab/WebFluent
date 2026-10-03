@@ -226,9 +226,18 @@ fn report_clashes<'a>(
         } else {
             format!("`{name}` is declared twice: as {first_kind} at {at}, and as {kind} here")
         };
-        diags.push(diag(message, &file, span).with_hint(format!(
-            "A name means one thing — rename one of the two `{name}`s"
-        )));
+        diags.push(
+            diag("E102", message, &file, span)
+                .with_hint(format!(
+                    "A name means one thing — rename one of the two `{name}`s"
+                ))
+                .with_related(
+                    format!("`{name}` is first declared here"),
+                    first_file,
+                    first_span.line as usize,
+                    first_span.col as usize,
+                ),
+        );
     }
 }
 
@@ -308,7 +317,7 @@ fn check_script_names(
                 })
             };
             if let Some((message, hint)) = problem {
-                diags.push(diag(message, &file_of(index), at).with_hint(hint));
+                diags.push(diag("E110", message, &file_of(index), at).with_hint(hint));
             } else {
                 seen.insert(name, script.path.clone());
             }
@@ -322,19 +331,28 @@ fn check_dupes<'a>(
     file_of: &dyn Fn(usize) -> String,
     diags: &mut Vec<Diagnostic>,
 ) {
-    let mut seen: HashSet<&str> = HashSet::new();
+    let mut seen: std::collections::HashMap<&str, (Span, usize)> = Default::default();
     for (name, span, index) in items {
-        if !seen.insert(name) {
+        if let Some(&(first, first_index)) = seen.get(name) {
             diags.push(
                 diag(
+                    "E102",
                     format!(
                         "duplicate {kind} `{name}`: a {kind} with this name is already declared"
                     ),
                     &file_of(index),
                     span,
                 )
-                .with_hint(format!("rename or remove one of the `{name}` {kind}s")),
+                .with_hint(format!("rename or remove one of the `{name}` {kind}s"))
+                .with_related(
+                    format!("the first `{name}` is declared here"),
+                    file_of(first_index),
+                    first.line as usize,
+                    first.col as usize,
+                ),
             );
+        } else {
+            seen.insert(name, (span, index));
         }
     }
 }
@@ -400,6 +418,7 @@ fn check_element(
         if !components.contains(name.as_str()) {
             diags.push(
                 diag(
+                    "E101",
                     format!("unknown component `{name}`: no `component {name}` is declared"),
                     file,
                     ui.span,
@@ -442,6 +461,7 @@ fn check_routes(
             if !pages.contains(page) {
                 diags.push(
                     diag(
+                        "R01",
                         format!(
                             "Route targets unknown page `{page}`: no `Page {page}` is declared"
                         ),
@@ -501,8 +521,8 @@ fn route_page(ui: &UIElement) -> Option<(&str, Span)> {
 }
 
 /// A [`Diagnostic`] at a node's span (1-based line/column from Slice-1 spans).
-fn diag(message: String, file: &str, span: Span) -> Diagnostic {
-    Diagnostic::new(message, file, span.line as usize, span.col as usize)
+fn diag(code: &'static str, message: String, file: &str, span: Span) -> Diagnostic {
+    Diagnostic::coded(code, message, file, span.line as usize, span.col as usize)
 }
 
 #[cfg(test)]

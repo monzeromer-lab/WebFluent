@@ -21,9 +21,6 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     config.resolve_env(project_dir);
 
     println!("Building {}...", config.name);
-    for unknown in ProjectConfig::unknown_keys(project_dir) {
-        eprintln!("Warning: webfluent.app.json: {unknown}");
-    }
 
     // The images the program names are written at every width a page will
     // ask for, before anything checks the program — so a name resolves to
@@ -31,7 +28,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     let output_dir = project_dir.join(&config.build.output);
     fs::create_dir_all(&output_dir)?;
     let media = config.build.media.settings();
-    let (program, declaration_files) = read_project_with(
+    let (program, declaration_files, parse_errors) = read_project_collecting(
         project_dir,
         Some((&output_dir, &media, &config.build.base_path)),
     )?;
@@ -46,71 +43,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     config.build.inline_styles = crate::codegen::csp::writes_inline_styles(&program);
     // The project's own scripts: every `.js` under `src/`, a plain browser
     // script each, copied as written and linked before the compiled code.
-    // A module cannot run from a `<script src>`, so one stops the build; a
-    // file the scanner cannot read is still linked — the browser may read
-    // it fine — but its names are not in scope.
     let scripts = crate::project_js::load(project_dir, &project_dir.join("src"))?;
-    let mut script_warnings: Vec<crate::error::Diagnostic> = Vec::new();
-    let mut script_errors: Vec<crate::error::Diagnostic> = Vec::new();
-    for script in &scripts {
-        if let Some((line, col)) = script.scan.module_at {
-            script_errors.push(
-                crate::error::Diagnostic::new(
-                    format!(
-                        "`{}` is an ES module, and a script under `src/` is a plain browser script",
-                        script.path
-                    ),
-                    &script.path,
-                    line,
-                    col,
-                )
-                .with_hint(
-                    "Take off its `import` and `export`: a top-level `function` is global as it is",
-                ),
-            );
-        }
-        // `public/` is copied over the output afterwards: a file there at the
-        // same address would replace the script without a word.
-        if project_dir.join("public").join(&script.href).exists() {
-            script_errors.push(
-                crate::error::Diagnostic::new(
-                    format!(
-                        "`{}` and `public/{}` both claim `/{}`",
-                        script.path, script.href, script.href
-                    ),
-                    &script.path,
-                    1,
-                    1,
-                )
-                .with_hint(
-                    "Keep one of the two: a script under `src/` is written to `js/` in the output",
-                ),
-            );
-        }
-        for problem in &script.scan.problems {
-            script_warnings.push(
-                crate::error::Diagnostic::new(
-                    format!(
-                        "{} — the names it declares are not in scope",
-                        problem.message
-                    ),
-                    &script.path,
-                    problem.line,
-                    problem.col,
-                )
-                .with_hint("The file is still linked; the compiler only could not read it"),
-            );
-        }
-    }
-    if !script_errors.is_empty() {
-        for diagnostic in &script_errors {
-            eprintln!("{diagnostic}");
-        }
-        return Err(WebFluentError::CodegenError(format!(
-            "{} problem(s) with the scripts under src/",
-            script_errors.len()
-        )));
-    }
     config.build.scripts = scripts.iter().map(|s| s.href.clone()).collect();
     let config = config;
     let file_of = |index: usize| {
@@ -126,171 +59,36 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
             .get(index)
             .and_then(|f| fs::read_to_string(project_dir.join(f)).ok())
     };
-
-    // A stylesheet or a font from somewhere else is code that origin can
-    // change after it was read. A hash is how the browser checks it has
-    // not; the build cannot work one out without fetching the file, so it
-    // says which assets are missing theirs.
-    for url in config
-        .meta
-        .fonts
-        .iter()
-        .chain(config.meta.stylesheets.iter())
-        .map(String::as_str)
-        .chain(config.meta.scripts.iter().map(|s| s.src()))
-        .collect::<std::collections::BTreeSet<_>>()
-    {
-        if !url.contains("://") || config.meta.integrity.contains_key(url) {
-            continue;
-        }
-        // A Google Fonts stylesheet is written per user-agent, so its
-        // bytes differ between readers and a hash cannot match.
-        if url.contains("fonts.googleapis.com") {
-            continue;
-        }
-        println!("  Warning: `{url}` is loaded from another origin with no integrity hash");
-        println!(
-            "    Add one to `meta.integrity`, so a change at that origin cannot reach your readers"
-        );
-    }
-
-    // A module is imported and put on a global; without one to put it on,
-    // nothing could reach it.
-    for entry in &config.meta.scripts {
-        if let crate::config::project::ScriptEntry::Spec(spec) = entry
-            && spec.module
-            && spec.as_name.is_none()
-        {
-            return Err(WebFluentError::CodegenError(format!(
-                "`meta.scripts` imports `{}` as a module but names no global for it — add `\"as\": \"Name\"`",
-                spec.src
-            )));
-        }
-    }
-
-    // A value in `env` the page reads is a value in the bundle. A name
-    // that has not said it is public stops the build at the line that
-    // reads it, rather than shipping as a key anyone can read.
-    let leaked = crate::linter::lint_env(project_dir, &config, &declaration_files);
-    if !leaked.is_empty() {
-        for diagnostic in &leaked {
-            eprintln!("{diagnostic}");
-        }
-        return Err(crate::error::WebFluentError::CodegenError(format!(
-            "{} `env` name(s) a page may not read",
-            leaked.len()
-        )));
-    }
-
-    // A reference to nothing — an undeclared component, a route to a page that
-    // does not exist, two pages with one name — is a broken site, not a style
-    // question, so it stops the build the way a parse error does.
-    let semantic = crate::linter::validate_semantics_in(&program, &file_of);
-    if !semantic.is_empty() {
-        for diagnostic in &semantic {
-            eprintln!("{}", diagnostic);
-        }
-        return Err(WebFluentError::CodegenError(format!(
-            "{} semantic error(s)\n{}",
-            semantic.len(),
-            semantic
-                .iter()
-                .map(|d| d.to_string())
-                .collect::<Vec<_>>()
-                .join("\n")
-        )));
-    }
-
-    // What the new grammar wrote, checked against what the components
-    // declare: a flag, case, event, slot or part that resolves to nothing is
-    // a broken site, and stops the build like a parse error.
-    let mut findings = crate::sema::check(&program, &file_of);
-    // Then the types: what every name is, and the values that do not fit.
-    let typed = crate::sema::types::check_in(&program, &file_of, &source_of);
-    findings.errors.extend(typed.findings.errors);
-    findings.warnings.extend(typed.findings.warnings);
-    // A name nothing declares is a ReferenceError the first time the page
-    // reads it; the build says so where it is written.
-    findings.errors.extend(typed.unresolved);
-    for warning in &findings.warnings {
-        eprintln!("{}", warning.as_warning());
-    }
-    if !findings.errors.is_empty() {
-        for error in &findings.errors {
-            eprintln!("{}", error);
-        }
-        return Err(WebFluentError::CodegenError(format!(
-            "{} error(s)\n{}",
-            findings.errors.len(),
-            findings
-                .errors
-                .iter()
-                .map(|d| d.to_string())
-                .collect::<Vec<_>>()
-                .join("\n")
-        )));
-    }
-    // Then lowered onto the vocabulary the code generators — and the
-    // linters, which read the words the stylesheet knows — read.
-    let program = crate::sema::lower(program);
-
-    // Run accessibility linter
-    let mut a11y_warnings = crate::linter::lint_accessibility_in(&program, &file_of);
-    // Contrast is checked against the tokens this build will actually ship, so
-    // the ratio reported is the one a reader will experience.
-    if let Ok(tokens) = crate::themes::resolve_tokens(&program, &config.theme) {
-        a11y_warnings.extend(crate::linter::lint_contrast_in(&program, &tokens, &file_of));
-    }
-    // What is declared and never read.
-    a11y_warnings.extend(crate::linter::lint_unused_in(&program, &file_of));
-    // A component this build publishes as a custom element is placed — by
-    // whoever loads it. Nothing in the project places it, and that is the
-    // point.
-    if !config.build.elements.is_empty() {
-        a11y_warnings.retain(|w| {
-            w.rule_id != "U03"
-                || !config
-                    .build
-                    .elements
-                    .iter()
-                    .any(|name| w.message.contains(&format!("`{name}`")))
-        });
-    }
-    for warning in &a11y_warnings {
-        eprintln!("{}", warning);
-    }
-    // A bare word that resolves to nothing, or a real modifier with no rule
-    // behind it, does nothing on screen. The LSP has reported these for a
-    // while; a build from the command line said nothing.
     // The author's own stylesheets — every `.css` under `src/` — ship in
     // `styles.css`, and a modifier class one of them defines is a real one.
     let project_css = crate::codegen::project_css::bundle(project_dir, &project_dir.join("src"))?;
-    let vocab_warnings = crate::linter::lint_vocabulary_with(&program, &project_css, &file_of);
-    for warning in &vocab_warnings {
-        eprintln!("{}", warning);
+
+    // Every check, over everything that parsed: the scripts and the config,
+    // the structure, the registry's vocabulary, the types, the lints, and
+    // what this output can draw. A stage's errors no longer stop the next.
+    let checked = crate::diagnostics::check::check_project(&crate::diagnostics::check::Project {
+        program: &program,
+        file_of: &file_of,
+        source_of: &source_of,
+        dir: Some(project_dir),
+        config: Some(&config),
+        declaration_files: &declaration_files,
+        scripts: &scripts,
+        stylesheets: &project_css,
+        incomplete: !parse_errors.is_empty(),
+    });
+    let mut diagnostics = parse_errors;
+    diagnostics.extend(checked.diagnostics);
+    crate::diagnostics::dedupe(&mut diagnostics);
+    report(project_dir, &diagnostics);
+    if diagnostics.iter().any(|d| d.is_error()) {
+        return Err(WebFluentError::Diagnostics(diagnostics));
     }
-    for warning in &script_warnings {
-        eprintln!("{}", warning.as_warning());
-    }
-    let mut warning_count = a11y_warnings.len()
-        + vocab_warnings.len()
-        + findings.warnings.len()
-        + script_warnings.len();
+    let mut warning_count = diagnostics.len();
+    let program = checked.lowered;
 
     // PDF output mode
     if config.build.output_type == OutputType::Pdf {
-        // Validate: reject interactive elements
-        let pdf_errors = crate::linter::validate_for_pdf(&program);
-        if !pdf_errors.is_empty() {
-            for err in &pdf_errors {
-                eprintln!("{}", err);
-            }
-            return Err(WebFluentError::CodegenError(format!(
-                "{} element(s) not allowed in PDF output",
-                pdf_errors.len()
-            )));
-        }
-
         let mut pdf_codegen = PdfCodegen::new(&config.build.pdf);
         // Where the pictures are, so a report shows the chart rather than a
         // box that says there was one.
@@ -321,17 +119,6 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
 
     // Slides output mode (PDF deck)
     if config.build.output_type == OutputType::Slides {
-        let slide_errors = crate::linter::validate_for_slides(&program);
-        if !slide_errors.is_empty() {
-            for err in &slide_errors {
-                eprintln!("{}", err);
-            }
-            return Err(WebFluentError::CodegenError(format!(
-                "{} slide validation error(s)",
-                slide_errors.len()
-            )));
-        }
-
         let mut slides_codegen = SlidesCodegen::new(&config.build.slides);
         slides_codegen.set_asset_root(project_dir.to_path_buf());
         let pdf_bytes = slides_codegen.generate(&program);
@@ -402,7 +189,6 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     js_codegen.set_full_runtime(config.build.runtime == crate::config::RuntimeMode::Full);
     js_codegen.set_env(config.public_env_values());
     if let Some(offline) = &config.offline {
-        check_offline(offline, &config, &program)?;
         js_codegen.set_offline(offline.sync);
     }
     if !config.build.base_path.is_empty() {
@@ -414,16 +200,6 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // a page listing the tags it published. There are no routes, no shell
     // and no pages — a component is the whole of what is published.
     if config.build.output_type == OutputType::Elements {
-        let problems = crate::codegen::elements::check(&program, &config);
-        if !problems.is_empty() {
-            for problem in &problems {
-                eprintln!("Error: {problem}");
-            }
-            return Err(WebFluentError::CodegenError(format!(
-                "{} problem(s) with `build.elements`",
-                problems.len()
-            )));
-        }
         let bundle = format!(
             "{js}{}",
             crate::codegen::elements::definitions(&program, &config)
@@ -633,16 +409,25 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         // A policy is a promise about what the pages contain. Reading them
         // back is how the promise is kept: a browser would enforce it and
         // show a blank page, and this says so at build time instead.
-        let broken = check_csp(&output_dir, &written_html, &config);
+        let broken: Vec<crate::error::Diagnostic> = check_csp(&output_dir, &written_html, &config)
+            .into_iter()
+            .map(|v| {
+                crate::error::Diagnostic::coded(
+                    "E902",
+                    format!(
+                        "{}, which the `{}` of the policy this build ships forbids",
+                        v.what, v.directive
+                    ),
+                    format!("{}/{}", config.build.output.trim_end_matches('/'), v.page),
+                    1,
+                    1,
+                )
+                .with_hint(v.hint)
+            })
+            .collect();
         if !broken.is_empty() {
-            let mut message = format!(
-                "the Content-Security-Policy this build ships forbids {} thing(s) in its own output:\n",
-                broken.len()
-            );
-            for violation in &broken {
-                message.push_str(&format!("  {violation}\n"));
-            }
-            return Err(crate::error::WebFluentError::CodegenError(message));
+            report(project_dir, &broken);
+            return Err(WebFluentError::Diagnostics(broken));
         }
     }
 
@@ -1050,6 +835,24 @@ pub fn read_project_with(
     project_dir: &Path,
     media: Option<(&Path, &crate::media::Settings, &str)>,
 ) -> Result<(Program, Vec<String>)> {
+    let (program, files, mut errors) = read_project_collecting(project_dir, media)?;
+    match errors.len() {
+        0 => Ok((program, files)),
+        1 => Err(WebFluentError::ParseError(Box::new(errors.remove(0)))),
+        _ => Err(WebFluentError::Diagnostics(errors)),
+    }
+}
+
+/// [`read_project_with`], keeping going past a file that does not parse:
+/// the program of every declaration that does, the file of each, and a
+/// diagnostic for each mistake in the files that do not — so one typo in
+/// one file does not hide every finding in the others. An error is only a
+/// file that cannot be read at all.
+pub fn read_project_collecting(
+    project_dir: &Path,
+    media: Option<(&Path, &crate::media::Settings, &str)>,
+) -> Result<(Program, Vec<String>, Vec<crate::error::Diagnostic>)> {
+    let mut parse_errors: Vec<crate::error::Diagnostic> = Vec::new();
     let src_dir = project_dir.join("src");
     if !src_dir.exists() {
         return Err(WebFluentError::IoError(
@@ -1069,9 +872,18 @@ pub fn read_project_with(
         let relative = file_path.strip_prefix(project_dir).unwrap_or(file_path);
         let file_name = relative.to_string_lossy().to_string();
         let program = if file_name.ends_with(".md") {
-            crate::data::markdown_page(&source, &file_name)?
+            match crate::data::markdown_page(&source, &file_name) {
+                Ok(program) => program,
+                Err(e) if !e.diagnostics().is_empty() => {
+                    parse_errors.extend(e.diagnostics());
+                    continue;
+                }
+                Err(e) => return Err(e),
+            }
         } else {
-            crate::syntax::parse_source(&source, &file_name)?
+            let (program, errors) = crate::syntax::parse_source_recovering(&source, &file_name);
+            parse_errors.extend(errors);
+            program
         };
         declaration_files.extend(program.declarations.iter().map(|_| file_name.clone()));
         all_declarations.extend(program.declarations);
@@ -1117,18 +929,28 @@ pub fn read_project_with(
     };
     // `data x = "file.json"` is a constant once the file is read, and
     // `image hero = "…"` once the picture is.
-    crate::data::resolve_data_with(&mut program, project_dir, media)?;
+    if let Err(e) = crate::data::resolve_data_with(&mut program, project_dir, media) {
+        if e.diagnostics().is_empty() {
+            return Err(e);
+        }
+        parse_errors.extend(e.diagnostics());
+    }
     // `api B from "openapi.json"` is its endpoints once the spec is read,
     // so every reader of a project sees the same service.
-    crate::openapi::expand(&mut program, &|file| {
+    if let Err(e) = crate::openapi::expand(&mut program, &|file| {
         for at in [project_dir.join(file), project_dir.join("src").join(file)] {
             if let Ok(text) = fs::read_to_string(&at) {
                 return Some(text);
             }
         }
         None
-    })?;
-    Ok((program, declaration_files))
+    }) {
+        if e.diagnostics().is_empty() {
+            return Err(e);
+        }
+        parse_errors.extend(e.diagnostics());
+    }
+    Ok((program, declaration_files, parse_errors))
 }
 
 fn find_wf_files(dir: &Path) -> Result<Vec<PathBuf>> {
@@ -1330,46 +1152,6 @@ fn inline_styled_pages(output_dir: &Path, written: &[PathBuf]) -> Vec<String> {
     out
 }
 
-/// What `offline` in the config asks for, refused where it cannot mean it.
-fn check_offline(
-    offline: &crate::config::OfflineConfig,
-    config: &ProjectConfig,
-    program: &crate::parser::ast::Program,
-) -> Result<()> {
-    let mut problems = Vec::new();
-    if !matches!(config.build.output_type, OutputType::Spa) {
-        problems.push("`offline` is for a web build; this one writes a document".to_string());
-    }
-    for (path, strategy) in &offline.cache {
-        if !crate::config::OFFLINE_STRATEGIES.contains(&strategy.as_str()) {
-            problems.push(format!(
-                "`offline.cache` asks for `{strategy}` on `{path}`; the policies are {}",
-                crate::config::OFFLINE_STRATEGIES
-                    .iter()
-                    .map(|s| format!("`{s}`"))
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ));
-        }
-    }
-    if let Some(fallback) = &offline.fallback {
-        let known = program
-            .declarations
-            .iter()
-            .any(|d| matches!(d, crate::parser::ast::Declaration::Page(p) if &p.path == fallback));
-        if !known {
-            problems.push(format!(
-                "`offline.fallback` is `{fallback}`, which no page's `path` is; \
-                 declare `page Offline(path: \"{fallback}\")` or name a page that exists"
-            ));
-        }
-    }
-    if problems.is_empty() {
-        return Ok(());
-    }
-    Err(WebFluentError::ConfigError(problems.join("\n")))
-}
-
 /// The page a route a static build wrote belongs to: its own `path`, or the
 /// `:param` pattern it was rendered from.
 fn page_for_route<'a>(
@@ -1551,12 +1333,51 @@ fn read_back(name: &str, source: &str, minified: bool) -> Result<()> {
         return Ok(());
     };
     let stage = if minified { ", after minifying" } else { "" };
-    Err(WebFluentError::CodegenError(format!(
-        "the compiler wrote JavaScript a browser would refuse, in {name}{stage} at line {}: {}\n    {}\n  \
-         This is a bug in WebFluent, not in your program. Please report it with the source that produced it: \
-         https://github.com/monzeromer-lab/WebFluent/issues",
+    let d = crate::error::Diagnostic::coded(
+        "E901",
+        format!(
+            "the compiler wrote JavaScript a browser would refuse, in {name}{stage}: {}",
+            fault.message
+        ),
+        name,
         fault.line,
-        fault.message,
+        1,
+    )
+    .with_hint(format!(
+        "It wrote `{}`. This is a bug in WebFluent, not in your program. Please report it with the source that produced it: https://github.com/monzeromer-lab/WebFluent/issues",
         crate::codegen::jscheck::line_of(source, fault.line)
-    )))
+    ));
+    eprintln!(
+        "{}",
+        crate::diagnostics::render::diagnostic(
+            &d,
+            None,
+            crate::diagnostics::render::stderr_wants_color()
+        )
+    );
+    Err(WebFluentError::Diagnostics(vec![d]))
+}
+
+/// Every finding, rendered for a person on standard error, then the line
+/// that sums them up.
+fn report(project_dir: &Path, diagnostics: &[crate::error::Diagnostic]) {
+    if diagnostics.is_empty() {
+        return;
+    }
+    let color = crate::diagnostics::render::stderr_wants_color();
+    eprint!(
+        "{}",
+        crate::diagnostics::render::human(
+            diagnostics,
+            &|file| fs::read_to_string(project_dir.join(file)).ok(),
+            color,
+        )
+    );
+    let (errors, _) = crate::diagnostics::counts(diagnostics);
+    let summary = crate::diagnostics::summary(diagnostics);
+    if errors > 0 {
+        eprintln!("error: the build stopped: {summary}");
+    } else {
+        eprintln!("{summary}");
+    }
 }

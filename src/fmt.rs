@@ -218,15 +218,16 @@ fn verify(original: &[Token], formatted: &str, file: &str) -> Result<()> {
     if kinds(original) == kinds(&again) {
         return Ok(());
     }
-    Err(WebFluentError::ParseError(
-        Diagnostic::new(
+    Err(WebFluentError::ParseError(Box::new(
+        Diagnostic::coded(
+            "E005",
             "Formatting would change what the file says, so it was left alone",
             file,
             1,
             1,
         )
         .with_hint("This is a formatter fault: please report the file"),
-    ))
+    )))
 }
 
 #[cfg(test)]

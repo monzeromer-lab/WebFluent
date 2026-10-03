@@ -240,7 +240,7 @@ fn a_script_the_compiler_cannot_read_is_linked_with_a_warning() {
     );
     assert!(said.contains("Build complete"), "{said}");
     assert!(
-        said.contains("Warning: a string is never closed") && said.contains("src/b.js:2:11"),
+        said.contains("warning[E115]: a string is never closed") && said.contains("src/b.js:2:11"),
         "{said}"
     );
     assert!(
@@ -324,7 +324,7 @@ fn a_call_is_held_to_the_scripts_parameters_and_its_doc_comment() {
         ],
     );
     assert!(
-        said.contains("[T10] `money` takes 1 to 2 arguments, but 3 are given"),
+        said.contains("[T10]: `money` takes 1 to 2 arguments, but 3 are given"),
         "{said}"
     );
     assert!(
@@ -332,11 +332,11 @@ fn a_call_is_held_to_the_scripts_parameters_and_its_doc_comment() {
         "{said}"
     );
     assert!(
-        said.contains("[T01] `n` of `money` is `Number`, but `\"12\"` is `String`"),
+        said.contains("[T01]: `n` of `money` is `Number`, but `\"12\"` is `String`"),
         "{said}"
     );
     assert!(
-        said.contains("[T01] `total` is `String`, but `Number` is wanted"),
+        said.contains("[T01]: `total` is `String`, but `Number` is wanted"),
         "what it returns flows: {said}"
     );
     assert!(

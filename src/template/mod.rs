@@ -244,21 +244,13 @@ impl Template {
                 .cloned()
                 .unwrap_or_else(|| "<template>".to_string())
         };
-        let mut errors = crate::linter::validate_semantics_in(&program, &file_of);
-        errors.extend(crate::sema::check(&program, &file_of).errors);
-        errors.extend(
-            crate::sema::types::check_in(&program, &file_of, &|_| None)
-                .findings
-                .errors,
-        );
+        let errors: Vec<_> =
+            crate::diagnostics::check::program_checks(&program, &file_of, &|_| None)
+                .into_iter()
+                .filter(|d| d.is_error() && d.code != "T13")
+                .collect();
         if !errors.is_empty() {
-            return Err(WebFluentError::CodegenError(
-                errors
-                    .iter()
-                    .map(|d| d.to_string())
-                    .collect::<Vec<_>>()
-                    .join("\n"),
-            ));
+            return Err(WebFluentError::Diagnostics(errors));
         }
         match root {
             Some(root) => crate::data::resolve_data(&mut program, root)?,

@@ -254,7 +254,7 @@ fn a_correctly_written_site_produces_no_lint_warnings() {
         let noise: Vec<&str> = built
             .stderr
             .lines()
-            .filter(|l| l.contains("Warning ["))
+            .filter(|l| l.starts_with("warning["))
             .collect();
         if !noise.is_empty() {
             failures.push(format!("{}:\n    {}", site.name, noise.join("\n    ")));
@@ -305,7 +305,7 @@ fn every_init_template_builds_clean() {
         let warnings: Vec<&str> = stderr
             .lines()
             .chain(stdout.lines())
-            .filter(|l| l.contains("Warning ["))
+            .filter(|l| l.starts_with("warning["))
             .collect();
         if !warnings.is_empty() {
             failures.push(format!("{template}:\n    {}", warnings.join("\n    ")));
@@ -664,7 +664,7 @@ fn the_build_reports_dead_modifier_words_and_names_the_file() {
     // file, where it once only warned (V01, which the editor still shows).
     assert!(!ok, "a word nothing declares must fail the build:\n{out}");
     assert!(
-        out.contains("[T13] nothing declares `huge`"),
+        out.contains("error[T13]: nothing declares `huge`"),
         "no T13 reported:\n{out}"
     );
     assert!(

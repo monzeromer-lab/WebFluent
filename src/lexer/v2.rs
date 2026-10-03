@@ -208,15 +208,15 @@ impl LexerV2 {
                 self.synthetic(TokenType::CloseBrace, tokens);
                 continue;
             }
-            return Err(WebFluentError::LexerError(
-                Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(
+                Diagnostic::coded("E003", 
                     "This line's indentation matches no block around it",
                     &self.file,
                     self.line,
                     self.column,
                 )
                 .with_hint("Indent it to the block it belongs to, with the same spaces or tabs as the lines around it"),
-            ));
+            )));
         }
     }
 
@@ -394,12 +394,13 @@ impl LexerV2 {
         let mut in_class = false;
         loop {
             if self.pos >= self.source.len() || self.current() == '\n' {
-                return Err(WebFluentError::LexerError(Diagnostic::new(
+                return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                    "E001",
                     "Unterminated regular expression",
                     &self.file,
                     line,
                     column,
-                )));
+                ))));
             }
             let ch = self.current();
             match ch {
@@ -448,12 +449,13 @@ impl LexerV2 {
             }
         }
         if name.is_empty() {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 "Expected a design token name after `$`, like `$color-primary`",
                 &self.file,
                 line,
                 column,
-            )));
+            ))));
         }
         Ok(Token::new(TokenType::DesignToken(name), line, column))
     }
@@ -503,12 +505,13 @@ impl LexerV2 {
                 let offside_block = self.layout == Layout::Offside
                     && (self.pos >= self.source.len() || self.current() == '\n');
                 if !offside_block && (self.pos >= self.source.len() || self.current() != '{') {
-                    return Err(WebFluentError::LexerError(Diagnostic::new(
+                    return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                        "E001",
                         format!("Expected `{{` after the selector `{}`", text.trim()),
                         &self.file,
                         line,
                         column,
-                    )));
+                    ))));
                 }
                 Ok(Token::new(
                     TokenType::RawSelector(text.trim().to_string()),
@@ -558,7 +561,8 @@ impl LexerV2 {
             }
         }
         if name.is_empty() {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 format!(
                     "Unexpected `{}` in a style block; expected `property: value` or a nested `&:state {{ }}` rule",
                     self.current()
@@ -566,17 +570,18 @@ impl LexerV2 {
                 &self.file,
                 line,
                 column,
-            )));
+            ))));
         }
         // The name token; the value follows as its own token.
         self.skip_inline_space();
         if self.pos >= self.source.len() || self.current() != ':' {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 format!("Expected `:` after the property `{name}`"),
                 &self.file,
                 line,
                 column,
-            )));
+            ))));
         }
         // Emit the property now; the value is read by the next call.
         self.pending_value = true;
@@ -635,12 +640,13 @@ impl LexerV2 {
             self.advance();
         }
         if self.pos >= self.source.len() {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 "Unterminated string literal",
                 &self.file,
                 line,
                 column,
-            )));
+            ))));
         }
         self.advance();
         Ok(Token::new(
@@ -661,12 +667,13 @@ impl LexerV2 {
         let start = self.pos;
         loop {
             if self.pos + 2 >= self.source.len() {
-                return Err(WebFluentError::LexerError(Diagnostic::new(
+                return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                    "E001",
                     "Unterminated block string: no closing `\"\"\"`",
                     &self.file,
                     line,
                     column,
-                )));
+                ))));
             }
             if self.current() == '"'
                 && self.source[self.pos + 1] == '"'
@@ -778,12 +785,13 @@ impl LexerV2 {
             self.advance();
         }
         if self.pos >= self.source.len() || self.current() != '"' {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 "Expected `\"` after `#`: a raw string is written `#\"…\"#`",
                 &self.file,
                 line,
                 column,
-            )));
+            ))));
         }
         self.advance();
         let start = self.pos;
@@ -797,12 +805,13 @@ impl LexerV2 {
             self.advance();
         }
         if self.pos >= self.source.len() {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 "Unterminated raw string",
                 &self.file,
                 line,
                 column,
-            )));
+            ))));
         }
         let value: String = self.source[start..self.pos].iter().collect();
         for _ in 0..=hashes {
@@ -842,12 +851,13 @@ impl LexerV2 {
             }
         }
         let value: f64 = text.parse().map_err(|_| {
-            WebFluentError::LexerError(Diagnostic::new(
+            WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 format!("Invalid number `{text}`"),
                 &self.file,
                 line,
                 column,
-            ))
+            )))
         })?;
         Ok(Token::new(TokenType::NumberLiteral(value), line, column))
     }
@@ -921,12 +931,13 @@ impl LexerV2 {
                 self.advance();
                 loop {
                     if self.pos >= self.source.len() {
-                        return Err(WebFluentError::LexerError(Diagnostic::new(
+                        return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                            "E001",
                             "Unterminated block comment",
                             &self.file,
                             line,
                             column,
-                        )));
+                        ))));
                     }
                     if self.current() == '*' && self.peek() == Some('/') {
                         self.advance();
@@ -1077,7 +1088,13 @@ impl LexerV2 {
     }
 
     fn error(&self, message: &str) -> WebFluentError {
-        WebFluentError::LexerError(Diagnostic::new(message, &self.file, self.line, self.column))
+        WebFluentError::LexerError(Box::new(Diagnostic::coded(
+            "E001",
+            message,
+            &self.file,
+            self.line,
+            self.column,
+        )))
     }
 }
 

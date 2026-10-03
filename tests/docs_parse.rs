@@ -971,52 +971,97 @@ fn chapter(stem: &str) -> String {
         .1
 }
 
-/// Every finding the build would print for `src`, as text.
-fn every_finding(src: &str) -> Vec<String> {
-    let Ok(program) = parse_source(src, "example.wf") else {
-        return vec![format!(
-            "does not parse: {}",
-            parse_source(src, "example.wf").unwrap_err()
-        )];
-    };
-    let file_of = |_: usize| "example.wf".to_string();
-    let mut out = Vec::new();
-    let findings = webfluent::sema::check(&program, &file_of);
-    out.extend(findings.errors.iter().map(|d| d.to_string()));
-    out.extend(findings.warnings.iter().map(|d| d.to_string()));
-    let typed = webfluent::sema::types::check(&program, &file_of);
-    out.extend(typed.findings.errors.iter().map(|d| d.to_string()));
-    out.extend(typed.findings.warnings.iter().map(|d| d.to_string()));
-    out.extend(typed.unresolved.iter().map(|d| d.to_string()));
-    out.extend(
-        webfluent::linter::validate_semantics_in(&program, &file_of)
-            .iter()
-            .map(|d| d.to_string()),
-    );
-    let program = webfluent::sema::lower(program);
-    out.extend(
-        webfluent::linter::lint_accessibility_in(&program, &file_of)
-            .iter()
-            .map(|w| w.to_string()),
-    );
-    if let Ok(tokens) = webfluent::themes::resolve_tokens(&program, &Default::default()) {
-        out.extend(
-            webfluent::linter::lint_contrast_in(&program, &tokens, &file_of)
-                .iter()
-                .map(|w| w.to_string()),
-        );
-    }
-    out.extend(
-        webfluent::linter::lint_unused_in(&program, &file_of)
-            .iter()
-            .map(|w| w.to_string()),
-    );
-    out.extend(
-        webfluent::linter::lint_vocabulary_with(&program, "", &file_of)
-            .iter()
-            .map(|w| w.to_string()),
-    );
+/// Every finding the build would report for `src`, through the build's own
+/// pipeline, as if it were `src/App.wf`.
+fn findings(src: &str) -> Vec<webfluent::diagnostics::Diagnostic> {
+    let file = "src/App.wf";
+    let (program, mut out) = webfluent::syntax::parse_source_recovering(src, file);
+    let incomplete = !out.is_empty();
+    let source = src.to_string();
+    let checked =
+        webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project {
+            program: &program,
+            file_of: &|_| file.to_string(),
+            source_of: &|_| Some(source.clone()),
+            dir: None,
+            config: None,
+            declaration_files: &[],
+            scripts: &[],
+            stylesheets: "",
+            incomplete,
+        });
+    out.extend(checked.diagnostics);
     out
+}
+
+/// [`findings`], as text.
+fn every_finding(src: &str) -> Vec<String> {
+    findings(src).iter().map(|d| d.to_string()).collect()
+}
+
+/// Each example's ```` ```text ```` block is what the compiler prints for
+/// it — rendered by the build's own renderer — so the guide cannot show a
+/// message the compiler no longer writes. `WF_WRITE_DIAGNOSTICS=1` writes
+/// them.
+#[test]
+fn every_diagnostic_example_shows_what_the_build_prints() {
+    let write = std::env::var_os("WF_WRITE_DIAGNOSTICS").is_some();
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/39-diagnostics.md");
+    let text = std::fs::read_to_string(&path).unwrap();
+    let lines: Vec<&str> = text.lines().collect();
+    let mut out: Vec<String> = Vec::new();
+    let mut stale = Vec::new();
+    let mut i = 0;
+    while i < lines.len() {
+        out.push(lines[i].to_string());
+        let Some(code) = lines[i].trim_end().strip_prefix("```wf expect ") else {
+            i += 1;
+            continue;
+        };
+        let mut body = String::new();
+        i += 1;
+        while i < lines.len() && lines[i].trim_end() != "```" {
+            body.push_str(lines[i]);
+            body.push('\n');
+            out.push(lines[i].to_string());
+            i += 1;
+        }
+        out.push("```".to_string());
+        i += 1;
+        let Some(finding) = findings(&body).into_iter().find(|d| d.code == code) else {
+            continue;
+        };
+        let want = webfluent::diagnostics::render::diagnostic(&finding, Some(&body), false);
+        // The block that follows, if there is one: a blank line, then ```text.
+        let has_block = lines.get(i).is_some_and(|l| l.is_empty())
+            && lines.get(i + 1).is_some_and(|l| l.trim_end() == "```text");
+        let mut shown = String::new();
+        if has_block {
+            let mut j = i + 2;
+            while j < lines.len() && lines[j].trim_end() != "```" {
+                shown.push_str(lines[j]);
+                shown.push('\n');
+                j += 1;
+            }
+            i = j + 1;
+        }
+        if shown.trim_end() != want.trim_end() {
+            stale.push(code.to_string());
+        }
+        out.push(String::new());
+        out.push("```text".to_string());
+        out.extend(want.lines().map(str::to_string));
+        out.push("```".to_string());
+    }
+    if write {
+        std::fs::write(&path, out.join("\n") + "\n").unwrap();
+        return;
+    }
+    assert!(
+        stale.is_empty(),
+        "md-docs/39-diagnostics.md shows output the compiler no longer prints for {stale:?}; \
+         rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test docs_parse every_diagnostic_example_shows`"
+    );
 }
 
 /// A ```` ```wf expect T04 ```` block is a program that draws `T04` on
@@ -1052,37 +1097,14 @@ fn every_diagnostic_example_draws_its_code() {
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 
-    // Every code in the compiler has an entry in the diagnostics chapter.
+    // Every code the registry holds has an entry in the diagnostics
+    // chapter, and every code the compiler's source names is registered.
     let diagnostics = chapter("-diagnostics");
-    let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let mut codes: Vec<String> = Vec::new();
-    fn walk(dir: &Path, codes: &mut Vec<String>) {
-        for e in std::fs::read_dir(dir).unwrap().flatten() {
-            let p = e.path();
-            if p.is_dir() {
-                walk(&p, codes);
-            } else if p.extension().is_some_and(|x| x == "rs") {
-                let text = std::fs::read_to_string(&p).unwrap();
-                let bytes = text.as_bytes();
-                for i in 0..bytes.len().saturating_sub(4) {
-                    if bytes[i] == b'"'
-                        && b"ATSPUV".contains(&bytes[i + 1])
-                        && bytes[i + 2].is_ascii_digit()
-                        && bytes[i + 3].is_ascii_digit()
-                        && bytes[i + 4] == b'"'
-                    {
-                        let code = text[i + 1..i + 4].to_string();
-                        if !codes.contains(&code) {
-                            codes.push(code);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    walk(&src_dir, &mut codes);
-    codes.sort();
-    let missing: Vec<&String> = codes
+    let registered: Vec<&str> = webfluent::diagnostics::codes::CODES
+        .iter()
+        .map(|c| c.code)
+        .collect();
+    let missing: Vec<&&str> = registered
         .iter()
         .filter(|c| !diagnostics.contains(&format!("### {c} ")))
         .collect();
@@ -1090,8 +1112,56 @@ fn every_diagnostic_example_draws_its_code() {
         missing.is_empty(),
         "the diagnostics chapter has no entry for {missing:?}"
     );
-    assert!(codes.len() > 35, "found only {codes:?}");
+    let undocumented_examples: Vec<&&str> = registered
+        .iter()
+        .filter(|c| !shown.iter().any(|s| s == **c))
+        .filter(|c| !EXAMPLE_EXEMPT.contains(c))
+        .collect();
+    assert!(
+        undocumented_examples.is_empty(),
+        "these codes have no ```wf expect …``` example in the guide: {undocumented_examples:?}"
+    );
+
+    let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mut named: Vec<String> = Vec::new();
+    fn walk(dir: &Path, named: &mut Vec<String>) {
+        for e in std::fs::read_dir(dir).unwrap().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                walk(&p, named);
+            } else if p.extension().is_some_and(|x| x == "rs") {
+                let text = std::fs::read_to_string(&p).unwrap();
+                for piece in text.split('"').skip(1).step_by(2) {
+                    let b = piece.as_bytes();
+                    let looks = (piece.len() == 3 || piece.len() == 4)
+                        && b"ETCRFXIDASPUV".contains(&b[0])
+                        && b[1..].iter().all(|c| c.is_ascii_digit());
+                    if looks && !named.contains(&piece.to_string()) {
+                        named.push(piece.to_string());
+                    }
+                }
+            }
+        }
+    }
+    walk(&src_dir, &mut named);
+    let unregistered: Vec<&String> = named
+        .iter()
+        .filter(|c| !registered.contains(&c.as_str()))
+        .collect();
+    assert!(
+        unregistered.is_empty(),
+        "the source names codes the registry does not hold: {unregistered:?}"
+    );
+    assert!(registered.len() > 50, "found only {registered:?}");
 }
+
+/// Codes no single program in the guide can draw: a file the formatter
+/// refuses, the compiler's own faults, and what only a project around the
+/// program — its config, its scripts, its output mode — can show.
+const EXAMPLE_EXEMPT: &[&str] = &[
+    "E003", "E005", "E108", "E109", "E110", "E111", "E112", "E115", "E901", "E902", "R01", "D05",
+    "A13", "V02",
+];
 
 /// The anchor a heading gets on the site and on GitHub, as the generator
 /// writes it.

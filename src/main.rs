@@ -5,6 +5,7 @@ mod cli;
 mod codegen;
 mod config;
 mod data;
+mod diagnostics;
 mod edit;
 mod error;
 mod fmt;
@@ -194,6 +195,8 @@ enum Commands {
 fn main() {
     let cli = Cli::parse();
 
+    // `wf build` and `wf serve` print a build's findings as they find them.
+    let reports_itself = matches!(cli.command, Commands::Build { .. } | Commands::Serve { .. });
     let result = match cli.command {
         Commands::Init { name, template } => cli::init::run_init(&name, &template),
         Commands::Build { dir, stats } => cli::build::run_build_with(&dir, stats),
@@ -241,7 +244,21 @@ fn main() {
     };
 
     if let Err(e) = result {
-        eprintln!("{}", e);
-        std::process::exit(1);
+        match &e {
+            error::WebFluentError::Diagnostics(list) if !reports_itself => {
+                eprint!(
+                    "{}",
+                    diagnostics::render::human(
+                        list,
+                        &|file| std::fs::read_to_string(file).ok(),
+                        diagnostics::render::stderr_wants_color(),
+                    )
+                );
+                eprintln!("{}", diagnostics::summary(list));
+            }
+            error::WebFluentError::Diagnostics(_) => {}
+            _ => eprintln!("{}", e),
+        }
+        std::process::exit(e.exit_code());
     }
 }

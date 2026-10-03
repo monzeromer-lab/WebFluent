@@ -685,18 +685,17 @@ impl<'a, 'p> Checker<'a, 'p> {
         self.scopes.iter().rev().find_map(|s| s.get(name).cloned())
     }
 
-    fn error(&mut self, span: Span, code: &str, message: String, hint: &str) {
-        let d = Diagnostic::new(
-            format!("[{code}] {message}"),
+    fn error(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
+        let d = Diagnostic::coded(
+            code,
+            message,
             self.file,
             span.line as usize,
             span.col as usize,
-        );
-        self.info.findings.errors.push(if hint.is_empty() {
-            d
-        } else {
-            d.with_hint(hint)
-        });
+        )
+        .with_span(span, self.source.as_deref())
+        .with_hint(hint);
+        self.info.findings.errors.push(d);
     }
 
     /// A `class:` value: a string, a map whose values are conditions, a list
@@ -1716,7 +1715,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             // Nothing the engine draws takes a secret: it would be shown,
             // or written into an attribute, which is the same thing.
             if let Expr::Identifier(_) | Expr::PropertyAccess(..) = value
-                && self.infer(value, None).unwrapped() == Type::Scalar(Scalar::Secret)
+                && self.infer_quiet(value).unwrapped() == Type::Scalar(Scalar::Secret)
             {
                 self.error(
                     at,
@@ -1732,21 +1731,6 @@ impl<'a, 'p> Checker<'a, 'p> {
                 self.infer(value, None);
                 continue;
             };
-            // Nothing the engine draws takes a secret: it would be shown,
-            // or written into an attribute, which is the same thing.
-            if matches!(value, Expr::Identifier(_) | Expr::PropertyAccess(..))
-                && self.infer(value, None).unwrapped() == Type::Scalar(Scalar::Secret)
-            {
-                self.error(
-                    at,
-                    "T12",
-                    format!(
-                        "`{}` is a `Secret`, and `{name}` would show it",
-                        expr_text(value)
-                    ),
-                    "A secret must not reach the page; send it as a value, or show one field of what it unlocks",
-                );
-            }
             match (prop.ty, prop.name) {
                 // `class:` — a string, `{ "is-on": cond }`, or a list of either.
                 (_, "class") => self.check_class_value(value, at, &name),
@@ -3119,12 +3103,14 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// `name` resolves to nothing: recorded, for the build to refuse.
     fn unresolved(&mut self, name: &str, called: bool) {
         let message = if called {
-            format!("[T13] `{name}(…)` calls a function nothing declares")
+            format!("`{name}(…)` calls a function nothing declares")
         } else {
-            format!("[T13] nothing declares `{name}`")
+            format!("nothing declares `{name}`")
         };
         let span = self.located(self.current_span, &message);
-        let d = Diagnostic::new(message, self.file, span.line as usize, span.col as usize).with_hint(
+        let d = Diagnostic::coded("T13", message, self.file, span.line as usize, span.col as usize)
+            .with_span(span, self.source.as_deref())
+            .with_hint(
             "Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError",
         );
         if !self
@@ -3137,7 +3123,21 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
     }
 
-    fn error_at_current(&mut self, code: &str, message: String, hint: &str) {
+    /// The type of `e`, reporting nothing: a probe of a value the caller
+    /// goes on to check properly, which used to report each finding in it
+    /// once per probe.
+    fn infer_quiet(&mut self, e: &Expr) -> Type {
+        let errors = self.info.findings.errors.len();
+        let warnings = self.info.findings.warnings.len();
+        let unresolved = self.info.unresolved.len();
+        let ty = self.infer(e, None);
+        self.info.findings.errors.truncate(errors);
+        self.info.findings.warnings.truncate(warnings);
+        self.info.unresolved.truncate(unresolved);
+        ty
+    }
+
+    fn error_at_current(&mut self, code: &'static str, message: String, hint: &str) {
         let span = self.located(self.current_span, &message);
         self.error(span, code, message, hint);
     }
@@ -3861,8 +3861,8 @@ mod tests {
             .errors
             .iter()
             .map(|d| match &d.hint {
-                Some(h) => format!("{}\n  {h}", d.message),
-                None => d.message.clone(),
+                Some(h) => format!("[{}] {}\n  {h}", d.code, d.message),
+                None => format!("[{}] {}", d.code, d.message),
             })
             .collect()
     }
@@ -4411,11 +4411,25 @@ mod tests {
             .findings
             .errors
             .iter()
-            .find(|e| e.message.contains("T04"))
+            .find(|e| e.code == "T04")
             .unwrap();
         // `sel` sits on the derived line, after `derived n = 1 + `.
         let line = src.lines().position(|l| l.contains("derived n")).unwrap() + 1;
         assert_eq!(error.line, line, "{error:?}");
         assert_eq!(error.column, "    derived n = 1 + ".len() + 1, "{error:?}");
+    }
+}
+#[cfg(test)]
+mod once {
+    /// Each mistake is reported once: an argument used to be inferred once
+    /// to look for a secret, again by a copy of that check, and a third
+    /// time for its type, and said everything it found three times.
+    #[test]
+    fn a_mistake_in_an_argument_is_reported_once() {
+        let src = "type User { name: String }\npage P(path: \"/\") {\n    state user = User(name: \"Ada\")\n    Heading(user.nmae).h1\n    Text(user.nmae).bold\n    Button(user.nmae) { on click { log(1) } }\n}\n";
+        let program = crate::parser::v2::parse_v2(src, "t").unwrap();
+        let info = super::check(&program, &|_| "t".into());
+        let lines: Vec<usize> = info.findings.errors.iter().map(|e| e.line).collect();
+        assert_eq!(lines, vec![4, 5, 6], "{:?}", info.findings.errors);
     }
 }

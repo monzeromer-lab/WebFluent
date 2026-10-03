@@ -45,6 +45,9 @@ pub struct PdfValidationError {
     pub component: String,
     pub context: String,
     pub reason: String,
+    /// The declaration it is in, by index, and where.
+    pub decl: usize,
+    pub span: crate::parser::ast::Span,
 }
 
 impl std::fmt::Display for PdfValidationError {
@@ -60,18 +63,18 @@ impl std::fmt::Display for PdfValidationError {
 pub fn validate_for_pdf(program: &Program) -> Vec<PdfValidationError> {
     let mut errors = Vec::new();
 
-    for decl in &program.declarations {
+    for (ix, decl) in program.declarations.iter().enumerate() {
         match decl {
             Declaration::Page(page) => {
                 let ctx = format!("Page {}", page.name);
-                validate_statements(&page.body, &ctx, &mut errors);
+                validate_statements(&page.body, &ctx, ix, &mut errors);
             }
             Declaration::Component(comp) => {
                 let ctx = format!("Component {}", comp.name);
-                validate_statements(&comp.body, &ctx, &mut errors);
+                validate_statements(&comp.body, &ctx, ix, &mut errors);
             }
             Declaration::App(app) => {
-                validate_statements(&app.body, "App", &mut errors);
+                validate_statements(&app.body, "App", ix, &mut errors);
             }
             _ => {}
         }
@@ -80,24 +83,31 @@ pub fn validate_for_pdf(program: &Program) -> Vec<PdfValidationError> {
     errors
 }
 
-fn validate_statements(stmts: &[Statement], context: &str, errors: &mut Vec<PdfValidationError>) {
+fn validate_statements(
+    stmts: &[Statement],
+    context: &str,
+    decl: usize,
+    errors: &mut Vec<PdfValidationError>,
+) {
     for stmt in stmts {
         match &stmt.kind {
-            StatementKind::UIElement(ui) => validate_ui_element(ui, context, errors),
+            StatementKind::UIElement(ui) => validate_ui_element(ui, context, decl, errors),
             StatementKind::If(if_stmt) => {
-                validate_statements(&if_stmt.then_body, context, errors);
+                validate_statements(&if_stmt.then_body, context, decl, errors);
                 if let Some(else_body) = &if_stmt.else_body {
-                    validate_statements(else_body, context, errors);
+                    validate_statements(else_body, context, decl, errors);
                 }
             }
             StatementKind::For(for_stmt) => {
-                validate_statements(&for_stmt.body, context, errors);
+                validate_statements(&for_stmt.body, context, decl, errors);
             }
             StatementKind::Navigate(_) => {
                 errors.push(PdfValidationError {
                     component: "navigate".to_string(),
                     context: context.to_string(),
                     reason: "navigation is a web-only feature".to_string(),
+                    decl,
+                    span: stmt.span,
                 });
             }
             StatementKind::Fetch(_) => {
@@ -105,6 +115,8 @@ fn validate_statements(stmts: &[Statement], context: &str, errors: &mut Vec<PdfV
                     component: "fetch".to_string(),
                     context: context.to_string(),
                     reason: "data fetching is a web-only feature".to_string(),
+                    decl,
+                    span: stmt.span,
                 });
             }
             StatementKind::Animate(_) => {
@@ -112,6 +124,8 @@ fn validate_statements(stmts: &[Statement], context: &str, errors: &mut Vec<PdfV
                     component: "animate".to_string(),
                     context: context.to_string(),
                     reason: "animations are a web-only feature".to_string(),
+                    decl,
+                    span: stmt.span,
                 });
             }
             StatementKind::EventHandler(_) => {
@@ -119,6 +133,8 @@ fn validate_statements(stmts: &[Statement], context: &str, errors: &mut Vec<PdfV
                     component: "event handler".to_string(),
                     context: context.to_string(),
                     reason: "event handlers are a web-only feature".to_string(),
+                    decl,
+                    span: stmt.span,
                 });
             }
             _ => {}
@@ -126,13 +142,18 @@ fn validate_statements(stmts: &[Statement], context: &str, errors: &mut Vec<PdfV
     }
 }
 
-fn validate_ui_element(ui: &UIElement, context: &str, errors: &mut Vec<PdfValidationError>) {
+fn validate_ui_element(
+    ui: &UIElement,
+    context: &str,
+    decl: usize,
+    errors: &mut Vec<PdfValidationError>,
+) {
     let name = match &ui.component {
         ComponentRef::BuiltIn(n) => n.clone(),
         ComponentRef::SubComponent(parent, _) => parent.clone(),
         ComponentRef::UserDefined(_) => {
             // User components are allowed; their body is validated separately
-            validate_statements(&ui.children, context, errors);
+            validate_statements(&ui.children, context, decl, errors);
             return;
         }
     };
@@ -177,6 +198,8 @@ fn validate_ui_element(ui: &UIElement, context: &str, errors: &mut Vec<PdfValida
             component: name.clone(),
             context: context.to_string(),
             reason,
+            decl,
+            span: ui.span,
         });
     }
 
@@ -186,9 +209,11 @@ fn validate_ui_element(ui: &UIElement, context: &str, errors: &mut Vec<PdfValida
             component: format!("{} (events)", name),
             context: context.to_string(),
             reason: "event handlers are not supported in PDF".to_string(),
+            decl,
+            span: ui.span,
         });
     }
 
     // Recurse into children
-    validate_statements(&ui.children, context, errors);
+    validate_statements(&ui.children, context, decl, errors);
 }

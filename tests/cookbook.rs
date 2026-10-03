@@ -124,7 +124,7 @@ fn the_cookbook_applications_build_as_printed() {
     for (app, (ok, out)) in APPS.iter().zip(BUILT.iter()) {
         if !ok {
             failures.push(format!("{} did not build:\n{out}", app.heading));
-        } else if out.contains("Warning") {
+        } else if out.contains("warning[") {
             failures.push(format!("{} builds with warnings:\n{out}", app.heading));
         }
     }

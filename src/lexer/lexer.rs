@@ -149,12 +149,13 @@ impl Lexer {
                         self.advance();
                         t
                     } else {
-                        return Err(WebFluentError::LexerError(Diagnostic::new(
+                        return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                            "E001",
                             "Unexpected character '|', did you mean '||'?",
                             &self.file,
                             self.line,
                             self.column,
-                        )));
+                        ))));
                     }
                 }
 
@@ -174,12 +175,13 @@ impl Lexer {
                 '@' => self.read_at_rule(),
 
                 _ => {
-                    return Err(WebFluentError::LexerError(Diagnostic::new(
+                    return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                        "E001",
                         format!("Unexpected character '{}'", ch),
                         &self.file,
                         self.line,
                         self.column,
-                    )));
+                    ))));
                 }
             };
 
@@ -246,12 +248,13 @@ impl Lexer {
             }
             self.advance();
         }
-        Err(WebFluentError::LexerError(Diagnostic::new(
+        Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+            "E001",
             "Unterminated block comment",
             &self.file,
             start_line,
             start_col,
-        )))
+        ))))
     }
 
     fn single_token(&mut self, token_type: TokenType) -> Token {
@@ -286,12 +289,13 @@ impl Lexer {
             if self.current() == '\\' {
                 self.advance();
                 if self.pos >= self.source.len() {
-                    return Err(WebFluentError::LexerError(Diagnostic::new(
+                    return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                        "E001",
                         "Unterminated string literal",
                         &self.file,
                         start_line,
                         start_col,
-                    )));
+                    ))));
                 }
                 match self.current() {
                     'n' => value.push('\n'),
@@ -313,12 +317,13 @@ impl Lexer {
         }
 
         if self.pos >= self.source.len() {
-            return Err(WebFluentError::LexerError(Diagnostic::new(
+            return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 "Unterminated string literal",
                 &self.file,
                 start_line,
                 start_col,
-            )));
+            ))));
         }
 
         self.advance(); // skip closing "
@@ -359,12 +364,13 @@ impl Lexer {
         }
 
         let value: f64 = num_str.parse().map_err(|_| {
-            WebFluentError::LexerError(Diagnostic::new(
+            WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                "E001",
                 format!("Invalid number '{}'", num_str),
                 &self.file,
                 start_line,
                 start_col,
-            ))
+            )))
         })?;
 
         Ok(Token::new(
@@ -403,12 +409,13 @@ impl Lexer {
                 }
             }
             if event_name.is_empty() {
-                return Err(WebFluentError::LexerError(Diagnostic::new(
+                return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
+                    "E001",
                     "Expected event name after 'on:'",
                     &self.file,
                     start_line,
                     start_col,
-                )));
+                ))));
             }
             return Ok(Token::new(
                 TokenType::Event(event_name),

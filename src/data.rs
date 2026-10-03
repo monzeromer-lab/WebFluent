@@ -122,11 +122,14 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             .strip_prefix('\n')
             .unwrap_or(rest);
         let Some(end) = rest.find("\n---") else {
-            return Err(WebFluentError::ParseError(crate::error::Diagnostic::new(
-                "The front matter opened with `---` is never closed",
-                file,
-                1,
-                1,
+            return Err(WebFluentError::ParseError(Box::new(
+                crate::error::Diagnostic::coded(
+                    "E002",
+                    "The front matter opened with `---` is never closed",
+                    file,
+                    1,
+                    1,
+                ),
             )));
         };
         for line in rest[..end].lines() {

@@ -228,11 +228,23 @@ fn a_type_error_is_a_diagnostic_with_its_hint() {
     let diagnostics = project_diagnostics(&project).remove(0);
     let t01 = diagnostics
         .iter()
-        .find(|d| d.message.contains("[T01]"))
+        .find(|d| d.code == Some(NumberOrString::String("T01".into())))
         .expect("a type error");
     assert_eq!(t01.severity, Some(DiagnosticSeverity::ERROR));
     assert_eq!(t01.range.start.line, 1);
     assert!(t01.message.contains("Convert it"), "{}", t01.message);
+    // The code is data with a link to its entry, and the range is the
+    // value's whole span, not the first word of the line.
+    assert!(
+        t01.code_description
+            .as_ref()
+            .is_some_and(|c| c.href.as_str().ends_with("diagnostics#t01")),
+        "{t01:?}"
+    );
+    assert!(
+        t01.range.end.character > t01.range.start.character + 1,
+        "{t01:?}"
+    );
 }
 
 #[test]

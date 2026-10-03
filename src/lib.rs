@@ -174,6 +174,7 @@ pub mod themes;
 /// dev server config, meta tags, and i18n settings.
 pub mod config;
 
+pub mod diagnostics;
 /// Error types and diagnostics.
 ///
 /// Provides [`WebFluentError`] (with variants for lexer, parser, codegen, config, and I/O errors),

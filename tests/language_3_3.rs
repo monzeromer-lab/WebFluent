@@ -162,7 +162,7 @@ fn markdown_renders_at_build_time_and_a_md_file_is_a_page() {
     let (ok, out) = wf(&dir, &["build"]);
     assert!(ok, "{out}");
     assert!(
-        !out.contains("Warning"),
+        !out.contains("warning["),
         "a markdown page with a heading draws no warning: {out}"
     );
     let about = std::fs::read_to_string(dir.join("build/about/index.html")).unwrap();

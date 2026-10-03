@@ -23,6 +23,9 @@ pub struct SlidesValidationError {
     pub component: String,
     pub context: String,
     pub reason: String,
+    /// The declaration it is in, by index, and where.
+    pub decl: usize,
+    pub span: crate::parser::ast::Span,
 }
 
 impl std::fmt::Display for SlidesValidationError {
@@ -38,18 +41,18 @@ impl std::fmt::Display for SlidesValidationError {
 pub fn validate_for_slides(program: &Program) -> Vec<SlidesValidationError> {
     let mut errors = Vec::new();
 
-    for decl in &program.declarations {
+    for (ix, decl) in program.declarations.iter().enumerate() {
         match decl {
             Declaration::Page(page) => {
                 let ctx = format!("Page {}", page.name);
-                validate_page_body(&page.body, &ctx, &mut errors);
+                validate_page_body(&page.body, &ctx, ix, &mut errors);
             }
             Declaration::Component(comp) => {
                 let ctx = format!("Component {}", comp.name);
-                validate_outside_presentation(&comp.body, &ctx, &mut errors);
+                validate_outside_presentation(&comp.body, &ctx, ix, &mut errors);
             }
             Declaration::App(app) => {
-                validate_outside_presentation(&app.body, "App", &mut errors);
+                validate_outside_presentation(&app.body, "App", ix, &mut errors);
             }
             _ => {}
         }
@@ -58,16 +61,23 @@ pub fn validate_for_slides(program: &Program) -> Vec<SlidesValidationError> {
     errors
 }
 
-fn validate_page_body(stmts: &[Statement], context: &str, errors: &mut Vec<SlidesValidationError>) {
+fn validate_page_body(
+    stmts: &[Statement],
+    context: &str,
+    decl: usize,
+    errors: &mut Vec<SlidesValidationError>,
+) {
     for stmt in stmts {
         if let StatementKind::UIElement(ui) = &stmt.kind {
             if let ComponentRef::BuiltIn(name) = &ui.component {
                 if name == "Presentation" {
-                    validate_presentation_children(&ui.children, context, errors);
+                    validate_presentation_children(&ui.children, context, decl, errors);
                     continue;
                 }
                 if SLIDE_KINDS.contains(&name.as_str()) {
                     errors.push(SlidesValidationError {
+                        decl,
+                        span: ui.span,
                         component: name.clone(),
                         context: context.to_string(),
                         reason: "slide elements must be inside a Presentation { ... } block"
@@ -85,6 +95,7 @@ fn validate_page_body(stmts: &[Statement], context: &str, errors: &mut Vec<Slide
 fn validate_presentation_children(
     stmts: &[Statement],
     context: &str,
+    decl: usize,
     errors: &mut Vec<SlidesValidationError>,
 ) {
     for stmt in stmts {
@@ -94,6 +105,8 @@ fn validate_presentation_children(
                     ComponentRef::BuiltIn(n) => n.clone(),
                     _ => {
                         errors.push(SlidesValidationError {
+                decl,
+                span: ui.span,
                             component: format!("{:?}", ui.component),
                             context: context.to_string(),
                             reason: "Presentation may only contain Slide / TitleSlide / SectionSlide / TwoColumn / ImageSlide".to_string(),
@@ -103,16 +116,20 @@ fn validate_presentation_children(
                 };
                 if !SLIDE_KINDS.contains(&name.as_str()) {
                     errors.push(SlidesValidationError {
+                decl,
+                span: ui.span,
                         component: name,
                         context: context.to_string(),
                         reason: "Presentation may only contain Slide / TitleSlide / SectionSlide / TwoColumn / ImageSlide".to_string(),
                     });
                     continue;
                 }
-                validate_slide_kind(&name, ui, context, errors);
+                validate_slide_kind(&name, ui, context, decl, errors);
             }
             _ => {
                 errors.push(SlidesValidationError {
+                    decl,
+                    span: stmt.span,
                     component: "non-slide statement".to_string(),
                     context: context.to_string(),
                     reason: "Presentation children must be slide elements (no if/for/state)"
@@ -127,6 +144,7 @@ fn validate_slide_kind(
     name: &str,
     ui: &UIElement,
     context: &str,
+    decl: usize,
     errors: &mut Vec<SlidesValidationError>,
 ) {
     let slide_ctx = format!("{} > {}", context, name);
@@ -146,6 +164,8 @@ fn validate_slide_kind(
                 .collect();
             if ui_children.len() != 2 {
                 errors.push(SlidesValidationError {
+                    decl,
+                    span: ui.span,
                     component: "TwoColumn".to_string(),
                     context: context.to_string(),
                     reason: format!("requires exactly 2 child blocks, got {}", ui_children.len()),
@@ -159,6 +179,8 @@ fn validate_slide_kind(
                 .any(|a| matches!(a, Arg::Named(n, _) if n == "src"));
             if !has_src {
                 errors.push(SlidesValidationError {
+                    decl,
+                    span: ui.span,
                     component: "ImageSlide".to_string(),
                     context: context.to_string(),
                     reason: "missing required `src` argument".to_string(),
@@ -169,12 +191,13 @@ fn validate_slide_kind(
     }
 
     // Recurse into children to catch interactive components / nested slides.
-    validate_inside_slide(&ui.children, &slide_ctx, errors);
+    validate_inside_slide(&ui.children, &slide_ctx, decl, errors);
 }
 
 fn validate_inside_slide(
     stmts: &[Statement],
     context: &str,
+    decl: usize,
     errors: &mut Vec<SlidesValidationError>,
 ) {
     for stmt in stmts {
@@ -183,6 +206,8 @@ fn validate_inside_slide(
                 if let ComponentRef::BuiltIn(name) = &ui.component {
                     if SLIDE_KINDS.contains(&name.as_str()) {
                         errors.push(SlidesValidationError {
+                            decl,
+                            span: ui.span,
                             component: name.clone(),
                             context: context.to_string(),
                             reason: "slide elements cannot be nested inside other slides"
@@ -192,6 +217,8 @@ fn validate_inside_slide(
                     }
                     if REJECTED_COMPONENTS.contains(&name.as_str()) {
                         errors.push(SlidesValidationError {
+                            decl,
+                            span: ui.span,
                             component: name.clone(),
                             context: context.to_string(),
                             reason: "interactive / web-only component is not supported in slides"
@@ -206,6 +233,8 @@ fn validate_inside_slide(
                             "this component belongs to the PDF document model, not slides"
                         };
                         errors.push(SlidesValidationError {
+                            decl,
+                            span: ui.span,
                             component: name.clone(),
                             context: context.to_string(),
                             reason: why.to_string(),
@@ -215,38 +244,48 @@ fn validate_inside_slide(
                 }
                 if !ui.events.is_empty() {
                     errors.push(SlidesValidationError {
+                        decl,
+                        span: ui.span,
                         component: format!("{} (events)", display_name(&ui.component)),
                         context: context.to_string(),
                         reason: "event handlers are not supported in slides".to_string(),
                     });
                 }
-                validate_inside_slide(&ui.children, context, errors);
+                validate_inside_slide(&ui.children, context, decl, errors);
             }
             StatementKind::If(if_stmt) => {
-                validate_inside_slide(&if_stmt.then_body, context, errors);
+                validate_inside_slide(&if_stmt.then_body, context, decl, errors);
                 if let Some(else_body) = &if_stmt.else_body {
-                    validate_inside_slide(else_body, context, errors);
+                    validate_inside_slide(else_body, context, decl, errors);
                 }
             }
             StatementKind::For(for_stmt) => {
-                validate_inside_slide(&for_stmt.body, context, errors);
+                validate_inside_slide(&for_stmt.body, context, decl, errors);
             }
             StatementKind::Navigate(_) => errors.push(SlidesValidationError {
+                decl,
+                span: stmt.span,
                 component: "navigate".to_string(),
                 context: context.to_string(),
                 reason: "navigation is a web-only feature".to_string(),
             }),
             StatementKind::Fetch(_) => errors.push(SlidesValidationError {
+                decl,
+                span: stmt.span,
                 component: "fetch".to_string(),
                 context: context.to_string(),
                 reason: "data fetching is a web-only feature".to_string(),
             }),
             StatementKind::Animate(_) => errors.push(SlidesValidationError {
+                decl,
+                span: stmt.span,
                 component: "animate".to_string(),
                 context: context.to_string(),
                 reason: "animations are a web-only feature".to_string(),
             }),
             StatementKind::EventHandler(_) => errors.push(SlidesValidationError {
+                decl,
+                span: stmt.span,
                 component: "event handler".to_string(),
                 context: context.to_string(),
                 reason: "event handlers are not supported in slides".to_string(),
@@ -259,6 +298,7 @@ fn validate_inside_slide(
 fn validate_outside_presentation(
     stmts: &[Statement],
     context: &str,
+    decl: usize,
     errors: &mut Vec<SlidesValidationError>,
 ) {
     // Slide-kind components are only valid inside a Presentation; flag them anywhere else.
@@ -267,6 +307,8 @@ fn validate_outside_presentation(
             if let ComponentRef::BuiltIn(name) = &ui.component {
                 if SLIDE_KINDS.contains(&name.as_str()) {
                     errors.push(SlidesValidationError {
+                        decl,
+                        span: ui.span,
                         component: name.clone(),
                         context: context.to_string(),
                         reason: "slide elements must be inside a Presentation { ... } block"
@@ -274,7 +316,7 @@ fn validate_outside_presentation(
                     });
                 }
             }
-            validate_outside_presentation(&ui.children, context, errors);
+            validate_outside_presentation(&ui.children, context, decl, errors);
         }
     }
 }

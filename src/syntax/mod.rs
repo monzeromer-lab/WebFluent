@@ -76,8 +76,9 @@ pub fn parse_source(source: &str, file: &str) -> Result<Program> {
     match detect_dialect(source) {
         Dialect::V1 => {
             let (line, col) = position_of_first_word(source);
-            Err(WebFluentError::ParseError(
-                Diagnostic::new(
+            Err(WebFluentError::ParseError(Box::new(
+                Diagnostic::coded(
+                    "E004",
                     format!(
                         "`{}` is a WebFluent 2 declaration; this is WebFluent 3",
                         first_word(source).unwrap_or("Page")
@@ -87,9 +88,30 @@ pub fn parse_source(source: &str, file: &str) -> Result<Program> {
                     col,
                 )
                 .with_hint("Run `wf migrate` to convert the project to the current grammar"),
-            ))
+            )))
         }
         Dialect::V2 => crate::parser::v2::parse_v2(source, file),
+    }
+}
+
+/// Parse one file, keeping going after an error: every declaration that
+/// parses, and a diagnostic for each mistake — so one typo does not hide the
+/// rest of the file. A file the lexer cannot read, or one in the grammar of
+/// WebFluent 2, is one error and no declarations.
+pub fn parse_source_recovering(source: &str, file: &str) -> (Program, Vec<Diagnostic>) {
+    let empty = || Program {
+        declarations: Vec::new(),
+    };
+    if detect_dialect(source) == Dialect::V1 {
+        let err = parse_source(source, file)
+            .err()
+            .map(|e| e.diagnostics())
+            .unwrap_or_default();
+        return (empty(), err);
+    }
+    match crate::lexer::LexerV2::for_file(source, file).tokenize() {
+        Ok(tokens) => crate::parser::v2::ParserV2::new(tokens, file).parse_recovering(),
+        Err(e) => (empty(), e.diagnostics()),
     }
 }
 
@@ -138,5 +160,19 @@ mod tests {
         assert!(err.contains("`Page` is a WebFluent 2 declaration"), "{err}");
         assert!(err.contains("wf migrate"), "{err}");
         assert!(err.contains("t.wf:2:1"), "{err}");
+    }
+
+    #[test]
+    fn a_file_reports_each_broken_declaration_and_keeps_the_rest() {
+        let src = "page A(path: \"/a\") { Text(\"a\") }\n\
+                   component B( { Text(\"b\") }\n\
+                   page C(path: \"/c\") { Text(\"c\") }\n\
+                   store D { state = 1 }\n\
+                   page E(path: \"/e\") { Text(\"e\") }\n";
+        let (program, errors) = parse_source_recovering(src, "t.wf");
+        assert_eq!(errors.len(), 2, "{errors:?}");
+        assert_eq!((errors[0].line, errors[1].line), (2, 4));
+        assert!(errors.iter().all(|e| e.code == "E002"));
+        assert_eq!(program.declarations.len(), 3, "A, C and E still parse");
     }
 }

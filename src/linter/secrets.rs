@@ -41,7 +41,8 @@ pub fn lint_env(project_dir: &Path, config: &ProjectConfig, files: &[String]) ->
             }
             let known = config.env.contains_key(&name);
             out.push(
-                Diagnostic::new(
+                Diagnostic::coded(
+                    "E108",
                     format!("`env.{name}` is not public, and a page reads what is in the bundle"),
                     file,
                     line,

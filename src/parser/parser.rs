@@ -117,12 +117,13 @@ impl Parser {
 
     fn error(&self, message: String) -> WebFluentError {
         let token = self.current();
-        WebFluentError::ParseError(Diagnostic::new(
+        WebFluentError::ParseError(Box::new(Diagnostic::coded(
+            "E002",
             message,
             &self.file,
             token.line,
             token.column,
-        ))
+        )))
     }
 
     // ─── Span helpers ────────────────────────────────────
@@ -2315,12 +2316,13 @@ impl Parser {
                 // Parse the expression inside { }
                 let mut lexer = crate::lexer::Lexer::new(&expr_str, &self.file);
                 let tokens = lexer.tokenize().map_err(|e| {
-                    WebFluentError::ParseError(Diagnostic::new(
+                    WebFluentError::ParseError(Box::new(Diagnostic::coded(
+                        "E002",
                         format!("Error in string interpolation: {}", e),
                         &self.file,
                         0,
                         0,
-                    ))
+                    )))
                 })?;
                 let mut parser = Parser::new(tokens, &self.file);
                 let expr = parser.parse_expression()?;

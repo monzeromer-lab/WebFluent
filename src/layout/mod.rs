@@ -230,15 +230,15 @@ fn verify(original: &[Token], converted: &str, file: &str, layout: Layout) -> Re
         .unwrap_or(a.len().min(b.len()));
     let token = original.get(at).or(original.last());
     let (line, column) = token.map_or((1, 1), |t| (t.line, t.column));
-    Err(WebFluentError::ParseError(
-        Diagnostic::new(
+    Err(WebFluentError::ParseError(Box::new(
+        Diagnostic::coded("E003", 
             "The file's indentation does not follow its blocks, so its layout cannot be changed without changing what it says",
             file,
             line,
             column,
         )
         .with_hint("Indent each block's lines deeper than the line that opens it, and nothing else"),
-    ))
+    )))
 }
 
 #[cfg(test)]

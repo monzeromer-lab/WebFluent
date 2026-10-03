@@ -1,18 +1,16 @@
 //! The compiler's findings, as LSP diagnostics, per file.
 //!
-//! Everything the compiler would say on `wf build` — a lexer or parser error,
-//! the semantic checks, the vocabulary, accessibility and contrast lints — is
-//! run over the merged project once and routed to the file each finding is
-//! about. Severity follows the compiler: a broken reference stops a build, so
-//! it is an error; a lint is a warning.
+//! The server runs the build's own pipeline —
+//! [`webfluent::diagnostics::check::check_project`] — over the merged
+//! project, so the editor shows exactly what `wf build` refuses: the
+//! scripts, the config, `env`, the output mode and every lint included.
+//! Each finding is routed to its file by path, and carries its code, a link
+//! to its entry in the guide, its whole range, the other places it
+//! concerns, and an `Unnecessary` tag where it points at code nothing needs.
 
+use std::collections::HashMap;
 use tower_lsp::lsp_types::*;
-use webfluent::error::{Diagnostic as WfDiagnostic, WebFluentError};
-use webfluent::linter::{
-    lint_accessibility_in, lint_contrast_in, lint_unused_in, lint_vocabulary_with,
-    validate_semantics_in,
-};
-use webfluent::themes::resolve_tokens;
+use webfluent::diagnostics::{Diagnostic as WfDiagnostic, Severity, Tag};
 
 use crate::line_index::LineIndex;
 use crate::project::Project;
@@ -20,114 +18,89 @@ use crate::project::Project;
 /// Diagnostics for every file in the project, indexed like `project.files`.
 pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
     let mut out: Vec<Vec<Diagnostic>> = project.files.iter().map(|_| Vec::new()).collect();
+    let labels: Vec<String> = (0..project.files.len())
+        .map(|ix| project.label_of(ix))
+        .collect();
+    let by_label: HashMap<&str, usize> = labels
+        .iter()
+        .enumerate()
+        .map(|(ix, l)| (l.as_str(), ix))
+        .collect();
 
-    // A file that does not parse reports its one error and contributes no
-    // declarations; the rest of the project is still checked without it.
+    // A file that does not parse reports each of its mistakes; the rest of
+    // the project is still checked without it.
+    let mut findings: Vec<(usize, WfDiagnostic)> = Vec::new();
+    let mut incomplete = false;
     for (ix, file) in project.files.iter().enumerate() {
-        if let Err(error) = &file.parsed
-            && let Some(diagnostic) = parse_error(error, &file.source, &file.index)
-        {
-            out[ix].push(diagnostic);
+        if file.script || file.parsed.is_ok() {
+            continue;
         }
+        if !file.stale {
+            incomplete = true;
+        }
+        let (_, errors) = webfluent::syntax::parse_source_recovering(&file.source, &labels[ix]);
+        findings.extend(errors.into_iter().map(|d| (ix, d)));
     }
 
-    // The linters label each finding with the declaration's file; the label
-    // here is the file's index, which routes it back.
-    let file_count = out.len();
-    let file_of = |decl_ix: usize| project.decl_file[decl_ix].to_string();
-    let route = move |label: &str| label.parse::<usize>().ok().filter(|&ix| ix < file_count);
-
-    for finding in validate_semantics_in(&project.program, &file_of) {
-        if let Some(ix) = route(&finding.file) {
-            let file = &project.files[ix];
-            out[ix].push(diagnostic(
-                &file.source,
-                &file.index,
-                finding.line,
-                finding.column,
-                &finding.message,
-                finding.hint.as_deref(),
-                DiagnosticSeverity::ERROR,
-                None,
-            ));
-        }
-    }
-
-    let mut findings = webfluent::sema::check(&project.program, &file_of);
+    let file_of = |decl_ix: usize| labels[project.decl_file[decl_ix]].clone();
     let source_of = |decl_ix: usize| {
         project
             .files
             .get(project.decl_file[decl_ix])
             .map(|f| f.source.to_string())
     };
-    let typed = webfluent::sema::types::check_in(&project.program, &file_of, &source_of);
-    findings.errors.extend(typed.findings.errors);
-    findings.errors.extend(typed.unresolved);
-    findings.warnings.extend(typed.findings.warnings);
-    for (finding, severity) in findings
-        .errors
+    let config = project
+        .root
+        .as_ref()
+        .and_then(|root| webfluent::config::ProjectConfig::load(root).ok());
+    let scripts = project
+        .root
+        .as_ref()
+        .and_then(|root| webfluent::project_js::load(root, &root.join("src")).ok())
+        .unwrap_or_default();
+    let declaration_files: Vec<String> = project
+        .decl_file
         .iter()
-        .map(|d| (d, DiagnosticSeverity::ERROR))
-        .chain(
-            findings
-                .warnings
-                .iter()
-                .map(|d| (d, DiagnosticSeverity::WARNING)),
-        )
-    {
-        if let Some(ix) = route(&finding.file) {
-            let file = &project.files[ix];
-            out[ix].push(diagnostic(
-                &file.source,
-                &file.index,
-                finding.line,
-                finding.column,
-                &finding.message,
-                finding.hint.as_deref(),
-                severity,
-                None,
-            ));
+        .map(|&ix| labels[ix].clone())
+        .collect();
+    let checked =
+        webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project {
+            program: &project.program,
+            file_of: &file_of,
+            source_of: &source_of,
+            dir: project.root.as_deref(),
+            config: config.as_ref(),
+            declaration_files: &declaration_files,
+            scripts: &scripts,
+            stylesheets: &project.stylesheets,
+            incomplete,
+        });
+    for finding in checked.diagnostics {
+        if let Some(&ix) = by_label.get(finding.file.as_str()) {
+            findings.push((ix, finding));
         }
     }
 
-    // The linters read the vocabulary the generators do: a `.sm` flag is
-    // judged by the class it produces. Lowering keeps every span.
-    let lowered = webfluent::sema::lower(project.program.clone());
-    for warning in lint_vocabulary_with(&lowered, &project.stylesheets, &file_of) {
-        if let Some(ix) = route(&warning.file) {
-            let file = &project.files[ix];
-            out[ix].push(diagnostic(
-                &file.source,
-                &file.index,
-                warning.line,
-                warning.column,
-                &warning.message,
-                warning.hint.as_deref(),
-                DiagnosticSeverity::WARNING,
-                Some(&warning.rule_id),
-            ));
-        }
-    }
-
-    let mut a11y = lint_accessibility_in(&lowered, &file_of);
-    if let Ok(tokens) = resolve_tokens(&lowered, &project.theme) {
-        a11y.extend(lint_contrast_in(&lowered, &tokens, &file_of));
-    }
-    a11y.extend(lint_unused_in(&project.program, &file_of));
-    for warning in a11y {
-        if let Some(ix) = route(&warning.file) {
-            let file = &project.files[ix];
-            out[ix].push(diagnostic(
-                &file.source,
-                &file.index,
-                warning.line,
-                warning.column,
-                &warning.message,
-                Some(&warning.hint),
-                DiagnosticSeverity::WARNING,
-                Some(&warning.rule_id),
-            ));
-        }
+    for (ix, finding) in findings {
+        let file = &project.files[ix];
+        let related = finding
+            .related
+            .iter()
+            .filter_map(|r| {
+                let &rix = by_label.get(r.file.as_str())?;
+                let other = &project.files[rix];
+                Some(DiagnosticRelatedInformation {
+                    location: Location::new(
+                        other.uri.clone(),
+                        other
+                            .index
+                            .word_range_at_line_col(&other.source, r.line, r.column),
+                    ),
+                    message: r.message.clone(),
+                })
+            })
+            .collect();
+        out[ix].push(to_lsp(&finding, &file.source, &file.index, related));
     }
 
     for diagnostics in &mut out {
@@ -136,48 +109,64 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
     out
 }
 
-fn parse_error(error: &WebFluentError, source: &str, index: &LineIndex) -> Option<Diagnostic> {
-    let (finding, what): (&WfDiagnostic, &str) = match error {
-        WebFluentError::LexerError(d) => (d, "lexer"),
-        WebFluentError::ParseError(d) => (d, "parser"),
-        // The other variants come from stages the server never runs.
-        _ => return None,
-    };
-    let mut diagnostic = self::diagnostic(
-        source,
-        index,
-        finding.line,
-        finding.column,
-        &finding.message,
-        finding.hint.as_deref(),
-        DiagnosticSeverity::ERROR,
-        None,
-    );
-    diagnostic.source = Some(format!("webfluent {what}"));
-    Some(diagnostic)
+/// The range a finding covers: from its start to its end when the compiler
+/// knows the end, the word at its start when it does not.
+pub fn range_of(finding: &WfDiagnostic, source: &str, index: &LineIndex) -> Range {
+    if finding.end_line > 0
+        && let (Some(start), Some(end)) = (
+            index.line_col_to_offset(source, finding.line, finding.column),
+            index.line_col_to_offset(source, finding.end_line, finding.end_column),
+        )
+        && end > start
+    {
+        return Range::new(
+            index.offset_to_position(source, start),
+            index.offset_to_position(source, end),
+        );
+    }
+    index.word_range_at_line_col(source, finding.line, finding.column)
 }
 
-#[allow(clippy::too_many_arguments)]
-fn diagnostic(
+/// One finding as the editor reads it.
+pub fn to_lsp(
+    finding: &WfDiagnostic,
     source: &str,
     index: &LineIndex,
-    line: usize,
-    column: usize,
-    message: &str,
-    hint: Option<&str>,
-    severity: DiagnosticSeverity,
-    code: Option<&str>,
+    related: Vec<DiagnosticRelatedInformation>,
 ) -> Diagnostic {
-    let message = match hint {
-        Some(hint) if !hint.is_empty() => format!("{message}\n{hint}"),
-        _ => message.to_string(),
+    let message = match &finding.hint {
+        Some(hint) if !hint.is_empty() => format!("{}\n{hint}", finding.message),
+        _ => finding.message.clone(),
     };
+    let severity = match finding.severity {
+        Severity::Error => DiagnosticSeverity::ERROR,
+        Severity::Warning => DiagnosticSeverity::WARNING,
+        Severity::Info => DiagnosticSeverity::INFORMATION,
+    };
+    let tags: Vec<DiagnosticTag> = finding
+        .tags
+        .iter()
+        .map(|t| match t {
+            Tag::Unnecessary => DiagnosticTag::UNNECESSARY,
+            Tag::Deprecated => DiagnosticTag::DEPRECATED,
+        })
+        .collect();
+    let code = (!finding.code.is_empty()).then(|| NumberOrString::String(finding.code.to_string()));
+    let code_description = finding
+        .docs_url()
+        .and_then(|url| Url::parse(&url).ok())
+        .map(|href| CodeDescription { href });
     Diagnostic {
-        range: index.word_range_at_line_col(source, line, column),
+        range: range_of(finding, source, index),
         severity: Some(severity),
-        code: code.map(|c| NumberOrString::String(c.to_string())),
+        code,
+        code_description,
         source: Some("webfluent".to_string()),
         message,
-        ..Default::default()
+        related_information: (!related.is_empty()).then_some(related),
+        tags: (!tags.is_empty()).then_some(tags),
+        data: serde_json::to_value(&finding.fixes)
+            .ok()
+            .filter(|_| !finding.fixes.is_empty()),
     }
 }

@@ -83,7 +83,7 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
                 if let Some(layout) = &p.layout {
                     match decls.components.get(layout.name.as_str()) {
                         None => findings.errors.push(
-                            Diagnostic::new(
+                            Diagnostic::coded("E101",
                                 format!("`{}` is not a declared component", layout.name),
                                 &file,
                                 layout.span.line as usize,
@@ -93,7 +93,7 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
                         ),
                         Some(c) if !c.slots.iter().any(|s| s.name.is_none()) => {
                             findings.errors.push(
-                                Diagnostic::new(
+                                Diagnostic::coded("E104",
                                     format!("`{}` declares no default slot, so the page has nowhere to go", layout.name),
                                     &file,
                                     layout.span.line as usize,
@@ -140,8 +140,14 @@ struct Checker<'a, 'p> {
 }
 
 impl Checker<'_, '_> {
-    fn error(&mut self, span: Span, message: String, hint: &str) {
-        let d = Diagnostic::new(message, self.file, span.line as usize, span.col as usize);
+    fn error(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
+        let d = Diagnostic::coded(
+            code,
+            message,
+            self.file,
+            span.line as usize,
+            span.col as usize,
+        );
         self.findings.errors.push(if hint.is_empty() {
             d
         } else {
@@ -149,8 +155,14 @@ impl Checker<'_, '_> {
         });
     }
 
-    fn warning(&mut self, span: Span, message: String, hint: &str) {
-        let d = Diagnostic::new(message, self.file, span.line as usize, span.col as usize);
+    fn warning(&mut self, span: Span, code: &'static str, message: String, hint: &str) {
+        let d = Diagnostic::coded(
+            code,
+            message,
+            self.file,
+            span.line as usize,
+            span.col as usize,
+        );
         self.findings.warnings.push(if hint.is_empty() {
             d
         } else {
@@ -187,6 +199,7 @@ impl Checker<'_, '_> {
                     if over_resource && over_enum {
                         self.error(
                             stmt.span,
+                            "T11",
                             "A `match` is over a resource (`loading`, `error`, `ready`) or over an enum (`.case`), not both".into(),
                             "",
                         );
@@ -227,6 +240,7 @@ impl Checker<'_, '_> {
                     Some(c) if c.events.iter().any(|ev| ev.name == e.event) => {}
                     Some(c) => self.error(
                         stmt.span,
+                        "E103",
                         format!("`{}` declares no event `{}`", c.name, e.event),
                         &format!(
                             "Declare it at the top of the component: `event {}`",
@@ -235,6 +249,7 @@ impl Checker<'_, '_> {
                     ),
                     None => self.error(
                         stmt.span,
+                        "E114",
                         "`emit` fires a component's event; a page has none".into(),
                         "",
                     ),
@@ -296,6 +311,7 @@ impl Checker<'_, '_> {
                     };
                     self.error(
                         span,
+                        "E103",
                         format!("`{owner}.{part}` is not a part of `{owner}`"),
                         &hint,
                     );
@@ -335,6 +351,7 @@ impl Checker<'_, '_> {
                     .collect();
                 self.error(
                     span,
+                    "E103",
                     format!("`{}` declares no slot `{slot}`", component.name),
                     &if names.is_empty() {
                         format!("Declare it first: `slot {slot}`")
@@ -362,6 +379,7 @@ impl Checker<'_, '_> {
                     .collect();
                 self.error(
                     span,
+                    "E103",
                     format!("`{slot}` hands no `{name}`"),
                     &if params.is_empty() {
                         format!("Declare what it hands over: `slot {slot}({name}: Type)`")
@@ -375,6 +393,7 @@ impl Checker<'_, '_> {
             if !handed.contains(&p.name.as_str()) {
                 self.error(
                     span,
+                    "E103",
                     format!("`{slot}` is used without `{}`", p.name),
                     &format!("Write `{slot}({}: value)`", p.name),
                 );
@@ -393,6 +412,7 @@ impl Checker<'_, '_> {
                         props.iter().map(|p| format!("`{p}: .{word}`")).collect();
                     self.error(
                         at,
+                        "E103",
                         format!("`.{word}` is ambiguous on {name}"),
                         &format!("Write {}", options.join(" or ")),
                     );
@@ -402,6 +422,7 @@ impl Checker<'_, '_> {
                     // word that reaches here resolves to nothing.
                     self.error(
                         at,
+                        "E103",
                         format!("{name} has no flag or enum case `{word}`"),
                         &self.flag_hint(sig),
                     );
@@ -421,6 +442,7 @@ impl Checker<'_, '_> {
             {
                 self.warning(
                     at,
+                    "V08",
                     format!("`{icon}` is not an icon the runtime draws; it will show as the word"),
                     &format!("The icons: {}", registry::ICONS.join(", ")),
                 );
@@ -433,6 +455,7 @@ impl Checker<'_, '_> {
                         // every project is migrated.
                         self.warning(
                             at,
+                            "C05",
                             format!("{name} takes no positional argument"),
                             "Name it: the registry lists the props it takes",
                         );
@@ -445,6 +468,7 @@ impl Checker<'_, '_> {
                     if is_event_attribute(key) {
                         self.error(
                             at,
+                            "E106",
                             format!("`{key}` on {name} would put script in an attribute"),
                             &format!(
                                 "Write the handler instead: `{name}(…) {{ on {} {{ … }} }}`",
@@ -463,6 +487,7 @@ impl Checker<'_, '_> {
                     {
                         self.error(
                             at,
+                            "E107",
                             format!(
                                 "`{key}` on {name} names the `{}` scheme, which a browser runs",
                                 crate::codegen::url::scheme_of(text).unwrap_or_default()
@@ -474,6 +499,7 @@ impl Checker<'_, '_> {
                         if !sig.accepts_named(key) {
                             self.warning(
                                 at,
+                                "C04",
                                 format!("{name} has no prop `{key}`; it is written to the element as an attribute"),
                                 "A typo here does nothing on screen; check the component's props",
                             );
@@ -497,12 +523,14 @@ impl Checker<'_, '_> {
                                 }
                                 self.error(
                                     at,
+                                    "E103",
                                     format!("`{key}` on {name} has no case `.{case}`"),
                                     &format!("It takes {}", names.join(", ")),
                                 );
                             }
                             _ => self.error(
                                 at,
+                                "E103",
                                 format!(
                                     "`{key}` on {name} is not an enum, so `.{case}` means nothing"
                                 ),
@@ -530,6 +558,7 @@ impl Checker<'_, '_> {
             if !valid {
                 self.error(
                     el.span,
+                    "E116",
                     match tag {
                         Some(t) => format!("`{t}` is not a custom element's tag"),
                         None => "`Element` names its tag first, as a string".to_string(),
@@ -546,6 +575,7 @@ impl Checker<'_, '_> {
             {
                 self.warning(
                     handler.span,
+                    "V09",
                     format!("`{}` is not an event {name} fires", handler.event),
                     "A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares",
                 );
@@ -554,6 +584,7 @@ impl Checker<'_, '_> {
         for fill in &el.slot_fills {
             self.error(
                 fill.span,
+                "E103",
                 format!("{name} has no slot `{}`", fill.name),
                 "A built-in's block is its children; named slots belong to components you declare",
             );
@@ -614,6 +645,7 @@ impl Checker<'_, '_> {
                 (false, 0) if universal => {}
                 (false, 0) => self.error(
                     at,
+                    "E103",
                     format!("`{name}` has no flag or enum case `{word}`"),
                     "A flag names a Bool prop, or a case of an enum-typed prop, of the component",
                 ),
@@ -624,6 +656,7 @@ impl Checker<'_, '_> {
                         .collect();
                     self.error(
                         at,
+                        "E103",
                         format!("`.{word}` is ambiguous on `{name}`"),
                         &format!("Write {}", options.join(" or ")),
                     );
@@ -638,6 +671,7 @@ impl Checker<'_, '_> {
                     {
                         self.warning(
                             at,
+                            "C06",
                             format!(
                                 "`{name}` declares no positional prop; the argument binds to `{}`",
                                 decl.props[0].name
@@ -656,6 +690,7 @@ impl Checker<'_, '_> {
                         {
                             self.warning(
                                 at,
+                                "C02",
                                 format!("`{name}` declares no prop `{key}`"),
                                 "It is passed anyway, but nothing in the component reads it",
                             );
@@ -670,12 +705,14 @@ impl Checker<'_, '_> {
                                     cases.iter().map(|c| format!(".{c}")).collect();
                                 self.error(
                                     at,
+                                    "E103",
                                     format!("`{key}` on `{name}` has no case `.{case}`"),
                                     &format!("It takes {}", names.join(", ")),
                                 );
                             }
                             None => self.error(
                                 at,
+                                "E103",
                                 format!(
                                     "`{key}` on `{name}` is not an enum, so `.{case}` means nothing"
                                 ),
@@ -696,6 +733,7 @@ impl Checker<'_, '_> {
                     .collect();
                 self.error(
                     handler.span,
+                    "E103",
                     format!("`{name}` declares no event `{}`", handler.event),
                     &if events.is_empty() {
                         "It declares no events".to_string()
@@ -729,6 +767,7 @@ impl Checker<'_, '_> {
                     };
                     self.error(
                         fill.span,
+                        "T10",
                         format!(
                             "`{}` names {} value{}, but `{}` hands {} over",
                             fill.name,
@@ -748,6 +787,7 @@ impl Checker<'_, '_> {
                     .collect();
                 self.error(
                     fill.span,
+                    "E103",
                     format!("`{name}` declares no slot `{}`", fill.name),
                     &if slots.is_empty() {
                         "It declares no named slots".to_string()

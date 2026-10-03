@@ -1,75 +1,6 @@
 use std::fmt;
 
-/// A source location diagnostic with file, line, column, and optional hint.
-///
-/// Used by [`WebFluentError::LexerError`] and [`WebFluentError::ParseError`]
-/// to provide precise error locations.
-#[derive(Debug)]
-pub struct Diagnostic {
-    /// The error message.
-    pub message: String,
-    /// Source file path.
-    pub file: String,
-    /// 1-based line number.
-    pub line: usize,
-    /// 1-based column number.
-    pub column: usize,
-    /// Optional fix suggestion.
-    pub hint: Option<String>,
-}
-
-impl Diagnostic {
-    /// Create a new diagnostic at the given source location.
-    pub fn new(
-        message: impl Into<String>,
-        file: impl Into<String>,
-        line: usize,
-        column: usize,
-    ) -> Self {
-        Self {
-            message: message.into(),
-            file: file.into(),
-            line,
-            column,
-            hint: None,
-        }
-    }
-
-    /// Add a hint (fix suggestion) to the diagnostic.
-    pub fn with_hint(mut self, hint: impl Into<String>) -> Self {
-        self.hint = Some(hint.into());
-        self
-    }
-}
-
-impl Diagnostic {
-    /// The finding written as a warning: the same place and hint, without
-    /// the `Error:` a warning printed as `Warning: Error: …` used to carry.
-    pub fn as_warning(&self) -> String {
-        let mut out = format!(
-            "Warning: {} at {}:{}:{}",
-            self.message, self.file, self.line, self.column
-        );
-        if let Some(hint) = &self.hint {
-            out.push_str(&format!("\n  {hint}"));
-        }
-        out
-    }
-}
-
-impl fmt::Display for Diagnostic {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "Error: {} at {}:{}:{}",
-            self.message, self.file, self.line, self.column
-        )?;
-        if let Some(hint) = &self.hint {
-            write!(f, "\n  {}", hint)?;
-        }
-        Ok(())
-    }
-}
+pub use crate::diagnostics::Diagnostic;
 
 /// The error type for all WebFluent operations.
 ///
@@ -80,9 +11,9 @@ impl fmt::Display for Diagnostic {
 #[allow(clippy::enum_variant_names)]
 pub enum WebFluentError {
     /// Tokenization error (invalid characters, unterminated strings, etc.).
-    LexerError(Diagnostic),
+    LexerError(Box<Diagnostic>),
     /// Syntax error (unexpected token, missing brace, etc.).
-    ParseError(Diagnostic),
+    ParseError(Box<Diagnostic>),
     /// Code generation error.
     CodegenError(String),
     /// Configuration error (invalid `webfluent.app.json`).
@@ -91,6 +22,43 @@ pub enum WebFluentError {
     IoError(String),
     /// Structured-edit error (unknown node id, invalid snippet, overlapping edits).
     EditError(String),
+    /// The checks found errors: every finding of the project, warnings
+    /// included, already printed by the command that ran them.
+    Diagnostics(Vec<Diagnostic>),
+}
+
+impl WebFluentError {
+    /// What a command exits with: `1` when the program has problems, `2`
+    /// when the build could not run at all — a file it could not read or
+    /// write, a configuration it could not load.
+    pub fn exit_code(&self) -> i32 {
+        match self {
+            WebFluentError::ConfigError(_) | WebFluentError::IoError(_) => 2,
+            _ => 1,
+        }
+    }
+
+    /// The same error with its finding given another code.
+    pub fn with_code(self, code: &'static str) -> Self {
+        match self {
+            WebFluentError::LexerError(d) => {
+                WebFluentError::LexerError(Box::new(d.with_code(code)))
+            }
+            WebFluentError::ParseError(d) => {
+                WebFluentError::ParseError(Box::new(d.with_code(code)))
+            }
+            other => other,
+        }
+    }
+
+    /// Every finding this error carries.
+    pub fn diagnostics(&self) -> Vec<Diagnostic> {
+        match self {
+            WebFluentError::LexerError(d) | WebFluentError::ParseError(d) => vec![(**d).clone()],
+            WebFluentError::Diagnostics(list) => list.clone(),
+            _ => Vec::new(),
+        }
+    }
 }
 
 impl fmt::Display for WebFluentError {
@@ -102,6 +70,12 @@ impl fmt::Display for WebFluentError {
             WebFluentError::ConfigError(msg) => write!(f, "Config Error: {}", msg),
             WebFluentError::IoError(msg) => write!(f, "IO Error: {}", msg),
             WebFluentError::EditError(msg) => write!(f, "Edit Error: {}", msg),
+            WebFluentError::Diagnostics(list) => {
+                for d in list.iter().filter(|d| d.is_error()) {
+                    writeln!(f, "{d}")?;
+                }
+                write!(f, "{}", crate::diagnostics::summary(list))
+            }
         }
     }
 }
@@ -202,5 +176,27 @@ impl fmt::Display for VocabWarning {
             write!(f, "\n    {}", hint)?;
         }
         Ok(())
+    }
+}
+
+impl From<A11yWarning> for Diagnostic {
+    fn from(w: A11yWarning) -> Self {
+        let code = crate::diagnostics::codes::info(&w.rule_id)
+            .map(|c| c.code)
+            .unwrap_or("");
+        Diagnostic::coded(code, w.message, w.file, w.line, w.column).with_hint(w.hint)
+    }
+}
+
+impl From<VocabWarning> for Diagnostic {
+    fn from(w: VocabWarning) -> Self {
+        let code = crate::diagnostics::codes::info(&w.rule_id)
+            .map(|c| c.code)
+            .unwrap_or("");
+        let d = Diagnostic::coded(code, w.message, w.file, w.line, w.column);
+        match w.hint {
+            Some(hint) => d.with_hint(hint),
+            None => d,
+        }
     }
 }

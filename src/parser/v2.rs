@@ -98,6 +98,24 @@ pub struct ParserV2 {
 }
 
 const CLAUSE_WORDS: &[&str] = &["style", "transition", "on"];
+/// The words a declaration begins with, where the parser picks up again
+/// after an error.
+const DECLARATION_WORDS: &[&str] = &[
+    "page",
+    "component",
+    "store",
+    "theme",
+    "app",
+    "type",
+    "enum",
+    "api",
+    "const",
+    "animation",
+    "test",
+    "data",
+    "image",
+    "external",
+];
 const STATEMENT_WORDS: &[&str] = &[
     "state", "persist", "derived", "effect", "action", "use", "resource", "event", "slot", "part",
     "if", "for", "show", "match", "children", "let", "return", "navigate", "log", "emit", "else",
@@ -250,14 +268,16 @@ impl ParserV2 {
 
     fn error(&self, message: String) -> WebFluentError {
         let t = self.current();
-        WebFluentError::ParseError(Diagnostic::new(message, &self.file, t.line, t.column))
+        WebFluentError::ParseError(Box::new(Diagnostic::coded(
+            "E002", message, &self.file, t.line, t.column,
+        )))
     }
 
     fn error_with_hint(&self, message: String, hint: &str) -> WebFluentError {
         let t = self.current();
-        WebFluentError::ParseError(
-            Diagnostic::new(message, &self.file, t.line, t.column).with_hint(hint),
-        )
+        WebFluentError::ParseError(Box::new(
+            Diagnostic::coded("E002", message, &self.file, t.line, t.column).with_hint(hint),
+        ))
     }
 
     // ─── Spans ───────────────────────────────────────────
@@ -292,11 +312,64 @@ impl ParserV2 {
     // ─── Declarations ────────────────────────────────────
 
     pub fn parse(&mut self) -> Result<Program> {
+        let (program, mut errors) = self.parse_recovering();
+        if errors.is_empty() {
+            Ok(program)
+        } else {
+            Err(WebFluentError::ParseError(Box::new(errors.remove(0))))
+        }
+    }
+
+    /// Every declaration that parses, and an error for each that does not.
+    /// After an error the parser resynchronises at the next declaration —
+    /// a declaration word at the start of a line — so one file reports
+    /// each of its mistakes rather than only the first.
+    pub fn parse_recovering(&mut self) -> (Program, Vec<crate::error::Diagnostic>) {
         let mut declarations = Vec::new();
+        let mut errors = Vec::new();
         while !self.at_end() {
+            let start = self.pos;
+            match self.parse_declaration() {
+                Ok(Some(decl)) => {
+                    declarations.push(decl);
+                    declarations.append(&mut self.hoisted);
+                }
+                Ok(None) => break,
+                Err(e) => {
+                    errors.extend(e.diagnostics());
+                    self.hoisted.clear();
+                    self.pending_cleanup = None;
+                    self.effect_body = None;
+                    self.block_depth = 0;
+                    self.destructures = 0;
+                    self.synchronize(start);
+                }
+            }
+        }
+        (Program { declarations }, errors)
+    }
+
+    /// Skip to the next declaration: a declaration word in the first column.
+    fn synchronize(&mut self, start: usize) {
+        if self.pos <= start {
+            self.advance();
+        }
+        while !self.at_end() {
+            let t = self.current();
+            if t.column == 1
+                && matches!(&t.token_type, TokenType::Identifier(w) if DECLARATION_WORDS.contains(&w.as_str()))
+            {
+                return;
+            }
+            self.advance();
+        }
+    }
+
+    fn parse_declaration(&mut self) -> Result<Option<Declaration>> {
+        {
             let doc = self.take_docs();
             if self.at_end() {
-                break;
+                return Ok(None);
             }
             let word = self.ident().map(str::to_string).unwrap_or_default();
             let decl = match word.as_str() {
@@ -353,10 +426,8 @@ impl ParserV2 {
                     ));
                 }
             };
-            declarations.push(decl);
-            declarations.append(&mut self.hoisted);
+            Ok(Some(decl))
         }
-        Ok(Program { declarations })
     }
 
     fn parse_page(&mut self, _doc: Option<String>) -> Result<Declaration> {
@@ -1504,10 +1575,12 @@ impl ParserV2 {
                     }
                     return Ok(StatementKind::UIElement(el));
                 }
-                Err(self.error_with_hint(
-                    format!("`{word}` is not an element or a statement a render block can hold"),
-                    "Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised",
-                ))
+                Err(self
+                    .error_with_hint(
+                        format!("`{word}` is not an element or a statement a render block can hold"),
+                        "Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised",
+                    )
+                    .with_code("E105"))
             }
         }
     }
@@ -2446,10 +2519,12 @@ impl ParserV2 {
                 args.push(Arg::Named(name, value));
             } else {
                 if !args.is_empty() {
-                    return Err(self.error_with_hint(
-                        "Only the first argument may be positional".into(),
-                        "Name the others: `Button(\"Save\", tone: .primary)`",
-                    ));
+                    return Err(self
+                        .error_with_hint(
+                            "Only the first argument may be positional".into(),
+                            "Name the others: `Button(\"Save\", tone: .primary)`",
+                        )
+                        .with_code("E113"));
                 }
                 let value = self.parse_expression()?;
                 args.push(Arg::Positional(value));
@@ -3072,12 +3147,13 @@ impl ParserV2 {
     fn parse_sub_expression(&self, text: &str) -> Result<Expr> {
         let tokens = LexerV2::new(text, &self.file).tokenize().map_err(|e| {
             let t = self.current();
-            WebFluentError::ParseError(Diagnostic::new(
+            WebFluentError::ParseError(Box::new(Diagnostic::coded(
+                "E002",
                 format!("In `{{{text}}}`: {e}"),
                 &self.file,
                 t.line,
                 t.column,
-            ))
+            )))
         })?;
         let mut sub = ParserV2::new(tokens, &self.file);
         let expr = sub.parse_expression().map_err(|e| {
@@ -3086,12 +3162,13 @@ impl ParserV2 {
                 WebFluentError::ParseError(d) => d.message.clone(),
                 other => other.to_string(),
             };
-            WebFluentError::ParseError(Diagnostic::new(
+            WebFluentError::ParseError(Box::new(Diagnostic::coded(
+                "E002",
                 format!("In `{{{text}}}`: {message}"),
                 &self.file,
                 t.line,
                 t.column,
-            ))
+            )))
         })?;
         if !sub.at_end() {
             return Err(self.error(format!("Unexpected {} in `{{{text}}}`", sub.describe())));

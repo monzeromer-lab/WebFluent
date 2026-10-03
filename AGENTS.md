@@ -2473,17 +2473,70 @@ anything else — `"{key: value}"` in prose, `"{"` alone — is text.
 
 ## Compiler diagnostics
 
-`wf build` prints every diagnostic with the file and line it came from.
-Errors stop the build; warnings do not.
+`wf build`, `wf serve` and the editor report the same findings, from one
+pipeline (`diagnostics::check::check_project`). Every stage runs whatever
+the one before it found, and every file is read even when another does not
+parse (the parser picks up again at the next declaration), so one build
+shows every mistake once. Each finding has a code, a severity, a span, a
+hint, the other places it concerns and, where there is one, a fix:
 
-**Errors — the program cannot mean what it says.** A parse error; a
-reference to nothing — an undeclared component, a page's `layout:` that
-names no component or one without a default slot, two pages or two
-components with one name; a flag, case, part, event, slot or `emit` the
-registry or the component's declaration does not know (`Button has no
-flag or enum case `huge``, with the flags it takes); a name a project
-script declares that something else already means; and what the type
-checker finds:
+```text
+error[T05]: `User` has no field `nmae`
+ --> src/pages/Profile.wf:3:18
+  |
+3 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Its fields are `id`, `name`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
+```
+
+The place comes first in the `file:line:col` form problem matchers read;
+colour only on a terminal (and never with `NO_COLOR`); one summary line at
+the end (`error: the build stopped: 2 errors, 5 warnings`). A build that
+stops on its findings exits `1`; one that could not run — a file it could
+not read, a config it could not load — exits `2`. `wf serve`'s overlay and
+`/__wf/status` carry the structured list. Errors stop the build; warnings
+do not. The codes live in one registry (`diagnostics::codes`), which the
+guide's chapter, the editor's links and the tests read.
+
+| Family | What |
+|---|---|
+| `E` | syntax and structure |
+| `T` | types |
+| `C` | components and their props |
+| `R` | routes and navigation |
+| `D` | data, assets and what is kept in the browser |
+| `A` `S` `P` `U` `V` | accessibility, search, persisted values, unused, vocabulary |
+
+**Errors — the program cannot mean what it says.**
+
+| Code | What it means |
+|---|---|
+| `E001` | Text the lexer cannot read: a stray character, a string or comment that never closes |
+| `E002` | A syntax error: what was expected, and what was found |
+| `E003` | `.wfx` indentation that lines up with no block |
+| `E004` | A file in the WebFluent 2 grammar (`wf migrate`) |
+| `E101` | A component nothing declares (an element, a `layout:`, a part) |
+| `E102` | A name declared twice in one scope — two stores, a state and a derived — with the first as a related place |
+| `E103` | A flag, case, part, event, slot or `emit` the registry or the component's declaration does not know (`Button has no flag or enum case `huge``, with the ones it takes) |
+| `E104` | A `layout:` component with no default slot |
+| `E105` | A statement a render block cannot hold (`n = n + 1` loose in a page) |
+| `E106` | An `on*` attribute: script in an attribute |
+| `E107` | A `href`/`src`/`to` literal naming a scheme a browser runs |
+| `E108` | A non-public `env` name read from a page |
+| `E109` | An element a PDF or a slide deck cannot draw |
+| `E110` | A project script that cannot be a plain script (a module, a `public/` clash, a name something else means) |
+| `E111` | A setting that cannot work (`meta.scripts` module without `as`, `build.elements`, `offline`, a missing `openapi.json`) |
+| `E113` | An argument that cannot be positional |
+| `E114` | `emit` outside a component |
+| `E116` | `Element`'s tag is not a custom element's |
+| `E901` | The compiler wrote JavaScript a browser would refuse (it reads back every script it writes — a WebFluent bug) |
+| `E902` | A page the content security policy shipped beside it would block |
+| `C02` | A prop your component does not declare |
+| `R01` | A route to a page that does not exist |
+| `S04` | Two pages claim one route |
+
+And what the type checker finds:
 
 | Code | What it means |
 |---|---|
@@ -2499,11 +2552,6 @@ checker finds:
 | `T11` | A `match` on something that is neither a resource nor an enum, or with arms of the wrong kind |
 | `T12` | A `Secret` where it would escape — shown, spliced into text, logged, or kept with `persist` |
 | `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. Not applied to a template rendered with data |
-
-Two more are errors of the same kind, reported where they are written: an
-`on*` attribute (script in an attribute), and a `href`/`src`/`to` literal
-naming a scheme a browser runs. A non-public `env` name read from a page
-stops the build too.
 
 An endpoint a service does not have is `T06`, and an argument it does not
 take is `T10`.
@@ -2533,7 +2581,6 @@ everything; a *name* nothing declares is `T13`.
 | `S01` | A page has no title |
 | `S02` | A page has no description, so its search snippet is written for it |
 | `S03` | A description longer than ~160 characters, which a search result truncates |
-| `S04` | Two pages claim the same route |
 | `P01` | A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded |
 | `P02` | A `migrate` step above the declared `version:`, which never runs |
 | `P03` | A `persist` inside a `store(scope: .route)`: the route change drops the store, and the next read builds it again from storage, so the value comes straight back |
@@ -2545,7 +2592,14 @@ everything; a *name* nothing declares is `T13`.
 | `U03` | A component nothing places, names as a layout, or reaches as a part |
 | `U04` | A store member — state, derived, action — nothing reads, inside the store or as `Store.member` |
 | `U05` | An action nothing calls; a name that starts with `_` is understood to be unused on purpose |
-| — | A named argument a built-in does not declare, written to the element as an attribute; a prop a component does not declare, passed anyway |
+| `C04` | A named argument a built-in does not declare, written to the element as an attribute |
+| `C05` | A positional argument a built-in does not take |
+| `C06` | A positional argument bound to a component's first prop, which is not marked `_` |
+| `D05` | A font, stylesheet or script from another origin with no `meta.integrity` hash |
+| `E112` | A key in `webfluent.app.json` nothing reads, with the nearest one that is |
+| `E115` | A project script the compiler could not read (still linked; its names are not in scope) |
+| `V08` | An icon the runtime does not draw |
+| `V09` | A handler for an event the element does not fire |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.

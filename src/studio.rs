@@ -74,10 +74,10 @@ pub struct ThemeInfo {
     pub line: u32,
 }
 
-/// One accessibility finding, flattened for the studio.
+/// One finding, flattened for the studio: its code, what it says and where.
 #[derive(Debug, Clone)]
 pub struct Diagnostic {
-    /// Rule identifier, e.g. `A11` or `A13`.
+    /// The code, e.g. `A11`, `T05`, `E101`.
     pub rule: String,
     pub message: String,
     pub file: String,
@@ -97,6 +97,7 @@ pub fn compile_studio(
 ) -> CompiledSite {
     // The new grammar's flags and cases are resolved onto the vocabulary the
     // generators read; node ids are keyed by span, which lowering keeps.
+    let source_program = program;
     let lowered = crate::sema::lower(program.clone());
     let program = &lowered;
     let node_map = build_node_map(program);
@@ -131,15 +132,28 @@ pub fn compile_studio(
         })
         .collect();
 
-    let mut diagnostics: Vec<Diagnostic> = crate::linter::lint_accessibility(program)
+    // What `wf build` would say about the program, from the one pipeline the
+    // build and the editor run.
+    let checked = crate::diagnostics::check::check_project(&crate::diagnostics::check::Project {
+        program: source_program,
+        file_of: &|_| String::new(),
+        source_of: &|_| None,
+        dir: None,
+        config: Some(config),
+        declaration_files: &[],
+        scripts: &[],
+        stylesheets: "",
+        incomplete: false,
+    });
+    let mut diagnostics: Vec<Diagnostic> = checked
+        .diagnostics
         .into_iter()
-        .chain(crate::linter::lint_contrast(program, &tokens))
-        .map(|w| Diagnostic {
-            rule: w.rule_id.clone(),
-            message: w.message.clone(),
-            file: w.file.clone(),
-            line: w.line,
-            hint: w.hint.clone(),
+        .map(|d| Diagnostic {
+            rule: d.code.to_string(),
+            message: d.message,
+            file: d.file,
+            line: d.line,
+            hint: d.hint.unwrap_or_default(),
         })
         .collect();
     diagnostics.sort_by(|a, b| a.rule.cmp(&b.rule).then(a.line.cmp(&b.line)));

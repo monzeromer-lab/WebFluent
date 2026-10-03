@@ -7,13 +7,20 @@ blurb: Every error and warning the compiler reports — what it means, a program
 description: Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.
 -->
 
-`wf build`, `wf serve` and your editor report the same findings. Each names
-the file, the line and the column, says what is wrong in a sentence, and
-usually offers a fix on the line under it:
+`wf build`, `wf serve` and your editor report the same findings, from
+one pipeline. Each starts with its code and what is wrong, then the place in
+the `file:line:col` form editors and CI read, the line of source with the
+part that is wrong underlined, what to do about it, and a link to its entry
+here:
 
 ```text
-Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/pages/Profile.wf:12:10
-  Unwrap it first: `if let x = value { … }`, `value ?? fallback`, …
+error[T05]: `User` has no field `nmae`
+ --> src/pages/Profile.wf:3:18
+  |
+3 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Its fields are `id`, `name`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
 ```
 
 - **Errors** stop the build: the program cannot mean what it says.
@@ -21,40 +28,502 @@ Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/pages
   not what you wanted. Nothing is a warning that the compiler could have
   decided for itself.
 
-The code in brackets — `T04` — is the thing to search this page for. Every
-example below is compiled by the test suite and draws exactly the code it
-is filed under.
+Every stage runs whatever the one before it found, and every file is read
+even when another does not parse, so one build shows every mistake once —
+then one line sums them up: `error: the build stopped: 2 errors, 5
+warnings`. A build that stops on its findings exits with `1`; one that
+could not run at all — a file it could not read, a config it could not
+load — with `2`.
 
-## Structural errors
+The code — `T05` — is the thing to search this page for. The families:
 
-Errors without a code, because each is a reference to something that does
-not exist, or code where there must be none:
-
-| You wrote | The compiler says | Fix |
-|---|---|---|
-| `Buton("Save")` | unknown component `Buton`: no `component Buton` is declared | Check the spelling, or declare it |
-| `Button("Save").huge` | Button has no flag or enum case `huge`, then every flag it takes | Use a listed flag |
-| `Row(gap: .huge)` | `gap` on Row has no case `.huge`, then the cases | Use a listed case |
-| `Card("Laptop", 999)` | Only the first argument may be positional | Name the others: `Card("Laptop", price: 999)` |
-| `page P(layout: Shell)` where `Shell` has no `slot` | `Shell` declares no default slot, so the page has nowhere to go | Add `slot` and place `children` |
-| two `component Card2` | duplicate component `Card2` | Rename or remove one |
-| `Chip("a") { on chnage { … } }` | `Chip` declares no event `chnage` | Handle a declared event, or a DOM event |
-| `Panel { footer { … } }` | `Panel` declares no slot `footer` | Fill a declared slot, or declare `slot footer` |
-| `n = n + 1` loose in a page | `n` is not an element or a statement a render block can hold | Put it in `on click { }`, an `action` or an `effect` |
-| `Button("Save", onclick: "save()")` | `onclick` on Button would put script in an attribute | `Button("Save") { on click { save() } }` |
-| `Link("Go", to: "javascript:…")` | `to` on Link names the `javascript` scheme, which a browser runs | A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`, `ftp` |
-| `env.STRIPE_SECRET` in a page | `env.STRIPE_SECRET` is not public, and a page reads what is in the bundle | Rename it `PUBLIC_…` or list it in `public_env` — only if anyone may read it ([chapter 30](30-environments.md)) |
-
-A parse error — a missing brace, a stray character — names what it expected
-and what it found, at the line it stopped.
-
-## Warnings without a code
-
-| You wrote | The compiler says |
+| | |
 |---|---|
-| `Button("Save", colour: "red")` | Button has no prop `colour`; it is written to the element as an attribute. A typo does nothing on screen. `aria-*`, `data-*` and the global attributes (`id`, `role`, `title`, …) are expected and draw nothing. |
-| `Icon("rocket")` | `rocket` is not an icon the runtime draws; it will show as the word — and the list of icons |
-| a key in `webfluent.app.json` nothing reads | `…` is not a setting, and nothing reads it — did you mean `…`? (**4.1**) |
+| `E` | syntax and structure: what cannot be read, or refers to nothing |
+| `T` | types |
+| `C` | components and their props |
+| `R` | routes and navigation |
+| `D` | data, assets and what is kept in the browser |
+| `A` | accessibility |
+| `S` | search and sharing |
+| `P` | persisted values |
+| `U` | declared and never used |
+| `V` | vocabulary |
+
+Every example below is compiled by the test suite, draws exactly the code
+it is filed under, and shows what the compiler prints for it.
+
+## Syntax and structure
+
+Errors, except where an entry says otherwise.
+
+### E001 — Text the compiler cannot read
+
+```wf expect E001
+page P(path: "/", title: "T", description: "D") {
+    Heading("Hello).h1
+}
+```
+
+```text
+error[E001]: Unterminated string literal
+ --> src/App.wf:2:13
+  |
+2 |     Heading("Hello).h1
+  |             ^
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e001
+```
+
+**Fix:** Close the string, comment or splice the message names. A
+character that begins nothing (`|` alone, a stray `@`) is usually a typo
+for the one beside it on the keyboard.
+
+### E002 — A syntax error
+
+```wf expect E002
+page P(path: "/", title: "T", description: "D") {
+    Heading("Hello").h1
+    Text("a" Text("b")
+}
+```
+
+```text
+error[E002]: Expected `,` between arguments, got `Text`
+ --> src/App.wf:3:14
+  |
+3 |     Text("a" Text("b")
+  |              ^^^^
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e002
+```
+
+**Fix:** The message names what was expected and what was found, at the
+place the parser stopped. One file can report several: after an error the
+parser picks up again at the next declaration.
+
+### E003 — Indentation that lines up with no block
+
+In a `.wfx` file, a line that comes back out to an indentation no enclosing
+block has:
+
+```text
+page Home(path: "/")
+    Row
+        Text("a")
+      Text("b")
+```
+
+**Fix:** Line the line up with the block it belongs to.
+
+### E004 — A file in the WebFluent 2 grammar
+
+```wf expect E004
+Page Home (path: "/") {
+    Text("Hi")
+}
+```
+
+```text
+error[E004]: `Page` is a WebFluent 2 declaration; this is WebFluent 3
+ --> src/App.wf:1:1
+  |
+1 | Page Home (path: "/") {
+  | ^^^^
+  = help: Run `wf migrate` to convert the project to the current grammar
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e004
+```
+
+**Fix:** Run `wf migrate` once; it rewrites the project in place.
+
+### E005 — A file the formatter will not change
+
+`wf fmt` checks that its result has the same tokens as the file. When it
+would not — something only the formatter's reading of the file would
+change — the file is left as it is and named. **Fix:** format the lines it
+names by hand; please report the file, since it is a bug in `wf fmt`.
+
+### E101 — A component nothing declares
+
+```wf expect E101
+page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Buton("Save")
+}
+```
+
+```text
+error[E101]: unknown component `Buton`: no `component Buton` is declared
+ --> src/App.wf:3:5
+  |
+3 |     Buton("Save")
+  |     ^^^^^
+  = help: declare `component Buton { … }` or check the spelling
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e101
+```
+
+**Fix:** Check the spelling, or declare it with `component Buton { … }`.
+
+### E102 — A name declared twice
+
+```wf expect E102
+page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    derived count = 1
+    Heading("Count {count}").h1
+}
+```
+
+```text
+error[E102]: `count` is declared twice: as a state at line 2, and as a `derived` here
+ --> src/App.wf:3:5
+  |
+3 |     derived count = 1
+  |     ^^^^^^^
+  = help: A name means one thing — rename one of the two `count`s
+  = note: `count` is first declared here at src/App.wf:2:5
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e102
+```
+
+**Fix:** Rename one of the two. The finding points at the second and names
+where the first is.
+
+### E103 — A flag, case, part, event or slot the component does not have
+
+```wf expect E103
+page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save").huge
+}
+```
+
+```text
+error[E103]: Button has no flag or enum case `huge`
+ --> src/App.wf:3:19
+  |
+3 |     Button("Save").huge
+  |                   ^^^^^
+  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .warning
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e103
+```
+
+**Fix:** Use one the message lists — it names every flag, case, event or
+slot the component takes.
+
+### E104 — A layout with nowhere to put the page
+
+```wf expect E104
+component Shell { Text("frame") }
+page P(path: "/", title: "T", description: "D", layout: Shell) {
+    Heading("Home").h1
+}
+```
+
+```text
+error[E104]: `Shell` declares no default slot, so the page has nowhere to go
+ --> src/App.wf:2:57
+  |
+2 | page P(path: "/", title: "T", description: "D", layout: Shell) {
+  |                                                         ^^^^^
+  = help: Add `slot` to the component and place `children` where the page belongs
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e104
+```
+
+**Fix:** Add `slot` to the component and place `children` where the page
+belongs.
+
+### E105 — A statement a render block cannot hold
+
+```wf expect E105
+page P(path: "/", title: "T", description: "D") {
+    state n = 0
+    Heading("Count").h1
+    n = n + 1
+}
+```
+
+```text
+error[E105]: `n` is not an element or a statement a render block can hold
+ --> src/App.wf:4:5
+  |
+4 |     n = n + 1
+  |     ^
+  = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e105
+```
+
+**Fix:** Put it in `on click { }`, an `action` or an `effect`.
+
+### E106 — Script in an attribute
+
+```wf expect E106
+page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save", onclick: "save()")
+}
+```
+
+```text
+error[E106]: `onclick` on Button would put script in an attribute
+ --> src/App.wf:3:20
+  |
+3 |     Button("Save", onclick: "save()")
+  |                    ^^^^^^^
+  = help: Write the handler instead: `Button(…) { on click { … } }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e106
+```
+
+**Fix:** `Button("Save") { on click { save() } }`.
+
+### E107 — A URL a browser would run
+
+```wf expect E107
+page P(path: "/", title: "T", description: "D") {
+    Heading("Go").h1
+    Link("Go", to: "javascript:alert(1)")
+}
+```
+
+```text
+error[E107]: `to` on Link names the `javascript` scheme, which a browser runs
+ --> src/App.wf:3:16
+  |
+3 |     Link("Go", to: "javascript:alert(1)")
+  |                ^^
+  = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e107
+```
+
+**Fix:** A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`,
+`ftp`.
+
+### E108 — An `env` name that is not public
+
+`env.STRIPE_SECRET` read in a page: `env.STRIPE_SECRET is not public, and a
+page reads what is in the bundle`. **Fix:** rename it `PUBLIC_…` or list it
+in `public_env` — only if anyone may read it ([chapter
+30](30-environments.md)).
+
+### E109 — An element this output cannot draw
+
+A `Button`, an `Input`, a handler or a `Router` in a project whose
+`output_type` is `pdf` or `slides`. **Fix:** draw it as text, or build the
+page as a site.
+
+### E110 — A project script that cannot be a plain script
+
+A `.js` file under `src/` with an `import` or `export`, one a file in
+`public/` at the same address would replace, or one declaring a name the
+program, the language or the browser already has. **Fix:** take off the
+`import`/`export` (a top-level `function` is global as it is), keep one of
+the two files, or rename the clashing name.
+
+### E111 — A setting that cannot work
+
+A `meta.scripts` module with no `as`, a `build.elements` naming a component
+that does not exist, an `offline.fallback` no page has, an `openapi.json`
+that is not there. **Fix:** what the message says; it names the setting.
+
+### E112 — A setting nothing reads
+
+Warning. A key in `webfluent.app.json` that is not a setting, with the
+nearest one that is: `` `build.minfy` is not a setting, and nothing reads it
+— did you mean `minify`? `` **Fix:** correct the key.
+
+### E113 — An argument that cannot be positional
+
+```wf expect E113
+component Card(_ name: String, price: Number = 0) { Text(name) }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Shop").h1
+    Card("Laptop", 999)
+}
+```
+
+```text
+error[E113]: Only the first argument may be positional
+ --> src/App.wf:4:20
+  |
+4 |     Card("Laptop", 999)
+  |                    ^^^
+  = help: Name the others: `Button("Save", tone: .primary)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e113
+```
+
+**Fix:** Name the others: `Card("Laptop", price: 999)`.
+
+### E114 — `emit` outside a component
+
+```wf expect E114
+page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save") { on click { emit saved() } }
+}
+```
+
+```text
+error[E114]: `emit` fires a component's event; a page has none
+ --> src/App.wf:3:33
+  |
+3 |     Button("Save") { on click { emit saved() } }
+  |                                 ^^^^
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e114
+```
+
+**Fix:** Fire the event from the component that declares it; a page calls
+an action instead.
+
+### E115 — A project script the compiler could not read
+
+Warning. A `.js` file under `src/` the compiler's scanner could not read —
+a string that never closes, say. The file is still linked, but its names
+are not in scope for the program. **Fix:** what the message says, at the
+line it names.
+
+### E116 — A tag that cannot be a custom element's
+
+```wf expect E116
+page P(path: "/", title: "T", description: "D") {
+    Heading("Pricing").h1
+    Element("pricingtable")
+}
+```
+
+```text
+error[E116]: `pricingtable` is not a custom element's tag
+ --> src/App.wf:3:5
+  |
+3 |     Element("pricingtable")
+  |     ^^^^^^^
+  = help: A custom element's tag is lower case with a hyphen: `Element("stripe-pricing-table", …)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e116
+```
+
+**Fix:** A custom element's tag is lower case with a hyphen:
+`Element("pricing-table")`.
+
+### E901 — The compiler wrote JavaScript a browser would refuse
+
+The build reads back every script it writes; this one would not run. It is
+a bug in WebFluent, not in your program. **Fix:** please report it, with
+the source that produced it.
+
+### E902 — Output its own security policy refuses
+
+The build holds every page it writes to the content security policy it
+ships beside it; something on this page — an inline script, a `style=`, a
+script from an origin the policy never named — would be blocked. **Fix:**
+what the message says; a library's origin goes in `meta.scripts`.
+
+## Components
+
+### C02 — A prop the component does not declare
+
+```wf expect C02
+component Badge2(_ label: String) { Text(label) }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Badges").h1
+    Badge2("New", colour: "red")
+}
+```
+
+```text
+error[C02]: `Badge2` declares no prop `colour`
+ --> src/App.wf:4:19
+  |
+4 |     Badge2("New", colour: "red")
+  |                   ^^^^^^
+  = help: It is passed anyway, but nothing in the component reads it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c02
+```
+
+**Fix:** Correct the spelling, or declare the prop on the component.
+
+### C04 — An attribute a built-in does not declare
+
+Warning.
+
+```wf expect C04
+page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save", colour: "red")
+}
+```
+
+```text
+warning[C04]: Button has no prop `colour`; it is written to the element as an attribute
+ --> src/App.wf:3:20
+  |
+3 |     Button("Save", colour: "red")
+  |                    ^^^^^^
+  = help: A typo here does nothing on screen; check the component's props
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c04
+```
+
+**Fix:** Check the prop's spelling — `wf registry` lists what the built-in
+takes. `aria-*`, `data-*` and the global attributes (`id`, `role`,
+`title`, …) are expected and draw nothing.
+
+### C05 — A positional argument a built-in does not take
+
+Warning.
+
+```wf expect C05
+page P(path: "/", title: "T", description: "D") {
+    Heading("Rule").h1
+    Divider("thin")
+}
+```
+
+```text
+warning[C05]: Divider takes no positional argument
+ --> src/App.wf:3:13
+  |
+3 |     Divider("thin")
+  |             ^
+  = help: Name it: the registry lists the props it takes
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c05
+```
+
+**Fix:** Name it, with one of the props the built-in takes.
+
+### C06 — A positional argument bound by order
+
+Warning.
+
+```wf expect C06
+component Tag2(label: String) { Text(label) }
+page P(path: "/", title: "T", description: "D") {
+    Heading("Tags").h1
+    Tag2("new")
+}
+```
+
+```text
+warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
+ --> src/App.wf:4:10
+  |
+4 |     Tag2("new")
+  |          ^
+  = help: Mark the prop: `component Tag2(_ label: …)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c06
+```
+
+**Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.
+
+## Routes
+
+### R01 — A route to nothing
+
+A `Route` whose `page:` names no declared page. **Fix:** name a page that
+exists.
+
+## Data and assets
+
+### D05 — An asset from another origin with no integrity hash
+
+Warning. A font, stylesheet or script in `meta.fonts`, `meta.stylesheets`
+or `meta.scripts` from another origin, with no hash in `meta.integrity`.
+**Fix:** add its `sha384-…` hash to `meta.integrity` (the CDN usually
+publishes it). Google Fonts is exempt: its stylesheet differs per browser.
 
 ## Types
 
@@ -71,8 +540,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T01] `count` is `String`, but `Number` is wanted at src/App.wf:4:34
-  Convert it: `Number(value)`
+error[T01]: `count` is `String`, but `Number` is wanted
+ --> src/App.wf:4:34
+  |
+4 |     Button("Reset") { on click { count = "zero" } }
+  |                                  ^^^^^^^^^^^^^^
+  = help: Convert it: `Number(value)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t01
 ```
 
 **Fix:** Give the state a value of its type, or convert: `Number(text)`, `"{n}"`. If the state really holds either, declare it `Any`.
@@ -88,8 +562,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T02] `Tone` has no case `.quiet` at src/App.wf:3:17
-  `Tone` takes .calm, .loud
+error[T02]: `Tone` has no case `.quiet`
+ --> src/App.wf:3:17
+  |
+3 |     state tone: Tone = .quiet
+  |                 ^^^^
+  = help: `Tone` takes .calm, .loud
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t02
 ```
 
 **Fix:** Use one of the cases the message lists, or add the case to the `enum`.
@@ -106,8 +585,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/App.wf:5:10
-  Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
+error[T04]: `user.email` may be null, so `.toUpperCase()` may fail
+ --> src/App.wf:5:10
+  |
+5 |     Text(user.email.toUpperCase())
+  |          ^^^^^^^^^^
+  = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t04
 ```
 
 **Fix:** Unwrap it: `if let e = user.email { e.toUpperCase() }`, `user.email?.toUpperCase()`, or `(user.email ?? "").toUpperCase()`.
@@ -123,8 +607,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T05] `User` has no field `nmae` at src/App.wf:4:18
-  Its fields are `name`
+error[T05]: `User` has no field `nmae`
+ --> src/App.wf:4:18
+  |
+4 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Its fields are `name`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
 ```
 
 **Fix:** Correct the spelling to one of the fields listed, or add the field to the `type`.
@@ -140,8 +629,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T06] `Cart` has no member `count` at src/App.wf:4:15
-  Its members are `items`
+error[T06]: `Cart` has no member `count`
+ --> src/App.wf:4:15
+  |
+4 |     Heading("{Cart.count} items").h1
+  |               ^^^^
+  = help: Its members are `items`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t06
 ```
 
 **Fix:** Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.
@@ -157,8 +651,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T07] `if` reads `items` as a condition, but a list is always true at src/App.wf:4:5
-  Ask about its length: `items.length > 0`
+error[T07]: `if` reads `items` as a condition, but a list is always true
+ --> src/App.wf:4:5
+  |
+4 |     if items { Text("There are items") }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Ask about its length: `items.length > 0`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t07
 ```
 
 **Fix:** Ask the question you mean: `items.length > 0`, `user != null`.
@@ -174,8 +673,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T08] `for` loops over a list, but `total` is `Number` at src/App.wf:4:5
-  Give it a list, or `.split(…)` a string first
+error[T08]: `for` loops over a list, but `total` is `Number`
+ --> src/App.wf:4:5
+  |
+4 |     for n in total { Text("{n}") }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Give it a list, or `.split(…)` a string first
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t08
 ```
 
 **Fix:** Loop over a list — `for n in 1..=total` for a range of numbers.
@@ -190,8 +694,13 @@ component Stepper(_ start: Number) {
 ```
 
 ```text
-Error: [T09] `emit change` passes 2 arguments, but the event takes 1 at src/App.wf:3:30
-  `event change(value: Number)`
+error[T09]: `emit change` passes 2 arguments, but the event takes 1
+ --> src/App.wf:3:30
+  |
+3 |     Button("+") { on click { emit change(1, 2) } }
+  |                              ^^^^^^^^^^^^^^^^^
+  = help: `event change(value: Number)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t09
 ```
 
 **Fix:** Pass what the `event` declares, in order, or change the declaration.
@@ -208,7 +717,12 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T10] `add` takes 1 argument, but 2 are given at src/App.wf:5:30
+error[T10]: `add` takes 1 argument, but 2 are given
+ --> src/App.wf:5:30
+  |
+5 |     Button("+") { on click { add(1, 2) } }
+  |                              ^^^
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t10
 ```
 
 **Fix:** Pass the arguments the action, endpoint or function takes.
@@ -227,8 +741,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T11] `match` needs a resource or an enum, but `n` is `Number` at src/App.wf:4:5
-  Use `if` for a condition; `match` chooses among a resource's states or an enum's cases
+error[T11]: `match` needs a resource or an enum, but `n` is `Number`
+ --> src/App.wf:4:5
+  |
+4 |     match n {
+  |     ^^^^^^^^^
+  = help: Use `if` for a condition; `match` chooses among a resource's states or an enum's cases
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t11
 ```
 
 **Fix:** Use `if` for a condition; `match` takes a resource, a connection or an enum.
@@ -244,8 +763,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T12] `token` is a `Secret`, and `Text` would show it at src/App.wf:4:10
-  A secret must not reach the page; send it as a value, or show one field of what it unlocks
+error[T12]: `token` is a `Secret`, and `Text` would show it
+ --> src/App.wf:4:10
+  |
+4 |     Text(token)
+  |          ^^^^^
+  = help: A secret must not reach the page; send it as a value, or show one field of what it unlocks
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t12
 ```
 
 **Fix:** Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.
@@ -261,8 +785,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Error: [T13] nothing declares `cuont` at src/App.wf:4:30
-  Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
+error[T13]: nothing declares `cuont`
+ --> src/App.wf:4:30
+  |
+4 |     Button("+") { on click { cuont = count + 1 } }
+  |                              ^^^^^
+  = help: Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t13
 ```
 
 **Fix:** Correct the spelling, or declare the name. The browser's own
@@ -286,8 +815,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A01]: Image missing "alt" attribute at src/App.wf:3:5
-  Add alt text: Image(src: "...", alt: "Description of image")
+warning[A01]: Image missing "alt" attribute
+ --> src/App.wf:3:5
+  |
+3 |     Image(src: "/team.jpg")
+  |     ^^^^^
+  = help: Add alt text: Image(src: "...", alt: "Description of image")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a01
 ```
 
 **Fix:** `Image(src: "/team.jpg", alt: "The team at the launch")`. A purely decorative image takes `alt: ""`.
@@ -302,8 +836,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A02]: IconButton missing accessible label at src/App.wf:3:5
-  Add a label: IconButton(icon: "close", label: "Close dialog")
+warning[A02]: IconButton missing accessible label
+ --> src/App.wf:3:5
+  |
+3 |     IconButton(icon: "close")
+  |     ^^^^^^^^^^
+  = help: Add a label: IconButton(icon: "close", label: "Close dialog")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a02
 ```
 
 **Fix:** `IconButton(icon: "close", label: "Close")` — the label is read aloud, never shown.
@@ -319,8 +858,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A03]: Input missing "label" or "placeholder" attribute at src/App.wf:4:5
-  Add a label: Input(label: "Username").text
+warning[A03]: Input missing "label" or "placeholder" attribute
+ --> src/App.wf:4:5
+  |
+4 |     Input(bind: name).text
+  |     ^^^^^
+  = help: Add a label: Input(label: "Username").text
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a03
 ```
 
 **Fix:** `Input(bind: name, label: "Name")`. A placeholder alone disappears as the reader types.
@@ -336,8 +880,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A04]: Checkbox missing "label" attribute at src/App.wf:4:5
-  Add a label: Checkbox(bind: value, label: "Description")
+warning[A04]: Checkbox missing "label" attribute
+ --> src/App.wf:4:5
+  |
+4 |     Checkbox(bind: agree)
+  |     ^^^^^^^^
+  = help: Add a label: Checkbox(bind: value, label: "Description")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a04
 ```
 
 **Fix:** `Checkbox(bind: agree, label: "I agree to the terms")`.
@@ -352,8 +901,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A05]: Button has no text content at src/App.wf:3:5
-  Add text: Button("Save").primary
+warning[A05]: Button has no text content
+ --> src/App.wf:3:5
+  |
+3 |     Button { Icon("check") }
+  |     ^^^^^^
+  = help: Add text: Button("Save").primary
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a05
 ```
 
 **Fix:** Give it text, or an `aria-label:` when it shows only an icon.
@@ -368,8 +922,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A06]: Link has no text content at src/App.wf:3:5
-  Add text: Link("About", to: "/about")
+warning[A06]: Link has no text content
+ --> src/App.wf:3:5
+  |
+3 |     Link(to: "/about")
+  |     ^^^^
+  = help: Add text: Link("About", to: "/about")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a06
 ```
 
 **Fix:** Give it text that names where it goes — not "click here".
@@ -384,8 +943,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A07]: Heading has empty text content at src/App.wf:3:5
-  Headings should have meaningful text
+warning[A07]: Heading has empty text content
+ --> src/App.wf:3:5
+  |
+3 |     Heading("").h2
+  |     ^^^^^^^
+  = help: Headings should have meaningful text
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a07
 ```
 
 **Fix:** Give the heading text, or remove it; style text with `style { }` rather than an empty heading.
@@ -401,8 +965,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A08]: Modal missing "title" attribute at src/App.wf:4:5
-  Add a title: Modal(visible: state, title: "Dialog Title")
+warning[A08]: Modal missing "title" attribute
+ --> src/App.wf:4:5
+  |
+4 |     Modal(visible: open) { Text("Hello") }
+  |     ^^^^^
+  = help: Add a title: Modal(visible: state, title: "Dialog Title")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a08
 ```
 
 **Fix:** `Modal(visible: open, title: "Delete this?")` — the title is its accessible name.
@@ -417,8 +986,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A09]: Video missing "captions" at src/App.wf:3:5
-  Add captions: Video(src: "...", captions: "/captions.en.vtt")
+warning[A09]: Video missing "captions"
+ --> src/App.wf:3:5
+  |
+3 |     Video(src: "/demo.mp4").controls
+  |     ^^^^^
+  = help: Add captions: Video(src: "...", captions: "/captions.en.vtt")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a09
 ```
 
 **Fix:** `Video(src: …, captions: "/demo.en.vtt").controls`; an `Audio` takes `transcript:`.
@@ -433,8 +1007,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A10]: Table missing header row (Thead) at src/App.wf:3:5
-  Add a header: Table { Thead { Tcell("Column Name") } ... }
+warning[A10]: Table missing header row (Thead)
+ --> src/App.wf:3:5
+  |
+3 |     Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
+  |     ^^^^^
+  = help: Add a header: Table { Thead { Tcell("Column Name") } ... }
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a10
 ```
 
 **Fix:** Put the first row in `Table.Head`, so its cells are `<th scope="col">`.
@@ -449,8 +1028,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A11]: Heading level skips from h1 to h4 at src/App.wf:3:5
-  Use h2 instead, or add the missing intermediate headings
+warning[A11]: Heading level skips from h1 to h4
+ --> src/App.wf:3:5
+  |
+3 |     Heading("Deep").h4
+  |     ^^^^^^^
+  = help: Use h2 instead, or add the missing intermediate headings
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a11
 ```
 
 **Fix:** Use the next level down (`h2` after `h1`). Size text with `style { font-size }`, not with the heading level.
@@ -464,8 +1048,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A12]: Page has no h1 heading at src/App.wf:1:1
-  Add a main heading: Heading("Page Title").h1
+warning[A12]: Page has no h1 heading
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", title: "T", description: "D") {
+  | ^^^^
+  = help: Add a main heading: Heading("Page Title").h1
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a12
 ```
 
 **Fix:** One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.
@@ -483,8 +1072,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A13]: body text on the page background has a contrast ratio of 1.92:1, below the 4.5:1 WCAG AA minimum at src/App.wf:3:1
-  Darken --color-text or lighten --color-background until they clear 4.5:1
+warning[A13]: text on a card or surface has a contrast ratio of 1.83:1, below the 4.5:1 WCAG AA minimum
+ --> src/App.wf:2:1
+  |
+2 |     color-text: #BBBBBB
+  | ^
+  = help: Darken --color-text or lighten --color-surface until they clear 4.5:1
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a13
 ```
 
 **Fix:** Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).
@@ -502,8 +1096,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A14]: role "tablist" requires children with role "tab", but holds a Button at src/App.wf:3:5
-  Give each child role: "tab", or use the built-in that owns this structure
+warning[A14]: role "tablist" requires children with role "tab", but holds a Button
+ --> src/App.wf:3:5
+  |
+3 |     Row(role: "tablist") {
+  |     ^^^
+  = help: Give each child role: "tab", or use the built-in that owns this structure
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a14
 ```
 
 **Fix:** Give each child the role the parent requires (`role: "tab"`), or use the built-in that owns the structure — `Tabs`.
@@ -518,8 +1117,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [A15]: Button shows "save" but its aria-label says "Submit the form" at src/App.wf:3:5
-  Start the aria-label with the visible text, so what a user says matches what they see
+warning[A15]: Button shows "save" but its aria-label says "Submit the form"
+ --> src/App.wf:3:5
+  |
+3 |     Button("Save", aria-label: "Submit the form")
+  |     ^^^^^^
+  = help: Start the aria-label with the visible text, so what a user says matches what they see
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a15
 ```
 
 **Fix:** Start the `aria-label` with the visible words: `aria-label: "Save the draft"`.
@@ -537,8 +1141,13 @@ page P(path: "/", description: "D") {
 ```
 
 ```text
-Warning [S01]: Page P has no title at src/App.wf:1:1
-  Add one: page Name(path: "/", title: "What this page is")
+warning[S01]: Page P has no title
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", description: "D") {
+  | ^^^^
+  = help: Add one: page Name(path: "/", title: "What this page is")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s01
 ```
 
 **Fix:** `page P(path: "/", title: "What this page is")`.
@@ -552,8 +1161,13 @@ page P(path: "/", title: "T") {
 ```
 
 ```text
-Warning [S02]: Page P has no description at src/App.wf:1:1
-  Add one: page Name(path: "/", title: "…", description: "A sentence a search result can show")
+warning[S02]: Page P has no description
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", title: "T") {
+  | ^^^^
+  = help: Add one: page Name(path: "/", title: "…", description: "A sentence a search result can show")
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s02
 ```
 
 **Fix:** Add a `description:` of about 150 characters: what a reader gets from the page.
@@ -567,8 +1181,13 @@ page P(path: "/", title: "T", description: "A description that goes on for far l
 ```
 
 ```text
-Warning [S03]: Page P's description is 178 characters; a search result shows about 160 at src/App.wf:1:1
-  Shorten it, or accept that it will be cut mid-sentence
+warning[S03]: Page P's description is 178 characters; a search result shows about 160
+ --> src/App.wf:1:1
+  |
+1 | page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
+  | ^^^^
+  = help: Shorten it, or accept that it will be cut mid-sentence
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s03
 ```
 
 **Fix:** Shorten it to about 160 characters.
@@ -581,8 +1200,13 @@ page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }
 ```
 
 ```text
-Warning [S04]: Pages A and B both claim the route /about at src/App.wf:2:1
-  Give each page its own path
+error[S04]: Pages A and B both claim the route /about
+ --> src/App.wf:2:1
+  |
+2 | page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }
+  | ^^^^
+  = help: Give each page its own path
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s04
 ```
 
 **Fix:** Give each page its own `path:`. Only one of them would ever render.
@@ -602,8 +1226,13 @@ store Cart {
 ```
 
 ```text
-Warning [P01]: `items` is at version 2, and nothing brings version 1 forward at src/App.wf:2:5
-  A reader who last visited then loses what they had. Add `migrate 1 -> 2`
+warning[P01]: `items` is at version 2, and nothing brings version 1 forward
+ --> src/App.wf:2:5
+  |
+2 |     persist items: [String] = [] {
+  |     ^^^^^^^
+  = help: A reader who last visited then loses what they had. Add `migrate 1 -> 2`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p01
 ```
 
 **Fix:** Add a step for each older version: `migrate 1 -> 2 { old.map(…) }`.
@@ -620,8 +1249,13 @@ store Cart {
 ```
 
 ```text
-Warning [P02]: `migrate 1 -> 2` on `items` is past the declared version at src/App.wf:2:5
-  A step above `version:` never runs; raise the version or drop the step
+warning[P02]: `migrate 1 -> 2` on `items` is past the declared version
+ --> src/App.wf:2:5
+  |
+2 |     persist items: [String] = [] {
+  |     ^^^^^^^
+  = help: A step above `version:` never runs; raise the version or drop the step
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p02
 ```
 
 **Fix:** Raise `version:` to the step's target, or drop the step.
@@ -635,8 +1269,13 @@ store Filters(scope: .route) {
 ```
 
 ```text
-Warning [P03]: `query` is persisted in a store scoped to the route at src/App.wf:2:5
-  The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
+warning[P03]: `query` is persisted in a store scoped to the route
+ --> src/App.wf:2:5
+  |
+2 |     persist query = ""
+  |     ^^^^^^^
+  = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p03
 ```
 
 **Fix:** Keep route-scoped data in `state`, or move the value to a store with a wider scope.
@@ -655,8 +1294,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [U01]: `unused` is declared but never read at src/App.wf:2:5
-  Nothing reads the state; remove it, or name it `_unused` to keep it
+warning[U01]: `unused` is declared but never read
+ --> src/App.wf:2:5
+  |
+2 |     state unused = 0
+  |     ^^^^^
+  = help: Nothing reads the state; remove it, or name it `_unused` to keep it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u01
 ```
 
 **Fix:** Remove it, read it, or name it `_unused` to keep it on purpose.
@@ -672,8 +1316,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [U02]: `doubled` is declared but never read at src/App.wf:3:5
-  Nothing reads the derived value; remove it, or name it `_doubled` to keep it
+warning[U02]: `doubled` is declared but never read
+ --> src/App.wf:3:5
+  |
+3 |     derived doubled = n * 2
+  |     ^^^^^^^
+  = help: Nothing reads the derived value; remove it, or name it `_doubled` to keep it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u02
 ```
 
 **Fix:** Remove it or read it; a leading `_` keeps it.
@@ -688,8 +1337,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [U03]: `Orphan` is declared but never placed at src/App.wf:1:1
-  Place it in a page, name it as a layout, or remove it
+warning[U03]: `Orphan` is declared but never placed
+ --> src/App.wf:1:1
+  |
+1 | component Orphan { Text("Nobody places me") }
+  | ^^^^^^^^^
+  = help: Place it in a page, name it as a layout, or remove it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u03
 ```
 
 **Fix:** Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.
@@ -708,8 +1362,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [U04]: `Cart.coupon` is declared but never read at src/App.wf:3:5
-  Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
+warning[U04]: `Cart.coupon` is declared but never read
+ --> src/App.wf:3:5
+  |
+3 |     state coupon = ""
+  |     ^^^^^
+  = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u04
 ```
 
 **Fix:** Remove the member, or name it with a leading `_`.
@@ -725,8 +1384,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [U05]: `reset` is declared but never read at src/App.wf:3:5
-  Nothing reads the action; remove it, or name it `_reset` to keep it
+warning[U05]: `reset` is declared but never read
+ --> src/App.wf:3:5
+  |
+3 |     action reset() { n = 0 }
+  |     ^^^^^^
+  = help: Nothing reads the action; remove it, or name it `_reset` to keep it
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u05
 ```
 
 **Fix:** Call it, remove it, or name it `_reset`.
@@ -745,7 +1409,12 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary` at src/App.wf:3:12
+warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary`
+ --> src/App.wf:3:12
+  |
+3 |     Button(primary)
+  |            ^^^^^^^
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v01
 ```
 
 **Fix:** Write the flag with its dot — `Button("Save").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.
@@ -761,8 +1430,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [V03]: `Unsafe.Html` puts markup in as markup at src/App.wf:4:5
-  Anything the project did not write itself belongs in `sanitize(…)` first
+warning[V03]: `Unsafe.Html` puts markup in as markup
+ --> src/App.wf:4:5
+  |
+4 |     Unsafe.Html(body)
+  |     ^^^^^^^^^^^
+  = help: Anything the project did not write itself belongs in `sanitize(…)` first
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v03
 ```
 
 **Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.
@@ -785,11 +1459,59 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-Warning [V04]: `class:` names `wf-btn`, one of the engine's own classes at src/App.wf:3:5
-  `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
+warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
+ --> src/App.wf:3:5
+  |
+3 |     Card(class: "wf-btn") { Text("x") }
+  |     ^^^^
+  = help: `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v04
 ```
 
 **Fix:** Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).
+
+### V08 — An icon the runtime does not draw
+
+```wf expect V08
+page P(path: "/", title: "T", description: "D") {
+    Heading("Launch").h1
+    Icon("rocket")
+}
+```
+
+```text
+warning[V08]: `rocket` is not an icon the runtime draws; it will show as the word
+ --> src/App.wf:3:10
+  |
+3 |     Icon("rocket")
+  |          ^
+  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v08
+```
+
+**Fix:** Use one of the built-in icons the message lists.
+
+### V09 — An event the element does not fire
+
+```wf expect V09
+page P(path: "/", title: "T", description: "D") {
+    Heading("Save").h1
+    Button("Save") { on clik { log("saved") } }
+}
+```
+
+```text
+warning[V09]: `clik` is not an event Button fires
+ --> src/App.wf:3:22
+  |
+3 |     Button("Save") { on clik { log("saved") } }
+  |                      ^^
+  = help: A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v09
+```
+
+**Fix:** Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`,
+…) or one the component declares.
 
 ## Next
 

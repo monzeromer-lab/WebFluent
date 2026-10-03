@@ -10,6 +10,30 @@ use std::path::{Path, PathBuf};
 struct DevState {
     version: u64,
     error: Option<String>,
+    /// Every finding of the last build — warnings too — as the overlay and
+    /// `/__wf/status` read them.
+    diagnostics: Vec<crate::error::Diagnostic>,
+}
+
+impl DevState {
+    /// What a build that just ran leaves behind.
+    fn record(&mut self, outcome: Result<()>) {
+        match outcome {
+            Ok(()) => {
+                self.version += 1;
+                self.error = None;
+                self.diagnostics.clear();
+            }
+            Err(e) => {
+                // A build's findings were printed as they were found.
+                if !matches!(e, crate::error::WebFluentError::Diagnostics(_)) {
+                    eprintln!("{e}");
+                }
+                self.diagnostics = e.diagnostics();
+                self.error = Some(e.to_string());
+            }
+        }
+    }
 }
 
 /// The script every served page loads in development: it polls the
@@ -19,7 +43,7 @@ struct DevState {
 const DEV_SCRIPT: &str = r##"(() => {
   let version = null;
   let overlay = null;
-  function show(error) {
+  function show(error, findings) {
     if (!overlay) {
       overlay = document.createElement("div");
       overlay.id = "wf-error-overlay";
@@ -32,13 +56,41 @@ const DEV_SCRIPT: &str = r##"(() => {
       head.style.color = "#fca5a5"; head.style.fontWeight = "600"; head.style.marginBottom = "16px"; head.style.fontSize = "16px";
       const pre = document.createElement("pre");
       pre.style.whiteSpace = "pre-wrap"; pre.style.margin = "0";
+      const list = document.createElement("ol");
+      list.style.listStyle = "none"; list.style.padding = "0"; list.style.margin = "0";
       const foot = document.createElement("div");
       foot.textContent = "Fix the source and save; the page reloads when the build passes.";
       foot.style.color = "#9ca3af"; foot.style.marginTop = "16px";
-      overlay.append(head, pre, foot);
+      overlay.append(head, list, pre, foot);
       document.body.appendChild(overlay);
     }
-    overlay.querySelector("pre").textContent = error;
+    const list = overlay.querySelector("ol");
+    const pre = overlay.querySelector("pre");
+    list.textContent = "";
+    pre.textContent = "";
+    if (!findings || findings.length === 0) { pre.textContent = error; return; }
+    // One entry a finding: its code and message, where it is, and what to
+    // do — errors first, the warnings the same build found after them.
+    const order = (d) => (d.severity === "error" ? 0 : 1);
+    for (const d of findings.slice().sort((a, b) => order(a) - order(b))) {
+      const item = document.createElement("li");
+      item.style.marginBottom = "18px";
+      const title = document.createElement("div");
+      title.style.fontWeight = "600";
+      title.style.color = d.severity === "error" ? "#fca5a5" : "#fcd34d";
+      title.textContent = d.severity + (d.code ? "[" + d.code + "]" : "") + ": " + d.message;
+      const where = document.createElement("div");
+      where.style.color = "#93c5fd";
+      where.textContent = d.file + ":" + d.line + ":" + d.column;
+      item.append(title, where);
+      if (d.hint) {
+        const help = document.createElement("div");
+        help.style.color = "#d1d5db";
+        help.textContent = d.hint;
+        item.append(help);
+      }
+      list.append(item);
+    }
   }
   function hide() { if (overlay) { overlay.remove(); overlay = null; } }
 
@@ -145,7 +197,7 @@ const DEV_SCRIPT: &str = r##"(() => {
       const r = await fetch("/__wf/status", { cache: "no-store" });
       const state = await r.json();
       if (version === null) version = state.version;
-      if (state.error) show(state.error);
+      if (state.error) show(state.error, state.diagnostics);
       else if (state.version !== version) location.reload();
       else hide();
     } catch (e) { /* the server is restarting */ }
@@ -162,9 +214,11 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
     // A build first, so what is served is what the source says; a build
     // that fails leaves the last output in place and its error on show.
     let state = std::sync::Arc::new(std::sync::Mutex::new(DevState::default()));
-    if let Err(e) = crate::cli::build::run_build(project_dir) {
-        eprintln!("{e}");
-        state.lock().unwrap().error = Some(e.to_string());
+    {
+        let mut s = state.lock().unwrap();
+        s.record(crate::cli::build::run_build(project_dir));
+        // The first build is version 0, whether it passed or not.
+        s.version = 0;
     }
     if !output_dir.exists() {
         return Err(crate::error::WebFluentError::IoError(format!(
@@ -205,17 +259,7 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
                 last = now;
                 println!("Change detected, rebuilding...");
                 let outcome = crate::cli::build::run_build(&root);
-                let mut s = state.lock().unwrap();
-                match outcome {
-                    Ok(()) => {
-                        s.version += 1;
-                        s.error = None;
-                    }
-                    Err(e) => {
-                        eprintln!("{e}");
-                        s.error = Some(e.to_string());
-                    }
-                }
+                state.lock().unwrap().record(outcome);
             }
         });
     }
@@ -246,7 +290,12 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
         // The dev server's own routes.
         if url == "/__wf/status" {
             let s = state.lock().unwrap();
-            let body = serde_json::json!({ "version": s.version, "error": s.error }).to_string();
+            let body = serde_json::json!({
+                "version": s.version,
+                "error": s.error,
+                "diagnostics": s.diagnostics,
+            })
+            .to_string();
             drop(s);
             let response = tiny_http::Response::from_string(body)
                 .with_header(
