@@ -74,6 +74,10 @@ WF.storeSnapshot("Cart");"#, title: "js")
                     Table.Cell("A handler on a component's root element")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`bound(control)`") }
+                    Table.Cell { Markdown("What a bound control holds, typed: a number field's number (`null` when empty), a select's option value as it was written, otherwise the text") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`when(parent, cond, then, else, anim)`") }
                     Table.Cell { Markdown("`if`/`else`") }
                 }

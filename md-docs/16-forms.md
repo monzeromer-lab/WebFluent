@@ -51,6 +51,28 @@ The checker knows what each control holds: `Checkbox` and `Switch` bind a
 `label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the
 accessibility lint says so otherwise.
 
+What comes back is the type it went in as: an `Input.number` writes a
+number (and `null` when it is emptied), and a `Select` writes the option's
+`value:` as it was written, so `Select.Option("Two", value: 2)` binds the
+number `2`, not the string `"2"`.
+
+`bind:` names anything that can be written: a state, a store's member
+(`bind: Cart.note`), or a field of a loop's item:
+
+```wf
+for t in todos by t.id {
+    Input(bind: t.title, label: "Title")
+    Checkbox(bind: t.done, label: "Done")
+}
+Text("{todos.filter(t => !t.done).length} left")
+```
+
+The item is written and the list is told it changed, so everything that
+reads `todos` follows. In a keyed loop that happens as the reader types; in
+a loop with no `by`, which redraws every item when its list changes, the
+list hears of it when the field is left, so the row is not redrawn under
+the cursor.
+
 ## Labels, hints and errors you write yourself
 
 Every control takes `label:`, `hint:` and `error:`. With any of them the
@@ -117,7 +139,8 @@ The handle gives:
 
 A `Button` with `type: .submit` (or `.submit`) submits; the browser's own
 constraint validation runs first, so an invalid form never reaches
-`on submit`.
+`on submit`. Any other button in a form — "Add a row", "Show password" —
+is `type="button"` and does only what its `on click` says.
 
 ## What a value must be: `validate`
 

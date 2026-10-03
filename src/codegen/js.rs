@@ -114,6 +114,10 @@ pub struct JsCodegen {
     /// `_item()` against a binding named `item` — a `ReferenceError` the moment
     /// a non-empty list rendered.
     loop_bindings: Vec<String>,
+    /// The `for` loops being emitted, innermost last: the item's name, the
+    /// list it comes from and whether the loop is keyed — so `bind:
+    /// t.title` writes the item and tells the list it changed.
+    loop_sources: Vec<(String, Expr, bool)>,
     /// Parameters of the lambdas being emitted, innermost last.
     ///
     /// `items.filter(x => x.done)` binds `x` as a plain JavaScript parameter,
@@ -216,6 +220,7 @@ impl JsCodegen {
             current_body: Vec::new(),
             own_names: Vec::new(),
             loop_bindings: Vec::new(),
+            loop_sources: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
             store_locals: std::cell::RefCell::new(Vec::new()),
             i18n_default_locale: None,
@@ -1180,9 +1185,14 @@ impl JsCodegen {
                     self.emit_line(&format!("{} = {};", target, value));
                 }
             }
+            // `let n = x` in an action: a local the action may reassign. It
+            // was emitted `const` and never recorded, so `n = n * 2` became a
+            // second declaration — a SyntaxError that blanked the site, or a
+            // TDZ error inside a loop.
             StatementKind::State(s) => {
                 let val = self.emit_store_expr(&s.value, store_states);
-                self.emit_line(&format!("const {} = {};", s.name, val));
+                self.store_locals.borrow_mut().push(s.name.clone());
+                self.emit_line(&format!("let {} = {};", s.name, val));
             }
             StatementKind::Navigate(expr) => {
                 let path = self.emit_store_expr(expr, store_states);
@@ -1193,13 +1203,29 @@ impl JsCodegen {
                 self.emit_line(&format!("{};", val));
             }
             StatementKind::If(if_stmt) => {
-                let cond = self.emit_store_expr(&if_stmt.condition, store_states);
+                // `if let x = e` binds the value for the branch, which runs
+                // when it is not null; the binding was dropped here, so the
+                // branch read a name nothing declared. Its own block keeps two
+                // `if let x` in one action from declaring `x` twice.
+                let bound = self.store_locals.borrow().len();
+                let cond = match &if_stmt.binding {
+                    Some(name) => {
+                        let value = self.emit_store_expr(&if_stmt.condition, store_states);
+                        self.emit_line("{");
+                        self.indent += 1;
+                        self.emit_line(&format!("const {name} = {value};"));
+                        self.store_locals.borrow_mut().push(name.clone());
+                        format!("{name} != null")
+                    }
+                    None => self.emit_store_expr(&if_stmt.condition, store_states),
+                };
                 self.emit_line(&format!("if ({}) {{", cond));
                 self.indent += 1;
                 for s in &if_stmt.then_body {
                     self.emit_store_statement(s, store_states, action_params);
                 }
                 self.indent -= 1;
+                self.store_locals.borrow_mut().truncate(bound);
                 for (cond, body) in &if_stmt.else_if_branches {
                     let cond = self.emit_store_expr(cond, store_states);
                     self.emit_line(&format!("}} else if ({cond}) {{"));
@@ -1218,6 +1244,10 @@ impl JsCodegen {
                     self.indent -= 1;
                 }
                 self.emit_line("}");
+                if if_stmt.binding.is_some() {
+                    self.indent -= 1;
+                    self.emit_line("}");
+                }
             }
             // `try`, `for` and `log` used to fall through to the page
             // emitter, whose statements read `_x()` signals a store does
@@ -1983,40 +2013,30 @@ impl JsCodegen {
                                     let read = if name == "DatePicker" {
                                         "e.target.value || null"
                                     } else {
-                                        "e.target.value"
+                                        // A number field's number, a
+                                        // select's option as it was given.
+                                        "WF.bound(e.target)"
                                     };
-                                    match val {
-                                        Expr::Identifier(state_name) => {
+                                    // A state, a store's member or a loop
+                                    // item's field (`bind: t.title`) — the
+                                    // last used to compile one-way.
+                                    if let Some(target) = self.bind_target(val) {
+                                        attrs.push(format!("value: () => {} ?? \"\"", target.read));
+                                        attrs.push(format!(
+                                            "\"on:input\": (e) => {{ {}; }}",
+                                            target.write(read)
+                                        ));
+                                        if let Some(commit) = &target.commit {
                                             attrs.push(format!(
-                                                "value: () => _{}() ?? \"\"",
-                                                state_name
-                                            ));
-                                            attrs.push(format!(
-                                                "\"on:input\": (e) => _{state_name}.set({read})"
-                                            ));
-                                        }
-                                        // `bind: Cart.note` — a store's member
-                                        // is a property with a getter and a
-                                        // setter, so it binds like a state.
-                                        // It used to compile to an input with
-                                        // no binding at all.
-                                        Expr::PropertyAccess(base, field) if matches!(base.as_ref(), Expr::Identifier(n) if self.stores.contains(n)) =>
-                                        {
-                                            let holder = self.emit_expr(base);
-                                            attrs.push(format!(
-                                                "value: () => {holder}.{field} ?? \"\""
-                                            ));
-                                            attrs.push(format!(
-                                                "\"on:input\": (e) => {{ {holder}.{field} = {read}; }}"
+                                                "\"on:change\": () => {{ {commit}; }}"
                                             ));
                                         }
-                                        other => {
-                                            // Anything else has no setter, so
-                                            // it cannot be bound; the check
-                                            // reports it where it is written.
-                                            let read = self.emit_expr(other);
-                                            attrs.push(format!("value: () => {read} ?? \"\""));
-                                        }
+                                    } else {
+                                        // Anything else has no setter, so it
+                                        // cannot be bound; the check reports
+                                        // it where it is written.
+                                        let read = self.emit_expr(val);
+                                        attrs.push(format!("value: () => {read} ?? \"\""));
                                     }
                                 }
                                 "checked" => {
@@ -2253,6 +2273,14 @@ impl JsCodegen {
                     } else if m == "multiple" {
                         attrs.push("multiple: true".to_string());
                     }
+                }
+                // A button submits its form only when it says so: the
+                // browser's default, `submit`, made every button in a
+                // form — "Add a row", "Show password" — send it.
+                if matches!(name.as_str(), "Button" | "IconButton")
+                    && !attrs.iter().any(|a| a.starts_with("type:"))
+                {
+                    attrs.push("type: \"button\"".to_string());
                 }
 
                 // Classes attr
@@ -3408,13 +3436,9 @@ impl JsCodegen {
     }
 
     fn emit_switch(&mut self, var: &str, attrs: &[String], ui: &UIElement, parent: &str) {
-        let bind_var = attrs.iter().find_map(|a| {
-            if a.starts_with("value: () => _") {
-                Some(a.replace("value: () => _", "").replace("()", ""))
-            } else {
-                None
-            }
-        });
+        // A store's member or a loop item's field binds as a state does; a
+        // switch bound to one used to draw no input at all.
+        let bind_var = self.bind_arg(ui);
 
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
@@ -3435,15 +3459,13 @@ impl JsCodegen {
             self.wf_node_inline(ui)
         ));
 
-        if let Some(state) = &bind_var {
+        if let Some(target) = &bind_var {
             let input_var = self.fresh_var();
+            let read = &target.read;
             self.emit_line(&format!(
-                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => _{}(), \"aria-checked\": () => _{}() ? \"true\" : \"false\",                  \"on:change\": () => _{}.set(!_{}()){} }});",
+                "const {} = WF.el(\"input\", {{ type: \"checkbox\", role: \"switch\",                  checked: () => !!{read}, \"aria-checked\": () => {read} ? \"true\" : \"false\",                  \"on:change\": () => {{ {}; }}{} }});",
                 input_var,
-                state,
-                state,
-                state,
-                state,
+                Self::with_commit(target, &target.write(&format!("!{read}"))),
                 Self::control_input_attrs(attrs)
             ));
             self.emit_line(&format!("{}.appendChild({});", var, input_var));
@@ -3478,18 +3500,7 @@ impl JsCodegen {
         };
         let wf = self.wf_node_inline(ui);
 
-        let bind_var = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "bind" {
-                    if let Expr::Identifier(s) = v {
-                        return Some(s.clone());
-                    }
-                }
-                None
-            } else {
-                None
-            }
-        });
+        let bind_var = self.bind_arg(ui);
 
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
@@ -3528,22 +3539,24 @@ impl JsCodegen {
         // Radios bound to one state are one group: the arrow keys move
         // between them only when they share a `name`.
         if name == "Radio"
-            && let Some(state) = &bind_var
+            && let Some(target) = &bind_var
+            && let Some(group) = self.group_name(&target.read)
             && !attrs.iter().any(|a| a.starts_with("name:"))
         {
-            input_attrs.push_str(&format!(", name: \"{state}\""));
+            input_attrs.push_str(&format!(", name: \"{group}\""));
         }
 
-        if let Some(state) = &bind_var {
+        if let Some(target) = &bind_var {
+            let read = &target.read;
             if name == "Checkbox" {
                 input_attrs.push_str(&format!(
-                    ", checked: () => _{}(), \"on:change\": () => _{}.set(!_{}())",
-                    state, state, state
+                    ", checked: () => !!{read}, \"on:change\": () => {{ {}; }}",
+                    Self::with_commit(target, &target.write(&format!("!{read}")))
                 ));
             } else if let Some(val) = &radio_value {
                 input_attrs.push_str(&format!(
-                    ", checked: () => _{}() === {}, \"on:change\": () => _{}.set({})",
-                    state, val, state, val
+                    ", checked: () => {read} === {val}, \"on:change\": () => {{ {}; }}",
+                    Self::with_commit(target, &target.write(val))
                 ));
             }
         }
@@ -4222,18 +4235,7 @@ impl JsCodegen {
     }
 
     fn emit_slider(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        let bind_var = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "bind" {
-                    if let Expr::Identifier(s) = v {
-                        return Some(s.clone());
-                    }
-                }
-                None
-            } else {
-                None
-            }
-        });
+        let bind_var = self.bind_arg(ui);
         let min_val = ui
             .args
             .iter()
@@ -4312,7 +4314,7 @@ impl JsCodegen {
             "type: \"range\", min: {}, max: {}, step: {}",
             min_val, max_val, step
         );
-        if let Some(state) = &bind_var {
+        if let Some(target) = &bind_var {
             // An author's own on:input runs after the binding has written the
             // state, in one handler: two "on:input" keys in one attribute
             // object used to leave only the second.
@@ -4323,9 +4325,14 @@ impl JsCodegen {
                 .map(|h| self.emit_event_body(h))
                 .unwrap_or_default();
             input_attrs.push_str(&format!(
-                ", value: () => _{}(), \"on:input\": (event) => {{ _{}.set(Number(event.target.value)); {} }}",
-                state, state, own_input
+                ", value: () => {}, \"on:input\": (event) => {{ {}; {} }}",
+                target.read,
+                target.write("Number(event.target.value)"),
+                own_input
             ));
+            if let Some(commit) = &target.commit {
+                input_attrs.push_str(&format!(", \"on:change\": () => {{ {commit}; }}"));
+            }
         }
         // ARIA and data attributes reach the range input itself, which is the
         // control assistive technology reads. An author who announces the
@@ -4368,11 +4375,11 @@ impl JsCodegen {
         // Show current value if bound
         if bind_var.is_some() && announces_value {
             // The author shows it.
-        } else if let Some(state) = &bind_var {
+        } else if let Some(target) = &bind_var {
             let val_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.el(\"span\", {{ className: \"wf-slider__value\" }}, () => String(_{}()));",
-                val_var, state
+                "const {} = WF.el(\"span\", {{ className: \"wf-slider__value\" }}, () => String({}));",
+                val_var, target.read
             ));
             self.emit_line(&format!("{}.appendChild({});", var, val_var));
         }
@@ -4381,18 +4388,7 @@ impl JsCodegen {
     }
 
     fn emit_datepicker(&mut self, var: &str, ui: &UIElement, parent: &str) {
-        let bind_var = ui.args.iter().find_map(|a| {
-            if let Arg::Named(k, v) = a {
-                if k == "bind" {
-                    if let Expr::Identifier(s) = v {
-                        return Some(s.clone());
-                    }
-                }
-                None
-            } else {
-                None
-            }
-        });
+        let bind_var = self.bind_arg(ui);
         let label = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "label" {
@@ -4449,10 +4445,11 @@ impl JsCodegen {
 
         let input_var = self.fresh_var();
         let mut input_attrs = "type: \"date\", className: \"wf-input\"".to_string();
-        if let Some(state) = &bind_var {
+        if let Some(target) = &bind_var {
             input_attrs.push_str(&format!(
-                ", value: () => _{}(), \"on:change\": (e) => _{}.set(e.target.value)",
-                state, state
+                ", value: () => {} ?? \"\", \"on:change\": (e) => {{ {}; }}",
+                target.read,
+                Self::with_commit(target, &target.write("e.target.value || null"))
             ));
         }
         if let Some(mn) = min {
@@ -4659,6 +4656,11 @@ impl JsCodegen {
         if let Some(idx) = &for_stmt.index {
             self.loop_bindings.push(idx.clone());
         }
+        self.loop_sources.push((
+            for_stmt.item.clone(),
+            for_stmt.iterable.clone(),
+            for_stmt.key.is_some(),
+        ));
 
         let item_var = self.fresh_var();
         self.emit_line(&format!(
@@ -4670,6 +4672,7 @@ impl JsCodegen {
         }
         self.emit_line(&format!("return {};", item_var));
 
+        self.loop_sources.pop();
         self.loop_bindings.truncate(bound);
         self.indent -= 1;
         self.emit_line("},");
@@ -5255,6 +5258,10 @@ impl JsCodegen {
                 let cond = match &if_stmt.binding {
                     Some(name) => {
                         let value = self.emit_expr(&if_stmt.condition);
+                        // In a block of its own, so two `if let x` in one
+                        // action do not declare `x` twice.
+                        self.emit_line("{");
+                        self.indent += 1;
                         self.emit_line(&format!("const {} = {};", name, value));
                         // The branch reads it as a plain name — it is a
                         // `const` here, not a signal of the body's own.
@@ -5289,6 +5296,10 @@ impl JsCodegen {
                     self.indent -= 1;
                 }
                 self.emit_line("}");
+                if if_stmt.binding.is_some() {
+                    self.indent -= 1;
+                    self.emit_line("}");
+                }
             }
             StatementKind::Fetch(_) => {}
             // `for x in xs { … }` in an action: the loop runs once, in order;
@@ -5739,6 +5750,16 @@ impl JsCodegen {
                 } else if self.script_classes.contains(name) && !self.own_names.contains(name) {
                     // A class a project script declares: constructed.
                     format!("new {}({})", name, args_str.join(", "))
+                } else if self.current_props.contains(name)
+                    || (self.own_names.contains(name) && !self.own_actions.contains(name))
+                {
+                    // A state, derived or prop that holds a function —
+                    // `derived scale = (x) => x * factor`, then
+                    // `scale(3)` — calls what the name holds, read as any
+                    // other read of it is. It compiled to a bare
+                    // `scale(3)`, which nothing declares.
+                    let callee = self.emit_expr(&Expr::Identifier(name.clone()));
+                    format!("{}({})", callee, args_str.join(", "))
                 } else {
                     format!("{}({})", name, args_str.join(", "))
                 }
@@ -5904,7 +5925,114 @@ fn has_subcomponent(ui: &UIElement, parent: &str, sub: &str) -> bool {
 
 // ─── Utility functions ──────────────────────────────────
 
+/// What a `bind:` reads and writes, as JavaScript.
+struct BindTarget {
+    /// An expression that reads the bound value.
+    read: String,
+    /// A statement that writes it, with `$V` where the value goes.
+    write: String,
+    /// For a loop item's field in a loop with no key: what tells the list
+    /// it changed, run when the control commits (`change`) rather than on
+    /// every keystroke, since an unkeyed list redraws every item.
+    commit: Option<String>,
+}
+
+impl BindTarget {
+    fn write(&self, value: &str) -> String {
+        self.write.replace("$V", value)
+    }
+}
+
 impl JsCodegen {
+    /// What `bind:` names, when it names something that can be written: a
+    /// state (`bind: draft`), a store's member (`bind: Cart.note`), or a
+    /// field of a loop's item (`bind: t.title`) — which writes the item and
+    /// hands the list a new array, so whatever reads the list sees it.
+    /// The element's `bind:` argument, as a target it can write.
+    fn bind_arg(&self, ui: &UIElement) -> Option<BindTarget> {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "bind" => self.bind_target(v),
+            _ => None,
+        })
+    }
+
+    /// A write followed by its commit, for a control whose every write is a
+    /// commit — a checkbox's click, a date chosen.
+    fn with_commit(target: &BindTarget, write: &str) -> String {
+        match &target.commit {
+            Some(commit) => format!("{write}; {commit}"),
+            None => write.to_string(),
+        }
+    }
+
+    /// A radio group's `name`, from what its radios bind — none for a loop
+    /// item's field, whose rows are each a group of their own.
+    fn group_name(&self, read: &str) -> Option<String> {
+        let owner = read.split('.').next().unwrap_or(read);
+        if self.loop_bindings.iter().any(|b| b == owner) {
+            return None;
+        }
+        Some(
+            read.trim_start_matches('_')
+                .trim_end_matches("()")
+                .chars()
+                .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
+                .collect(),
+        )
+    }
+
+    fn bind_target(&self, expr: &Expr) -> Option<BindTarget> {
+        match expr {
+            Expr::Identifier(name) if self.is_state_signal(expr) => Some(BindTarget {
+                read: format!("_{name}()"),
+                write: format!("_{name}.set($V)"),
+                commit: None,
+            }),
+            Expr::PropertyAccess(base, field) => {
+                let Expr::Identifier(owner) = base.as_ref() else {
+                    return None;
+                };
+                if self.stores.contains(owner) && !self.loop_bindings.contains(owner) {
+                    return Some(BindTarget {
+                        read: format!("{owner}.{field}"),
+                        write: format!("{owner}.{field} = $V"),
+                        commit: None,
+                    });
+                }
+                let (_, list, keyed) = self
+                    .loop_sources
+                    .iter()
+                    .rev()
+                    .find(|(item, _, _)| item == owner)?;
+                let touch = match list {
+                    Expr::Identifier(l) if self.is_state_signal(list) => {
+                        Some(format!("_{l}.set(_{l}().slice())"))
+                    }
+                    Expr::PropertyAccess(b, m) if matches!(b.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) =>
+                    {
+                        let store = self.emit_expr(b);
+                        Some(format!("{store}.{m} = {store}.{m}.slice()"))
+                    }
+                    _ => None,
+                };
+                let read = format!("{owner}.{field}");
+                Some(match (touch, keyed) {
+                    (Some(t), true) => BindTarget {
+                        read,
+                        write: format!("{owner}.{field} = $V; {t}"),
+                        commit: None,
+                    },
+                    (touch, _) => BindTarget {
+                        read,
+                        write: format!("{owner}.{field} = $V"),
+                        commit: touch,
+                    },
+                })
+            }
+            _ => None,
+        }
+    }
+
     /// Whether a compiled expression reads reactive state.
     ///
     /// [`is_reactive_expr`] recognises page signals (`_x()`) and i18n; a store
@@ -7110,7 +7238,7 @@ mod tests {
             "#,
         );
         assert!(
-            out.contains("\"on:input\": (e) => _email.set(e.target.value)"),
+            out.contains("\"on:input\": (e) => { _email.set(WF.bound(e.target)); }"),
             "{out}"
         );
         assert!(
@@ -7684,7 +7812,7 @@ mod tests {
         let i = out.find("login: async").unwrap();
         let action = &out[i..out[i..].find("},\n").map(|j| i + j).unwrap_or(out.len())];
         for expected in [
-            "const r = (await WF.request(\"/x\"));",
+            "let r = (await WF.request(\"/x\"));",
             "store.user = r.user;",
             "for (const [i, row] of Array.from(rows).entries()) {",
             "if (row.ok) {",

@@ -143,3 +143,18 @@ test("a form with no rules still answers to the browser's own checks", () => {
   form.current = element;
   assert.equal(form.valid, false, "the browser said no, and nothing else was asked");
 });
+
+test("a bound control writes back the type the program wrote", () => {
+  const { WF } = load();
+  // A number field holds a number, and nothing when it is empty.
+  assert.equal(WF.bound({ type: "number", value: "3", valueAsNumber: 3 }), 3);
+  assert.equal(WF.bound({ type: "number", value: "", valueAsNumber: NaN }), null);
+  assert.equal(WF.bound({ type: "range", value: "7", valueAsNumber: 7 }), 7);
+  assert.equal(WF.bound({ type: "text", value: "3" }), "3", "a text field keeps its text");
+  // An option keeps the value it was given beside the DOM's string.
+  const two = WF.el("option", { value: 2 }, "Two");
+  assert.equal(two._wfValue, 2);
+  assert.equal(WF.bound({ tagName: "SELECT", selectedOptions: [two] }), 2);
+  assert.equal(WF.bound({ tagName: "SELECT", selectedOptions: [{ value: "x" }] }), "x");
+  assert.equal(WF.bound({ tagName: "SELECT", selectedOptions: [] }), null);
+});

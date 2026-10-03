@@ -155,8 +155,12 @@ impl Stage {
                 let what = text(what);
                 let into = text(into);
                 let done = self.browser.eval(page, &script("type", &into, &what))?;
-                if done.as_str() != Some("ok") {
-                    return Ok(Err(format!("no control called {into:?} to type into")));
+                match done.as_str() {
+                    Some("ok") => {}
+                    Some("no-option") => {
+                        return Ok(Err(format!("{into:?} has no option {what:?}")));
+                    }
+                    _ => return Ok(Err(format!("no control called {into:?} to type into"))),
                 }
                 self.browser.settle(page, 120)?;
             }
@@ -322,12 +326,21 @@ const ACT: &str = r#"
     const el = find(name, "input, textarea, select");
     if (!el) return "none";
     el.focus();
-    const setter = Object.getOwnPropertyDescriptor(
-      el.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype,
-      "value",
-    );
-    if (setter && setter.set) setter.set.call(el, value);
-    else el.value = value;
+    if (el.tagName === "SELECT") {
+      // A select is chosen by what the reader sees: an option's text, or
+      // failing that its value.
+      const opt = [...el.options].find((o) => o.text.trim() === value) ||
+        [...el.options].find((o) => o.value === value);
+      if (!opt) return "no-option";
+      el.value = opt.value;
+    } else {
+      const setter = Object.getOwnPropertyDescriptor(
+        el.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype,
+        "value",
+      );
+      if (setter && setter.set) setter.set.call(el, value);
+      else el.value = value;
+    }
     el.dispatchEvent(new Event("input", { bubbles: true }));
     el.dispatchEvent(new Event("change", { bubbles: true }));
     return "ok";

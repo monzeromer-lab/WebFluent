@@ -439,6 +439,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
                 crate::codegen::minify::minify_css(&text)
             }
         };
+        read_back("elements.js", &bundle, false)?;
         fs::write(output_dir.join("elements.js"), shrink(bundle, true))?;
         fs::write(output_dir.join("styles.css"), shrink(css.clone(), false))?;
         fs::write(
@@ -564,11 +565,14 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // `build.minify` — on by default, and read for the first time here: the
     // bundle and the sheet lose their comments and whitespace, and nothing
     // else, so a stack trace still reads as the compiler wrote it.
-    let minify_js = |src: String| {
+    let minify_js = |name: &str, src: String| -> Result<String> {
+        read_back(name, &src, false)?;
         if config.build.minify {
-            crate::codegen::minify::minify_js(&src)
+            let small = crate::codegen::minify::minify_js(&src);
+            read_back(name, &small, true)?;
+            Ok(small)
         } else {
-            src
+            Ok(src)
         }
     };
     let minify_css = |src: String| {
@@ -579,7 +583,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         }
     };
     fs::write(output_dir.join("styles.css"), minify_css(css))?;
-    fs::write(output_dir.join("app.js"), minify_js(js))?;
+    fs::write(output_dir.join("app.js"), minify_js("app.js", js)?)?;
 
     // Each page in its own chunk, fetched when its route shows, and its own
     // sheet beside it when it has rules no other page reaches.
@@ -588,7 +592,11 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         let pages_dir = output_dir.join("pages");
         fs::create_dir_all(&pages_dir)?;
         for (name, source) in chunks {
-            fs::write(pages_dir.join(format!("{name}.js")), minify_js(source))?;
+            let file = format!("pages/{name}.js");
+            fs::write(
+                pages_dir.join(format!("{name}.js")),
+                minify_js(&file, source)?,
+            )?;
         }
         for (name, source) in page_sheets {
             fs::write(pages_dir.join(format!("{name}.css")), minify_css(source))?;
@@ -1533,4 +1541,22 @@ fn collect_files(root: &Path, dir: &Path, out: &mut Vec<(String, Vec<u8>)>) -> R
         out.push((rel, fs::read(&path)?));
     }
     Ok(())
+}
+
+/// The build reads back what it wrote: a compiled script the browser would
+/// refuse stops the build, as the compiler's fault rather than the author's.
+/// It used to ship, and the page died before it drew.
+fn read_back(name: &str, source: &str, minified: bool) -> Result<()> {
+    let Err(fault) = crate::codegen::jscheck::check_js(source) else {
+        return Ok(());
+    };
+    let stage = if minified { ", after minifying" } else { "" };
+    Err(WebFluentError::CodegenError(format!(
+        "the compiler wrote JavaScript a browser would refuse, in {name}{stage} at line {}: {}\n    {}\n  \
+         This is a bug in WebFluent, not in your program. Please report it with the source that produced it: \
+         https://github.com/monzeromer-lab/WebFluent/issues",
+        fault.line,
+        fault.message,
+        crate::codegen::jscheck::line_of(source, fault.line)
+    )))
 }

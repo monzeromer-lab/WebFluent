@@ -48,6 +48,7 @@ for it ([JavaScript interop](32-javascript-interop.md#wf-render-for-a-script-tha
 | `el(tag, attrs, …children)` | Makes an element; a function attribute or child follows the signals it reads |
 | `text(v)`, `props(given, defaults)`, `classes(node, fn)`, `mark(node, attrs)` | A text node, a component's props, live classes, animation marks |
 | `onRoot(node, event, fn)` | A handler on a component's root element |
+| `bound(control)` | What a bound control holds, typed: a number field's number (`null` when empty), a select's option value as it was written, otherwise the text |
 | `when(parent, cond, then, else, anim)` | `if`/`else` |
 | `each(parent, list, item, options)` | `for`, keyed or not |
 | `show(parent, cond, body, anim)` | `show` |

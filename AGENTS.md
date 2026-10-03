@@ -1442,7 +1442,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
 
 Button tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`
-Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .submit` inside a form
+Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .submit` inside a form (any other button is `type="button"`, so it never submits one)
 
 ### Media
 
@@ -2096,7 +2096,7 @@ may too. Its surface:
 | Group | Functions |
 |---|---|
 | State | `signal(v)` → getter with `.set`/`.update`/`.subscribe`; `effect(fn)`; `computed(fn)` |
-| Elements | `el(tag, attrs, …children)` — a thunk attribute or child follows state; `text(v)`; `props(given, defaults)`; `onRoot(node, event, fn)`; `classes(node, fn)` |
+| Elements | `el(tag, attrs, …children)` — a thunk attribute or child follows state; `text(v)`; `props(given, defaults)`; `onRoot(node, event, fn)`; `classes(node, fn)`; `bound(control)` — what a bound control holds, typed |
 | Bodies | `when(parent, cond, then, else, anim)`; `each(parent, list, item, {key, index, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` |
 | Motion | `animate(target, name, duration)` → a handle with `play`/`cancel`/`finished`, playing when it is made; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay, easing)`; `expand(node, open, duration, easing)` to the measured height; `countTo(node, from, to, duration, format)` and `counted(node, valueFn, duration, format)`; `onEnterView(node, name, …)`; `shared(node, name)`; `mark(node, attrs)` puts `data-wf-exit`/`data-wf-delay`/`data-wf-duration`/`data-wf-animate` on a component's root — what `when`, `each`, `show` and `match` play before removing an element, and what times its enter animation |
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |

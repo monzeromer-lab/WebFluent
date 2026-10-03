@@ -7,8 +7,10 @@
       if (currentEffect) subs.add(currentEffect);
       return value;
     };
+    // A signal holds any value, a function included: `set(fn)` stores
+    // `fn`. It used to call it as an updater, so a state holding a lambda
+    // held what the lambda returned. `update(fn)` is the updater.
     const set = (v) => {
-      if (typeof v === "function") v = v(value);
       if (v !== value) {
         value = v;
         for (const fn of [...subs]) fn();
@@ -216,10 +218,14 @@
             el.checked = v;
           }
         } else if (k === "value") {
+          // An option keeps the value it was given — a number, a case —
+          // beside the string the DOM makes of it, so a bound select
+          // writes back what the program wrote (`bound`, below).
+          const put = tag === "option" ? (val) => { el.value = val; el._wfValue = val; } : (val) => { el.value = val; };
           if (typeof v === "function") {
-            effect(() => { el.value = v(); });
+            effect(() => put(v()));
           } else {
-            el.value = v;
+            put(v);
           }
         } else if (k === "disabled" || k === "multiple" || k === "required" || k === "readOnly") {
           if (typeof v === "function") {
@@ -282,6 +288,21 @@
     }
     if (tag === "img" && !el.hasAttribute("loading")) _imageDefaults(el);
     return el;
+  }
+
+  // What a bound control holds, typed as the program wrote it: a number
+  // field's number (or `null` when it is empty), a select's option value
+  // as the option was given it, anything else the string it reports. A
+  // `.number` input used to store "3", so `qty + 1` was "31".
+  function bound(t) {
+    if (t.tagName === "SELECT") {
+      const o = t.selectedOptions[0];
+      return o ? ("_wfValue" in o ? o._wfValue : o.value) : null;
+    }
+    if (t.type === "number" || t.type === "range") {
+      return t.value === "" || !Number.isFinite(t.valueAsNumber) ? null : t.valueAsNumber;
+    }
+    return t.value;
   }
 
   // ─── Images ──────────────────────────────────────────

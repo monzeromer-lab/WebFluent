@@ -31,7 +31,15 @@ page FormsGuide(path: "/docs/guide/forms", title: "Forms and validation", descri
     Text("{name} <{email}> wants {seats} {plan} seats from {when}")
 }"#, title: "wf")
 
-        Markdown("`Textarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)` is several lines of text; with `maxLength` it shows how much is left, politely.\n\nThe checker knows what each control holds: `Checkbox` and `Switch` bind a `Bool`, `Slider` a `Number`, `DatePicker` a [`Date?`](/docs/guide/types#the-types-the-language-brings-with-it) (nothing, until one is picked), the rest a `String` (an `Input.number` holds a `Number`). A control needs a `label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the accessibility lint says so otherwise.")
+        Markdown("`Textarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)` is several lines of text; with `maxLength` it shows how much is left, politely.\n\nThe checker knows what each control holds: `Checkbox` and `Switch` bind a `Bool`, `Slider` a `Number`, `DatePicker` a [`Date?`](/docs/guide/types#the-types-the-language-brings-with-it) (nothing, until one is picked), the rest a `String` (an `Input.number` holds a `Number`). A control needs a `label:` (or a `placeholder:` for an `Input`, or an `aria-label:`) — the accessibility lint says so otherwise.\n\nWhat comes back is the type it went in as: an `Input.number` writes a number (and `null` when it is emptied), and a `Select` writes the option's `value:` as it was written, so `Select.Option(\"Two\", value: 2)` binds the number `2`, not the string `\"2\"`.\n\n`bind:` names anything that can be written: a state, a store's member (`bind: Cart.note`), or a field of a loop's item:")
+
+        CodeBlock(#"for t in todos by t.id {
+    Input(bind: t.title, label: "Title")
+    Checkbox(bind: t.done, label: "Done")
+}
+Text("{todos.filter(t => !t.done).length} left")"#, title: "wf")
+
+        Markdown("The item is written and the list is told it changed, so everything that reads `todos` follows. In a keyed loop that happens as the reader types; in a loop with no `by`, which redraws every item when its list changes, the list hears of it when the field is left, so the row is not redrawn under the cursor.")
 
         Heading("Labels, hints and errors you write yourself", id: "labels-hints-and-errors-you-write-yourself").h2
 
@@ -122,7 +130,7 @@ page FormsGuide(path: "/docs/guide/forms", title: "Forms and validation", descri
             }
         }
 
-        Markdown("A `Button` with `type: .submit` (or `.submit`) submits; the browser's own constraint validation runs first, so an invalid form never reaches `on submit`.")
+        Markdown("A `Button` with `type: .submit` (or `.submit`) submits; the browser's own constraint validation runs first, so an invalid form never reaches `on submit`. Any other button in a form — \"Add a row\", \"Show password\" — is `type=\"button\"` and does only what its `on click` says.")
 
         Heading("What a value must be: validate", id: "what-a-value-must-be-validate").h2
 

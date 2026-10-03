@@ -22,6 +22,7 @@ pub mod gzip;
 pub mod highlight;
 pub mod html;
 pub mod js;
+pub mod jscheck;
 pub mod markdown;
 pub mod minify;
 pub mod node_id;

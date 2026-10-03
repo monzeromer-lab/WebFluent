@@ -52,6 +52,7 @@ pub fn validate_semantics_in(
     let mut diags = Vec::new();
 
     check_duplicate_names(program, file_of, &mut diags);
+    check_one_meaning(program, file_of, &mut diags);
     check_script_names(program, file_of, &mut diags);
 
     for (index, decl) in program.declarations.iter().enumerate() {
@@ -113,16 +114,98 @@ fn check_duplicate_names(
             _ => None,
         });
     check_dupes(pages, "page", file_of, diags);
+}
 
-    let components = program
+/// One name, one meaning: a component, a store, a constant, an `api`, a
+/// `type` and an `enum` share the program's one namespace, and what a page,
+/// a component or a store declares — its props, states, deriveds, actions,
+/// resources and connections — shares the body's. Two of one name compiled
+/// to two `const`s of it, which the browser refuses before the page draws,
+/// or to an object where the second silently replaced the first.
+fn check_one_meaning(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let top = program
         .declarations
         .iter()
         .enumerate()
-        .filter_map(|(i, d)| match d {
-            Declaration::Component(c) => Some((c.name.as_str(), c.header_span, i)),
-            _ => None,
+        .filter_map(|(i, d)| {
+            let (name, kind, span) = match d {
+                Declaration::Component(c) => (&c.name, "a component", c.header_span),
+                Declaration::Store(s) => (&s.name, "a store", s.header_span),
+                Declaration::Const(c) => (&c.name, "a `const`", c.span),
+                Declaration::Data(d) if d.is_image => (&d.name, "an `image`", d.span),
+                Declaration::Data(d) => (&d.name, "a `data` constant", d.span),
+                Declaration::Api(a) => (&a.name, "an `api`", a.span),
+                Declaration::Type(t) => (&t.name, "a `type`", t.header_span),
+                Declaration::Enum(e) => (&e.name, "an `enum`", e.header_span),
+                _ => return None,
+            };
+            Some((name.as_str(), kind, span, i))
         });
-    check_dupes(components, "component", file_of, diags);
+    report_clashes(top, file_of, diags);
+
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let (props, prop_kind, body): (&[crate::parser::ast::PropDecl], _, &[Statement]) =
+            match decl {
+                Declaration::Page(p) => (&p.params, "a parameter", &p.body),
+                Declaration::Component(c) => (&c.props, "a prop", &c.body),
+                Declaration::Store(s) => (&[], "", &s.body),
+                Declaration::App(a) => (&[], "", &a.body),
+                _ => continue,
+            };
+        let props = props
+            .iter()
+            .map(|p| (p.name.as_str(), prop_kind, p.span, index));
+        let own = body.iter().filter_map(|stmt| {
+            let (name, kind) = match &stmt.kind {
+                StatementKind::State(s) if s.persist => (&s.name, "a `persist`"),
+                StatementKind::State(s) => (&s.name, "a state"),
+                StatementKind::Derived(d) => (&d.name, "a `derived`"),
+                StatementKind::Action(a) => (&a.name, "an action"),
+                StatementKind::Resource(r) => (&r.name, "a `resource`"),
+                StatementKind::Connection(c) => (&c.name, "a connection"),
+                _ => return None,
+            };
+            Some((name.as_str(), kind, stmt.span, index))
+        });
+        report_clashes(props.chain(own), file_of, diags);
+    }
+}
+
+/// Flag the second and later of any name in one namespace, naming what the
+/// first one was and where it is.
+fn report_clashes<'a>(
+    items: impl Iterator<Item = (&'a str, &'static str, Span, usize)>,
+    file_of: &dyn Fn(usize) -> String,
+    diags: &mut Vec<Diagnostic>,
+) {
+    let mut seen: std::collections::HashMap<&str, (&str, Span, usize)> =
+        std::collections::HashMap::new();
+    for (name, kind, span, index) in items {
+        let Some(&(first_kind, first_span, first_index)) = seen.get(name) else {
+            seen.insert(name, (kind, span, index));
+            continue;
+        };
+        let file = file_of(index);
+        let first_file = file_of(first_index);
+        let at = if first_file == file {
+            format!("line {}", first_span.line)
+        } else {
+            format!("{first_file}:{}", first_span.line)
+        };
+        let message = if first_kind == kind {
+            let bare = kind.trim_start_matches("an ").trim_start_matches("a ");
+            format!("duplicate {bare} `{name}`: {kind} with this name is already declared, at {at}")
+        } else {
+            format!("`{name}` is declared twice: as {first_kind} at {at}, and as {kind} here")
+        };
+        diags.push(diag(message, &file, span).with_hint(format!(
+            "A name means one thing — rename one of the two `{name}`s"
+        )));
+    }
 }
 
 /// What the project's scripts make global must mean one thing: not two
@@ -500,5 +583,48 @@ mod tests {
         assert_eq!(diags.len(), 2);
         assert!(diags.iter().any(|d| d.message.contains("WidgetA")));
         assert!(diags.iter().any(|d| d.message.contains("WidgetB")));
+    }
+
+    #[test]
+    fn a_name_means_one_thing_across_kinds() {
+        let diags = check("store K { state x = 1 }\nconst K = 2\n");
+        assert_eq!(diags.len(), 1, "{diags:?}");
+        assert!(
+            diags[0]
+                .message
+                .contains("as a store at line 1, and as a `const` here"),
+            "{}",
+            diags[0].message
+        );
+        assert_eq!(diags[0].line, 2);
+        let diags = check("const L = 1\nconst L = 2\n");
+        assert!(
+            diags[0].message.contains("duplicate `const` `L`"),
+            "{diags:?}"
+        );
+    }
+
+    #[test]
+    fn a_body_declares_each_name_once() {
+        let page = "page P(path: \"/\") {\n  state a = 1\n  derived a = 2\n  Text(\"{a}\")\n}\n";
+        let diags = check(page);
+        assert_eq!(diags.len(), 1, "{diags:?}");
+        assert!(
+            diags[0]
+                .message
+                .contains("as a state at line 2, and as a `derived` here")
+        );
+        let store = "store S {\n  state a = 1\n  action a() { log(1) }\n}\n";
+        assert!(check(store)[0].message.contains("as an action here"));
+        let comp = "component C(a: String) {\n  state a = \"x\"\n  Text(a)\n}\n";
+        assert!(check(comp)[0].message.contains("as a prop"));
+        let param = "page U(path: \"/u/:id\", id: String) {\n  state id = 1\n  Text(\"{id}\")\n}\n";
+        assert!(check(param)[0].message.contains("as a parameter"));
+    }
+
+    #[test]
+    fn the_same_name_in_two_bodies_is_two_names() {
+        let src = "page A(path: \"/a\") { state n = 1  Text(\"{n}\") }\npage B(path: \"/b\") { state n = 2  Text(\"{n}\") }\nstore S { state n = 3 }\n";
+        assert!(check(src).is_empty(), "{:?}", check(src));
     }
 }

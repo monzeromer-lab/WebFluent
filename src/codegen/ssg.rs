@@ -1341,6 +1341,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             attrs.push("multiple".to_string());
         }
     }
+    // A button submits its form only when it says so, as on the live page.
+    if matches!(name, "Button" | "IconButton") && !attrs.iter().any(|a| a.starts_with("type=")) {
+        attrs.push("type=\"button\"".to_string());
+    }
 
     // Heading tag override based on modifier
     let actual_tag =

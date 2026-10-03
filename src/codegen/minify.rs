@@ -133,7 +133,7 @@ pub fn minify_js(source: &str) -> String {
 }
 
 /// A keyword after which a `/` begins a regular expression, not a division.
-fn is_expression_keyword(word: &str) -> bool {
+pub(crate) fn is_expression_keyword(word: &str) -> bool {
     matches!(
         word,
         "return"
@@ -149,16 +149,16 @@ fn is_expression_keyword(word: &str) -> bool {
     )
 }
 
-fn is_word_char(c: char) -> bool {
+pub(crate) fn is_word_char(c: char) -> bool {
     c.is_ascii_alphanumeric() || c == '_' || c == '$' || !c.is_ascii()
 }
 
-fn is_word_byte(b: u8) -> bool {
+pub(crate) fn is_word_byte(b: u8) -> bool {
     b.is_ascii_alphanumeric() || b == b'_' || b == b'$' || b >= 0x80
 }
 
 /// One past the closing quote of the string starting at `start`.
-fn string_end(bytes: &[u8], start: usize) -> usize {
+pub(crate) fn string_end(bytes: &[u8], start: usize) -> usize {
     let quote = bytes[start];
     let mut i = start + 1;
     while i < bytes.len() {
@@ -173,7 +173,7 @@ fn string_end(bytes: &[u8], start: usize) -> usize {
 }
 
 /// One past the closing backtick of the template literal starting at `start`.
-fn template_end(bytes: &[u8], start: usize) -> usize {
+pub(crate) fn template_end(bytes: &[u8], start: usize) -> usize {
     let mut i = start + 1;
     while i < bytes.len() {
         match bytes[i] {
@@ -215,7 +215,7 @@ fn expression_end(bytes: &[u8], start: usize) -> usize {
 
 /// One past the end of the regular expression literal starting at `start`,
 /// flags included.
-fn regex_end(bytes: &[u8], start: usize) -> usize {
+pub(crate) fn regex_end(bytes: &[u8], start: usize) -> usize {
     let mut i = start + 1;
     let mut in_class = false;
     while i < bytes.len() {

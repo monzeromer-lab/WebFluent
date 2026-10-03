@@ -23,6 +23,15 @@ page Signup(path: "/") {
 }
 
 // md-docs/16-forms.md
+page Doc(path: "/") {
+    for t in todos by t.id {
+        Input(bind: t.title, label: "Title")
+        Checkbox(bind: t.done, label: "Done")
+    }
+    Text("{todos.filter(t => !t.done).length} left")
+}
+
+// md-docs/16-forms.md
 page Handle(path: "/", title: "Handle", description: "Pick a handle.") {
     state handle = ""
     derived problem = if handle.length > 0 && handle.length < 3 { "At least three characters" } else { "" }
