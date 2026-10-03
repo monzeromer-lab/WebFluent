@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrading</title>
-    <meta name="description" content="Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="description" content="Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading?lang=ar">
@@ -12,18 +12,18 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Upgrading">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta property="og:description" content="Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading">
     <meta property="og:locale" content="en">
     <meta property="og:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Upgrading">
-    <meta name="twitter:description" content="Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="twitter:description" content="Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
-    <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="../../../apple-touch-icon.png">
+    <link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/WebFluent/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -35,13 +35,13 @@
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-sb6c28c28 site-header" role="banner">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
                     <a class="wf-link" href="/WebFluent/">
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-sd8bfcedd">4.3</p>
+                            <p class="wf-text wf-s859a58d7">4.3</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -51,10 +51,10 @@
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
-                    <div class="wf-row wf-align--center wf-gap--sm wf-s502e2922 site-search">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
                         <i class="wf-icon" data-icon="search"></i>
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
-                        <p class="wf-text wf-s09f6982c">/</p>
+                        <p class="wf-text wf-s8947c952">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
@@ -65,7 +65,7 @@
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-sad39fe8a" aria-label="Chapters">
+                <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -282,6 +282,50 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
+                            <h2 class="wf-heading">5.0</h2>
+                            <div class="wf-markdown">
+<p>5.0 makes the compiler refuse much more of what used to compile and then fail in the browser. A project that built under 4.x may stop on errors it always had. Start with a check, which writes nothing:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"></code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every finding names its code, its place and what to do; <code>wf explain CODE</code> prints the code's entry in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a>. Where the fix is known, your editor offers it as a quick fix, and <code>wf check --format json</code> lists it as edits.</p>
+<p><strong>New errors</strong> — each is a program that cannot work as written:</p>
+<ul>
+<li><strong>Types</strong> (<code>T</code>): a field, member or method that does not exist; a value of the wrong type; a value that may be <code>null</code> read as if it were not; a <code>match</code> that misses a case; arithmetic on what is not a number; a comparison that is always the same; an <code>await</code> where it cannot run; a name nothing declares.</li>
+<li><strong>Writing what cannot change</strong> (<code>X01</code>): a <code>const</code>, a <code>derived</code> value, a prop, a route parameter, a loop variable.</li>
+<li><strong>Components</strong> (<code>C</code>): a required prop left out, a prop the component does not declare (<code>C02</code>), a part outside its owner.</li>
+<li><strong>Routes</strong> (<code>R</code>): a link to a path no page matches (<code>R01</code>), a <code>:param</code> with no page parameter, an <code>app</code> with no <code>Router</code> or two; two pages on one path (<code>S04</code>).</li>
+<li><strong>Forms</strong> (<code>F</code>): <code>bind:</code> to something that cannot be written, or to a state the control cannot hold; a <code>validate</code> no control can satisfy.</li>
+<li><strong>Reactivity</strong> (<code>X</code>): an effect that writes what it reads every run, a <code>derived</code> value that calls an action, <code>use</code> of a store nothing declares.</li>
+<li><strong>Data and translations</strong> (<code>D</code>, <code>I</code>): a persisted value storage cannot keep; a <code>t(&quot;key&quot;)</code> no translation has, a placeholder the call does not pass, a locale the project does not list.</li>
+<li><strong>Literals and styles</strong>: a date that does not exist, money with too many decimals, a key combination no keyboard sends, a <code>$token</code> the theme does not declare.</li>
+<li><strong>The security policy</strong>: a page's <code>head { script(src: …) }</code> from an origin the config does not declare (<code>E902</code>).</li>
+</ul>
+<p><strong>Lowering what you cannot fix today.</strong> <code>&quot;lints&quot;: { &quot;R01&quot;: &quot;warn&quot; }</code> in the config lowers a code or a family; an error may be lowered only when it ships no broken page — <code>R01</code>, <code>C02</code>, <code>S04</code>, <code>I01</code>, <code>I02</code>, <code>I04</code>. One finding on one line is accepted with <code>// wf-allow(CODE)</code> (<a href="/WebFluent/docs/guide/diagnostics#u07-an-allow-that-allows-nothing">Diagnostics</a>).</p>
+<p><strong>What the compiler now writes for you</strong> instead of reporting:</p>
+<ul>
+<li>A change inside a state's value — <code>form.name = v</code>, <code>items[i].done = v</code>, <code>items.sort()</code> — is compiled into the state given an updated copy, so what reads it repaints and <code>persist</code> keeps it.</li>
+<li>A value spliced into an address — <code>to:</code>, <code>navigate()</code>, <code>fetch()</code> — is encoded where it stands for a value.</li>
+<li>A <code>match</code> expression that covers every case of an enum needs no <code>else</code>.</li>
+</ul>
+<p><strong>Behaviour that changed:</strong></p>
+<ul>
+<li><strong><code>wf serve</code> answers a missing fetch with a 404.</strong> A request that is not a page navigation, for a file the build did not write, used to get the single-page shell — a page of HTML handed to <code>JSON.parse</code>. It is a <code>404</code> now, under <code>wf verify</code> and <code>wf test</code> too, and <code>wf serve</code> prints a line for each. Point the page at a server that has the API, or put a file in <code>public/</code>.</li>
+<li><strong>An empty path parameter is not sent.</strong> <code>Backend.user(id: &quot;&quot;)</code> with <code>at &quot;users/:id&quot;</code> used to request <code>users/</code>, the whole collection; it now ends as <code>.aborted</code>, and a resource over it stays <code>loading</code>.</li>
+<li><strong>One list item that throws no longer blanks the list</strong>: the rest draws, and under <code>wf serve</code> the item says what it threw.</li>
+<li><strong>An effect that never settles is stopped</strong> after 100 runs instead of overflowing the stack.</li>
+<li><strong>Each build keeps what its persisted values start as</strong> in <code>.wf-cache/</code>, so the next can warn about a shape that changed (<code>D04</code>) and <code>wf verify --returning-visitor</code> can load your pages as a returning reader. Keep <code>.wf-cache/</code> between CI runs if you can.</li>
+</ul>
+<p>New: <code>wf check</code>, <code>wf explain</code>, <code>--format json|sarif|github</code> and <code>--deny-warnings</code> on <code>wf build</code> and <code>wf check</code>, quick fixes in the editor, <code>persist … { key: id }</code> for one stored value per instance, and <code>wf verify</code> visiting <code>:param</code> routes. <a href="/WebFluent/docs/guide/cli">Command line</a> has each.</p>
+                            </div>
                             <h2 class="wf-heading">4.2</h2>
                             <div class="wf-markdown">
 <p><strong><code>external</code> is gone.</strong> Run <code>wf migrate</code>: a remote module becomes a <code>meta.scripts</code> entry, a local module a plain script under <code>src/</code> with its signatures as JSDoc, and an <code>external element</code> call <code>Element(&quot;tag&quot;, …)</code>. A call into a remote module that <code>external</code> typed is <code>Any</code> afterwards.</p>
@@ -325,12 +369,12 @@
                             <div class="wf-markdown">
 <p>4.0 changed what the compiler allows. <code>wf migrate</code> handles the mechanical part and names every place that needs a decision:</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
@@ -356,25 +400,26 @@
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
-                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/troubleshooting">
+                        <a class="wf-link wf-seeb37b6c" href="/WebFluent/docs/guide/troubleshooting">
                             <p class="wf-text wf-s3e0c6c38">Previous</p>
                             <p class="wf-text wf-s2c78daf6">44. Troubleshooting</p>
                         </a>
-                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/browser-support">
+                        <a class="wf-link wf-sc144b15a" href="/WebFluent/docs/guide/browser-support">
                             <p class="wf-text wf-s3e0c6c38">Next</p>
                             <p class="wf-text wf-s2c78daf6">46. Browser support</p>
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s45d5a4d4" aria-label="On this page">
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-sdae384de" href="#installing-a-newer-version">Installing a newer version</a>
-                        <a class="wf-link wf-sdae384de" href="#4-2">4.2</a>
-                        <a class="wf-link wf-sdae384de" href="#4-1">4.1</a>
-                        <a class="wf-link wf-sdae384de" href="#4-0">4.0</a>
-                        <a class="wf-link wf-sdae384de" href="#3-x">3.x</a>
-                        <a class="wf-link wf-sdae384de" href="#from-webfluent-2">From WebFluent 2</a>
+                        <a class="wf-link wf-s3e136ca4" href="#installing-a-newer-version">Installing a newer version</a>
+                        <a class="wf-link wf-s3e136ca4" href="#5-0">5.0</a>
+                        <a class="wf-link wf-s3e136ca4" href="#4-2">4.2</a>
+                        <a class="wf-link wf-s3e136ca4" href="#4-1">4.1</a>
+                        <a class="wf-link wf-s3e136ca4" href="#4-0">4.0</a>
+                        <a class="wf-link wf-s3e136ca4" href="#3-x">3.x</a>
+                        <a class="wf-link wf-s3e136ca4" href="#from-webfluent-2">From WebFluent 2</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">
@@ -387,14 +432,14 @@
                             <p class="wf-text wf-s5c9c3c02">Components reference</p>
                         </a>
                     </div>
-                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
                         <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
                         <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
                     </div>
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s1c61e8fb">
+        <footer class="wf-footer wf-s2a0a6f19">
             <div class="wf-stack wf-gap--lg wf-sc70179bd">
                 <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
                     <div class="wf-stack wf-gap--sm wf-s1f90318e">
@@ -428,7 +473,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
                     <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>

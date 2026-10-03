@@ -22,8 +22,8 @@
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting","name":"Troubleshooting","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Install problems, build errors, blank pages after deploying, 404s on reload, CSP blocks, styles that do not apply, and a FAQ."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Troubleshooting","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/troubleshooting"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
-    <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="../../../apple-touch-icon.png">
+    <link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/WebFluent/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -35,13 +35,13 @@
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-sb6c28c28 site-header" role="banner">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
                     <a class="wf-link" href="/WebFluent/">
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-sd8bfcedd">4.3</p>
+                            <p class="wf-text wf-s859a58d7">4.3</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -51,10 +51,10 @@
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
-                    <div class="wf-row wf-align--center wf-gap--sm wf-s502e2922 site-search">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
                         <i class="wf-icon" data-icon="search"></i>
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
-                        <p class="wf-text wf-s09f6982c">/</p>
+                        <p class="wf-text wf-s8947c952">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
@@ -65,7 +65,7 @@
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-sad39fe8a" aria-label="Chapters">
+                <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -292,7 +292,10 @@
 <p><strong>&quot;is not an element or a statement a render block can hold&quot;.</strong> Code that does something — <code>n = n + 1</code>, a call that is not a store's set-up — was written loose in a page. Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code>.</p>
 <p><strong>&quot;Only the first argument may be positional&quot;.</strong> An element takes one unnamed value; name the rest: <code>Card(&quot;Laptop&quot;, price: 999)</code>.</p>
 <p><strong>&quot;a WebFluent 2 declaration&quot;.</strong> The file uses the old grammar (<code>Page</code>, <code>Component</code>). Run <code>wf migrate</code>.</p>
-<p><strong>A warning I do not understand.</strong> Every code is in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a> with an example and a fix. A named argument written to the element &quot;as an attribute&quot; is almost always a misspelled prop.</p>
+<p><strong>A warning I do not understand.</strong> <code>wf explain CODE</code> prints its entry; every code is in <a href="/WebFluent/docs/guide/diagnostics">Diagnostics</a> with an example and a fix. A named argument written to the element &quot;as an attribute&quot; is almost always a misspelled prop.</p>
+<p><strong>A project that built under 4.x stops on errors.</strong> 5.0 refuses what used to compile and then fail in the browser. <code>wf check</code> lists every finding without building; your editor's quick fixes apply the ones with a known fix; <code>lints</code> lowers what cannot ship a broken page while you catch up (<a href="/WebFluent/docs/guide/upgrading#5-0">Upgrading</a>).</p>
+<p><strong>A finding I mean to keep.</strong> <code>// wf-allow(CODE)</code> on the line above it (or at the end of its line) accepts that one; a warning a whole project does not want goes in <code>lints</code>. An allow that covers nothing is itself reported (<code>U07</code>).</p>
+<p><strong>Failing CI on warnings, or annotating a pull request.</strong> <code>wf check --deny-warnings</code> fails on a warning; <code>--format github</code> writes annotations a workflow shows on the pull request, and <code>--format sarif</code> a file for code scanning (<a href="/WebFluent/docs/guide/cli#wf-check">Command line</a>).</p>
 <p><strong>The build is slow.</strong> The first build resizes every <code>image</code>; later builds reuse <code>.wf-cache/</code>. Do not delete it in CI if you can cache it.</p>
                             </div>
                             <h2 class="wf-heading">In the browser</h2>
@@ -304,11 +307,17 @@
 <p><strong><code>WF.something is not a function</code> from my own script.</strong> The build left that runtime module out because nothing in your <code>.wf</code> code uses it. Set <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>.</p>
 <p><strong>The page shows old content after a deploy.</strong> Either an HTTP cache held <code>app.js</code> (serve it with <code>Cache-Control: no-cache</code>), or — on a site with <code>offline</code> — the service worker is serving its store until the new version is taken. Show an update button (<code>update.available</code>), or reload twice.</p>
 <p><strong>My changes do not show under <code>wf serve</code>.</strong> Check the terminal: a failed build keeps the last good page and draws the error over it. An old service worker from a production build on the same port can also hold pages; <code>wf serve</code> removes it on the next load.</p>
+<p><strong>A request is a 404 under <code>wf serve</code> (or <code>wf verify</code>).</strong> Only a page navigation gets the single-page shell; a <code>fetch</code> or a file the build did not write gets a 404 and a line in the terminal. The API is not served by the dev server: point the page at the server that has it (an <code>api</code>'s <code>base:</code> from <code>env</code>), or put a fixture file in <code>public/</code>.</p>
+<p><strong>&quot;The response of … is not the type the program declares&quot;.</strong> Under <code>wf serve</code>, a response is held to the type its <code>resource</code> or <code>api</code> endpoint declares, and one that differs takes the <code>error</code> arm as a <code>.parse</code> error naming the first place it differs — <code>$[1].name is missing</code>. Fix the type, or the server.</p>
+<p><strong>&quot;Item N could not be drawn&quot;.</strong> One item of a <code>for</code> threw while it was drawn — usually a field read on a value that is <code>null</code>. Under <code>wf serve</code> the item shows the message; on a deployed page it leaves a gap and the console says why. The rest of the list draws either way.</p>
+<p><strong>&quot;404 — no page has the route …&quot;.</strong> No page's <code>path</code> matches the address and no <code>page NotFound(path: &quot;*&quot;)</code> catches what nothing else does. A deployed page shows nothing there; declare a <code>*</code> page.</p>
+<p><strong>&quot;an effect changes something it reads, every time it runs&quot;.</strong> The effect writes a state it also reads, unconditionally, so it never settles; it was stopped after 100 runs. Guard the write (<code>if x != wanted { x = wanted }</code>) or move it to an action. <code>X02</code> reports the plain cases at build time.</p>
+<p><strong>An <code>api</code> call stays loading.</strong> A parameter its path names is empty — <code>Backend.user(id: &quot;&quot;)</code> for <code>users/:id</code> — so nothing was requested: <code>users/</code> would be the whole collection. It loads when the value arrives.</p>
 <p><strong>A layout that is right after the page loads jumps first.</strong> Something depends on <code>viewport</code>, which is unknown until the script runs. Use <a href="/WebFluent/docs/guide/styling#responsive-values">responsive values</a> for layout.</p>
                             </div>
                             <h2 class="wf-heading">Styling</h2>
                             <div class="wf-markdown">
-<p><strong>My <code>style { }</code> does not apply.</strong> Check the property name (a style block is real CSS) and the token (<code>$brand-colour</code> that no theme defines resolves to nothing). Values end at a newline, a <code>;</code>, or two spaces before the next declaration.</p>
+<p><strong>My <code>style { }</code> does not apply.</strong> Check the property name (a style block is real CSS; a misspelt one is a <code>V05</code> warning) and the token (<code>$brand-colour</code> that no theme defines is a <code>V06</code> error). Values end at a newline, a <code>;</code>, or two spaces before the next declaration.</p>
 <p><strong>My stylesheet does not override a built-in.</strong> Your <code>.css</code> files come after the built-ins' rules, so on equal specificity they win — but <code>.wf-btn--primary</code> beats <code>.button</code>. Match the built-in's selector, or change the tokens it reads, or use <code>style { }</code> on the element.</p>
 <p><strong>Dark mode does not switch.</strong> Name the dark theme in the config: <code>&quot;theme&quot;: { &quot;name&quot;: &quot;Light&quot;, &quot;dark&quot;: &quot;Night&quot; }</code>. A colour written raw instead of a token does not change with the theme.</p>
                             </div>
@@ -332,25 +341,25 @@
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
-                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/grammar">
+                        <a class="wf-link wf-seeb37b6c" href="/WebFluent/docs/guide/grammar">
                             <p class="wf-text wf-s3e0c6c38">Previous</p>
                             <p class="wf-text wf-s2c78daf6">43. Grammar</p>
                         </a>
-                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/upgrading">
+                        <a class="wf-link wf-sc144b15a" href="/WebFluent/docs/guide/upgrading">
                             <p class="wf-text wf-s3e0c6c38">Next</p>
                             <p class="wf-text wf-s2c78daf6">45. Upgrading</p>
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s45d5a4d4" aria-label="On this page">
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-sdae384de" href="#installing">Installing</a>
-                        <a class="wf-link wf-sdae384de" href="#building">Building</a>
-                        <a class="wf-link wf-sdae384de" href="#in-the-browser">In the browser</a>
-                        <a class="wf-link wf-sdae384de" href="#styling">Styling</a>
-                        <a class="wf-link wf-sdae384de" href="#data">Data</a>
-                        <a class="wf-link wf-sdae384de" href="#questions-people-ask">Questions people ask</a>
+                        <a class="wf-link wf-s3e136ca4" href="#installing">Installing</a>
+                        <a class="wf-link wf-s3e136ca4" href="#building">Building</a>
+                        <a class="wf-link wf-s3e136ca4" href="#in-the-browser">In the browser</a>
+                        <a class="wf-link wf-s3e136ca4" href="#styling">Styling</a>
+                        <a class="wf-link wf-s3e136ca4" href="#data">Data</a>
+                        <a class="wf-link wf-s3e136ca4" href="#questions-people-ask">Questions people ask</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">
@@ -363,14 +372,14 @@
                             <p class="wf-text wf-s5c9c3c02">Components reference</p>
                         </a>
                     </div>
-                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
                         <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
                         <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
                     </div>
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s1c61e8fb">
+        <footer class="wf-footer wf-s2a0a6f19">
             <div class="wf-stack wf-gap--lg wf-sc70179bd">
                 <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
                     <div class="wf-stack wf-gap--sm wf-s1f90318e">
@@ -404,7 +413,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
                     <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>

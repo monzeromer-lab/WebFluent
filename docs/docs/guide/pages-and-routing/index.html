@@ -22,8 +22,8 @@
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pages-and-routing#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pages-and-routing","name":"Pages and routing","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pages-and-routing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Pages and routing","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/pages-and-routing"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
-    <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="../../../apple-touch-icon.png">
+    <link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/WebFluent/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -35,13 +35,13 @@
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-sb6c28c28 site-header" role="banner">
+            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
                     <a class="wf-link" href="/WebFluent/">
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-sd8bfcedd">4.3</p>
+                            <p class="wf-text wf-s859a58d7">4.3</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -51,10 +51,10 @@
                     </div>
                 </div>
                 <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
-                    <div class="wf-row wf-align--center wf-gap--sm wf-s502e2922 site-search">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
                         <i class="wf-icon" data-icon="search"></i>
                         <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
-                        <p class="wf-text wf-s09f6982c">/</p>
+                        <p class="wf-text wf-s8947c952">/</p>
                     </div>
                     <!--wf-if-->
                     <button class="wf-icon-btn site-icon-button" type="button"></button>
@@ -65,7 +65,7 @@
             </div>
             <!--wf-if-->
             <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-sad39fe8a" aria-label="Chapters">
+                <aside class="wf-sidebar wf-s2b1f9974" aria-label="Chapters">
                     <p class="wf-text group-label">Start</p>
                     <a class="wf-sidebar__item" href="/WebFluent/docs/guide/introduction">
                         <p class="wf-text num">01</p>
@@ -281,12 +281,12 @@
 <p>A page is a route and what it shows. Pages own their paths: there is no route table to keep in step with them.</p>
                             </div>
                             <h2 class="wf-heading">Declaring a page</h2>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page About(path: &quot;/about&quot;, title: &quot;About us&quot;, description: &quot;Who we are and why we build this.&quot;) {
     Container {
@@ -440,12 +440,12 @@
                             <div class="wf-markdown">
 <p><code>app</code> declares what every page renders inside — a navbar, a footer, the <code>Router</code> where the current page goes:</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">app {
     Navbar {
@@ -465,12 +465,12 @@
 <p><code>Router(transition: .fade, duration: &quot;200ms&quot;)</code> animates page changes (<a href="/WebFluent/docs/guide/motion#route-transitions">chapter 20</a>).</p>
                             </div>
                             <h2 class="wf-heading">Links and navigation</h2>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Nav(path: &quot;/nav&quot;) {
     Link(&quot;Home&quot;, to: &quot;/&quot;)                       // an &lt;a&gt;; the router handles the click
@@ -485,12 +485,12 @@
                             <div class="wf-markdown">
 <p>A <code>:name</code> segment is declared as a typed parameter of the page and read as a plain name, or as <code>params.name</code>:</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
 
@@ -520,12 +520,12 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                             <div class="wf-markdown">
 <p><code>query</code> is the URL's query string as a map, and <code>hash</code> its <code>#fragment</code>; both are kept current by the runtime, so a page that reads them follows the address:</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Products(path: &quot;/products&quot;, title: &quot;Products&quot;, description: &quot;Everything we sell.&quot;) {
     derived tab = query.tab ?? &quot;all&quot;
@@ -545,12 +545,12 @@ page PostPage(path: &quot;/posts/:slug&quot;, title: &quot;Post&quot;, descripti
                             <div class="wf-markdown">
 <p>A <code>layout:</code> is a component with a default slot; the page renders in it. Use it for a section's own chrome — a docs sidebar, an app rail — where the <code>app</code> shell is the site's.</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component DocsShell(_ crumb: String) {
     slot
@@ -584,12 +584,12 @@ page Reference(path: &quot;/docs/reference&quot;, title: &quot;Reference&quot;, 
                             <div class="wf-markdown">
 <p><code>guard:</code> names an expression — usually a store's derived value — that must be true for the route to render; otherwise the reader is sent to <code>redirect:</code>.</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Auth {
     state user = null
@@ -616,12 +616,12 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p>A page may add tags of its own to the document's <code>&lt;head&gt;</code>; they are painted at build time where the value is known, kept current on the live page, and gone when the page is:</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Share(path: &quot;/share&quot;, title: &quot;Share&quot;, description: &quot;A page with its own tags.&quot;) {
     state image = &quot;/og-share.png&quot;
@@ -640,12 +640,12 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p><code>path: &quot;*&quot;</code> is the page a static host serves as <code>404.html</code> and the router shows for a route no page claims:</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page NotFound(path: &quot;*&quot;, title: &quot;Not found&quot;, description: &quot;Nothing lives here.&quot;, noindex: true) {
     Container {
@@ -658,12 +658,12 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                             <div class="wf-markdown">
 <p>A page's body is a render block: it declares state, derived values and actions, and lists what to show. Everything at the top of the body runs once when the page renders; a call at the top — <code>Store.load(id)</code> — is set-up code.</p>
                             </div>
-                            <div class="wf-stack wf-s3c016d1b code-block">
-                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                            <div class="wf-stack wf-sba64d8a9 code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Deploys {
     state rows = []
@@ -692,29 +692,29 @@ page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, descripti
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
-                        <a class="wf-link wf-sba56c1e6" href="/WebFluent/docs/guide/language-basics">
+                        <a class="wf-link wf-seeb37b6c" href="/WebFluent/docs/guide/language-basics">
                             <p class="wf-text wf-s3e0c6c38">Previous</p>
                             <p class="wf-text wf-s2c78daf6">5. Language basics</p>
                         </a>
-                        <a class="wf-link wf-s88a3e8cc" href="/WebFluent/docs/guide/elements">
+                        <a class="wf-link wf-sc144b15a" href="/WebFluent/docs/guide/elements">
                             <p class="wf-text wf-s3e0c6c38">Next</p>
                             <p class="wf-text wf-s2c78daf6">7. Elements</p>
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-s45d5a4d4" aria-label="On this page">
+                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-sdae384de" href="#declaring-a-page">Declaring a page</a>
-                        <a class="wf-link wf-sdae384de" href="#the-app-shell">The app shell</a>
-                        <a class="wf-link wf-sdae384de" href="#links-and-navigation">Links and navigation</a>
-                        <a class="wf-link wf-sdae384de" href="#route-parameters">Route parameters</a>
-                        <a class="wf-link wf-sdae384de" href="#query-strings-and-fragments">Query strings and fragments</a>
-                        <a class="wf-link wf-sdae384de" href="#layouts">Layouts</a>
-                        <a class="wf-link wf-sdae384de" href="#guards">Guards</a>
-                        <a class="wf-link wf-sdae384de" href="#per-page-head-tags">Per-page head tags</a>
-                        <a class="wf-link wf-sdae384de" href="#the-catch-all-page">The catch-all page</a>
-                        <a class="wf-link wf-sdae384de" href="#set-up-code-what-runs-when-a-page-opens">Set-up code: what runs when a page opens</a>
+                        <a class="wf-link wf-s3e136ca4" href="#declaring-a-page">Declaring a page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#the-app-shell">The app shell</a>
+                        <a class="wf-link wf-s3e136ca4" href="#links-and-navigation">Links and navigation</a>
+                        <a class="wf-link wf-s3e136ca4" href="#route-parameters">Route parameters</a>
+                        <a class="wf-link wf-s3e136ca4" href="#query-strings-and-fragments">Query strings and fragments</a>
+                        <a class="wf-link wf-s3e136ca4" href="#layouts">Layouts</a>
+                        <a class="wf-link wf-s3e136ca4" href="#guards">Guards</a>
+                        <a class="wf-link wf-s3e136ca4" href="#per-page-head-tags">Per-page head tags</a>
+                        <a class="wf-link wf-s3e136ca4" href="#the-catch-all-page">The catch-all page</a>
+                        <a class="wf-link wf-s3e136ca4" href="#set-up-code-what-runs-when-a-page-opens">Set-up code: what runs when a page opens</a>
                     </div>
                     <hr class="wf-divider wf-se3c90f45">
                     <div class="wf-stack wf-gap--xs wf-s614f8b98">
@@ -727,14 +727,14 @@ page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, descripti
                             <p class="wf-text wf-s5c9c3c02">Components reference</p>
                         </a>
                     </div>
-                    <div class="wf-stack wf-gap--xs wf-s9cc95e40">
+                    <div class="wf-stack wf-gap--xs wf-sa5763942">
                         <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
                         <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
                     </div>
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s1c61e8fb">
+        <footer class="wf-footer wf-s2a0a6f19">
             <div class="wf-stack wf-gap--lg wf-sc70179bd">
                 <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
                     <div class="wf-stack wf-gap--sm wf-s1f90318e">
@@ -768,7 +768,7 @@ page Deploy(path: &quot;/deploys/:id&quot;, title: &quot;Deploy&quot;, descripti
                         </div>
                     </div>
                 </div>
-                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd0751424">
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
                     <p class="wf-text">WebFluent 4 — GPL-3.0</p>
                     <p class="wf-text">© 2026 Monzer Omer</p>
                 </div>
