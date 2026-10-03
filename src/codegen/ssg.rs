@@ -959,9 +959,8 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
             // `for c in shown { if … { Sidebar.Item(to: …) } }`, pre-rendered
             // a navigation panel with no links in it.
             if let Some(href) = ui.args.iter().find_map(|a| match a {
-                Arg::Named(k, v) if k == "to" => {
-                    resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
-                }
+                Arg::Named(k, v) if k == "to" => address_text(v, &ctx.scope)
+                    .or_else(|| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)),
                 _ => None,
             }) {
                 let prefix = ui.args.iter().any(|a| {
@@ -1202,7 +1201,9 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         }
                     }
                     "to" => {
-                        if let Some(s) = static_attr(val, &ctx.scope) {
+                        if let Some(s) =
+                            address_text(val, &ctx.scope).or_else(|| static_attr(val, &ctx.scope))
+                        {
                             let s = crate::codegen::url::guard(&s).to_string();
                             // Use config base_path for absolute links
                             let href = if ctx.link_base.is_empty() {
@@ -1957,6 +1958,24 @@ fn table_caption(ui: &UIElement, resolve: impl Fn(&Expr) -> Option<String>) -> O
 
 /// An attribute value the compiler can write out, consulting the build-time
 /// scope so a loop binding reaches `src=`, `href=` and the rest.
+/// A `to:` that splices values, put together as the live page puts it:
+/// each value encoded where it stands for one (`codegen::url::join_address`).
+fn address_text(expr: &Expr, scope: &Scope) -> Option<String> {
+    let Expr::InterpolatedString(parts) = expr else {
+        return None;
+    };
+    let mut pieces = Vec::new();
+    for part in parts {
+        pieces.push(match part {
+            StringPart::Literal(t) => crate::codegen::url::AddressPart::Text(t.clone()),
+            StringPart::Expression(e) => {
+                crate::codegen::url::AddressPart::Value(eval(e, scope)?.to_text())
+            }
+        });
+    }
+    Some(crate::codegen::url::join_address(&pieces))
+}
+
 fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {
     expr_to_static_string(expr).or_else(|| match eval(expr, scope)? {
         Static::List(_) | Static::Map(_) => None,

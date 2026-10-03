@@ -386,3 +386,159 @@ fn a_match_on_a_value_of_unknown_type_needs_its_else() {
         findings(&src)
     );
 }
+
+// ─── C5: components ──────────────────────────────────────────────────
+
+#[test]
+fn c01_a_required_prop_left_out_of_a_call_or_a_layout() {
+    let src = format!(
+        "enum Tone {{ calm, loud }}\ncomponent Card2(_ title: String, price: Number, tone: Tone, on: Bool, note: String?) {{ Text(title) }}\ncomponent Shell(crumb: String) {{ slot  children }}\npage Q(path: \"/q\", title: \"T\", description: \"D\", layout: Shell) {{ Heading(\"Q\").h1 }}\n{}",
+        page("    Card2(\"a\")\n    Card2(\"b\", price: 2).loud")
+    );
+    let found = with(&src, "C01");
+    // The second call gives `price`, and `.loud` gives `tone`; `on` is a
+    // `Bool` and `note` may be null, so neither is needed.
+    assert_eq!(found.len(), 2, "{found:?}");
+    assert!(
+        found
+            .iter()
+            .any(|f| f.contains("`Card2` is placed without `price`, `tone`")),
+        "{found:?}"
+    );
+    assert!(
+        found
+            .iter()
+            .any(|f| f.contains("`Shell` is placed without `crumb`")),
+        "{found:?}"
+    );
+}
+
+#[test]
+fn c02_a_prop_your_component_does_not_declare_is_an_error() {
+    let src = format!(
+        "component Chip(_ label: String) {{ Text(label) }}\n{}",
+        page("    Chip(\"a\", colour: \"red\")")
+    );
+    assert!(
+        findings(&src)
+            .iter()
+            .any(|d| d.code == "C02" && d.is_error())
+    );
+}
+
+#[test]
+fn c03_a_part_outside_its_owner_and_e101_in_every_position() {
+    let src = page(
+        "    Select.Option(\"a\")\n    Card { Card.Header { Text(\"h\") } }\n    Button(\"x\") { on click { log(1) } }",
+    );
+    assert_eq!(with(&src, "C03").len(), 1);
+    // A part below one of your components may well be inside its owner.
+    clean(&format!(
+        "component Picker {{ Select {{ children }} }}\n{}",
+        page("    Picker { Select.Option(\"a\") }")
+    ));
+    let fill = format!(
+        "component Panel {{ slot trailing  Card {{ trailing }} }}\n{}",
+        page("    Panel { trailing { Bdage(\"x\") } }")
+    );
+    assert!(with(&fill, "E101")[0].contains("`Bdage`"));
+}
+
+// ─── C6: routes ──────────────────────────────────────────────────────
+
+#[test]
+fn r01_links_and_navigation_are_held_to_the_routes() {
+    let src = "page Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n    Link(\"a\", to: \"/abuot\")\n    Link(\"b\", to: \"about\")\n    Link(\"c\", to: \"/team/{slug}\")\n    Link(\"d\", to: \"/team\")\n    Link(\"e\", to: \"/report.pdf\")\n    Link(\"f\", to: \"https://example.com/x\")\n    Link(\"g\", to: \"/about?tab=1#top\")\n    Button(\"x\") { on click { navigate(\"/nowhere\") } }\n}\npage About(path: \"/about\", title: \"T\", description: \"D\") { Heading(\"A\").h1 }\npage Team(path: \"/team/:slug\", title: \"T\", description: \"D\", slug: String) { Heading(slug).h1 }\n";
+    let found = with(src, "R01");
+    assert_eq!(found.len(), 4, "{found:?}");
+    assert!(found[0].contains("`/abuot` is not a route"), "{found:?}");
+    assert!(found[1].contains("does not begin with `/`"), "{found:?}");
+    assert!(found[2].contains("`/team` is not a route"), "{found:?}");
+    assert!(found[3].contains("`/nowhere`"), "{found:?}");
+}
+
+#[test]
+fn r02_r03_r04_route_parameters_the_router_and_relative_urls() {
+    let params = "page U(path: \"/u/:id\", title: \"T\", description: \"D\") { Heading(\"u\").h1 }\npage V(path: \"/v\", title: \"T\", description: \"D\", id: String) { Heading(id).h1 }\n";
+    assert_eq!(with(params, "R02").len(), 2);
+    let no_router = "app { Text(\"chrome\") }\npage P(path: \"/\", title: \"T\", description: \"D\") { Heading(\"p\").h1 }\n";
+    assert!(with(no_router, "R03")[0].contains("no `Router`"));
+    let two = "app { Router  Router }\npage P(path: \"/\", title: \"T\", description: \"D\") { Heading(\"p\").h1 }\n";
+    assert!(with(two, "R03")[0].contains("2 `Router`s"));
+    clean("page P(path: \"/\", title: \"T\", description: \"D\") { Heading(\"p\").h1 }\n");
+    let nested = "page P(path: \"/blog/a\", title: \"T\", description: \"D\") {\n    Heading(\"p\").h1\n    Image(src: \"img/a.png\", alt: \"\")\n    Image(src: \"/img/b.png\", alt: \"\")\n}\n";
+    assert_eq!(with(nested, "R04").len(), 1);
+}
+
+#[test]
+fn s04_two_pages_on_one_route_is_an_error() {
+    let src = "page A(path: \"/\", title: \"T\", description: \"D\") { Heading(\"a\").h1 }\npage B(path: \"/\", title: \"T\", description: \"D\") { Heading(\"b\").h1 }\n";
+    assert!(
+        findings(src)
+            .iter()
+            .any(|d| d.code == "S04" && d.is_error())
+    );
+}
+
+// ─── C7: state ───────────────────────────────────────────────────────
+
+#[test]
+fn x02_an_effect_that_writes_what_it_reads_and_x04_a_derived_that_assigns() {
+    let feeds = page("    state n = 0\n    effect { n = n + 1 }\n    Text(\"{n}\")");
+    assert_eq!(with(&feeds, "X02").len(), 1);
+    // Through an action it calls.
+    let through = page(
+        "    state n = 0\n    action bump() { n = n + 1 }\n    effect { log(n)  bump() }\n    Text(\"{n}\")",
+    );
+    assert_eq!(with(&through, "X02").len(), 1);
+    // A guarded write settles; a write of what it does not read is fine.
+    clean(&page(
+        "    state n = 0\n    state seen = 0\n    effect { if n < 3 { n = n + 1 } }\n    effect { seen = n }\n    Text(\"{n}{seen}\")",
+    ));
+    let derived = page(
+        "    state n = 0\n    action next() {\n        n = n + 1\n        return n\n    }\n    derived t = next()\n    Text(\"{t}\")",
+    );
+    assert_eq!(with(&derived, "X04").len(), 1);
+}
+
+#[test]
+fn x05_use_of_a_store_nothing_declares() {
+    let src = format!(
+        "store Cart {{ state items = [] }}\n{}",
+        page("    use Carts")
+    );
+    assert!(with(&src, "X05")[0].contains("`use Carts`"));
+}
+
+// ─── C8: forms ───────────────────────────────────────────────────────
+
+#[test]
+fn f01_f02_what_bind_names_and_what_the_control_holds() {
+    let src = format!(
+        "const LIMIT = 3\n{}",
+        page(
+            "    state first = \"a\"\n    state qty = 1\n    state on = \"yes\"\n    derived up = first.toUpperCase()\n    Input(bind: up, label: \"a\")\n    Input(bind: LIMIT, label: \"b\")\n    Input(bind: \"x\", label: \"c\")\n    Input(bind: qty, label: \"d\")\n    Input(bind: first, label: \"e\").number\n    Checkbox(bind: on, label: \"f\")"
+        )
+    );
+    assert_eq!(with(&src, "F01").len(), 3, "{:?}", with(&src, "F01"));
+    assert_eq!(with(&src, "F02").len(), 3, "{:?}", with(&src, "F02"));
+    clean(&page(
+        "    state name = \"\"\n    state qty = 1\n    state items = [{ t: \"a\" }]\n    Input(bind: name, label: \"a\")\n    Input(bind: qty, label: \"b\").number\n    for it in items by it.t { Input(bind: it.t, label: \"c\") }",
+    ));
+}
+
+#[test]
+fn f03_f04_f05_validation_and_controls_that_cannot_work() {
+    let src = page(
+        "    state email = \"\"\n    state first = \"a\"\n    derived up = first.toUpperCase()\n    validate email { required }\n    validate up { required }\n    Input(bind: first, label: \"f\")",
+    );
+    assert_eq!(with(&src, "F03").len(), 2, "{:?}", with(&src, "F03"));
+    let unbound = page(
+        "    state agree = false\n    Checkbox(checked: agree, label: \"a\")\n    Checkbox(checked: agree, label: \"b\") { on change { agree = !agree } }",
+    );
+    assert_eq!(with(&unbound, "F04").len(), 1);
+    let select = page(
+        "    state plan = \"basic\"\n    state ok = \"pro\"\n    Select(bind: plan, label: \"a\") { Select.Option(\"Free\", value: \"free\")  Select.Option(\"Pro\", value: \"pro\") }\n    Select(bind: ok, label: \"b\") { Select.Option(\"Free\", value: \"free\")  Select.Option(\"Pro\", value: \"pro\") }",
+    );
+    assert_eq!(with(&select, "F05").len(), 1);
+}

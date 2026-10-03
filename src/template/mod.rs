@@ -752,6 +752,26 @@ impl<'a> RenderContext<'a> {
     }
 
     /// Evaluate an expression against the data context.
+    /// A `to:` put together as the live page puts it: each spliced value
+    /// encoded where it stands for one.
+    fn address(&self, expr: &Expr) -> String {
+        match expr {
+            Expr::InterpolatedString(parts) => {
+                let pieces: Vec<crate::codegen::url::AddressPart> = parts
+                    .iter()
+                    .map(|p| match p {
+                        StringPart::Literal(t) => crate::codegen::url::AddressPart::Text(t.clone()),
+                        StringPart::Expression(e) => crate::codegen::url::AddressPart::Value(
+                            value_to_string(&self.eval_expr(e)),
+                        ),
+                    })
+                    .collect();
+                crate::codegen::url::join_address(&pieces)
+            }
+            other => value_to_string(&self.eval_expr(other)),
+        }
+    }
+
     fn eval_expr(&self, expr: &Expr) -> Value {
         match expr {
             // What a string says is settled by the parser, which resolved
@@ -1144,8 +1164,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
             }) {
                 // A destination from the data is followed by the browser,
                 // so it is held to the scheme check the live page applies.
-                let href =
-                    crate::codegen::url::guard(&value_to_string(&ctx.eval_expr(&dest))).to_string();
+                let href = crate::codegen::url::guard(&ctx.address(&dest)).to_string();
                 let indent = ctx.indent_str();
                 let mut out = format!(
                     "{}<a class=\"{}\" href=\"{}\">\n",
@@ -1359,7 +1378,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     attrs.push(format!("{}=\"{}\"", key, html_escape(&resolved)));
                 }
                 "to" => {
-                    let resolved = value_to_string(&ctx.eval_expr(val));
+                    let resolved = ctx.address(val);
                     attrs.push(format!(
                         "href=\"{}\"",
                         html_escape(crate::codegen::url::guard(&resolved))

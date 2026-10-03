@@ -1,0 +1,33 @@
+test "a bound field of a keyed loop item writes back to the list" {
+    state todos = [{ id: "1", title: "Milk", done: false }, { id: "2", title: "Eggs", done: false }]
+    derived titles = todos.map(t => t.title).join("+")
+    derived left = todos.filter(t => !t.done).length
+    for t in todos by t.id {
+        Input(bind: t.title, label: "Title {t.id}")
+        Checkbox(bind: t.done, label: "Done {t.id}")
+    }
+    Text("titles {titles} left {left}")
+    expect "titles Milk+Eggs left 2"
+    type "Oat milk" into "Title 1"
+    expect "titles Oat milk+Eggs"
+    click "Done 2"
+    expect "left 1"
+}
+test "a bound field of an unkeyed loop item writes back when it commits" {
+    state rows = [{ name: "a" }, { name: "b" }]
+    derived names = rows.map(r => r.name).join(",")
+    for r in rows {
+        Input(bind: r.name, label: "Row {r.name}")
+    }
+    Text("names {names}")
+    type "z" into "Row a"
+    expect "names z,b"
+}
+test "a switch binds a store's member" {
+    use Prefs
+    Switch(bind: Prefs.dark, label: "Dark")
+    Text("dark {Prefs.dark}")
+    expect "dark false"
+    click "Dark"
+    expect "dark true"
+}

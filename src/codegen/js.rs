@@ -1184,6 +1184,17 @@ impl JsCodegen {
                         self.store_locals.borrow_mut().push(name.clone());
                         self.emit_line(&format!("let {} = {};", name, value));
                     }
+                } else if let Some((Expr::Identifier(root), steps)) = path_of(&a.target)
+                    && store_states.contains(root)
+                    && !steps.is_empty()
+                {
+                    // `items[0].done = v` in a store action: the state
+                    // assigned a copy with that place changed, so what reads
+                    // it repaints.
+                    let path = self.path_js(&steps, &|e| self.emit_store_expr(e, store_states));
+                    self.emit_line(&format!(
+                        "store.{root} = WF.setIn(store.{root}, {path}, {value});"
+                    ));
                 } else {
                     let target = self.emit_store_expr(&a.target, store_states);
                     self.emit_line(&format!("{} = {};", target, value));
@@ -1203,6 +1214,23 @@ impl JsCodegen {
                 self.emit_line(&format!("WF.navigate({});", path));
             }
             StatementKind::ExprStatement(expr) => {
+                // `items.sort(f)` on the store's state: run on a copy, which
+                // is assigned back.
+                if let Expr::MethodCall(obj, method, args) = expr
+                    && MUTATORS.contains(&method.as_str())
+                    && let Expr::Identifier(name) = obj.as_ref()
+                    && store_states.contains(name)
+                {
+                    let args: Vec<String> = args
+                        .iter()
+                        .map(|a| self.emit_store_expr(a, store_states))
+                        .collect();
+                    self.emit_line(&format!(
+                        "store.{name} = WF.mutated(store.{name}, \"{method}\", [{}]);",
+                        args.join(", ")
+                    ));
+                    return;
+                }
                 let val = self.emit_store_expr(expr, store_states);
                 self.emit_line(&format!("{};", val));
             }
@@ -2098,7 +2126,7 @@ impl JsCodegen {
                                     }
                                 }
                                 "to" => {
-                                    let v = self.url_value(val);
+                                    let v = self.route_value(val);
                                     link_to = Some(v.clone());
                                     if self.ssg_mode {
                                         // SSG: plain links with base path prepended
@@ -2933,6 +2961,51 @@ impl JsCodegen {
         match val {
             Expr::StringLiteral(_) => emitted,
             _ => format!("WF.safeUrl({emitted})"),
+        }
+    }
+
+    /// A route or an address a page fetches, its splices encoded where they
+    /// stand for a value: `"/team/{name}"` with `R&D/Ops` asks for
+    /// `/team/R%26D%2FOps`, not `/team/R&D/Ops`. A splice that opens the
+    /// address (`"{API}/rows"`), one that is a whole query (`"?{qs}"`), and
+    /// anything after the `#` are written as they are.
+    fn encoded_address(&self, val: &Expr) -> String {
+        let Expr::InterpolatedString(parts) = val else {
+            return self.emit_expr(val);
+        };
+        let mut out = String::from("`");
+        let mut before = String::new();
+        for part in parts {
+            match part {
+                StringPart::Literal(text) => {
+                    out.push_str(&text.replace('`', "\\`"));
+                    before.push_str(text);
+                }
+                StringPart::Expression(e) => {
+                    let v = self.emit_expr(e);
+                    let raw = before.is_empty()
+                        || before.contains('#')
+                        || before.ends_with('?')
+                        || before.ends_with('&');
+                    if raw {
+                        out.push_str(&format!("${{{v}}}"));
+                    } else {
+                        out.push_str(&format!("${{encodeURIComponent({v})}}"));
+                    }
+                    before.push('x');
+                }
+            }
+        }
+        out.push('`');
+        out
+    }
+
+    /// `to:` and `navigate()`: the address encoded, then held to the schemes
+    /// a browser may follow.
+    fn route_value(&mut self, val: &Expr) -> String {
+        match val {
+            Expr::InterpolatedString(_) => format!("WF.safeUrl({})", self.encoded_address(val)),
+            _ => self.url_value(val),
         }
     }
 
@@ -4836,7 +4909,7 @@ impl JsCodegen {
             ));
             return;
         }
-        let url = self.emit_expr(&r.url);
+        let url = self.encoded_address(&r.url);
         let url_js = if self.is_reactive(&url) {
             format!("() => {}", url)
         } else {
@@ -5213,6 +5286,10 @@ impl JsCodegen {
             StatementKind::Assignment(a) => {
                 let target = self.emit_expr(&a.target);
                 let value = self.emit_expr(&a.value);
+                if let Some(update) = self.immutable_update(&a.target, &value) {
+                    self.emit_line(&update);
+                    return;
+                }
                 // Check if target is a signal (state variable)
                 if let Expr::Identifier(name) = &a.target {
                     self.emit_line(&format!("_{}.set({});", name, value));
@@ -5229,7 +5306,7 @@ impl JsCodegen {
                 self.emit_line(&format!("{}.{}({});", obj, mc.method, args.join(", ")));
             }
             StatementKind::Navigate(expr) => {
-                let path = self.url_value(expr);
+                let path = self.route_value(expr);
                 self.emit_line(&format!("WF.navigate({});", path));
             }
             StatementKind::Log(expr) => {
@@ -5248,6 +5325,10 @@ impl JsCodegen {
                 ));
             }
             StatementKind::ExprStatement(expr) => {
+                if let Some(update) = self.mutating_call(expr) {
+                    self.emit_line(&update);
+                    return;
+                }
                 let val = self.emit_expr(expr);
                 self.emit_line(&format!("{};", val));
             }
@@ -5746,6 +5827,10 @@ impl JsCodegen {
                 // `await fetch(url, opts)`: the parsed body, as a `resource`
                 // reads it; a failed response throws.
                 if name == "fetch" && !self.own_actions.contains(name) {
+                    let mut args_str = args_str;
+                    if let Some(first) = args.first() {
+                        args_str[0] = self.encoded_address(first);
+                    }
                     return format!("WF.request({})", args_str.join(", "));
                 }
                 // Check if it's a store function
@@ -5934,6 +6019,45 @@ fn has_subcomponent(ui: &UIElement, parent: &str, sub: &str) -> bool {
 
 // ─── Utility functions ──────────────────────────────────
 
+/// The methods that change a list in place.
+const MUTATORS: &[&str] = &[
+    "sort",
+    "reverse",
+    "splice",
+    "fill",
+    "unshift",
+    "shift",
+    "pop",
+    "copyWithin",
+];
+
+/// One step of a path into a value: a field, or an index.
+enum Step<'a> {
+    Field(&'a str),
+    Index(&'a Expr),
+}
+
+/// `a.b[i].c` as its root, `a`, and the steps to the place: `b`, `[i]`, `c`.
+fn path_of(target: &Expr) -> Option<(&Expr, Vec<Step<'_>>)> {
+    let mut steps = Vec::new();
+    let mut at = target;
+    loop {
+        match at {
+            Expr::PropertyAccess(base, field) => {
+                steps.push(Step::Field(field));
+                at = base;
+            }
+            Expr::IndexAccess(base, index) => {
+                steps.push(Step::Index(index));
+                at = base;
+            }
+            _ => break,
+        }
+    }
+    steps.reverse();
+    Some((at, steps))
+}
+
 /// What a `bind:` reads and writes, as JavaScript.
 struct BindTarget {
     /// An expression that reads the bound value.
@@ -5953,10 +6077,96 @@ impl BindTarget {
 }
 
 impl JsCodegen {
-    /// What `bind:` names, when it names something that can be written: a
-    /// state (`bind: draft`), a store's member (`bind: Cart.note`), or a
-    /// field of a loop's item (`bind: t.title`) — which writes the item and
-    /// hands the list a new array, so whatever reads the list sees it.
+    /// A path into a value, `["done", (i)]`, for `WF.setIn`.
+    fn path_js(&self, steps: &[Step], emit: &dyn Fn(&Expr) -> String) -> String {
+        let parts: Vec<String> = steps
+            .iter()
+            .map(|s| match s {
+                Step::Field(f) => format!("\"{f}\""),
+                Step::Index(i) => format!("({})", emit(i)),
+            })
+            .collect();
+        format!("[{}]", parts.join(", "))
+    }
+
+    /// `form.name = v`, `items[i].done = v`, `Cart.items[0].done = v`,
+    /// `t.done = v` for a loop's item: an assignment into a state's value,
+    /// compiled as the state given a copy with that place changed. In
+    /// place, the state kept the object it already had and nothing that
+    /// read it repainted.
+    fn immutable_update(&self, target: &Expr, value: &str) -> Option<String> {
+        let (root, steps) = path_of(target)?;
+        if steps.is_empty() {
+            return None;
+        }
+        let Expr::Identifier(name) = root else {
+            return None;
+        };
+        let emit = |e: &Expr| self.emit_expr(e);
+        if self.is_state_signal(root) {
+            let path = self.path_js(&steps, &emit);
+            return Some(format!(
+                "_{name}.set(WF.setIn(_{name}(), {path}, {value}));"
+            ));
+        }
+        if self.stores.contains(name)
+            && !self.loop_bindings.contains(name)
+            && let [Step::Field(member), rest @ ..] = steps.as_slice()
+            && !rest.is_empty()
+        {
+            let path = self.path_js(rest, &emit);
+            return Some(format!(
+                "{name}.{member} = WF.setIn({name}.{member}, {path}, {value});"
+            ));
+        }
+        // A loop's item, changed in a handler: the item replaced in its
+        // list, which redraws it.
+        let (_, list, _) = self
+            .loop_sources
+            .iter()
+            .rev()
+            .find(|(item, _, _)| item == name)?;
+        let path = self.path_js(&steps, &emit);
+        let replace = format!("(__x) => __x === {name} ? WF.setIn(__x, {path}, {value}) : __x");
+        match list {
+            Expr::Identifier(l) if self.is_state_signal(list) => {
+                Some(format!("_{l}.set(_{l}().map({replace}));"))
+            }
+            Expr::PropertyAccess(b, m) if matches!(b.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) =>
+            {
+                let store = self.emit_expr(b);
+                Some(format!("{store}.{m} = {store}.{m}.map({replace});"))
+            }
+            _ => None,
+        }
+    }
+
+    /// `items.sort(f)`, `items.reverse()`, `items.splice(i, 1)` written as a
+    /// statement on a state: run on a copy, and the copy assigned back.
+    fn mutating_call(&self, expr: &Expr) -> Option<String> {
+        let Expr::MethodCall(obj, method, args) = expr else {
+            return None;
+        };
+        if !MUTATORS.contains(&method.as_str()) {
+            return None;
+        }
+        let args: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+        let args = args.join(", ");
+        match obj.as_ref() {
+            Expr::Identifier(name) if self.is_state_signal(obj) => Some(format!(
+                "_{name}.set(WF.mutated(_{name}(), \"{method}\", [{args}]));"
+            )),
+            Expr::PropertyAccess(base, member) if matches!(base.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) =>
+            {
+                let store = self.emit_expr(base);
+                Some(format!(
+                    "{store}.{member} = WF.mutated({store}.{member}, \"{method}\", [{args}]);"
+                ))
+            }
+            _ => None,
+        }
+    }
+
     /// The element's `bind:` argument, as a target it can write.
     fn bind_arg(&self, ui: &UIElement) -> Option<BindTarget> {
         ui.args.iter().find_map(|a| match a {
@@ -5990,6 +6200,10 @@ impl JsCodegen {
         )
     }
 
+    /// What `bind:` names, when it names something that can be written: a
+    /// state (`bind: draft`), a store's member (`bind: Cart.note`), or a
+    /// field of a loop's item (`bind: t.title`) — which writes the item and
+    /// hands the list a new array, so whatever reads the list sees it.
     fn bind_target(&self, expr: &Expr) -> Option<BindTarget> {
         match expr {
             Expr::Identifier(name) if self.is_state_signal(expr) => Some(BindTarget {
@@ -6294,6 +6508,11 @@ pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) ->
             Holder::StoreMember => format!("({obj} = WF.removeAt({obj}, {joined}))"),
             Holder::Plain => format!("{obj}.splice({joined}, 1)"),
         },
+        // On a state, `sort` and `reverse` in an expression work on a copy:
+        // reading a sorted list must not change the list.
+        "sort" | "reverse" if !matches!(holder, Holder::Plain) => {
+            format!("[...{obj}].{method}({joined})")
+        }
         "filter" => format!("{obj}.filter({joined})"),
         "map" => format!("{obj}.map({joined})"),
         "sum" => format!("{obj}.reduce((a,b) => a+b, 0)"),

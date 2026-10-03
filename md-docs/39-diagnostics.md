@@ -44,6 +44,7 @@ The code — `T05` — is the thing to search this page for. The families:
 | `C` | components and their props |
 | `R` | routes and navigation |
 | `X` | state and reactivity |
+| `F` | forms and bindings |
 | `D` | data, assets and what is kept in the browser |
 | `A` | accessibility |
 | `S` | search and sharing |
@@ -461,6 +462,28 @@ error[C02]: `Badge2` declares no prop `colour`
 
 **Fix:** Correct the spelling, or declare the prop on the component.
 
+### C03 — A part outside the component it belongs to
+
+```wf expect C03
+page P(path: "/", title: "T", description: "D") {
+    Heading("Plans").h1
+    Select.Option("Pro", value: "pro")
+}
+```
+
+```text
+error[C03]: `Select.Option` is a part of `Select`, and it is not inside one
+ --> src/App.wf:3:5
+  |
+3 |     Select.Option("Pro", value: "pro")
+  |     ^^^^^^^^^^^^^
+  = help: Place it in a `Select { … }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c03
+```
+
+**Fix:** Place the part inside its owner: `Select(bind: plan) {
+Select.Option(…) }`.
+
 ### C04 — An attribute a built-in does not declare
 
 Warning.
@@ -560,12 +583,299 @@ what it reads does; a prop is its caller's (`emit` an event so the caller
 changes it); a route parameter is the address's (`navigate`); a loop
 variable is one pass's copy (change the item through its list).
 
+### X02 — An effect that feeds itself
+
+```wf expect X02
+page P(path: "/", title: "T", description: "D") {
+    state visits = 0
+    effect { visits = visits + 1 }
+    Heading("Visits {visits}").h1
+}
+```
+
+```text
+error[X02]: this effect writes `visits`, which it also reads, so each run starts the next and the page never settles
+ --> src/App.wf:3:5
+  |
+3 |     effect { visits = visits + 1 }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Work the value out with `derived` instead, or write it from the action that changes what it reads
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x02
+```
+
+**Fix:** Work a value out with `derived`; change state from the action or
+handler that changes what it depends on.
+
+### X04 — A derived value that changes something
+
+```wf expect X04
+page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    action next() {
+        count = count + 1
+        return count
+    }
+    derived ticket = next()
+    Heading("Ticket {ticket}").h1
+}
+```
+
+```text
+error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`
+ --> src/App.wf:7:5
+  |
+7 |     derived ticket = next()
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+  = help: A derived value only reads; call the action from a handler, and derive from what it sets
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x04
+```
+
+**Fix:** Call the action from a handler; derive from the state it sets.
+
+### X05 — `use` of a store nothing declares
+
+```wf expect X05
+store Cart { state items = [] }
+page P(path: "/", title: "T", description: "D") {
+    use Carts
+    Heading("Cart").h1
+}
+```
+
+```text
+error[X05]: `use Carts` names a store nothing declares
+ --> src/App.wf:3:5
+  |
+3 |     use Carts
+  |     ^^^
+  = help: The stores are `Cart`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x05
+```
+
+**Fix:** Name a store that exists — here `Cart`.
+
+## Forms and bindings
+
+### F01 — A `bind:` to something that cannot be written
+
+```wf expect F01
+page P(path: "/", title: "T", description: "D") {
+    state first = "Ada"
+    derived name = first.toUpperCase()
+    Heading("Name").h1
+    Input(bind: name, label: "Name")
+}
+```
+
+```text
+error[F01]: `bind:` on `Input` writes back to what it names, and `name` is a `derived` value
+ --> src/App.wf:5:11
+  |
+5 |     Input(bind: name, label: "Name")
+  |           ^^^^^^^^^^
+  = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f01
+```
+
+**Fix:** Bind the state the reader edits (`bind: first`); show a value
+that is worked out with `value:`.
+
+### F02 — A `bind:` to a state the control cannot hold
+
+```wf expect F02
+page P(path: "/", title: "T", description: "D") {
+    state qty = 1
+    Heading("Order").h1
+    Input(bind: qty, label: "Quantity")
+}
+```
+
+```text
+error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`
+ --> src/App.wf:4:11
+  |
+4 |     Input(bind: qty, label: "Quantity")
+  |           ^^^^^^^^^
+  = help: A number field is `Input(…).number`, which holds a number
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f02
+```
+
+**Fix:** A number field is `Input(…).number`; a text field holds a
+`String`.
+
+### F03 — A `validate` block no control can satisfy
+
+```wf expect F03
+page P(path: "/", title: "T", description: "D") {
+    state email = ""
+    validate email { required  email }
+    Heading("Join").h1
+    Form { Button("Join", type: .submit) }
+}
+```
+
+```text
+error[F03]: `validate email` guards a state no control binds, so its rules can never be met
+ --> src/App.wf:3:5
+  |
+3 |     validate email { required  email }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Bind it to the control the reader fills in: `Input(bind: email, …)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f03
+```
+
+**Fix:** Bind the state to the control the reader fills in:
+`Input(bind: email, label: "Email").email`.
+
+### F04 — A checkbox that shows a state and never changes it
+
+Warning.
+
+```wf expect F04
+page P(path: "/", title: "T", description: "D") {
+    state agree = false
+    Heading("Terms").h1
+    Checkbox(checked: agree, label: "I agree")
+}
+```
+
+```text
+warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a click toggles the box and not the state
+ --> src/App.wf:4:5
+  |
+4 |     Checkbox(checked: agree, label: "I agree")
+  |     ^^^^^^^^
+  = help: Write `bind:` to keep the box and the state together, or handle `on change`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f04
+```
+
+**Fix:** `Checkbox(bind: agree, label: "I agree")`.
+
+### F05 — A select whose value is none of its options
+
+Warning.
+
+```wf expect F05
+page P(path: "/", title: "T", description: "D") {
+    state plan = "basic"
+    Heading("Plan").h1
+    Select(bind: plan, label: "Plan") {
+        Select.Option("Free", value: "free")
+        Select.Option("Pro", value: "pro")
+    }
+}
+```
+
+```text
+warning[F05]: `plan` starts as `basic`, which is none of this select's options
+ --> src/App.wf:4:5
+  |
+4 |     Select(bind: plan, label: "Plan") {
+  |     ^^^^^^
+  = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f05
+```
+
+**Fix:** Start the state as one of the options' values.
+
 ## Routes
 
 ### R01 — A route to nothing
 
-A `Route` whose `page:` names no declared page. **Fix:** name a page that
-exists.
+```wf expect R01
+page Home(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+    Link("About us", to: "/abuot")
+}
+page About(path: "/about", title: "About", description: "D") {
+    Heading("About").h1
+}
+```
+
+```text
+error[R01]: `/abuot` is not a route: no page's `path` matches it
+ --> src/App.wf:3:5
+  |
+3 |     Link("About us", to: "/abuot")
+  |     ^^^^
+  = help: The nearest is `/about`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r01
+```
+
+**Fix:** Link to a route a page has; the message names the nearest. A
+spliced link is checked by its shape — `"/team/{t.slug}"` must match a route
+like `/team/:slug` — a link with no leading `/` is refused (where it leads
+would depend on the page it is on), and a link to a file (`/report.pdf`) or
+another site is left alone.
+
+### R02 — A route parameter and a page parameter that do not match
+
+```wf expect R02
+page Profile(path: "/u/:id", title: "T", description: "D") {
+    Heading("Profile").h1
+}
+```
+
+```text
+error[R02]: the route `/u/:id` names `:id`, and the page declares no parameter `id`
+ --> src/App.wf:1:1
+  |
+1 | page Profile(path: "/u/:id", title: "T", description: "D") {
+  | ^^^^
+  = help: Declare it: `page Profile(path: "/u/:id", id: String)`, then read `id`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r02
+```
+
+**Fix:** Declare the parameter the route names — `page Profile(path:
+"/u/:id", id: String)` — and read it by name; a declared parameter the route
+has no `:name` for is never filled.
+
+### R03 — An `app` with no `Router`, or with two
+
+```wf expect R03
+app {
+    Navbar { Navbar.Brand { Text("Ledger") } }
+}
+page Home(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+}
+```
+
+```text
+error[R03]: `app` places no `Router`, so no page is ever drawn
+ --> src/App.wf:2:5
+  |
+2 |     Navbar { Navbar.Brand { Text("Ledger") } }
+  |     ^^^^^^
+  = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r03
+```
+
+**Fix:** Place `Router` where the page belongs: `app { Navbar { … }
+Router }`. (A program with no `app` at all routes its pages by itself.)
+
+### R04 — A relative URL on a nested route
+
+Warning.
+
+```wf expect R04
+page Post(path: "/blog/first", title: "T", description: "D") {
+    Heading("First post").h1
+    Image(src: "images/cover.png", alt: "")
+}
+```
+
+```text
+warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is fetched from `/blog/images/cover.png`
+ --> src/App.wf:3:5
+  |
+3 |     Image(src: "images/cover.png", alt: "")
+  |     ^^^^^
+  = help: Write it from the site's root: `"/images/cover.png"`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r04
+```
+
+**Fix:** Write it from the site's root: `"/images/cover.png"`.
 
 ## Data and assets
 

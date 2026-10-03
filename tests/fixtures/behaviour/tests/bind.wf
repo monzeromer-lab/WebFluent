@@ -1,0 +1,39 @@
+test "a number field adds as a number" {
+    state qty = 3
+    Input(bind: qty, label: "Qty").number
+    Text("next {qty + 1}")
+    expect "next 4"
+    type "5" into "Qty"
+    expect "next 6"
+    expect not "next 51"
+}
+test "a cleared number field holds nothing" {
+    state qty = 3
+    Input(bind: qty, label: "Qty").number
+    Text("is {qty ?? "empty"}")
+    type "" into "Qty"
+    expect "is empty"
+}
+test "a select writes back a number option as a number" {
+    state size = 1
+    Select(bind: size, label: "Size") {
+        Select.Option("One", value: 1)
+        Select.Option("Two", value: 2)
+    }
+    Text("double {size * 2} plus {size + 1}")
+    type "Two" into "Size"
+    expect "plus 3"
+}
+test "a button in a form does not submit it unless it says so" {
+    state n = 0
+    Form {
+        on submit { n = n + 100 }
+        Button("Plus") { on click { n = n + 1 } }
+        Button("Go", type: .submit)
+    }
+    Text("n is {n}")
+    click "Plus"
+    expect "n is 1"
+    click "Go"
+    expect "n is 101"
+}

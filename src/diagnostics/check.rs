@@ -64,6 +64,9 @@ pub fn check_project(p: &Project) -> Checked {
         }
     }
     out.extend(program_checks(p.program, p.file_of, p.source_of));
+    out.extend(crate::linter::structure::lint_structure(
+        p.program, p.file_of,
+    ));
 
     let lowered = crate::sema::lower(p.program.clone());
     let mut lints: Vec<crate::error::A11yWarning> =
@@ -102,6 +105,13 @@ pub fn check_project(p: &Project) -> Checked {
 
     if p.incomplete {
         out.retain(|d| !REFERENCES.contains(&d.code));
+    }
+    if let Some(config) = p.config {
+        let text = p
+            .dir
+            .and_then(|dir| std::fs::read_to_string(dir.join(CONFIG)).ok())
+            .unwrap_or_default();
+        apply_lints(&mut out, &config.lints, &text);
     }
     dedupe(&mut out);
     Checked {
@@ -361,6 +371,78 @@ pub fn output_checks(
         _ => {}
     }
     out
+}
+
+/// What `lints` says each finding counts as: `"off"` drops it, `"warn"`
+/// makes it a warning, `"error"` an error — by its code first, then its
+/// family. An error that ships a broken page cannot be lowered, and a
+/// setting that asks to is itself refused; so is a key that is no code or
+/// family, and a value that is not one of the three.
+pub fn apply_lints(
+    out: &mut Vec<Diagnostic>,
+    lints: &std::collections::BTreeMap<String, String>,
+    config_text: &str,
+) {
+    if lints.is_empty() {
+        return;
+    }
+    let mut problems = Vec::new();
+    for (key, value) in lints {
+        let known = super::codes::info(key).is_some()
+            || (key.len() == 1
+                && super::codes::CODES
+                    .iter()
+                    .any(|c| c.code.starts_with(key.as_str())));
+        if !known {
+            problems.push(config_finding(
+                "E111",
+                format!("`lints` names `{key}`, which is no code or family"),
+                config_text,
+                &format!("\"{key}\""),
+            ));
+        }
+        if !matches!(value.as_str(), "off" | "warn" | "error") {
+            problems.push(config_finding(
+                "E111",
+                format!("`lints.{key}` is `{value}`; a finding counts as `off`, `warn` or `error`"),
+                config_text,
+                &format!("\"{key}\""),
+            ));
+        }
+        if matches!(value.as_str(), "off" | "warn")
+            && let Some(info) = super::codes::info(key)
+            && !super::codes::lowerable(key)
+        {
+            let _ = info;
+            problems.push(
+                config_finding(
+                    "E111",
+                    format!("`lints` lowers `{key}`, an error that ships a broken page; it stays an error"),
+                    config_text,
+                    &format!("\"{key}\""),
+                )
+                .with_hint("Fix what it finds; `lints` lowers warnings, and the few errors that cannot break a page"),
+            );
+        }
+    }
+    out.retain_mut(|d| {
+        let setting = lints
+            .get(d.code)
+            .or_else(|| lints.get(super::codes::family(d.code)));
+        match setting.map(String::as_str) {
+            Some("off") if super::codes::lowerable(d.code) => false,
+            Some("warn") if super::codes::lowerable(d.code) => {
+                d.severity = super::Severity::Warning;
+                true
+            }
+            Some("error") => {
+                d.severity = super::Severity::Error;
+                true
+            }
+            _ => true,
+        }
+    });
+    out.extend(problems);
 }
 
 #[cfg(test)]

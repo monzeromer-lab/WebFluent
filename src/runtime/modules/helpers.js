@@ -33,6 +33,25 @@
     if (index >= 0 && index < out.length) out.splice(index, 1);
     return out;
   }
+  // `form.name = v`, `items[i].done = v` on a state: the value with that
+  // one place changed, every container on the way copied, so whatever
+  // reads the state sees a new value and repaints — and `persist` writes
+  // it. Changed in place, the state kept the object it already had, and
+  // nothing knew.
+  function setIn(target, path, value) {
+    if (path.length === 0) return value;
+    const [key, ...rest] = path;
+    const copy = Array.isArray(target) ? target.slice() : { ...(target || {}) };
+    copy[key] = setIn(copy[key], rest, value);
+    return copy;
+  }
+  // `items.sort(f)` as a statement on a state: the method run on a copy,
+  // and the copy assigned back.
+  function mutated(list, method, args) {
+    const copy = Array.from(list || []);
+    copy[method](...args);
+    return copy;
+  }
   // `a..b` and `a..=b`: the whole numbers from `a`, up to `b`.
   function range(a, b, inclusive) {
     const out = [];

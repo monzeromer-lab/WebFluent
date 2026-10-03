@@ -80,9 +80,81 @@ pub fn guard(url: &str) -> &str {
     if is_safe(url) { url } else { "" }
 }
 
+/// One piece of an address: text the source wrote, or a value spliced in.
+pub enum AddressPart {
+    Text(String),
+    Value(String),
+}
+
+/// What `encodeURIComponent` does: every byte but the unreserved ones
+/// (`A–Z a–z 0–9 - _ . ! ~ * ' ( )`) as `%XX`.
+pub fn encode_component(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for b in s.bytes() {
+        if b.is_ascii_alphanumeric() || b"-_.!~*'()".contains(&b) {
+            out.push(b as char);
+        } else {
+            out.push_str(&format!("%{b:02X}"));
+        }
+    }
+    out
+}
+
+/// An address put together from its pieces, each spliced value encoded
+/// where it stands for a value — in a path segment, or a query's value —
+/// and written as it is where it opens the address, is a whole query
+/// (`?{qs}`), or follows the `#`. The live page does the same
+/// (`JsCodegen::encoded_address`), so the static paint links where the page
+/// does.
+pub fn join_address(parts: &[AddressPart]) -> String {
+    let mut out = String::new();
+    for part in parts {
+        match part {
+            AddressPart::Text(t) => out.push_str(t),
+            AddressPart::Value(v) => {
+                let raw =
+                    out.is_empty() || out.contains('#') || out.ends_with('?') || out.ends_with('&');
+                if raw {
+                    out.push_str(v);
+                } else {
+                    out.push_str(&encode_component(v));
+                }
+            }
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_spliced_value_is_encoded_where_it_stands_for_a_value() {
+        let address = |parts: Vec<AddressPart>| join_address(&parts);
+        use AddressPart::{Text, Value};
+        assert_eq!(
+            address(vec![Text("/team/".into()), Value("R&D/Ops".into())]),
+            "/team/R%26D%2FOps"
+        );
+        assert_eq!(
+            address(vec![
+                Value("/api".into()),
+                Text("/rows?q=".into()),
+                Value("a b".into())
+            ]),
+            "/api/rows?q=a%20b"
+        );
+        assert_eq!(
+            address(vec![Text("/s?".into()), Value("x=1&y=2".into())]),
+            "/s?x=1&y=2"
+        );
+        assert_eq!(
+            address(vec![Text("/docs#".into()), Value("a b".into())]),
+            "/docs#a b"
+        );
+        assert_eq!(encode_component("ü"), "%C3%BC");
+    }
 
     #[test]
     fn a_scheme_a_browser_would_run_is_not_one_a_page_may_name() {

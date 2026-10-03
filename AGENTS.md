@@ -2499,6 +2499,11 @@ not read, a config it could not load — exits `2`. `wf serve`'s overlay and
 do not. The codes live in one registry (`diagnostics::codes`), which the
 guide's chapter, the editor's links and the tests read.
 
+`"lints": { "A11": "off", "U": "error", "R01": "warn" }` in the config says
+what a finding counts as, by code or family. A warning may be turned off or
+raised; an error may be lowered only when it cannot ship a broken page
+(`R01`, `C02`, `S04`).
+
 | Family | What |
 |---|---|
 | `E` | syntax and structure |
@@ -2533,7 +2538,6 @@ guide's chapter, the editor's links and the tests read.
 | `E901` | The compiler wrote JavaScript a browser would refuse (it reads back every script it writes — a WebFluent bug) |
 | `E902` | A page the content security policy shipped beside it would block |
 | `C02` | A prop your component does not declare |
-| `R01` | A route to a page that does not exist |
 | `S04` | Two pages claim one route |
 
 And what the type checker finds:
@@ -2558,7 +2562,17 @@ And what the type checker finds:
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
 | `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
-| `C01` | A required prop or record field left out (`Todo(title: "x")` when `id` has no default) |
+| `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default); a flag gives a `Bool` or an enum prop |
+| `C03` | A part outside its owner (`Select.Option` with no `Select` around it) |
+| `X02` | An effect that writes, every run, something it reads — itself or through an action it calls — so it never settles |
+| `X04` | A `derived` value that calls an action that assigns state |
+| `X05` | `use` of a store nothing declares |
+| `F01` | `bind:` to something that cannot be written: a constant, a derived value, a prop, a literal |
+| `F02` | `bind:` to a state the control cannot hold (a text `Input` on a `Number` — `.number` holds one) |
+| `F03` | `validate x` where no control binds `x`, or `x` is derived: its rules can never pass |
+| `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
+| `R02` | A route's `:param` with no page parameter of that name, or the reverse |
+| `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
 
 An endpoint a service does not have is `T06`, and an argument it does not
 take is `T10`.
@@ -2571,6 +2585,17 @@ read after a `?.` (`sel?.note.length`). A check for `null` narrows in the
 `else` branch and after `if x == null { return }`. A refined type
 (`Number(1..=30)`) is held to every literal assigned to it, and a `derived`
 value's annotation to what it works out to.
+
+Where there is one right answer the compiler writes it instead of
+reporting: a change inside a state's value — `form.name = v`,
+`items[i].done = v`, `items.sort()` as a statement, `t.done = v` on a loop's
+item in a handler — compiles to the state given a copy with that place
+changed (`WF.setIn`, `WF.mutated`), so what reads it repaints and `persist`
+writes it; reading `items.sort(…)` in an expression sorts a copy; a value
+spliced into a `to:`, `navigate()`, `fetch()` or resource address is
+`encodeURIComponent`ed where it stands for a value (not when it opens the
+address, is a whole query, or follows `#`), in the live page and the static
+paint alike.
 
 **Warnings.**
 
@@ -2610,6 +2635,9 @@ value's annotation to what it works out to.
 | `C06` | A positional argument bound to a component's first prop, which is not marked `_` |
 | `D05` | A font, stylesheet or script from another origin with no `meta.integrity` hash |
 | `T19` | A value that may be null spliced into text, where it shows as `null` |
+| `R04` | A relative `src:`/`href:` literal on a nested route, which resolves against the page's address |
+| `F04` | `Checkbox(checked: x)` with no `bind:` and no `on change`: the box toggles, the state does not |
+| `F05` | A `Select` whose bound state starts as none of its options |
 | `T21` | A resource `match` with no `error` arm and no `else` |
 | `U10` | A `match`'s `else` that no value reaches: every case has its arm |
 | `E112` | A key in `webfluent.app.json` nothing reads, with the nearest one that is |
@@ -2710,6 +2738,7 @@ now ships on every page.
     },
     "env": {},
     "public_env": [],
+    "lints": {},
     "offline": {
         "precache": ["/"],
         "fallback": null,

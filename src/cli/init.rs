@@ -165,10 +165,10 @@ fn generate_spa(name: &str, dir: &Path) -> Result<()> {
                         if TaskStore.tasks.length == 0 {
                             Text("No tasks yet. Go to the Tasks page to add some!").muted.center
                         } else {
-                            for task in TaskStore.tasks {
+                            for task in TaskStore.tasks by task.id {
                                 Row(align: .center, justify: .between) {
                                     Row(align: .center, gap: .md) {
-                                        Checkbox(checked: task.done, label: task.title)
+                                        Checkbox(bind: task.done, label: task.title)
                                     }
                                     Badge(task.priority).primary
                                 }

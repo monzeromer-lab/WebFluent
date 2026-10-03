@@ -336,6 +336,12 @@ pub static CODES: &[CodeInfo] = &[
         "Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.",
     ),
     code(
+        "C03",
+        Error,
+        "A part outside the component it belongs to",
+        "`Select.Option`, `Table.Row`, `Card.Header` — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.",
+    ),
+    code(
         "C04",
         Warning,
         "An attribute a built-in does not declare",
@@ -360,12 +366,79 @@ pub static CODES: &[CodeInfo] = &[
         "A route to nothing",
         "A link, a `navigate()` or a `Route` names a page or a path that no page has.",
     ),
+    code(
+        "R02",
+        Error,
+        "A route parameter and a page parameter that do not match",
+        "A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing, and a parameter with no `:name` is never filled.",
+    ),
+    code(
+        "R03",
+        Error,
+        "An `app` with no `Router`, or with two",
+        "The current page is drawn where `app` places its `Router`. With none, no page is ever drawn; with two, the page has two places.",
+    ),
+    code(
+        "R04",
+        Warning,
+        "A relative URL on a nested route",
+        "`\"images/x.png\"` is fetched relative to the page's address, so on `/blog/post` it is `/blog/images/x.png`. Written from the root, `\"/images/x.png\"`, it is the same file on every page.",
+    ),
     // ── X: state and reactivity ──────────────────────────────────────
     code(
         "X01",
         Error,
         "An assignment to something that cannot change",
         "A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy nothing reads.",
+    ),
+    code(
+        "X02",
+        Error,
+        "An effect that feeds itself",
+        "An effect re-runs when what it reads changes. One that writes, every run, something it reads starts the next run itself: the page never settles, and the browser overflows its stack.",
+    ),
+    code(
+        "X04",
+        Error,
+        "A derived value that changes something",
+        "A `derived` value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state each time it is read.",
+    ),
+    code(
+        "X05",
+        Error,
+        "`use` of a store nothing declares",
+        "`use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.",
+    ),
+    // ── F: forms and bindings ────────────────────────────────────────
+    code(
+        "F01",
+        Error,
+        "A `bind:` to something that cannot be written",
+        "`bind:` writes what the control holds back to what it names: a state, a store's state, or a field of a loop's item. A constant, a derived value, a prop or a value worked out on the spot cannot take it.",
+    ),
+    code(
+        "F02",
+        Error,
+        "A `bind:` to a state the control cannot hold",
+        "A text field holds text, a number field (`.number`) a number, a checkbox a `Bool`. Bound to a state of another type, it writes the wrong kind of value into it.",
+    ),
+    code(
+        "F03",
+        Error,
+        "A `validate` block no control can satisfy",
+        "The rules of a `validate` block are shown on the control bound to the state, and a form is valid when they pass. On a state no control binds, or a derived value, they can never pass, and the submit stays disabled.",
+    ),
+    code(
+        "F04",
+        Warning,
+        "A checkbox that shows a state and never changes it",
+        "`Checkbox(checked: x)` with no `bind:` and no `on change` draws `x`, and a click toggles the box while `x` stays as it was.",
+    ),
+    code(
+        "F05",
+        Warning,
+        "A select whose value is none of its options",
+        "The bound state starts as a value no option has, so the select shows its first option while the state holds something else.",
     ),
     // ── D: data and assets ───────────────────────────────────────────
     code(
@@ -578,6 +651,20 @@ pub static CODES: &[CodeInfo] = &[
         "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).",
     ),
 ];
+
+/// The errors a project may lower with `lints`: each is a mistake, and none
+/// ships a page that breaks — a link to a route that is missing, a prop
+/// nothing reads, a page no route reaches.
+const LOWERABLE_ERRORS: &[&str] = &["R01", "C02", "S04"];
+
+/// Whether `lints` may lower a code: any warning, and the errors that do
+/// not ship a broken page.
+pub fn lowerable(code: &str) -> bool {
+    match info(code) {
+        Some(c) => c.severity != Severity::Error || LOWERABLE_ERRORS.contains(&code),
+        None => false,
+    }
+}
 
 /// The entry for a code.
 pub fn info(code: &str) -> Option<&'static CodeInfo> {

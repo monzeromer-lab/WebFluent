@@ -262,3 +262,36 @@ fn the_compiler_never_makes_an_uncoded_finding() {
     );
     assert!(found.is_empty(), "uncoded findings in {found:?}");
 }
+
+#[test]
+fn lints_lower_or_raise_what_may_be_and_refuse_what_may_not() {
+    let dir = project(
+        "lints",
+        r#"{
+  "name": "d",
+  "lints": { "A01": "off", "R01": "warn", "U": "error", "T05": "off", "Q99": "off", "S01": "loud" }
+}"#,
+        &[(
+            "src/App.wf",
+            "app { Router }\ntype U2 { name: String }\npage P(path: \"/\", title: \"P\", description: \"D\") {\n    state u = U2(name: \"a\")\n    state unused = 1\n    Heading(u.nmae).h1\n    Image(src: \"/a.png\")\n    Link(\"x\", to: \"/nowhere\")\n}\n",
+        )],
+    );
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 1, "{err}");
+    assert!(!err.contains("[A01]"), "a warning turned off: {err}");
+    assert!(
+        err.contains("warning[R01]"),
+        "a lowerable error made a warning: {err}"
+    );
+    assert!(err.contains("error[U01]"), "a family made errors: {err}");
+    assert!(err.contains("error[T05]"), "a T error stays one: {err}");
+    assert!(
+        err.contains("`lints` lowers `T05`, an error that ships a broken page"),
+        "{err}"
+    );
+    assert!(
+        err.contains("`lints` names `Q99`, which is no code or family"),
+        "{err}"
+    );
+    assert!(err.contains("`lints.S01` is `loud`"), "{err}");
+}

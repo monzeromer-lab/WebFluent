@@ -35,11 +35,11 @@ page Gallery(path: "/", description: "Every built-in component, rendered once.",
         Navbar {
             Text("Brand").bold
             Link("Home", to: "/")
-            Link("Docs", to: "/docs")
+            Link("Docs", to: "#docs")
         }
         Breadcrumb {
             Link("Root", to: "/")
-            Link("Section", to: "/section")
+            Link("Section", to: "#section")
             Text("Current")
         }
         Menu(label: "Actions") {

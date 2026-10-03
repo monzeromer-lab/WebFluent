@@ -18,7 +18,7 @@
 //! over something that is not a list; a `match` on something with no
 //! arms to match; a list used as a condition.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use super::Findings;
 use crate::error::Diagnostic;
@@ -330,6 +330,8 @@ struct World<'p> {
     /// Each store's members nothing may assign to: its derived values and
     /// its actions.
     store_fixed: HashMap<&'p str, HashMap<String, &'static str>>,
+    /// Each store's actions, by name, for what they write.
+    store_actions: HashMap<&'p str, HashMap<String, &'p [Statement]>>,
 }
 
 impl<'p> World<'p> {
@@ -439,6 +441,7 @@ pub fn check_in(
         scripts: HashMap::new(),
         fixed: HashMap::new(),
         store_fixed: HashMap::new(),
+        store_actions: HashMap::new(),
     };
     for decl in &program.declarations {
         match decl {
@@ -476,6 +479,15 @@ pub fn check_in(
                     }
                 }
                 world.store_fixed.insert(store.name.as_str(), fixed);
+                let actions: HashMap<String, &[Statement]> = store
+                    .body
+                    .iter()
+                    .filter_map(|s| match &s.kind {
+                        StatementKind::Action(a) => Some((a.name.clone(), a.body.as_slice())),
+                        _ => None,
+                    })
+                    .collect();
+                world.store_actions.insert(store.name.as_str(), actions);
             }
             Declaration::Const(c) => {
                 world.fixed.insert(c.name.clone(), "a `const`");
@@ -565,6 +577,7 @@ pub fn check_in(
                     cx.current_span = layout.span;
                     cx.layout(layout);
                 }
+                cx.bound = bound_names(&p.body);
                 cx.declare_hoisted(&p.body);
                 cx.statements(&p.body, Body::Page);
                 cx.pop_scope();
@@ -589,6 +602,7 @@ pub fn check_in(
                     cx.bind_fixed(&prop.name, ty, prop.span, "a prop");
                 }
                 cx.component = Some(c);
+                cx.bound = bound_names(&c.body);
                 cx.declare_hoisted(&c.body);
                 cx.statements(&c.body, Body::Component);
                 cx.pop_scope();
@@ -711,6 +725,11 @@ struct Checker<'a, 'p> {
     /// Whether the expression being checked is a later arm of a `match`
     /// expression whose first arm has already been checked as a whole.
     in_chain: bool,
+    /// The names some control in the body binds, which a `validate` block
+    /// guards.
+    bound: HashSet<String>,
+    /// The body's own actions, by name, for what they write.
+    own_actions: HashMap<String, Vec<Statement>>,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
@@ -738,6 +757,8 @@ impl<'a, 'p> Checker<'a, 'p> {
             refined: HashMap::new(),
             non_empty: Vec::new(),
             in_chain: false,
+            bound: HashSet::new(),
+            own_actions: HashMap::new(),
             source,
         }
     }
@@ -1042,6 +1063,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         for stmt in stmts {
             self.current_span = stmt.span;
             if let StatementKind::Action(a) = &stmt.kind {
+                self.own_actions.insert(a.name.clone(), a.body.clone());
                 let params: Vec<Type> = a
                     .params
                     .iter()
@@ -1133,6 +1155,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             }
             StatementKind::Derived(d) => {
+                self.derived_assigns(&d.name, &d.value, span);
                 let declared = d.ty.as_ref().map(|t| self.world.resolve(Type::from_ref(t)));
                 self.in_derived = true;
                 let given = self.infer(&d.value, declared.as_ref());
@@ -1160,6 +1183,27 @@ impl<'a, 'p> Checker<'a, 'p> {
             // length on a number, or a match against a name that is not
             // there, is a fault where it is written.
             StatementKind::Validate(v) => {
+                // The rules are shown on the control bound to the state, and
+                // a form is valid only when they pass: with no control, they
+                // never can, and the submit stays disabled.
+                if self.fixed_kind(&v.name) == Some("a `derived` value") {
+                    self.error(
+                        span,
+                        "F03",
+                        format!(
+                            "`validate {}` guards a `derived` value, which nobody types into",
+                            v.name
+                        ),
+                        "Validate the state the reader edits; a derived value follows it",
+                    );
+                } else if self.lookup(&v.name).is_some() && !self.bound.contains(&v.name) {
+                    self.error(
+                        span,
+                        "F03",
+                        format!("`validate {}` guards a state no control binds, so its rules can never be met", v.name),
+                        &format!("Bind it to the control the reader fills in: `Input(bind: {}, …)`", v.name),
+                    );
+                }
                 let guarded = self.lookup(&v.name);
                 if guarded.is_none() {
                     self.error(
@@ -1270,6 +1314,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
             }
             StatementKind::Effect(e) => {
+                self.effect_feeds_itself(&e.body, span);
                 self.push_scope();
                 let was = std::mem::replace(&mut self.async_ok, false);
                 self.statements(&e.body, Body::Imperative);
@@ -1939,7 +1984,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         let Some(component) = self.world.components.get(layout.name.as_str()) else {
             return;
         };
-        self.component_args(&layout.args, &[], component, layout.span);
+        self.component_args(&layout.args, &[], &[], component, layout.span);
     }
 
     // ─── Elements ────────────────────────────────────────
@@ -1948,7 +1993,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         match &el.component {
             ComponentRef::UserDefined(name) => {
                 if let Some(component) = self.world.components.get(name.as_str()) {
-                    self.component_args(&el.args, &el.arg_spans, component, span);
+                    self.component_args(&el.args, &el.arg_spans, &el.modifiers, component, span);
                 } else {
                     for arg in &el.args {
                         self.infer(arg_value(arg), None);
@@ -2007,7 +2052,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             ComponentRef::SubComponent(owner, part) => {
                 let qualified = format!("{owner}.{part}");
                 if let Some(component) = self.world.components.get(qualified.as_str()) {
-                    self.component_args(&el.args, &el.arg_spans, component, span);
+                    self.component_args(&el.args, &el.arg_spans, &el.modifiers, component, span);
                 } else {
                     let sig = registry::part(owner, part);
                     self.builtin_args(el, sig, span);
@@ -2084,9 +2129,11 @@ impl<'a, 'p> Checker<'a, 'p> {
         &mut self,
         args: &[Arg],
         spans: &[Span],
+        modifiers: &[String],
         component: &ComponentDecl,
         span: Span,
     ) {
+        self.required_props(args, modifiers, component, span);
         self.in_args = true;
         for (i, arg) in args.iter().enumerate() {
             let at = spans.get(i).copied().unwrap_or(span);
@@ -2117,6 +2164,234 @@ impl<'a, 'p> Checker<'a, 'p> {
             );
         }
         self.in_args = false;
+    }
+
+    /// The names an action writes — its own body's assignments, and the
+    /// store's state written as `Store.member` when it is a store's.
+    fn action_writes(&self, call: &Expr) -> Option<Vec<String>> {
+        // What the action assigns that is state, not its own locals — a
+        // `let`, or a name a store's action assigns without one, which
+        // the store's code declares as a local.
+        let locals = |body: &[Statement]| -> HashSet<String> {
+            fn walk(stmts: &[Statement], out: &mut HashSet<String>) {
+                for s in stmts {
+                    if let StatementKind::State(st) = &s.kind {
+                        out.insert(st.name.clone());
+                    }
+                    for b in s.kind.bodies() {
+                        walk(b, out);
+                    }
+                }
+            }
+            let mut out = HashSet::new();
+            walk(body, &mut out);
+            out
+        };
+        match call {
+            Expr::FunctionCall(name, _) if self.fixed_kind(name) == Some("an action") => {
+                let body = self.own_actions.get(name)?;
+                let own = locals(body);
+                Some(
+                    assigned(body, false)
+                        .into_iter()
+                        .filter(|n| !own.contains(n) && self.lookup(n).is_some())
+                        .collect(),
+                )
+            }
+            Expr::MethodCall(obj, method, _) => match obj.as_ref() {
+                Expr::Identifier(store) => {
+                    let body = self.world.store_actions.get(store.as_str())?.get(method)?;
+                    let own = locals(body);
+                    let members = self.world.stores.get(store.as_str());
+                    let fixed = self.world.store_fixed.get(store.as_str());
+                    Some(
+                        assigned(body, false)
+                            .into_iter()
+                            .filter(|n| {
+                                !own.contains(n)
+                                    && members.is_some_and(|m| m.contains_key(n))
+                                    && !fixed.is_some_and(|f| f.contains_key(n))
+                            })
+                            .map(|n| format!("{store}.{n}"))
+                            .collect(),
+                    )
+                }
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+
+    /// X02: an effect that writes, every time it runs, a value it reads.
+    /// Writing it runs the effect again, which writes it again: the page
+    /// never settles, and the browser overflows its stack.
+    fn effect_feeds_itself(&mut self, body: &[Statement], span: Span) {
+        let locals: HashSet<String> = body
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::State(st) => Some(st.name.clone()),
+                _ => None,
+            })
+            .collect();
+        let mut writes: Vec<String> = assigned(body, true)
+            .into_iter()
+            .filter(|n| !locals.contains(n) && self.lookup(n).is_some())
+            .collect();
+        // What the actions it calls, unconditionally, write.
+        for stmt in body {
+            let call = match &stmt.kind {
+                StatementKind::ExprStatement(e) => Some(e.clone()),
+                StatementKind::MethodCall(mc) => Some(Expr::MethodCall(
+                    Box::new(mc.object.clone()),
+                    mc.method.clone(),
+                    mc.args.clone(),
+                )),
+                _ => None,
+            };
+            if let Some(call) = call
+                && let Some(w) = self.action_writes(&call)
+            {
+                writes.extend(w);
+            }
+        }
+        let reads = read_names(body);
+        if let Some(name) = writes.iter().find(|w| reads.contains(*w)) {
+            self.error(
+                span,
+                "X02",
+                format!("this effect writes `{name}`, which it also reads, so each run starts the next and the page never settles"),
+                "Work the value out with `derived` instead, or write it from the action that changes what it reads",
+            );
+        }
+    }
+
+    /// X04: a `derived` value that calls an action that assigns. Working a
+    /// value out must not change anything — it runs whenever what it reads
+    /// changes, as often as the page needs it.
+    fn derived_assigns(&mut self, name: &str, value: &Expr, span: Span) {
+        fn calls(e: &Expr, out: &mut Vec<Expr>) {
+            if matches!(e, Expr::FunctionCall(..) | Expr::MethodCall(..)) {
+                out.push(e.clone());
+            }
+            for child in e.children() {
+                calls(child, out);
+            }
+        }
+        let mut found = Vec::new();
+        calls(value, &mut found);
+        for call in found {
+            if let Some(writes) = self.action_writes(&call)
+                && let Some(w) = writes.first()
+            {
+                self.error(
+                    span,
+                    "X04",
+                    format!("`{name}` is worked out by calling `{}`, which assigns `{w}`", expr_text(&call)),
+                    "A derived value only reads; call the action from a handler, and derive from what it sets",
+                );
+                return;
+            }
+        }
+    }
+
+    /// F01: `bind:` writes what the control holds back to what it names,
+    /// so it names something that can change: a state, a store's state, a
+    /// field of a loop's item — not a constant, a derived value, a prop or
+    /// a value worked out on the spot.
+    fn check_bindable(&mut self, value: &Expr, at: Span, control: &str) -> bool {
+        let refused = match value {
+            Expr::Identifier(n) => self.fixed_kind(n).map(|what| format!("`{n}` is {what}")),
+            Expr::PropertyAccess(base, member) => match base.as_ref() {
+                Expr::Identifier(store) => self
+                    .world
+                    .store_fixed
+                    .get(store.as_str())
+                    .and_then(|m| m.get(member))
+                    .map(|what| format!("`{store}.{member}` is {what}")),
+                _ => None,
+            },
+            Expr::OptionalProperty(..) | Expr::IndexAccess(..) | Expr::OptionalIndex(..) => None,
+            other => Some(format!(
+                "`{}` is a value, not something to write to",
+                expr_text(other)
+            )),
+        };
+        let Some(why) = refused else {
+            return true;
+        };
+        self.error(
+            at,
+            "F01",
+            format!("`bind:` on `{control}` writes back to what it names, and {why}"),
+            "Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`",
+        );
+        false
+    }
+
+    /// C01: a prop with no default that a call does not give — by name,
+    /// positionally, or as a flag (`.active` for a `Bool`, `.loud` for a
+    /// case of an enum-typed prop). In the component it would be
+    /// `undefined` where its declaration promises a value.
+    fn required_props(
+        &mut self,
+        args: &[Arg],
+        modifiers: &[String],
+        component: &ComponentDecl,
+        span: Span,
+    ) {
+        let positional = component
+            .props
+            .iter()
+            .find(|p| p.positional)
+            .or(component.props.first())
+            .map(|p| p.name.as_str());
+        let given: Vec<&str> = args
+            .iter()
+            .filter_map(|a| match a {
+                Arg::Named(k, _) => Some(k.as_str()),
+                Arg::Positional(_) => positional,
+            })
+            .collect();
+        let by_flag = |prop: &PropDecl| {
+            modifiers.iter().any(|m| {
+                m == &prop.name
+                    || matches!(&prop.prop_type, TypeRef::Named(e)
+                        if self.world.enums.get(e.as_str()).is_some_and(|d| d.case_names().contains(m)))
+            })
+        };
+        let missing: Vec<String> = component
+            .props
+            .iter()
+            .filter(|p| {
+                p.default.is_none()
+                    && !p.optional
+                    && !matches!(
+                        p.prop_type,
+                        TypeRef::Bool | TypeRef::Optional(_) | TypeRef::Any
+                    )
+                    && !given.contains(&p.name.as_str())
+                    && !by_flag(p)
+            })
+            .map(|p| format!("`{}`", p.name))
+            .collect();
+        if missing.is_empty() {
+            return;
+        }
+        self.error(
+            span,
+            "C01",
+            format!(
+                "`{}` is placed without {}, which {} no default",
+                component.name,
+                missing.join(", "),
+                if missing.len() == 1 { "has" } else { "have" }
+            ),
+            &format!(
+                "Pass {}, or give the prop a default in `component {}(…)`",
+                missing.join(", "),
+                component.name
+            ),
+        );
     }
 
     /// The arguments of a built-in, against the registry's prop types.
@@ -2213,7 +2488,12 @@ impl<'a, 'p> Checker<'a, 'p> {
                     }
                 }
                 (PropType::State, "bind") => {
-                    let wanted = bound_type(&name);
+                    let refused = name != "Form" && !self.check_bindable(value, at, &name);
+                    let wanted = if refused {
+                        None
+                    } else {
+                        bound_type(&name, &el.modifiers)
+                    };
                     let given = self.infer(value, wanted.as_ref());
                     if let Some(wanted) = wanted {
                         // A state that starts as `null` may hold the value later.
@@ -2221,7 +2501,28 @@ impl<'a, 'p> Checker<'a, 'p> {
                             Type::Optional(inner) => *inner,
                             other => other,
                         };
-                        self.expect(&given, &wanted, at, &format!("`bind:` on `{name}`"));
+                        if !given.assignable_to(&wanted) {
+                            let hint = match (&wanted, &given) {
+                                (Type::String, Type::Number) if name == "Input" => {
+                                    "A number field is `Input(…).number`, which holds a number"
+                                        .to_string()
+                                }
+                                (Type::Number, Type::String) => {
+                                    "Hold text in a `String` state, or drop the `.number`"
+                                        .to_string()
+                                }
+                                _ => format!("`{name}` holds a `{wanted}`"),
+                            };
+                            self.error(
+                                at,
+                                "F02",
+                                format!(
+                                    "`bind:` on `{name}` holds a `{wanted}`, but `{}` is `{given}`",
+                                    expr_text(value)
+                                ),
+                                &hint,
+                            );
+                        }
                     }
                 }
                 (PropType::Str | PropType::Path, _) => {
@@ -4216,15 +4517,17 @@ const NUMBER_METHODS: &[&str] = &[
     "valueOf",
 ];
 
-/// The type a control's `bind:` state must hold.
-fn bound_type(component: &str) -> Option<Type> {
+/// The type a control's `bind:` state must hold: an `Input` by its type
+/// flag — a number field a number, any other its text.
+fn bound_type(component: &str, modifiers: &[String]) -> Option<Type> {
     match component {
         "Checkbox" | "Switch" => Some(Type::Bool),
         "Slider" => Some(Type::Number),
         // A date picker picks a date, which is a `Date` — not a string
         // that happens to look like one. Empty, it holds nothing.
         "DatePicker" => Some(Type::optional(Type::Scalar(Scalar::Date))),
-        "Input" => None, // text or number, by its `type`
+        "Input" if modifiers.iter().any(|m| m == "number") => Some(Type::Number),
+        "Input" | "Textarea" => Some(Type::String),
         _ => None,
     }
 }
@@ -4247,6 +4550,99 @@ fn narrowed_names(cond: &Expr) -> Vec<String> {
         }
         _ => Vec::new(),
     }
+}
+
+/// The names `stmts` assign to: `x = …`. With `top`, only the assignments
+/// every run makes — not those under an `if`, a loop or a `match`.
+fn assigned(stmts: &[Statement], top: bool) -> Vec<String> {
+    let mut out = Vec::new();
+    for stmt in stmts {
+        match &stmt.kind {
+            StatementKind::Assignment(a) => {
+                if let Expr::Identifier(n) = &a.target {
+                    out.push(n.clone());
+                }
+            }
+            other if !top => {
+                for body in other.bodies() {
+                    out.extend(assigned(body, false));
+                }
+            }
+            _ => {}
+        }
+    }
+    out
+}
+
+/// Every name `stmts` read: in their expressions, an assignment's value,
+/// and the base of a target that is not a bare name; `Store.member` reads
+/// both `Store` and `Store.member`.
+fn read_names(stmts: &[Statement]) -> HashSet<String> {
+    fn expr(e: &Expr, out: &mut HashSet<String>) {
+        match e {
+            Expr::Identifier(n) => {
+                out.insert(n.clone());
+            }
+            Expr::PropertyAccess(base, member) => {
+                if let Expr::Identifier(n) = base.as_ref() {
+                    out.insert(format!("{n}.{member}"));
+                }
+                expr(base, out);
+            }
+            other => {
+                for child in other.children() {
+                    expr(child, out);
+                }
+            }
+        }
+    }
+    let mut out = HashSet::new();
+    for stmt in stmts {
+        match &stmt.kind {
+            StatementKind::Assignment(a) => {
+                expr(&a.value, &mut out);
+                if !matches!(a.target, Expr::Identifier(_)) {
+                    expr(&a.target, &mut out);
+                }
+            }
+            other => {
+                for e in other.exprs() {
+                    expr(e, &mut out);
+                }
+            }
+        }
+        for body in stmt.kind.bodies() {
+            out.extend(read_names(body));
+        }
+    }
+    out
+}
+
+/// Every name a control in `stmts` binds: `bind: x`.
+fn bound_names(stmts: &[Statement]) -> HashSet<String> {
+    fn walk(stmts: &[Statement], out: &mut HashSet<String>) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
+                for arg in &ui.args {
+                    if let Arg::Named(k, Expr::Identifier(n)) = arg
+                        && k == "bind"
+                    {
+                        out.insert(n.clone());
+                    }
+                }
+                walk(&ui.children, out);
+                for fill in &ui.slot_fills {
+                    walk(&fill.body, out);
+                }
+            }
+            for body in stmt.kind.bodies() {
+                walk(body, out);
+            }
+        }
+    }
+    let mut out = HashSet::new();
+    walk(stmts, &mut out);
+    out
 }
 
 /// One arm of a lowered `match` expression: its subject, its case, and
@@ -5214,11 +5610,11 @@ mod tests {
     fn controls_bind_state_of_their_own_kind() {
         has(
             "page P(path: \"/\") { state name = \"\"\n Checkbox(bind: name, label: \"x\") }",
-            "`bind:` on `Checkbox` is `String`, but `Bool` is wanted",
+            "[F02] `bind:` on `Checkbox` holds a `Bool`, but `name` is `String`",
         );
         has(
             "page P(path: \"/\") { state on = true\n Slider(bind: on) }",
-            "`bind:` on `Slider` is `Bool`, but `Number` is wanted",
+            "[F02] `bind:` on `Slider` holds a `Number`, but `on` is `Bool`",
         );
         clean(
             "page P(path: \"/\") { state on = true\n state n = 0\n state s = \"\"\n Checkbox(bind: on, label: \"x\")\n Slider(bind: n)\n Input(bind: s, label: \"y\")\n Switch(bind: on, label: \"z\") }",

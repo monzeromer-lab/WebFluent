@@ -314,7 +314,7 @@ fn the_checker_knows_what_each_type_can_do() {
     let text = errors.iter().map(|e| e.to_string()).collect::<String>();
     assert!(text.contains("`bind:` on `DatePicker`"), "{text}");
     assert!(
-        text.contains("`Date?` is wanted"),
+        text.contains("holds a `Date?`"),
         "an empty picker holds nothing: {text}"
     );
 }

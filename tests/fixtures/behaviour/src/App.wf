@@ -1,0 +1,27 @@
+// What the compiler once compiled wrong, held to what a reader sees: each
+// test under tests/ clicks and types in a real browser (`wf test`), and CI
+// runs them. See spec/DIAGNOSTICS_PLAN.md, Part B and D.
+app { Router }
+store S {
+    state total = 0
+    state names: [String] = ["a"]
+    state out = ""
+    action add(x: Number) { let n = x  n = n * 2  total = total + n }
+    action join() { let acc = ""  for nm in names { acc = acc + nm }  out = acc }
+    action pick() { if let u = names.first() { out = u }  if let u = names.last() { out = out + u } }
+}
+page Home(path: "/", title: "Home", description: "d") {
+    use S
+    state seen = ""
+    action twice() { if let a = S.names.first() { seen = a }  if let a = S.names.last() { seen = seen + a } }
+    Heading("S").h1
+    Text("{S.total} {S.out} {seen}")
+    Button("Add") { on click { S.add(2) } }
+    Button("Join") { on click { S.join() } }
+    Button("Pick") { on click { S.pick() } }
+    Button("Twice") { on click { twice() } }
+    Shown(fmt: (v) => v * 2)
+    Text("dark {Prefs.dark}")
+}
+component Shown(fmt: Any, n: Number = 2) { Text("shown {fmt(n)}") }
+store Prefs { state dark = false }

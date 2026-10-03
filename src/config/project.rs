@@ -69,6 +69,12 @@ pub struct ProjectConfig {
     /// Absent, nothing is registered and no `sw.js` is written.
     #[serde(default)]
     pub offline: Option<OfflineConfig>,
+    /// `"lints": { "A11": "off", "U": "error", "V02": "warn" }`: what a
+    /// finding counts as, by its code or its family. A warning may be
+    /// turned off or made an error; an error may be lowered only when it
+    /// cannot ship a broken page (`diagnostics::codes::lowerable`).
+    #[serde(default)]
+    pub lints: std::collections::BTreeMap<String, String>,
 }
 
 /// `"offline": { … }` — the site working without the network.
@@ -906,6 +912,7 @@ impl ProjectConfig {
             },
             env: Default::default(),
             offline: None,
+            lints: std::collections::BTreeMap::new(),
         }
     }
 }

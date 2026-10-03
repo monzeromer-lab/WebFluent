@@ -1,0 +1,24 @@
+test "a derived or state holding a function is called" {
+    state factor = 2
+    state pick = (x) => x + 1
+    state out = 0
+    derived scale = (x) => x * factor
+    action run(cb: Any) { let f = (y) => y * 100  out = cb(1) + f(1) }
+    Text("s {scale(3)} p {pick(3)} o {out}")
+    Button("Swap") { on click { pick = (x) => x * 10 } }
+    Button("More") { on click { factor = factor + 1 } }
+    Button("Run") { on click { run((z) => z + 5) } }
+    expect "s 6 p 4"
+    click "More"
+    expect "s 9"
+    click "Swap"
+    expect "p 30"
+    click "Run"
+    expect "o 106"
+}
+test "a prop holding a function is called" {
+    Shown(fmt: (v) => v * 21)
+    Button("Nudge")
+    click "Nudge"
+    expect "shown 42"
+}

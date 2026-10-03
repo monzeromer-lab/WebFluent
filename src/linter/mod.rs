@@ -20,6 +20,7 @@ pub mod contrast;
 pub mod pdf_validation;
 pub mod semantic;
 pub mod slides_validation;
+pub mod structure;
 pub mod unused;
 pub mod vocabulary;
 

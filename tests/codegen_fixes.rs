@@ -205,3 +205,62 @@ fn the_build_refuses_a_script_the_browser_would() {
     assert_eq!(check_js(&app), Ok(()), "and what it wrote reads back");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+// ─── D2: a change inside a state's value repaints ─────────────────────
+
+#[test]
+fn a_change_inside_a_states_value_is_an_update_of_the_state() {
+    let out = js(&format!(
+        "store Cart {{\n    state items = [{{ done: false }}]\n    action tick() {{ items[0].done = true  items.sort((a, b) => 0) }}\n}}\n{}",
+        page(
+            "    use Cart\n    state form = { name: \"\" }\n    state rows = [3, 1]\n    derived sorted = rows.sort((a, b) => a - b)\n    Text(\"{sorted}\")\n    Button(\"x\") { on click { form.name = \"Ada\"  rows.reverse()  Cart.items[0].done = false } }"
+        )
+    ));
+    assert!(
+        out.contains(r#"_form.set(WF.setIn(_form(), ["name"], "Ada"));"#),
+        "{out}"
+    );
+    assert!(
+        out.contains(r#"_rows.set(WF.mutated(_rows(), "reverse", []));"#),
+        "{out}"
+    );
+    assert!(
+        out.contains(r#"Cart.items = WF.setIn(Cart.items, [(0), "done"], false);"#),
+        "{out}"
+    );
+    assert!(
+        out.contains(r#"store.items = WF.setIn(store.items, [(0), "done"], true);"#),
+        "{out}"
+    );
+    assert!(
+        out.contains(r#"store.items = WF.mutated(store.items, "sort", ["#),
+        "{out}"
+    );
+    // Reading a sorted state does not sort the state.
+    assert!(out.contains("[..._rows()].sort("), "{out}");
+}
+
+// ─── D4: a spliced value in an address is encoded ────────────────────
+
+#[test]
+fn a_spliced_value_in_a_route_or_a_fetch_is_encoded() {
+    let out = js(&page(
+        "    state team = \"R&D\"\n    resource rows = fetch(\"/api/teams/{team}?q={team}\")\n    Link(\"Team\", to: \"/team/{team}\")\n    Text(\"{rows.state}\")",
+    ));
+    assert!(
+        out.contains("`/team/${encodeURIComponent(_team())}`"),
+        "{out}"
+    );
+    assert!(
+        out.contains(
+            "`/api/teams/${encodeURIComponent(_team())}?q=${encodeURIComponent(_team())}`"
+        ),
+        "{out}"
+    );
+    // The static paint links where the live page does.
+    let html = common::ssg_html(&format!(
+        "const NAME = \"R&D/Ops\"\n{}",
+        page("    Link(\"Team\", to: \"/team/{NAME}\")")
+    ));
+    assert!(html.contains("href=\"/team/R%26D%2FOps\""), "{html}");
+}

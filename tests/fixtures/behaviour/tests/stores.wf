@@ -1,0 +1,14 @@
+test "store locals and if let work" {
+    use S
+    state seen = ""
+    Text("total {S.total} out {S.out}")
+    Button("Add") { on click { S.add(2) } }
+    Button("Join") { on click { S.join() } }
+    Button("Pick") { on click { S.pick() } }
+    click "Add"
+    expect "total 4"
+    click "Join"
+    expect "out a"
+    click "Pick"
+    expect "out aa"
+}

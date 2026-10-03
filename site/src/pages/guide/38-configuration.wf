@@ -1,6 +1,6 @@
 /// Chapter 38 of the guide, written from md-docs/38-configuration.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description: "Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.", layout: DocsShell("Configuration", chapter: t("guide.chapter", { n: "38" }), blurb: "Every key of webfluent.app.json, its default, and what it changes.", source: "md-docs/38-configuration.md", sections: [Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline")], prevTo: "/docs/guide/cli", prevLabel: "37. {t("ch.37")}", nextTo: "/docs/guide/diagnostics", nextLabel: "39. {t("ch.39")}")) {
+page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description: "Every key of webfluent.app.json with its default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env and offline.", layout: DocsShell("Configuration", chapter: t("guide.chapter", { n: "38" }), blurb: "Every key of webfluent.app.json, its default, and what it changes.", source: "md-docs/38-configuration.md", sections: [Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "lints", label: "lints")], prevTo: "/docs/guide/cli", prevLabel: "37. {t("ch.37")}", nextTo: "/docs/guide/diagnostics", nextLabel: "39. {t("ch.39")}")) {
     Stack(gap: .lg) {
         Markdown("A project's settings live in `webfluent.app.json` beside `src/`. Every key is optional except `name`, so the smallest config is:")
 
@@ -80,6 +80,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
+  "lints": {},
   "public_env": []
 }"#, title: "json")
 
@@ -579,5 +580,13 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
         }
 
         Markdown("[Chapter 19](/docs/guide/offline).")
+
+        Heading("lints", id: "lints").h2
+
+        Markdown("What a finding counts as, by its code or its family — `\"off\"`, `\"warn\"` or `\"error\"`, the code first, then the family:")
+
+        CodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
+
+        Markdown("A warning may be turned off or made an error. An error may be lowered only when it cannot ship a broken page — `R01` (a link to a route that is missing), `C02` (a prop nothing reads) and `S04` (two pages on one route); asking to lower any other is itself refused, and so is a key that is no code or family. Every code is in [Diagnostics](/docs/guide/diagnostics).")
     }
 }

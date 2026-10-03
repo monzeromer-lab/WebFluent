@@ -1,6 +1,6 @@
 /// Chapter 39 of the guide, written from md-docs/39-diagnostics.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.", layout: DocsShell("Diagnostics", chapter: t("guide.chapter", { n: "39" }), blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.", source: "md-docs/39-diagnostics.md", sections: [Anchor(id: "syntax-and-structure", label: "Syntax and structure"), Anchor(id: "components", label: "Components"), Anchor(id: "state-and-reactivity", label: "State and reactivity"), Anchor(id: "routes", label: "Routes"), Anchor(id: "data-and-assets", label: "Data and assets"), Anchor(id: "types", label: "Types"), Anchor(id: "accessibility", label: "Accessibility"), Anchor(id: "search-and-sharing", label: "Search and sharing"), Anchor(id: "what-is-kept-in-the-browser", label: "What is kept in the browser"), Anchor(id: "declared-and-never-read", label: "Declared and never read"), Anchor(id: "vocabulary", label: "Vocabulary")], prevTo: "/docs/guide/config", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/built-ins", nextLabel: "40. {t("ch.40")}")) {
+page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.", layout: DocsShell("Diagnostics", chapter: t("guide.chapter", { n: "39" }), blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix.", source: "md-docs/39-diagnostics.md", sections: [Anchor(id: "syntax-and-structure", label: "Syntax and structure"), Anchor(id: "components", label: "Components"), Anchor(id: "state-and-reactivity", label: "State and reactivity"), Anchor(id: "forms-and-bindings", label: "Forms and bindings"), Anchor(id: "routes", label: "Routes"), Anchor(id: "data-and-assets", label: "Data and assets"), Anchor(id: "types", label: "Types"), Anchor(id: "accessibility", label: "Accessibility"), Anchor(id: "search-and-sharing", label: "Search and sharing"), Anchor(id: "what-is-kept-in-the-browser", label: "What is kept in the browser"), Anchor(id: "declared-and-never-read", label: "Declared and never read"), Anchor(id: "vocabulary", label: "Vocabulary")], prevTo: "/docs/guide/config", prevLabel: "38. {t("ch.38")}", nextTo: "/docs/guide/built-ins", nextLabel: "40. {t("ch.40")}")) {
     Stack(gap: .lg) {
         Markdown("`wf build`, `wf serve` and your editor report the same findings, from one pipeline. Each starts with its code and what is wrong, then the place in the `file:line:col` form editors and CI read, the line of source with the part that is wrong underlined, what to do about it, and a link to its entry here:")
 
@@ -41,6 +41,10 @@ page DiagnosticsGuide(path: "/docs/guide/diagnostics", title: "Diagnostics", des
                 Table.Row {
                     Table.Cell { Markdown("`X`") }
                     Table.Cell("state and reactivity")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`F`") }
+                    Table.Cell("forms and bindings")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`D`") }
@@ -380,6 +384,23 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("**Fix:** Correct the spelling, or declare the prop on the component.")
 
+        Heading("C03 — A part outside the component it belongs to", id: "c03-a-part-outside-the-component-it-belongs-to").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Plans").h1
+    Select.Option("Pro", value: "pro")
+}"#, title: "wf · draws C03")
+
+        CodeBlock(#"error[C03]: `Select.Option` is a part of `Select`, and it is not inside one
+ --> src/App.wf:3:5
+  |
+3 |     Select.Option("Pro", value: "pro")
+  |     ^^^^^^^^^^^^^
+  = help: Place it in a `Select { … }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c03"#, title: "text")
+
+        Markdown("**Fix:** Place the part inside its owner: `Select(bind: plan) \{ Select.Option(…) \}`.")
+
         Heading("C04 — An attribute a built-in does not declare", id: "c04-an-attribute-a-built-in-does-not-declare").h3
 
         Markdown("Warning.")
@@ -458,11 +479,240 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("**Fix:** Hold what changes in a `state`. A `derived` value changes when what it reads does; a prop is its caller's (`emit` an event so the caller changes it); a route parameter is the address's (`navigate`); a loop variable is one pass's copy (change the item through its list).")
 
+        Heading("X02 — An effect that feeds itself", id: "x02-an-effect-that-feeds-itself").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state visits = 0
+    effect { visits = visits + 1 }
+    Heading("Visits {visits}").h1
+}"#, title: "wf · draws X02")
+
+        CodeBlock(#"error[X02]: this effect writes `visits`, which it also reads, so each run starts the next and the page never settles
+ --> src/App.wf:3:5
+  |
+3 |     effect { visits = visits + 1 }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Work the value out with `derived` instead, or write it from the action that changes what it reads
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x02"#, title: "text")
+
+        Markdown("**Fix:** Work a value out with `derived`; change state from the action or handler that changes what it depends on.")
+
+        Heading("X04 — A derived value that changes something", id: "x04-a-derived-value-that-changes-something").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state count = 0
+    action next() {
+        count = count + 1
+        return count
+    }
+    derived ticket = next()
+    Heading("Ticket {ticket}").h1
+}"#, title: "wf · draws X04")
+
+        CodeBlock(#"error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`
+ --> src/App.wf:7:5
+  |
+7 |     derived ticket = next()
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+  = help: A derived value only reads; call the action from a handler, and derive from what it sets
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x04"#, title: "text")
+
+        Markdown("**Fix:** Call the action from a handler; derive from the state it sets.")
+
+        Heading("X05 — use of a store nothing declares", id: "x05-use-of-a-store-nothing-declares").h3
+
+        CodeBlock(#"store Cart { state items = [] }
+page P(path: "/", title: "T", description: "D") {
+    use Carts
+    Heading("Cart").h1
+}"#, title: "wf · draws X05")
+
+        CodeBlock(#"error[X05]: `use Carts` names a store nothing declares
+ --> src/App.wf:3:5
+  |
+3 |     use Carts
+  |     ^^^
+  = help: The stores are `Cart`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x05"#, title: "text")
+
+        Markdown("**Fix:** Name a store that exists — here `Cart`.")
+
+        Heading("Forms and bindings", id: "forms-and-bindings").h2
+
+        Heading("F01 — A bind: to something that cannot be written", id: "f01-a-bind-to-something-that-cannot-be-written").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state first = "Ada"
+    derived name = first.toUpperCase()
+    Heading("Name").h1
+    Input(bind: name, label: "Name")
+}"#, title: "wf · draws F01")
+
+        CodeBlock(#"error[F01]: `bind:` on `Input` writes back to what it names, and `name` is a `derived` value
+ --> src/App.wf:5:11
+  |
+5 |     Input(bind: name, label: "Name")
+  |           ^^^^^^^^^^
+  = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f01"#, title: "text")
+
+        Markdown("**Fix:** Bind the state the reader edits (`bind: first`); show a value that is worked out with `value:`.")
+
+        Heading("F02 — A bind: to a state the control cannot hold", id: "f02-a-bind-to-a-state-the-control-cannot-hold").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state qty = 1
+    Heading("Order").h1
+    Input(bind: qty, label: "Quantity")
+}"#, title: "wf · draws F02")
+
+        CodeBlock(#"error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`
+ --> src/App.wf:4:11
+  |
+4 |     Input(bind: qty, label: "Quantity")
+  |           ^^^^^^^^^
+  = help: A number field is `Input(…).number`, which holds a number
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f02"#, title: "text")
+
+        Markdown("**Fix:** A number field is `Input(…).number`; a text field holds a `String`.")
+
+        Heading("F03 — A validate block no control can satisfy", id: "f03-a-validate-block-no-control-can-satisfy").h3
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state email = ""
+    validate email { required  email }
+    Heading("Join").h1
+    Form { Button("Join", type: .submit) }
+}"#, title: "wf · draws F03")
+
+        CodeBlock(#"error[F03]: `validate email` guards a state no control binds, so its rules can never be met
+ --> src/App.wf:3:5
+  |
+3 |     validate email { required  email }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Bind it to the control the reader fills in: `Input(bind: email, …)`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f03"#, title: "text")
+
+        Markdown("**Fix:** Bind the state to the control the reader fills in: `Input(bind: email, label: \"Email\").email`.")
+
+        Heading("F04 — A checkbox that shows a state and never changes it", id: "f04-a-checkbox-that-shows-a-state-and-never-changes-it").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state agree = false
+    Heading("Terms").h1
+    Checkbox(checked: agree, label: "I agree")
+}"#, title: "wf · draws F04")
+
+        CodeBlock(#"warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a click toggles the box and not the state
+ --> src/App.wf:4:5
+  |
+4 |     Checkbox(checked: agree, label: "I agree")
+  |     ^^^^^^^^
+  = help: Write `bind:` to keep the box and the state together, or handle `on change`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f04"#, title: "text")
+
+        Markdown("**Fix:** `Checkbox(bind: agree, label: \"I agree\")`.")
+
+        Heading("F05 — A select whose value is none of its options", id: "f05-a-select-whose-value-is-none-of-its-options").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state plan = "basic"
+    Heading("Plan").h1
+    Select(bind: plan, label: "Plan") {
+        Select.Option("Free", value: "free")
+        Select.Option("Pro", value: "pro")
+    }
+}"#, title: "wf · draws F05")
+
+        CodeBlock(#"warning[F05]: `plan` starts as `basic`, which is none of this select's options
+ --> src/App.wf:4:5
+  |
+4 |     Select(bind: plan, label: "Plan") {
+  |     ^^^^^^
+  = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f05"#, title: "text")
+
+        Markdown("**Fix:** Start the state as one of the options' values.")
+
         Heading("Routes", id: "routes").h2
 
         Heading("R01 — A route to nothing", id: "r01-a-route-to-nothing").h3
 
-        Markdown("A `Route` whose `page:` names no declared page. **Fix:** name a page that exists.")
+        CodeBlock(#"page Home(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+    Link("About us", to: "/abuot")
+}
+page About(path: "/about", title: "About", description: "D") {
+    Heading("About").h1
+}"#, title: "wf · draws R01")
+
+        CodeBlock(#"error[R01]: `/abuot` is not a route: no page's `path` matches it
+ --> src/App.wf:3:5
+  |
+3 |     Link("About us", to: "/abuot")
+  |     ^^^^
+  = help: The nearest is `/about`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r01"#, title: "text")
+
+        Markdown("**Fix:** Link to a route a page has; the message names the nearest. A spliced link is checked by its shape — `\"/team/\{t.slug\}\"` must match a route like `/team/:slug` — a link with no leading `/` is refused (where it leads would depend on the page it is on), and a link to a file (`/report.pdf`) or another site is left alone.")
+
+        Heading("R02 — A route parameter and a page parameter that do not match", id: "r02-a-route-parameter-and-a-page-parameter-that-do-not-match").h3
+
+        CodeBlock(#"page Profile(path: "/u/:id", title: "T", description: "D") {
+    Heading("Profile").h1
+}"#, title: "wf · draws R02")
+
+        CodeBlock(#"error[R02]: the route `/u/:id` names `:id`, and the page declares no parameter `id`
+ --> src/App.wf:1:1
+  |
+1 | page Profile(path: "/u/:id", title: "T", description: "D") {
+  | ^^^^
+  = help: Declare it: `page Profile(path: "/u/:id", id: String)`, then read `id`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r02"#, title: "text")
+
+        Markdown("**Fix:** Declare the parameter the route names — `page Profile(path: \"/u/:id\", id: String)` — and read it by name; a declared parameter the route has no `:name` for is never filled.")
+
+        Heading("R03 — An app with no Router, or with two", id: "r03-an-app-with-no-router-or-with-two").h3
+
+        CodeBlock(#"app {
+    Navbar { Navbar.Brand { Text("Ledger") } }
+}
+page Home(path: "/", title: "T", description: "D") {
+    Heading("Home").h1
+}"#, title: "wf · draws R03")
+
+        CodeBlock(#"error[R03]: `app` places no `Router`, so no page is ever drawn
+ --> src/App.wf:2:5
+  |
+2 |     Navbar { Navbar.Brand { Text("Ledger") } }
+  |     ^^^^^^
+  = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r03"#, title: "text")
+
+        Markdown("**Fix:** Place `Router` where the page belongs: `app \{ Navbar \{ … \} Router \}`. (A program with no `app` at all routes its pages by itself.)")
+
+        Heading("R04 — A relative URL on a nested route", id: "r04-a-relative-url-on-a-nested-route").h3
+
+        Markdown("Warning.")
+
+        CodeBlock(#"page Post(path: "/blog/first", title: "T", description: "D") {
+    Heading("First post").h1
+    Image(src: "images/cover.png", alt: "")
+}"#, title: "wf · draws R04")
+
+        CodeBlock(#"warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is fetched from `/blog/images/cover.png`
+ --> src/App.wf:3:5
+  |
+3 |     Image(src: "images/cover.png", alt: "")
+  |     ^^^^^
+  = help: Write it from the site's root: `"/images/cover.png"`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r04"#, title: "text")
+
+        Markdown("**Fix:** Write it from the site's root: `\"/images/cover.png\"`.")
 
         Heading("Data and assets", id: "data-and-assets").h2
 

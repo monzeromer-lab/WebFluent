@@ -1,0 +1,4 @@
+{
+  "name": "behaviour",
+  "build": { "output": "build" }
+}

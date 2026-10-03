@@ -368,38 +368,23 @@ fn walk_stmts(
 ) {
     for stmt in stmts {
         match &stmt.kind {
+            // Everywhere an element can be: its children, the slots a call
+            // fills, and its handlers' bodies — which the walk used to skip.
             StatementKind::UIElement(ui) => {
                 check_element(ui, pages, components, file, diags);
                 walk_stmts(&ui.children, pages, components, file, diags);
-            }
-            StatementKind::If(s) => {
-                walk_stmts(&s.then_body, pages, components, file, diags);
-                for (_, body) in &s.else_if_branches {
-                    walk_stmts(body, pages, components, file, diags);
+                for fill in &ui.slot_fills {
+                    walk_stmts(&fill.body, pages, components, file, diags);
                 }
-                if let Some(body) = &s.else_body {
-                    walk_stmts(body, pages, components, file, diags);
+                for handler in &ui.events {
+                    walk_stmts(&handler.body, pages, components, file, diags);
                 }
             }
-            StatementKind::For(s) => walk_stmts(&s.body, pages, components, file, diags),
-            StatementKind::Show(s) => walk_stmts(&s.body, pages, components, file, diags),
-            StatementKind::Fetch(s) => {
-                if let Some(body) = &s.loading_block {
-                    walk_stmts(body, pages, components, file, diags);
-                }
-                if let Some((_, body)) = &s.error_block {
-                    walk_stmts(body, pages, components, file, diags);
-                }
-                if let Some(body) = &s.success_block {
+            other => {
+                for body in other.bodies() {
                     walk_stmts(body, pages, components, file, diags);
                 }
             }
-            StatementKind::Match(m) => {
-                for arm in &m.arms {
-                    walk_stmts(&arm.body, pages, components, file, diags);
-                }
-            }
-            _ => {}
         }
     }
 }

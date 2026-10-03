@@ -93,6 +93,7 @@ absent unless you add them.
   },
   "motion": { "duration": null, "easing": null },
   "env": {},
+  "lints": {},
   "public_env": []
 }
 ```
@@ -238,6 +239,21 @@ absent unless you add them.
 | `sync` | `false` | Keep writes made offline and send them later. |
 
 [Chapter 19](19-offline.md).
+
+## `lints`
+
+What a finding counts as, by its code or its family — `"off"`, `"warn"`
+or `"error"`, the code first, then the family:
+
+```json
+{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }
+```
+
+A warning may be turned off or made an error. An error may be lowered only
+when it cannot ship a broken page — `R01` (a link to a route that is
+missing), `C02` (a prop nothing reads) and `S04` (two pages on one route);
+asking to lower any other is itself refused, and so is a key that is no code
+or family. Every code is in [Diagnostics](39-diagnostics.md).
 
 ## Next
 

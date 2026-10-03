@@ -1,0 +1,22 @@
+test "a change inside a state's value repaints" {
+    state form = { name: "", age: 1 }
+    state rows = [{ title: "a", done: false }, { title: "b", done: false }]
+    state nums = [1, 2, 3]
+    derived left = rows.filter(r => !r.done).length
+    Text("name {form.name} left {left} nums {nums.join(\",\")}")
+    for r in rows by r.title {
+        Button("toggle {r.title}") { on click { r.done = !r.done } }
+    }
+    Button("Name") { on click { form.name = "Ada" } }
+    Button("First") { on click { rows[0].done = true } }
+    Button("Flip") { on click { nums.reverse() } }
+    expect "left 2"
+    click "Name"
+    expect "name Ada"
+    click "First"
+    expect "left 1"
+    click "toggle b"
+    expect "left 0"
+    click "Flip"
+    expect "nums 3,2,1"
+}

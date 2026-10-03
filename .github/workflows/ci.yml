@@ -108,6 +108,10 @@ jobs:
         working-directory: tests/browser
         run: node scripts.mjs
 
+      # What the compiler once compiled wrong, clicked and typed into.
+      - name: Behaviour
+        run: target/release/wf test tests/fixtures/behaviour
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest
