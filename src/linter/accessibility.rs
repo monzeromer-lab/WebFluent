@@ -616,14 +616,22 @@ fn lint_ui_element(
             // A01: Image missing alt
             "Image" => {
                 if !has_named_arg(&ui.args, "alt") {
-                    warnings.push(A11yWarning::new(
-                        "A01",
-                        "Image missing \"alt\" attribute",
-                        file,
-                        line,
-                        col,
-                        "Add alt text: Image(src: \"...\", alt: \"Description of image\")",
-                    ));
+                    warnings.push(
+                        A11yWarning::new(
+                            "A01",
+                            "Image missing \"alt\" attribute",
+                            file,
+                            line,
+                            col,
+                            "Add alt text: Image(src: \"...\", alt: \"Description of image\")",
+                        )
+                        .with_plan(
+                            "Add `alt: \"\"` — then describe the image, or leave it empty if it is decorative",
+                            crate::diagnostics::fixes::Plan::AddArgument {
+                                text: "alt: \"\"".to_string(),
+                            },
+                        ),
+                    );
                 }
             }
 
@@ -856,11 +864,11 @@ fn lint_ui_element(
                 if !has_thead {
                     warnings.push(A11yWarning::new(
                         "A10",
-                        "Table missing header row (Thead)",
+                        "Table has no header row (`Table.Head`)",
                         file,
                         line,
                         col,
-                        "Add a header: Table { Thead { Tcell(\"Column Name\") } ... }",
+                        "Add one: `Table { Table.Head { Table.Row { Table.Cell(\"Name\") } } … }`",
                     ));
                 }
             }

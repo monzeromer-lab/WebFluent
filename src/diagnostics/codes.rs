@@ -596,7 +596,7 @@ pub static CODES: &[CodeInfo] = &[
     code(
         "A15",
         Warning,
-        "A label that does not contain the visible text",
+        "An `aria-label` that does not contain the visible text",
         "A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.",
     ),
     code(
@@ -679,6 +679,11 @@ pub static CODES: &[CodeInfo] = &[
         "U06",
         "Code after return",
         "What follows a `return` in the same block never runs.",
+    ),
+    unused(
+        "U07",
+        "An allow that allows nothing",
+        "A `// wf-allow(CODE)` comment covers the next line of code (or its own, at the end of one); when nothing it names is reported there, or it names an error no allow may silence, it is reported itself — so allows cannot outlive what they were written for.",
     ),
     unused(
         "U08",
@@ -777,12 +782,34 @@ pub fn family(code: &str) -> &str {
     &code[..code.len().min(1)]
 }
 
-/// Where the guide explains a code.
+/// Where the guide explains a code: the anchor the site gives the
+/// chapter's `### CODE — Title` heading.
 pub fn docs_url(code: &str) -> String {
-    format!(
-        "https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#{}",
-        code.to_lowercase()
-    )
+    let anchor = match info(code) {
+        Some(c) => slug(&format!("{} — {}", c.code, c.title)),
+        None => code.to_lowercase(),
+    };
+    format!("https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#{anchor}")
+}
+
+/// A heading's anchor, as the site writes it (`scripts/site-from-guide.py`):
+/// backticks off, lower case, every run of anything but `a–z` and `0–9` a
+/// hyphen, none at either end.
+pub fn slug(heading: &str) -> String {
+    let mut out = String::new();
+    let mut gap = false;
+    for c in heading.replace('`', "").to_lowercase().chars() {
+        if c.is_ascii_lowercase() || c.is_ascii_digit() {
+            if gap && !out.is_empty() {
+                out.push('-');
+            }
+            gap = false;
+            out.push(c);
+        } else {
+            gap = true;
+        }
+    }
+    out
 }
 
 #[cfg(test)]
@@ -807,5 +834,24 @@ mod tests {
             );
             assert!(!c.title.is_empty() && !c.summary.is_empty(), "{}", c.code);
         }
+    }
+
+    #[test]
+    fn every_title_is_its_heading_in_the_guide() {
+        // The heading is the anchor `docs_url` links to.
+        let chapter = include_str!("../../md-docs/39-diagnostics.md");
+        for c in CODES {
+            let heading = format!("### {} — {}\n", c.code, c.title);
+            assert!(
+                chapter.contains(&heading),
+                "the guide's heading for {} is not `{}`",
+                c.code,
+                heading.trim()
+            );
+        }
+        assert_eq!(
+            docs_url("T05"),
+            "https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"
+        );
     }
 }

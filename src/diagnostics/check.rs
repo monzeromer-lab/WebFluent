@@ -102,22 +102,13 @@ pub fn check_project(p: &Project) -> Checked {
             &lowered, None, p.file_of,
         ));
     }
-    lints.extend(crate::linter::lint_unused_in(&lowered, p.file_of));
-    // A component the build publishes as a custom element is placed by
-    // whoever loads it: nothing in the project places it, and that is the
-    // point.
-    if let Some(config) = p.config
-        && !config.build.elements.is_empty()
-    {
-        lints.retain(|w| {
-            w.rule_id != "U03"
-                || !config
-                    .build
-                    .elements
-                    .iter()
-                    .any(|name| w.message.contains(&format!("`{name}`")))
-        });
-    }
+    let published = p
+        .config
+        .map(|c| c.build.elements.clone())
+        .unwrap_or_default();
+    lints.extend(crate::linter::lint_unused_in(
+        &lowered, p.file_of, &published,
+    ));
     out.extend(lints.into_iter().map(Diagnostic::from));
     out.extend(
         crate::linter::lint_vocabulary_with(&lowered, p.stylesheets, p.file_of)
@@ -128,8 +119,34 @@ pub fn check_project(p: &Project) -> Checked {
         out.extend(output_checks(&lowered, config, p.file_of));
     }
 
+    // The text of each file, by the name its findings carry: for the
+    // `wf-allow` comments, and the fixes known by their shape.
+    let mut sources: Vec<(String, Option<String>)> = Vec::new();
+    for i in 0..p.program.declarations.len() {
+        let file = (p.file_of)(i);
+        if !sources.iter().any(|(f, _)| *f == file) {
+            sources.push((file, (p.source_of)(i)));
+        }
+    }
+    let text_of = |file: &str| {
+        sources
+            .iter()
+            .find(|(f, _)| f == file)
+            .and_then(|(_, s)| s.clone())
+    };
+    let files: Vec<String> = sources.iter().map(|(f, _)| f.clone()).collect();
+    super::allow::apply(&mut out, &files, &text_of);
+    for d in out.iter_mut().filter(|d| !d.plans.is_empty()) {
+        match text_of(&d.file) {
+            Some(source) => super::fixes::realise(d, &source),
+            None => d.plans.clear(),
+        }
+    }
+
     if p.incomplete {
-        out.retain(|d| !REFERENCES.contains(&d.code));
+        // What a file that did not parse could answer — and an allow the
+        // finding it covers may be missing from — is left out.
+        out.retain(|d| !REFERENCES.contains(&d.code) && d.code != "U07");
     }
     if let Some(config) = p.config {
         let text = p

@@ -170,6 +170,8 @@ Set `"output_type": "slides"` (or `"pdf"`) and `wf build` writes the PDF. Raw PD
 ```
 wf init <name> [-t spa|static|pdf|slides]   Create a project
 wf build [-d DIR] [--stats]                 Compile; --stats prints what it weighs
+wf check [--format json|sarif|github]       Every finding, nothing written; --deny-warnings for CI
+wf explain [CODE]                           What a diagnostic means, and the fix
 wf serve [-d DIR]                           Dev server with live reload
 wf generate page|component|store <name>     Scaffold a file
 wf fmt [path] [--check] [--to wfx|wf]       Format, or switch layout

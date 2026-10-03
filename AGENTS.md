@@ -26,6 +26,8 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ```bash
 wf init <name> -t spa|static|pdf|slides   # Create project
 wf build [-d DIR] [--stats]               # Compile (--stats: what it weighs)
+wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
+wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name>   # Scaffold a file, in the project's layout
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
@@ -2474,7 +2476,7 @@ anything else — `"{key: value}"` in prose, `"{"` alone — is text.
 
 ## Compiler diagnostics
 
-`wf build`, `wf serve` and the editor report the same findings, from one
+`wf build`, `wf check`, `wf serve` and the editor report the same findings, from one
 pipeline (`diagnostics::check::check_project`). Every stage runs whatever
 the one before it found, and every file is read even when another does not
 parse (the parser picks up again at the next declaration), so one build
@@ -2488,7 +2490,7 @@ error[T05]: `User` has no field `nmae`
 3 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Its fields are `id`, `name`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
 ```
 
 The place comes first in the `file:line:col` form problem matchers read;
@@ -2504,6 +2506,21 @@ guide's chapter, the editor's links and the tests read.
 what a finding counts as, by code or family. A warning may be turned off or
 raised; an error may be lowered only when it cannot ship a broken page
 (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`).
+
+One finding on one line is accepted with `// wf-allow(U01)` (codes or
+families, comma-separated): on a line of its own it covers the next line of
+code, at the end of a line that line. Only what `lints` could lower may be
+allowed, and an allow that covers nothing is `U07`.
+
+`--format json|sarif|github` on `wf build` and `wf check` writes the
+findings for a tool (one document on standard output for JSON and SARIF,
+with the progress moved to standard error; `::error` annotations for a
+GitHub workflow); `--deny-warnings` fails on a warning; `wf explain T05`
+prints a code's entry. Where the fix is known it is part of the finding —
+the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
+`T06`, `T16`, `T13`, `E101`, `E103`; `?.` for `T04`; the missing props for
+`C01`; the missing arms for `T15`; the flag for `V01`; `alt: ""` for `A01`;
+an `_` for `U01`–`U05`.
 
 | Family | What |
 |---|---|
@@ -2637,6 +2654,7 @@ paint alike.
 | `U03` | A component nothing places, names as a layout, or reaches as a part |
 | `U04` | A store member — state, derived, action — nothing reads, inside the store or as `Store.member` |
 | `U05` | An action nothing calls; a name that starts with `_` is understood to be unused on purpose |
+| `U07` | A `// wf-allow(CODE)` that covers nothing it names, or names an error no allow may silence |
 | `C04` | A named argument a built-in does not declare, written to the element as an attribute |
 | `C05` | A positional argument a built-in does not take |
 | `C06` | A positional argument bound to a component's first prop, which is not marked `_` |

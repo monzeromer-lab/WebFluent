@@ -3,6 +3,7 @@ pub mod audit;
 pub mod build;
 pub mod describe;
 pub mod docs;
+pub mod explain;
 pub mod fmt;
 pub mod generate;
 pub mod init;

@@ -317,6 +317,7 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
             hint: Some(
                 "`wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look".to_string(),
             ),
+            plans: Vec::new(),
         });
     }
 }
@@ -369,6 +370,7 @@ fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Ve
             hint: Some(format!(
                 "Either drop it, or add a `.{class}` rule to a .css file under src/ — the engine emits the class either way"
             )),
+            plans: Vec::new(),
         });
     }
 }
@@ -404,7 +406,28 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
             continue;
         }
         let span = &el.arg_spans[i];
-        let hint = suggest(name, scope, el);
+        let near = suggest(name, scope, el);
+        let hint = near.as_ref().map(|c| format!("did you mean `{c}`?"));
+        // A flag goes after the parentheses; a name stays where it is.
+        let plans = match near {
+            Some(c) => vec![match c.strip_prefix('.') {
+                Some(flag) => crate::diagnostics::fixes::Planned {
+                    title: format!("Write it as the flag `{c}`"),
+                    plan: crate::diagnostics::fixes::Plan::Flag {
+                        word: name.clone(),
+                        flag: flag.to_string(),
+                    },
+                },
+                None => crate::diagnostics::fixes::Planned {
+                    title: format!("Change to `{c}`"),
+                    plan: crate::diagnostics::fixes::Plan::Rename {
+                        from: name.clone(),
+                        to: c,
+                    },
+                },
+            }],
+            None => Vec::new(),
+        };
         out.push(VocabWarning {
             rule_id: "V01".into(),
             message: format!(
@@ -414,6 +437,7 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
             line: span.line as usize,
             column: span.col as usize,
             hint,
+            plans,
         });
     }
 }
@@ -454,7 +478,7 @@ fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String
             (d <= 2 && d > 0).then_some((d, c))
         })
         .min_by_key(|&(d, c)| (d, c.len()))?;
-    Some(format!("did you mean `{}`?", best.1))
+    Some(best.1.to_string())
 }
 
 /// Plain Levenshtein distance; the inputs are single words, so O(n·m) is fine.

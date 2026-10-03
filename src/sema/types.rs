@@ -1688,6 +1688,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                     &cases,
                     &dupes,
                     has_else,
+                    true,
                 );
             }
             Type::Resource(_) => {
@@ -1918,10 +1919,15 @@ impl<'a, 'p> Checker<'a, 'p> {
         let names: Vec<String> = all.iter().map(|f| format!("`{}`", f.name)).collect();
         for key in keys {
             if !all.iter().any(|f| &f.name == key) {
-                self.error_at_current(
+                let known: Vec<String> = all.iter().map(|f| f.name.clone()).collect();
+                let known: Vec<&str> = known.iter().map(String::as_str).collect();
+                self.error_naming(
                     "T05",
                     format!("`{record}` has no field `{key}`"),
                     &format!("Its fields are {}", names.join(", ")),
+                    key,
+                    &known,
+                    false,
                 );
             }
         }
@@ -2466,6 +2472,13 @@ impl<'a, 'p> Checker<'a, 'p> {
         if missing.is_empty() {
             return;
         }
+        // The fix: each missing prop, with a value of its type to replace.
+        let filled: Vec<String> = component
+            .props
+            .iter()
+            .filter(|p| missing.contains(&format!("`{}`", p.name)))
+            .map(|p| format!("{}: {}", p.name, self.placeholder(&p.prop_type)))
+            .collect();
         self.error(
             span,
             "C01",
@@ -2481,6 +2494,34 @@ impl<'a, 'p> Checker<'a, 'p> {
                 component.name
             ),
         );
+        self.plan_last(
+            format!("Pass {}", missing.join(", ")),
+            crate::diagnostics::fixes::Plan::AddArgument {
+                text: filled.join(", "),
+            },
+        );
+    }
+
+    /// A value of `ty` for a fix to write where one is missing: the empty
+    /// one where there is one, an enum's first case.
+    fn placeholder(&self, ty: &TypeRef) -> String {
+        match ty {
+            TypeRef::String => "\"\"".to_string(),
+            TypeRef::Number => "0".to_string(),
+            TypeRef::Bool => "false".to_string(),
+            TypeRef::Map => "{}".to_string(),
+            TypeRef::List(_) => "[]".to_string(),
+            TypeRef::Optional(_) | TypeRef::Any => "null".to_string(),
+            TypeRef::Refined(inner, _) => self.placeholder(inner),
+            TypeRef::Named(name) => match self.world.enums.get(name.as_str()) {
+                Some(e) => e
+                    .case_names()
+                    .first()
+                    .map(|c| format!(".{c}"))
+                    .unwrap_or_else(|| "null".to_string()),
+                None => format!("{name}()"),
+            },
+        }
     }
 
     /// The arguments of a built-in, against the registry's prop types.
@@ -3219,10 +3260,20 @@ impl<'a, 'p> Checker<'a, 'p> {
                                 .collect()
                         })
                         .unwrap_or_default();
-                    self.error_at_current(
+                    let known: Vec<String> = self
+                        .world
+                        .apis
+                        .get(name.as_str())
+                        .map(|a| a.endpoints.iter().map(|e| e.name.clone()).collect())
+                        .unwrap_or_default();
+                    let known: Vec<&str> = known.iter().map(String::as_str).collect();
+                    self.error_naming(
                         "T06",
                         format!("`{name}` has no endpoint `{field}`"),
                         &format!("Its endpoints are {}", names.join(", ")),
+                        field,
+                        &known,
+                        true,
                     );
                     Type::Any
                 }
@@ -3259,10 +3310,14 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Some((_, ty)) => ty.clone(),
                 None => {
                     let names: Vec<String> = fields.iter().map(|(n, _)| format!("`{n}`")).collect();
-                    self.error_at_current(
+                    let known: Vec<&str> = fields.iter().map(|(n, _)| n.as_str()).collect();
+                    self.error_naming(
                         "T05",
                         format!("`{}` has no field `{field}`", expr_text(base)),
                         &format!("It was written with {}", names.join(", ")),
+                        field,
+                        &known,
+                        true,
                     );
                     Type::Any
                 }
@@ -3270,15 +3325,20 @@ impl<'a, 'p> Checker<'a, 'p> {
             Type::Record(name) => match self.world.record_field(name, field) {
                 Some(ty) => self.world.resolve(ty),
                 None => {
-                    let fields: Vec<String> = self
+                    let known: Vec<String> = self
                         .world
                         .record_fields(name)
-                        .map(|all| all.iter().map(|f| format!("`{}`", f.name)).collect())
+                        .map(|all| all.iter().map(|f| f.name.clone()).collect())
                         .unwrap_or_default();
-                    self.error_at_current(
+                    let fields: Vec<String> = known.iter().map(|f| format!("`{f}`")).collect();
+                    let known: Vec<&str> = known.iter().map(String::as_str).collect();
+                    self.error_naming(
                         "T05",
                         format!("`{name}` has no field `{field}`"),
                         &format!("Its fields are {}", fields.join(", ")),
+                        field,
+                        &known,
+                        true,
                     );
                     Type::Any
                 }
@@ -3287,19 +3347,17 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Some(members) => match members.get(field) {
                     Some(ty) => ty.clone(),
                     None => {
-                        let mut names: Vec<&String> = members.keys().collect();
+                        let mut names: Vec<String> = members.keys().cloned().collect();
                         names.sort();
-                        self.error_at_current(
+                        let known: Vec<&str> = names.iter().map(String::as_str).collect();
+                        let listed: Vec<String> = names.iter().map(|n| format!("`{n}`")).collect();
+                        self.error_naming(
                             "T06",
                             format!("`{name}` has no member `{field}`"),
-                            &format!(
-                                "Its members are {}",
-                                names
-                                    .iter()
-                                    .map(|n| format!("`{n}`"))
-                                    .collect::<Vec<_>>()
-                                    .join(", ")
-                            ),
+                            &format!("Its members are {}", listed.join(", ")),
+                            field,
+                            &known,
+                            true,
                         );
                         Type::Any
                     }
@@ -3314,6 +3372,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                         expr_text(base)
                     ),
                     "Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.field`, or a check for `!= null`",
+                );
+                self.plan_last(
+                    format!("Read it through null: `?.{field}`"),
+                    crate::diagnostics::fixes::Plan::Rename {
+                        from: format!(".{field}"),
+                        to: format!("?.{field}"),
+                    },
                 );
                 self.property(inner, base, field)
             }
@@ -3562,10 +3627,20 @@ impl<'a, 'p> Checker<'a, 'p> {
                                 .collect()
                         })
                         .unwrap_or_default();
-                    self.error_at_current(
+                    let known: Vec<String> = self
+                        .world
+                        .apis
+                        .get(api.as_str())
+                        .map(|a| a.endpoints.iter().map(|e| e.name.clone()).collect())
+                        .unwrap_or_default();
+                    let known: Vec<&str> = known.iter().map(String::as_str).collect();
+                    self.error_naming(
                         "T06",
                         format!("`{api}` has no endpoint `{method}`"),
                         &format!("Its endpoints are {}", names.join(", ")),
+                        method,
+                        &known,
+                        true,
                     );
                     Type::Any
                 }
@@ -3631,11 +3706,17 @@ impl<'a, 'p> Checker<'a, 'p> {
                         Type::Any
                     }
                     None => {
-                        if self.world.stores.contains_key(name.as_str()) {
-                            self.error_at_current(
+                        if let Some(members) = self.world.stores.get(name.as_str()) {
+                            let mut known: Vec<String> = members.keys().cloned().collect();
+                            known.sort();
+                            let known: Vec<&str> = known.iter().map(String::as_str).collect();
+                            self.error_naming(
                                 "T06",
                                 format!("`{name}` has no action `{method}`"),
                                 "",
+                                method,
+                                &known,
+                                true,
                             );
                         }
                         for a in args {
@@ -3948,7 +4029,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         };
         let has_else = !matches!(fallback, Expr::MethodCall(_, m, _) if m == "__exhaustive");
         let subject_ty = self.infer_quiet(subject).unwrapped();
-        self.match_coverage(&subject_text, &subject_ty, &cases, &dupes, has_else);
+        self.match_coverage(&subject_text, &subject_ty, &cases, &dupes, has_else, false);
     }
 
     /// What a `match` — statement or expression — covers of an enum.
@@ -3959,6 +4040,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         cases: &[String],
         dupes: &[String],
         has_else: bool,
+        statement: bool,
     ) {
         for case in dupes {
             self.error_at_current(
@@ -3996,6 +4078,28 @@ impl<'a, 'p> Checker<'a, 'p> {
                     missing.join(", ")
                 ),
                 "Add an arm for each, or `else { … }` for the rest",
+            );
+            // An arm for each, empty: a statement's draws nothing, an
+            // expression's is `null`; a payload is named by its fields.
+            let arms: Vec<String> = all
+                .iter()
+                .filter(|c| !cases.contains(c))
+                .map(|c| {
+                    let names = self
+                        .payload_of(name, c)
+                        .filter(|fields| !fields.is_empty())
+                        .map(|fields| {
+                            let names: Vec<&str> = fields.iter().map(|(n, _)| n.as_str()).collect();
+                            format!("({})", names.join(", "))
+                        })
+                        .unwrap_or_default();
+                    let body = if statement { "{ }" } else { "{ null }" };
+                    format!(".{c}{names} {body}")
+                })
+                .collect();
+            self.plan_last(
+                format!("Add an arm for {}", missing.join(", ")),
+                crate::diagnostics::fixes::Plan::AddArms { arms },
             );
         } else if has_else && missing.is_empty() && !all.is_empty() {
             self.warn(
@@ -4113,17 +4217,20 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// A method a number, a string or a list does not have: in the browser,
     /// `x.method is not a function`, the first time the line runs.
     fn unknown_method(&mut self, on: &Type, method: &str, known: &[&str]) {
-        let near = known
-            .iter()
-            .map(|k| (crate::linter::vocabulary::levenshtein(method, k), *k))
-            .filter(|(d, _)| *d <= 2)
-            .min()
-            .map(|(_, k)| format!("Did you mean `{k}`?"))
-            .unwrap_or_else(|| {
-                let shown: Vec<String> = known.iter().take(12).map(|k| format!("`{k}`")).collect();
-                format!("It has {}, …", shown.join(", "))
-            });
-        self.error_at_current("T16", format!("a `{on}` has no method `{method}`"), &near);
+        let hint = if crate::diagnostics::fixes::nearest(method, known.iter().copied()).is_some() {
+            String::new()
+        } else {
+            let shown: Vec<String> = known.iter().take(12).map(|k| format!("`{k}`")).collect();
+            format!("It has {}, …", shown.join(", "))
+        };
+        self.error_naming(
+            "T16",
+            format!("a `{on}` has no method `{method}`"),
+            &hint,
+            method,
+            known,
+            true,
+        );
     }
 
     /// The payload of `case` on the enum `name`: its fields and their types,
@@ -4489,11 +4596,41 @@ impl<'a, 'p> Checker<'a, 'p> {
             format!("nothing declares `{name}`")
         };
         let span = self.located(self.current_span, &message);
-        let d = Diagnostic::coded("T13", message, self.file, span.line as usize, span.col as usize)
-            .with_span(span, self.source.as_deref())
-            .with_hint(
-            "Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError",
-        );
+        // What the name may have meant: anything in scope here, or declared
+        // at the top of the program.
+        let mut known: Vec<&str> = self
+            .scopes
+            .iter()
+            .flat_map(|scope| scope.keys().map(String::as_str))
+            .collect();
+        known.extend(self.world.consts.keys().map(|k| &**k));
+        known.extend(self.world.stores.keys().map(|k| &**k));
+        known.extend(self.world.apis.keys().map(|k| &**k));
+        known.extend(self.world.scripts.keys().map(|k| &**k));
+        let near =
+            crate::diagnostics::fixes::nearest(name, known.iter().copied()).map(str::to_string);
+        let declare = "Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError";
+        let mut d = Diagnostic::coded(
+            "T13",
+            message,
+            self.file,
+            span.line as usize,
+            span.col as usize,
+        )
+        .with_span(span, self.source.as_deref())
+        .with_hint(match &near {
+            Some(n) => format!("Did you mean `{n}`? {declare}"),
+            None => declare.to_string(),
+        });
+        if let Some(n) = near {
+            d = d.with_plan(
+                format!("Change to `{n}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: name.to_string(),
+                    to: n,
+                },
+            );
+        }
         if !self
             .info
             .unresolved
@@ -4521,6 +4658,55 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn error_at_current(&mut self, code: &'static str, message: String, hint: &str) {
         let span = self.located(self.current_span, &message);
         self.error(span, code, message, hint);
+    }
+
+    /// A fix for the error just reported.
+    fn plan_last(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
+        if let Some(d) = self.info.findings.errors.pop() {
+            self.info.findings.errors.push(d.with_plan(title, plan));
+        }
+    }
+
+    /// An error about a name that is wrong — `.nmae`, `Cart.totl`, `cuont`:
+    /// the nearest of `known` is suggested, and offered as a fix. `dotted`
+    /// names a member, matched with the `.` before it.
+    fn error_naming(
+        &mut self,
+        code: &'static str,
+        message: String,
+        hint: &str,
+        wrong: &str,
+        known: &[&str],
+        dotted: bool,
+    ) {
+        let near = crate::diagnostics::fixes::nearest(wrong, known.iter().copied());
+        let hint = match near {
+            Some(n) if hint.is_empty() => format!("Did you mean `{n}`?"),
+            Some(n) => format!("Did you mean `{n}`? {hint}"),
+            None => hint.to_string(),
+        };
+        let span = self.located(self.current_span, &message);
+        let mut d = Diagnostic::coded(
+            code,
+            message,
+            self.file,
+            span.line as usize,
+            span.col as usize,
+        )
+        .with_span(span, self.source.as_deref())
+        .with_hint(hint);
+        if let Some(n) = near {
+            let (from, to) = if dotted {
+                (format!(".{wrong}"), format!(".{n}"))
+            } else {
+                (wrong.to_string(), n.to_string())
+            };
+            d = d.with_plan(
+                format!("Change to `{n}`"),
+                crate::diagnostics::fixes::Plan::Rename { from, to },
+            );
+        }
+        self.info.findings.errors.push(d);
     }
 
     /// `span`, moved to the first thing the message names in backticks
@@ -6048,7 +6234,7 @@ mod tests {
         );
         has(
             "page P(path: \"/\") { state user = { name: \"\", age: 0 }\n Text(user.nam) }",
-            "[T05] `user` has no field `nam`\n  It was written with `name`, `age`",
+            "[T05] `user` has no field `nam`\n  Did you mean `name`? It was written with `name`, `age`",
         );
         has(
             "page P(path: \"/\") { derived rows = [{ id: 1, label: \"a\" }]\n for r in rows { Text(r.lable) } }",

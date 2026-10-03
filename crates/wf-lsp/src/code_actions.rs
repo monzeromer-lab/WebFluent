@@ -1,23 +1,31 @@
 use std::collections::HashMap;
 use tower_lsp::lsp_types::*;
 
-/// Generate QuickFix code actions for diagnostics that have actionable suggestions.
+/// The quick fixes the compiler offers for the diagnostics in the request:
+/// each finding carries its fixes in `data` (see `diagnostics::to_lsp`),
+/// written by the compiler from what it knows — never read back out of the
+/// message.
 pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActionOrCommand> {
     let mut actions = Vec::new();
-
-    for diag in params.context.diagnostics {
-        if let Some(suggestion) = extract_suggestion(&diag.message) {
+    for diag in &params.context.diagnostics {
+        let Some(serde_json::Value::Array(fixes)) = &diag.data else {
+            continue;
+        };
+        for (i, fix) in fixes.iter().enumerate() {
+            let Some(title) = fix.get("title").and_then(|t| t.as_str()) else {
+                continue;
+            };
+            let Some(edits) = fix
+                .get("edits")
+                .and_then(|e| serde_json::from_value::<Vec<TextEdit>>(e.clone()).ok())
+                .filter(|e| !e.is_empty())
+            else {
+                continue;
+            };
             let mut changes = HashMap::new();
-            changes.insert(
-                uri.clone(),
-                vec![TextEdit {
-                    range: diag.range,
-                    new_text: suggestion.clone(),
-                }],
-            );
-
-            let action = CodeAction {
-                title: format!("Change to `{suggestion}`"),
+            changes.insert(uri.clone(), edits);
+            actions.push(CodeActionOrCommand::CodeAction(CodeAction {
+                title: title.to_string(),
                 kind: Some(CodeActionKind::QUICKFIX),
                 diagnostics: Some(vec![diag.clone()]),
                 edit: Some(WorkspaceEdit {
@@ -25,51 +33,15 @@ pub fn provide_code_actions(uri: &Url, params: CodeActionParams) -> Vec<CodeActi
                     document_changes: None,
                     change_annotations: None,
                 }),
-                is_preferred: Some(true),
+                // The first fix of a finding is the one it means.
+                is_preferred: Some(i == 0),
                 disabled: None,
                 data: None,
                 command: None,
-            };
-
-            actions.push(CodeActionOrCommand::CodeAction(action));
+            }));
         }
     }
-
     actions
-}
-
-/// Extract suggested replacement from message text like "did you mean `foo`?" or "did you mean 'foo'?"
-fn extract_suggestion(message: &str) -> Option<String> {
-    let lower = message.to_lowercase();
-    let marker = "did you mean ";
-    let idx = lower.find(marker)?;
-    let remainder = &message[idx + marker.len()..];
-
-    // Check for backticks `foo`
-    if let Some(start) = remainder.find('`') {
-        let after_start = &remainder[start + 1..];
-        if let Some(end) = after_start.find('`') {
-            return Some(after_start[..end].to_string());
-        }
-    }
-
-    // Check for single quotes 'foo'
-    if let Some(start) = remainder.find('\'') {
-        let after_start = &remainder[start + 1..];
-        if let Some(end) = after_start.find('\'') {
-            return Some(after_start[..end].to_string());
-        }
-    }
-
-    // Check for double quotes "foo"
-    if let Some(start) = remainder.find('"') {
-        let after_start = &remainder[start + 1..];
-        if let Some(end) = after_start.find('"') {
-            return Some(after_start[..end].to_string());
-        }
-    }
-
-    None
 }
 
 #[cfg(test)]
@@ -77,15 +49,41 @@ mod tests {
     use super::*;
 
     #[test]
-    fn extract_backtick_suggestion() {
-        let msg = "'centered' is not a modifier; did you mean `center`?";
-        assert_eq!(extract_suggestion(msg), Some("center".to_string()));
-    }
-
-    #[test]
-    fn extract_single_quote_suggestion() {
-        let msg = "unknown keyword; did you mean 'Store'?";
-        assert_eq!(extract_suggestion(msg), Some("Store".to_string()));
+    fn a_fix_in_the_data_is_an_action() {
+        let uri = Url::parse("file:///p/src/App.wf").unwrap();
+        let edit = TextEdit {
+            range: Range::new(Position::new(1, 14), Position::new(1, 18)),
+            new_text: "name".into(),
+        };
+        let diag = Diagnostic {
+            range: edit.range,
+            message: "`User` has no field `nmae`".into(),
+            data: Some(
+                serde_json::json!([{ "title": "Change to `name`", "edits": [edit.clone()] }]),
+            ),
+            ..Default::default()
+        };
+        let params = CodeActionParams {
+            text_document: TextDocumentIdentifier { uri: uri.clone() },
+            range: edit.range,
+            context: CodeActionContext {
+                diagnostics: vec![diag, Diagnostic::default()],
+                only: None,
+                trigger_kind: None,
+            },
+            work_done_progress_params: Default::default(),
+            partial_result_params: Default::default(),
+        };
+        let actions = provide_code_actions(&uri, params);
+        assert_eq!(actions.len(), 1);
+        let CodeActionOrCommand::CodeAction(action) = &actions[0] else {
+            panic!("not an action");
+        };
+        assert_eq!(action.title, "Change to `name`");
+        assert_eq!(
+            action.edit.as_ref().unwrap().changes.as_ref().unwrap()[&uri],
+            vec![edit]
+        );
     }
 }
 

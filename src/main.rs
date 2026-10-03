@@ -56,6 +56,33 @@ enum Commands {
         /// modules it kept and left out
         #[arg(long)]
         stats: bool,
+        /// How findings are written: `human` (default), `json`, `sarif`
+        /// (code scanning) or `github` (annotations on a pull request)
+        #[arg(long, default_value = "human")]
+        format: diagnostics::format::Format,
+        /// Let a warning stop the build as an error does
+        #[arg(long)]
+        deny_warnings: bool,
+    },
+    /// Check the project — every finding a build would report — and write
+    /// nothing
+    Check {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// How findings are written: `human` (default), `json`, `sarif`
+        /// (code scanning) or `github` (annotations on a pull request)
+        #[arg(long, default_value = "human")]
+        format: diagnostics::format::Format,
+        /// Fail on a warning too
+        #[arg(long)]
+        deny_warnings: bool,
+    },
+    /// What a diagnostic code means, a program that draws it, and the fix;
+    /// with no code, every code
+    Explain {
+        /// The code: `T05`, `A01`, `E101`
+        code: Option<String>,
     },
     /// Start the development server
     Serve {
@@ -196,10 +223,38 @@ fn main() {
     let cli = Cli::parse();
 
     // `wf build` and `wf serve` print a build's findings as they find them.
-    let reports_itself = matches!(cli.command, Commands::Build { .. } | Commands::Serve { .. });
+    let reports_itself = matches!(
+        cli.command,
+        Commands::Build { .. } | Commands::Check { .. } | Commands::Serve { .. }
+    );
     let result = match cli.command {
         Commands::Init { name, template } => cli::init::run_init(&name, &template),
-        Commands::Build { dir, stats } => cli::build::run_build_with(&dir, stats),
+        Commands::Build {
+            dir,
+            stats,
+            format,
+            deny_warnings,
+        } => cli::build::run_build_opts(
+            &dir,
+            cli::build::Options {
+                stats,
+                format,
+                deny_warnings,
+            },
+        ),
+        Commands::Check {
+            dir,
+            format,
+            deny_warnings,
+        } => cli::build::run_check(
+            &dir,
+            cli::build::Options {
+                stats: false,
+                format,
+                deny_warnings,
+            },
+        ),
+        Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),
         Commands::Serve { dir } => cli::serve::run_serve(&dir),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),
         Commands::Render {

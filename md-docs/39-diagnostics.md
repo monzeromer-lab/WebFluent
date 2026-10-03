@@ -7,8 +7,8 @@ blurb: Every error and warning the compiler reports — what it means, a program
 description: Every WebFluent error and warning — structural errors and codes T, A, S, P, U and V — each with a program that draws it and the fix.
 -->
 
-`wf build`, `wf serve` and your editor report the same findings, from
-one pipeline. Each starts with its code and what is wrong, then the place in
+`wf build`, `wf check`, `wf serve` and your editor report the same
+findings, from one pipeline. Each starts with its code and what is wrong, then the place in
 the `file:line:col` form editors and CI read, the line of source with the
 part that is wrong underlined, what to do about it, and a link to its entry
 here:
@@ -20,7 +20,7 @@ error[T05]: `User` has no field `nmae`
 3 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Its fields are `id`, `name`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
 ```
 
 - **Errors** stop the build: the program cannot mean what it says.
@@ -34,6 +34,27 @@ then one line sums them up: `error: the build stopped: 2 errors, 5
 warnings`. A build that stops on its findings exits with `1`; one that
 could not run at all — a file it could not read, a config it could not
 load — with `2`.
+
+`wf check --format json`, `sarif` or `github` writes the same findings for
+a tool ([Command line](37-cli.md#wf-check)), and `wf explain T05` prints a
+code's entry below in the terminal.
+
+**Fixes.** Where the compiler knows the fix, it says so as edits, which
+your editor offers as a quick fix and `--format json` carries: the nearest
+name for a misspelled field, member, method, variable, component or flag
+(`T05`, `T06`, `T16`, `T13`, `E101`, `E103`), `?.` for a read of a value
+that may be null (`T04`), the missing props with a value of their type
+(`C01`), the missing arms of a `match` (`T15`), a bare word written as the
+flag it means (`V01`), `alt: ""` for an image (`A01`), and an `_` before a
+name nothing reads (`U01`–`U05`).
+
+**Allowing one finding.** A `// wf-allow(CODE)` comment accepts a finding
+on purpose: on a line of its own it covers the next line of code, at the
+end of a line that line. It names codes or families, comma-separated —
+`// wf-allow(U01, A)`. Only what [`lints`](38-configuration.md#lints)
+could lower may be allowed, and an allow that covers nothing is itself
+reported (`U07`), so allows do not outlive what they were for. `lints`
+says the same for a whole project.
 
 The code — `T05` — is the thing to search this page for. The families:
 
@@ -74,7 +95,7 @@ error[E001]: Unterminated string literal
   |
 2 |     Heading("Hello).h1
   |             ^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e001
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e001-text-the-compiler-cannot-read
 ```
 
 **Fix:** Close the string, comment or splice the message names. A
@@ -96,7 +117,7 @@ error[E002]: Expected `,` between arguments, got `Text`
   |
 3 |     Text("a" Text("b")
   |              ^^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e002
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e002-a-syntax-error
 ```
 
 **Fix:** The message names what was expected and what was found, at the
@@ -132,7 +153,7 @@ error[E004]: `Page` is a WebFluent 2 declaration; this is WebFluent 3
 1 | Page Home (path: "/") {
   | ^^^^
   = help: Run `wf migrate` to convert the project to the current grammar
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e004
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e004-a-file-in-the-webfluent-2-grammar
 ```
 
 **Fix:** Run `wf migrate` once; it rewrites the project in place.
@@ -159,8 +180,8 @@ error[E101]: unknown component `Buton`: no `component Buton` is declared
   |
 3 |     Buton("Save")
   |     ^^^^^
-  = help: declare `component Buton { … }` or check the spelling
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e101
+  = help: did you mean `Button`? Or declare `component Buton { … }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e101-a-component-nothing-declares
 ```
 
 **Fix:** Check the spelling, or declare it with `component Buton { … }`.
@@ -183,7 +204,7 @@ error[E102]: `count` is declared twice: as a state at line 2, and as a `derived`
   |     ^^^^^^^
   = help: A name means one thing — rename one of the two `count`s
   = note: `count` is first declared here at src/App.wf:2:5
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e102
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e102-a-name-declared-twice
 ```
 
 **Fix:** Rename one of the two. The finding points at the second and names
@@ -205,7 +226,7 @@ error[E103]: Button has no flag or enum case `huge`
 3 |     Button("Save").huge
   |                   ^^^^^
   = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .warning
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e103
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e103-a-flag-case-part-event-or-slot-the-component-does-not-have
 ```
 
 **Fix:** Use one the message lists — it names every flag, case, event or
@@ -227,7 +248,7 @@ error[E104]: `Shell` declares no default slot, so the page has nowhere to go
 2 | page P(path: "/", title: "T", description: "D", layout: Shell) {
   |                                                         ^^^^^
   = help: Add `slot` to the component and place `children` where the page belongs
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e104
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e104-a-layout-with-nowhere-to-put-the-page
 ```
 
 **Fix:** Add `slot` to the component and place `children` where the page
@@ -250,7 +271,7 @@ error[E105]: `n` is not an element or a statement a render block can hold
 4 |     n = n + 1
   |     ^
   = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e105
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e105-a-statement-a-render-block-cannot-hold
 ```
 
 **Fix:** Put it in `on click { }`, an `action` or an `effect`.
@@ -271,7 +292,7 @@ error[E106]: `onclick` on Button would put script in an attribute
 3 |     Button("Save", onclick: "save()")
   |                    ^^^^^^^
   = help: Write the handler instead: `Button(…) { on click { … } }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e106
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e106-script-in-an-attribute
 ```
 
 **Fix:** `Button("Save") { on click { save() } }`.
@@ -292,7 +313,7 @@ error[E107]: `to` on Link names the `javascript` scheme, which a browser runs
 3 |     Link("Go", to: "javascript:alert(1)")
   |                ^^
   = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e107
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e107-a-url-a-browser-would-run
 ```
 
 **Fix:** A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`,
@@ -348,7 +369,7 @@ error[E113]: Only the first argument may be positional
 4 |     Card("Laptop", 999)
   |                    ^^^
   = help: Name the others: `Button("Save", tone: .primary)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e113
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e113-an-argument-that-cannot-be-positional
 ```
 
 **Fix:** Name the others: `Card("Laptop", price: 999)`.
@@ -368,7 +389,7 @@ error[E114]: `emit` fires a component's event; a page has none
   |
 3 |     Button("Save") { on click { emit saved() } }
   |                                 ^^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e114
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e114-emit-outside-a-component
 ```
 
 **Fix:** Fire the event from the component that declares it; a page calls
@@ -397,7 +418,7 @@ error[E116]: `pricingtable` is not a custom element's tag
 3 |     Element("pricingtable")
   |     ^^^^^^^
   = help: A custom element's tag is lower case with a hyphen: `Element("stripe-pricing-table", …)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e116
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e116-a-tag-that-cannot-be-a-custom-element-s
 ```
 
 **Fix:** A custom element's tag is lower case with a hyphen:
@@ -432,7 +453,7 @@ error[E117]: `on key("ctrl+shfit+k")` names `shfit`, which is not a modifier
 2 |     on key("ctrl+shfit+k") { log("search") }
   |            ^
   = help: Modifiers `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e117
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#e117-a-key-combination-no-keyboard-sends
 ```
 
 **Fix:** Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:
@@ -457,7 +478,7 @@ error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
 3 |     state todo = Todo(title: "Write the docs")
   |                  ^^^^
   = help: Give it, or declare a default in the type: `field: Type = value`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c01-a-required-prop-or-field-left-out
 ```
 
 **Fix:** Give it, or declare a default in the type (`id: String = ""`) or
@@ -480,7 +501,7 @@ error[C02]: `Badge2` declares no prop `colour`
 4 |     Badge2("New", colour: "red")
   |                   ^^^^^^
   = help: It is passed anyway, but nothing in the component reads it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c02-a-prop-the-component-does-not-declare
 ```
 
 **Fix:** Correct the spelling, or declare the prop on the component.
@@ -501,7 +522,7 @@ error[C03]: `Select.Option` is a part of `Select`, and it is not inside one
 3 |     Select.Option("Pro", value: "pro")
   |     ^^^^^^^^^^^^^
   = help: Place it in a `Select { … }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c03-a-part-outside-the-component-it-belongs-to
 ```
 
 **Fix:** Place the part inside its owner: `Select(bind: plan) {
@@ -525,7 +546,7 @@ warning[C04]: Button has no prop `colour`; it is written to the element as an at
 3 |     Button("Save", colour: "red")
   |                    ^^^^^^
   = help: A typo here does nothing on screen; check the component's props
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c04-an-attribute-a-built-in-does-not-declare
 ```
 
 **Fix:** Check the prop's spelling — `wf registry` lists what the built-in
@@ -550,7 +571,7 @@ warning[C05]: Divider takes no positional argument
 3 |     Divider("thin")
   |             ^
   = help: Name it: the registry lists the props it takes
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c05-a-positional-argument-a-built-in-does-not-take
 ```
 
 **Fix:** Name it, with one of the props the built-in takes.
@@ -574,7 +595,7 @@ warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
 4 |     Tag2("new")
   |          ^
   = help: Mark the prop: `component Tag2(_ label: …)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c06
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#c06-a-positional-argument-bound-by-order
 ```
 
 **Fix:** Mark the prop the call means: `component Tag2(_ label: String)`.
@@ -598,7 +619,7 @@ error[X01]: `LIMIT` is a `const`, and nothing may assign to it
 4 |     Button("More") { on click { LIMIT = 4 } }
   |                                 ^^^^^
   = help: Declare it `state` if it changes; a constant is the same on every page
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x01-an-assignment-to-something-that-cannot-change
 ```
 
 **Fix:** Hold what changes in a `state`. A `derived` value changes when
@@ -623,7 +644,7 @@ error[X02]: this effect writes `visits`, which it also reads, so each run starts
 3 |     effect { visits = visits + 1 }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Work the value out with `derived` instead, or write it from the action that changes what it reads
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x02-an-effect-that-feeds-itself
 ```
 
 **Fix:** Work a value out with `derived`; change state from the action or
@@ -650,7 +671,7 @@ error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`
 7 |     derived ticket = next()
   |     ^^^^^^^^^^^^^^^^^^^^^^^
   = help: A derived value only reads; call the action from a handler, and derive from what it sets
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x04-a-derived-value-that-changes-something
 ```
 
 **Fix:** Call the action from a handler; derive from the state it sets.
@@ -672,7 +693,7 @@ error[X05]: `use Carts` names a store nothing declares
 3 |     use Carts
   |     ^^^
   = help: The stores are `Cart`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#x05-use-of-a-store-nothing-declares
 ```
 
 **Fix:** Name a store that exists — here `Cart`.
@@ -697,7 +718,7 @@ error[F01]: `bind:` on `Input` writes back to what it names, and `name` is a `de
 5 |     Input(bind: name, label: "Name")
   |           ^^^^^^^^^^
   = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f01-a-bind-to-something-that-cannot-be-written
 ```
 
 **Fix:** Bind the state the reader edits (`bind: first`); show a value
@@ -720,7 +741,7 @@ error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`
 4 |     Input(bind: qty, label: "Quantity")
   |           ^^^^^^^^^
   = help: A number field is `Input(…).number`, which holds a number
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f02-a-bind-to-a-state-the-control-cannot-hold
 ```
 
 **Fix:** A number field is `Input(…).number`; a text field holds a
@@ -744,7 +765,7 @@ error[F03]: `validate email` guards a state no control binds, so its rules can n
 3 |     validate email { required  email }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Bind it to the control the reader fills in: `Input(bind: email, …)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f03-a-validate-block-no-control-can-satisfy
 ```
 
 **Fix:** Bind the state to the control the reader fills in:
@@ -769,7 +790,7 @@ warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a clic
 4 |     Checkbox(checked: agree, label: "I agree")
   |     ^^^^^^^^
   = help: Write `bind:` to keep the box and the state together, or handle `on change`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f04-a-checkbox-that-shows-a-state-and-never-changes-it
 ```
 
 **Fix:** `Checkbox(bind: agree, label: "I agree")`.
@@ -796,7 +817,7 @@ warning[F05]: `plan` starts as `basic`, which is none of this select's options
 4 |     Select(bind: plan, label: "Plan") {
   |     ^^^^^^
   = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#f05-a-select-whose-value-is-none-of-its-options
 ```
 
 **Fix:** Start the state as one of the options' values.
@@ -822,7 +843,7 @@ error[R01]: `/abuot` is not a route: no page's `path` matches it
 3 |     Link("About us", to: "/abuot")
   |     ^^^^
   = help: The nearest is `/about`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r01-a-route-to-nothing
 ```
 
 **Fix:** Link to a route a page has; the message names the nearest. A
@@ -846,7 +867,7 @@ error[R02]: the route `/u/:id` names `:id`, and the page declares no parameter `
 1 | page Profile(path: "/u/:id", title: "T", description: "D") {
   | ^^^^
   = help: Declare it: `page Profile(path: "/u/:id", id: String)`, then read `id`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r02-a-route-parameter-and-a-page-parameter-that-do-not-match
 ```
 
 **Fix:** Declare the parameter the route names — `page Profile(path:
@@ -871,7 +892,7 @@ error[R03]: `app` places no `Router`, so no page is ever drawn
 2 |     Navbar { Navbar.Brand { Text("Ledger") } }
   |     ^^^^^^
   = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r03-an-app-with-no-router-or-with-two
 ```
 
 **Fix:** Place `Router` where the page belongs: `app { Navbar { … }
@@ -895,7 +916,7 @@ warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is f
 3 |     Image(src: "images/cover.png", alt: "")
   |     ^^^^^
   = help: Write it from the site's root: `"/images/cover.png"`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#r04-a-relative-url-on-a-nested-route
 ```
 
 **Fix:** Write it from the site's root: `"/images/cover.png"`.
@@ -924,7 +945,7 @@ error[D02]: `persist pick` keeps a function, which cannot be written to the brow
 2 |     persist pick = (x) => x + 1
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Keep what it is made from — a name, an id, the data — and build it again when it is read
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d02-a-persisted-value-storage-cannot-keep
 ```
 
 **Fix:** Keep what it is made from — a name, an id, the data — and build
@@ -953,7 +974,7 @@ warning[D03]: `persist open` is in `Panel`, which is placed more than once, so e
 2 |     persist open = false
   |     ^^^^^^^
   = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#d03-a-persisted-value-every-instance-shares
 ```
 
 **Fix:** Give each instance its own key: `persist open = false { key: title
@@ -996,7 +1017,7 @@ error[T01]: `count` is `String`, but `Number` is wanted
 4 |     Button("Reset") { on click { count = "zero" } }
   |                                  ^^^^^^^^^^^^^^
   = help: Convert it: `Number(value)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t01-a-value-of-the-wrong-type
 ```
 
 **Fix:** Give the state a value of its type, or convert: `Number(text)`, `"{n}"`. If the state really holds either, declare it `Any`.
@@ -1018,7 +1039,7 @@ error[T02]: `Tone` has no case `.quiet`
 3 |     state tone: Tone = .quiet
   |                 ^^^^
   = help: `Tone` takes .calm, .loud
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t02-a-case-the-enum-does-not-have
 ```
 
 **Fix:** Use one of the cases the message lists, or add the case to the `enum`.
@@ -1041,7 +1062,7 @@ error[T04]: `user.email` may be null, so `.toUpperCase()` may fail
 5 |     Text(user.email.toUpperCase())
   |          ^^^^^^^^^^
   = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t04-a-value-that-may-be-null-read-as-if-it-were-not
 ```
 
 **Fix:** Unwrap it: `if let e = user.email { e.toUpperCase() }`, `user.email?.toUpperCase()`, or `(user.email ?? "").toUpperCase()`.
@@ -1062,8 +1083,8 @@ error[T05]: `User` has no field `nmae`
   |
 4 |     Heading(user.nmae).h1
   |                  ^^^^
-  = help: Its fields are `name`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05
+  = help: Did you mean `name`? Its fields are `name`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
 ```
 
 **Fix:** Correct the spelling to one of the fields listed, or add the field to the `type`.
@@ -1085,7 +1106,7 @@ error[T06]: `Cart` has no member `count`
 4 |     Heading("{Cart.count} items").h1
   |               ^^^^
   = help: Its members are `items`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t06
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t06-a-member-a-store-or-service-does-not-have
 ```
 
 **Fix:** Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.
@@ -1107,7 +1128,7 @@ error[T07]: `if` reads `items` as a condition, but a list is always true
 4 |     if items { Text("There are items") }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Ask about its length: `items.length > 0`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t07
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t07-a-condition-that-is-always-true
 ```
 
 **Fix:** Ask the question you mean: `items.length > 0`, `user != null`.
@@ -1129,12 +1150,12 @@ error[T08]: `for` loops over a list, but `total` is `Number`
 4 |     for n in total { Text("{n}") }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Give it a list, or `.split(…)` a string first
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t08
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t08-a-loop-over-something-that-is-not-a-list
 ```
 
 **Fix:** Loop over a list — `for n in 1..=total` for a range of numbers.
 
-### T09 — An emit that does not match its event
+### T09 — An `emit` that does not match its event
 
 ```wf expect T09
 component Stepper(_ start: Number) {
@@ -1150,7 +1171,7 @@ error[T09]: `emit change` passes 2 arguments, but the event takes 1
 3 |     Button("+") { on click { emit change(1, 2) } }
   |                              ^^^^^^^^^^^^^^^^^
   = help: `event change(value: Number)`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t09
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t09-an-emit-that-does-not-match-its-event
 ```
 
 **Fix:** Pass what the `event` declares, in order, or change the declaration.
@@ -1172,12 +1193,12 @@ error[T10]: `add` takes 1 argument, but 2 are given
   |
 5 |     Button("+") { on click { add(1, 2) } }
   |                              ^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t10
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t10-a-call-with-the-wrong-arguments
 ```
 
 **Fix:** Pass the arguments the action, endpoint or function takes.
 
-### T11 — A match on something that cannot be matched
+### T11 — A `match` on something that cannot be matched
 
 ```wf expect T11
 page P(path: "/", title: "T", description: "D") {
@@ -1197,7 +1218,7 @@ error[T11]: `match` needs a resource or an enum, but `n` is `Number`
 4 |     match n {
   |     ^^^^^^^^^
   = help: Use `if` for a condition; `match` chooses among a resource's states or an enum's cases
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t11
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t11-a-match-on-something-that-cannot-be-matched
 ```
 
 **Fix:** Use `if` for a condition; `match` takes a resource, a connection or an enum.
@@ -1219,7 +1240,7 @@ error[T12]: `token` is a `Secret`, and `Text` would show it
 4 |     Text(token)
   |          ^^^^^
   = help: A secret must not reach the page; send it as a value, or show one field of what it unlocks
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t12
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t12-a-secret-where-it-would-escape
 ```
 
 **Fix:** Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.
@@ -1240,8 +1261,8 @@ error[T13]: nothing declares `cuont`
   |
 4 |     Button("+") { on click { cuont = count + 1 } }
   |                              ^^^^^
-  = help: Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t13
+  = help: Did you mean `count`? Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t13-a-name-nothing-declares
 ```
 
 **Fix:** Correct the spelling, or declare the name. The browser's own
@@ -1268,7 +1289,7 @@ error[T14]: `count` is `Number` and `"0"` is `String`, which are never equal, so
 4 |     if count == "0" { Text("Nothing yet") }
   |        ^^^^^
   = help: Convert one side: `Number(text) == n`, or `"{n}" == text`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t14
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t14-a-comparison-that-is-always-the-same
 ```
 
 **Fix:** Compare values of one type: `count == 0`, or convert one side
@@ -1295,7 +1316,7 @@ error[T15]: this `match` on `status` has no arm for `.review`, and no `else`
 5 |     match status {
   |     ^^^^^
   = help: Add an arm for each, or `else { … }` for the rest
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t15
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t15-a-match-that-misses-a-case-or-has-one-twice
 ```
 
 **Fix:** Give every case its arm, or add `else { … }` for the rest. A
@@ -1319,7 +1340,7 @@ error[T16]: a `[String]` has no method `joined`
 4 |     Text(names.joined(", "))
   |                ^^^^^^
   = help: Did you mean `join`?
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t16
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t16-a-method-a-number-a-string-or-a-list-does-not-have
 ```
 
 **Fix:** The method the message suggests — here `join`.
@@ -1342,7 +1363,7 @@ error[T17]: `save` awaits nothing, so `.pending` is always false
 5 |     Button("Save", disabled: save.pending) { on click { save() } }
   |                              ^^^^
   = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t17
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t17-an-async-result-used-before-it-is-awaited
 ```
 
 **Fix:** `.pending` is for an action that awaits — drop it here. An async
@@ -1366,7 +1387,7 @@ error[T18]: `*` takes numbers, but `price` is `String`
 3 |     Heading("Total {price * 2}").h1
   |                           ^
   = help: Convert it: `Number(value)`; `+` joins text when one side is a string
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t18
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t18-arithmetic-on-something-that-is-not-a-number
 ```
 
 **Fix:** Hold numbers as numbers (`state price = 12`), or convert:
@@ -1392,7 +1413,7 @@ warning[T19]: `user.nickname` may be null, and in text it would show as `null`
 5 |     Text("Also known as {user.nickname}")
   |                          ^^^^^^^^^^^^^
   = help: Say what to show instead: `{user.nickname ?? ""}`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t19
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t19-a-value-that-may-be-null-shown-as-text
 ```
 
 **Fix:** Say what to show instead: `{user.nickname ?? "nothing yet"}`, or
@@ -1420,7 +1441,7 @@ warning[T21]: this `match` on `users` has no `error` arm, so a failed request sh
 4 |     match users {
   |     ^^^^^
   = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t21
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t21-a-resource-match-with-no-error-arm
 ```
 
 **Fix:** `error(e) { Alert(e.message).danger }`, or an `else`.
@@ -1444,7 +1465,7 @@ warning[T20]: `tags` is `[String]`, and in text it shows as its items run togeth
 4 |     Text("Tagged {tags}")
   |                   ^^^^
   = help: Show a field of it, or `.join(", ")` a list of text
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t20
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t20-a-list-or-a-record-shown-as-text
 ```
 
 **Fix:** `{tags.join(", ")}` for a list of text; a field of a record.
@@ -1495,7 +1516,7 @@ warning[A01]: Image missing "alt" attribute
 3 |     Image(src: "/team.jpg")
   |     ^^^^^
   = help: Add alt text: Image(src: "...", alt: "Description of image")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a01-an-image-with-no-alt-text
 ```
 
 **Fix:** `Image(src: "/team.jpg", alt: "The team at the launch")`. A purely decorative image takes `alt: ""`.
@@ -1516,7 +1537,7 @@ warning[A02]: IconButton missing accessible label
 3 |     IconButton(icon: "close")
   |     ^^^^^^^^^^
   = help: Add a label: IconButton(icon: "close", label: "Close dialog")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a02-an-icon-button-with-no-name
 ```
 
 **Fix:** `IconButton(icon: "close", label: "Close")` — the label is read aloud, never shown.
@@ -1538,7 +1559,7 @@ warning[A03]: Input missing "label" or "placeholder" attribute
 4 |     Input(bind: name).text
   |     ^^^^^
   = help: Add a label: Input(label: "Username").text
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a03-an-input-with-no-label
 ```
 
 **Fix:** `Input(bind: name, label: "Name")`. A placeholder alone disappears as the reader types.
@@ -1560,7 +1581,7 @@ warning[A04]: Checkbox missing "label" attribute
 4 |     Checkbox(bind: agree)
   |     ^^^^^^^^
   = help: Add a label: Checkbox(bind: value, label: "Description")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a04-a-control-with-no-label
 ```
 
 **Fix:** `Checkbox(bind: agree, label: "I agree to the terms")`.
@@ -1581,7 +1602,7 @@ warning[A05]: Button has no text content
 3 |     Button { Icon("check") }
   |     ^^^^^^
   = help: Add text: Button("Save").primary
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a05-a-button-with-no-text
 ```
 
 **Fix:** Give it text, or an `aria-label:` when it shows only an icon.
@@ -1602,7 +1623,7 @@ warning[A06]: Link has no text content
 3 |     Link(to: "/about")
   |     ^^^^
   = help: Add text: Link("About", to: "/about")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a06
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a06-a-link-with-no-text
 ```
 
 **Fix:** Give it text that names where it goes — not "click here".
@@ -1623,7 +1644,7 @@ warning[A07]: Heading has empty text content
 3 |     Heading("").h2
   |     ^^^^^^^
   = help: Headings should have meaningful text
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a07
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a07-an-empty-heading
 ```
 
 **Fix:** Give the heading text, or remove it; style text with `style { }` rather than an empty heading.
@@ -1645,7 +1666,7 @@ warning[A08]: Modal missing "title" attribute
 4 |     Modal(visible: open) { Text("Hello") }
   |     ^^^^^
   = help: Add a title: Modal(visible: state, title: "Dialog Title")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a08
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a08-a-dialog-with-no-title
 ```
 
 **Fix:** `Modal(visible: open, title: "Delete this?")` — the title is its accessible name.
@@ -1666,7 +1687,7 @@ warning[A09]: Video missing "captions"
 3 |     Video(src: "/demo.mp4").controls
   |     ^^^^^
   = help: Add captions: Video(src: "...", captions: "/captions.en.vtt")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a09
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a09-media-nobody-can-follow-without-sound
 ```
 
 **Fix:** `Video(src: …, captions: "/demo.en.vtt").controls`; an `Audio` takes `transcript:`.
@@ -1681,13 +1702,13 @@ page P(path: "/", title: "T", description: "D") {
 ```
 
 ```text
-warning[A10]: Table missing header row (Thead)
+warning[A10]: Table has no header row (`Table.Head`)
  --> src/App.wf:3:5
   |
 3 |     Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
   |     ^^^^^
-  = help: Add a header: Table { Thead { Tcell("Column Name") } ... }
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a10
+  = help: Add one: `Table { Table.Head { Table.Row { Table.Cell("Name") } } … }`
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a10-a-table-with-no-header-row
 ```
 
 **Fix:** Put the first row in `Table.Head`, so its cells are `<th scope="col">`.
@@ -1708,7 +1729,7 @@ warning[A11]: Heading level skips from h1 to h4
 3 |     Heading("Deep").h4
   |     ^^^^^^^
   = help: Use h2 instead, or add the missing intermediate headings
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a11
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a11-a-skipped-heading-level
 ```
 
 **Fix:** Use the next level down (`h2` after `h1`). Size text with `style { font-size }`, not with the heading level.
@@ -1728,7 +1749,7 @@ warning[A12]: Page has no h1 heading
 1 | page P(path: "/", title: "T", description: "D") {
   | ^^^^
   = help: Add a main heading: Heading("Page Title").h1
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a12
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a12-a-page-without-exactly-one-h1
 ```
 
 **Fix:** One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.
@@ -1752,7 +1773,7 @@ warning[A13]: text on a card or surface has a contrast ratio of 1.83:1, below th
 2 |     color-text: #BBBBBB
   | ^
   = help: Darken --color-text or lighten --color-surface until they clear 4.5:1
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a13
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a13-colours-without-enough-contrast
 ```
 
 **Fix:** Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).
@@ -1776,12 +1797,12 @@ warning[A14]: role "tablist" requires children with role "tab", but holds a Butt
 3 |     Row(role: "tablist") {
   |     ^^^
   = help: Give each child role: "tab", or use the built-in that owns this structure
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a14
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a14-a-role-whose-children-are-the-wrong-kind
 ```
 
 **Fix:** Give each child the role the parent requires (`role: "tab"`), or use the built-in that owns the structure — `Tabs`.
 
-### A15 — An aria-label that does not contain the visible text
+### A15 — An `aria-label` that does not contain the visible text
 
 ```wf expect A15
 page P(path: "/", title: "T", description: "D") {
@@ -1797,7 +1818,7 @@ warning[A15]: Button shows "save" but its aria-label says "Submit the form"
 3 |     Button("Save", aria-label: "Submit the form")
   |     ^^^^^^
   = help: Start the aria-label with the visible text, so what a user says matches what they see
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a15
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a15-an-aria-label-that-does-not-contain-the-visible-text
 ```
 
 **Fix:** Start the `aria-label` with the visible words: `aria-label: "Save the draft"`.
@@ -1821,7 +1842,7 @@ warning[A16]: `id: "row"` is inside a `for`, so the page has several elements wi
 4 |     for r in rows by r { Text(r, id: "row") }
   |                          ^^^^
   = help: Make it unique — `id: "row-{item.id}"` — or drop it; a label's `for` and `aria-*` find one element by id
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a16
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#a16-one-id-on-several-elements
 ```
 
 **Fix:** Make it unique — `id: "row-{r}"` — or drop it.
@@ -1845,7 +1866,7 @@ warning[S01]: Page P has no title
 1 | page P(path: "/", description: "D") {
   | ^^^^
   = help: Add one: page Name(path: "/", title: "What this page is")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s01-a-page-with-no-title
 ```
 
 **Fix:** `page P(path: "/", title: "What this page is")`.
@@ -1865,7 +1886,7 @@ warning[S02]: Page P has no description
 1 | page P(path: "/", title: "T") {
   | ^^^^
   = help: Add one: page Name(path: "/", title: "…", description: "A sentence a search result can show")
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s02-a-page-with-no-description
 ```
 
 **Fix:** Add a `description:` of about 150 characters: what a reader gets from the page.
@@ -1885,7 +1906,7 @@ warning[S03]: Page P's description is 178 characters; a search result shows abou
 1 | page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
   | ^^^^
   = help: Shorten it, or accept that it will be cut mid-sentence
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s03-a-description-too-long-for-a-search-result
 ```
 
 **Fix:** Shorten it to about 160 characters.
@@ -1904,7 +1925,7 @@ error[S04]: Pages A and B both claim the route /about
 2 | page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }
   | ^^^^
   = help: Give each page its own path
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#s04-two-pages-on-one-route
 ```
 
 **Fix:** Give each page its own `path:`. Only one of them would ever render.
@@ -1930,7 +1951,7 @@ warning[P01]: `items` is at version 2, and nothing brings version 1 forward
 2 |     persist items: [String] = [] {
   |     ^^^^^^^
   = help: A reader who last visited then loses what they had. Add `migrate 1 -> 2`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p01-a-persisted-value-with-no-way-forward
 ```
 
 **Fix:** Add a step for each older version: `migrate 1 -> 2 { old.map(…) }`.
@@ -1953,7 +1974,7 @@ warning[P02]: `migrate 1 -> 2` on `items` is past the declared version
 2 |     persist items: [String] = [] {
   |     ^^^^^^^
   = help: A step above `version:` never runs; raise the version or drop the step
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p02-a-migration-that-never-runs
 ```
 
 **Fix:** Raise `version:` to the step's target, or drop the step.
@@ -1973,7 +1994,7 @@ warning[P03]: `query` is persisted in a store scoped to the route
 2 |     persist query = ""
   |     ^^^^^^^
   = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#p03-a-persisted-value-in-a-route-scoped-store
 ```
 
 **Fix:** Keep route-scoped data in `state`, or move the value to a store with a wider scope.
@@ -1998,7 +2019,7 @@ warning[U01]: `unused` is declared but never read
 2 |     state unused = 0
   |     ^^^^^
   = help: Nothing reads the state; remove it, or name it `_unused` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u01-a-state-nothing-reads
 ```
 
 **Fix:** Remove it, read it, or name it `_unused` to keep it on purpose.
@@ -2020,7 +2041,7 @@ warning[U02]: `doubled` is declared but never read
 3 |     derived doubled = n * 2
   |     ^^^^^^^
   = help: Nothing reads the derived value; remove it, or name it `_doubled` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u02
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u02-a-derived-value-nothing-reads
 ```
 
 **Fix:** Remove it or read it; a leading `_` keeps it.
@@ -2041,7 +2062,7 @@ warning[U03]: `Orphan` is declared but never placed
 1 | component Orphan { Text("Nobody places me") }
   | ^^^^^^^^^
   = help: Place it in a page, name it as a layout, or remove it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u03-a-component-nothing-places
 ```
 
 **Fix:** Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.
@@ -2066,7 +2087,7 @@ warning[U04]: `Cart.coupon` is declared but never read
 3 |     state coupon = ""
   |     ^^^^^
   = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u04-a-store-member-nothing-reads
 ```
 
 **Fix:** Remove the member, or name it with a leading `_`.
@@ -2088,7 +2109,7 @@ warning[U05]: `reset` is declared but never read
 3 |     action reset() { n = 0 }
   |     ^^^^^^
   = help: Nothing reads the action; remove it, or name it `_reset` to keep it
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u05-an-action-nothing-calls
 ```
 
 **Fix:** Call it, remove it, or name it `_reset`.
@@ -2115,10 +2136,39 @@ warning[U06]: this never runs: the `return` above leaves first
 6 |         log("reset")
   |         ^^^^^^^^^^^^
   = help: Remove it, or move it above the `return`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u06
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u06-code-after-return
 ```
 
 **Fix:** Remove it, or move it above the `return`.
+
+### U07 — An allow that allows nothing
+
+A `// wf-allow(CODE)` comment accepts one finding on purpose: on a line of
+its own it covers the next line of code, and at the end of a line it covers
+that line. It names codes (`U01`) or families (`U`), comma-separated, and
+only what `lints` could lower — a warning, or an error that ships no broken
+page. An allow that covers nothing it names is reported, so allows cannot
+outlive what they were written for.
+
+```wf expect U07
+page P(path: "/", title: "T", description: "D") {
+    // wf-allow(U01)
+    state shown = 0
+    Heading("Count {shown}").h1
+}
+```
+
+```text
+warning[U07]: `wf-allow(U01)` allows nothing: no `U01` is reported on the line it covers
+ --> src/App.wf:2:5
+  |
+2 |     // wf-allow(U01)
+  |     ^^^^^^^^^^^^^^^^
+  = help: Remove it — what it was written for is gone
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u07-an-allow-that-allows-nothing
+```
+
+**Fix:** Remove the allow — what it was written for is gone.
 
 ### U08 — A condition that is always the same
 
@@ -2136,7 +2186,7 @@ warning[U08]: `false` is always false, so one branch never runs
 3 |     if false { Text("Coming soon") }
   |        ^^^^^
   = help: Use the value that decides, or remove the branch that cannot run
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u08
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u08-a-condition-that-is-always-the-same
 ```
 
 **Fix:** Use the value that decides, or remove the branch that cannot run.
@@ -2160,7 +2210,7 @@ warning[U09]: this `for` has no `by`, and each item holds a `Input`, which start
 4 |     for r in rows { Input(bind: r.name, label: "Name") }
   |     ^^^
   = help: Key it: `for r in … by r.id`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u09
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u09-an-unkeyed-loop-whose-items-hold-state
 ```
 
 **Fix:** Key it: `for r in rows by r.id`.
@@ -2187,7 +2237,7 @@ warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is 
 5 |     match tone {
   |     ^^^^^
   = help: Remove the `else`
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u10
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#u10-an-else-no-value-reaches
 ```
 
 **Fix:** Remove the `else`.
@@ -2211,7 +2261,7 @@ warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a 
   |
 3 |     Button(primary)
   |            ^^^^^^^
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v01
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v01-a-bare-word-that-means-nothing
 ```
 
 **Fix:** Write the flag with its dot — `Button("Save").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.
@@ -2233,7 +2283,7 @@ warning[V03]: `Unsafe.Html` puts markup in as markup
 4 |     Unsafe.Html(body)
   |     ^^^^^^^^^^^
   = help: Anything the project did not write itself belongs in `sanitize(…)` first
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v03
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v03-markup-put-in-as-markup
 ```
 
 **Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.
@@ -2262,7 +2312,7 @@ warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
 3 |     Card(class: "wf-btn") { Text("x") }
   |     ^^^^
   = help: `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v04
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v04-a-class-that-is-the-engine-s
 ```
 
 **Fix:** Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).
@@ -2286,7 +2336,7 @@ warning[V05]: `colr` is not a CSS property, so the browser ignores it
 3 |         style { colr: red }
   |                 ^^^^
   = help: Did you mean `color`?
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v05
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v05-a-css-property-no-browser-knows
 ```
 
 **Fix:** The property the message suggests — here `color`. A custom
@@ -2309,7 +2359,7 @@ error[V06]: `$brnad` is no token the theme declares, so it is never set
 3 |         style { color: $brnad }
   |                 ^^^^^
   = help: Declare it in your `theme { … }`, or use one the theme has
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v06
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v06-a-design-token-the-theme-does-not-declare
 ```
 
 **Fix:** A token the theme has — a short name resolves through the
@@ -2335,7 +2385,7 @@ warning[V07]: `width: {pct}` is a number with no unit, which the browser drops
 4 |     Card { style { width: {pct} } }
   |                    ^^^^^^^^^^^^
   = help: Give it one: `width: {pct}px` (or `%`, `rem`)
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v07
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v07-a-number-where-css-wants-a-length
 ```
 
 **Fix:** Give it a unit: `width: {pct}%`.
@@ -2356,7 +2406,7 @@ warning[V08]: `rocket` is not an icon the runtime draws; it will show as the wor
 3 |     Icon("rocket")
   |          ^
   = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v08
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v08-an-icon-the-runtime-does-not-draw
 ```
 
 **Fix:** Use one of the built-in icons the message lists.
@@ -2377,7 +2427,7 @@ warning[V09]: `clik` is not an event Button fires
 3 |     Button("Save") { on clik { log("saved") } }
   |                      ^^
   = help: A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares
-  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v09
+  = docs: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#v09-an-event-the-element-does-not-fire
 ```
 
 **Fix:** Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`,

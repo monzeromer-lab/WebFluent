@@ -412,6 +412,24 @@ fn check_element(
                     "declare `component {name} {{ … }}` or check the spelling"
                 )),
             );
+            // The component it may have meant: the project's, or a built-in.
+            let known: Vec<&str> = components
+                .iter()
+                .copied()
+                .chain(crate::registry::components().map(|c| c.name))
+                .collect();
+            if let Some(near) = crate::diagnostics::fixes::nearest(name, known.iter().copied())
+                && let Some(d) = diags.pop()
+            {
+                let hint = format!("did you mean `{near}`? Or declare `component {name} {{ … }}`");
+                diags.push(d.with_hint(hint).with_plan(
+                    format!("Change to `{near}`"),
+                    crate::diagnostics::fixes::Plan::Rename {
+                        from: name.clone(),
+                        to: near.to_string(),
+                    },
+                ));
+            }
         }
     }
 }

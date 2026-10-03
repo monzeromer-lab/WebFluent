@@ -4,7 +4,7 @@
 route: guide/cli
 group: reference
 blurb: Every wf command and flag, the dev server, and the language server in each editor.
-description: The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.
+description: The wf command line: init, build, check, explain, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.
 -->
 
 One binary, `wf`, scaffolds, builds, serves, formats, tests, renders and
@@ -20,7 +20,9 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | Command | Does |
 |---|---|
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides]` | Creates a project from a template |
-| `wf build [-d, --dir DIR] [--stats]` | Compiles the project; fails on errors, prints warnings |
+| `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings]` | Compiles the project; fails on errors, prints warnings |
+| `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Every finding a build would report, with nothing written |
+| `wf explain [CODE]` | What a diagnostic code means, a program that draws it, and the fix |
 | `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, rebuilds and reloads on every save |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
 | `wf verify [PATH] [--json] [--budget MS]` | Loads every built page in headless Chrome |
@@ -52,6 +54,16 @@ Runs the whole pipeline — parse, semantic checks, type checks, linters,
 code generation — and writes `build.output` (`./build`). Errors stop the
 build with the file, line, column, message and a hint; warnings print and
 the build goes on. `-d DIR` builds another directory.
+
+`--format` says how the findings are written: `human` (the default, on
+standard error), `json` (one document on standard output — every finding
+with its code, place, hint, related places and fixes, and the counts),
+`sarif` (SARIF 2.1.0, for GitHub code scanning and every other SARIF
+reader) or `github` (`::error file=…` annotations on standard output, which
+a workflow shows on the pull request, with the rendering kept on standard
+error). With `json` or `sarif` the build's progress goes to standard error,
+so standard output is the document alone. `--deny-warnings` stops the build
+on a warning, as on an error — the switch for CI.
 
 `--stats` prints what the build weighs: every text file with its gzipped
 size and how it moved since the last build, the runtime modules it kept and
@@ -87,6 +99,32 @@ overwrites a file. A page gets a path from its name (`/pricing`), a title, a
 description and an `h1`.
 
 ## Checking
+
+### `wf check`
+
+```bash
+wf check
+wf check --format sarif > wf.sarif
+wf check --deny-warnings
+```
+
+Runs every check a build runs — the parser, the structure, the types, the
+lints, the config — and writes nothing, so it is fast enough for a
+pre-commit hook. It takes `--format` and `--deny-warnings` as `wf build`
+does, exits `1` on a finding that stops a build and `0` otherwise, and says
+`No problems in NAME.` when there are none. What only the output can show —
+the security policy read back over the written pages — is the build's.
+
+### `wf explain`
+
+```bash
+wf explain T05
+wf explain
+```
+
+A code's entry in [Diagnostics](39-diagnostics.md), in the terminal: what it
+means, a program that draws it, what the compiler says, the fix and the
+link. With no code, every code with its severity and title.
 
 ### `wf test`
 

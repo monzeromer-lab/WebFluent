@@ -363,3 +363,270 @@ fn a_project_s_files_translations_and_stored_shapes_are_held_to_its_program() {
     let (_, _, err) = wf(&dir, &["build"]);
     assert!(err.contains("warning[D04]"), "{err}");
 }
+
+const PAGE: &str = "page Home(path: \"/\", title: \"H\", description: \"D\") {\n";
+
+#[test]
+fn check_writes_nothing_and_speaks_each_format() {
+    let dir = project(
+        "check",
+        r#"{ "name": "c" }"#,
+        &[(
+            "src/App.wf",
+            &format!(
+                "{APP}{PAGE}    state u = User(id: \"1\", name: \"Ada\")\n    Heading(u.nmae).h1\n}}\n"
+            ),
+        )],
+    );
+    let (code, out, err) = wf(&dir, &["check"]);
+    assert_eq!(code, 1, "{err}");
+    assert!(err.contains("error[T05]"), "{err}");
+    assert!(
+        out.is_empty(),
+        "the human findings go to standard error: {out}"
+    );
+    assert!(!dir.join("build").exists(), "`wf check` wrote output");
+
+    // JSON: the document alone on standard output, with the struct's fields.
+    let (code, out, _) = wf(&dir, &["check", "--format", "json"]);
+    assert_eq!(code, 1);
+    let v: serde_json::Value = serde_json::from_str(&out).expect("standard output is JSON");
+    assert_eq!(v["errors"], 1);
+    assert_eq!(v["diagnostics"][0]["code"], "T05");
+    assert_eq!(v["diagnostics"][0]["fixes"][0]["title"], "Change to `name`");
+
+    let (_, out, _) = wf(&dir, &["check", "--format", "sarif"]);
+    let v: serde_json::Value = serde_json::from_str(&out).expect("standard output is SARIF");
+    assert_eq!(v["version"], "2.1.0");
+    assert_eq!(v["runs"][0]["results"][0]["ruleId"], "T05");
+
+    let (_, out, err) = wf(&dir, &["check", "--format", "github"]);
+    assert!(
+        out.starts_with("::error file=src/App.wf,line=5,col=15"),
+        "{out}"
+    );
+    assert!(
+        err.contains("error[T05]"),
+        "the log keeps the rendering: {err}"
+    );
+
+    // A build in JSON keeps its progress off standard output, too.
+    let (code, out, err) = wf(&dir, &["build", "--format", "json"]);
+    assert_eq!(code, 1, "{err}");
+    serde_json::from_str::<serde_json::Value>(&out).expect("a build's standard output is JSON");
+    assert!(err.contains("Building c"), "{err}");
+
+    let (code, _, err) = wf(&dir, &["check", "--format", "yaml"]);
+    assert_eq!(code, 2, "{err}");
+}
+
+#[test]
+fn a_clean_check_says_so_and_deny_warnings_fails_on_a_warning() {
+    let dir = project(
+        "deny",
+        r#"{ "name": "d" }"#,
+        &[("src/App.wf", &format!("{PAGE}    Heading(\"Hi\").h1\n}}\n"))],
+    );
+    let (code, out, _) = wf(&dir, &["check"]);
+    assert_eq!(code, 0);
+    assert!(out.contains("No problems in d."), "{out}");
+
+    let dir = project(
+        "deny-w",
+        r#"{ "name": "d" }"#,
+        &[(
+            "src/App.wf",
+            &format!("{PAGE}    state unused = 1\n    Heading(\"Hi\").h1\n}}\n"),
+        )],
+    );
+    let (code, _, err) = wf(&dir, &["check"]);
+    assert_eq!(code, 0, "a warning alone passes: {err}");
+    let (code, _, err) = wf(&dir, &["check", "--deny-warnings"]);
+    assert_eq!(code, 1, "{err}");
+    assert!(
+        err.contains("warning[U01]") && err.contains("--deny-warnings"),
+        "{err}"
+    );
+    let (code, _, err) = wf(&dir, &["build", "--deny-warnings"]);
+    assert_eq!(code, 1, "{err}");
+    assert!(
+        !dir.join("build/index.html").exists(),
+        "a denied build wrote its pages"
+    );
+}
+
+#[test]
+fn explain_shows_a_code_s_entry() {
+    let dir = std::env::temp_dir();
+    let (code, out, _) = wf(&dir, &["explain", "t05"]);
+    assert_eq!(code, 0);
+    assert!(
+        out.starts_with("T05 — A field or method that does not exist (error)"),
+        "{out}"
+    );
+    assert!(
+        out.contains(
+            "In the guide: https://monzeromer-lab.github.io/WebFluent/docs/guide/diagnostics#t05-"
+        ),
+        "{out}"
+    );
+    let (code, _, err) = wf(&dir, &["explain", "T5"]);
+    assert_eq!(code, 2);
+    assert!(err.contains("is no code"), "{err}");
+    let (code, out, _) = wf(&dir, &["explain"]);
+    assert_eq!(code, 0);
+    assert!(out.contains("U07") && out.contains("E101"), "{out}");
+}
+
+#[test]
+fn an_allow_silences_one_finding_and_a_stale_one_is_reported() {
+    let dir = project(
+        "allow",
+        r#"{ "name": "a" }"#,
+        &[(
+            "src/App.wf",
+            &format!(
+                "{PAGE}    // wf-allow(U01)\n    state kept = 1\n    state other = 2 // wf-allow(U)\n    // wf-allow(U02)\n    state stale = 3\n    Heading(\"Hi {{stale}}\").h1\n    // wf-allow(T05)\n    Text(\"x\")\n}}\n"
+            ),
+        )],
+    );
+    let (_, out, _) = wf(&dir, &["check", "--format", "json"]);
+    let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+    let found: Vec<(String, u64)> = v["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| {
+            (
+                d["code"].as_str().unwrap().to_string(),
+                d["line"].as_u64().unwrap(),
+            )
+        })
+        .collect();
+    // `kept` and `other` are allowed; the U02 allow covers a state that is
+    // read, and T05 is an error no allow may silence.
+    assert_eq!(
+        found,
+        vec![("U07".to_string(), 5), ("U07".to_string(), 8)],
+        "{out}"
+    );
+}
+
+/// `wf check --format json` in `dir`: every finding.
+fn findings(dir: &Path) -> Vec<serde_json::Value> {
+    let (_, out, err) = wf(dir, &["check", "--format", "json"]);
+    let v: serde_json::Value =
+        serde_json::from_str(&out).unwrap_or_else(|e| panic!("{e}: {out}\n{err}"));
+    v["diagnostics"].as_array().unwrap().clone()
+}
+
+#[test]
+fn each_fix_applied_makes_its_finding_go() {
+    let cases: &[(&str, &str, &str)] = &[
+        (
+            "T05",
+            "type User { id: String, name: String }\nPAGE    state u = User(id: \"1\", name: \"Ada\")\n    Heading(u.nmae).h1\n}\n",
+            "Heading(u.name)",
+        ),
+        (
+            "T13",
+            "PAGE    state count = 0\n    Heading(\"Hi\").h1\n    Button(\"+\") { on click { cuont = 1 } }\n    Text(\"{count}\")\n}\n",
+            "count = 1",
+        ),
+        (
+            "T16",
+            "PAGE    state xs = [\"a\"]\n    Heading(xs.joined(\", \")).h1\n}\n",
+            "xs.join(",
+        ),
+        (
+            "T06",
+            "store Cart {\n    state total = 0\n}\nPAGE    use Cart\n    Heading(\"{Cart.totl}\").h1\n}\n",
+            "Cart.total",
+        ),
+        (
+            "T04",
+            "type User { id: String, name: String }\nPAGE    state u: User? = null\n    Heading(\"Hi\").h1\n    Text(u.name)\n}\n",
+            "u?.name",
+        ),
+        (
+            "E101",
+            "PAGE    Heading(\"Hi\").h1\n    Buton(\"Save\")\n}\n",
+            "Button(\"Save\")",
+        ),
+        (
+            "E103",
+            "PAGE    Heading(\"Hi\").h1\n    Button(\"Save\").primry\n}\n",
+            ".primary",
+        ),
+        (
+            "U01",
+            "PAGE    state unused = 1\n    Heading(\"Hi\").h1\n}\n",
+            "state _unused",
+        ),
+        (
+            "A01",
+            "PAGE    Heading(\"Hi\").h1\n    Image(src: \"https://example.com/a.png\")\n}\n",
+            "alt: \"\"",
+        ),
+        (
+            "C01",
+            "component Card2(title: String, count: Number) { Text(\"{title} {count}\") }\nPAGE    Heading(\"Hi\").h1\n    Card2(count: 1)\n}\n",
+            "Card2(count: 1, title: \"\")",
+        ),
+        (
+            "T15",
+            "enum Tone { calm, loud, quiet }\nPAGE    state t: Tone = .calm\n    Heading(\"Hi\").h1\n    match t {\n        .calm { Text(\"c\") }\n    }\n}\n",
+            ".quiet { }",
+        ),
+        (
+            "V01",
+            "PAGE    Heading(\"Hi\").h1\n    Button(outline) { on click { log(1) } }\n}\n",
+            "Button.outlined {",
+        ),
+    ];
+    for (code, src, expect) in cases {
+        let src = src.replace("PAGE", PAGE);
+        let dir = project(
+            &format!("fix-{}", code.to_lowercase()),
+            r#"{ "name": "f" }"#,
+            &[("src/App.wf", &src)],
+        );
+        let before = findings(&dir);
+        let finding = before
+            .iter()
+            .find(|d| d["code"] == *code)
+            .unwrap_or_else(|| panic!("no {code} in {before:#?}"));
+        let fix: webfluent::diagnostics::Fix = webfluent::diagnostics::Fix {
+            title: finding["fixes"][0]["title"]
+                .as_str()
+                .unwrap_or_else(|| panic!("{code} offers no fix: {finding:#}"))
+                .to_string(),
+            edits: finding["fixes"][0]["edits"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|e| webfluent::diagnostics::Edit {
+                    file: e["file"].as_str().unwrap().to_string(),
+                    line: e["line"].as_u64().unwrap() as usize,
+                    column: e["column"].as_u64().unwrap() as usize,
+                    end_line: e["end_line"].as_u64().unwrap() as usize,
+                    end_column: e["end_column"].as_u64().unwrap() as usize,
+                    text: e["text"].as_str().unwrap().to_string(),
+                })
+                .collect(),
+        };
+        let fixed = webfluent::diagnostics::fixes::apply(&src, &fix);
+        assert!(
+            fixed.contains(expect),
+            "{code}: `{}` gave\n{fixed}",
+            fix.title
+        );
+        std::fs::write(dir.join("src/App.wf"), &fixed).unwrap();
+        let after = findings(&dir);
+        assert!(
+            !after.iter().any(|d| d["code"] == *code),
+            "{code} is still reported after `{}`:\n{fixed}\n{after:#?}",
+            fix.title
+        );
+    }
+}

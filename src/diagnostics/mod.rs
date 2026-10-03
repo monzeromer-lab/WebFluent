@@ -9,8 +9,11 @@
 //! language server, `wf test`, the docs tests and the studio all read the
 //! same list, so the editor shows exactly what the build refuses.
 
+pub mod allow;
 pub mod check;
 pub mod codes;
+pub mod fixes;
+pub mod format;
 pub mod render;
 
 use serde::Serialize;
@@ -104,6 +107,10 @@ pub struct Diagnostic {
     pub related: Vec<Related>,
     pub fixes: Vec<Fix>,
     pub tags: Vec<Tag>,
+    /// Fixes known by their shape, which the pipeline writes out against
+    /// the file's text as [`fixes`](Self::fixes) ([`fixes::realise`]).
+    #[serde(skip)]
+    pub plans: Vec<fixes::Planned>,
 }
 
 impl Diagnostic {
@@ -128,6 +135,7 @@ impl Diagnostic {
             related: Vec::new(),
             fixes: Vec::new(),
             tags: Vec::new(),
+            plans: Vec::new(),
         };
         d.set_code(code);
         d

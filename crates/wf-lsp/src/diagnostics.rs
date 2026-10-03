@@ -165,8 +165,35 @@ pub fn to_lsp(
         message,
         related_information: (!related.is_empty()).then_some(related),
         tags: (!tags.is_empty()).then_some(tags),
-        data: serde_json::to_value(&finding.fixes)
-            .ok()
-            .filter(|_| !finding.fixes.is_empty()),
+        data: fixes(finding, source, index),
     }
+}
+
+/// A finding's fixes as the editor applies them — a title and LSP text
+/// edits — carried in the diagnostic's `data`, which a client hands back
+/// with a code-action request.
+fn fixes(finding: &WfDiagnostic, source: &str, index: &LineIndex) -> Option<serde_json::Value> {
+    let fixes: Vec<serde_json::Value> = finding
+        .fixes
+        .iter()
+        .map(|fix| {
+            let edits: Vec<TextEdit> = fix
+                .edits
+                .iter()
+                .filter_map(|e| {
+                    let start = index.line_col_to_offset(source, e.line, e.column)?;
+                    let end = index.line_col_to_offset(source, e.end_line, e.end_column)?;
+                    Some(TextEdit {
+                        range: Range::new(
+                            index.offset_to_position(source, start),
+                            index.offset_to_position(source, end),
+                        ),
+                        new_text: e.text.clone(),
+                    })
+                })
+                .collect();
+            serde_json::json!({ "title": fix.title, "edits": edits })
+        })
+        .collect();
+    (!fixes.is_empty()).then_some(serde_json::Value::Array(fixes))
 }

@@ -236,9 +236,10 @@ fn a_type_error_is_a_diagnostic_with_its_hint() {
     // The code is data with a link to its entry, and the range is the
     // value's whole span, not the first word of the line.
     assert!(
-        t01.code_description
-            .as_ref()
-            .is_some_and(|c| c.href.as_str().ends_with("diagnostics#t01")),
+        t01.code_description.as_ref().is_some_and(|c| c
+            .href
+            .as_str()
+            .ends_with("diagnostics#t01-a-value-of-the-wrong-type")),
         "{t01:?}"
     );
     assert!(
@@ -634,4 +635,39 @@ fn extract_component_lifts_the_selection_with_what_it_reads_as_props() {
             "{needle}"
         );
     }
+}
+
+#[test]
+fn a_misspelled_field_offers_the_field_it_meant() {
+    let src = "type User { id: String, name: String }\npage Home(path: \"/\") {\n    state u = User(id: \"1\", name: \"Ada\")\n    Text(u.nmae)\n}\n";
+    let project = project(src);
+    let diagnostics = project_diagnostics(&project).remove(0);
+    let t05 = diagnostics
+        .iter()
+        .find(|d| d.code == Some(NumberOrString::String("T05".into())))
+        .expect("a missing field");
+    let uri = Url::parse("file:///p/src/App.wf").unwrap();
+    let actions = wf_lsp::code_actions::provide_code_actions(
+        &uri,
+        CodeActionParams {
+            text_document: TextDocumentIdentifier { uri: uri.clone() },
+            range: t05.range,
+            context: CodeActionContext {
+                diagnostics: vec![t05.clone()],
+                only: None,
+                trigger_kind: None,
+            },
+            work_done_progress_params: Default::default(),
+            partial_result_params: Default::default(),
+        },
+    );
+    let CodeActionOrCommand::CodeAction(action) = &actions[0] else {
+        panic!("{actions:?}");
+    };
+    assert_eq!(action.title, "Change to `name`");
+    let edits = &action.edit.as_ref().unwrap().changes.as_ref().unwrap()[&uri];
+    // `.nmae` on line 4 becomes `.name`.
+    assert_eq!(edits[0].new_text, ".name");
+    assert_eq!(edits[0].range.start, Position::new(3, 10));
+    assert_eq!(edits[0].range.end, Position::new(3, 15));
 }

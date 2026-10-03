@@ -17,15 +17,21 @@ use crate::parser::ast::*;
 
 /// The unused declarations of a program, as warnings.
 pub fn lint_unused(program: &Program) -> Vec<A11yWarning> {
-    lint_unused_in(program, &|_| "<unknown>".to_string())
+    lint_unused_in(program, &|_| "<unknown>".to_string(), &[])
 }
 
-/// [`lint_unused`], naming each declaration's file.
-pub fn lint_unused_in(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
+/// [`lint_unused`], naming each declaration's file. `published` are the
+/// components the build publishes as custom elements (`build.elements`):
+/// whoever loads the script places them, and nothing in the project does.
+pub fn lint_unused_in(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    published: &[String],
+) -> Vec<A11yWarning> {
     let mut out = Vec::new();
 
     // Every component and part the program places, by name; every layout.
-    let mut placed: HashSet<String> = HashSet::new();
+    let mut placed: HashSet<String> = published.iter().cloned().collect();
     for decl in &program.declarations {
         let body = match decl {
             Declaration::Page(p) => {
@@ -143,16 +149,19 @@ pub fn lint_unused_in(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
                     {
                         continue;
                     }
-                    out.push(warn(
-                        kind,
-                        format!("`{}.{name}` is declared but never read", s.name),
-                        &file,
-                        stmt.span,
-                        &format!(
-                            "Nothing reads the {what}, inside the store or as `{}.{name}`; remove it, or name it `_{name}` to keep it",
-                            s.name
-                        ),
-                    ));
+                    out.push(
+                        warn(
+                            kind,
+                            format!("`{}.{name}` is declared but never read", s.name),
+                            &file,
+                            stmt.span,
+                            &format!(
+                                "Nothing reads the {what}, inside the store or as `{}.{name}`; remove it, or name it `_{name}` to keep it",
+                                s.name
+                            ),
+                        )
+                        .with_plan(format!("Rename to `_{name}`"), keep(name)),
+                    );
                 }
             }
             _ => {}
@@ -176,13 +185,24 @@ fn local_unused(body: &[Statement], file: &str, out: &mut Vec<A11yWarning>) {
         if name.starts_with('_') || reads.names.contains(name) {
             continue;
         }
-        out.push(warn(
-            code,
-            format!("`{name}` is declared but never read"),
-            file,
-            stmt.span,
-            &format!("Nothing reads the {what}; remove it, or name it `_{name}` to keep it"),
-        ));
+        out.push(
+            warn(
+                code,
+                format!("`{name}` is declared but never read"),
+                file,
+                stmt.span,
+                &format!("Nothing reads the {what}; remove it, or name it `_{name}` to keep it"),
+            )
+            .with_plan(format!("Rename to `_{name}`"), keep(name)),
+        );
+    }
+}
+
+/// The fix that keeps a name nothing reads: an `_` before it.
+fn keep(name: &str) -> crate::diagnostics::fixes::Plan {
+    crate::diagnostics::fixes::Plan::Rename {
+        from: name.to_string(),
+        to: format!("_{name}"),
     }
 }
 

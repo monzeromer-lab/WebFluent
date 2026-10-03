@@ -1,6 +1,6 @@
 /// Chapter 37 of the guide, written from md-docs/37-cli.md by
 /// scripts/site-from-guide.py; edit the guide, not this file.
-page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", description: "The wf command line: init, build, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.", layout: DocsShell("Command line and editors", chapter: t("guide.chapter", { n: "37" }), blurb: "Every wf command and flag, the dev server, and the language server in each editor.", source: "md-docs/37-cli.md", sections: [Anchor(id: "the-commands", label: "The commands"), Anchor(id: "creating-and-building", label: "Creating and building"), Anchor(id: "checking", label: "Checking"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing", label: "Describing"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors")], prevTo: "/docs/reference", prevLabel: "36. {t("ch.36")}", nextTo: "/docs/guide/config", nextLabel: "38. {t("ch.38")}")) {
+page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", description: "The wf command line: init, build, check, explain, serve, test, verify, fmt, generate, render, migrate, audit, docs, registry, types — and editor setup.", layout: DocsShell("Command line and editors", chapter: t("guide.chapter", { n: "37" }), blurb: "Every wf command and flag, the dev server, and the language server in each editor.", source: "md-docs/37-cli.md", sections: [Anchor(id: "the-commands", label: "The commands"), Anchor(id: "creating-and-building", label: "Creating and building"), Anchor(id: "checking", label: "Checking"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing", label: "Describing"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors")], prevTo: "/docs/reference", prevLabel: "36. {t("ch.36")}", nextTo: "/docs/guide/config", nextLabel: "38. {t("ch.38")}")) {
     Stack(gap: .lg) {
         Markdown("One binary, `wf`, scaffolds, builds, serves, formats, tests, renders and describes a project. A second, `wf-lsp`, brings the same checks into your editor. `wf --help` lists the commands and `wf <command> --help` each one's flags; `wf --version` prints the version.\n\nEvery command that takes a project runs in the current directory unless told otherwise, and exits non-zero on failure, so each is a CI step as it is.")
 
@@ -19,8 +19,16 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Creates a project from a template")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf build [-d, --dir DIR] [--stats]`") }
+                    Table.Cell { Markdown("`wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings]`") }
                     Table.Cell("Compiles the project; fails on errors, prints warnings")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]`") }
+                    Table.Cell("Every finding a build would report, with nothing written")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wf explain [CODE]`") }
+                    Table.Cell("What a diagnostic code means, a program that draws it, and the fix")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`wf serve [-d, --dir DIR]`") }
@@ -81,7 +89,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
 
         Heading("wf build", id: "wf-build").h3
 
-        Markdown("Runs the whole pipeline — parse, semantic checks, type checks, linters, code generation — and writes `build.output` (`./build`). Errors stop the build with the file, line, column, message and a hint; warnings print and the build goes on. `-d DIR` builds another directory.\n\n`--stats` prints what the build weighs: every text file with its gzipped size and how it moved since the last build, the runtime modules it kept and what reached each, and the design tokens it left out. [Performance](/docs/guide/performance) reads it.")
+        Markdown("Runs the whole pipeline — parse, semantic checks, type checks, linters, code generation — and writes `build.output` (`./build`). Errors stop the build with the file, line, column, message and a hint; warnings print and the build goes on. `-d DIR` builds another directory.\n\n`--format` says how the findings are written: `human` (the default, on standard error), `json` (one document on standard output — every finding with its code, place, hint, related places and fixes, and the counts), `sarif` (SARIF 2.1.0, for GitHub code scanning and every other SARIF reader) or `github` (`::error file=…` annotations on standard output, which a workflow shows on the pull request, with the rendering kept on standard error). With `json` or `sarif` the build's progress goes to standard error, so standard output is the document alone. `--deny-warnings` stops the build on a warning, as on an error — the switch for CI.\n\n`--stats` prints what the build weighs: every text file with its gzipped size and how it moved since the last build, the runtime modules it kept and what reached each, and the design tokens it left out. [Performance](/docs/guide/performance) reads it.")
 
         Heading("wf serve", id: "wf-serve").h3
 
@@ -98,6 +106,25 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
         Markdown("Writes a starter declaration in `src/pages/`, `src/components/` or `src/stores/` — in `.wfx` when the project is written that way — and never overwrites a file. A page gets a path from its name (`/pricing`), a title, a description and an `h1`.")
 
         Heading("Checking", id: "checking").h2
+
+        Heading("wf check", id: "wf-check").h3
+
+        Terminal(lines: [
+                Line(command: "wf check"),
+                Line(command: "wf check --format sarif > wf.sarif"),
+                Line(command: "wf check --deny-warnings")
+            ])
+
+        Markdown("Runs every check a build runs — the parser, the structure, the types, the lints, the config — and writes nothing, so it is fast enough for a pre-commit hook. It takes `--format` and `--deny-warnings` as `wf build` does, exits `1` on a finding that stops a build and `0` otherwise, and says `No problems in NAME.` when there are none. What only the output can show — the security policy read back over the written pages — is the build's.")
+
+        Heading("wf explain", id: "wf-explain").h3
+
+        Terminal(lines: [
+                Line(command: "wf explain T05"),
+                Line(command: "wf explain")
+            ])
+
+        Markdown("A code's entry in [Diagnostics](/docs/guide/diagnostics), in the terminal: what it means, a program that draws it, what the compiler says, the fix and the link. With no code, every code with its severity and title.")
 
         Heading("wf test", id: "wf-test").h3
 

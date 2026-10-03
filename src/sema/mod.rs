@@ -420,12 +420,33 @@ impl Checker<'_, '_> {
                 Flag::Unknown => {
                     // The universal flags are lowered before this runs; a
                     // word that reaches here resolves to nothing.
+                    let flags = self.flag_words(sig);
+                    let near = crate::diagnostics::fixes::nearest(
+                        word,
+                        flags.iter().map(|f| f.trim_start_matches('.')),
+                    )
+                    .map(str::to_string);
+                    let hint = match &near {
+                        Some(n) => format!("Did you mean `.{n}`? {}", self.flag_hint(sig)),
+                        None => self.flag_hint(sig),
+                    };
                     self.error(
                         at,
                         "E103",
                         format!("{name} has no flag or enum case `{word}`"),
-                        &self.flag_hint(sig),
+                        &hint,
                     );
+                    if let Some(n) = near
+                        && let Some(d) = self.findings.errors.pop()
+                    {
+                        self.findings.errors.push(d.with_plan(
+                            format!("Change to `.{n}`"),
+                            crate::diagnostics::fixes::Plan::Rename {
+                                from: word.clone(),
+                                to: n,
+                            },
+                        ));
+                    }
                 }
             }
         }
@@ -592,6 +613,16 @@ impl Checker<'_, '_> {
     }
 
     fn flag_hint(&self, sig: &'static ComponentSig) -> String {
+        let words = self.flag_words(sig);
+        if words.is_empty() {
+            "It takes no flags".to_string()
+        } else {
+            format!("Its flags are {}", words.join(", "))
+        }
+    }
+
+    /// Every flag a built-in takes, `.`-prefixed and sorted.
+    fn flag_words(&self, sig: &'static ComponentSig) -> Vec<String> {
         let mut words: Vec<String> = Vec::new();
         for p in sig.all_props() {
             if !p.shorthand {
@@ -611,11 +642,7 @@ impl Checker<'_, '_> {
         }
         words.sort();
         words.dedup();
-        if words.is_empty() {
-            "It takes no flags".to_string()
-        } else {
-            format!("Its flags are {}", words.join(", "))
-        }
+        words
     }
 
     fn user_component(&mut self, el: &UIElement, decl: &ComponentDecl, span: Span) {

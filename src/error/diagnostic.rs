@@ -109,6 +109,9 @@ pub struct A11yWarning {
     pub column: usize,
     /// Suggested fix.
     pub hint: String,
+    /// Fixes known by their shape, written out against the source by the
+    /// pipeline.
+    pub plans: Vec<crate::diagnostics::fixes::Planned>,
 }
 
 impl A11yWarning {
@@ -128,7 +131,21 @@ impl A11yWarning {
             line,
             column,
             hint: hint.into(),
+            plans: Vec::new(),
         }
+    }
+
+    /// A fix this warning offers ([`crate::diagnostics::fixes::Plan`]).
+    pub fn with_plan(
+        mut self,
+        title: impl Into<String>,
+        plan: crate::diagnostics::fixes::Plan,
+    ) -> Self {
+        self.plans.push(crate::diagnostics::fixes::Planned {
+            title: title.into(),
+            plan,
+        });
+        self
     }
 }
 
@@ -163,6 +180,9 @@ pub struct VocabWarning {
     /// Suggested fix ("did you mean `outlined`?"), when something is close
     /// enough to suggest.
     pub hint: Option<String>,
+    /// Fixes known by their shape, written out against the source by the
+    /// pipeline.
+    pub plans: Vec<crate::diagnostics::fixes::Planned>,
 }
 
 impl fmt::Display for VocabWarning {
@@ -184,7 +204,9 @@ impl From<A11yWarning> for Diagnostic {
         let code = crate::diagnostics::codes::info(&w.rule_id)
             .map(|c| c.code)
             .unwrap_or("");
-        Diagnostic::coded(code, w.message, w.file, w.line, w.column).with_hint(w.hint)
+        let mut d = Diagnostic::coded(code, w.message, w.file, w.line, w.column).with_hint(w.hint);
+        d.plans = w.plans;
+        d
     }
 }
 
@@ -193,7 +215,8 @@ impl From<VocabWarning> for Diagnostic {
         let code = crate::diagnostics::codes::info(&w.rule_id)
             .map(|c| c.code)
             .unwrap_or("");
-        let d = Diagnostic::coded(code, w.message, w.file, w.line, w.column);
+        let mut d = Diagnostic::coded(code, w.message, w.file, w.line, w.column);
+        d.plans = w.plans;
         match w.hint {
             Some(hint) => d.with_hint(hint),
             None => d,

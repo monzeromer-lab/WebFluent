@@ -3,6 +3,7 @@ use crate::codegen::{
 };
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
+use crate::diagnostics::format::Format;
 use crate::error::{Result, WebFluentError};
 use crate::parser::{Declaration, Program, Statement};
 use std::collections::{BTreeMap, HashMap};
@@ -16,28 +17,124 @@ pub fn run_build(project_dir: &Path) -> Result<()> {
 /// Build, and with `stats` print what the output weighs and which runtime
 /// modules it carries.
 pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
-    let mut config = ProjectConfig::load(project_dir)?;
-    // `env` from a `.env` file and the shell, on top of the config's own.
-    config.resolve_env(project_dir);
-
-    println!("Building {}...", config.name);
-
-    // The images the program names are written at every width a page will
-    // ask for, before anything checks the program — so a name resolves to
-    // the asset it became, with its real size and colour.
-    let output_dir = project_dir.join(&config.build.output);
-    fs::create_dir_all(&output_dir)?;
-    let media = config.build.media.settings();
-    let (program, declaration_files, parse_errors) = read_project_collecting(
+    run_build_opts(
         project_dir,
-        Some((&output_dir, &media, &config.build.base_path)),
-    )?;
-    // Every HTML file this build writes. The policy check speaks for what
-    // this build put in the output, not for whatever else is in the
-    // directory — a file an older layout left behind is a real problem,
-    // but not one this build can answer for.
-    let mut written_html: Vec<PathBuf> = Vec::new();
+        Options {
+            stats,
+            ..Options::default()
+        },
+    )
+}
 
+/// How a build, or a check, reports.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Options {
+    /// Print what the output weighs.
+    pub stats: bool,
+    /// How the findings are written: for a person, or for a tool.
+    pub format: Format,
+    /// A warning stops the build as an error does — for CI.
+    pub deny_warnings: bool,
+}
+
+thread_local! {
+    /// The format of the build running on this thread. `wf serve` builds on
+    /// its own threads, always for a person.
+    static FORMAT: std::cell::Cell<Format> = const { std::cell::Cell::new(Format::Human) };
+    /// What a JSON or SARIF build has found so far: written once, as one
+    /// document, when it ends.
+    static FOUND: std::cell::RefCell<Vec<crate::error::Diagnostic>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+fn format() -> Format {
+    FORMAT.with(|f| f.get())
+}
+
+/// A line of the build's progress: on standard output for a person, and on
+/// standard error when standard output carries findings for a tool.
+macro_rules! say {
+    ($($t:tt)*) => {
+        if format() == Format::Human {
+            println!($($t)*)
+        } else {
+            eprintln!($($t)*)
+        }
+    };
+}
+
+/// Build with `options`. With a format for a tool, the findings are written
+/// to standard output — once, as one document for JSON and SARIF, whether
+/// the build finished or stopped.
+pub fn run_build_opts(project_dir: &Path, options: Options) -> Result<()> {
+    with_format(options.format, || build(project_dir, options))
+}
+
+/// `wf check`: every finding of a build, with nothing written.
+pub fn run_check(project_dir: &Path, options: Options) -> Result<()> {
+    with_format(options.format, || {
+        let mut config = ProjectConfig::load(project_dir)?;
+        config.resolve_env(project_dir);
+        let analysis = analyse(project_dir, &mut config, None)?;
+        let diagnostics = analysis.diagnostics;
+        report(project_dir, &diagnostics);
+        stop_on(&diagnostics, options)?;
+        if format() == Format::Human && diagnostics.is_empty() {
+            println!("No problems in {}.", config.name);
+        }
+        Ok(())
+    })
+}
+
+fn with_format(format: Format, run: impl FnOnce() -> Result<()>) -> Result<()> {
+    FORMAT.with(|f| f.set(format));
+    FOUND.with(|f| f.borrow_mut().clear());
+    let result = run();
+    let found = FOUND.with(|f| std::mem::take(&mut *f.borrow_mut()));
+    match format {
+        Format::Json => println!("{}", crate::diagnostics::format::json(&found)),
+        Format::Sarif => println!("{}", crate::diagnostics::format::sarif(&found)),
+        Format::Human | Format::Github => {}
+    }
+    FORMAT.with(|f| f.set(Format::Human));
+    result
+}
+
+/// An error stops a build; with `--deny-warnings`, so does a warning.
+fn stop_on(diagnostics: &[crate::error::Diagnostic], options: Options) -> Result<()> {
+    let (errors, warnings) = crate::diagnostics::counts(diagnostics);
+    if errors > 0 {
+        return Err(WebFluentError::Diagnostics(diagnostics.to_vec()));
+    }
+    if options.deny_warnings && warnings > 0 {
+        eprintln!("error: --deny-warnings makes each warning stop the build");
+        return Err(WebFluentError::Diagnostics(diagnostics.to_vec()));
+    }
+    Ok(())
+}
+
+/// What the checks found in a project, and the program they read.
+pub struct Analysis {
+    /// Every declaration that parsed, as written.
+    pub program: Program,
+    /// The same, lowered for the backends.
+    pub lowered: Program,
+    /// The file of each declaration.
+    pub declaration_files: Vec<String>,
+    pub scripts: Vec<crate::project_js::Script>,
+    /// The project's own stylesheets, bundled.
+    pub project_css: String,
+    /// Every finding: the files that did not parse, then every check.
+    pub diagnostics: Vec<crate::error::Diagnostic>,
+}
+
+/// Read and check a project, writing nothing but the images `media` names
+/// (a build's output directory, its media settings and base path).
+pub fn analyse(
+    project_dir: &Path,
+    config: &mut ProjectConfig,
+    media: Option<(&Path, &crate::media::Settings, &str)>,
+) -> Result<Analysis> {
+    let (program, declaration_files, parse_errors) = read_project_collecting(project_dir, media)?;
     // What the pages will contain, decided before any of them is written:
     // the policy each one ships has to describe that page.
     config.build.inline_styles = crate::codegen::csp::writes_inline_styles(&program);
@@ -45,7 +142,6 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     // script each, copied as written and linked before the compiled code.
     let scripts = crate::project_js::load(project_dir, &project_dir.join("src"))?;
     config.build.scripts = scripts.iter().map(|s| s.href.clone()).collect();
-    let config = config;
     let file_of = |index: usize| {
         declaration_files
             .get(index)
@@ -71,7 +167,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         file_of: &file_of,
         source_of: &source_of,
         dir: Some(project_dir),
-        config: Some(&config),
+        config: Some(config),
         declaration_files: &declaration_files,
         scripts: &scripts,
         stylesheets: &project_css,
@@ -80,10 +176,51 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
     let mut diagnostics = parse_errors;
     diagnostics.extend(checked.diagnostics);
     crate::diagnostics::dedupe(&mut diagnostics);
+    Ok(Analysis {
+        program,
+        lowered: checked.lowered,
+        declaration_files,
+        scripts,
+        project_css,
+        diagnostics,
+    })
+}
+
+fn build(project_dir: &Path, options: Options) -> Result<()> {
+    let stats = options.stats;
+    let mut config = ProjectConfig::load(project_dir)?;
+    // `env` from a `.env` file and the shell, on top of the config's own.
+    config.resolve_env(project_dir);
+
+    say!("Building {}...", config.name);
+
+    // The images the program names are written at every width a page will
+    // ask for, before anything checks the program — so a name resolves to
+    // the asset it became, with its real size and colour.
+    let output_dir = project_dir.join(&config.build.output);
+    fs::create_dir_all(&output_dir)?;
+    let media = config.build.media.settings();
+    let base_path = config.build.base_path.clone();
+    let Analysis {
+        program,
+        lowered,
+        scripts,
+        project_css,
+        diagnostics,
+        ..
+    } = analyse(
+        project_dir,
+        &mut config,
+        Some((&output_dir, &media, &base_path)),
+    )?;
+    // Every HTML file this build writes. The policy check speaks for what
+    // this build put in the output, not for whatever else is in the
+    // directory — a file an older layout left behind is a real problem,
+    // but not one this build can answer for.
+    let mut written_html: Vec<PathBuf> = Vec::new();
+    let config = config;
     report(project_dir, &diagnostics);
-    if diagnostics.iter().any(|d| d.is_error()) {
-        return Err(WebFluentError::Diagnostics(diagnostics));
-    }
+    stop_on(&diagnostics, options)?;
     let mut warning_count = diagnostics.len();
     // What each `persist` holds now, for the next build to compare with.
     let shapes = crate::linter::project::persist_shapes(&program);
@@ -97,7 +234,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
             serde_json::to_string_pretty(&shapes).unwrap_or_default(),
         );
     }
-    let program = checked.lowered;
+    let program = lowered;
 
     // PDF output mode
     if config.build.output_type == OutputType::Pdf {
@@ -119,12 +256,12 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         fs::write(output_dir.join(&filename), &pdf_bytes)?;
 
         let page_count = pdf_codegen.page_count();
-        println!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
-        println!("  Output: {}/{}", config.build.output, filename);
+        say!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
+        say!("  Output: {}/{}", config.build.output, filename);
         if warning_count == 0 {
-            println!("Build complete.");
+            say!("Build complete.");
         } else {
-            println!("Build complete with {} warning(s).", warning_count);
+            say!("Build complete with {} warning(s).", warning_count);
         }
         return Ok(());
     }
@@ -147,16 +284,16 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         fs::write(output_dir.join(&filename), &pdf_bytes)?;
 
         let slide_count = slides_codegen.slide_count();
-        println!(
+        say!(
             "  Slides: {} bytes, {} slide(s)",
             pdf_bytes.len(),
             slide_count
         );
-        println!("  Output: {}/{}", config.build.output, filename);
+        say!("  Output: {}/{}", config.build.output, filename);
         if warning_count == 0 {
-            println!("Build complete.");
+            say!("Build complete.");
         } else {
-            println!("Build complete with {} warning(s).", warning_count);
+            say!("Build complete with {} warning(s).", warning_count);
         }
         return Ok(());
     }
@@ -244,12 +381,12 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
             .iter()
             .map(|n| format!("<{}>", crate::codegen::elements::tag_name(n)))
             .collect();
-        println!("  Elements: {}", tags.join(" "));
-        println!("  Output: {}/elements.js", config.build.output);
+        say!("  Elements: {}", tags.join(" "));
+        say!("  Output: {}/elements.js", config.build.output);
         if warning_count == 0 {
-            println!("Build complete.");
+            say!("Build complete.");
         } else {
-            println!("Build complete with {} warning(s).", warning_count);
+            say!("Build complete with {} warning(s).", warning_count);
         }
         return Ok(());
     }
@@ -325,7 +462,7 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
                 }
             }
         }
-        println!("  SSG: pre-rendered static pages");
+        say!("  SSG: pre-rendered static pages");
     } else {
         // SPA: single index.html
         let html = generate_html(&config, &program);
@@ -403,17 +540,17 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         // edit away rather than a mystery.
         let loose = inline_styled_pages(&output_dir, &written_html);
         if !loose.is_empty() {
-            println!(
+            say!(
                 "  Note: `style-src` allows inline styles, because {} page(s) carry one:",
                 loose.len()
             );
             for page in loose.iter().take(5) {
-                println!("    {page}");
+                say!("    {page}");
             }
             if loose.len() > 5 {
-                println!("    … and {} more", loose.len() - 5);
+                say!("    … and {} more", loose.len() - 5);
             }
-            println!(
+            say!(
                 "    A `style {{ }}` value that reads state is set on the element; a literal is a class."
             );
         }
@@ -497,17 +634,22 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
 
     let locale_count = config.i18n.as_ref().map_or(0, |i| i.locales.len());
     if locale_count > 0 {
-        println!(
+        say!(
             "  {} pages, {} components, {} stores, {} locales",
-            page_count, comp_count, store_count, locale_count
+            page_count,
+            comp_count,
+            store_count,
+            locale_count
         );
     } else {
-        println!(
+        say!(
             "  {} pages, {} components, {} stores",
-            page_count, comp_count, store_count
+            page_count,
+            comp_count,
+            store_count
         );
     }
-    println!("  Output: {}/", config.build.output);
+    say!("  Output: {}/", config.build.output);
     // What this build weighs, against the budget and against the last one.
     let sizes = gzipped_sizes(&output_dir)?;
     let previous = read_sizes(project_dir);
@@ -526,9 +668,9 @@ pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
         )?;
     }
     if warning_count == 0 {
-        println!("Build complete.");
+        say!("Build complete.");
     } else {
-        println!("Build complete with {} warning(s).", warning_count);
+        say!("Build complete with {} warning(s).", warning_count);
     }
 
     Ok(())
@@ -775,7 +917,7 @@ fn print_stats(
     }
     files.sort_by_key(|f| std::cmp::Reverse(f.1));
     let total: usize = files.iter().map(|f| f.1).sum();
-    println!("\n  What it weighs");
+    say!("\n  What it weighs");
     for (name, bytes, _) in files.iter().take(20) {
         let gz = sizes.get(name).copied().unwrap_or(0);
         // Against the last build in this output directory, when there was one.
@@ -792,7 +934,7 @@ fn print_stats(
             }
             _ => String::new(),
         };
-        println!(
+        say!(
             "    {:<34} {:>9}  ({} gzipped){}",
             name,
             kb(*bytes),
@@ -801,14 +943,14 @@ fn print_stats(
         );
     }
     if files.len() > 20 {
-        println!("    … and {} more", files.len() - 20);
+        say!("    … and {} more", files.len() - 20);
     }
-    println!("    {:<34} {:>9}", "total", kb(total));
+    say!("    {:<34} {:>9}", "total", kb(total));
 
     let names: Vec<&str> = modules.iter().map(|m| m.name).collect();
     let left_out = crate::runtime::dropped(&names);
     let all = crate::runtime::full().len();
-    println!(
+    say!(
         "\n  Runtime: {} of {} modules, {} of {} (before minifying)",
         modules.len(),
         modules.len() + left_out.len(),
@@ -818,15 +960,15 @@ fn print_stats(
     let mut by_size: Vec<&crate::runtime::Kept> = modules.iter().collect();
     by_size.sort_by_key(|m| std::cmp::Reverse(m.bytes));
     for m in by_size {
-        println!("    {:<12} {:>8}  {}", m.name, kb(m.bytes), m.reason);
+        say!("    {:<12} {:>8}  {}", m.name, kb(m.bytes), m.reason);
     }
     if left_out.is_empty() {
-        println!("    left out: nothing");
+        say!("    left out: nothing");
     } else {
-        println!("    left out: {}", left_out.join(" "));
+        say!("    left out: {}", left_out.join(" "));
     }
     if tokens_dropped > 0 {
-        println!("\n  Tokens: {tokens_dropped} nothing in the output names, left out");
+        say!("\n  Tokens: {tokens_dropped} nothing in the output names, left out");
     }
     Ok(())
 }
@@ -1011,7 +1153,7 @@ fn load_translations(
 ) -> Result<HashMap<String, HashMap<String, String>>> {
     let dir = project_dir.join(&i18n_config.dir);
     if !dir.exists() {
-        println!(
+        say!(
             "  Warning: translations directory '{}' not found",
             i18n_config.dir
         );
@@ -1264,7 +1406,7 @@ fn write_service_worker(
         }
     }
     if matched == 0 {
-        println!(
+        say!(
             "  Warning: `offline.precache` ({}) names no route this build writes; only the shell is stored",
             offline.precache.join(", ")
         );
@@ -1290,7 +1432,7 @@ fn write_service_worker(
         sync: offline.sync,
     };
     fs::write(output_dir.join("sw.js"), service_worker(&worker))?;
-    println!(
+    say!(
         "  Offline: sw.js, {} file(s) stored, version {}",
         worker.precache.len(),
         &version[..8]
@@ -1340,22 +1482,28 @@ fn read_back(name: &str, source: &str, minified: bool) -> Result<()> {
         "It wrote `{}`. This is a bug in WebFluent, not in your program. Please report it with the source that produced it: https://github.com/monzeromer-lab/WebFluent/issues",
         crate::codegen::jscheck::line_of(source, fault.line)
     ));
-    eprintln!(
-        "{}",
-        crate::diagnostics::render::diagnostic(
-            &d,
-            None,
-            crate::diagnostics::render::stderr_wants_color()
-        )
-    );
+    report(Path::new("."), std::slice::from_ref(&d));
     Err(WebFluentError::Diagnostics(vec![d]))
 }
 
-/// Every finding, rendered for a person on standard error, then the line
-/// that sums them up.
+/// Every finding, as the build's format says: rendered for a person on
+/// standard error with the line that sums them up; kept for the one JSON or
+/// SARIF document the build ends with; or as GitHub annotations on standard
+/// output, beside the rendering.
 fn report(project_dir: &Path, diagnostics: &[crate::error::Diagnostic]) {
+    let format = format();
+    if matches!(format, Format::Json | Format::Sarif) {
+        FOUND.with(|f| f.borrow_mut().extend(diagnostics.iter().cloned()));
+        if !diagnostics.is_empty() {
+            eprintln!("{}", crate::diagnostics::summary(diagnostics));
+        }
+        return;
+    }
     if diagnostics.is_empty() {
         return;
+    }
+    if format == Format::Github {
+        print!("{}", crate::diagnostics::format::github(diagnostics));
     }
     let color = crate::diagnostics::render::stderr_wants_color();
     eprint!(

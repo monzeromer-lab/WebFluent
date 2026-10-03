@@ -254,7 +254,9 @@ when it cannot ship a broken page — `R01` (a link to a route that is
 missing), `C02` (a prop nothing reads), `S04` (two pages on one route) and
 `I01`, `I02`, `I04` (a message that shows its key or a placeholder);
 asking to lower any other is itself refused, and so is a key that is no code
-or family. Every code is in [Diagnostics](39-diagnostics.md).
+or family. Every code is in [Diagnostics](39-diagnostics.md). One finding
+on one line is allowed with a `// wf-allow(CODE)` comment instead, under
+the same rule.
 
 ## Next
 
