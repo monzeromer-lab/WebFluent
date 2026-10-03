@@ -183,5 +183,9 @@
   "bat.tests.title": "اختبارات تنقر",
   "bat.tests.body": "اختبار ينقر ثم يتوقع نصاً يعمل في Chrome دون واجهة، وwf verify يحمّل كل صفحة من البناء.",
   "bat.security.title": "آمن بطبيعته",
-  "bat.security.body": "النص يبقى نصاً، ولا معالجات مضمّنة، ولا روابط javascript:، وأسماء env الخاصة خارج الحزمة، وسياسة CSP يلتزم بها البناء نفسه."
+  "bat.security.body": "النص يبقى نصاً، ولا معالجات مضمّنة، ولا روابط javascript:، وأسماء env الخاصة خارج الحزمة، وسياسة CSP يلتزم بها البناء نفسه.",
+  "bat.js.title": "جافاسكربت الخاصة بك، بالاسم",
+  "bat.js.body": "ملف `.js` عادي داخل `src/` يُربط كما كُتب، وتُستدعى دواله مباشرة من `.wf`، ويُتحقق منها وفق تعليقات JSDoc.",
+  "bat.templates.title": "محرك قوالب لـ Rust وNode",
+  "bat.templates.body": "اعرض قالباً ببياناتك إلى HTML أو PDF — `Template::from_dir(\"templates\")` مع أي بنية `Serialize`، أو `npm install webfluent`."
 }

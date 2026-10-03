@@ -135,7 +135,7 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
             Text(t("batteries.eyebrow"), class: "overline")
             Heading(t("batteries.title")).h2 { style { margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.016em; @md { font-size: 34px; line-height: 38px } } }
         }
-        Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .lg, class: "ideas-grid") {
+        Grid(columns: { base: 1, sm: 2, lg: 4 }, gap: .lg, class: "ideas-grid") {
             style { gap: 16px; @md { gap: 24px } }
             IdeaCard(t("bat.api.title"), body: t("bat.api.body"), link: t("bat.more"), linkTo: "/docs/guide/data")
             IdeaCard(t("bat.forms.title"), body: t("bat.forms.body"), link: t("bat.more"), linkTo: "/docs/guide/forms")
@@ -143,6 +143,8 @@ page Home(path: "/", title: "WebFluent — a language for websites", description
             IdeaCard(t("bat.offline.title"), body: t("bat.offline.body"), link: t("bat.more"), linkTo: "/docs/guide/offline")
             IdeaCard(t("bat.tests.title"), body: t("bat.tests.body"), link: t("bat.more"), linkTo: "/docs/guide/testing")
             IdeaCard(t("bat.security.title"), body: t("bat.security.body"), link: t("bat.more"), linkTo: "/docs/guide/security")
+            IdeaCard(t("bat.js.title"), body: t("bat.js.body"), link: t("bat.more"), linkTo: "/docs/guide/interop")
+            IdeaCard(t("bat.templates.title"), body: t("bat.templates.body"), link: t("bat.more"), linkTo: "/docs/guide/server-rendering")
         }
     }
 

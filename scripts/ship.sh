@@ -123,6 +123,11 @@ step "Version $version"
 just bump "$version"
 
 step "The docs site"
+# The version the site states: the header's pill (major.minor), its own
+# config, and the release the guide's install examples pin.
+sed -i "s/^  \"version\": \".*\"/  \"version\": \"$version\"/" site/webfluent.app.json
+sed -i "s/^const VERSION = \".*\"/const VERSION = \"${version%.*}\"/" site/src/model.wf
+sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" md-docs/*.md
 cargo build --release --quiet
 python3 scripts/site-from-guide.py >/dev/null
 python3 scripts/site-data.py >/dev/null
@@ -147,7 +152,7 @@ fi
 
 step "Commit, push, tag"
 git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml bindings/node/package.json \
-    RELEASE_NOTES.md editors/zed/extension.toml site docs
+    RELEASE_NOTES.md editors/zed/extension.toml site docs md-docs
 if git diff --cached --quiet; then
     [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
     echo "  ..  the release commit is already made"

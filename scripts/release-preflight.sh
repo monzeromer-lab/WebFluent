@@ -58,4 +58,12 @@ else
     fail "the grammar changed after ${rev:0:7}, the commit the Zed extension pins. Run \`just zed-pin-grammar\` and commit it."
 fi
 
+# 4. The docs site states the release it documents: the header's pill.
+pill=$(sed -n 's/^const VERSION = "\(.*\)"/\1/p' site/src/model.wf)
+if [ "$pill" = "${version%.*}" ]; then
+    ok "the docs site's header says $pill"
+else
+    fail "site/src/model.wf says VERSION = \"$pill\", but this is ${version%.*}. \`just ship\` sets it."
+fi
+
 exit "$failed"
