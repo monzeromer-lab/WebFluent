@@ -6,6 +6,7 @@ You are an expert WebFluent developer. WebFluent is a web-first programming lang
 
 ```
 project/
+├── AGENTS.md                 # This reference — `wf init` writes it, for the version that made the project
 ├── webfluent.app.json        # Config: theme, build, i18n, meta
 ├── src/
 │   ├── App.wf                # Root: navbar, router, footer
@@ -15,6 +16,7 @@ project/
 │   ├── *.css                 # The project's own stylesheets, anywhere under src/
 │   ├── *.js                  # The project's own plain browser scripts, anywhere under src/
 │   └── translations/         # i18n JSON files (en.json, ar.json)
+├── tests/                    # `test "…" { }` declarations that `wf test` runs
 ├── public/                   # Static assets → copied to build root
 └── build/                    # Compiled output
 ```
@@ -24,7 +26,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ## CLI
 
 ```bash
-wf init <name> -t spa|static|pdf|slides   # Create project
+wf init <name> -t spa|static|pdf|slides   # Create a project (with this AGENTS.md in it)
 wf build [-d DIR] [--stats]               # Compile (--stats: what it weighs)
 wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
@@ -1046,6 +1048,7 @@ What comes with it, at every call site:
 | Bodies | JSON, text, a `File` (sent as a form), `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` |
 | Responses | JSON, `as: .text`, `.blob`, `.arrayBuffer`, `204` as no value, and `.lines()` for a streamed response |
 | Elsewhere | `Backend.users.invalidate()`, `.prefetch(args)`, `.key(args)`, `.url(args)` |
+| Empty path parameters | a call whose path parameter is `null` or `""` is not sent (`users/` would be the collection, not the user); it ends `.aborted`, and a resource over it stays `loading` until the value arrives |
 
 `await fetch(url, options)` in an action goes through the same engine, and
 `window.fetch` is untouched for anything that wants the browser's own.
@@ -2706,6 +2709,13 @@ The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 
 ## Migrating
 
+**WebFluent 4 → 5** needs no rewrite: 5.0 refuses what used to compile and
+then fail in the browser. Run `wf check` (it writes nothing); every finding
+has a code, a place and what to do, `wf explain CODE` prints its entry, and
+the editor's quick fixes apply the ones with a known fix. While a project
+catches up, `lints` lowers what ships no broken page and `// wf-allow(CODE)`
+accepts one finding on one line.
+
 `wf migrate [path] [--check] [--stdout]` does three things.
 
 **WebFluent 2 → 3** rewrites every `.wf` under `src/` in place, with a
@@ -2838,7 +2848,7 @@ wf render template.wf --data data.json --theme Brand --token color-primary=#8B5C
 ### Rust API
 
 ```toml
-webfluent = { version = "4", default-features = false }   # the engine, without the `wf` command's deps
+webfluent = { version = "5", default-features = false }   # the engine, without the `wf` command's deps
 ```
 
 ```rust
@@ -2943,9 +2953,9 @@ page Invoice(path: "/", title: "Invoice") {
 13. **`@media` and nested rules inside style blocks**: `@media (max-width: 768px) { display: none }` and `&:hover { … }` compile to stylesheet rules scoped to the element
 14. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth; pages own their routes
 15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
-15. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS)
-16. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
-17. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
-18. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested
-19. **Slides need a Presentation wrapper**: `Page X { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
-20. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a stderr warning
+16. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS)
+17. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
+18. **Reserved words as map keys**: `{ action: "approve", token: tok }` — all keywords work as map keys
+19. **`public/` copies to build root**: files in `public/` land at the root of the output directory, not nested
+20. **Slides need a Presentation wrapper**: `Page X { Presentation { Slide { ... } } }` — slide elements outside `Presentation` are a compile error
+21. **One Slide = one PDF page**: slides do not flow across pages; overflow is clipped with a stderr warning

@@ -149,7 +149,8 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Heading("The project, in brief", id: "the-project-in-brief").h2
 
-        CodeBlock(#"webfluent.app.json    the config
+        CodeBlock(#"AGENTS.md             the language reference, for you and a coding agent
+webfluent.app.json    the config
 src/
   App.wf              the app shell (optional)
   pages/*.wf          pages

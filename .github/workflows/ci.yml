@@ -192,12 +192,11 @@ jobs:
           mkdir -p /tmp/scaffolds && cd /tmp/scaffolds
           for template in spa static pdf slides; do
             "$GITHUB_WORKSPACE/target/release/wf" init "s_$template" -t "$template"
-            output=$(cd "s_$template" && "$GITHUB_WORKSPACE/target/release/wf" build 2>&1)
-            echo "$output"
-            if echo "$output" | grep -q 'Warning \['; then
-              echo "::error::the $template scaffold does not build clean"
-              exit 1
-            fi
+            test -s "s_$template/AGENTS.md" || { echo "::error::the $template scaffold has no AGENTS.md"; exit 1; }
+            (cd "s_$template" \
+              && "$GITHUB_WORKSPACE/target/release/wf" check --deny-warnings --format github \
+              && "$GITHUB_WORKSPACE/target/release/wf" build) \
+              || { echo "::error::the $template scaffold does not build clean"; exit 1; }
           done
 
       # The documentation site is a real WebFluent project; if the compiler

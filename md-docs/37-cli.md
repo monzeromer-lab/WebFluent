@@ -48,6 +48,13 @@ application for the template: `spa` (the default — an interactive app),
 `static` (a marketing site, pre-rendered), `pdf` (a document) or `slides` (a
 deck). It refuses a directory that already exists.
 
+It also writes `AGENTS.md`: the language reference, the file a coding agent
+reads before it changes a project — so an assistant asked to add a page
+writes the WebFluent of the `wf` that made it, flags and all, rather than
+guessing. Its first line names the version it describes; a newer `wf`
+brings a newer one, and an older project can take it from the
+[repository](https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md).
+
 ### `wf build`
 
 Runs the whole pipeline — parse, semantic checks, type checks, linters,

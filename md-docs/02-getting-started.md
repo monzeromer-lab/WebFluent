@@ -215,6 +215,7 @@ carries 3 of its 37 modules — an `app.js` of 3.7 kB gzipped. `wf build
 ## The project, in brief
 
 ```text
+AGENTS.md             the language reference, for you and a coding agent
 webfluent.app.json    the config
 src/
   App.wf              the app shell (optional)

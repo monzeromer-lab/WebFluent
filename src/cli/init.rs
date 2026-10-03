@@ -43,17 +43,37 @@ pub fn run_init(name: &str, template: &str) -> Result<()> {
         project_dir.join(".gitignore"),
         "build/\n.wf-cache/\n.wf-sizes.json\n.env\n",
     )?;
+    // The language reference, where a coding agent looks for it — so the
+    // one asked to change this project writes the WebFluent of the `wf`
+    // that made it, rather than guessing at a language it may never have
+    // seen.
+    fs::write(project_dir.join("AGENTS.md"), agents_md())?;
 
     println!(
         "Created new WebFluent project: {} (template: {})",
         name, template
     );
+    println!("  AGENTS.md is the language reference, for you and your coding agent");
     println!();
     println!("  cd {}", name);
     println!("  wf build");
     println!("  wf serve");
 
     Ok(())
+}
+
+/// The repository's `AGENTS.md`, as this `wf` was built with it.
+const AGENTS: &str = include_str!("../../AGENTS.md");
+
+/// `AGENTS.md` for a new project: the language reference, headed by the
+/// version it describes and where to find a newer one.
+pub fn agents_md() -> String {
+    let version = env!("CARGO_PKG_VERSION");
+    format!(
+        "<!-- The WebFluent {version} language reference, written by `wf init`. \
+         A newer wf brings a newer one: \
+         https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md -->\n\n{AGENTS}"
+    )
 }
 
 // ═══════════════════════════════════════════════════════════

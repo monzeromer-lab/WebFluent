@@ -291,6 +291,21 @@ fn every_init_template_builds_clean() {
             continue;
         }
 
+        // The language reference, for the person and the agent who work on
+        // it next, of the version that made it.
+        let agents =
+            std::fs::read_to_string(root.join(&name).join("AGENTS.md")).unwrap_or_default();
+        let reference = std::fs::read_to_string(repo_root().join("AGENTS.md")).unwrap();
+        if !agents.starts_with(&format!(
+            "<!-- The WebFluent {} language reference, written by `wf init`.",
+            env!("CARGO_PKG_VERSION")
+        )) || !agents.ends_with(&reference)
+        {
+            failures.push(format!(
+                "{template}: AGENTS.md is not this version's reference"
+            ));
+        }
+
         let build = Command::new(env!("CARGO_BIN_EXE_wf"))
             .arg("build")
             .current_dir(root.join(&name))

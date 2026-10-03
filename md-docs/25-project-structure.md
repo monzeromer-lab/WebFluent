@@ -11,6 +11,7 @@ description: Where files go, how they merge into one program, naming in a global
 
 ```text
 my-site/
+├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
 ├── webfluent.app.json      the config (chapter 38)
 ├── .env                    build-time values, not committed (chapter 30)
 ├── src/

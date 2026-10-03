@@ -5,6 +5,7 @@ page ProjectStructureGuide(path: "/docs/guide/project-structure", title: "Projec
         Heading("The layout", id: "the-layout").h2
 
         CodeBlock(#"my-site/
+├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
 ├── webfluent.app.json      the config (chapter 38)
 ├── .env                    build-time values, not committed (chapter 30)
 ├── src/
