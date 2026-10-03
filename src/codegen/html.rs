@@ -162,9 +162,18 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
 pub fn head_links(config: &ProjectConfig, base: &str) -> String {
     use crate::config::project::url_origin;
     let mut out = String::new();
-    // The icons, resolved from this page's depth like any site-relative
-    // asset: `/favicon.svg` under a `base_path` is the base's, not the
-    // host's.
+    // The icons, from the site's root under its `base_path` — `/favicon.svg`
+    // is the base's, not the host's — and not from this page's depth: a
+    // browser resolves an icon again when a page changes its address
+    // without loading (the router), and `../favicon.svg` written for `/docs`
+    // is `/docs/favicon.svg` once the page has moved on to `/docs/guide/x`.
+    let icon_href = |url: &str| {
+        if url.contains("://") || !url.starts_with('/') {
+            href_from(url, base)
+        } else {
+            format!("{}{}", config.build.base_path.trim_end_matches('/'), url)
+        }
+    };
     if !config.meta.favicon.is_empty() {
         let icon = &config.meta.favicon;
         let kind = match icon.rsplit('.').next().map(|e| e.to_ascii_lowercase()) {
@@ -175,13 +184,13 @@ pub fn head_links(config: &ProjectConfig, base: &str) -> String {
         };
         out.push_str(&format!(
             "    <link rel=\"icon\" href=\"{}\"{kind}>\n",
-            href_from(icon, base)
+            icon_href(icon)
         ));
     }
     if !config.meta.touch_icon.is_empty() {
         out.push_str(&format!(
             "    <link rel=\"apple-touch-icon\" href=\"{}\">\n",
-            href_from(&config.meta.touch_icon, base)
+            icon_href(&config.meta.touch_icon)
         ));
     }
     let mut preconnected: Vec<String> = Vec::new();
@@ -296,21 +305,34 @@ mod head_link_tests {
 
     /// A pre-rendered page never linked `meta.favicon`, and the single-page
     /// shell linked it as written, so under a `base_path` `/favicon.svg`
-    /// was the host's, not the site's.
+    /// was the host's, not the site's. Linked from the page's depth, it
+    /// broke as soon as the router moved the page to another depth.
     #[test]
-    fn the_icons_are_linked_from_the_pages_depth() {
+    fn the_icons_are_linked_from_the_site_root_under_the_base() {
         let mut config = config(&[], &[]);
         config.meta.favicon = "/favicon.svg".into();
         config.meta.touch_icon = "/apple-touch-icon.png".into();
-        let links = head_links(&config, "../..");
-        let lines: Vec<&str> = links.lines().map(str::trim).collect();
+        let lines = |config: &ProjectConfig| -> Vec<String> {
+            head_links(config, "../..")
+                .lines()
+                .map(|l| l.trim().to_string())
+                .collect()
+        };
         assert_eq!(
-            lines,
+            lines(&config),
             [
-                r#"<link rel="icon" href="../../favicon.svg" type="image/svg+xml">"#,
-                r#"<link rel="apple-touch-icon" href="../../apple-touch-icon.png">"#,
+                r#"<link rel="icon" href="/favicon.svg" type="image/svg+xml">"#,
+                r#"<link rel="apple-touch-icon" href="/apple-touch-icon.png">"#,
             ]
         );
+        config.build.base_path = "/WebFluent".into();
+        assert_eq!(
+            lines(&config)[0],
+            r#"<link rel="icon" href="/WebFluent/favicon.svg" type="image/svg+xml">"#
+        );
+        // A relative one is the page's to resolve, an absolute one is kept.
+        config.meta.favicon = "https://cdn.example.com/i.png".into();
+        assert!(lines(&config)[0].contains(r#"href="https://cdn.example.com/i.png""#));
     }
 
     #[test]

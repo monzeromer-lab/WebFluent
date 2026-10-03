@@ -3,7 +3,7 @@ test "a change inside a state's value repaints" {
     state rows = [{ title: "a", done: false }, { title: "b", done: false }]
     state nums = [1, 2, 3]
     derived left = rows.filter(r => !r.done).length
-    Text("name {form.name} left {left} nums {nums.join(\",\")}")
+    Text("name {form.name} left {left} nums {nums.join(",")}")
     for r in rows by r.title {
         Button("toggle {r.title}") { on click { r.done = !r.done } }
     }

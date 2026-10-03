@@ -117,7 +117,9 @@ attributes and `meta.*` in `webfluent.app.json`:
 - `hreflang` alternates for each locale when the project has several.
 - The icons: `<link rel="icon">` for `favicon` (typed, so an SVG is read
   as one) and `<link rel="apple-touch-icon">` for `touch_icon`, each
-  resolved against the `base_path`. A sharing image is best 1200×630.
+  linked from the site's root under the `base_path`
+  (`/my-site/favicon.svg`), so it stays right when the router moves the
+  page to another address. A sharing image is best 1200×630.
 - `<meta name="robots" content="noindex">` and no sitemap entry for a
   `noindex: true` page.
 

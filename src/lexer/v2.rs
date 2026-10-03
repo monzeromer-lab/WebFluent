@@ -71,6 +71,10 @@ pub struct LexerV2 {
     parens: usize,
     /// Offside: unclosed `{` the writer wrote — layout is free inside them.
     explicit: usize,
+    /// Every `//` comment the lexer dropped: its line, its column and its
+    /// text after the slashes — what `// wf-allow(…)` is read from, so a
+    /// `//` inside a string is never taken for one.
+    comments: Vec<(usize, usize, String)>,
 }
 
 impl LexerV2 {
@@ -99,7 +103,14 @@ impl LexerV2 {
             indents: Vec::new(),
             parens: 0,
             explicit: 0,
+            comments: Vec::new(),
         }
+    }
+
+    /// The `//` comments of everything tokenized so far: line, column and
+    /// the text after the slashes.
+    pub fn comments(&self) -> &[(usize, usize, String)] {
+        &self.comments
     }
 
     pub fn tokenize(&mut self) -> Result<Vec<Token>> {
@@ -920,9 +931,15 @@ impl LexerV2 {
                     tokens.push(token);
                     continue;
                 }
+                let (line, column) = (self.line, self.column);
+                self.advance();
+                self.advance();
+                let mut text = String::new();
                 while self.pos < self.source.len() && self.current() != '\n' {
+                    text.push(self.current());
                     self.advance();
                 }
+                self.comments.push((line, column, text));
                 continue;
             }
             if self.current() == '/' && self.peek() == Some('*') {

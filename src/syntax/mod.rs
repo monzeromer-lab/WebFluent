@@ -131,6 +131,17 @@ pub fn tokens(source: &str, file: &str) -> Result<Vec<Token>> {
     crate::lexer::LexerV2::for_file(source, file).tokenize()
 }
 
+/// The `//` comments of `source` — line, column and the text after the
+/// slashes — as the lexer finds them, so text in a string, a raw string or
+/// a splice is never one. A file that does not lex has none.
+pub fn comments(source: &str, file: &str) -> Vec<(usize, usize, String)> {
+    let mut lexer = crate::lexer::LexerV2::for_file(source, file);
+    match lexer.tokenize() {
+        Ok(_) => lexer.comments().to_vec(),
+        Err(_) => Vec::new(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

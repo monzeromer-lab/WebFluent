@@ -23,19 +23,20 @@ pub struct Allow {
     pub codes: Vec<String>,
 }
 
-/// The `// wf-allow(…)` comments of a file.
-pub fn allows(source: &str) -> Vec<Allow> {
+/// The `// wf-allow(…)` comments of a file, as the lexer finds its
+/// comments — so `// wf-allow(…)` in a string, a raw string or a code
+/// sample is text, not an allow. `file` names the layout (`.wfx`).
+pub fn allows(source: &str, file: &str) -> Vec<Allow> {
+    if !source.contains("wf-allow(") {
+        return Vec::new();
+    }
     let lines: Vec<&str> = source.lines().collect();
     let mut out = Vec::new();
-    for (i, text) in lines.iter().enumerate() {
-        let Some(at) = comment_at(text) else {
+    for (line, column, text) in crate::syntax::comments(source, file) {
+        let lead = text.len() - text.trim_start().len();
+        let Some(rest) = text[lead..].strip_prefix("wf-allow(") else {
             continue;
         };
-        let comment = text[at + 2..].trim_start();
-        let Some(rest) = comment.strip_prefix("wf-allow(") else {
-            continue;
-        };
-        let rest_at = text.len() - rest.len();
         let Some(close) = rest.find(')') else {
             continue;
         };
@@ -44,45 +45,37 @@ pub fn allows(source: &str) -> Vec<Allow> {
             .map(|c| c.trim().to_string())
             .filter(|c| !c.is_empty())
             .collect();
-        let own_line = text[..at].trim().is_empty();
-        let covers = if own_line {
+        let before = lines
+            .get(line - 1)
+            .map(|l| l.chars().take(column - 1).collect::<String>())
+            .unwrap_or_default();
+        let covers = if before.trim().is_empty() {
             // The next line that is code: blank lines and other comments —
             // a second allow, a note — sit between.
-            (i + 1..lines.len())
+            (line..lines.len())
                 .find(|&j| {
                     let t = lines[j].trim();
                     !t.is_empty() && !t.starts_with("//")
                 })
                 .map_or(0, |j| j + 1)
         } else {
-            i + 1
+            line
         };
+        // `//`, the spaces after it, `wf-allow(`, the codes and the `)`.
+        let width = 2
+            + text[..lead].chars().count()
+            + "wf-allow(".len()
+            + rest[..close].chars().count()
+            + 1;
         out.push(Allow {
-            line: i + 1,
-            column: text[..at].chars().count() + 1,
-            end_column: text[..rest_at + close + 1].chars().count() + 1,
+            line,
+            column,
+            end_column: column + width,
             covers,
             codes,
         });
     }
     out
-}
-
-/// The byte offset of a `//` comment on the line, outside any string.
-fn comment_at(text: &str) -> Option<usize> {
-    let bytes = text.as_bytes();
-    let mut in_string = false;
-    let mut i = 0;
-    while i + 1 < bytes.len() {
-        match bytes[i] {
-            b'\\' if in_string => i += 1,
-            b'"' => in_string = !in_string,
-            b'/' if !in_string && bytes[i + 1] == b'/' => return Some(i),
-            _ => {}
-        }
-        i += 1;
-    }
-    None
 }
 
 fn names(written: &str, code: &str) -> bool {
@@ -105,7 +98,7 @@ pub fn apply(
         if !source.contains("wf-allow(") {
             continue;
         }
-        for allow in allows(&source) {
+        for allow in allows(&source, file) {
             let mut used = vec![false; allow.codes.len()];
             out.retain(|d| {
                 if d.file != *file || d.line != allow.covers {
@@ -168,11 +161,24 @@ mod tests {
     #[test]
     fn an_allow_covers_the_next_line_of_code_or_its_own() {
         let src = "page P {\n    // wf-allow(U01)\n\n    state a = 1\n    state b = 2 // wf-allow(U01, A)\n    Text(\"// wf-allow(U01)\")\n}\n";
-        let found = allows(src);
+        let found = allows(src, "a.wf");
         assert_eq!(found.len(), 2, "{found:?}");
         assert_eq!((found[0].line, found[0].covers), (2, 4));
         assert_eq!((found[1].line, found[1].covers), (5, 5));
         assert_eq!(found[1].codes, vec!["U01", "A"]);
+    }
+
+    #[test]
+    fn an_allow_in_a_string_is_text() {
+        // A code sample in a raw string over several lines, as the guide's
+        // pages show one, and a splice with a string in it.
+        let src = "page P {\n    CodeBlock(#\"page Q {\n    // wf-allow(U01)\n    state s = 0\n}\"#)\n    Text(\"{if true { \"// wf-allow(U02)\" } else { \"\" }}\")\n    state t = 1 // wf-allow(U01)\n}\n";
+        let found = allows(src, "a.wf");
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(
+            (found[0].line, found[0].column, found[0].end_column),
+            (7, 17, 33)
+        );
     }
 
     #[test]
