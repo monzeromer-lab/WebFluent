@@ -552,7 +552,7 @@
       "patterns": [
         {
           "name": "support.class.component.webfluent",
-          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Breadcrumb|Link|Menu|Tabs|TabPage|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Textarea|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Audio|Icon|Carousel|Text|Heading|Code|Blockquote|Markdown|Host|Unsafe|Document|Section|Paragraph|PageBreak|Header|Footer|Presentation|Slide|TitleSlide|SectionSlide|TwoColumn|ImageSlide|Router|Route)\\b"
+          "match": "\\b(Container|Row|Column|Grid|Stack|Spacer|Divider|Navbar|Sidebar|Breadcrumb|Link|Menu|Tabs|TabPage|Card|Table|Thead|Tbody|Trow|Tcell|List|Badge|Avatar|Tooltip|Tag|Input|Select|Option|Checkbox|Radio|Switch|Slider|DatePicker|FileUpload|Textarea|Form|Alert|Toast|Modal|Dialog|Spinner|Progress|Skeleton|Button|IconButton|ButtonGroup|Dropdown|Image|Video|Audio|Icon|Carousel|Text|Heading|Code|Blockquote|Markdown|Host|Element|Unsafe|Document|Section|Paragraph|PageBreak|Header|Footer|Presentation|Slide|TitleSlide|SectionSlide|TwoColumn|ImageSlide|Router|Route)\\b"
         }
       ]
     },

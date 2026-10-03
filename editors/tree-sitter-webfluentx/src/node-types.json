@@ -4451,6 +4451,10 @@
     "named": false
   },
   {
+    "type": "Element",
+    "named": false
+  },
+  {
     "type": "FileUpload",
     "named": false
   },

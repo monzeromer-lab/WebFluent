@@ -4787,6 +4787,10 @@
           },
           {
             "type": "STRING",
+            "value": "Element"
+          },
+          {
+            "type": "STRING",
             "value": "Document"
           },
           {
@@ -4928,8 +4932,22 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "identifier"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "STRING",
+                "value": "show"
+              },
+              "named": true,
+              "value": "identifier"
+            }
+          ]
         },
         {
           "type": "REPEAT",
@@ -5806,6 +5824,15 @@
                 },
                 "named": true,
                 "value": "identifier"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "STRING",
+                  "value": "show"
+                },
+                "named": true,
+                "value": "identifier"
               }
             ]
           }
@@ -5978,6 +6005,15 @@
           "content": {
             "type": "STRING",
             "value": "event"
+          },
+          "named": true,
+          "value": "identifier"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "show"
           },
           "named": true,
           "value": "identifier"
@@ -7661,6 +7697,10 @@
     [
       "route_parameter",
       "attribute_name"
+    ],
+    [
+      "show_statement",
+      "_primary_expression"
     ],
     [
       "expression_statement",

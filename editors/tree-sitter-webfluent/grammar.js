@@ -61,8 +61,8 @@ const BUILTIN_COMPONENTS = [
   "Image", "Video", "Audio", "Icon", "Carousel",
   // Typography
   "Text", "Heading", "Code", "Blockquote", "Markdown", "Unsafe",
-  // A node handed to somebody else's code.
-  "Host",
+  // A node handed to somebody else's code, and a custom element by its tag.
+  "Host", "Element",
   // Document (PDF)
   "Document", "Section", "Paragraph", "PageBreak", "Header", "Footer",
   // Slides
@@ -132,6 +132,9 @@ module.exports = grammar({
     // `path: "/"` versus `id: String` in a page header: an attribute or a
     // route parameter, until what follows the colon.
     [$.route_parameter, $.attribute_name],
+    // `show open { … }` versus `show = !show`: the statement keyword, or a
+    // state named `show`, until what follows the word.
+    [$.show_statement, $._primary_expression],
     // `if a { go() }`: the call is the statement of the block, or the value
     // of an `if` expression on which a member or call could follow;
     // `a.b()`: `a` is a statement or the object of a member. Both readings
@@ -754,7 +757,10 @@ module.exports = grammar({
 
     // `bind`, `aria-pressed`, `data-tone`: hyphenated because an HTML
     // attribute may be.
-    attribute_name: ($) => seq($.identifier, repeat(seq("-", $.identifier))),
+    // `show:` too, where a `Form` takes it: the statement keyword is a
+    // value's name everywhere else.
+    attribute_name: ($) =>
+      seq(choice($.identifier, alias("show", $.identifier)), repeat(seq("-", $.identifier))),
 
     // Call arguments; `name: value` is accepted so `t("greeting", name:
     // user.name)`, `fetch(url, method: "POST")` and `Todo(id: 1)` read as
@@ -902,6 +908,9 @@ module.exports = grammar({
             // A state named `on`: the word is the event keyword only where a
             // handler can start, and a handler does not continue with `=`.
             alias("on", $.identifier),
+            // A state named `show`, likewise: `show x { … }` never goes on
+            // with `=`.
+            alias("show", $.identifier),
           ),
         ),
         "=",
@@ -964,6 +973,9 @@ module.exports = grammar({
         // `event` is a keyword where a statement starts; a handler that
         // names no parameter reads the DOM event by it, as a plain value.
         alias("event", $.identifier),
+        // A state named `show` read as a value: the keyword only opens a
+        // `show` statement where a statement starts.
+        alias("show", $.identifier),
         $.component_identifier,
         $.builtin_type,
         $.builtin_component,
