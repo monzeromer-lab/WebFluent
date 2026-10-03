@@ -243,7 +243,10 @@ get report(id: String) at "reports/:id" as: .blob
 ```
 
 - The verb is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.
-- A parameter the path names (`:id`) goes in the path; a parameter called
+- A parameter the path names (`:id`) goes in the path. One that is empty
+  (`null` or `""`) is not sent at all — `users/` would be the whole
+  collection, not the user — so the call ends as `.aborted` and a resource
+  over it stays `loading` until the value arrives. A parameter called
   `body` is the request body (a map is sent as JSON); a `File` parameter
   makes the call a multipart upload; every other parameter goes in the query
   string, and one that is `null` is left out.

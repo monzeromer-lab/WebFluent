@@ -88,6 +88,22 @@
       }
       return after;
     };
+    // One item that throws is one item: the rest of the list still draws.
+    // Under `wf serve` it shows where it is, with what it threw; on a
+    // deployed site it leaves a gap, and the console says why.
+    const drawItem = (itemFn, item, index) => {
+      try {
+        return itemFn(item, index);
+      } catch (e) {
+        console.error("WF: item " + index + " of a list could not be drawn:", e);
+        if (!devMode()) return document.createComment("wf: item " + index + " failed");
+        const box = document.createElement("div");
+        box.className = "wf-item-error";
+        box.setAttribute("role", "alert");
+        box.textContent = "Item " + index + " could not be drawn: " + (e && e.message ? e.message : String(e));
+        return box;
+      }
+    };
     const untracked = (fn) => {
       const prev = currentEffect;
       currentEffect = null;
@@ -104,7 +120,7 @@
         untracked(() => {
           const frag = document.createDocumentFragment();
           items.forEach((item, index) => {
-            const [made, dispose] = scoped(() => itemFn(item, index));
+            const [made, dispose] = scoped(() => drawItem(itemFn, item, index));
             disposers.push(dispose);
             const nodes = toNodes(made);
             for (const n of nodes) { frag.appendChild(n); currentNodes.push(n); }
@@ -137,7 +153,7 @@
             entry = old;
             entry.index = index;
           } else {
-            const [made, dispose] = scoped(() => itemFn(item, index));
+            const [made, dispose] = scoped(() => drawItem(itemFn, item, index));
             entry = { item, index, nodes: toNodes(made), dispose };
             if (old) { if (old.dispose) old.dispose(); removeNodes(old.nodes); }
           }

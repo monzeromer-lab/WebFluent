@@ -81,7 +81,7 @@ test "reporting an incident opens one more" {
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
 | `click "Save"` | Clicks whatever carries that name |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one |
+| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one; `Escape` closes an open `Modal` or `Dialog` as a real one would |
 
 The steps run **in the order written** — that is the whole meaning, since
 what a click did is only visible in the expect that follows it.

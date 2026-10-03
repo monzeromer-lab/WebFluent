@@ -300,6 +300,75 @@ pub fn translations(
 }
 
 /// What each `persist` holds, as its declared type or the shape of its
+/// Where the build keeps what each persisted value starts as, and where it
+/// moves the previous build's when they differ.
+pub const PERSIST_VALUES: &str = ".wf-cache/persist-values.json";
+pub const PERSIST_VALUES_BEFORE: &str = ".wf-cache/persist-values.previous.json";
+
+/// Each persisted value's storage key (`wf:Owner.name`) and what storage
+/// holds for it on a first visit — its initial value, in the envelope its
+/// `version:` writes — where the value is known at build time.
+pub fn persisted_values(
+    program: &Program,
+    env: &BTreeMap<String, serde_json::Value>,
+) -> BTreeMap<String, serde_json::Value> {
+    let scope = crate::codegen::static_eval::Scope::from_program_with_env(program, &[], env);
+    let mut out = BTreeMap::new();
+    for decl in &program.declarations {
+        let (owner, body) = match decl {
+            Declaration::Page(p) => (p.name.as_str(), &p.body),
+            Declaration::Component(c) => (c.name.as_str(), &c.body),
+            Declaration::Store(s) => (s.name.as_str(), &s.body),
+            _ => continue,
+        };
+        for stmt in body {
+            let StatementKind::State(st) = &stmt.kind else {
+                continue;
+            };
+            if !st.persist || st.policy.as_ref().is_some_and(|p| p.key.is_some()) {
+                continue;
+            }
+            let Some(value) = crate::codegen::static_eval::eval(&st.value, &scope) else {
+                continue;
+            };
+            let value = value.to_json();
+            let version = st.policy.as_ref().and_then(|p| p.version).unwrap_or(0);
+            let stored = if version > 0 {
+                serde_json::json!({ "wf:v": version, "wf:d": value })
+            } else {
+                value
+            };
+            out.insert(format!("wf:{owner}.{}", st.name), stored);
+        }
+    }
+    out
+}
+
+/// Write [`persisted_values`] to [`PERSIST_VALUES`], first moving what the
+/// last build wrote there to [`PERSIST_VALUES_BEFORE`] when it differs.
+pub fn keep_persisted_values(
+    project_dir: &Path,
+    program: &Program,
+    env: &BTreeMap<String, serde_json::Value>,
+) {
+    let values = persisted_values(program, env);
+    let now = project_dir.join(PERSIST_VALUES);
+    let text = serde_json::to_string_pretty(&values).unwrap_or_default();
+    let before = std::fs::read_to_string(&now).ok();
+    if values.is_empty() && before.is_none() {
+        return;
+    }
+    if let Some(parent) = now.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    if let Some(before) = before
+        && before != text
+    {
+        let _ = std::fs::write(project_dir.join(PERSIST_VALUES_BEFORE), before);
+    }
+    let _ = std::fs::write(now, text);
+}
+
 /// first value, with its version — `Owner.name` → (shape, version).
 pub fn persist_shapes(program: &Program) -> BTreeMap<String, (String, u32)> {
     fn shape(e: &Expr) -> String {

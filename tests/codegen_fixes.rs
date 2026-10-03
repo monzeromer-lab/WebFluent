@@ -264,3 +264,34 @@ fn a_spliced_value_in_a_route_or_a_fetch_is_encoded() {
     ));
     assert!(html.contains("href=\"/team/R%26D%2FOps\""), "{html}");
 }
+
+/// E3: a build for `wf serve` carries each declared response type's shape,
+/// which the runtime holds the response to; a build for a host carries none.
+#[test]
+fn a_dev_build_carries_the_shapes_of_declared_responses() {
+    let src = "type User { id: String, name: String, tag: String = \"\" }\nenum Tone { calm, loud }\napi Backend(base: \"/api\") {\n    get user(id: String) at \"users/:id\" -> User\n    get tones() -> [Tone]\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"T\").h1\n    resource users: [User] = fetch(\"/api/users\")\n    match users { ready(list) { Text(\"{list.length}\") } else { Text(\"…\") } }\n}\n";
+    let program = common::parse_program_as(src, "<test>").expect("parses");
+    let mut dev = webfluent::codegen::JsCodegen::new();
+    dev.set_dev(true);
+    let out = dev.generate(&program);
+    assert!(
+        out.contains(
+            r#"shape: ["l", ["r", "User", { "id": "s", "name": "s", "tag": ["?", "s"] }]]"#
+        ),
+        "the resource's shape:\n{out}"
+    );
+    assert!(
+        out.contains(r#"shape: ["r", "User""#),
+        "the endpoint's shape:\n{out}"
+    );
+    assert!(
+        out.contains(r#"shape: ["l", ["e", ["calm", "loud"]]]"#),
+        "an enum's shape:\n{out}"
+    );
+    check_js(&out).expect("a dev bundle is a script");
+    let host = webfluent::codegen::JsCodegen::new().generate(&program);
+    assert!(
+        !host.contains("shape: ["),
+        "a build for a host carries no shapes"
+    );
+}

@@ -22,6 +22,14 @@
     return get;
   }
 
+  // Whether the page is served by `wf serve`, whose dev script says so
+  // before the bundle runs: what only a developer should see — a list item
+  // that threw, a route nothing answers, a response of the wrong shape — is
+  // shown on the page there, and only logged anywhere else.
+  function devMode() {
+    return typeof window !== "undefined" && window.__WF_DEV__ === true;
+  }
+
   // ─── Ownership ───────────────────────────────────────
   // What a page, a branch, a list item or a slot creates — effects, timers,
   // listeners — belongs to the scope it was created in, and is disposed of
@@ -48,15 +56,31 @@
 
   // An effect runs at once and again when a signal it read changes; what
   // it returns is its cleanup, run before the next run and on disposal.
+  //
+  // An effect that writes what it reads runs itself again from inside its
+  // own run. One that settles does so once or twice; one that never does
+  // used to recurse until the stack overflowed and the page died. Past
+  // `MAX_REENTRY` nested runs it stops, and under `wf serve` says so.
+  const MAX_REENTRY = 100;
   function effect(fn) {
     let cleanup = null;
     let dead = false;
+    let depth = 0;
+    let warned = false;
     const run = () => {
       if (dead) return;
+      if (depth >= MAX_REENTRY) {
+        if (!warned && devMode()) {
+          warned = true;
+          console.warn("WF: an effect changes something it reads, every time it runs, so it never settles; it was stopped after " + MAX_REENTRY + " runs. Guard the write, or move it to an action.");
+        }
+        return;
+      }
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
       const prev = currentEffect;
       currentEffect = run;
-      try { cleanup = fn(); } finally { currentEffect = prev; }
+      depth++;
+      try { cleanup = fn(); } finally { currentEffect = prev; depth--; }
     };
     run.dispose = () => {
       dead = true;

@@ -109,3 +109,25 @@ fn runtime_unit_tests_pass() {
         String::from_utf8_lossy(&out.stderr)
     );
 }
+
+/// What the runtime does about a mistake — an item that throws, a route
+/// nothing answers, an effect that feeds itself, a response of the wrong
+/// shape, an empty path parameter (`spec/DIAGNOSTICS_PLAN.md`, Part E).
+#[test]
+fn dev_mode_runtime_tests_pass() {
+    if !node_available() {
+        eprintln!("\n  SKIPPED: `node` is not on PATH; tests/js/dev.test.mjs did not run.\n");
+        return;
+    }
+    let out = Command::new("node")
+        .args(["--test", "tests/js/dev.test.mjs"])
+        .current_dir(repo_root())
+        .output()
+        .expect("running node --test");
+    assert!(
+        out.status.success(),
+        "dev-mode runtime tests failed:\n{}\n{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+}

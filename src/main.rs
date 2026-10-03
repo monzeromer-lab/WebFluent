@@ -185,6 +185,10 @@ enum Commands {
         /// Fail a route whose first paint is slower than this, in milliseconds
         #[arg(long, value_name = "MS")]
         budget: Option<u64>,
+        /// Visit every route again as a reader whose storage holds what the
+        /// previous build's pages kept
+        #[arg(long)]
+        returning_visitor: bool,
     },
     /// Describe every built-in component: props, cases, flags, events, slots, parts
     Registry {
@@ -240,6 +244,7 @@ fn main() {
                 stats,
                 format,
                 deny_warnings,
+                dev: false,
             },
         ),
         Commands::Check {
@@ -252,6 +257,7 @@ fn main() {
                 stats: false,
                 format,
                 deny_warnings,
+                dev: false,
             },
         ),
         Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),
@@ -293,7 +299,12 @@ fn main() {
         Commands::Test { path, update } => cli::test::run_test(&path, update),
         Commands::Docs { dir, out } => cli::docs::run_docs(&dir, &out),
         Commands::Audit { path, json } => cli::audit::run_audit(&path, json),
-        Commands::Verify { path, json, budget } => cli::verify::run_verify(&path, json, budget),
+        Commands::Verify {
+            path,
+            json,
+            budget,
+            returning_visitor,
+        } => cli::verify::run_verify(&path, json, budget, returning_visitor),
         Commands::Registry { json } => cli::describe::run_registry(json),
         Commands::Types { path, json } => cli::describe::run_types(&path, json),
     };

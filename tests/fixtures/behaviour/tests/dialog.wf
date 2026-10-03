@@ -1,0 +1,14 @@
+test "escape closes a modal and the state follows" {
+    state open = false
+    Button("Open") { on click { open = true } }
+    Modal(visible: open, title: "Settings") {
+        Text("Inside the modal")
+        Button("Close") { on click { open = false } }
+    }
+    Text("is {if open { "open" } else { "shut" }}")
+    expect "is shut"
+    click "Open"
+    expect "is open"
+    press "Escape"
+    expect "is shut"
+}

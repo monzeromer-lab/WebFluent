@@ -25,7 +25,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf explain [CODE]` | What a diagnostic code means, a program that draws it, and the fix |
 | `wf serve [-d, --dir DIR]` | Builds, serves on `dev.port`, rebuilds and reloads on every save |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
-| `wf verify [PATH] [--json] [--budget MS]` | Loads every built page in headless Chrome |
+| `wf verify [PATH] [--json] [--budget MS] [--returning-visitor]` | Loads every built page in headless Chrome |
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
 | `wf render FILE\|DIR [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
@@ -84,6 +84,27 @@ holds, a log of every action with the state on each side of it, and a click
 to put a store back ([Stores](12-stores.md#looking-at-one-while-it-runs)). An
 offline site's service worker is removed under `wf serve`, so an edit is
 never hidden behind its cache.
+
+A request that is not a page — a `fetch`, a script, an image — for a file
+the build did not write gets a `404`, as a host would send, and a line in
+the terminal saying which; only a navigation gets the single-page shell. A
+missing API used to be answered with the shell's HTML, which then failed
+to parse somewhere far from the cause.
+
+A build under `wf serve` is a development build, and the page knows it:
+
+- a response a type is declared for — `resource users: [User] = …`, an
+  `api` endpoint's `-> User` — is held to that type as it arrives, and one
+  that does not match takes the `error` arm as a `.parse` error naming the
+  place: `$[1].name is missing`;
+- a route no page answers (and no `path: "*"` page catches) shows a `404`
+  box saying so, where a deployed page shows nothing;
+- an item of a `for` that throws shows where it is, with what it threw,
+  and the rest of the list draws — on a deployed page it leaves a gap and
+  the console says why;
+- an effect that changes what it reads every time it runs is stopped after
+  a hundred runs, with a warning, instead of overflowing the stack (it is
+  stopped on a deployed page too, silently).
 
 ### `wf generate`
 
@@ -148,10 +169,12 @@ wf build && wf verify
 ```
 
 It starts a headless Chrome, serves the output, and opens every route the
-project has. A route fails on an uncaught exception, a `console.error`, a
-file that did not arrive, an image that failed to load, or a page that
-rendered no text — the things a compiler cannot see and a reader always
-can.
+project has — a `:param` route at each value its `paths:` names, or at a
+placeholder (`/user/1`) when it names none. A route fails on an uncaught
+exception, a `console.error`, a file that did not arrive (a `fetch` the
+build has no file for is a `404`, not the page shell), an image that failed
+to load, a router that drew nothing into `<main>`, or a page that rendered
+no text — the things a compiler cannot see and a reader always can.
 
 ```
   16 route(s) in http://127.0.0.1:39785
@@ -164,7 +187,12 @@ can.
 The numbers are the first contentful paint, the elements in the document
 once it settled, the bytes the page fetched and the requests it made.
 `--budget 400` fails a route that takes longer than that to paint.
-`--json` is the same report for a pipeline.
+`--json` is the same report for a pipeline. `--returning-visitor` visits
+every route a second time as a reader who was here before: their storage
+holds what the previous build's pages kept — each `persist` value's
+starting value as the build before this one wrote it, which a build saves
+in `.wf-cache/` when they change — so a shape that changed without a
+`version:` shows as the broken page it would be.
 
 It also says **which built-ins no page drew**. A component can be in the
 registry, in the tests and in the documentation and still be broken in a

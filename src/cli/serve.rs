@@ -216,7 +216,13 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
     let state = std::sync::Arc::new(std::sync::Mutex::new(DevState::default()));
     {
         let mut s = state.lock().unwrap();
-        s.record(crate::cli::build::run_build(project_dir));
+        s.record(crate::cli::build::run_build_opts(
+            project_dir,
+            crate::cli::build::Options {
+                dev: true,
+                ..Default::default()
+            },
+        ));
         // The first build is version 0, whether it passed or not.
         s.version = 0;
     }
@@ -258,7 +264,13 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
                 }
                 last = now;
                 println!("Change detected, rebuilding...");
-                let outcome = crate::cli::build::run_build(&root);
+                let outcome = crate::cli::build::run_build_opts(
+                    &root,
+                    crate::cli::build::Options {
+                        dev: true,
+                        ..Default::default()
+                    },
+                );
                 state.lock().unwrap().record(outcome);
             }
         });
@@ -305,6 +317,15 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
             let _ = request.respond(response);
             continue;
         }
+        if url == "/__wf/mode.js" {
+            let response = tiny_http::Response::from_string("window.__WF_DEV__ = true;\n")
+                .with_header(
+                    tiny_http::Header::from_bytes("Content-Type", "application/javascript")
+                        .unwrap(),
+                );
+            let _ = request.respond(response);
+            continue;
+        }
         if url == "/__wf/dev.js" {
             let response = tiny_http::Response::from_string(DEV_SCRIPT).with_header(
                 tiny_http::Header::from_bytes("Content-Type", "application/javascript").unwrap(),
@@ -327,6 +348,24 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
             file_path = file_path.join("index.html");
         }
 
+        // A fetch or a file the build did not write: a 404, as a host would
+        // send, and a line saying so. The shell used to answer it, so a
+        // missing API handed the page HTML to parse and nothing said why.
+        if !file_path.is_file() && url == "/favicon.ico" {
+            let _ = request.respond(tiny_http::Response::empty(204));
+            continue;
+        }
+        if !file_path.is_file() && !super::preview::is_page_request(&url, request.headers()) {
+            eprintln!(
+                "  404 {} {url}: no file in the build answers it, and a fetch is not a page (an API the dev server does not serve?)",
+                request.method()
+            );
+            let response = tiny_http::Response::from_string("Not Found")
+                .with_status_code(404)
+                .with_header(tiny_http::Header::from_bytes("Cache-Control", "no-store").unwrap());
+            let _ = request.respond(response);
+            continue;
+        }
         let (content, content_type) = if file_path.exists() && file_path.is_file() {
             let content = fs::read(&file_path).unwrap_or_default();
             let ct = guess_content_type(&file_path);
@@ -395,10 +434,19 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
 }
 
 /// The page with `<script src="/__wf/dev.js">` before `</body>`.
+///
+/// And, first thing in the head, `/__wf/mode.js`, which tells the runtime it
+/// is under the dev server before the bundle runs — so a list item that
+/// throws or a route nothing answers is shown on the page, not only logged.
 fn inject_dev_script(content: Vec<u8>) -> Vec<u8> {
-    let Ok(text) = String::from_utf8(content) else {
+    let Ok(mut text) = String::from_utf8(content) else {
         return Vec::new();
     };
+    let mode = "<script src=\"/__wf/mode.js\"></script>";
+    match text.find("<head>") {
+        Some(at) => text.insert_str(at + "<head>".len(), mode),
+        None => text.insert_str(0, mode),
+    }
     let tag = "<script src=\"/__wf/dev.js\" defer></script>\n";
     match text.rfind("</body>") {
         Some(at) => format!("{}{}{}", &text[..at], tag, &text[at..]).into_bytes(),

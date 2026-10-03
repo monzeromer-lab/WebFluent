@@ -86,11 +86,31 @@
         onRequest: config.onRequest,
         onResponse: config.onResponse,
         onError: config.onError,
+        shape: endpoint.shape,
         key: (config.name || "") + " " + name + " " + addressOf(given),
       };
     };
 
-    const call = (args) => send(addressOf(args), optionsOf(args));
+    // A path parameter with no value would ask for something else —
+    // `users/` for `users/:id`, the whole collection. The call is not made:
+    // it ends as aborted, which a resource over it reads as still loading,
+    // until the value arrives and the address changes.
+    const unfilled = (args) => {
+      const given = args || {};
+      const names = String(endpoint.path).match(/:([A-Za-z_][A-Za-z0-9_]*)/g) || [];
+      for (const n of names) {
+        const v = given[n.slice(1)];
+        if (v == null || v === "") return n.slice(1);
+      }
+      return null;
+    };
+    const call = (args) => {
+      const empty = unfilled(args);
+      if (empty) {
+        return Promise.reject(netError("aborted", "`" + empty + "` is empty, so " + endpoint.path + " was not requested"));
+      }
+      return send(addressOf(args), optionsOf(args));
+    };
     call.progress = progress;
     call.key = (args) => optionsOf(args).key;
     call.url = addressOf;

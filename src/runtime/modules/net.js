@@ -143,6 +143,7 @@
       redirect: given.redirect,
       referrerPolicy: given.referrerPolicy,
       signal: given.signal,
+      shape: given.shape,
     };
   }
 

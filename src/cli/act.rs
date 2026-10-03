@@ -350,8 +350,16 @@ const ACT: &str = r#"
     if (!el) return "none";
     const key = value;
     const init = { key, code: key.length === 1 ? "Key" + key.toUpperCase() : key, bubbles: true, cancelable: true };
-    el.dispatchEvent(new KeyboardEvent("keydown", init));
+    const down = el.dispatchEvent(new KeyboardEvent("keydown", init));
     el.dispatchEvent(new KeyboardEvent("keyup", init));
+    // What the browser does with a real Escape that nothing cancelled: the
+    // open modal dialog is asked (`cancel`) and, unless it refuses, closed.
+    // A synthetic key event does not reach that default.
+    if (down && (key === "Escape" || key === "Esc")) {
+      const open = [...document.querySelectorAll("dialog[open]")];
+      const dialog = (el.closest && el.closest("dialog[open]")) || open[open.length - 1];
+      if (dialog && dialog.dispatchEvent(new Event("cancel", { cancelable: true }))) dialog.close();
+    }
     return "ok";
   }
   return "none";

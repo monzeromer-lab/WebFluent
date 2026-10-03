@@ -39,7 +39,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell { Markdown("Runs the project's `test` declarations") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS]`") }
+                    Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS] [--returning-visitor]`") }
                     Table.Cell("Loads every built page in headless Chrome")
                 }
                 Table.Row {
@@ -93,7 +93,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
 
         Heading("wf serve", id: "wf-serve").h3
 
-        Markdown("The development loop. It builds once, serves the output on `dev.port` (3000), watches `src/`, `public/` and the config, rebuilds on a change and reloads every open tab. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at `/__wf/dev.js`, the build's state at `/__wf/status` (JSON).\n\nEvery page it serves also carries a **stores** button: what each store holds, a log of every action with the state on each side of it, and a click to put a store back ([Stores](/docs/guide/stores#looking-at-one-while-it-runs)). An offline site's service worker is removed under `wf serve`, so an edit is never hidden behind its cache.")
+        Markdown("The development loop. It builds once, serves the output on `dev.port` (3000), watches `src/`, `public/` and the config, rebuilds on a change and reloads every open tab. A build that fails leaves the last good page up and draws the error over it — file, line, message and hint — until the next save fixes it. The overlay is served at `/__wf/dev.js`, the build's state at `/__wf/status` (JSON).\n\nEvery page it serves also carries a **stores** button: what each store holds, a log of every action with the state on each side of it, and a click to put a store back ([Stores](/docs/guide/stores#looking-at-one-while-it-runs)). An offline site's service worker is removed under `wf serve`, so an edit is never hidden behind its cache.\n\nA request that is not a page — a `fetch`, a script, an image — for a file the build did not write gets a `404`, as a host would send, and a line in the terminal saying which; only a navigation gets the single-page shell. A missing API used to be answered with the shell's HTML, which then failed to parse somewhere far from the cause.\n\nA build under `wf serve` is a development build, and the page knows it:\n\n- a response a type is declared for — `resource users: [User] = …`, an `api` endpoint's `-> User` — is held to that type as it arrives, and one that does not match takes the `error` arm as a `.parse` error naming the place: `$[1].name is missing`;\n- a route no page answers (and no `path: \"*\"` page catches) shows a `404` box saying so, where a deployed page shows nothing;\n- an item of a `for` that throws shows where it is, with what it threw, and the rest of the list draws — on a deployed page it leaves a gap and the console says why;\n- an effect that changes what it reads every time it runs is stopped after a hundred runs, with a warning, instead of overflowing the stack (it is stopped on a deployed page too, silently).")
 
         Heading("wf generate", id: "wf-generate").h3
 
@@ -144,7 +144,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf build && wf verify")
             ])
 
-        Markdown("It starts a headless Chrome, serves the output, and opens every route the project has. A route fails on an uncaught exception, a `console.error`, a file that did not arrive, an image that failed to load, or a page that rendered no text — the things a compiler cannot see and a reader always can.")
+        Markdown("It starts a headless Chrome, serves the output, and opens every route the project has — a `:param` route at each value its `paths:` names, or at a placeholder (`/user/1`) when it names none. A route fails on an uncaught exception, a `console.error`, a file that did not arrive (a `fetch` the build has no file for is a `404`, not the page shell), an image that failed to load, a router that drew nothing into `<main>`, or a page that rendered no text — the things a compiler cannot see and a reader always can.")
 
         CodeBlock(#"  16 route(s) in http://127.0.0.1:39785
     ok   /                                    236ms     613 nodes    447.0 kB   11 req
@@ -152,7 +152,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
 
   16 page(s), 0 problem(s)"#, title: "")
 
-        Markdown("The numbers are the first contentful paint, the elements in the document once it settled, the bytes the page fetched and the requests it made. `--budget 400` fails a route that takes longer than that to paint. `--json` is the same report for a pipeline.\n\nIt also says **which built-ins no page drew**. A component can be in the registry, in the tests and in the documentation and still be broken in a page; the classes the pages carried are the list of what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all — it is a fact about coverage, not a failure.\n\nIt needs a Chrome or Chromium on the machine, or `WF_CHROME` pointing at one, and says so plainly when there is none.")
+        Markdown("The numbers are the first contentful paint, the elements in the document once it settled, the bytes the page fetched and the requests it made. `--budget 400` fails a route that takes longer than that to paint. `--json` is the same report for a pipeline. `--returning-visitor` visits every route a second time as a reader who was here before: their storage holds what the previous build's pages kept — each `persist` value's starting value as the build before this one wrote it, which a build saves in `.wf-cache/` when they change — so a shape that changed without a `version:` shows as the broken page it would be.\n\nIt also says **which built-ins no page drew**. A component can be in the registry, in the tests and in the documentation and still be broken in a page; the classes the pages carried are the list of what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all — it is a fact about coverage, not a failure.\n\nIt needs a Chrome or Chromium on the machine, or `WF_CHROME` pointing at one, and says so plainly when there is none.")
 
         Heading("wf audit", id: "wf-audit").h3
 

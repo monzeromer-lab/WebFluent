@@ -35,7 +35,7 @@ wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wf
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
 wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
 wf migrate [path] [--check] [--wfx]       # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
-wf verify [path] [--json] [--budget MS]   # Load every page in a real browser: errors, failed requests, paint timing
+wf verify [path] [--json] [--budget MS] [--returning-visitor]  # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
 wf types [path] [--json]                  # What a project declares: enums, types, components, stores, pages
@@ -63,6 +63,20 @@ same report for a pipeline. It needs a Chrome or Chromium on the machine
 what each store that has been built is holding, a log of every action with
 the state on each side of it, and a click to put a store back to before one
 ran.
+
+`wf serve` answers a request that is not a page (a `fetch`, a file) and
+that the build has no file for with a `404` and a line in the terminal —
+only a navigation gets the shell. Its builds are development builds: a
+response is held to its declared type (`resource x: [User]`, `-> User`) and
+a mismatch is a `.parse` error naming the place (`$[1].name is missing`); a
+route no page answers shows a 404 box; a `for` item that throws shows where
+(the rest of the list draws — on a deployed page it leaves a gap); an effect
+that feeds itself stops after 100 runs with a warning.
+
+`wf verify` visits `:param` routes at their `paths:` values, or at a
+placeholder (`/user/1`); fails a page whose router drew nothing into
+`<main>`; and with `--returning-visitor` visits every route again with
+storage holding what the previous build's pages kept.
 
 `wf serve` builds first, then watches `src/`, `public/` and the config
 (`dev.hot_reload`, on by default): a save rebuilds, and every page it
@@ -115,7 +129,7 @@ throws fails the test.
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
 | `click "Save"` | Clicks whatever carries that name |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one |
+| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one; `Escape` closes an open `Modal` or `Dialog` |
 
 `wf docs` writes `docs/index.html`: a self-contained gallery of every
 built-in — props, cases, flags, events, slots, parts — and of the

@@ -630,3 +630,38 @@ fn each_fix_applied_makes_its_finding_go() {
         );
     }
 }
+
+#[test]
+fn a_build_keeps_what_each_persisted_value_starts_as_and_the_last_build_s() {
+    let page = |initial: &str| {
+        format!(
+            "{PAGE}    persist items = {initial} {{ version: 2 }}\n    Heading(\"{{items.length}}\").h1\n}}\n"
+        )
+    };
+    let dir = project(
+        "persist-values",
+        r#"{ "name": "p" }"#,
+        &[("src/App.wf", &page("[\"a\"]"))],
+    );
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    let read = |name: &str| -> serde_json::Value {
+        serde_json::from_str(&std::fs::read_to_string(dir.join(name)).unwrap()).unwrap()
+    };
+    assert_eq!(
+        read(".wf-cache/persist-values.json")["wf:Home.items"],
+        serde_json::json!({ "wf:v": 2, "wf:d": ["a"] })
+    );
+    assert!(!dir.join(".wf-cache/persist-values.previous.json").exists());
+    std::fs::write(dir.join("src/App.wf"), page("[\"b\", \"c\"]")).unwrap();
+    let (code, _, err) = wf(&dir, &["build"]);
+    assert_eq!(code, 0, "{err}");
+    assert_eq!(
+        read(".wf-cache/persist-values.previous.json")["wf:Home.items"]["wf:d"],
+        serde_json::json!(["a"])
+    );
+    assert_eq!(
+        read(".wf-cache/persist-values.json")["wf:Home.items"]["wf:d"],
+        serde_json::json!(["b", "c"])
+    );
+}

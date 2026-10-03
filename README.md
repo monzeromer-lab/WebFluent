@@ -176,7 +176,7 @@ wf serve [-d DIR]                           Dev server with live reload
 wf generate page|component|store <name>     Scaffold a file
 wf fmt [path] [--check] [--to wfx|wf]       Format, or switch layout
 wf test [path] [--update]                   Run the project's tests, in a browser when one acts
-wf verify [path] [--json] [--budget MS]     Visit every route in a headless browser
+wf verify [path] [--json] [--budget MS]     Visit every route in a headless browser (--returning-visitor: again, with storage)
 wf docs [-d DIR] [-o OUT]                   Write a component gallery
 wf render <tpl|dir> [--data f.json] [-f pdf] [--page P]   Use WebFluent as a template engine
 wf audit [path] [--json]                    What the project trusts

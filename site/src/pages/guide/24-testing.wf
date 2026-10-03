@@ -73,7 +73,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`press \"Enter\"` · `press \"Escape\" in \"Search\"`") }
-                    Table.Cell("A key, on the focused element or a named one")
+                    Table.Cell { Markdown("A key, on the focused element or a named one; `Escape` closes an open `Modal` or `Dialog` as a real one would") }
                 }
             }
         }

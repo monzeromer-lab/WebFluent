@@ -75,6 +75,9 @@ impl Page {
 }
 
 pub struct Browser {
+    /// A script every page runs before its own: what `--returning-visitor`
+    /// puts in storage.
+    before_each: Option<String>,
     child: Child,
     socket: Socket,
     next: u64,
@@ -132,6 +135,7 @@ impl Browser {
         let socket = Socket::connect(&endpoint)?;
         socket.deadline(30)?;
         Ok(Browser {
+            before_each: None,
             child,
             socket,
             next: 1,
@@ -164,6 +168,12 @@ impl Browser {
         }
     }
 
+    /// Run `source` in every page opened from now on, before the page's own
+    /// scripts; `None` stops it.
+    pub fn before_each_page(&mut self, source: Option<String>) {
+        self.before_each = source;
+    }
+
     /// Open `url` and wait for it to settle. The page stays open until
     /// it is closed, so a caller can act on it.
     pub fn open(&mut self, url: &str, settle_ms: u64) -> Result<Page> {
@@ -185,6 +195,13 @@ impl Browser {
             "Page.enable",
         ] {
             self.call(method, json!({}), Some(&session))?;
+        }
+        if let Some(source) = &self.before_each {
+            self.call(
+                "Page.addScriptToEvaluateOnNewDocument",
+                json!({ "source": source }),
+                Some(&session),
+            )?;
         }
         let mut page = Page {
             target: target_id,
@@ -272,6 +289,12 @@ impl Browser {
             visit.first_contentful_paint = report["fcp"].as_i64().unwrap_or(-1);
             visit.elements = report["elements"].as_u64().unwrap_or(0);
             visit.text = report["text"].as_u64().unwrap_or(0);
+            if report["outlet"].as_i64() == Some(0) {
+                visit.errors.push(
+                    "the router drew nothing into <main>: no page's route matched, or the page threw before it drew"
+                        .to_string(),
+                );
+            }
             visit.drew = report["drew"]
                 .as_array()
                 .map(|a| {
@@ -380,6 +403,8 @@ const PAGE_REPORT: &str = r#"(() => {
     fcp: Math.round(fcp ? fcp.startTime : -1),
     elements: document.getElementsByTagName("*").length,
     text: (document.querySelector("main") || document.body).textContent.trim().length,
+    // The router's outlet: -1 where there is none, else what it holds.
+    outlet: (() => { const m = document.getElementById("wf-main"); return m ? m.childNodes.length : -1; })(),
     drew: [...new Set([...document.querySelectorAll('[class*="wf-"]')]
       .flatMap((n) => [...n.classList].filter((c) => c.startsWith("wf-"))))].sort(),
     // An image that finished and has no size failed. One that has not

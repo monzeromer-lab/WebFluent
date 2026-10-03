@@ -76,6 +76,16 @@
       const match = matchRoute(path);
       if (!match) {
         container.innerHTML = "";
+        // No page's route matches, and no `*` page catches it. A reader
+        // sees an empty page; under `wf serve` the developer sees why.
+        console.warn("WF: no page has the route " + path + "; a `page NotFound(path: \"*\")` catches what nothing else does");
+        if (devMode()) {
+          const box = document.createElement("div");
+          box.className = "wf-route-missing";
+          box.setAttribute("role", "alert");
+          box.textContent = "404 — no page has the route " + path + ". Declare one, or a page with path: \"*\" for every address nothing else answers.";
+          container.appendChild(box);
+        }
         return;
       }
 

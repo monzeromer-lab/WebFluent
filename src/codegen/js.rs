@@ -68,6 +68,11 @@ fn action_names(body: &[Statement]) -> Vec<String> {
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
     output: String,
+    /// A build for `wf serve`: each response a type is declared for carries
+    /// that type's shape, which the runtime holds the response to.
+    dev: bool,
+    /// The program's records and enums, for those shapes.
+    shapes: (HashMap<String, TypeDecl>, HashMap<String, Vec<String>>),
     /// `Some(sync)` when the config names `offline`: the service worker is
     /// registered at boot, and `sync` keeps writes made offline.
     offline: Option<bool>,
@@ -201,6 +206,8 @@ impl Default for JsCodegen {
 impl JsCodegen {
     pub fn new() -> Self {
         Self {
+            dev: false,
+            shapes: Default::default(),
             offline: None,
             consts: Vec::new(),
             env: Default::default(),
@@ -270,6 +277,82 @@ impl JsCodegen {
 
     pub fn set_ssg(&mut self, enabled: bool) {
         self.ssg_mode = enabled;
+    }
+
+    /// A build for the dev server: responses are held to their declared
+    /// types at the network boundary.
+    pub fn set_dev(&mut self, enabled: bool) {
+        self.dev = enabled;
+    }
+
+    /// The shape the runtime holds a response to (`shapeProblem` in
+    /// `http.js`), for a declared type: `"s"`, `"n"`, `"b"`, `"m"`, `"*"`,
+    /// `["?", s]`, `["l", s]`, `["r", "Name", { field: s }]`, `["e", [cases]]`.
+    fn shape_of(&self, ty: &TypeRef, depth: usize) -> String {
+        if depth > 6 {
+            return "\"*\"".to_string();
+        }
+        match ty {
+            TypeRef::String => "\"s\"".into(),
+            TypeRef::Number => "\"n\"".into(),
+            TypeRef::Bool => "\"b\"".into(),
+            TypeRef::Map => "\"m\"".into(),
+            TypeRef::Any => "\"*\"".into(),
+            TypeRef::List(t) => format!("[\"l\", {}]", self.shape_of(t, depth + 1)),
+            TypeRef::Optional(t) => format!("[\"?\", {}]", self.shape_of(t, depth + 1)),
+            TypeRef::Refined(t, _) => self.shape_of(t, depth),
+            TypeRef::Named(name) => {
+                if let Some(cases) = self.shapes.1.get(name) {
+                    let cases: Vec<String> = cases.iter().map(|c| format!("\"{c}\"")).collect();
+                    return format!("[\"e\", [{}]]", cases.join(", "));
+                }
+                if let Some(decl) = self.shapes.0.get(name) {
+                    let mut fields: Vec<String> = Vec::new();
+                    let mut chain = vec![decl];
+                    while let Some(parent) = chain
+                        .last()
+                        .and_then(|d| d.extends.as_ref())
+                        .and_then(|p| self.shapes.0.get(p))
+                    {
+                        if chain.len() > 8 {
+                            break;
+                        }
+                        chain.push(parent);
+                    }
+                    let mut seen: Vec<&str> = Vec::new();
+                    for d in chain {
+                        for f in &d.fields {
+                            if seen.contains(&f.name.as_str()) {
+                                continue;
+                            }
+                            seen.push(&f.name);
+                            // A field with a default may be left out.
+                            let shape = self.shape_of(&f.ty, depth + 1);
+                            let shape = if f.default.is_some() {
+                                format!("[\"?\", {shape}]")
+                            } else {
+                                shape
+                            };
+                            fields.push(format!(
+                                "{}: {shape}",
+                                serde_json::to_string(&f.name).unwrap_or_default()
+                            ));
+                        }
+                    }
+                    return format!("[\"r\", \"{name}\", {{ {} }}]", fields.join(", "));
+                }
+                // The types the language brings: each is a plain JSON value.
+                match name.as_str() {
+                    "Date" | "Time" | "DateTime" | "Url" | "Email" | "Uuid" | "Color"
+                    | "Secret" => "\"s\"".into(),
+                    "Duration" => "\"n\"".into(),
+                    "Money" => {
+                        "[\"r\", \"Money\", { \"amount\": \"n\", \"currency\": \"s\" }]".into()
+                    }
+                    _ => "\"*\"".into(),
+                }
+            }
+        }
     }
 
     pub fn set_base_path(&mut self, path: String) {
@@ -433,6 +516,24 @@ impl JsCodegen {
                 .pages
                 .into_keys()
                 .collect();
+        }
+
+        // The records and enums a dev build's response shapes name.
+        if self.dev {
+            for decl in &program.declarations {
+                match decl {
+                    Declaration::Type(t) => {
+                        self.shapes.0.insert(t.name.clone(), t.clone());
+                    }
+                    Declaration::Enum(e) => {
+                        self.shapes.1.insert(
+                            e.name.clone(),
+                            e.cases.iter().map(|c| c.name.clone()).collect(),
+                        );
+                    }
+                    _ => {}
+                }
+            }
         }
 
         // First pass: collect component and store names
@@ -748,6 +849,11 @@ impl JsCodegen {
             ];
             for (key, value) in &endpoint.settings {
                 parts.push(format!("{}: {}", api_setting(key), self.emit_expr(value)));
+            }
+            if self.dev
+                && let Some(ty) = &endpoint.returns
+            {
+                parts.push(format!("shape: {}", self.shape_of(ty, 0)));
             }
             // A file parameter is sent as a form, under its own name.
             if let Some(file) = endpoint
@@ -4920,11 +5026,16 @@ impl JsCodegen {
         } else {
             url
         };
-        let opts: Vec<String> = r
+        let mut opts: Vec<String> = r
             .options
             .iter()
             .map(|opt| format!("{}: {}", opt.key, self.emit_expr(&opt.value)))
             .collect();
+        if self.dev
+            && let Some(ty) = &r.ty
+        {
+            opts.push(format!("shape: {}", self.shape_of(ty, 0)));
+        }
         let opts_js = if opts.is_empty() {
             "null".to_string()
         } else {

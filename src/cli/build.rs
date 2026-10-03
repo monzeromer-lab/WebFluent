@@ -35,6 +35,8 @@ pub struct Options {
     pub format: Format,
     /// A warning stops the build as an error does — for CI.
     pub deny_warnings: bool,
+    /// A build for `wf serve`: responses are held to their declared types.
+    pub dev: bool,
 }
 
 thread_local! {
@@ -234,6 +236,10 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
             serde_json::to_string_pretty(&shapes).unwrap_or_default(),
         );
     }
+    // And what each starts as, which `wf verify --returning-visitor` puts in
+    // storage — the values of the build before, when it changed — to load
+    // the pages as a reader who last visited then.
+    crate::linter::project::keep_persisted_values(project_dir, &program, &config.env);
     let program = lowered;
 
     // PDF output mode
@@ -334,6 +340,7 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
     if config.build.ssg {
         js_codegen.set_ssg(true);
     }
+    js_codegen.set_dev(options.dev);
     js_codegen.set_split_pages(config.build.split);
     js_codegen.set_full_runtime(config.build.runtime == crate::config::RuntimeMode::Full);
     js_codegen.set_env(config.public_env_values());
