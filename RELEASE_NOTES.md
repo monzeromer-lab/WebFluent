@@ -1,3 +1,22 @@
+# WebFluent v4.3.2 Release Notes
+
+The crate's documentation builds with no warning on docs.rs. Nothing the
+compiler or the template engine does changed.
+
+## Fixed
+
+- **docs.rs documents the crate without warnings.** 4.3.1 linked module
+  docs by full path, which a stable rustdoc needed and docs.rs's nightly
+  reported as redundant — seventeen warnings. Each of eight modules was
+  documented twice, on its `pub mod` in `lib.rs` and in its own file; the
+  two are one now, and stable and nightly rustdoc both document the crate
+  with none.
+
+## Tooling
+
+- `scripts/ship.sh` waits for a just-pushed commit's CI run to appear,
+  where it took the missing run for a failure and stopped.
+
 # WebFluent v4.3.1 Release Notes
 
 The crate's documentation builds clean. Nothing the compiler or the
