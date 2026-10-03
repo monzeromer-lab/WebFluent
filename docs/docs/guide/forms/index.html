@@ -57,10 +57,10 @@
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
-                    <button class="wf-icon-btn site-icon-button"></button>
+                    <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -289,7 +289,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/&quot;) {
     state name = &quot;&quot;
@@ -317,6 +317,24 @@
                             <div class="wf-markdown">
 <p><code>Textarea(bind: note, label: &quot;Notes&quot;, rows: 4, maxLength: 200)</code> is several lines of text; with <code>maxLength</code> it shows how much is left, politely.</p>
 <p>The checker knows what each control holds: <code>Checkbox</code> and <code>Switch</code> bind a <code>Bool</code>, <code>Slider</code> a <code>Number</code>, <code>DatePicker</code> a <a href="/WebFluent/docs/guide/types#the-types-the-language-brings-with-it"><code>Date?</code></a> (nothing, until one is picked), the rest a <code>String</code> (an <code>Input.number</code> holds a <code>Number</code>). A control needs a <code>label:</code> (or a <code>placeholder:</code> for an <code>Input</code>, or an <code>aria-label:</code>) — the accessibility lint says so otherwise.</p>
+<p>What comes back is the type it went in as: an <code>Input.number</code> writes a number (and <code>null</code> when it is emptied), and a <code>Select</code> writes the option's <code>value:</code> as it was written, so <code>Select.Option(&quot;Two&quot;, value: 2)</code> binds the number <code>2</code>, not the string <code>&quot;2&quot;</code>.</p>
+<p><code>bind:</code> names anything that can be written: a state, a store's member (<code>bind: Cart.note</code>), or a field of a loop's item:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">for t in todos by t.id {
+    Input(bind: t.title, label: &quot;Title&quot;)
+    Checkbox(bind: t.done, label: &quot;Done&quot;)
+}
+Text(&quot;{todos.filter(t =&gt; !t.done).length} left&quot;)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The item is written and the list is told it changed, so everything that reads <code>todos</code> follows. In a keyed loop that happens as the reader types; in a loop with no <code>by</code>, which redraws every item when its list changes, the list hears of it when the field is left, so the row is not redrawn under the cursor.</p>
                             </div>
                             <h2 class="wf-heading">Labels, hints and errors you write yourself</h2>
                             <div class="wf-markdown">
@@ -327,7 +345,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Handle(path: &quot;/&quot;, title: &quot;Handle&quot;, description: &quot;Pick a handle.&quot;) {
     state handle = &quot;&quot;
@@ -348,7 +366,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Contact(path: &quot;/&quot;) {
     state name = &quot;&quot;
@@ -476,7 +494,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>A <code>Button</code> with <code>type: .submit</code> (or <code>.submit</code>) submits; the browser's own constraint validation runs first, so an invalid form never reaches <code>on submit</code>.</p>
+<p>A <code>Button</code> with <code>type: .submit</code> (or <code>.submit</code>) submits; the browser's own constraint validation runs first, so an invalid form never reaches <code>on submit</code>. Any other button in a form — &quot;Add a row&quot;, &quot;Show password&quot; — is <code>type=&quot;button&quot;</code> and does only what its <code>on click</code> says.</p>
                             </div>
                             <h2 class="wf-heading">What a value must be: validate</h2>
                             <div class="wf-markdown">
@@ -487,7 +505,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Signup(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;Make an account.&quot;) {
     state email = &quot;&quot;
@@ -616,7 +634,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">state nights: Number(1..=30) = 2
 validate nights { required }</code>
@@ -630,7 +648,7 @@ validate nights { required }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">action signUp() {
     try {
@@ -652,7 +670,7 @@ validate nights { required }</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api&quot;) {
     post avatar(id: String, file: File) at &quot;users/:id/avatar&quot;
@@ -694,7 +712,7 @@ page Avatar(path: &quot;/avatar&quot;, title: &quot;Your picture&quot;, descript
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend(base: &quot;/api&quot;) {
     post signUp(body: Map) -&gt; Map
@@ -740,7 +758,7 @@ page Join(path: &quot;/join&quot;, title: &quot;Join&quot;, description: &quot;M
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Api {
     state saved = 0

@@ -1,3 +1,54 @@
+# WebFluent v4.3.3 Release Notes
+
+Programs the compiler accepted and then compiled wrong now compile right,
+or are refused where they are written; and the build reads back the
+JavaScript it wrote, so a script the browser would refuse never ships.
+
+## Fixed
+
+- **A number field binds a number.** `Input(bind: qty).number` stored the
+  text the field held, so `qty + 1` was `"31"`; it now holds a number, and
+  `null` when it is emptied. A `Select` binds the option's `value:` as it
+  was written: `Select.Option("Two", value: 2)` binds `2`, not `"2"`.
+- **A button in a form submits it only when it says so.** Every `Button`
+  and `IconButton` without `type: .submit` (or `.submit`) is
+  `type="button"`, on the live page and in the static paint; "Add a row"
+  in a form used to send the form.
+- **`bind:` on a loop item's field writes back.** `for t in todos by t.id {
+  Input(bind: t.title) }` only showed the value; it now writes the item and
+  tells the list, so whatever reads `todos` follows. In a loop with no
+  `by`, the list hears of it when the field is left, so the row is not
+  redrawn under the cursor.
+- **Every control binds a store's member.** `Switch`, `Checkbox`, `Radio`,
+  `Slider` and `DatePicker` bound only a page's state; `Switch(bind:
+  Prefs.dark)` drew no input at all.
+- **A state, derived or prop that holds a function is called.**
+  `derived scale = (x) => x * factor` then `scale(3)` compiled to a call
+  of nothing; assigning a function to a state stored what the function
+  returned. `WF.signal(…).set(fn)` now stores `fn`; `.update(fn)` is the
+  updater it always was.
+- **A store action's `let` and `if let`.** A `let` reassigned later in the
+  action compiled to a `const`; an `if let` inside an action bound nothing.
+- **A name declared twice is an error where it is written.** Two stores,
+  two constants, a store and a constant, a state and a derived, a store's
+  state and its action, a prop and a state, a page's parameter and a state:
+  each compiled to a script the browser refused, or let the second quietly
+  replace the first. A component may still share its name with a `type`.
+- **The build reads back what it wrote.** Every compiled script is checked
+  before and after minifying — strings, templates, regular expressions and
+  comments closed, brackets matched, no name declared twice in one block —
+  and a fault stops the build as the compiler's bug, with the line it
+  wrote.
+- **`wf test`**: `type "Two" into "Size"` on a select threw; it now picks
+  the option by its text, or its value.
+
+## Changed
+
+- A button inside a form that submitted it without saying so no longer
+  does: give it `type: .submit`.
+- A program with a name declared twice no longer builds. Most such
+  programs already failed in the browser.
+
 # WebFluent v4.3.2 Release Notes
 
 The crate's documentation builds with no warning on docs.rs. Nothing the

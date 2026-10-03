@@ -57,10 +57,10 @@
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
-                    <button class="wf-icon-btn site-icon-button"></button>
+                    <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -287,7 +287,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String, price: Number, qty: Number = 1 }
 
@@ -322,7 +322,7 @@ store Cart {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart(scope: .app) { … }        // the default: as long as the page is open
 store Session(scope: .session) { … } // this tab&#x27;s
@@ -338,7 +338,7 @@ store Filters(scope: .route) { … }   // this route&#x27;s</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String, price: Number, qty: Number = 1 }
 
@@ -379,7 +379,7 @@ page CartPage(path: &quot;/cart&quot;, title: &quot;Cart&quot;, description: &qu
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Session {
     state user: Map? = null
@@ -427,7 +427,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Prefs {
     persist theme = &quot;system&quot;
@@ -447,7 +447,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     persist items: [Item] = [] {
@@ -473,7 +473,7 @@ page Login(path: &quot;/login&quot;, title: &quot;Sign in&quot;, description: &q
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Deploys {
     state rows: [Map] = []
@@ -514,7 +514,7 @@ page DeploysPage(path: &quot;/deploys&quot;, title: &quot;Deploys&quot;, descrip
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">test &quot;the cart shows what is in it&quot;(data: { Cart: { items: [{ id: &quot;a&quot;, qty: 2 }] } }) {
     CartSummary()

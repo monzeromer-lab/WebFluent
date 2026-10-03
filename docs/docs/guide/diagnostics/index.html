@@ -57,10 +57,10 @@
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
-                    <button class="wf-icon-btn site-icon-button"></button>
+                    <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -285,7 +285,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/pages/Profile.wf:12:10
   Unwrap it first: `if let x = value { … }`, `value ?? fallback`, …</code>
@@ -554,7 +554,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T01</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state count: Number = 0
@@ -567,7 +567,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T01] `count` is `String`, but `Number` is wanted at src/App.wf:4:34
   Convert it: `Number(value)`</code>
@@ -581,7 +581,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T02</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">enum Tone { calm, loud }
 page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
@@ -594,7 +594,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T02] `Tone` has no case `.quiet` at src/App.wf:3:17
   `Tone` takes .calm, .loud</code>
@@ -608,7 +608,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T04</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { name: String, email: String? }
 page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
@@ -622,7 +622,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T04] `user.email` may be null, so `.toUpperCase()` may fail at src/App.wf:5:10
   Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`</code>
@@ -636,7 +636,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T05</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { name: String }
 page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
@@ -649,7 +649,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T05] `User` has no field `nmae` at src/App.wf:4:18
   Its fields are `name`</code>
@@ -663,7 +663,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T06</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart { state items = [] }
 page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
@@ -676,7 +676,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T06] `Cart` has no member `count` at src/App.wf:4:15
   Its members are `items`</code>
@@ -690,7 +690,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T07</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state items = [&quot;a&quot;]
@@ -703,7 +703,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T07] `if` reads `items` as a condition, but a list is always true at src/App.wf:4:5
   Ask about its length: `items.length &gt; 0`</code>
@@ -717,7 +717,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T08</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state total = 3
@@ -730,7 +730,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T08] `for` loops over a list, but `total` is `Number` at src/App.wf:4:5
   Give it a list, or `.split(…)` a string first</code>
@@ -744,7 +744,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T09</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Stepper(_ start: Number) {
     event change(value: Number)
@@ -756,7 +756,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T09] `emit change` passes 2 arguments, but the event takes 1 at src/App.wf:3:30
   `event change(value: Number)`</code>
@@ -770,7 +770,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T10</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state count = 0
@@ -784,7 +784,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T10] `add` takes 1 argument, but 2 are given at src/App.wf:5:30</code>
                             </div>
@@ -797,7 +797,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T11</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state n = 1
@@ -813,7 +813,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T11] `match` needs a resource or an enum, but `n` is `Number` at src/App.wf:4:5
   Use `if` for a condition; `match` chooses among a resource&#x27;s states or an enum&#x27;s cases</code>
@@ -827,7 +827,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T12</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state token: Secret = &quot;&quot;
@@ -840,7 +840,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T12] `token` is a `Secret`, and `Text` would show it at src/App.wf:4:10
   A secret must not reach the page; send it as a value, or show one field of what it unlocks</code>
@@ -854,7 +854,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws T13</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state count = 0
@@ -867,7 +867,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Error: [T13] nothing declares `cuont` at src/App.wf:4:30
   Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError</code>
@@ -885,7 +885,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A01</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Photo&quot;).h1
@@ -897,7 +897,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A01]: Image missing &quot;alt&quot; attribute at src/App.wf:3:5
   Add alt text: Image(src: &quot;...&quot;, alt: &quot;Description of image&quot;)</code>
@@ -911,7 +911,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A02</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Close&quot;).h1
@@ -923,7 +923,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A02]: IconButton missing accessible label at src/App.wf:3:5
   Add a label: IconButton(icon: &quot;close&quot;, label: &quot;Close dialog&quot;)</code>
@@ -937,7 +937,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A03</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state name = &quot;&quot;
@@ -950,7 +950,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A03]: Input missing &quot;label&quot; or &quot;placeholder&quot; attribute at src/App.wf:4:5
   Add a label: Input(label: &quot;Username&quot;).text</code>
@@ -964,7 +964,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A04</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state agree = false
@@ -977,7 +977,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A04]: Checkbox missing &quot;label&quot; attribute at src/App.wf:4:5
   Add a label: Checkbox(bind: value, label: &quot;Description&quot;)</code>
@@ -991,7 +991,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A05</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Actions&quot;).h1
@@ -1003,7 +1003,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A05]: Button has no text content at src/App.wf:3:5
   Add text: Button(&quot;Save&quot;).primary</code>
@@ -1017,7 +1017,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A06</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Links&quot;).h1
@@ -1029,7 +1029,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A06]: Link has no text content at src/App.wf:3:5
   Add text: Link(&quot;About&quot;, to: &quot;/about&quot;)</code>
@@ -1043,7 +1043,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A07</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Title&quot;).h1
@@ -1055,7 +1055,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A07]: Heading has empty text content at src/App.wf:3:5
   Headings should have meaningful text</code>
@@ -1069,7 +1069,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A08</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state open = false
@@ -1082,7 +1082,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A08]: Modal missing &quot;title&quot; attribute at src/App.wf:4:5
   Add a title: Modal(visible: state, title: &quot;Dialog Title&quot;)</code>
@@ -1096,7 +1096,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A09</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Demo&quot;).h1
@@ -1108,7 +1108,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A09]: Video missing &quot;captions&quot; at src/App.wf:3:5
   Add captions: Video(src: &quot;...&quot;, captions: &quot;/captions.en.vtt&quot;)</code>
@@ -1122,7 +1122,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A10</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Table&quot;).h1
@@ -1134,7 +1134,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A10]: Table missing header row (Thead) at src/App.wf:3:5
   Add a header: Table { Thead { Tcell(&quot;Column Name&quot;) } ... }</code>
@@ -1148,7 +1148,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A11</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Title&quot;).h1
@@ -1160,7 +1160,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A11]: Heading level skips from h1 to h4 at src/App.wf:3:5
   Use h2 instead, or add the missing intermediate headings</code>
@@ -1174,7 +1174,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A12</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Section&quot;).h2
@@ -1185,7 +1185,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A12]: Page has no h1 heading at src/App.wf:1:1
   Add a main heading: Heading(&quot;Page Title&quot;).h1</code>
@@ -1199,7 +1199,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A13</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">theme Faint {
     color-text: #BBBBBB
@@ -1214,7 +1214,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A13]: body text on the page background has a contrast ratio of 1.92:1, below the 4.5:1 WCAG AA minimum at src/App.wf:3:1
   Darken --color-text or lighten --color-background until they clear 4.5:1</code>
@@ -1228,7 +1228,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A14</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Tabs&quot;).h1
@@ -1243,7 +1243,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A14]: role &quot;tablist&quot; requires children with role &quot;tab&quot;, but holds a Button at src/App.wf:3:5
   Give each child role: &quot;tab&quot;, or use the built-in that owns this structure</code>
@@ -1257,7 +1257,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws A15</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Save&quot;).h1
@@ -1269,7 +1269,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [A15]: Button shows &quot;save&quot; but its aria-label says &quot;Submit the form&quot; at src/App.wf:3:5
   Start the aria-label with the visible text, so what a user says matches what they see</code>
@@ -1287,7 +1287,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws S01</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, description: &quot;D&quot;) {
     Heading(&quot;No title&quot;).h1
@@ -1298,7 +1298,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [S01]: Page P has no title at src/App.wf:1:1
   Add one: page Name(path: &quot;/&quot;, title: &quot;What this page is&quot;)</code>
@@ -1312,7 +1312,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws S02</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;) {
     Heading(&quot;No description&quot;).h1
@@ -1323,7 +1323,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [S02]: Page P has no description at src/App.wf:1:1
   Add one: page Name(path: &quot;/&quot;, title: &quot;…&quot;, description: &quot;A sentence a search result can show&quot;)</code>
@@ -1337,7 +1337,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws S03</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.&quot;) {
     Heading(&quot;Long&quot;).h1
@@ -1348,7 +1348,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [S03]: Page P&#x27;s description is 178 characters; a search result shows about 160 at src/App.wf:1:1
   Shorten it, or accept that it will be cut mid-sentence</code>
@@ -1362,7 +1362,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws S04</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page A(path: &quot;/about&quot;, title: &quot;A&quot;, description: &quot;D&quot;) { Heading(&quot;A&quot;).h1 }
 page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot;) { Heading(&quot;B&quot;).h1 }</code>
@@ -1372,7 +1372,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [S04]: Pages A and B both claim the route /about at src/App.wf:2:1
   Give each page its own path</code>
@@ -1390,7 +1390,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws P01</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     persist items: [String] = [] {
@@ -1403,7 +1403,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [P01]: `items` is at version 2, and nothing brings version 1 forward at src/App.wf:2:5
   A reader who last visited then loses what they had. Add `migrate 1 -&gt; 2`</code>
@@ -1417,7 +1417,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws P02</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     persist items: [String] = [] {
@@ -1431,7 +1431,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [P02]: `migrate 1 -&gt; 2` on `items` is past the declared version at src/App.wf:2:5
   A step above `version:` never runs; raise the version or drop the step</code>
@@ -1445,7 +1445,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws P03</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Filters(scope: .route) {
     persist query = &quot;&quot;
@@ -1456,7 +1456,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [P03]: `query` is persisted in a store scoped to the route at src/App.wf:2:5
   The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it</code>
@@ -1474,7 +1474,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws U01</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state unused = 0
@@ -1486,7 +1486,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [U01]: `unused` is declared but never read at src/App.wf:2:5
   Nothing reads the state; remove it, or name it `_unused` to keep it</code>
@@ -1500,7 +1500,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws U02</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state n = 1
@@ -1513,7 +1513,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [U02]: `doubled` is declared but never read at src/App.wf:3:5
   Nothing reads the derived value; remove it, or name it `_doubled` to keep it</code>
@@ -1527,7 +1527,7 @@ page B(path: &quot;/about&quot;, title: &quot;B&quot;, description: &quot;D&quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws U03</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">component Orphan { Text(&quot;Nobody places me&quot;) }
 page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
@@ -1539,7 +1539,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [U03]: `Orphan` is declared but never placed at src/App.wf:1:1
   Place it in a page, name it as a layout, or remove it</code>
@@ -1553,7 +1553,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws U04</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">store Cart {
     state items = []
@@ -1569,7 +1569,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [U04]: `Cart.coupon` is declared but never read at src/App.wf:3:5
   Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it</code>
@@ -1583,7 +1583,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws U05</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state n = 0
@@ -1596,7 +1596,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [U05]: `reset` is declared but never read at src/App.wf:3:5
   Nothing reads the action; remove it, or name it `_reset` to keep it</code>
@@ -1614,7 +1614,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws V01</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Save&quot;).h1
@@ -1626,7 +1626,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary` at src/App.wf:3:12</code>
                             </div>
@@ -1639,7 +1639,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws V03</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     state body = &quot;&lt;b&gt;Hi&lt;/b&gt;&quot;
@@ -1652,7 +1652,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [V03]: `Unsafe.Html` puts markup in as markup at src/App.wf:4:5
   Anything the project did not write itself belongs in `sanitize(…)` first</code>
@@ -1670,7 +1670,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf · draws V04</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Classes&quot;).h1
@@ -1682,7 +1682,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">Warning [V04]: `class:` names `wf-btn`, one of the engine&#x27;s own classes at src/App.wf:3:5
   `wf-` classes are the built-ins&#x27;: one added here brings another built-in&#x27;s rules with it. Name a class of your own, or use the flag that sets the look</code>

@@ -57,10 +57,10 @@
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
-                    <button class="wf-icon-btn site-icon-button"></button>
+                    <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -289,7 +289,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Deploy { id: String, status: String, startedAt: String }
 
@@ -326,7 +326,7 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Search(path: &quot;/&quot;) {
     state q = &quot;&quot;
@@ -353,7 +353,7 @@ page Deploys(path: &quot;/&quot;, title: &quot;Deploys&quot;, description: &quot
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, body: String }
 
@@ -381,7 +381,7 @@ page PostPage(path: &quot;/posts/:slug&quot;, slug: String) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
 
@@ -428,7 +428,7 @@ page Users(path: &quot;/users&quot;, title: &quot;Users&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type User { id: String, name: String }
 
@@ -597,7 +597,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">api Backend from &quot;openapi.json&quot; (base: env.PUBLIC_API)</code>
                             </div>
@@ -758,7 +758,7 @@ api Backend(base: env.PUBLIC_API ?? &quot;/api/v1&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">text</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">get users(page: Number = 1, q: String?) -&gt; [User]
 get user(id: String) at &quot;users/:id&quot; -&gt; User
@@ -785,7 +785,7 @@ get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Item { id: String, name: String }
 
@@ -816,7 +816,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">action rename(id: String, name: String) {
     optimistic(Todos.items, items =&gt; items.map(i =&gt; if i.id == id { { ...i, title: name } } else { i }))
@@ -836,7 +836,7 @@ page Items(path: &quot;/items&quot;, title: &quot;Items&quot;, description: &quo
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Todo { id: String, title: String, done: Bool = false }
 
@@ -890,7 +890,7 @@ page Todos(path: &quot;/&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
 
@@ -911,7 +911,7 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">json</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[
   { &quot;slug&quot;: &quot;hello&quot;, &quot;title&quot;: &quot;Hello&quot;, &quot;date&quot;: &quot;2026-01-10&quot;, &quot;body&quot;: &quot;# Hi\nFirst post.&quot; },
@@ -930,7 +930,7 @@ page Blog(path: &quot;/&quot;, title: &quot;Blog&quot;, description: &quot;Every
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Post { slug: String, title: String, date: String, body: String }
 

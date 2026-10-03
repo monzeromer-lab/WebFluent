@@ -6,7 +6,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("Installing", id: "installing").h2
 
-        Markdown("**`wf: command not found` after installing.** Open a new terminal: the installer added `~/.webfluent/bin` to your shell's startup file, which the open session read before. Or run it by its full path, `~/.webfluent/bin/wf`.\n\n**The installer says it cannot find the latest version.** GitHub's API limits unauthenticated requests. Pin one: `WF_VERSION=v4.3.2`.\n\n**Linux on ARM (a Raspberry Pi, an ARM server).** There is no prebuilt binary yet: `cargo install webfluent`.\n\n**`wf-lsp` not found by the editor.** It is a separate binary; see [Getting started](/docs/guide/getting-started#set-up-your-editor).")
+        Markdown("**`wf: command not found` after installing.** Open a new terminal: the installer added `~/.webfluent/bin` to your shell's startup file, which the open session read before. Or run it by its full path, `~/.webfluent/bin/wf`.\n\n**The installer says it cannot find the latest version.** GitHub's API limits unauthenticated requests. Pin one: `WF_VERSION=v4.3.3`.\n\n**Linux on ARM (a Raspberry Pi, an ARM server).** There is no prebuilt binary yet: `cargo install webfluent`.\n\n**`wf-lsp` not found by the editor.** It is a separate binary; see [Getting started](/docs/guide/getting-started#set-up-your-editor).")
 
         Heading("Building", id: "building").h2
 

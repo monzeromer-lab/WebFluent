@@ -57,10 +57,10 @@
                         <p class="wf-text wf-s09f6982c">/</p>
                     </div>
                     <!--wf-if-->
-                    <button class="wf-icon-btn site-icon-button"></button>
+                    <button class="wf-icon-btn site-icon-button" type="button"></button>
                     <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu"></button>
+                    <button class="wf-btn site-button site-button-outlined" aria-label="Switch language" type="button"></button>
+                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" aria-label="Menu" title="Menu" type="button"></button>
                 </div>
             </div>
             <!--wf-if-->
@@ -289,7 +289,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Chat(path: &quot;/chat&quot;, title: &quot;Chat&quot;, description: &quot;Talk.&quot;) {
     state draft = &quot;&quot;
@@ -316,7 +316,7 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">stream ticks = sse(&quot;/events&quot;, events: [&quot;price&quot;])
 channel cart = broadcast(&quot;cart&quot;) { on message(m) { Cart.merge(m) } }
@@ -330,7 +330,7 @@ beacon(&quot;/analytics&quot;, { event: &quot;checkout&quot; })     // survives 
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">effect { if let p = ticks.last(&quot;price&quot;) { price = p } }
 Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code>
@@ -492,7 +492,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;Two readers, one line.&quot;) {
     state heard = &quot;&quot;
@@ -696,7 +696,7 @@ Button(&quot;Sync&quot;) { on click { cart.post({ items: Cart.count }) } }</code
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">type Incoming { id: String, text: String }
 type Outgoing { text: String }
@@ -722,7 +722,7 @@ page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;A
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">beacon(&quot;/analytics&quot;, { event: &quot;checkout&quot;, value: 42 })</code>
                             </div>
@@ -735,7 +735,7 @@ page Room(path: &quot;/room&quot;, title: &quot;Room&quot;, description: &quot;A
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
                                         <p class="wf-text wf-s6dc9a872">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy" type="button"></button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">if !network.online { Alert(&quot;You are offline — changes are queued.&quot;).warning }</code>
                             </div>
