@@ -23,7 +23,7 @@ type SearchRow {
 const REPO = "https://github.com/monzeromer-lab/WebFluent"
 
 /// The release the site documents, on the header's pill.
-const VERSION = "4.3"
+const VERSION = "5.0"
 
 /// The one-line install, shown in the hero and on chapter 1.
 const INSTALL = "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash"
