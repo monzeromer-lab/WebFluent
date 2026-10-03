@@ -38,6 +38,14 @@ pub fn project_diagnostics(project: &Project) -> Vec<Vec<Diagnostic>> {
         if !file.stale {
             incomplete = true;
         }
+        // A Markdown page's mistake is its front matter's, as the build
+        // reports it; a source file's are every one the parser recovers from.
+        if file.markdown {
+            if let Err(e) = crate::project::parse(&file.source, &labels[ix]) {
+                findings.extend(e.diagnostics().into_iter().map(|d| (ix, d)));
+            }
+            continue;
+        }
         let (_, errors) = webfluent::syntax::parse_source_recovering(&file.source, &labels[ix]);
         findings.extend(errors.into_iter().map(|d| (ix, d)));
     }

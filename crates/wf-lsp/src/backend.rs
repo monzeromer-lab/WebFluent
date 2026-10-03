@@ -197,13 +197,21 @@ impl LanguageServer for Backend {
             )
             .await;
         // Every editor, not only the one whose extension says so, tells the
-        // server when a script or a stylesheet changes on disk.
+        // server when a file a finding depends on changes on disk: a source,
+        // a Markdown page, a script, a stylesheet, the config (`lints`,
+        // `env`, `i18n`), a translation, a `.env`, or a file in `public/`
+        // a page names.
         if self.watch_files.load(Ordering::Relaxed) {
+            let watcher = |glob: &str| FileSystemWatcher {
+                glob_pattern: GlobPattern::String(glob.to_string()),
+                kind: None,
+            };
             let options = DidChangeWatchedFilesRegistrationOptions {
-                watchers: vec![FileSystemWatcher {
-                    glob_pattern: GlobPattern::String("**/*.{wf,wfx,js,css}".to_string()),
-                    kind: None,
-                }],
+                watchers: vec![
+                    watcher("**/*.{wf,wfx,md,js,css,json}"),
+                    watcher("**/.env"),
+                    watcher("**/public/**"),
+                ],
             };
             let _ = self
                 .client

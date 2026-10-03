@@ -381,6 +381,11 @@ pub fn store_members(store: &StoreDecl) -> Vec<Binding> {
 /// The lexer's view of a file: `None` when it does not tokenize. The
 /// file's name picks its layout: a `.wfx` is tokenized by indentation.
 pub fn tokens_of(file: &SourceFile) -> Option<Vec<Token>> {
+    // A script is JavaScript and a page in Markdown is Markdown: neither
+    // has WebFluent tokens to find a name among.
+    if file.script || file.markdown {
+        return None;
+    }
     webfluent::syntax::tokens(&file.source, &file.path.to_string_lossy()).ok()
 }
 

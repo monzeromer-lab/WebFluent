@@ -50,6 +50,9 @@ pub struct SourceFile {
     /// A plain script under `src/`, not WebFluent: its one declaration is
     /// what it makes global, and nothing reads its text as `.wf`.
     pub script: bool,
+    /// A Markdown page under `src/`: its declaration is the page the build
+    /// makes of it, and nothing reads its text as `.wf` either.
+    pub markdown: bool,
 }
 
 /// A project: its files, and their declarations merged into one program.
@@ -176,6 +179,7 @@ impl Project {
                 .to_string();
             let parsed = parse(&source, &label);
             let stale = parsed.is_err() && last_valid.is_some();
+            let file_path_is_markdown = file_path.extension().is_some_and(|e| e == "md");
             fallbacks.push(last_valid);
             files.push(SourceFile {
                 uri: file_uri,
@@ -186,6 +190,7 @@ impl Project {
                 open,
                 stale,
                 script: false,
+                markdown: file_path_is_markdown,
             });
         }
 
@@ -222,6 +227,7 @@ impl Project {
                 open: false,
                 stale: false,
                 script: true,
+                markdown: false,
             });
         }
 
@@ -255,6 +261,7 @@ impl Project {
                 open: false,
                 stale: false,
                 script: true,
+                markdown: false,
             });
         }
 
@@ -304,6 +311,7 @@ impl Project {
             open: true,
             stale: false,
             script: false,
+            markdown: false,
         };
         let declarations = file
             .parsed
@@ -363,7 +371,11 @@ impl Project {
     }
 }
 
-fn parse(source: &str, label: &str) -> Result<Program, WebFluentError> {
+pub(crate) fn parse(source: &str, label: &str) -> Result<Program, WebFluentError> {
+    // A Markdown file under `src/` is a page, read as the build reads it.
+    if label.ends_with(".md") {
+        return webfluent::data::markdown_page(source, label);
+    }
     webfluent::parse_source(source, label)
 }
 
@@ -375,8 +387,8 @@ fn find_root(path: &Path) -> Option<PathBuf> {
         .map(Path::to_path_buf)
 }
 
-/// Every `.wf` and `.wfx` under `dir`, in the order `wf build` reads
-/// them: `App.wf` first, then the rest depth-first, alphabetically.
+/// Every `.wf`, `.wfx` and `.md` page under `dir`, in the order `wf build`
+/// reads them: `App.wf` first, then the rest depth-first, alphabetically.
 fn source_files(dir: &Path) -> Vec<PathBuf> {
     let mut files = Vec::new();
     let app = ["App.wf", "App.wfx"]
@@ -399,7 +411,9 @@ fn walk(dir: &Path, app: Option<&Path>, files: &mut Vec<PathBuf>) {
     for path in entries {
         if path.is_dir() {
             walk(&path, app, files);
-        } else if webfluent::syntax::is_source_file(&path) {
+        } else if webfluent::syntax::is_source_file(&path)
+            || path.extension().is_some_and(|e| e == "md")
+        {
             if app == Some(path.as_path()) {
                 continue;
             }

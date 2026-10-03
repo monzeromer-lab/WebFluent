@@ -671,3 +671,77 @@ fn a_misspelled_field_offers_the_field_it_meant() {
     assert_eq!(edits[0].range.start, Position::new(3, 10));
     assert_eq!(edits[0].range.end, Position::new(3, 15));
 }
+
+/// A project on disk with these files, loaded the way the server loads the
+/// one an open document belongs to.
+fn disk_project(name: &str, files: &[(&str, &str)], open: &str) -> (Project, usize) {
+    let root = std::env::temp_dir().join(format!("wf-lsp-{name}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(root.join("src")).unwrap();
+    std::fs::write(root.join("webfluent.app.json"), r#"{ "name": "t" }"#).unwrap();
+    for (path, text) in files {
+        let at = root.join(path);
+        std::fs::create_dir_all(at.parent().unwrap()).unwrap();
+        std::fs::write(at, text).unwrap();
+    }
+    let uri = Url::from_file_path(root.join(open)).unwrap();
+    let project = Project::load(&uri, &|_| None, &wf_lsp::project::FileCache::default());
+    let ix = project
+        .file_index(&uri)
+        .expect("the open file is in its project");
+    (project, ix)
+}
+
+#[test]
+fn a_markdown_page_is_a_page_the_editor_knows() {
+    let app = "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    Heading(\"H\").h1\n    Link(\"About\", to: \"/about\")\n    Link(\"Gone\", to: \"/gone\")\n}\n";
+    let (project, ix) = disk_project(
+        "md",
+        &[
+            ("src/App.wf", app),
+            (
+                "src/about.md",
+                "---\ntitle: About\ndescription: Who we are.\n---\n# About\n\nWe make things.\n",
+            ),
+        ],
+        "src/App.wf",
+    );
+    let found = project_diagnostics(&project);
+    let r01: Vec<u32> = found[ix]
+        .iter()
+        .filter(|d| d.code == Some(NumberOrString::String("R01".into())))
+        .map(|d| d.range.start.line + 1)
+        .collect();
+    // `/about` is the Markdown page's route; `/gone` is nobody's.
+    assert_eq!(r01, vec![5], "{:#?}", found[ix]);
+
+    // A broken page's mistake is its front matter's, not a WebFluent parse
+    // of its Markdown.
+    let (project, _) = disk_project(
+        "md-broken",
+        &[
+            ("src/App.wf", app),
+            ("src/broken.md", "---\ntitle: Broken\n# never closed\n"),
+        ],
+        "src/App.wf",
+    );
+    let found = project_diagnostics(&project);
+    let broken = project
+        .files
+        .iter()
+        .position(|f| f.path.ends_with("broken.md"))
+        .unwrap();
+    let codes: Vec<String> = found[broken]
+        .iter()
+        .map(|d| match &d.code {
+            Some(NumberOrString::String(c)) => c.clone(),
+            _ => String::new(),
+        })
+        .collect();
+    assert_eq!(codes, vec!["E002"], "{:#?}", found[broken]);
+    assert!(
+        found[broken][0].message.contains("front matter"),
+        "{}",
+        found[broken][0].message
+    );
+}
