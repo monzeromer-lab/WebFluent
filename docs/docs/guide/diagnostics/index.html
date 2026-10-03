@@ -1664,6 +1664,32 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <div class="wf-markdown">
 <p>A flag on one of your components whose class no stylesheet — the engine's or one of the project's <code>.css</code> files — defines, so it changes nothing on screen. The built-ins cannot draw it: the registry and the engine's stylesheet are held to each other. <strong>Fix:</strong> define the class in a <code>.css</code> file under <code>src/</code>, or drop the flag.</p>
                             </div>
+                            <h3 class="wf-heading">V04 — A class that is the engine&#x27;s</h3>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws V04</p>
+                                    </div>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Classes&quot;).h1
+    Card(class: &quot;wf-btn&quot;) { Text(&quot;x&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">Warning [V04]: `class:` names `wf-btn`, one of the engine&#x27;s own classes at src/App.wf:3:5
+  `wf-` classes are the built-ins&#x27;: one added here brings another built-in&#x27;s rules with it. Name a class of your own, or use the flag that sets the look</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> Name a class of your own and style it in a <code>.css</code> file under <code>src/</code>, or use the flag that sets the look you wanted (<code>.primary</code>, <code>.elevated</code>).</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">

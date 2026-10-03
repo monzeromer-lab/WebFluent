@@ -2698,8 +2698,8 @@
    "name": "Host",
    "slug": "host",
    "group": "Layout",
-   "summary": "An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.",
-   "plain": "An element handed to somebody else's code, with a lifetime. mount: runs once with the node, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves.",
+   "summary": "A bare node handed to somebody else's code, with a lifetime. `mount:` runs with the node each time it is made, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves. Every other element takes the same three.",
+   "plain": "A bare node handed to somebody else's code, with a lifetime. mount: runs with the node each time it is made, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves. Every other element takes the same three.",
    "signature": "Host(tag: \u2026)",
    "block": false,
    "props": [
@@ -2753,7 +2753,7 @@
     "Column",
     "Grid"
    ],
-   "example": "",
+   "example": "Element(\"relative-time\", datetime: \"2026-03-14T09:30:00Z\") { Text(\"March 14\") }\nElement(\"stripe-pricing-table\", publishableKey: \"pk_test_\u2026\") { on ready { log(\"prices shown\") } }",
    "cssClass": ""
   },
   {

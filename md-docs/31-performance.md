@@ -38,6 +38,7 @@ wf build --stats
     index.html                            5.1 kB  (1.3 kB gzipped)
     pages/Suggest.js                      2.2 kB  (0.8 kB gzipped)
     pages/Home.js                         1.4 kB  (0.6 kB gzipped)
+    js/tilt.js                            0.6 kB  (0.4 kB gzipped)
     …
     total                                90.7 kB
 
@@ -52,6 +53,10 @@ wf build --stats
 
   Tokens: 26 nothing in the output names, left out
 ```
+
+The project's own scripts are listed by their path under `js/`, and
+`build.budget` may name one. They are copied as written — the build does
+not minify a file it promises to ship byte for byte.
 
 That is the [tutorial](03-tutorial.md)'s site: a form brings `form` and
 `field`, a store `store` and `keep`, a second page `router`.

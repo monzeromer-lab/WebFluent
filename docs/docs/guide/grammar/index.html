@@ -286,7 +286,7 @@
                             </div>
                             <h2 class="wf-heading">Keywords</h2>
                             <div class="wf-markdown">
-<p>Where a statement starts, these words have meaning: <code>page</code>, <code>component</code>, <code>store</code>, <code>app</code>, <code>theme</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>external</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> and <code>test</code> at the top of a file; <code>state</code>, <code>persist</code>, <code>derived</code>, <code>effect</code>, <code>cleanup</code>, <code>action</code>, <code>use</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>stream</code>, <code>channel</code>, <code>peer</code>, <code>every</code>, <code>after</code>, <code>on key</code>, <code>head</code>, <code>if</code>, <code>if let</code>, <code>for</code>, <code>show</code>, <code>match</code>, <code>sequence</code> and <code>step</code> in a render block; <code>slot</code>, <code>event</code>, <code>part</code> and <code>children</code> in a component; <code>let</code>, <code>return</code>, <code>try</code>, <code>catch</code>, <code>await</code> and <code>emit</code> in an action; <code>expect</code>, <code>click</code>, <code>type</code>, <code>press</code> in a test. Everywhere else they are ordinary names.</p>
+<p>Where a statement starts, these words have meaning: <code>page</code>, <code>component</code>, <code>store</code>, <code>app</code>, <code>theme</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> and <code>test</code> at the top of a file; <code>state</code>, <code>persist</code>, <code>derived</code>, <code>effect</code>, <code>cleanup</code>, <code>action</code>, <code>use</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>stream</code>, <code>channel</code>, <code>peer</code>, <code>every</code>, <code>after</code>, <code>on key</code>, <code>head</code>, <code>if</code>, <code>if let</code>, <code>for</code>, <code>show</code>, <code>match</code>, <code>sequence</code> and <code>step</code> in a render block; <code>slot</code>, <code>event</code>, <code>part</code> and <code>children</code> in a component; <code>let</code>, <code>return</code>, <code>try</code>, <code>catch</code>, <code>await</code> and <code>emit</code> in an action; <code>expect</code>, <code>click</code>, <code>type</code>, <code>press</code> in a test. Everywhere else they are ordinary names.</p>
                             </div>
                             <h2 class="wf-heading">Declarations</h2>
                             <div class="wf-markdown">
@@ -310,8 +310,6 @@ type Name { field: Type = default, … }        type Name = Other { … }
 enum Name { case, case(part: Type, …), … }
 api Name(base: expr, …) { settings  headers { … }  on request|response|error(x) { … }  endpoints }
 api Name from &quot;spec.json&quot; (base: expr)
-external Name from &quot;module&quot; { integrity: &quot;…&quot;  fn f(params) -&gt; Type  type T { method(params) -&gt; Type  field: Type } }
-external element Name(&quot;tag-name&quot;) { prop name: Type  event name(params) }
 const NAME: Type = expr
 data name: Type = &quot;file.json&quot;
 image name = &quot;picture.jpg&quot;
@@ -739,7 +737,7 @@ part Name(props) { render block }     a part, called as `Component.Name`</code>
                             </table>
                             <div class="wf-markdown">
 <p>So <code>1..n + 1</code> is <code>1..(n + 1)</code>, and <code>a ?? b || c</code> is <code>a ?? (b || c)</code>.</p>
-<p>Values that are expressions: <code>if c { a } else { b }</code>, <code>if let x = v { a } else { b }</code>, <code>match v { .case { a } else { b } }</code>, lambdas <code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code>, <code>() =&gt; expr</code>, spreads <code>...x</code> in a list or map.</p>
+<p>Values that are expressions: <code>if c { a } else { b }</code> (<code>null</code> when there is no <code>else</code> and <code>c</code> fails), <code>if let x = v { a } else { b }</code>, <code>match v { .case { a } else { b } }</code>, lambdas <code>x =&gt; expr</code>, <code>(a, b) =&gt; expr</code>, <code>() =&gt; expr</code>, spreads <code>...x</code> in a list or map.</p>
                             </div>
                             <h2 class="wf-heading">Literals</h2>
                             <table class="wf-table">

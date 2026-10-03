@@ -366,7 +366,8 @@
     &quot;image&quot;: &quot;&quot;,
     &quot;sitemap&quot;: true,
     &quot;fonts&quot;: [],
-    &quot;stylesheets&quot;: []
+    &quot;stylesheets&quot;: [],
+    &quot;scripts&quot;: []
   },
   &quot;motion&quot;: { &quot;duration&quot;: null, &quot;easing&quot;: null },
   &quot;env&quot;: {},
@@ -1171,6 +1172,23 @@
                                         <td>
                                             <div class="wf-markdown">
 <p>Extra stylesheets to link ahead of <code>styles.css</code>: a file in <code>public/</code> or a URL.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>scripts</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>[]</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Libraries to load before the project's own scripts: a URL or a file in <code>public/</code>, or <code>{ &quot;src&quot;, &quot;module&quot;: true, &quot;as&quot;: &quot;Name&quot; }</code> for an ES module, or <code>{ &quot;src&quot;, &quot;globals&quot;: [&quot;Chart&quot;] }</code> to call a library's names from <code>.wf</code>. Their origins join the policy (<a href="/WebFluent/docs/guide/interop#a-library-from-a-cdn">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>

@@ -85,7 +85,7 @@ test "a list renders each row"(data: { rows: [{ name: "a" }, { name: "b" }] }) {
         the page showed:
         Nothing here"#, title: "")
 
-        Markdown("**A handler that throws fails the test**, even where the expects would have passed — a click that quietly did nothing is the bug, not a pass. These tests need a Chrome or Chromium on the machine, or `WF_CHROME` pointing at one; a test that only looks needs neither.\n\nA test that acts takes no snapshot. What it expects is the test.")
+        Markdown("**A handler that throws fails the test**, even where the expects would have passed — a click that quietly did nothing is the bug, not a pass. These tests need a Chrome or Chromium on the machine, or `WF_CHROME` pointing at one; a test that only looks needs neither. The page a test that acts runs on links the project's scripts under `src/`, so a click that calls one runs it; a test that only looks renders without them.\n\nA test that acts takes no snapshot. What it expects is the test.")
 
         Heading("Seeding data and stores", id: "seeding-data-and-stores").h2
 

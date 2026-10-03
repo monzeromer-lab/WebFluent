@@ -273,13 +273,13 @@
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s28a8547f">
                         <h1 class="wf-heading wf-sa3503382">Language basics</h1>
-                        <p class="wf-text wf-sfd35f593">A file is a list of declarations. This chapter covers all fourteen kinds, naming, comments, bodies, strings and the two layouts.</p>
+                        <p class="wf-text wf-sfd35f593">A file is a list of declarations. This chapter covers all thirteen kinds, naming, comments, bodies, strings and the two layouts.</p>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article">
                         <div class="wf-stack wf-gap--lg">
                             <h2 class="wf-heading">A file is a list of declarations</h2>
                             <div class="wf-markdown">
-<p>Every <code>.wf</code> file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are fourteen kinds:</p>
+<p>Every <code>.wf</code> file holds top-level declarations and nothing else — no loose elements, no statements outside a body. There are thirteen kinds:</p>
                             </div>
                             <div class="wf-stack wf-s3c016d1b code-block">
                                 <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
@@ -296,7 +296,6 @@ app { Navbar { Text(&quot;Shop&quot;).heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: &quot;/api/v1&quot;) { get todos() -&gt; [Todo] }
-external Confetti from &quot;https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/+esm&quot; { fn confetti(options: Map) }
 const API = &quot;/api/v1&quot;
 data posts = &quot;posts.json&quot;
 image hero = &quot;hero.jpg&quot;
@@ -411,19 +410,6 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>external</code></p>
-                                            </div>
-                                        </td>
-                                        <td>A JavaScript module or custom element, typed</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><a href="/WebFluent/docs/guide/interop">32</a></p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
 <p><code>const</code></p>
                                             </div>
                                         </td>
@@ -477,22 +463,10 @@ test &quot;chip shows its label&quot; { Chip(&quot;Beta&quot;)  expect &quot;Bet
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><code>test</code></p>
-                                            </div>
-                                        </td>
-                                        <td>A render held to expectations and a snapshot</td>
-                                        <td>
-                                            <div class="wf-markdown">
-<p><a href="/WebFluent/docs/guide/testing">24</a></p>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
+<p>Beside them, a <code>.css</code> file under <code>src/</code> is a stylesheet the build bundles, and a <code>.js</code> file under <code>src/</code> is a plain browser script whose top-level functions are in scope by name (<a href="/WebFluent/docs/guide/interop">32</a>). | <code>test</code> | A render held to expectations and a snapshot | <a href="/WebFluent/docs/guide/testing">24</a> |</p>
 <p>Inside a body there are more statements — <code>state</code>, <code>derived</code>, <code>effect</code>, <code>action</code>, <code>persist</code>, <code>resource</code>, <code>validate</code>, <code>socket</code>, <code>if</code>, <code>for</code>, <code>match</code> and the rest. <a href="/WebFluent/docs/guide/grammar">Grammar</a> lists every keyword and where it may appear.</p>
 <p>All the files under <code>src/</code> merge into one program, so a component declared in <code>components/Chip.wf</code> is usable from every page. <code>App.wf</code> is read first; the rest in name order.</p>
                             </div>

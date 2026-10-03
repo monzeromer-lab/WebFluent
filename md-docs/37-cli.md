@@ -27,7 +27,7 @@ told otherwise, and exits non-zero on failure, so each is a CI step as it is.
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
 | `wf render FILE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
-| `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2 or 3 project forward |
+| `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2, 3 or 4.1 project forward |
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
@@ -98,7 +98,7 @@ wf test --update
 
 Runs every `test "…" { }` under `tests/` (and in `src/`), or those in one
 file; `--update` rewrites the snapshots. A test that clicks or types runs in
-headless Chrome. [Testing](24-testing.md) covers writing them.
+headless Chrome, on a page that links the project's scripts. [Testing](24-testing.md) covers writing them.
 
 ### `wf verify`
 
@@ -146,7 +146,8 @@ wf audit --json
 ```
 
 Prints what a security review asks for: every `Unsafe.*` and whether it is
-sanitised, every other origin the pages load from, everything kept on the
+sanitised, the project's own scripts and what each declares, every other
+origin the pages load from, everything kept on the
 reader's machine, every `env` name and whether it is public, the policy the
 build ships, and what the compiler depends on. It reports and never fails.
 [Security](23-security.md#wf-audit).
@@ -198,7 +199,13 @@ the names it reads are its data's. [Server rendering](34-server-rendering.md).
 
 ### `wf migrate`
 
-Two things, in one command.
+Three things, in one command.
+
+**4.1 → 4.2** runs first, because 4.2 refuses `external`: a remote module
+becomes a `meta.scripts` entry, a local one a plain script under `src/` with
+its signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element`
+call `Element("tag", …)`. It lists every `.js` already under `src/`, since
+each now ships on every page.
 
 **2 → 3** rewrites every `.wf` under `src/` in place, with a note for
 anything that needed a decision. It is a change of spelling: the migrated
@@ -228,8 +235,9 @@ component, enum, type, store and page the project declares, with their `///`
 docs.
 
 `wf registry` describes every built-in, and `wf types` what a project
-declares, externals included; with `--json` each prints the data a tool
-reads:
+declares — the names its scripts under `src/` declare included, each with
+the parameters and return its JSDoc gives them; with `--json` each prints
+the data a tool reads:
 
 ```bash
 wf registry --json | jq '.components[] | select(.name == "Button") | .props[].name'

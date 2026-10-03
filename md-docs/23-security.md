@@ -178,8 +178,10 @@ another.
 The policy is `'self'` throughout, with no `'unsafe-inline'` for scripts:
 the compiler writes external files and binds events with
 `addEventListener`, so nothing needs it. It is widened by exactly the
-origins `meta.fonts` and `meta.stylesheets` declare, so a declared font is
-never blocked by the policy shipped beside it.
+origins `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare, so a
+declared font or library is never blocked by the policy shipped beside it.
+The project's own scripts under `src/` are served from the site itself, so
+they need nothing added.
 
 **The build checks its own output against it.** Every HTML file is read
 back and held to the policy it carries: an inline `<script>`, a `<style>`,
@@ -215,6 +217,16 @@ the hash out — that would make a build depend on the network. A Google
 Fonts stylesheet is exempt: it is written per user-agent, so its bytes
 differ between readers and no hash can match.
 
+## Your own scripts
+
+A `.js` file under `src/` runs on every page exactly as written — the
+compiler reads its names, it does not rewrite or sandbox it. It is code you
+trust, like the rest of `src/`: what it puts in the page with `innerHTML`
+is markup, so markup from outside the project goes through
+`WF.sanitize(…)` there too. A library from another origin is listed in
+`meta.scripts` with an integrity hash, so a change at that origin cannot
+reach your readers.
+
 ## `wf audit`
 
 One command for the questions a review asks:
@@ -223,10 +235,11 @@ One command for the questions a review asks:
 wf audit
 ```
 
-Every `Unsafe.*` and whether it is sanitised, every origin the pages load
-from, everything written to the reader's machine and where, every `env`
-name and whether it is public, the policy this build ships, and what the
-compiler itself depends on. `--json` for a tool. It reports; it never fails
+Every `Unsafe.*` and whether it is sanitised, the project's own scripts and
+the names each declares, every origin the pages load from, everything
+written to the reader's machine and where, every `env` name and whether it
+is public, the policy this build ships, and what the compiler itself
+depends on. `--json` for a tool. It reports; it never fails
 a build.
 
 ## Before you deploy

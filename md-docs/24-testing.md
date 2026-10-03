@@ -102,7 +102,9 @@ that cannot find what it asks for says so:
 **A handler that throws fails the test**, even where the expects would
 have passed — a click that quietly did nothing is the bug, not a pass.
 These tests need a Chrome or Chromium on the machine, or `WF_CHROME`
-pointing at one; a test that only looks needs neither.
+pointing at one; a test that only looks needs neither. The page a test that
+acts runs on links the project's scripts under `src/`, so a click that calls
+one runs it; a test that only looks renders without them.
 
 A test that acts takes no snapshot. What it expects is the test.
 

@@ -408,7 +408,7 @@ test &quot;a list renders each row&quot;(data: { rows: [{ name: &quot;a&quot; },
         Nothing here</code>
                             </div>
                             <div class="wf-markdown">
-<p><strong>A handler that throws fails the test</strong>, even where the expects would have passed — a click that quietly did nothing is the bug, not a pass. These tests need a Chrome or Chromium on the machine, or <code>WF_CHROME</code> pointing at one; a test that only looks needs neither.</p>
+<p><strong>A handler that throws fails the test</strong>, even where the expects would have passed — a click that quietly did nothing is the bug, not a pass. These tests need a Chrome or Chromium on the machine, or <code>WF_CHROME</code> pointing at one; a test that only looks needs neither. The page a test that acts runs on links the project's scripts under <code>src/</code>, so a click that calls one runs it; a test that only looks renders without them.</p>
 <p>A test that acts takes no snapshot. What it expects is the test.</p>
                             </div>
                             <h2 class="wf-heading">Seeding data and stores</h2>

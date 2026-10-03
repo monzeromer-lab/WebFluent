@@ -13,7 +13,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 ## Contents
 
-- **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`Divider`](#divider), [`Host`](#host)
+- **Layout**: [`Container`](#container), [`Row`](#row), [`Column`](#column), [`Grid`](#grid), [`Stack`](#stack), [`Spacer`](#spacer), [`Divider`](#divider), [`Host`](#host), [`Element`](#element)
 - **Navigation**: [`Navbar`](#navbar), [`Sidebar`](#sidebar), [`Link`](#link), [`Tabs`](#tabs), [`Breadcrumb`](#breadcrumb), [`Menu`](#menu)
 - **Data display**: [`Card`](#card), [`Table`](#table), [`List`](#list), [`Badge`](#badge), [`Tag`](#tag), [`Avatar`](#avatar), [`Tooltip`](#tooltip)
 - **Form**: [`Input`](#input), [`Select`](#select), [`Checkbox`](#checkbox), [`Radio`](#radio), [`Switch`](#switch), [`Slider`](#slider), [`DatePicker`](#datepicker), [`FileUpload`](#fileupload), [`Form`](#form), [`Textarea`](#textarea)
@@ -217,10 +217,10 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Host
 
-An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.
+A bare node handed to somebody else's code, with a lifetime. `mount:` runs with the node each time it is made, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves. Every other element takes the same three.
 
 ```
-Host(mount: …, update: …, cleanup: …)
+Host(tag: …)
 ```
 
 ```wf
@@ -231,12 +231,30 @@ Renders with the class `wf-host`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `mount:` | `Any` | `(node) => …` — run once with the element, giving back whatever the library hands over |
-| `update:` | `Any` | `(handle) => …` — run again whenever the state it reads changes |
-| `cleanup:` | `Any` | `(handle) => …` — run when what owns it leaves, so nothing is left behind |
 | `tag:` | `String` | The element to make, `div` by default |
 
 Attribute families: `global`, `aria`, `data`.
+
+### Element
+
+A custom element a script defines, placed by its tag: `Element("stripe-pricing-table", publishable-key: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.
+
+```
+Element(tag) { … }
+```
+
+```wf
+Element("relative-time", datetime: "2026-03-14T09:30:00Z") { Text("March 14") }
+Element("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log("prices shown") } }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `tag` (positional) | `String` | The custom element's tag: lower case, with a hyphen, as every custom element's is |
+
+Takes a block of children.
+
+Attribute families: `any`.
 
 ## Navigation
 
@@ -1808,6 +1826,9 @@ Attribute families: `global`, `aria`, `data`.
 | `shared:` | `String` | A name this element keeps across a route change, so the browser carries it from one page to the next |
 | `class:` | `String` | Classes added beside the engine's, from the project's own stylesheets |
 | `ref:` | `State` | A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()` |
+| `mount:` | `Any` | Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get |
+| `update:` | `Any` | Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)` |
+| `cleanup:` | `Any` | Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()` |
 
 The cases of `animate:` and `speed:` are also flags on every element: `.fadeIn` … `.spin`, `.fast` `.normal` `.slow`.
 

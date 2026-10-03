@@ -1694,7 +1694,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Host",
         "Layout",
-        "An element handed to somebody else's code, with a lifetime. `mount:` runs once with the node, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves.",
+        "A bare node handed to somebody else's code, with a lifetime. `mount:` runs with the node each time it is made, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves. Every other element takes the same three.",
         None,
         &[special(
             "tag",

@@ -391,7 +391,26 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The value may be an expression, so a class can follow state. Built-ins wear <code>wf-*</code> classes (<code>wf-btn</code>, <code>wf-btn--primary</code>, <code>wf-card</code>), stable across releases, so a stylesheet may target them.</p>
+<p>The value may be an expression, so a class can follow state. When several classes each have their own condition, give a map — each key is a class, on while its value is true — or a list, which joins strings and maps and skips what is <code>null</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s3c016d1b code-block">
+                                <div class="wf-row wf-align--center wf-justify--between wf-s119add03">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-sfb9dceec" aria-label="Copy"></button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Todos(path: &quot;/&quot;) {
+    state done = false
+    state urgent = true
+    state tone = &quot;calm&quot;
+    Text(&quot;Water the plants&quot;, class: { &quot;is-done&quot;: done, &quot;is-urgent&quot;: urgent })
+    Container(class: [&quot;panel&quot;, tone, if urgent { &quot;is-loud&quot; }]) { Text(&quot;…&quot;) }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A map's values must be conditions (<code>Bool</code>), and a bare condition is not a class (<code>T01</code>) — <code>{ &quot;is-on&quot;: on }</code> says what <code>on</code> turns on. Only the classes <code>class:</code> itself named come off when its value changes, so a class a script added with <code>classList.add</code> stays where it is.</p>
+<p>Built-ins wear <code>wf-*</code> classes (<code>wf-btn</code>, <code>wf-btn--primary</code>, <code>wf-card</code>), stable across releases, so a stylesheet may target them. Adding one to an element with <code>class:</code> brings another built-in's rules with it, and draws a <code>V04</code>.</p>
                             </div>
                             <h2 class="wf-heading">When your rule and a built-in&#x27;s disagree</h2>
                             <div class="wf-markdown">

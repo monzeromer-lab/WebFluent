@@ -297,6 +297,7 @@
 │   ├── components/         components
 │   ├── stores/             stores
 │   ├── styles.css          your own stylesheets, anywhere under src/
+│   ├── tilt.js             your own scripts, anywhere under src/
 │   ├── translations/       en.json, ar.json (with &quot;i18n&quot; in the config)
 │   ├── posts.json          data files a `data` declaration reads
 │   └── about.md            Markdown pages
@@ -344,6 +345,23 @@
                                         <td>
                                             <div class="wf-markdown">
 <p>bundled into <code>styles.css</code>, in path order, after the built-ins' rules</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>*.js</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>anywhere under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>copied to <code>js/</code> as written and linked on every page before the compiled code; its top-level names are in scope (<a href="/WebFluent/docs/guide/interop">JavaScript interop</a>)</p>
                                             </div>
                                         </td>
                                     </tr>

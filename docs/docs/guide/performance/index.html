@@ -312,6 +312,7 @@
     index.html                            5.1 kB  (1.3 kB gzipped)
     pages/Suggest.js                      2.2 kB  (0.8 kB gzipped)
     pages/Home.js                         1.4 kB  (0.6 kB gzipped)
+    js/tilt.js                            0.6 kB  (0.4 kB gzipped)
     …
     total                                90.7 kB
 
@@ -327,6 +328,7 @@
   Tokens: 26 nothing in the output names, left out</code>
                             </div>
                             <div class="wf-markdown">
+<p>The project's own scripts are listed by their path under <code>js/</code>, and <code>build.budget</code> may name one. They are copied as written — the build does not minify a file it promises to ship byte for byte.</p>
 <p>That is the <a href="/WebFluent/docs/guide/tutorial">tutorial</a>'s site: a form brings <code>form</code> and <code>field</code>, a store <code>store</code> and <code>keep</code>, a second page <code>router</code>.</p>
 <p>Each build records its sizes in <code>.wf-sizes.json</code>, so the next <code>--stats</code> shows what moved. Each runtime module is listed with what reached it — the first place to look when a module you did not expect is in.</p>
                             </div>

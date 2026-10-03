@@ -408,7 +408,7 @@ store Session {
 <li>a <code>_headers</code> file for hosts that read one (Netlify, Cloudflare Pages, Vercel; others ignore it).</li>
 </ul>
 <p><code>frame-ancestors</code> is only in <code>_headers</code>, because a browser ignores it in a meta tag — a policy that carried it there would say one thing and deliver another.</p>
-<p>The policy is <code>'self'</code> throughout, with no <code>'unsafe-inline'</code> for scripts: the compiler writes external files and binds events with <code>addEventListener</code>, so nothing needs it. It is widened by exactly the origins <code>meta.fonts</code> and <code>meta.stylesheets</code> declare, so a declared font is never blocked by the policy shipped beside it.</p>
+<p>The policy is <code>'self'</code> throughout, with no <code>'unsafe-inline'</code> for scripts: the compiler writes external files and binds events with <code>addEventListener</code>, so nothing needs it. It is widened by exactly the origins <code>meta.fonts</code>, <code>meta.stylesheets</code> and <code>meta.scripts</code> declare, so a declared font or library is never blocked by the policy shipped beside it. The project's own scripts under <code>src/</code> are served from the site itself, so they need nothing added.</p>
 <p><strong>The build checks its own output against it.</strong> Every HTML file is read back and held to the policy it carries: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, or a script or stylesheet from an origin the policy never named stops the build. A policy is a promise about what a page contains, and this is how the promise is kept — the browser would enforce it and show a blank page.</p>
 <p>One thing is allowed rather than refused: a <code>style { }</code> value that <strong>reads state</strong> is written on the element, because there is nowhere else for it to go. Where a build emits one, <code>style-src</code> gains <code>'unsafe-inline'</code> and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a <code>style { }</code> block is already a shared class and costs nothing.</p>
                             </div>
@@ -433,6 +433,10 @@ store Session {
                             <div class="wf-markdown">
 <p>The build emits <code>integrity</code> and <code>crossorigin=&quot;anonymous&quot;</code>, and warns about a declared external asset that has none. It never fetches the file to work the hash out — that would make a build depend on the network. A Google Fonts stylesheet is exempt: it is written per user-agent, so its bytes differ between readers and no hash can match.</p>
                             </div>
+                            <h2 class="wf-heading">Your own scripts</h2>
+                            <div class="wf-markdown">
+<p>A <code>.js</code> file under <code>src/</code> runs on every page exactly as written — the compiler reads its names, it does not rewrite or sandbox it. It is code you trust, like the rest of <code>src/</code>: what it puts in the page with <code>innerHTML</code> is markup, so markup from outside the project goes through <code>WF.sanitize(…)</code> there too. A library from another origin is listed in <code>meta.scripts</code> with an integrity hash, so a change at that origin cannot reach your readers.</p>
+                            </div>
                             <h2 class="wf-heading">wf audit</h2>
                             <div class="wf-markdown">
 <p>One command for the questions a review asks:</p>
@@ -447,7 +451,7 @@ store Session {
                                 <code class="wf-code wf-code--block wf-sa8223565"></code>
                             </div>
                             <div class="wf-markdown">
-<p>Every <code>Unsafe.*</code> and whether it is sanitised, every origin the pages load from, everything written to the reader's machine and where, every <code>env</code> name and whether it is public, the policy this build ships, and what the compiler itself depends on. <code>--json</code> for a tool. It reports; it never fails a build.</p>
+<p>Every <code>Unsafe.*</code> and whether it is sanitised, the project's own scripts and the names each declares, every origin the pages load from, everything written to the reader's machine and where, every <code>env</code> name and whether it is public, the policy this build ships, and what the compiler itself depends on. <code>--json</code> for a tool. It reports; it never fails a build.</p>
                             </div>
                             <h2 class="wf-heading">Before you deploy</h2>
                             <div class="wf-markdown">
@@ -487,6 +491,7 @@ store Session {
                         <a class="wf-link wf-sdae384de" href="#uploads">Uploads</a>
                         <a class="wf-link wf-sdae384de" href="#content-security-policy">Content-Security-Policy</a>
                         <a class="wf-link wf-sdae384de" href="#another-origin-s-files">Another origin&#x27;s files</a>
+                        <a class="wf-link wf-sdae384de" href="#your-own-scripts">Your own scripts</a>
                         <a class="wf-link wf-sdae384de" href="#wf-audit">wf audit</a>
                         <a class="wf-link wf-sdae384de" href="#before-you-deploy">Before you deploy</a>
                     </div>

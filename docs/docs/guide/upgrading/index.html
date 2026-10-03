@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrading</title>
-    <meta name="description" content="Installing a new version, what changed in 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="description" content="Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <link rel="canonical" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading">
     <link rel="alternate" hreflang="en" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading?lang=en">
     <link rel="alternate" hreflang="ar" href="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading?lang=ar">
@@ -12,15 +12,15 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Upgrading">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="Installing a new version, what changed in 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta property="og:description" content="Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta property="og:url" content="https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading">
     <meta property="og:locale" content="en">
     <meta property="og:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Upgrading">
-    <meta name="twitter:description" content="Installing a new version, what changed in 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="twitter:description" content="Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta name="twitter:image" content="https://monzeromer-lab.github.io/WebFluent/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Installing a new version, what changed in 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://monzeromer-lab.github.io/#website","url":"https://monzeromer-lab.github.io/","name":"WebFluent"},{"@type":"Organization","@id":"https://monzeromer-lab.github.io/#organization","name":"WebFluent","url":"https://monzeromer-lab.github.io/"},{"@type":"WebPage","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#webpage","url":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://monzeromer-lab.github.io/#website"},"description":"Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate."},{"@type":"BreadcrumbList","@id":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://monzeromer-lab.github.io/WebFluent/"},{"@type":"ListItem","position":2,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://monzeromer-lab.github.io/WebFluent/docs/guide/upgrading"}]}]}</script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="../../../apple-touch-icon.png">
@@ -282,7 +282,22 @@
 <p>Run the installer again — it replaces the binary in place — or <code>cargo install webfluent --force</code>. <code>wf --version</code> says what you have. Update <code>wf-lsp</code> and the editor extension with it: the language server is built from the same compiler.</p>
 <p>The full notes for every release are in <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md"><code>RELEASE_NOTES.md</code></a>; what follows is what an upgrade asks of you.</p>
                             </div>
-                            <h2 class="wf-heading">4.1 (next release)</h2>
+                            <h2 class="wf-heading">4.2 (next release)</h2>
+                            <div class="wf-markdown">
+<p><strong><code>external</code> is gone.</strong> Run <code>wf migrate</code>: a remote module becomes a <code>meta.scripts</code> entry, a local module a plain script under <code>src/</code> with its signatures as JSDoc, and an <code>external element</code> call <code>Element(&quot;tag&quot;, …)</code>. A call into a remote module that <code>external</code> typed is <code>Any</code> afterwards.</p>
+<p><strong>Every <code>.js</code> file under <code>src/</code> now ships</strong>, linked on every page before the compiled code. <code>wf migrate</code> lists the ones it finds; move any that are not meant for the browser out of <code>src/</code>.</p>
+<p>New:</p>
+<ul>
+<li><strong>Your own JavaScript</strong>: a plain <code>.js</code> file under <code>src/</code>, its top-level functions in scope by name, typed by its JSDoc (<a href="/WebFluent/docs/guide/interop">chapter 32</a>).</li>
+<li><strong><code>meta.scripts</code></strong> loads a library from a CDN, a module with <code>as:</code>, and names its <code>globals</code>.</li>
+<li><strong><code>mount:</code>, <code>update:</code>, <code>cleanup:</code> on any element</strong>, and a <code>wf:render</code> event for a script that finds elements itself.</li>
+<li><strong><code>Element(&quot;tag-name&quot;, …)</code></strong> places any custom element.</li>
+<li><strong><code>class:</code> takes a map and a list</strong>: <code>{ &quot;is-done&quot;: done }</code>, <code>[&quot;card&quot;, tone, if open { &quot;is-open&quot; }]</code>; an <code>if</code> with no <code>else</code> is <code>null</code> when it fails (<a href="/WebFluent/docs/guide/styling#classes-and-your-own-stylesheet">chapter 15</a>).</li>
+<li><strong><code>V04</code></strong> warns about a <code>class:</code> that borrows one of the built-ins' <code>wf-</code> classes.</li>
+</ul>
+<p>Fixed: what an <code>if</code> branch, a <code>match</code> arm, a list item or a slot fill made — a timer, an effect, a <code>Host</code>'s cleanup — now goes when its page does; a route change used to leave it running.</p>
+                            </div>
+                            <h2 class="wf-heading">4.1</h2>
                             <div class="wf-markdown">
 <p>Nothing to change in your code. New:</p>
 <ul>
@@ -355,7 +370,8 @@
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
                         <a class="wf-link wf-sdae384de" href="#installing-a-newer-version">Installing a newer version</a>
-                        <a class="wf-link wf-sdae384de" href="#4-1-next-release">4.1 (next release)</a>
+                        <a class="wf-link wf-sdae384de" href="#4-2-next-release">4.2 (next release)</a>
+                        <a class="wf-link wf-sdae384de" href="#4-1">4.1</a>
                         <a class="wf-link wf-sdae384de" href="#4-0">4.0</a>
                         <a class="wf-link wf-sdae384de" href="#3-x">3.x</a>
                         <a class="wf-link wf-sdae384de" href="#from-webfluent-2">From WebFluent 2</a>

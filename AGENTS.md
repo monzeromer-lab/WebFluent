@@ -32,7 +32,7 @@ wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check 
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
 wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
-wf migrate [path] [--check] [--wfx]       # WebFluent 2 → 3 (and to .wfx), then 3 → 4
+wf migrate [path] [--check] [--wfx]       # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
 wf verify [path] [--json] [--budget MS]   # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
@@ -2187,7 +2187,8 @@ the line; the values still reach `wf render`, which runs on a server.
 ```
 
 `wf audit` prints what a review asks for: every `Unsafe.*` and whether it
-is sanitised, every other origin, everything kept on the reader's machine,
+is sanitised, the project's scripts and what each declares, every other
+origin, everything kept on the reader's machine,
 every `env` name and whether it is public, the policy this build ships, and
 what the compiler depends on. `--json` for a tool; it never fails a build.
 
@@ -2197,8 +2198,9 @@ what the compiler depends on. `--json` for a tool; it never fails a build.
 `Content-Security-Policy` meta tag and a `_headers` file for hosts that
 read one. `frame-ancestors` is only in `_headers`, because a browser
 ignores it in a meta tag. The policy is widened by exactly the origins
-`meta.fonts` and `meta.stylesheets` declare, so a declared font is never
-blocked by the policy that ships beside it.
+`meta.fonts`, `meta.stylesheets` and `meta.scripts` declare, so a declared
+font or library is never blocked by the policy that ships beside it; the
+project's own scripts are same-origin and need nothing.
 
 **The build reads its own output back and holds it to that policy**: an
 inline `<script>` or `<style>`, a `style=` attribute, an `on*` attribute,

@@ -69,7 +69,7 @@
                 <aside class="wf-sidebar wf-s604d145b" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s8d4b4f51 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 66 built-ins" aria-label="Filter 66 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 67 built-ins" aria-label="Filter 67 built-ins" type="search">
                     </div>
                     <!--wf-if-->
                     <!--wf-if-->
@@ -92,7 +92,7 @@
                     <div class="wf-stack wf-gap--sm wf-s82e57ad1">
                         <h1 class="wf-heading wf-s1f2db64f">Components reference</h1>
                         <div class="wf-markdown wf-se4ee4d09">
-<p>66 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
+<p>67 built-in elements in eleven groups, each with its signature, its props, its flags, its events and its parts — read from the compiler's registry, so what this page lists is exactly what the checker accepts. Every element is written <code>Name(positional, prop: value).flag { block }</code>.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">
@@ -128,7 +128,11 @@
                             </a>
                             <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/host">
                                 <p class="wf-text wf-s778fc8aa">Host</p>
-                                <p class="wf-text wf-s36513411">An element handed to somebody else&#x27;s code, with a lifetime. mount: runs once with the node, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves.</p>
+                                <p class="wf-text wf-s36513411">A bare node handed to somebody else&#x27;s code, with a lifetime. mount: runs with the node each time it is made, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves. Every other element takes the same three.</p>
+                            </a>
+                            <a class="wf-link wf-sf7629dc9" href="/WebFluent/docs/reference/element">
+                                <p class="wf-text wf-s778fc8aa">Element</p>
+                                <p class="wf-text wf-s36513411">A custom element a script defines, placed by its tag: Element(&quot;stripe-pricing-table&quot;, publishable-key: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.</p>
                             </a>
                         </div>
                     </div>
@@ -534,6 +538,33 @@
                                     <td>
                                         <div class="wf-markdown">
 <p>A handle on the element, usable as the element: <code>ref: nameInput</code>, then <code>nameInput.focus()</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>mount:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Run with the element each time it is made — <code>mount: (n) =&gt; initTilt(n)</code> — and what it returns is the handle <code>update:</code> and <code>cleanup:</code> get</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>update:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Run with the handle again whenever the state it reads changes: <code>update: (h) =&gt; h.setMax(max)</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>cleanup:</td>
+                                    <td>Any</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Run with the handle when the element leaves — a route change, an <code>if</code> branch, a list item: <code>cleanup: (h) =&gt; h.destroy()</code></p>
                                         </div>
                                     </td>
                                 </tr>

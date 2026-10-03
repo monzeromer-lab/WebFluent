@@ -69,7 +69,7 @@
                 <aside class="wf-sidebar wf-s604d145b" aria-label="Components">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s8d4b4f51 site-search">
                         <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Filter 66 built-ins" aria-label="Filter 66 built-ins" type="search">
+                        <input class="wf-input" placeholder="Filter 67 built-ins" aria-label="Filter 67 built-ins" type="search">
                     </div>
                     <!--wf-for-->
                 </aside>
@@ -85,9 +85,9 @@
                             <p class="wf-text pill pill-brand">Layout</p>
                         </div>
                         <div class="wf-markdown wf-sa01f76ef">
-<p>An element handed to somebody else's code, with a lifetime. <code>mount:</code> runs once with the node, <code>update:</code> again whenever the state it reads changes, and <code>cleanup:</code> when the page, branch or list item it belongs to leaves.</p>
+<p>A bare node handed to somebody else's code, with a lifetime. <code>mount:</code> runs with the node each time it is made, <code>update:</code> again whenever the state it reads changes, and <code>cleanup:</code> when the page, branch or list item it belongs to leaves. Every other element takes the same three.</p>
                         </div>
-                        <code class="wf-code wf-code--block wf-s6f9d6ddc"><span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">mount</span>: …, <span class="wf-tok-prop">update</span>: …, <span class="wf-tok-prop">cleanup</span>: …)</code>
+                        <code class="wf-code wf-code--block wf-s6f9d6ddc"><span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">tag</span>: …)</code>
                         <p class="wf-text wf-s080a8452 overline">Example</p>
                         <code class="wf-code wf-code--block wf-s6220f9e8"><span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">tag</span>: <span class="wf-tok-str">&quot;canvas&quot;</span>, <span class="wf-tok-prop">mount</span>: (node) =&gt; node.getContext(<span class="wf-tok-str">&quot;2d&quot;</span>), <span class="wf-tok-prop">cleanup</span>: (ctx) =&gt; <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;gone&quot;</span>))</code>
                         <div class="wf-markdown wf-s4e367f57">
@@ -110,33 +110,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>mount:</td>
-                                    <td>Any</td>
-                                    <td>
-                                        <div class="wf-markdown">
-<p><code>(node) =&gt; …</code> — run once with the element, giving back whatever the library hands over</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>update:</td>
-                                    <td>Any</td>
-                                    <td>
-                                        <div class="wf-markdown">
-<p><code>(handle) =&gt; …</code> — run again whenever the state it reads changes</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>cleanup:</td>
-                                    <td>Any</td>
-                                    <td>
-                                        <div class="wf-markdown">
-<p><code>(handle) =&gt; …</code> — run when what owns it leaves, so nothing is left behind</p>
-                                        </div>
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td>tag:</td>
                                     <td>String</td>

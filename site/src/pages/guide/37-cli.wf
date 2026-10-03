@@ -48,7 +48,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 }
                 Table.Row {
                     Table.Cell { Markdown("`wf migrate [PATH] [--check] [--stdout] [--wfx]`") }
-                    Table.Cell("Carries a WebFluent 2 or 3 project forward")
+                    Table.Cell("Carries a WebFluent 2, 3 or 4.1 project forward")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`wf audit [PATH] [--json]`") }
@@ -107,7 +107,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf test --update")
             ])
 
-        Markdown("Runs every `test \"…\" \{ \}` under `tests/` (and in `src/`), or those in one file; `--update` rewrites the snapshots. A test that clicks or types runs in headless Chrome. [Testing](/docs/guide/testing) covers writing them.")
+        Markdown("Runs every `test \"…\" \{ \}` under `tests/` (and in `src/`), or those in one file; `--update` rewrites the snapshots. A test that clicks or types runs in headless Chrome, on a page that links the project's scripts. [Testing](/docs/guide/testing) covers writing them.")
 
         Heading("wf verify", id: "wf-verify").h3
 
@@ -134,7 +134,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf audit --json")
             ])
 
-        Markdown("Prints what a security review asks for: every `Unsafe.*` and whether it is sanitised, every other origin the pages load from, everything kept on the reader's machine, every `env` name and whether it is public, the policy the build ships, and what the compiler depends on. It reports and never fails. [Security](/docs/guide/security#wf-audit).")
+        Markdown("Prints what a security review asks for: every `Unsafe.*` and whether it is sanitised, the project's own scripts and what each declares, every other origin the pages load from, everything kept on the reader's machine, every `env` name and whether it is public, the policy the build ships, and what the compiler depends on. It reports and never fails. [Security](/docs/guide/security#wf-audit).")
 
         Heading("Formatting", id: "formatting").h2
 
@@ -164,13 +164,13 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
 
         Heading("wf migrate", id: "wf-migrate").h3
 
-        Markdown("Two things, in one command.\n\n**2 → 3** rewrites every `.wf` under `src/` in place, with a note for anything that needed a decision. It is a change of spelling: the migrated project builds to what it built before.\n\n**3 → 4** is a change of what the compiler allows, so it runs over the project rather than the files. It adds every `env` name your pages already read to `public_env` — preserving what the project did, and printing the list, because *public* means anyone who opens the site may read the value. Then it names, with file and line, everything 4 refuses that 3 allowed: an `on*` attribute, a `javascript:` or `data:` URL. Those have no automatic rewrite; the old value was a string of JavaScript or a link that ran one. Finally it states the changes that need no edit: a store is built on first read rather than at boot, a `persist` value follows the site's other tabs, and `WF.store`/`WF.host` were renamed.\n\n`--check` writes nothing and tells you what it would do.")
+        Markdown("Three things, in one command.\n\n**4.1 → 4.2** runs first, because 4.2 refuses `external`: a remote module becomes a `meta.scripts` entry, a local one a plain script under `src/` with its signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element` call `Element(\"tag\", …)`. It lists every `.js` already under `src/`, since each now ships on every page.\n\n**2 → 3** rewrites every `.wf` under `src/` in place, with a note for anything that needed a decision. It is a change of spelling: the migrated project builds to what it built before.\n\n**3 → 4** is a change of what the compiler allows, so it runs over the project rather than the files. It adds every `env` name your pages already read to `public_env` — preserving what the project did, and printing the list, because *public* means anyone who opens the site may read the value. Then it names, with file and line, everything 4 refuses that 3 allowed: an `on*` attribute, a `javascript:` or `data:` URL. Those have no automatic rewrite; the old value was a string of JavaScript or a link that ran one. Finally it states the changes that need no edit: a store is built on first read rather than at boot, a `persist` value follows the site's other tabs, and `WF.store`/`WF.host` were renamed.\n\n`--check` writes nothing and tells you what it would do.")
 
         Heading("Describing", id: "describing").h2
 
         Heading("wf docs, wf registry, wf types", id: "wf-docs-wf-registry-wf-types").h3
 
-        Markdown("`wf docs` writes `docs/index.html` (or `-o OUT`): a self-contained gallery of every built-in — props, cases, flags, events, slots, parts — and of every component, enum, type, store and page the project declares, with their `///` docs.\n\n`wf registry` describes every built-in, and `wf types` what a project declares, externals included; with `--json` each prints the data a tool reads:")
+        Markdown("`wf docs` writes `docs/index.html` (or `-o OUT`): a self-contained gallery of every built-in — props, cases, flags, events, slots, parts — and of every component, enum, type, store and page the project declares, with their `///` docs.\n\n`wf registry` describes every built-in, and `wf types` what a project declares — the names its scripts under `src/` declare included, each with the parameters and return its JSDoc gives them; with `--json` each prints the data a tool reads:")
 
         Terminal(lines: [
                 Line(command: "wf registry --json | jq '.components[] | select(.name == \"Button\") | .props[].name'")

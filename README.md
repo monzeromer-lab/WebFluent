@@ -65,6 +65,7 @@ wf serve              # http://localhost:3000, rebuilds on save
 - **Ships small** — the build keeps only the runtime modules your program reaches, splits a chunk per page, and precompresses everything. A page of static text ships under 4 kB of script, gzipped.
 - **Four targets, one language** — SPA, pre-rendered static site, PDF, or a slide deck, by one config flag.
 - **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
+- **Your own JavaScript, by name** — a plain `.js` file under `src/` is linked as written, and `.wf` code calls its functions directly, checked against their JSDoc. Libraries load from a CDN through `meta.scripts`; any element can be handed to a script with `mount:` and `cleanup:`.
 - **Editor support** — a language server for [Zed](editors/zed) and [VS Code](editors/vscode): completion, hover, go to definition, rename, quick fixes.
 
 ## A taste
@@ -177,7 +178,7 @@ wf docs [-d DIR] [-o OUT]                   Write a component gallery
 wf render <tpl> [--data f.json] [-f pdf]    Use WebFluent as a template engine
 wf audit [path] [--json]                    What the project trusts
 wf registry|types [--json]                  The registry, and what a project declares
-wf migrate [path] [--check] [--wfx]         WebFluent 2 or 3 → 4
+wf migrate [path] [--check] [--wfx]         WebFluent 2, 3 or 4.1 → 4.2
 ```
 
 ## Documentation

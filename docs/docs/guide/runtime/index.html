@@ -294,6 +294,10 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                             <div class="wf-markdown">
 <p>A build keeps only the modules its own code reaches, so a script calling a module nothing else uses needs <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code> (<a href="/WebFluent/docs/guide/interop">chapter 32</a>). Most names here are what the compiler emits for the language's features; the ones worth calling yourself are marked <strong>●</strong>.</p>
                             </div>
+                            <h2 class="wf-heading">Events the runtime says</h2>
+                            <div class="wf-markdown">
+<p><code>wf:render</code> is dispatched on <code>document</code> once a drawing lands — the first mount, the takeover of a pre-rendered page, and every route change — with <code>{ route, params }</code> in <code>detail</code>. A script that finds elements itself listens for it (<a href="/WebFluent/docs/guide/interop#wf-render-for-a-script-that-finds-elements-itself">JavaScript interop</a>).</p>
+                            </div>
                             <h2 class="wf-heading">State — core</h2>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">State — core</caption>
@@ -958,7 +962,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>attach(node, mount, update, cleanup)</code> — what <code>Host</code> compiles to</p>
+<p><code>attach(node, mount, update, cleanup)</code> — what <code>mount:</code>, <code>update:</code> and <code>cleanup:</code> compile to, on <code>Host</code> or any element; a component's fragment is attached at its root element</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1028,6 +1032,7 @@ WF.storeSnapshot(&quot;Cart&quot;);</code>
                 <div class="wf-stack wf-gap--lg wf-s45d5a4d4" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se43b90d0">
                         <p class="wf-text overline">On this page</p>
+                        <a class="wf-link wf-sdae384de" href="#events-the-runtime-says">Events the runtime says</a>
                         <a class="wf-link wf-sdae384de" href="#state-core">State — core</a>
                         <a class="wf-link wf-sdae384de" href="#elements-and-bodies-core-when-each-show-match-slot">Elements and bodies — core, when, each, show, match, slot</a>
                         <a class="wf-link wf-sdae384de" href="#motion-motion">Motion — motion</a>

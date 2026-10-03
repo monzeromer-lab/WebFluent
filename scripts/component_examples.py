@@ -14,6 +14,7 @@ EXAMPLES = {
     "Spacer": 'Text("Above")\nSpacer.lg\nText("Below")',
     "Divider": 'Text("Section one")\nDivider\nText("Section two")',
     "Host": 'Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))',
+    "Element": 'Element("relative-time", datetime: "2026-03-14T09:30:00Z") { Text("March 14") }\nElement("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log("prices shown") } }',
     "Navbar": 'Navbar {\n    Navbar.Brand { Link("Acme", to: "/") }\n    Navbar.Links { Link("Docs", to: "/docs")  Link("Pricing", to: "/pricing") }\n    Navbar.Actions { Button("Sign in").sm }\n}',
     "Sidebar": 'Sidebar {\n    Sidebar.Header { Text("Console").bold }\n    Sidebar.Item(to: "/", icon: "home") { Text("Overview") }\n    Sidebar.Divider\n    Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }\n}',
     "Link": 'Link("About us", to: "/about")\nLink("Guide", to: "/docs", active: .prefix)\nLink(to: "https://example.com", target: "_blank") { Text("Example") }',

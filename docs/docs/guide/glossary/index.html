@@ -285,7 +285,7 @@
 <p><strong>Case.</strong> One value of an <code>enum</code>, written with a dot: <code>.primary</code>, <code>.failed(&quot;x&quot;)</code>. <a href="/WebFluent/docs/guide/types#enums">Chapter 13</a>.</p>
 <p><strong>Chunk.</strong> A page's own script and stylesheet, written separately and loaded when its route first shows (<code>build.split</code>).</p>
 <p><strong>Component.</strong> An element you declare, with typed props, events, slots and parts: <code>component UserCard(…) { … }</code>. <a href="/WebFluent/docs/guide/components">Chapter 11</a>.</p>
-<p><strong>Declaration.</strong> A top-level statement of a file: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>external</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> or <code>test</code>. <a href="/WebFluent/docs/guide/language-basics">Chapter 5</a>.</p>
+<p><strong>Declaration.</strong> A top-level statement of a file: <code>page</code>, <code>component</code>, <code>store</code>, <code>theme</code>, <code>app</code>, <code>type</code>, <code>enum</code>, <code>api</code>, <code>const</code>, <code>data</code>, <code>image</code>, <code>animation</code> or <code>test</code>. <a href="/WebFluent/docs/guide/language-basics">Chapter 5</a>.</p>
 <p><strong>Derived.</strong> A value computed from state, recomputed when what it read changes: <code>derived total = …</code>.</p>
 <p><strong>Design token.</strong> A named value a theme sets and every built-in reads, written <code>$name</code> in a style. <a href="/WebFluent/docs/guide/tokens">Chapter 41</a>.</p>
 <p><strong>Effect.</strong> Code that runs when a page shows and again when a state it read changes, with a <code>cleanup { }</code> for what it set up.</p>
@@ -296,6 +296,7 @@
 <p><strong>Part.</strong> A sub-element called under its owner's name: <code>Card.Header</code>, <code>Panel.Footer</code>. <a href="/WebFluent/docs/guide/components#parts">Chapter 11</a>.</p>
 <p><strong>Persist.</strong> A state kept in the browser's storage across visits. <a href="/WebFluent/docs/guide/stores#keeping-a-value-across-visits">Chapter 12</a>.</p>
 <p><strong>Positional argument.</strong> The one value an element takes without a name — a button's label, a heading's text.</p>
+<p><strong>Project script.</strong> A <code>.js</code> file under <code>src/</code>: a plain browser script, linked on every page as written, whose top-level names <code>.wf</code> code calls directly. <a href="/WebFluent/docs/guide/interop">Chapter 32</a>.</p>
 <p><strong>Registry.</strong> The compiler's table of every built-in's props, cases, flags, events, slots and parts; the checker, the linters, the editor and the reference all read it. <code>wf registry --json</code> prints it.</p>
 <p><strong>Render block.</strong> The body of a page, component or element: what to show, and the state behind it.</p>
 <p><strong>Resource.</strong> A request a page makes and a <code>match</code> shows: <code>resource rows = …</code>. <a href="/WebFluent/docs/guide/data">Chapter 17</a>.</p>

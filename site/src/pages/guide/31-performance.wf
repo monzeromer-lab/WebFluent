@@ -18,6 +18,7 @@ page PerformanceGuide(path: "/docs/guide/performance", title: "Performance", des
     index.html                            5.1 kB  (1.3 kB gzipped)
     pages/Suggest.js                      2.2 kB  (0.8 kB gzipped)
     pages/Home.js                         1.4 kB  (0.6 kB gzipped)
+    js/tilt.js                            0.6 kB  (0.4 kB gzipped)
     …
     total                                90.7 kB
 
@@ -32,7 +33,7 @@ page PerformanceGuide(path: "/docs/guide/performance", title: "Performance", des
 
   Tokens: 26 nothing in the output names, left out"#, title: "text")
 
-        Markdown("That is the [tutorial](/docs/guide/tutorial)'s site: a form brings `form` and `field`, a store `store` and `keep`, a second page `router`.\n\nEach build records its sizes in `.wf-sizes.json`, so the next `--stats` shows what moved. Each runtime module is listed with what reached it — the first place to look when a module you did not expect is in.")
+        Markdown("The project's own scripts are listed by their path under `js/`, and `build.budget` may name one. They are copied as written — the build does not minify a file it promises to ship byte for byte.\n\nThat is the [tutorial](/docs/guide/tutorial)'s site: a form brings `form` and `field`, a store `store` and `keep`, a second page `router`.\n\nEach build records its sizes in `.wf-sizes.json`, so the next `--stats` shows what moved. Each runtime module is listed with what reached it — the first place to look when a module you did not expect is in.")
 
         Heading("Budgets", id: "budgets").h2
 
