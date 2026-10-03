@@ -211,7 +211,7 @@ pub static CODES: &[CodeInfo] = &[
         "E902",
         Error,
         "Output its own security policy refuses",
-        "The build holds every page it writes to the content security policy it ships beside it; something on this page would be blocked.",
+        "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head { }` tags would add to it; something there would be blocked.",
     ),
     // ── T: types ─────────────────────────────────────────────────────
     code(

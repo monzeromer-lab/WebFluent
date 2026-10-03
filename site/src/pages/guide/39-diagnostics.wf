@@ -348,7 +348,7 @@ page P(path: "/", title: "T", description: "D") {
 
         Heading("E902 — Output its own security policy refuses", id: "e902-output-its-own-security-policy-refuses").h3
 
-        Markdown("The build holds every page it writes to the content security policy it ships beside it; something on this page — an inline script, a `style=`, a script from an origin the policy never named — would be blocked. **Fix:** what the message says; a library's origin goes in `meta.scripts`.")
+        Markdown("The build holds every page it writes to the content security policy it ships beside it; something on this page — an inline script, a `style=`, a script from an origin the policy never named — would be blocked. A page's own `head \{ script(src: …) \}` or `head \{ link(rel: \"stylesheet\", href: …) \}` is held to it too, where it is written: the tag is added on the live page, and the browser would refuse it there without a word. **Fix:** what the message says; a library's origin goes in `meta.scripts`, a stylesheet's in `meta.stylesheets`.")
 
         Heading("E117 — A key combination no keyboard sends", id: "e117-a-key-combination-no-keyboard-sends").h3
 

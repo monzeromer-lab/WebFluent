@@ -4,7 +4,7 @@
 route: guide/upgrading
 group: help
 blurb: What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.
-description: Installing a new version, what changed in 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.
+description: Installing a new version, what changed in 5.0, 4.2, 4.1, 4.0.1 and 4.0, and moving a WebFluent 2 or 3 project forward with wf migrate.
 -->
 
 ## Installing a newer version
@@ -17,6 +17,88 @@ the same compiler.
 The full notes for every release are in
 [`RELEASE_NOTES.md`](../RELEASE_NOTES.md); what follows is what an upgrade
 asks of you.
+
+## 5.0
+
+5.0 makes the compiler refuse much more of what used to compile and then
+fail in the browser. A project that built under 4.x may stop on errors it
+always had. Start with a check, which writes nothing:
+
+```bash
+wf check
+```
+
+Every finding names its code, its place and what to do; `wf explain CODE`
+prints the code's entry in [Diagnostics](39-diagnostics.md). Where the fix
+is known, your editor offers it as a quick fix, and `wf check --format
+json` lists it as edits.
+
+**New errors** — each is a program that cannot work as written:
+
+- **Types** (`T`): a field, member or method that does not exist; a value
+  of the wrong type; a value that may be `null` read as if it were not; a
+  `match` that misses a case; arithmetic on what is not a number; a
+  comparison that is always the same; an `await` where it cannot run; a
+  name nothing declares.
+- **Writing what cannot change** (`X01`): a `const`, a `derived` value, a
+  prop, a route parameter, a loop variable.
+- **Components** (`C`): a required prop left out, a prop the component does
+  not declare (`C02`), a part outside its owner.
+- **Routes** (`R`): a link to a path no page matches (`R01`), a `:param`
+  with no page parameter, an `app` with no `Router` or two; two pages on
+  one path (`S04`).
+- **Forms** (`F`): `bind:` to something that cannot be written, or to a
+  state the control cannot hold; a `validate` no control can satisfy.
+- **Reactivity** (`X`): an effect that writes what it reads every run, a
+  `derived` value that calls an action, `use` of a store nothing declares.
+- **Data and translations** (`D`, `I`): a persisted value storage cannot
+  keep; a `t("key")` no translation has, a placeholder the call does not
+  pass, a locale the project does not list.
+- **Literals and styles**: a date that does not exist, money with too many
+  decimals, a key combination no keyboard sends, a `$token` the theme does
+  not declare.
+- **The security policy**: a page's `head { script(src: …) }` from an
+  origin the config does not declare (`E902`).
+
+**Lowering what you cannot fix today.** `"lints": { "R01": "warn" }` in the
+config lowers a code or a family; an error may be lowered only when it ships
+no broken page — `R01`, `C02`, `S04`, `I01`, `I02`, `I04`. One finding on
+one line is accepted with `// wf-allow(CODE)`
+([Diagnostics](39-diagnostics.md#u07-an-allow-that-allows-nothing)).
+
+**What the compiler now writes for you** instead of reporting:
+
+- A change inside a state's value — `form.name = v`, `items[i].done = v`,
+  `items.sort()` — is compiled into the state given an updated copy, so
+  what reads it repaints and `persist` keeps it.
+- A value spliced into an address — `to:`, `navigate()`, `fetch()` — is
+  encoded where it stands for a value.
+- A `match` expression that covers every case of an enum needs no `else`.
+
+**Behaviour that changed:**
+
+- **`wf serve` answers a missing fetch with a 404.** A request that is not
+  a page navigation, for a file the build did not write, used to get the
+  single-page shell — a page of HTML handed to `JSON.parse`. It is a `404`
+  now, under `wf verify` and `wf test` too, and `wf serve` prints a line
+  for each. Point the page at a server that has the API, or put a file in
+  `public/`.
+- **An empty path parameter is not sent.** `Backend.user(id: "")` with
+  `at "users/:id"` used to request `users/`, the whole collection; it now
+  ends as `.aborted`, and a resource over it stays `loading`.
+- **One list item that throws no longer blanks the list**: the rest draws,
+  and under `wf serve` the item says what it threw.
+- **An effect that never settles is stopped** after 100 runs instead of
+  overflowing the stack.
+- **Each build keeps what its persisted values start as** in
+  `.wf-cache/`, so the next can warn about a shape that changed (`D04`) and
+  `wf verify --returning-visitor` can load your pages as a returning reader.
+  Keep `.wf-cache/` between CI runs if you can.
+
+New: `wf check`, `wf explain`, `--format json|sarif|github` and
+`--deny-warnings` on `wf build` and `wf check`, quick fixes in the editor,
+`persist … { key: id }` for one stored value per instance, and `wf verify`
+visiting `:param` routes. [Command line](37-cli.md) has each.
 
 ## 4.2
 

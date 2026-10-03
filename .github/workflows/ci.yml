@@ -147,8 +147,12 @@ jobs:
       # Covers the unit suites, the component conformance suite, the CSS
       # invariants, both end-to-end suites, and — through `e2e_rendered` — the
       # JavaScript suites that run the compiled bundles in a DOM.
+      # `serve_and_verify` drives `wf verify` in the runner's Chrome; it
+      # skips on a machine without one, and here that would be a failure.
       - name: Tests
         run: cargo test --workspace
+        env:
+          WF_REQUIRE_CHROME: "1"
 
       # `e2e_rendered` skips rather than fails when Node is absent, so run the
       # JavaScript suites directly too. A skip that nobody reads is a gap.

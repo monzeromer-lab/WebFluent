@@ -665,3 +665,258 @@ fn a_build_keeps_what_each_persisted_value_starts_as_and_the_last_build_s() {
         serde_json::json!(["b", "c"])
     );
 }
+
+/// The codes the guide shows no example of (a project-level or output-level
+/// finding needs more than one file): each through the whole pipeline.
+#[test]
+fn the_codes_with_no_guide_example_are_reported_where_they_are() {
+    // E003: a `.wfx` line that lines up with no block.
+    let dir = project(
+        "e003",
+        r#"{ "name": "x" }"#,
+        &[(
+            "src/App.wfx",
+            "page Home(path: \"/\", title: \"H\", description: \"D\")\n    Heading(\"Hi\").h1\n      Text(\"a\")\n  Text(\"b\")\n",
+        )],
+    );
+    let found = findings(&dir);
+    assert!(
+        found
+            .iter()
+            .any(|d| d["code"] == "E003" && d["file"] == "src/App.wfx"),
+        "{found:#?}"
+    );
+
+    // E108: a page that reads an `env` name nobody said is public.
+    let dir = project(
+        "e108",
+        r#"{ "name": "x", "env": { "API_KEY": "sk" } }"#,
+        &[(
+            "src/App.wf",
+            &format!("{PAGE}    Heading(env.API_KEY).h1\n}}\n"),
+        )],
+    );
+    let found = findings(&dir);
+    let e108 = found
+        .iter()
+        .find(|d| d["code"] == "E108")
+        .unwrap_or_else(|| panic!("{found:#?}"));
+    assert_eq!(
+        (e108["line"].as_u64(), e108["severity"].as_str()),
+        (Some(2), Some("error"))
+    );
+
+    // A13: a theme whose text cannot be read on its background.
+    let dir = project(
+        "a13",
+        r#"{ "name": "x" }"#,
+        &[(
+            "src/App.wf",
+            &format!(
+                "theme Pale {{\n    color-text: #EEEEEE\n    color-background: #FFFFFF\n}}\n{PAGE}    Heading(\"Hi\").h1\n}}\n"
+            ),
+        )],
+    );
+    let found = findings(&dir);
+    assert!(found.iter().any(|d| d["code"] == "A13"), "{found:#?}");
+
+    // E902: a page asks for a script from an origin its policy never named.
+    let dir = project(
+        "e902",
+        r#"{ "name": "x", "build": { "csp": true } }"#,
+        &[(
+            "src/App.wf",
+            &format!(
+                "{PAGE}    head {{ script(src: \"https://cdn.example.com/x.js\") }}\n    Heading(\"Hi\").h1\n}}\n"
+            ),
+        )],
+    );
+    let (code, out, err) = wf(&dir, &["build", "--format", "json"]);
+    assert_eq!(code, 1, "{err}");
+    let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+    assert!(
+        v["diagnostics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|d| d["code"] == "E902"),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_file_that_does_not_parse_fails_a_check_and_the_rest_is_still_read() {
+    let dir = project(
+        "check-parse",
+        r#"{ "name": "p" }"#,
+        &[
+            (
+                "src/App.wf",
+                &format!("{PAGE}    Heading(\"Hi\").h1\n    Text(\"a\"\n}}\n"),
+            ),
+            (
+                "src/Other.wf",
+                "page Other(path: \"/o\", title: \"O\", description: \"D\") {\n    Heading(\"O\").h1\n    Image(src: \"https://example.com/a.png\")\n}\n",
+            ),
+        ],
+    );
+    let (code, out, _) = wf(&dir, &["check", "--format", "json"]);
+    assert_eq!(code, 1);
+    let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+    let codes: Vec<&str> = v["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| d["code"].as_str().unwrap())
+        .collect();
+    assert!(
+        codes.contains(&"E002") && codes.contains(&"A01"),
+        "{codes:?}"
+    );
+}
+
+#[test]
+fn a_github_build_annotates_and_a_denied_json_check_still_writes_its_document() {
+    let dir = project(
+        "github-build",
+        r#"{ "name": "g" }"#,
+        &[(
+            "src/App.wf",
+            &format!("{PAGE}    state unused = 1\n    Heading(\"Hi\").h1\n}}\n"),
+        )],
+    );
+    let (code, out, err) = wf(&dir, &["build", "--format", "github"]);
+    assert_eq!(code, 0, "{err}");
+    assert!(out.contains("::warning file=src/App.wf,line=2,"), "{out}");
+    assert!(out.contains("title=U01::"), "{out}");
+    let (code, out, _) = wf(&dir, &["check", "--format", "json", "--deny-warnings"]);
+    assert_eq!(code, 1);
+    let v: serde_json::Value =
+        serde_json::from_str(&out).expect("one JSON document, even when denied");
+    assert_eq!(v["warnings"], 1);
+}
+
+#[test]
+fn an_allow_works_in_the_indented_layout() {
+    let dir = project(
+        "allow-wfx",
+        r#"{ "name": "a" }"#,
+        &[(
+            "src/App.wfx",
+            "page Home(path: \"/\", title: \"H\", description: \"D\")\n    // wf-allow(U01)\n    state kept = 1\n    state other = 2\n    Heading(\"Hi\").h1\n",
+        )],
+    );
+    let found: Vec<(String, u64)> = findings(&dir)
+        .iter()
+        .map(|d| {
+            (
+                d["code"].as_str().unwrap().to_string(),
+                d["line"].as_u64().unwrap(),
+            )
+        })
+        .collect();
+    assert_eq!(found, vec![("U01".to_string(), 4)]);
+}
+
+#[test]
+fn more_fixes_applied_make_their_findings_go() {
+    let cases: &[(&str, &str, &str)] = &[
+        // The arms of a match expression are values.
+        (
+            "T15",
+            "enum Tone { calm, loud }\nPAGE    state t: Tone = .calm\n    derived label = match t { .calm { \"c\" } }\n    Heading(label).h1\n}\n",
+            ".loud { null }",
+        ),
+        // A case's payload is named by its fields.
+        (
+            "T15",
+            "enum Status { idle, failed(reason: String) }\nPAGE    state s: Status = .idle\n    Heading(\"Hi\").h1\n    match s {\n        .idle { Text(\"i\") }\n    }\n}\n",
+            ".failed(reason) { }",
+        ),
+        // A call with no parentheses gets them.
+        (
+            "C01",
+            "component Card2(title: String) { Text(title) }\nPAGE    Heading(\"Hi\").h1\n    Card2\n}\n",
+            "Card2(title: \"\")",
+        ),
+        // An enum prop is filled with its first case.
+        (
+            "C01",
+            "enum Tone { calm, loud }\ncomponent Chip(tone: Tone) { Text(\"chip\") }\nPAGE    Heading(\"Hi\").h1\n    Chip()\n}\n",
+            "Chip(tone: .calm)",
+        ),
+    ];
+    for (i, (code, src, expect)) in cases.iter().enumerate() {
+        let src = src.replace("PAGE", PAGE);
+        let dir = project(
+            &format!("more-fix-{i}"),
+            r#"{ "name": "f" }"#,
+            &[("src/App.wf", &src)],
+        );
+        let before = findings(&dir);
+        let finding = before
+            .iter()
+            .find(|d| d["code"] == *code)
+            .unwrap_or_else(|| panic!("no {code} in {before:#?}"));
+        let fix = webfluent::diagnostics::Fix {
+            title: finding["fixes"][0]["title"]
+                .as_str()
+                .unwrap_or_else(|| panic!("{code} offers no fix: {finding:#}"))
+                .to_string(),
+            edits: serde_json::from_value::<Vec<serde_json::Value>>(
+                finding["fixes"][0]["edits"].clone(),
+            )
+            .unwrap()
+            .iter()
+            .map(|e| webfluent::diagnostics::Edit {
+                file: e["file"].as_str().unwrap().to_string(),
+                line: e["line"].as_u64().unwrap() as usize,
+                column: e["column"].as_u64().unwrap() as usize,
+                end_line: e["end_line"].as_u64().unwrap() as usize,
+                end_column: e["end_column"].as_u64().unwrap() as usize,
+                text: e["text"].as_str().unwrap().to_string(),
+            })
+            .collect(),
+        };
+        let fixed = webfluent::diagnostics::fixes::apply(&src, &fix);
+        assert!(
+            fixed.contains(expect),
+            "{code}: `{}` gave\n{fixed}",
+            fix.title
+        );
+        std::fs::write(dir.join("src/App.wf"), &fixed).unwrap();
+        let after = findings(&dir);
+        assert!(
+            !after.iter().any(|d| d["code"] == *code),
+            "{code} is still reported after `{}`:\n{fixed}\n{after:#?}",
+            fix.title
+        );
+    }
+}
+
+#[test]
+fn a_head_script_whose_origin_the_config_declares_is_allowed() {
+    let app = format!(
+        "{PAGE}    head {{\n        script(src: \"https://cdn.example.com/x.js\")\n        link(rel: \"stylesheet\", href: \"https://fonts.example.com/a.css\")\n    }}\n    Heading(\"Hi\").h1\n}}\n"
+    );
+    let dir = project(
+        "head-declared",
+        r#"{ "name": "x", "build": { "csp": true }, "meta": { "scripts": ["https://cdn.example.com/lib.js"], "stylesheets": ["https://fonts.example.com/b.css"], "integrity": { "https://cdn.example.com/lib.js": "sha384-x" } } }"#,
+        &[("src/App.wf", &app)],
+    );
+    let found = findings(&dir);
+    assert!(!found.iter().any(|d| d["code"] == "E902"), "{found:#?}");
+    // Without the stylesheet's origin declared, the `link` is refused.
+    let dir = project(
+        "head-undeclared-css",
+        r#"{ "name": "x", "build": { "csp": true }, "meta": { "scripts": ["https://cdn.example.com/lib.js"], "integrity": { "https://cdn.example.com/lib.js": "sha384-x" } } }"#,
+        &[("src/App.wf", &app)],
+    );
+    let found = findings(&dir);
+    let refused: Vec<u64> = found
+        .iter()
+        .filter(|d| d["code"] == "E902")
+        .map(|d| d["line"].as_u64().unwrap())
+        .collect();
+    assert_eq!(refused, vec![4], "{found:#?}");
+}

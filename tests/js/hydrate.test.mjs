@@ -1263,3 +1263,22 @@ test("wf:render is said on the document once a route is drawn, with the route", 
   await Promise.resolve();
   assert.deepEqual(heard, ["/", "/about"]);
 });
+
+test("a persisted value with a key is one stored value per instance, across a reload", () => {
+  const store = new Map();
+  const storage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) };
+  // What `persist open = false { key: title }` compiles to, in two panels.
+  const first = loadRuntime();
+  first.window.localStorage = storage;
+  const north = first.WF.persist("Panel.open:" + String("North"), false);
+  const south = first.WF.persist("Panel.open:" + String("South"), false);
+  north.set(true);
+  assert.equal(store.get("wf:Panel.open:North"), "true");
+  assert.equal(store.has("wf:Panel.open:South"), false, "the other panel wrote nothing");
+  // The next visit: each panel reads its own.
+  const again = loadRuntime();
+  again.window.localStorage = storage;
+  assert.equal(again.WF.persist("Panel.open:North", false)(), true);
+  assert.equal(again.WF.persist("Panel.open:South", false)(), false);
+  assert.equal(south(), false);
+});

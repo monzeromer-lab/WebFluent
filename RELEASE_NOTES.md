@@ -1,3 +1,76 @@
+# WebFluent v5.0.0 Release Notes
+
+The compiler now refuses most of what used to compile and then fail in the
+browser, says so with one kind of finding everywhere — the build, `wf
+check`, the editor, a CI annotation — and offers the fix where it knows
+it. This is a major release because a project that built under 4.x may
+stop on errors it always had: start with `wf check`, and read
+[Upgrading](md-docs/45-upgrading.md#5-0).
+
+## One finding, everywhere
+
+- **Every finding has a code, a place and a span**, a hint, the other places
+  it concerns and, where the fix is known, the edits that make it. The
+  build renders them as a compiler does — the line, the part underlined, a
+  link to the code's entry — and sums them up in one line. A build that
+  stops on its findings exits `1`; one that could not run, `2`.
+- **Every file is read**, even when another does not parse: the parser picks
+  up at the next declaration, so one build shows every mistake once.
+- **`wf check`** runs every check and writes nothing. **`--format json`,
+  `sarif` or `github`** on `wf build` and `wf check` writes the findings for
+  a tool, code scanning or a pull request; **`--deny-warnings`** fails on a
+  warning. **`wf explain CODE`** prints a code's entry.
+- **Quick fixes** in the editor, and `fixes` in the JSON: the nearest name
+  for a misspelt field, member, method, variable, component or flag; `?.`
+  for a value that may be null; missing props; missing `match` arms; a bare
+  word written as its flag; `alt: ""`; an `_` before a name nothing reads.
+- **`lints`** in the config lowers or raises a code or a family, and
+  **`// wf-allow(CODE)`** accepts one finding on one line; an allow that
+  covers nothing is `U07`.
+
+## New checks
+
+Types (a field, member or method that does not exist; the wrong type; a
+value that may be null; a `match` that misses a case; arithmetic on what is
+not a number; a comparison that is always the same; `await` where it cannot
+run), what cannot change (`X01`), components (`C01`–`C06`), routes (`R01`–
+`R04`, two pages on one path), forms (`F01`–`F05`), reactivity (`X02`,
+`X04`, `X05`), secrets through joins and browser globals (`T12`), data and
+storage (`D01`–`D05`), translations (`I01`–`I04`), dates, money and key
+combinations, styles (`V05`–`V07`), dead code (`U06`–`U10`), and a page's
+`head` script from an origin the policy does not name (`E902`). Every code
+is in the [Diagnostics](md-docs/39-diagnostics.md) chapter with a program
+that draws it and the output the compiler prints for it.
+
+## What the compiler writes for you
+
+- A change inside a state's value (`form.name = v`, `items[i].done = v`,
+  `items.sort()`) compiles to an updated copy, so what reads it repaints.
+- A value spliced into an address is encoded where it stands for a value.
+- A `match` expression that covers every case needs no `else`.
+- `persist … { key: id }` keeps one stored value per instance.
+
+## The dev server, `wf verify` and `wf test`
+
+- `wf serve` answers a fetch or file the build did not write with a `404`
+  and a line in the terminal, not the page shell; its builds hold each
+  response to its declared type (`$[1].name is missing`), show a route no
+  page answers, and show a list item that threw where it is.
+- `wf verify` visits `:param` routes, fails a page whose router drew
+  nothing, and with `--returning-visitor` loads every route again as a
+  reader whose storage holds the previous build's persisted values.
+- `press "Escape"` in `wf test` closes an open dialog.
+
+## Behaviour that changed
+
+- A fetch the dev server has no file for is a `404` (also under `wf verify`
+  and `wf test`).
+- An `api` call with an empty path parameter is not sent (it would have
+  asked for the collection); it ends `.aborted`, and a resource stays
+  `loading`.
+- One list item that throws no longer blanks its list; an effect that never
+  settles is stopped after 100 runs.
+
 # WebFluent v4.3.3 Release Notes
 
 Programs the compiler accepted and then compiled wrong now compile right,

@@ -201,6 +201,64 @@ fn is_script(ty: &str) -> bool {
 }
 
 /// The sources a directive names, falling back to `default-src`.
+/// A page's `head { }` tags that load a script or a stylesheet from an
+/// origin `policy` does not name. They are added on the live page, so the
+/// read-back of the written HTML never sees them; the browser refuses them
+/// all the same.
+pub fn head_violations(
+    program: &crate::parser::ast::Program,
+    policy: &str,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<crate::diagnostics::Diagnostic> {
+    use crate::parser::ast::{Declaration, Expr};
+    let mut out = Vec::new();
+    for (index, decl) in program.declarations.iter().enumerate() {
+        let Declaration::Page(page) = decl else {
+            continue;
+        };
+        for tag in &page.head {
+            let attr = |name: &str| {
+                tag.attrs.iter().find_map(|(k, v)| match v {
+                    Expr::StringLiteral(s) if k == name => Some(s.clone()),
+                    _ => None,
+                })
+            };
+            let (directive, url, config_key) = match tag.tag.as_str() {
+                "script" => ("script-src", attr("src"), "meta.scripts"),
+                "link"
+                    if attr("rel")
+                        .is_some_and(|r| r.split_whitespace().any(|w| w == "stylesheet")) =>
+                {
+                    ("style-src", attr("href"), "meta.stylesheets")
+                }
+                _ => continue,
+            };
+            let Some(origin) = url.as_deref().and_then(external_origin) else {
+                continue;
+            };
+            if sources_of(policy, directive).contains(&origin) {
+                continue;
+            }
+            out.push(
+                crate::diagnostics::Diagnostic::coded(
+                    "E902",
+                    format!(
+                        "`head {{ {}(…) }}` loads from {origin}, which the `{directive}` of the policy this build ships forbids",
+                        tag.tag
+                    ),
+                    file_of(index),
+                    tag.span.line as usize,
+                    tag.span.col as usize,
+                )
+                .with_hint(format!(
+                    "Declare it in `{config_key}` — the policy names exactly the origins the config does — or serve the file from this site"
+                )),
+            );
+        }
+    }
+    out
+}
+
 fn sources_of(policy: &str, directive: &str) -> Vec<String> {
     let find = |name: &str| {
         policy.split(';').map(str::trim).find_map(|part| {

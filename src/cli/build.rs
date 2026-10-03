@@ -1529,3 +1529,39 @@ fn report(project_dir: &Path, diagnostics: &[crate::error::Diagnostic]) {
         eprintln!("{summary}");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_script_the_browser_would_refuse_is_e901_the_compiler_s_fault() {
+        assert!(
+            read_back(
+                "app.js",
+                "const a = 1;\nfunction f() { return a; }\n",
+                false
+            )
+            .is_ok()
+        );
+        let Err(WebFluentError::Diagnostics(found)) =
+            read_back("app.js", "const a = 1;\nconst b = (2;\n", true)
+        else {
+            panic!("an unclosed bracket was read back as a script");
+        };
+        assert_eq!(found[0].code, "E901");
+        assert!(
+            found[0].message.contains("after minifying"),
+            "{}",
+            found[0].message
+        );
+        assert!(
+            found[0]
+                .hint
+                .as_deref()
+                .is_some_and(|h| h.contains("bug in WebFluent")),
+            "{:?}",
+            found[0].hint
+        );
+    }
+}

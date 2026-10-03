@@ -2224,7 +2224,10 @@ inline `<script>` or `<style>`, a `style=` attribute, an `on*` attribute,
 or a script or stylesheet from an origin the policy never named stops the
 build. One exception is widened rather than refused — a `style { }` value
 that reads state is written on the element, so `style-src` gains
-`'unsafe-inline'` and the build names the pages that caused it.
+`'unsafe-inline'` and the build names the pages that caused it. A page's
+own `head { script(src: …) }` or stylesheet `link` is added on the live
+page, so it is held to the policy where it is written: one from an origin
+the config does not declare is `E902` on that line.
 
 `meta.integrity` gives a declared external asset its subresource-integrity
 hash (emitted with `crossorigin="anonymous"`); a build warns about one that
@@ -2542,6 +2545,9 @@ an `_` for `U01`–`U05`.
 | `T` | types |
 | `C` | components and their props |
 | `R` | routes and navigation |
+| `X` | state and reactivity |
+| `F` | forms and bindings |
+| `I` | translations |
 | `D` | data, assets and what is kept in the browser |
 | `A` `S` `P` `U` `V` | accessibility, search, persisted values, unused, vocabulary |
 

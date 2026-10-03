@@ -340,8 +340,11 @@ it from a clone with `cargo install --path crates/wf-lsp`. It gives:
 - Hover: a component's doc and signature, a name's inferred type.
 - Go to definition, find references, rename across the project.
 - Document symbols and the outline.
-- Quick fixes — "Change to `…`" on a misspelt name — and `Extract
-  component` on a selection.
+- Quick fixes, from the compiler's own findings: the nearest name for a
+  misspelt field, member, method, variable, component or flag; `?.` for a
+  value that may be null; the props a call leaves out; the arms a `match`
+  misses; a bare word written as its flag; `alt: ""` for an image; an `_`
+  before a name nothing reads. And `Extract component` on a selection.
 
 **Zed**: the extension is in `editors/zed`; install it with
 `zed: install dev extension` pointing at that folder (it is not in Zed's

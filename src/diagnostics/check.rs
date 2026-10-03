@@ -117,6 +117,13 @@ pub fn check_project(p: &Project) -> Checked {
     );
     if let Some(config) = p.config {
         out.extend(output_checks(&lowered, config, p.file_of));
+        if config.build.csp {
+            out.extend(crate::codegen::csp::head_violations(
+                p.program,
+                &crate::config::project::csp_meta_policy(config),
+                p.file_of,
+            ));
+        }
     }
 
     // The text of each file, by the name its findings carry: for the

@@ -106,3 +106,39 @@ test("an empty path parameter does not ask for the collection", async () => {
   await Backend.user({ id: "7" });
   assert.deepEqual(asked, ["/api/users/7"]);
 });
+
+test("an endpoint's declared shape holds its response, and a resource's its own", async () => {
+  const fetchImpl = async () => response({ id: 7 });
+  const { WF } = load({ dev: true, fetchImpl });
+  const Backend = WF.api({
+    name: "Backend",
+    base: "/api",
+    endpoints: { user: { method: "GET", path: "users/:id", shape: ["r", "User", { id: "s", name: "s" }] } },
+  });
+  const error = await Backend.user({ id: "7" }).then(() => null, (e) => e);
+  assert.equal(error && error.kind, "parse");
+  assert.match(error.message, /\$\.id is 7, not a String/);
+  const r = WF.resource("/api/rows", { shape: ["l", "n"] });
+  await settle();
+  await settle();
+  assert.equal(r.state(), "error");
+  assert.match(r.error().message, /\$ is a map, not a list/);
+});
+
+test("a keyed list keeps drawing past an item that throws, and draws it when it is fixed", () => {
+  const { WF, document } = load({ dev: true });
+  const parent = document.createElement("ul");
+  const items = WF.signal([{ id: 1, t: "a" }, { id: 2, t: null }, { id: 3, t: "c" }]);
+  WF.each(parent, () => items(), (item) => WF.el("li", {}, [item.t.toUpperCase()]), { key: (item) => item.id });
+  assert.deepEqual(parent.children.map((n) => n.textContent.slice(0, 7)), ["A", "Item 1 ", "C"]);
+  items.set([{ id: 1, t: "a" }, { id: 2, t: "b" }, { id: 3, t: "c" }]);
+  assert.deepEqual(parent.children.map((n) => n.textContent), ["A", "B", "C"]);
+});
+
+test("on a deployed page an effect that feeds itself is stopped without a word", () => {
+  const { WF, said } = load();
+  const n = WF.signal(0);
+  WF.effect(() => { n.set(n() + 1); });
+  assert.ok(n() <= 101);
+  assert.equal(said.warn.length, 0, said.warn.join("\n"));
+});

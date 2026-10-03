@@ -434,8 +434,12 @@ the source that produced it.
 
 The build holds every page it writes to the content security policy it
 ships beside it; something on this page — an inline script, a `style=`, a
-script from an origin the policy never named — would be blocked. **Fix:**
-what the message says; a library's origin goes in `meta.scripts`.
+script from an origin the policy never named — would be blocked. A page's
+own `head { script(src: …) }` or `head { link(rel: "stylesheet", href: …) }`
+is held to it too, where it is written: the tag is added on the live page,
+and the browser would refuse it there without a word. **Fix:** what the
+message says; a library's origin goes in `meta.scripts`, a stylesheet's in
+`meta.stylesheets`.
 
 ### E117 — A key combination no keyboard sends
 

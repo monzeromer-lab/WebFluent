@@ -188,7 +188,10 @@ back and held to the policy it carries: an inline `<script>`, a `<style>`,
 a `style=` attribute, an `on*` attribute, or a script or stylesheet from an
 origin the policy never named stops the build. A policy is a promise about
 what a page contains, and this is how the promise is kept — the browser
-would enforce it and show a blank page.
+would enforce it and show a blank page. A page's own `head { script(src:
+…) }` or stylesheet `link` is added on the live page, after the HTML is
+written, so it is held to the policy where it is written instead: one from
+an origin the config does not declare is an `E902` on that line.
 
 One thing is allowed rather than refused: a `style { }` value that **reads
 state** is written on the element, because there is nowhere else for it to

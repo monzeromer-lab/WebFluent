@@ -39,9 +39,26 @@ unnamed value; name the rest: `Card("Laptop", price: 999)`.
 **"a WebFluent 2 declaration".** The file uses the old grammar (`Page`,
 `Component`). Run `wf migrate`.
 
-**A warning I do not understand.** Every code is in [Diagnostics](39-diagnostics.md)
-with an example and a fix. A named argument written to the element "as an
+**A warning I do not understand.** `wf explain CODE` prints its entry;
+every code is in [Diagnostics](39-diagnostics.md) with an example and a
+fix. A named argument written to the element "as an
 attribute" is almost always a misspelled prop.
+
+**A project that built under 4.x stops on errors.** 5.0 refuses what used
+to compile and then fail in the browser. `wf check` lists every finding
+without building; your editor's quick fixes apply the ones with a known
+fix; `lints` lowers what cannot ship a broken page while you catch up
+([Upgrading](45-upgrading.md#5-0)).
+
+**A finding I mean to keep.** `// wf-allow(CODE)` on the line above it (or
+at the end of its line) accepts that one; a warning a whole project does
+not want goes in `lints`. An allow that covers nothing is itself reported
+(`U07`).
+
+**Failing CI on warnings, or annotating a pull request.** `wf check
+--deny-warnings` fails on a warning; `--format github` writes annotations
+a workflow shows on the pull request, and `--format sarif` a file for code
+scanning ([Command line](37-cli.md#wf-check)).
 
 **The build is slow.** The first build resizes every `image`; later builds
 reuse `.wf-cache/`. Do not delete it in CI if you can cache it.
@@ -81,6 +98,36 @@ build keeps the last good page and draws the error over it. An old service
 worker from a production build on the same port can also hold pages;
 `wf serve` removes it on the next load.
 
+**A request is a 404 under `wf serve` (or `wf verify`).** Only a page
+navigation gets the single-page shell; a `fetch` or a file the build did
+not write gets a 404 and a line in the terminal. The API is not served by
+the dev server: point the page at the server that has it (an `api`'s
+`base:` from `env`), or put a fixture file in `public/`.
+
+**"The response of … is not the type the program declares".** Under `wf
+serve`, a response is held to the type its `resource` or `api` endpoint
+declares, and one that differs takes the `error` arm as a `.parse` error
+naming the first place it differs — `$[1].name is missing`. Fix the type,
+or the server.
+
+**"Item N could not be drawn".** One item of a `for` threw while it was
+drawn — usually a field read on a value that is `null`. Under `wf serve`
+the item shows the message; on a deployed page it leaves a gap and the
+console says why. The rest of the list draws either way.
+
+**"404 — no page has the route …".** No page's `path` matches the address
+and no `page NotFound(path: "*")` catches what nothing else does. A
+deployed page shows nothing there; declare a `*` page.
+
+**"an effect changes something it reads, every time it runs".** The effect
+writes a state it also reads, unconditionally, so it never settles; it was
+stopped after 100 runs. Guard the write (`if x != wanted { x = wanted }`)
+or move it to an action. `X02` reports the plain cases at build time.
+
+**An `api` call stays loading.** A parameter its path names is empty —
+`Backend.user(id: "")` for `users/:id` — so nothing was requested: `users/`
+would be the whole collection. It loads when the value arrives.
+
 **A layout that is right after the page loads jumps first.** Something depends
 on `viewport`, which is unknown until the script runs. Use
 [responsive values](15-styling.md#responsive-values) for layout.
@@ -88,9 +135,9 @@ on `viewport`, which is unknown until the script runs. Use
 ## Styling
 
 **My `style { }` does not apply.** Check the property name (a style block is
-real CSS) and the token (`$brand-colour` that no theme defines resolves to
-nothing). Values end at a newline, a `;`, or two spaces before the next
-declaration.
+real CSS; a misspelt one is a `V05` warning) and the token (`$brand-colour`
+that no theme defines is a `V06` error). Values end at a newline, a `;`, or
+two spaces before the next declaration.
 
 **My stylesheet does not override a built-in.** Your `.css` files come after
 the built-ins' rules, so on equal specificity they win — but `.wf-btn--primary`
