@@ -2,9 +2,10 @@
 //!
 //! What is renamed is whatever go-to-definition resolves at the cursor: a
 //! component (its declaration, every call, every `layout:`, its parts'
-//! owner), a store (`use`, `Store.member`), a store member, or a local —
+//! owner), a store (`use`, `Store.member`), a store member, a local —
 //! state, derived value, action, prop, parameter, loop variable, arm
-//! binding. Every identifier in the project that resolves to the same
+//! binding — or any other declaration: a `const`, `data`, `image`, `type`,
+//! `enum` case, `api` and endpoint, `animation`, or a record's field. Every identifier in the project that resolves to the same
 //! definition is changed, inside string interpolations too; a built-in or
 //! a browser global has no definition and is not renamed.
 

@@ -5,7 +5,12 @@
 //! `CartStore.total` to the store and its member; a name to the state,
 //! derived value, action, prop, parameter, loop variable or arm binding that
 //! declares it in the enclosing declaration — the nearest one, not the
-//! first one in the file.
+//! first one in the file. Every other declaration is reached too: a
+//! `const`, `data`, `image`, `type` (in an annotation or a record built),
+//! `enum` and each `.case`, `api` and each endpoint (`Backend.users`), an
+//! `animation`, a theme, a project script's function, and a record's field
+//! (`post.title`, `Post(title: …)`) in whichever type declares it. A
+//! string's `{…}` splices are code, and are read as such.
 
 use tower_lsp::lsp_types::*;
 use webfluent::lexer::Token;
@@ -30,7 +35,10 @@ pub fn find_definition(
             .and_then(|class| crate::classes::location(project, class))
             .map(GotoDefinitionResponse::Scalar);
     }
-    if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
+    // A string's text names nothing; its `{…}` splices are code.
+    if (analysis::in_string(&tokens, offset) && !analysis::in_splice(source, &tokens, offset))
+        || analysis::in_comment(source, &tokens, offset)
+    {
         return None;
     }
     definition_at(project, file_ix, offset, &tokens)
@@ -54,7 +62,10 @@ pub fn definition_at(
         && !after.starts_with("::")
         && (before.ends_with('{') || before.ends_with(',') || before.ends_with('('))
     {
-        return None;
+        // …unless it is a field of a record being built: `User(name: "Ada")`.
+        return callee_of(source, range.start).and_then(|callee| {
+            field_location(project, &webfluent::sema::types::Type::Record(callee), word)
+        });
     }
 
     if let Some(decl_ix) = analysis::declaration_at(project, file_ix, offset) {
@@ -125,14 +136,17 @@ pub fn definition_at(
             let store_file = project.decl_file[store_ix];
             return Some(location(project, store_file, member.span).into());
         }
-        // After a dot and not a store's member: a field of some value, or
-        // a part of a component, which is the component `Owner.Part`.
+        // After a dot and not a store's member: an endpoint of a service,
+        // a part of a component (`Owner.Part`), or — with nothing before the
+        // dot that owns it — a case of an enum or an animation.
         if let Some((_, range)) = word_at(source, offset)
             && source[..range.start].trim_end().ends_with('.')
         {
             let before = source[..range.start].trim_end();
-            let owner_name: String = before[..before.len() - 1]
-                .trim_end()
+            // `a?.b` reads through null: the owner is still `a`.
+            let before_dot = before[..before.len() - 1].trim_end();
+            let before_dot = before_dot.strip_suffix('?').unwrap_or(before_dot);
+            let owner_name: String = before_dot
                 .chars()
                 .rev()
                 .take_while(|c| c.is_alphanumeric() || *c == '_')
@@ -140,6 +154,27 @@ pub fn definition_at(
                 .chars()
                 .rev()
                 .collect();
+            if let Some(found) = endpoint_location(project, &owner_name, word) {
+                return Some(found);
+            }
+            // `post.title`, for a value the checker types as a record: the
+            // field, in whichever type declares it.
+            if let Some(binding) = analysis::scope_at(decl, offset)
+                .into_iter()
+                .find(|b| b.name == owner_name)
+                && let Some(found) = crate::hover::type_of_binding(project, decl_ix, &binding)
+                    .and_then(|ty| field_location(project, &ty, word))
+            {
+                return Some(found);
+            }
+            // `.calm`, `animate: .Wobble`: the dot opens the value. After a
+            // `)`, a name or a `]` it is a flag or a member instead.
+            let opens_value =
+                owner_name.is_empty() && !before_dot.ends_with(')') && !before_dot.ends_with(']');
+            if opens_value {
+                return case_location(project, word)
+                    .or_else(|| declaration_location(project, word, Kind::Animation));
+            }
             let qualified = format!("{owner_name}.{word}");
             return declaration_location(project, &qualified, Kind::Component);
         }
@@ -184,7 +219,141 @@ enum Kind {
     Component,
     Page,
     Store,
+    Animation,
     Any,
+}
+
+/// `Backend.users`: the endpoint `users` of the service `Backend`.
+fn endpoint_location(project: &Project, api: &str, name: &str) -> Option<GotoDefinitionResponse> {
+    project
+        .program
+        .declarations
+        .iter()
+        .enumerate()
+        .find_map(|(ix, decl)| match decl {
+            Declaration::Api(a) if a.name == api => a
+                .endpoints
+                .iter()
+                .find(|e| e.name == name)
+                .map(|e| location(project, project.decl_file[ix], e.span).into()),
+            _ => None,
+        })
+}
+
+/// The name called by the parenthesis the argument at `at` is inside:
+/// `User` for `User(id: "1", name‸: …)`.
+fn callee_of(source: &str, at: usize) -> Option<String> {
+    let bytes = source.as_bytes();
+    let mut depth = 0usize;
+    let mut i = at;
+    while i > 0 {
+        i -= 1;
+        match bytes[i] {
+            b')' | b']' | b'}' => depth += 1,
+            b'[' | b'{' if depth == 0 => return None,
+            b'(' if depth == 0 => {
+                let name: String = source[..i]
+                    .chars()
+                    .rev()
+                    .take_while(|c| c.is_alphanumeric() || *c == '_')
+                    .collect::<String>()
+                    .chars()
+                    .rev()
+                    .collect();
+                return (!name.is_empty()).then_some(name);
+            }
+            b'(' | b'[' | b'{' => depth -= 1,
+            _ => {}
+        }
+    }
+    None
+}
+
+/// The field `name` of a value of type `ty`, when `ty` is a record (or may
+/// be null and holds one): in the type that declares it, following
+/// `extends`.
+fn field_location(
+    project: &Project,
+    ty: &webfluent::sema::types::Type,
+    name: &str,
+) -> Option<GotoDefinitionResponse> {
+    use webfluent::sema::types::Type;
+    let mut record = match ty {
+        Type::Record(r) => r.clone(),
+        Type::Optional(inner) => match inner.as_ref() {
+            Type::Record(r) => r.clone(),
+            _ => return None,
+        },
+        _ => return None,
+    };
+    for _ in 0..16 {
+        let (ix, decl) =
+            project
+                .program
+                .declarations
+                .iter()
+                .enumerate()
+                .find_map(|(ix, d)| match d {
+                    Declaration::Type(t) if t.name == record => Some((ix, t)),
+                    _ => None,
+                })?;
+        if let Some(field) = decl.fields.iter().find(|f| f.name == name) {
+            return Some(location(project, project.decl_file[ix], field.span).into());
+        }
+        record = decl.extends.clone()?;
+    }
+    None
+}
+
+/// `.calm`: the case of whichever enum declares one by that name — its name
+/// inside the enum's declaration.
+fn case_location(project: &Project, case: &str) -> Option<GotoDefinitionResponse> {
+    project
+        .program
+        .declarations
+        .iter()
+        .enumerate()
+        .find_map(|(ix, decl)| match decl {
+            Declaration::Enum(e) if e.cases.iter().any(|c| c.name == case) => {
+                word_in_span(project, project.decl_file[ix], e.span, case, 0)
+            }
+            _ => None,
+        })
+}
+
+/// The `nth` (from 0) whole-word occurrence of `word` inside `span` of a
+/// file — a name a declaration holds but keeps no span for.
+fn word_in_span(
+    project: &Project,
+    file_ix: usize,
+    span: Span,
+    word: &str,
+    nth: usize,
+) -> Option<GotoDefinitionResponse> {
+    let file = &project.files[file_ix];
+    let source: &str = &file.source;
+    let text = source.get(span.start as usize..(span.end as usize).min(source.len()))?;
+    let bytes = text.as_bytes();
+    let is_word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+    let at = text
+        .match_indices(word)
+        .filter(|(i, _)| {
+            (*i == 0 || !is_word(bytes[i - 1]))
+                && bytes.get(i + word.len()).is_none_or(|b| !is_word(*b))
+        })
+        .nth(nth)?
+        .0;
+    let start = span.start as usize + at;
+    Some(
+        Location {
+            uri: file.uri.clone(),
+            range: Range {
+                start: file.index.offset_to_position(source, start),
+                end: file.index.offset_to_position(source, start + word.len()),
+            },
+        }
+        .into(),
+    )
 }
 
 fn declaration_location(
@@ -210,6 +379,20 @@ fn declaration_location(
                 Some((ix, s.header_span))
             }
             Declaration::Theme(t) if t.name == name && kind == Kind::Any => Some((ix, t.span)),
+            Declaration::Animation(a)
+                if a.name == name && matches!(kind, Kind::Animation | Kind::Any) =>
+            {
+                Some((ix, a.span))
+            }
+            Declaration::Type(t) if t.name == name && kind == Kind::Any => {
+                Some((ix, t.header_span))
+            }
+            Declaration::Enum(e) if e.name == name && kind == Kind::Any => {
+                Some((ix, e.header_span))
+            }
+            Declaration::Const(c) if c.name == name && kind == Kind::Any => Some((ix, c.span)),
+            Declaration::Data(d) if d.name == name && kind == Kind::Any => Some((ix, d.span)),
+            Declaration::Api(a) if a.name == name && kind == Kind::Any => Some((ix, a.span)),
             _ => None,
         })?;
     Some(location(project, project.decl_file[ix], span).into())

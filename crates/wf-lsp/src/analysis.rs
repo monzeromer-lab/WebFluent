@@ -462,6 +462,36 @@ pub fn in_comment(source: &str, tokens: &[Token], offset: usize) -> bool {
         || gap.trim_start().starts_with("/*") && before.contains("/*")
 }
 
+/// Whether `offset` lies inside a `{…}` splice of a string — code, where a
+/// name is a name — rather than in the string's text. A raw string
+/// (`#"…"#`) has no splices.
+pub fn in_splice(source: &str, tokens: &[Token], offset: usize) -> bool {
+    let Some(token) = tokens.iter().find(|t| {
+        matches!(t.token_type, TokenType::StringLiteral(_)) && t.offset < offset && offset < t.end
+    }) else {
+        return false;
+    };
+    let Some(text) = source.get(token.offset..offset) else {
+        return false;
+    };
+    if text.starts_with('#') {
+        return false;
+    }
+    let bytes = text.as_bytes();
+    let mut depth = 0usize;
+    let mut i = 0;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'\\' => i += 1,
+            b'{' => depth += 1,
+            b'}' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+        i += 1;
+    }
+    depth > 0
+}
+
 /// Whether `offset` lies inside a string literal's quotes.
 pub fn in_string(tokens: &[Token], offset: usize) -> bool {
     tokens.iter().any(|t| {

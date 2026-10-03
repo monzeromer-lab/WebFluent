@@ -745,3 +745,130 @@ fn a_markdown_page_is_a_page_the_editor_knows() {
         found[broken][0].message
     );
 }
+
+const DECLS: &str = "const LIMIT = 3\ndata posts = \"p.json\"\nimage hero = \"h.jpg\"\ntype Post { id: String }\nenum Tone { calm, loud }\nanimation Wobble { from { opacity: 0 } to { opacity: 1 } }\napi Backend(base: \"/api\") {\n    get users() -> [Post]\n}\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    state t: Tone = .calm\n    state p: Post? = Post(id: \"1\")\n    resource r = Backend.users()\n    Heading(\"{LIMIT} {posts.length}\").h1\n    Image(hero, alt: \"a\")\n    Card(animate: .Wobble) { Text(\"a\") }\n    match t {\n        .calm { Text(\"c\") }\n        .loud { Text(\"l\") }\n    }\n}\n";
+
+/// The line (1-based) go-to-definition lands on for the `nth` occurrence of
+/// `needle`.
+fn definition_line(src: &str, needle: &str, nth: usize) -> Option<u32> {
+    let project = project(src);
+    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let pos = project.files[0].index.offset_to_position(src, offset);
+    match find_definition(&project, 0, pos)? {
+        GotoDefinitionResponse::Scalar(l) => Some(l.range.start.line + 1),
+        _ => None,
+    }
+}
+
+#[test]
+fn every_kind_of_declaration_has_a_definition() {
+    // A use, and the line its declaration is on.
+    for (needle, nth, line) in [
+        ("LIMIT", 1, 1),   // in a string's splice
+        ("posts", 1, 2),   // in a splice, before `.length`
+        ("hero", 1, 3),    // an image, as an argument
+        ("Post?", 0, 4),   // a type in an annotation
+        ("Post(id", 0, 4), // a record built
+        ("Tone =", 0, 5),  // an enum in an annotation
+        ("calm", 1, 5),    // a case, as a value
+        ("calm", 2, 5),    // a case, as a match arm
+        ("Wobble", 1, 6),  // an animation, played
+        ("Backend", 1, 7), // a service
+        ("users", 1, 8),   // its endpoint
+    ] {
+        assert_eq!(
+            definition_line(DECLS, needle, nth),
+            Some(line),
+            "{needle} #{nth}"
+        );
+    }
+}
+
+#[test]
+fn hover_and_definition_read_a_string_s_splices_as_code() {
+    let src = "page P(path: \"/\") {\n    state count = 0\n    Text(\"count: {count}\")\n}\n";
+    // The splice's `count` is the state; the text's `count` is text.
+    assert_eq!(definition_line(src, "count", 2), Some(2));
+    assert_eq!(definition_line(src, "count", 1), None);
+    let project = project(src);
+    let offset = src.match_indices("count").nth(2).unwrap().0 + 1;
+    let pos = project.files[0].index.offset_to_position(src, offset);
+    assert!(provide_hover(&project, 0, pos).is_some());
+    // A raw string has no splices.
+    let raw = "page P(path: \"/\") {\n    state count = 0\n    Text(#\"{count}\"#)\n}\n";
+    assert_eq!(definition_line(raw, "count", 1), None);
+}
+
+/// `src` with the name at the `nth` `needle` renamed to `to`.
+fn renamed(src: &str, needle: &str, nth: usize, to: &str) -> String {
+    let project = project(src);
+    let offset = src.match_indices(needle).nth(nth).unwrap().0 + 1;
+    let pos = project.files[0].index.offset_to_position(src, offset);
+    assert!(
+        wf_lsp::rename::prepare_rename(&project, 0, pos).is_some(),
+        "{needle} cannot be renamed"
+    );
+    apply(src, &wf_lsp::rename::rename(&project, 0, pos, to).unwrap())
+}
+
+#[test]
+fn every_kind_of_declaration_renames_everywhere_it_is_named() {
+    let out = renamed(DECLS, "LIMIT", 1, "MAX");
+    assert!(
+        out.starts_with("const MAX = 3") && out.contains("{MAX} {posts.length}"),
+        "{out}"
+    );
+    let out = renamed(DECLS, "Post?", 0, "Article");
+    assert!(
+        out.contains("type Article {")
+            && out.contains("-> [Article]")
+            && out.contains("state p: Article? = Article(id"),
+        "{out}"
+    );
+    let out = renamed(DECLS, "calm", 1, "quiet");
+    assert!(
+        out.contains("enum Tone { quiet, loud }")
+            && out.contains("state t: Tone = .quiet")
+            && out.contains(".quiet { Text"),
+        "{out}"
+    );
+    let out = renamed(DECLS, "users", 1, "people");
+    assert!(
+        out.contains("get people() ->") && out.contains("Backend.people()"),
+        "{out}"
+    );
+    let out = renamed(DECLS, "Backend", 1, "Server");
+    assert!(
+        out.contains("api Server(base") && out.contains("Server.users()"),
+        "{out}"
+    );
+    let out = renamed(DECLS, "Wobble", 1, "Shake");
+    assert!(
+        out.contains("animation Shake {") && out.contains("animate: .Shake"),
+        "{out}"
+    );
+    let out = renamed(DECLS, "hero", 1, "banner");
+    assert!(
+        out.contains("image banner =") && out.contains("Image(banner,"),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_record_s_field_has_a_definition_in_the_type_that_declares_it() {
+    let src = "type User { id: String, name: String }\ntype Admin = User { role: String }\npage P(path: \"/\") {\n    state a: Admin? = null\n    state u: User = User(id: \"1\", name: \"Ada\")\n    Text(u.name)\n    Text(a?.role ?? \"\")\n    Text(a?.id ?? \"\")\n}\n";
+    assert_eq!(definition_line(src, "name)", 0), Some(1));
+    assert_eq!(definition_line(src, "role ??", 0), Some(2));
+    // A field `Admin` inherits is `User`'s.
+    assert_eq!(definition_line(src, "id ??", 0), Some(1));
+}
+
+#[test]
+fn a_field_renames_where_it_is_read_and_where_a_record_is_built() {
+    let src = "type User { id: String, name: String }\npage P(path: \"/\") {\n    state u: User = User(id: \"1\", name: \"Ada\")\n    state row = { name: \"x\" }\n    Text(\"{u.name}\")\n    Text(u.name)\n    Text(row.name)\n}\n";
+    let out = renamed(src, "name)", 0, "title");
+    assert_eq!(
+        out,
+        "type User { id: String, title: String }\npage P(path: \"/\") {\n    state u: User = User(id: \"1\", title: \"Ada\")\n    state row = { name: \"x\" }\n    Text(\"{u.title}\")\n    Text(u.title)\n    Text(row.name)\n}\n"
+    );
+}

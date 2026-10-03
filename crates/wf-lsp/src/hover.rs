@@ -36,7 +36,10 @@ pub fn provide_hover(project: &Project, file_ix: usize, position: Position) -> O
             range: None,
         });
     }
-    if analysis::in_string(&tokens, offset) || analysis::in_comment(source, &tokens, offset) {
+    // A string's text names nothing; its `{…}` splices are code.
+    if (analysis::in_string(&tokens, offset) && !analysis::in_splice(source, &tokens, offset))
+        || analysis::in_comment(source, &tokens, offset)
+    {
         return None;
     }
     let (word, word_range) = word_at(source, offset)?;
