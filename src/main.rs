@@ -16,6 +16,7 @@ mod linter;
 mod media;
 mod migrate;
 mod openapi;
+mod paged;
 mod parser;
 mod project_js;
 mod registry;

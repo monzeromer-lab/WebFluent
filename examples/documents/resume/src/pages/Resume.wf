@@ -1,0 +1,97 @@
+/// One position, newest first.
+component Job(_ title: String, org: String, when: String) {
+    Stack(class: "job") {
+        Stack(class: "job-dot") { }
+        Row(class: "job-head") {
+            Text(title, class: "job-title")
+            Text(when, class: "job-when")
+        }
+        Text(org, class: "job-org")
+        children
+    }
+}
+
+/// A skill and how far along it is.
+component Skill(_ name: String, level: Number) {
+    Stack(class: "skill") {
+        Row(class: "skill-name") { Text(name)  Text("{level}%", class: "latin") }
+        Stack(class: "bar") { Stack(class: "bar-fill") { style { width: {level}% } } }
+    }
+}
+
+page Resume(path: "/", title: "سارة الحربي — السيرة الذاتية", description: "Curriculum vitae.") {
+    Document(size: "A4", lang: "ar", title: "سارة الحربي — السيرة الذاتية", author: "سارة الحربي") {
+        Background {
+            Stack(class: "strip") { }
+            Stack(class: "strip-top") { }
+        }
+        Grid(class: "layout") {
+            Stack(class: "side") {
+                Stack(class: "avatar") { Text("س ح") }
+                Text("سارة الحربي", class: "name")
+                Text("مهندسة واجهات أمامية أولى", class: "role")
+
+                Heading("التواصل").h2
+                Row(class: "contact") { Icon("mail")  Text("sara@alharbi.example", class: "latin") }
+                Row(class: "contact") { Icon("link")  Text("github.com/sara-alharbi", class: "latin") }
+                Row(class: "contact") { Icon("home")  Text("الرياض، المملكة العربية السعودية") }
+                Row(class: "contact") { Icon("calendar")  Text("متاحة من يناير ٢٠٢٧") }
+
+                Heading("المهارات").h2
+                Skill("TypeScript و Rust", level: 92)
+                Skill("تصميم الأنظمة", level: 85)
+                Skill("إمكانية الوصول", level: 88)
+                Skill("الأداء على الويب", level: 80)
+                Skill("قيادة الفرق", level: 74)
+
+                Heading("اللغات").h2
+                Row(class: "lang") { Text("العربية")  Text("اللغة الأم") }
+                Row(class: "lang") { Text("الإنجليزية")  Text("متقدمة") }
+                Row(class: "lang") { Text("اليابانية")  Text("متوسطة") }
+            }
+            Stack(class: "main") {
+                Heading("نبذة").h2
+                Text("مهندسة واجهات أمامية بخبرة تسع سنوات في بناء منتجات تخدم ملايين المستخدمين باللغتين العربية والإنجليزية. أهتم بالأداء وإمكانية الوصول، وبأن تعمل الواجهة من اليمين إلى اليسار كما تعمل من اليسار إلى اليمين دون تنازل. قدت فريقاً من ستة مهندسين لإعادة بناء منصة الدفع، فانخفض زمن التحميل الأول بنسبة ٤٢٪.", class: "summary")
+
+                Heading("الخبرة العملية").h2
+                Job("قائدة فريق الواجهات", org: "منصة رَوابي للمدفوعات · الرياض", when: "2023 — 2026") {
+                    List {
+                        Text("أعدت بناء تطبيق الدفع بـ Rust و WebAssembly، فنزل زمن التحميل الأول من 3.1 إلى 1.8 ثانية.")
+                        Text("صممت نظام تصميم ثنائي الاتجاه يضم ٨٠ مكوناً، يعمل بالعربية والإنجليزية من مصدر واحد.")
+                        Text("رفعت تغطية الاختبارات الآلية من ٣٥٪ إلى ٩٠٪، وأوقفت أخطاء الإنتاج المتكررة.")
+                    }
+                    Row(class: "tags") { Text("Rust", class: "tag")  Text("WASM", class: "tag")  Text("Design systems", class: "tag")  Text("RTL", class: "tag") }
+                }
+                Job("مهندسة واجهات أولى", org: "مَدار للتقنية · جدة", when: "2020 — 2023") {
+                    List {
+                        Text("بنيت محرك عرض للخرائط يدعم ٢٠٠ ألف نقطة بسلاسة على الأجهزة المتوسطة.")
+                        Text("قدت مراجعة إمكانية الوصول وفق WCAG 2.1 AA لثلاثة منتجات رئيسية.")
+                    }
+                    Row(class: "tags") { Text("TypeScript", class: "tag")  Text("WebGL", class: "tag")  Text("a11y", class: "tag") }
+                }
+                Job("مهندسة واجهات", org: "شركة طوكيو للبرمجيات · طوكيو", when: "2017 — 2020") {
+                    List {
+                        Text("عملت ضمن فريق دولي على لوحة تحكم لإدارة المخازن، بالإنجليزية واليابانية.")
+                        Text("أضفت دعم الكتابة من اليمين إلى اليسار إلى مكتبة المكونات الداخلية.")
+                    }
+                    Text("東京ソフトウェア株式会社 — フロントエンドエンジニア", class: "jp")
+                }
+
+                Heading("التعليم").h2
+                Job("بكالوريوس علوم الحاسب", org: "جامعة الملك سعود", when: "2013 — 2017") {
+                    Text("مشروع التخرج: محلل صرفي للعربية على المتصفح، بمرتبة الشرف الأولى.")
+                }
+
+                Heading("المنشورات والمحاضرات").h2
+                Stack(class: "pub") {
+                    Text("«الواجهات ثنائية الاتجاه: ما لا تخبرك به المواصفات»", class: "pub-title")
+                    Text("محاضرة في مؤتمر JSConf الشرق الأوسط، دبي 2025.")
+                }
+                Stack(class: "pub") {
+                    Text("Shaping Arabic text in the browser, without the browser", class: ["pub-title", "latin"])
+                    Text("مقالة تقنية مترجمة إلى ثلاث لغات، ٤٠ ألف قراءة.")
+                }
+            }
+        }
+    }
+}

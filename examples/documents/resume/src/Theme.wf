@@ -1,0 +1,10 @@
+theme Ink {
+    color-primary: #0E7490
+    color-text: #1E293B
+    color-text-muted: #64748B
+    font-family: Noto Sans Arabic, Manrope, sans-serif
+    navy: #0F2B3D
+    navy-soft: #16384F
+    sand: #F4EFE6
+    accent-warm: #E2A33B
+}

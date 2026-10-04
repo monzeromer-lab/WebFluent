@@ -11,6 +11,15 @@ use super::{AttrFamily, CaseSig, Children, ComponentSig, Ir, Legacy, PropSig, Pr
 
 // ─── Construction helpers ────────────────────────────────────────────────
 
+/// Which pages a running element is drawn on.
+const ON_PAGES: &[CaseSig] = &[
+    case("all", "", "Every page"),
+    case("first", "", "The first page only"),
+    case("rest", "", "Every page but the first"),
+    case("odd", "", "Odd pages"),
+    case("even", "", "Even pages"),
+];
+
 const fn case(name: &'static str, legacy: &'static str, summary: &'static str) -> CaseSig {
     CaseSig {
         name,
@@ -1749,23 +1758,94 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::Elements,
     ),
+    // ─── Charts and codes ─────────────────────────────────────────────────
+    comp(
+        "Chart",
+        "Data Display",
+        "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
+        None,
+        &[
+            special(
+                "kind",
+                PropType::Enum(&[
+                    case("bar", "", "Bars, one per row (grouped or stacked for several series)"),
+                    case("line", "", "A line through the rows"),
+                    case("area", "", "A line with the area under it filled"),
+                    case("pie", "", "Slices of a whole"),
+                    case("donut", "", "A pie with a hole"),
+                ]),
+                "What it draws",
+            ),
+            special("data", PropType::Any, "The rows: a list of records, or of numbers"),
+            special("x", PropType::Str, "The key of each row's label"),
+            special("y", PropType::Any, "The key of each row's value, or a list of keys for several series"),
+            special("colors", PropType::Any, "The series' colours, in order"),
+            special("width", PropType::Num, "Its width in user units (it scales to its box)"),
+            special("height", PropType::Num, "Its height in user units"),
+            special("ink", PropType::Str, "The colour of its labels"),
+            special("grid", PropType::Str, "The colour of its grid lines"),
+            special("legend", PropType::Bool, "Name the series"),
+            special("stacked", PropType::Bool, "Stack a bar chart's series"),
+            special("labels", PropType::Bool, "Write each bar's or slice's value on it"),
+            special("unit", PropType::Str, "A unit after each value on the axis: `ms`, `%`"),
+        ],
+        &[],
+        G,
+        Children::None,
+    ),
+    comp(
+        "QrCode",
+        "Data Display",
+        "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
+        Some(special("value", PropType::Str, "What it encodes")),
+        &[
+            special("color", PropType::Str, "The colour of the dark modules"),
+            special("background", PropType::Str, "The colour behind them"),
+        ],
+        &[],
+        G,
+        Children::None,
+    ),
+    comp(
+        "TableOfContents",
+        "PDF",
+        "The document's headings with the page each lands on, each a link to it.",
+        None,
+        &[
+            special("levels", PropType::Num, "How deep it lists: 1 is the `h1`s only (default 3)"),
+            special("title", PropType::Str, "A heading above the list"),
+        ],
+        &[],
+        G,
+        Children::None,
+    ),
     // ─── Document (PDF) ───────────────────────────────────────────────────
     comp(
         "Document",
         "PDF",
-        "Root of a PDF document.",
+        "Root of a PDF document: the paper, the margins and what the file says about itself.",
         None,
-        &[special(
-            "page_size",
-            PropType::Enum(&[
-                case("A4", "", ""),
-                case("A3", "", ""),
-                case("A5", "", ""),
-                case("Letter", "", ""),
-                case("Legal", "", ""),
-            ]),
-            "Paper size",
-        )],
+        &[
+            special(
+                "page_size",
+                PropType::Enum(&[
+                    case("A4", "", ""),
+                    case("A3", "", ""),
+                    case("A5", "", ""),
+                    case("Letter", "", ""),
+                    case("Legal", "", ""),
+                ]),
+                "Paper size (also `size:`)",
+            ),
+            special("size", PropType::Str, "Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm`"),
+            special("landscape", PropType::Bool, "Turn the paper on its side"),
+            special("margin", PropType::Any, "The page margins: one length, or top right bottom left (`72`, `20mm 25mm`)"),
+            special("title", PropType::Str, "The file's title, shown by a reader in place of its name"),
+            special("author", PropType::Str, "The file's author; several separated by commas"),
+            special("subject", PropType::Str, "What the document is about"),
+            special("keywords", PropType::Str, "Comma-separated keywords"),
+            special("lang", PropType::Str, "The document's language, for screen readers and hyphenation"),
+        ],
         &[],
         G,
         Children::Elements,
@@ -1793,9 +1873,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Header",
         "PDF",
-        "Repeated at the top of every PDF page; a `<header>` on the web.",
+        "Repeated at the top of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<header>` on the web.",
         None,
-        &[],
+        &[special("on", PropType::Enum(ON_PAGES), "Which pages it is drawn on")],
         &[],
         G,
         Children::Elements,
@@ -1803,12 +1883,32 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Footer",
         "PDF",
-        "Repeated at the bottom of every PDF page; a `<footer>` on the web.",
+        "Repeated at the bottom of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<footer>` on the web.",
         None,
-        &[],
+        &[special("on", PropType::Enum(ON_PAGES), "Which pages it is drawn on")],
         &[],
         G,
         Children::Elements,
+    ),
+    comp(
+        "Background",
+        "PDF",
+        "Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.",
+        None,
+        &[special("on", PropType::Enum(ON_PAGES), "Which pages it is drawn on")],
+        &[],
+        G,
+        Children::Elements,
+    ),
+    comp(
+        "Watermark",
+        "PDF",
+        "Large, faint, rotated text behind each PDF page's content.",
+        Some(special("text", PropType::Str, "The text")),
+        &[special("on", PropType::Enum(ON_PAGES), "Which pages it is drawn on")],
+        &[],
+        G,
+        Children::None,
     ),
     comp(
         "PageBreak",

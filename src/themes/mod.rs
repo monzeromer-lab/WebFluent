@@ -7,6 +7,54 @@
 //!
 //! Which one a build gets is [`BuiltinCss`], carried on `ThemeConfig::builtin`.
 
+/// The rules a paged document and a slide deck need, in both of the engine's
+/// sheets: a PDF is the page's markup laid out on paper, styled as the web
+/// styles everything else. Sizes are in `em` of the deck's base size, so
+/// `slides.default_font_size` scales them.
+#[macro_export]
+#[doc(hidden)]
+macro_rules! paged_rules {
+    () => {
+        r#"
+/* ─── Paged documents and slide decks ───────────────── */
+/* A PDF is this markup laid out on paper, so a document's own elements and a
+   deck's slides are styled here, as the web styles everything else. Sizes are
+   in `em` of the deck's base size, so `slides.default_font_size` scales them. */
+.wf-page-break { break-after: page; }
+.wf-chart, .wf-qr { margin: 0; }
+.wf-chart svg { width: 100%; height: auto; display: block; }
+.wf-qr svg { width: 100%; height: auto; display: block; }
+.wf-toc { display: block; }
+.wf-toc__title { margin-bottom: 0.75em; }
+.wf-toc__entry { display: flex; align-items: baseline; gap: 0.4em; padding: 0.2em 0; color: inherit; text-decoration: none; }
+.wf-toc__entry--2 { padding-left: 1.25em; }
+.wf-toc__entry--3 { padding-left: 2.5em; font-size: 0.92em; }
+.wf-toc__leader { flex: 1; border-bottom: 1px dotted currentColor; opacity: 0.35; min-width: 1em; }
+.wf-toc__page { font-variant-numeric: tabular-nums; }
+.wf-watermark { font-size: 72pt; font-weight: 700; color: rgba(0, 0, 0, 0.08); white-space: nowrap; }
+.wf-slide, .wf-title-slide, .wf-section-slide, .wf-two-column, .wf-image-slide { display: flex; flex-direction: column; gap: 0.5em; }
+.wf-title-slide { justify-content: center; align-items: center; text-align: center; }
+.wf-slide__title { font-size: 2.33em; font-weight: 700; line-height: 1.15; }
+.wf-slide__subtitle { font-size: 1.17em; color: var(--color-text-muted); }
+.wf-section-slide { justify-content: center; align-items: center; text-align: center; color: #fff; background: var(--color-primary); }
+.wf-section-slide--primary { background: var(--color-primary); }
+.wf-section-slide--success { background: var(--color-success); }
+.wf-section-slide--danger { background: var(--color-danger); }
+.wf-section-slide--warning { background: var(--color-warning); color: #000; }
+.wf-section-slide--info { background: var(--color-info); }
+.wf-slide__label { font-size: 2em; font-weight: 700; }
+.wf-two-column { flex-direction: row; gap: 1em; }
+.wf-two-column > * { flex: 1 1 0; min-width: 0; }
+.wf-image-slide { align-items: center; justify-content: center; }
+.wf-slide__image { max-width: 100%; max-height: 85%; object-fit: contain; }
+.wf-slide__caption { color: var(--color-text-muted); font-size: 0.75em; }
+.wf-slide h1, .wf-two-column h1 { font-size: 2em; }
+.wf-slide h2, .wf-two-column h2 { font-size: 1.6em; }
+.wf-slide h3, .wf-two-column h3 { font-size: 1.3em; }
+"#
+    };
+}
+
 use serde::{Deserialize, Serialize};
 
 pub mod components;

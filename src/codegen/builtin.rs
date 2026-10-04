@@ -115,6 +115,22 @@ pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
         "Document" => ("div", "wf-document"),
         "Header" => ("header", "wf-header"),
         "Footer" => ("footer", "wf-footer"),
+        "Background" => ("div", "wf-background"),
+        "Watermark" => ("div", "wf-watermark"),
+        "PageBreak" => ("div", "wf-page-break"),
+        "Chart" => ("figure", "wf-chart"),
+        "QrCode" => ("figure", "wf-qr"),
+        "TableOfContents" => ("nav", "wf-toc"),
+
+        // ─── Slides ──────────────────────────────────────
+        // A deck is a paged document of fixed pages; each slide kind is a
+        // section the engine sizes to the slide.
+        "Presentation" => ("div", "wf-presentation"),
+        "Slide" => ("section", "wf-slide"),
+        "TitleSlide" => ("section", "wf-title-slide"),
+        "SectionSlide" => ("section", "wf-section-slide"),
+        "TwoColumn" => ("section", "wf-two-column"),
+        "ImageSlide" => ("section", "wf-image-slide"),
 
         // ─── Routing ─────────────────────────────────────
         "Router" => ("div", "wf-router"),

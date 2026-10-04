@@ -150,7 +150,7 @@ pub mod layout;
 ///
 /// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),
 /// JavaScript ([`codegen::JsCodegen`]), static site generation ([`codegen::render_page_html`]),
-/// and PDF ([`codegen::PdfCodegen`]).
+/// and PDF (the [`paged`] engine lays the HTML out on paper).
 pub mod browser;
 pub mod codegen;
 pub mod media;
@@ -189,6 +189,7 @@ pub mod linter;
 /// The [`Template`] struct is the primary public API for using WebFluent as a library.
 /// It supports rendering to HTML documents, HTML fragments, and PDF files.
 pub mod template;
+pub mod paged;
 
 pub mod edit;
 

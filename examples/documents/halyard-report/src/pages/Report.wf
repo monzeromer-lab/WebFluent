@@ -1,0 +1,263 @@
+data report = "report.json"
+
+const QUARTER = "Q3 2026"
+const PROJECT = "storefront-edge"
+
+/// A numbered section's heading.
+component SectionHead(_ num: String, title: String) {
+    Row(class: "section-head") {
+        Text(num, class: "section-num")
+        Heading(title, class: "section-title").h2
+    }
+}
+
+/// One figure on the cover.
+component Kpi(_ label: String, value: String, delta: String, up: Bool = true) {
+    Stack(class: "kpi", gap: .xs) {
+        Text(label, class: "eyebrow")
+        Text(value, class: "kpi-value")
+        Text(delta, class: ["kpi-delta", if up { "up" } else { "down" }])
+    }
+}
+
+/// A status as a coloured pill.
+component Status(_ status: String) {
+    Row(class: ["pill", if status == "ready" || status == "operational" { "pill-ok" } else if status == "degraded" || status == "rolled back" { "pill-warn" } else { "pill-bad" }]) {
+        Stack(class: "dot") { }
+        Text(status)
+    }
+}
+
+page Report(path: "/", title: "Halyard platform report — {QUARTER}", description: "Traffic, latency, deployments and incidents for the quarter.") {
+    Document(size: "A4", title: "Halyard platform report — Q3 2026", author: "Halyard Platform Team", subject: "Quarterly platform report", keywords: "edge, latency, deployments") {
+        Background(on: .first) {
+            Stack(class: "cover-bg") {
+                style { height: 100% }
+                Stack(class: "glow") { }
+            }
+        }
+        Header(on: .rest) {
+            Row(class: "run") {
+                Text("Halyard · Platform report {QUARTER}")
+                Text("{PROJECT} · page {page} of {pages}")
+            }
+        }
+        Footer(on: .rest) {
+            Row(class: ["run", "run-foot"]) {
+                Text("Fictional data from the Halyard demo. Not a real product.")
+                Text("halyard.example.com")
+            }
+        }
+
+        // ─── Cover ─────────────────────────────────────────────
+        Stack(class: "cover") {
+            Stack {
+                Row(class: "brand") {
+                    Image(src: "/mark.svg", alt: "")
+                    Text("Halyard")
+                }
+            }
+            Stack {
+                Text("Platform report · {QUARTER}", class: "eyebrow")
+                Text("Every region, one artifact.", class: ["display", "cover-title"])
+                Text("Nineteen regions served 41.2 billion requests this quarter at a 38 ms p95, through 18,402 atomic deploys and four incidents — one of them major.", class: "cover-lede")
+            }
+            Stack(gap: .lg) {
+                Grid(class: "kpis") {
+                    Kpi("Requests", value: "41.2B", delta: "+18.4% QoQ")
+                    Kpi("p95 latency", value: "38 ms", delta: "−4 ms QoQ")
+                    Kpi("Deploys", value: "18,402", delta: "+9.1% QoQ")
+                    Kpi("Uptime", value: "99.995%", delta: "−0.002 pts", up: false)
+                }
+                Row(class: "prepared") {
+                    Text("Prepared for {PROJECT} · hl-2201")
+                    Text("1 October 2026")
+                }
+            }
+        }
+
+        // ─── Contents ──────────────────────────────────────────
+        Stack {
+            style { break-after: page }
+            Text("Contents", class: "eyebrow")
+            TableOfContents(levels: 2)
+        }
+
+        // ─── 1 ─────────────────────────────────────────────────
+        Stack(class: "section") {
+            SectionHead("01", title: "Executive summary")
+            Grid(class: "cols") {
+                Stack {
+                    Text("The quarter's work was routing. Requests from Germany, France and the Netherlands now resolve to fra1 by rule instead of by latency probe, which took 6 ms off the European p95 and removed the last cross-border hop for checkout. Edge KV moved its leader to fra1 for the same reason.")
+                    Text("Deploys grew faster than traffic: 18,402 builds reached all nineteen regions, each acknowledged in under half a second, and 214 were rolled back by hash — every one of them in under four seconds, with no requests dropped.")
+                }
+                Stack {
+                    Text("São Paulo is the exception. A saturated carrier link in gru1 raised its p99 to 1.4 s for 47 minutes in September and its quarter p95 sits at 148 ms, four times the median region. The link was replaced; a second carrier is contracted for November.", class: "callout")
+                    Text("Next quarter: request-level routing on cookie and header (shipping in 2.15), and a p99 alert per region rather than per project.", class: ["callout", "callout-accent"])
+                }
+            }
+        }
+
+        // ─── 2 ─────────────────────────────────────────────────
+        Stack(class: "section") {
+            SectionHead("02", title: "Traffic and latency")
+            Grid(class: "cols") {
+                Stack(class: "panel") {
+                    Text("Latency by week (ms)", class: "panel-title")
+                    Chart(kind: .line, data: report.weeks, x: "week", y: ["p50", "p95", "p99"], colors: ["#58e8bf", "#ff6a2b", "#d9b45a"], ink: "#949ba7", grid: "#1c2026", width: 300, height: 200)
+                }
+                Stack(class: "panel") {
+                    Text("Requests by week (billions)", class: "panel-title")
+                    Chart(kind: .area, data: report.weeks, x: "week", y: "requests", colors: ["#ff6a2b"], ink: "#949ba7", grid: "#1c2026", width: 300, height: 200)
+                }
+            }
+            Heading("Regions", class: "sub").h3
+            Table(class: "tbl") {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("Region")
+                        Table.Cell("City")
+                        Table.Cell("Status")
+                        Table.Cell("Requests (B)", class: "num")
+                        Table.Cell("p95", class: "num")
+                        Table.Cell("Errors", class: "num")
+                        Table.Cell("Uptime", class: "num")
+                    }
+                }
+                Table.Body {
+                    for r in report.regions {
+                        Table.Row {
+                            Table.Cell(r.code, class: ["hash"])
+                            Table.Cell(r.city, class: "strong")
+                            Table.Cell { Status(r.status) }
+                            Table.Cell("{r.requests}", class: "num")
+                            Table.Cell("{r.p95} ms", class: "num")
+                            Table.Cell("{r.errors}%", class: "num")
+                            Table.Cell("{r.uptime}%", class: "num")
+                        }
+                    }
+                }
+            }
+            Stack(class: "panel") {
+                style { margin-top: 14pt }
+                Text("p95 by region (ms)", class: "panel-title")
+                Chart(kind: .bar, data: report.regions, x: "code", y: "p95", colors: ["#ff6a2b"], ink: "#949ba7", grid: "#1c2026", height: 200)
+            }
+        }
+
+        // ─── 3 ─────────────────────────────────────────────────
+        Stack(class: "section") {
+            style { break-before: page }
+            SectionHead("03", title: "Deployments")
+            Text("The sixty-four most recent deploys to production. A deploy is one content-addressed build reaching every region at once; a rollback is a deploy of an older hash.", class: "secondary")
+            Table(class: "tbl") {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("Build")
+                        Table.Cell("Change")
+                        Table.Cell("Branch")
+                        Table.Cell("Author")
+                        Table.Cell("Took", class: "num")
+                        Table.Cell("Status")
+                        Table.Cell("When", class: "num")
+                    }
+                }
+                Table.Body {
+                    for d in report.deploys {
+                        Table.Row {
+                            Table.Cell(d.hash, class: "hash")
+                            Table.Cell(d.message, class: "strong")
+                            Table.Cell(d.branch, class: "mono")
+                            Table.Cell(d.author)
+                            Table.Cell(d.duration, class: "num")
+                            Table.Cell { Status(d.status) }
+                            Table.Cell(d.date, class: "num")
+                        }
+                    }
+                }
+            }
+        }
+
+        // ─── 4 ─────────────────────────────────────────────────
+        Stack(class: "section") {
+            SectionHead("04", title: "Incidents")
+            Grid(class: "cols") {
+                Stack {
+                    for inc in report.incidents {
+                        Row(class: "incident") {
+                            Stack(class: ["sev", "sev-{inc.severity}"]) { }
+                            Stack(class: "incident-body") {
+                                Text("{inc.id} · {inc.severity} · {inc.start} · {inc.duration}", class: "incident-meta")
+                                Text(inc.title, class: "incident-title")
+                                Text(inc.summary, class: "secondary")
+                            }
+                        }
+                    }
+                }
+                Stack(class: "panel") {
+                    Text("Causes this year", class: "panel-title")
+                    Chart(kind: .donut, data: report.causes, x: "cause", y: "count", colors: ["#ff6a2b", "#48b6ef", "#d9b45a", "#58e8bf"], ink: "#b9bec7", width: 300, height: 150, labels: true)
+                }
+            }
+        }
+
+        // ─── 5 ─────────────────────────────────────────────────
+        Stack(class: "section") {
+            SectionHead("05", title: "Configuration")
+            Text("Routing rules ship with the deploy, versioned with the code. This is the rule set in production at the end of the quarter.", class: "secondary")
+            Code("""
+                # halyard.toml — routing, as deployed in rl_4a91
+                [routing]
+                default = "nearest"
+
+                [[routing.rule]]
+                match  = { geo = { country = ["DE", "FR", "NL"] } }
+                region = "fra1"
+
+                [[routing.rule]]
+                match  = { header = { "x-canary" = "1" } }
+                build  = "8f2c41"
+                weight = 10
+
+                [kv]
+                leader      = "fra1"
+                replication = "async"
+                """).block
+        }
+
+        // ─── 6 ─────────────────────────────────────────────────
+        Stack(class: "section") {
+            SectionHead("06", title: "Plans and usage")
+            Grid(class: "plans") {
+                Stack(class: "plan") {
+                    Text("Hobby", class: "eyebrow")
+                    Text("$0", class: "plan-price")
+                    Text("100k requests a month", class: "muted")
+                    List { Text("All 19 regions")  Text("Atomic deploys")  Text("1 day of traces") }
+                }
+                Stack(class: ["plan", "plan-featured"]) {
+                    Text("Team · current plan", class: "eyebrow")
+                    Text("$0.40 / M", class: "plan-price")
+                    Text("requests, billed monthly", class: "muted")
+                    List { Text("Rollback by hash")  Text("8 concurrent builds")  Text("30-day traces") }
+                }
+                Stack(class: "plan") {
+                    Text("Enterprise", class: "eyebrow")
+                    Text("Custom", class: "plan-price")
+                    Text("committed volume", class: "muted")
+                    List { Text("Deploy approvals")  Text("Audit log")  Text("Dedicated support") }
+                }
+            }
+            Row(class: "closing") {
+                Stack(class: "qr") {
+                    QrCode("https://halyard.example.com/projects/storefront-edge/report/q3-2026", color: "#0b0c0e", background: "#f4f1ec")
+                }
+                Stack {
+                    Text("The live report", class: "eyebrow")
+                    Text("Scan for this report in the dashboard, with every chart drillable to the request.", class: "secondary")
+                    Link("halyard.example.com/projects/storefront-edge", to: "https://halyard.example.com/projects/storefront-edge")
+                }
+            }
+        }
+    }
+}

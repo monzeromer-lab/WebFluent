@@ -349,6 +349,13 @@ pub struct PdfConfig {
     pub default_font_size: f64,
     #[serde(default)]
     pub output_filename: Option<String>,
+    /// Font files or directories, beside the project's `fonts/`.
+    #[serde(default)]
+    pub fonts: Vec<String>,
+    /// Whether the machine's fonts may stand in for a family or a character
+    /// nothing in the project has.
+    #[serde(default = "default_true")]
+    pub system_fonts: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -413,6 +420,13 @@ pub struct SlidesConfig {
     pub chrome_color: Option<String>,
     #[serde(default)]
     pub output_filename: Option<String>,
+    /// Font files or directories, beside the project's `fonts/`.
+    #[serde(default)]
+    pub fonts: Vec<String>,
+    /// Whether the machine's fonts may stand in for a family or a character
+    /// nothing in the project has.
+    #[serde(default = "default_true")]
+    pub system_fonts: bool,
 }
 
 fn default_slide_size() -> String {
@@ -442,6 +456,8 @@ impl Default for SlidesConfig {
             background_color: None,
             chrome_color: None,
             output_filename: None,
+            fonts: Vec::new(),
+            system_fonts: true,
         }
     }
 }
@@ -454,6 +470,8 @@ impl Default for PdfConfig {
             default_font: default_font(),
             default_font_size: default_font_size(),
             output_filename: None,
+            fonts: Vec::new(),
+            system_fonts: true,
         }
     }
 }

@@ -45,7 +45,7 @@
 /// [`generate_css_with`](crate::codegen::generate_css_with) under
 /// [`BuiltinCss::Structural`](super::BuiltinCss::Structural).
 pub fn structural_css() -> &'static str {
-    r#"
+    concat!(r#"
 /* ─── Normalize ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -522,5 +522,6 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
    one is unreadable exactly when it is needed. */
 .wf-skip-link { position: absolute; inset-inline-start: 0.5rem; top: 0.5rem; transform: translateY(-200%); z-index: 10000; padding: 0.5rem 1rem; background: var(--color-background); color: var(--color-text); }
 .wf-skip-link:focus { transform: none; }
-"#
+
+"#, crate::paged_rules!())
 }

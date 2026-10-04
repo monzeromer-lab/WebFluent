@@ -1,0 +1,422 @@
+{
+ "lines": [
+  {
+   "n": 1,
+   "item": "Component library (Figma)",
+   "detail": "Change request CR-12",
+   "qty": 2,
+   "unit": "component",
+   "price": 160,
+   "amount": 320
+  },
+  {
+   "n": 2,
+   "item": "Illustration set",
+   "detail": "Sprint 4",
+   "qty": 1,
+   "unit": "illustration",
+   "price": 310,
+   "amount": 310
+  },
+  {
+   "n": 3,
+   "item": "Performance budget review",
+   "detail": "Sprint 6",
+   "qty": 1,
+   "unit": "day",
+   "price": 1100,
+   "amount": 1100
+  },
+  {
+   "n": 4,
+   "item": "Copy editing",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "hour",
+   "price": 85,
+   "amount": 85
+  },
+  {
+   "n": 5,
+   "item": "Wireframes, checkout flow",
+   "detail": "Sprint 4",
+   "qty": 1,
+   "unit": "screen",
+   "price": 220,
+   "amount": 220
+  },
+  {
+   "n": 6,
+   "item": "Front-end build, product pages",
+   "detail": "Sprint 4",
+   "qty": 8,
+   "unit": "day",
+   "price": 1180,
+   "amount": 9440
+  },
+  {
+   "n": 7,
+   "item": "Wireframes, checkout flow",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "screen",
+   "price": 220,
+   "amount": 220
+  },
+  {
+   "n": 8,
+   "item": "Front-end build, product pages",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "day",
+   "price": 1180,
+   "amount": 1180
+  },
+  {
+   "n": 9,
+   "item": "UX research interviews",
+   "detail": "Phase 2",
+   "qty": 3,
+   "unit": "session",
+   "price": 380,
+   "amount": 1140
+  },
+  {
+   "n": 10,
+   "item": "Illustration set",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "illustration",
+   "price": 310,
+   "amount": 310
+  },
+  {
+   "n": 11,
+   "item": "Copy editing",
+   "detail": "Sprint 4",
+   "qty": 8,
+   "unit": "hour",
+   "price": 85,
+   "amount": 680
+  },
+  {
+   "n": 12,
+   "item": "Wireframes, checkout flow",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "screen",
+   "price": 220,
+   "amount": 220
+  },
+  {
+   "n": 13,
+   "item": "Information architecture",
+   "detail": "Change request CR-12",
+   "qty": 4,
+   "unit": "day",
+   "price": 1250,
+   "amount": 5000
+  },
+  {
+   "n": 14,
+   "item": "Information architecture",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "day",
+   "price": 1250,
+   "amount": 1250
+  },
+  {
+   "n": 15,
+   "item": "Design system tokens",
+   "detail": "Sprint 4",
+   "qty": 2,
+   "unit": "day",
+   "price": 1300,
+   "amount": 2600
+  },
+  {
+   "n": 16,
+   "item": "Copy editing",
+   "detail": "Sprint 6",
+   "qty": 3,
+   "unit": "hour",
+   "price": 85,
+   "amount": 255
+  },
+  {
+   "n": 17,
+   "item": "UX research interviews",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "session",
+   "price": 380,
+   "amount": 380
+  },
+  {
+   "n": 18,
+   "item": "Discovery workshop",
+   "detail": "Change request CR-12",
+   "qty": 3,
+   "unit": "day",
+   "price": 1450,
+   "amount": 4350
+  },
+  {
+   "n": 19,
+   "item": "Illustration set",
+   "detail": "Sprint 6",
+   "qty": 8,
+   "unit": "illustration",
+   "price": 310,
+   "amount": 2480
+  },
+  {
+   "n": 20,
+   "item": "Accessibility audit (WCAG 2.2 AA)",
+   "detail": "Sprint 6",
+   "qty": 12,
+   "unit": "page",
+   "price": 95,
+   "amount": 1140
+  },
+  {
+   "n": 21,
+   "item": "Design system tokens",
+   "detail": "Sprint 5",
+   "qty": 3,
+   "unit": "day",
+   "price": 1300,
+   "amount": 3900
+  },
+  {
+   "n": 22,
+   "item": "Usability test round",
+   "detail": "Sprint 4",
+   "qty": 3,
+   "unit": "round",
+   "price": 2400,
+   "amount": 7200
+  },
+  {
+   "n": 23,
+   "item": "Copy editing",
+   "detail": "Change request CR-15",
+   "qty": 4,
+   "unit": "hour",
+   "price": 85,
+   "amount": 340
+  },
+  {
+   "n": 24,
+   "item": "Accessibility audit (WCAG 2.2 AA)",
+   "detail": "Phase 2",
+   "qty": 6,
+   "unit": "page",
+   "price": 95,
+   "amount": 570
+  },
+  {
+   "n": 25,
+   "item": "Accessibility audit (WCAG 2.2 AA)",
+   "detail": "Change request CR-15",
+   "qty": 4,
+   "unit": "page",
+   "price": 95,
+   "amount": 380
+  },
+  {
+   "n": 26,
+   "item": "UX research interviews",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "session",
+   "price": 380,
+   "amount": 380
+  },
+  {
+   "n": 27,
+   "item": "Front-end build, product pages",
+   "detail": "Sprint 6",
+   "qty": 2,
+   "unit": "day",
+   "price": 1180,
+   "amount": 2360
+  },
+  {
+   "n": 28,
+   "item": "Information architecture",
+   "detail": "Change request CR-12",
+   "qty": 12,
+   "unit": "day",
+   "price": 1250,
+   "amount": 15000
+  },
+  {
+   "n": 29,
+   "item": "Discovery workshop",
+   "detail": "Change request CR-15",
+   "qty": 1,
+   "unit": "day",
+   "price": 1450,
+   "amount": 1450
+  },
+  {
+   "n": 30,
+   "item": "Copy editing",
+   "detail": "Sprint 6",
+   "qty": 6,
+   "unit": "hour",
+   "price": 85,
+   "amount": 510
+  },
+  {
+   "n": 31,
+   "item": "Usability test round",
+   "detail": "Change request CR-15",
+   "qty": 6,
+   "unit": "round",
+   "price": 2400,
+   "amount": 14400
+  },
+  {
+   "n": 32,
+   "item": "Accessibility audit (WCAG 2.2 AA)",
+   "detail": "Sprint 4",
+   "qty": 12,
+   "unit": "page",
+   "price": 95,
+   "amount": 1140
+  },
+  {
+   "n": 33,
+   "item": "UX research interviews",
+   "detail": "Change request CR-12",
+   "qty": 4,
+   "unit": "session",
+   "price": 380,
+   "amount": 1520
+  },
+  {
+   "n": 34,
+   "item": "Usability test round",
+   "detail": "Sprint 4",
+   "qty": 1,
+   "unit": "round",
+   "price": 2400,
+   "amount": 2400
+  },
+  {
+   "n": 35,
+   "item": "Usability test round",
+   "detail": "Phase 2",
+   "qty": 4,
+   "unit": "round",
+   "price": 2400,
+   "amount": 9600
+  },
+  {
+   "n": 36,
+   "item": "Copy editing",
+   "detail": "Sprint 6",
+   "qty": 12,
+   "unit": "hour",
+   "price": 85,
+   "amount": 1020
+  },
+  {
+   "n": 37,
+   "item": "Usability test round",
+   "detail": "Phase 2",
+   "qty": 8,
+   "unit": "round",
+   "price": 2400,
+   "amount": 19200
+  },
+  {
+   "n": 38,
+   "item": "Component library (Figma)",
+   "detail": "Change request CR-12",
+   "qty": 1,
+   "unit": "component",
+   "price": 160,
+   "amount": 160
+  },
+  {
+   "n": 39,
+   "item": "Component library (Figma)",
+   "detail": "Change request CR-15",
+   "qty": 2,
+   "unit": "component",
+   "price": 160,
+   "amount": 320
+  },
+  {
+   "n": 40,
+   "item": "UX research interviews",
+   "detail": "Sprint 4",
+   "qty": 12,
+   "unit": "session",
+   "price": 380,
+   "amount": 4560
+  },
+  {
+   "n": 41,
+   "item": "Wireframes, checkout flow",
+   "detail": "Sprint 5",
+   "qty": 4,
+   "unit": "screen",
+   "price": 220,
+   "amount": 880
+  },
+  {
+   "n": 42,
+   "item": "Usability test round",
+   "detail": "Change request CR-12",
+   "qty": 3,
+   "unit": "round",
+   "price": 2400,
+   "amount": 7200
+  },
+  {
+   "n": 43,
+   "item": "Front-end build, product pages",
+   "detail": "Sprint 4",
+   "qty": 12,
+   "unit": "day",
+   "price": 1180,
+   "amount": 14160
+  },
+  {
+   "n": 44,
+   "item": "Information architecture",
+   "detail": "Change request CR-12",
+   "qty": 12,
+   "unit": "day",
+   "price": 1250,
+   "amount": 15000
+  },
+  {
+   "n": 45,
+   "item": "Performance budget review",
+   "detail": "Sprint 5",
+   "qty": 4,
+   "unit": "day",
+   "price": 1100,
+   "amount": 4400
+  },
+  {
+   "n": 46,
+   "item": "Front-end build, product pages",
+   "detail": "Phase 2",
+   "qty": 4,
+   "unit": "day",
+   "price": 1180,
+   "amount": 4720
+  }
+ ],
+ "subtotal": 165450,
+ "discount": 8272,
+ "tax": 13753,
+ "total": 170931
+}

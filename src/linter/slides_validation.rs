@@ -2,7 +2,7 @@
 //! interactive/web-only components (same list PDF rejects, plus a few extras
 //! that don't fit the slides model like `Header`/`Footer`).
 
-use super::pdf_validation::REJECTED_COMPONENTS;
+use super::pdf_validation::drawn_in_pdf;
 use crate::parser::{Arg, ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
 
 const SLIDE_KINDS: &[&str] = &[
@@ -215,7 +215,7 @@ fn validate_inside_slide(
                         });
                         continue;
                     }
-                    if REJECTED_COMPONENTS.contains(&name.as_str()) {
+                    if !drawn_in_pdf(&name) {
                         errors.push(SlidesValidationError {
                             decl,
                             span: ui.span,

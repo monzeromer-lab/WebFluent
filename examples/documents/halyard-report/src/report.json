@@ -1,0 +1,902 @@
+{
+ "regions": [
+  {
+   "code": "fra1",
+   "city": "Frankfurt",
+   "p95": 34,
+   "requests": 3.29,
+   "errors": 0.012,
+   "status": "operational",
+   "uptime": 99.992
+  },
+  {
+   "code": "iad1",
+   "city": "Ashburn",
+   "p95": 41,
+   "requests": 1.54,
+   "errors": 0.069,
+   "status": "operational",
+   "uptime": 99.996
+  },
+  {
+   "code": "cdg1",
+   "city": "Paris",
+   "p95": 36,
+   "requests": 4.35,
+   "errors": 0.017,
+   "status": "operational",
+   "uptime": 99.994
+  },
+  {
+   "code": "sfo1",
+   "city": "San Francisco",
+   "p95": 52,
+   "requests": 0.73,
+   "errors": 0.027,
+   "status": "operational",
+   "uptime": 99.995
+  },
+  {
+   "code": "gru1",
+   "city": "São Paulo",
+   "p95": 148,
+   "requests": 0.71,
+   "errors": 0.42,
+   "status": "degraded",
+   "uptime": 99.95
+  },
+  {
+   "code": "hnd1",
+   "city": "Tokyo Haneda",
+   "p95": 61,
+   "requests": 1.44,
+   "errors": 0.062,
+   "status": "operational",
+   "uptime": 99.995
+  },
+  {
+   "code": "syd1",
+   "city": "Sydney",
+   "p95": 74,
+   "requests": 1.53,
+   "errors": 0.057,
+   "status": "operational",
+   "uptime": 99.997
+  },
+  {
+   "code": "bom1",
+   "city": "Mumbai",
+   "p95": 88,
+   "requests": 0.63,
+   "errors": 0.074,
+   "status": "operational",
+   "uptime": 99.996
+  },
+  {
+   "code": "jnb1",
+   "city": "Johannesburg",
+   "p95": 96,
+   "requests": 2.03,
+   "errors": 0.022,
+   "status": "operational",
+   "uptime": 99.999
+  },
+  {
+   "code": "arn1",
+   "city": "Stockholm",
+   "p95": 44,
+   "requests": 2.01,
+   "errors": 0.017,
+   "status": "operational",
+   "uptime": 99.991
+  },
+  {
+   "code": "dub1",
+   "city": "Dublin",
+   "p95": 39,
+   "requests": 4.16,
+   "errors": 0.058,
+   "status": "operational",
+   "uptime": 99.997
+  },
+  {
+   "code": "sin1",
+   "city": "Singapore",
+   "p95": 67,
+   "requests": 3.66,
+   "errors": 0.053,
+   "status": "operational",
+   "uptime": 99.999
+  },
+  {
+   "code": "yyz1",
+   "city": "Toronto",
+   "p95": 45,
+   "requests": 2.19,
+   "errors": 0.054,
+   "status": "operational",
+   "uptime": 99.997
+  },
+  {
+   "code": "icn1",
+   "city": "Seoul",
+   "p95": 63,
+   "requests": 3.2,
+   "errors": 0.079,
+   "status": "operational",
+   "uptime": 99.995
+  },
+  {
+   "code": "cpt1",
+   "city": "Cape Town",
+   "p95": 104,
+   "requests": 3.56,
+   "errors": 0.014,
+   "status": "operational",
+   "uptime": 99.992
+  },
+  {
+   "code": "lhr1",
+   "city": "London",
+   "p95": 34,
+   "requests": 1.82,
+   "errors": 0.016,
+   "status": "operational",
+   "uptime": 99.992
+  },
+  {
+   "code": "ams1",
+   "city": "Amsterdam",
+   "p95": 35,
+   "requests": 1.02,
+   "errors": 0.032,
+   "status": "operational",
+   "uptime": 99.996
+  },
+  {
+   "code": "nrt1",
+   "city": "Tokyo Narita",
+   "p95": 59,
+   "requests": 2.13,
+   "errors": 0.04,
+   "status": "operational",
+   "uptime": 99.992
+  },
+  {
+   "code": "pdx1",
+   "city": "Portland",
+   "p95": 49,
+   "requests": 1.72,
+   "errors": 0.085,
+   "status": "operational",
+   "uptime": 99.996
+  }
+ ],
+ "weeks": [
+  {
+   "week": "W27",
+   "p50": 16.2,
+   "p95": 38.7,
+   "p99": 78.9,
+   "requests": 2.65
+  },
+  {
+   "week": "W28",
+   "p50": 15.1,
+   "p95": 36.0,
+   "p99": 75.4,
+   "requests": 2.81
+  },
+  {
+   "week": "W29",
+   "p50": 16.3,
+   "p95": 38.8,
+   "p99": 83.1,
+   "requests": 2.86
+  },
+  {
+   "week": "W30",
+   "p50": 16.8,
+   "p95": 40.1,
+   "p99": 87.9,
+   "requests": 2.88
+  },
+  {
+   "week": "W31",
+   "p50": 14.8,
+   "p95": 35.2,
+   "p99": 73.1,
+   "requests": 2.99
+  },
+  {
+   "week": "W32",
+   "p50": 15.2,
+   "p95": 36.3,
+   "p99": 81.6,
+   "requests": 3.23
+  },
+  {
+   "week": "W33",
+   "p50": 15.5,
+   "p95": 36.9,
+   "p99": 80.0,
+   "requests": 3.24
+  },
+  {
+   "week": "W34",
+   "p50": 17.0,
+   "p95": 40.5,
+   "p99": 85.6,
+   "requests": 3.32
+  },
+  {
+   "week": "W35",
+   "p50": 15.3,
+   "p95": 36.5,
+   "p99": 78.2,
+   "requests": 3.43
+  },
+  {
+   "week": "W36",
+   "p50": 16.2,
+   "p95": 38.5,
+   "p99": 85.8,
+   "requests": 3.57
+  },
+  {
+   "week": "W37",
+   "p50": 15.3,
+   "p95": 36.3,
+   "p99": 82.2,
+   "requests": 3.7
+  },
+  {
+   "week": "W38",
+   "p50": 14.9,
+   "p95": 35.5,
+   "p99": 71.1,
+   "requests": 3.73
+  },
+  {
+   "week": "W39",
+   "p50": 16.3,
+   "p95": 38.8,
+   "p99": 85.3,
+   "requests": 3.9
+  }
+ ],
+ "deploys": [
+  {
+   "hash": "2cce803",
+   "message": "Move image resize to workers",
+   "branch": "edge-cache",
+   "author": "barbara",
+   "duration": "66s",
+   "status": "rolled back",
+   "date": "2026-09-30 12:27"
+  },
+  {
+   "hash": "5e08539",
+   "message": "Move image resize to workers",
+   "branch": "rate-limits",
+   "author": "margaret",
+   "duration": "77s",
+   "status": "failed",
+   "date": "2026-09-30 13:48"
+  },
+  {
+   "hash": "50af03b",
+   "message": "Warm isolates before cutover",
+   "branch": "checkout-v2",
+   "author": "ada",
+   "duration": "99s",
+   "status": "failed",
+   "date": "2026-09-30 17:05"
+  },
+  {
+   "hash": "2f244f5",
+   "message": "Split checkout bundle",
+   "branch": "kv-migrate",
+   "author": "margaret",
+   "duration": "176s",
+   "status": "ready",
+   "date": "2026-09-29 20:46"
+  },
+  {
+   "hash": "69cbee3",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "edge-cache",
+   "author": "ada",
+   "duration": "188s",
+   "status": "ready",
+   "date": "2026-09-29 16:14"
+  },
+  {
+   "hash": "7021721",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "rate-limits",
+   "author": "margaret",
+   "duration": "109s",
+   "status": "failed",
+   "date": "2026-09-29 18:31"
+  },
+  {
+   "hash": "64f7fd6",
+   "message": "Add p99 alert on gru1",
+   "branch": "kv-migrate",
+   "author": "barbara",
+   "duration": "146s",
+   "status": "ready",
+   "date": "2026-09-28 14:29"
+  },
+  {
+   "hash": "131ca37",
+   "message": "Move image resize to workers",
+   "branch": "kv-migrate",
+   "author": "linus",
+   "duration": "146s",
+   "status": "ready",
+   "date": "2026-09-28 10:17"
+  },
+  {
+   "hash": "e72e310",
+   "message": "Drop legacy cookie parser",
+   "branch": "checkout-v2",
+   "author": "dennis",
+   "duration": "162s",
+   "status": "failed",
+   "date": "2026-09-28 15:13"
+  },
+  {
+   "hash": "c15c0c8",
+   "message": "Pin TLS ciphers for PCI",
+   "branch": "edge-cache",
+   "author": "dennis",
+   "duration": "180s",
+   "status": "failed",
+   "date": "2026-09-27 18:45"
+  },
+  {
+   "hash": "f469611",
+   "message": "Tighten cache keys on /api/cart",
+   "branch": "main",
+   "author": "frances",
+   "duration": "166s",
+   "status": "rolled back",
+   "date": "2026-09-27 16:10"
+  },
+  {
+   "hash": "125227c",
+   "message": "Split checkout bundle",
+   "branch": "checkout-v2",
+   "author": "ada",
+   "duration": "58s",
+   "status": "ready",
+   "date": "2026-09-27 14:42"
+  },
+  {
+   "hash": "a86a78c",
+   "message": "Add p99 alert on gru1",
+   "branch": "edge-cache",
+   "author": "frances",
+   "duration": "118s",
+   "status": "ready",
+   "date": "2026-09-26 20:59"
+  },
+  {
+   "hash": "20e3268",
+   "message": "Shard rate limiter by tenant",
+   "branch": "main",
+   "author": "margaret",
+   "duration": "132s",
+   "status": "ready",
+   "date": "2026-09-26 12:10"
+  },
+  {
+   "hash": "e909348",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "geo-routing",
+   "author": "linus",
+   "duration": "107s",
+   "status": "ready",
+   "date": "2026-09-26 12:38"
+  },
+  {
+   "hash": "6a68f81",
+   "message": "Compress HTML at the edge",
+   "branch": "edge-cache",
+   "author": "ada",
+   "duration": "38s",
+   "status": "ready",
+   "date": "2026-09-25 13:49"
+  },
+  {
+   "hash": "485ed03",
+   "message": "Bump runtime to 2.14",
+   "branch": "checkout-v2",
+   "author": "ada",
+   "duration": "132s",
+   "status": "ready",
+   "date": "2026-09-25 17:35"
+  },
+  {
+   "hash": "4d419b1",
+   "message": "Drop legacy cookie parser",
+   "branch": "geo-routing",
+   "author": "margaret",
+   "duration": "64s",
+   "status": "failed",
+   "date": "2026-09-25 13:49"
+  },
+  {
+   "hash": "d4755d0",
+   "message": "Shard rate limiter by tenant",
+   "branch": "kv-migrate",
+   "author": "margaret",
+   "duration": "106s",
+   "status": "ready",
+   "date": "2026-09-24 10:50"
+  },
+  {
+   "hash": "3c1f76e",
+   "message": "Drop legacy cookie parser",
+   "branch": "checkout-v2",
+   "author": "ada",
+   "duration": "87s",
+   "status": "ready",
+   "date": "2026-09-24 14:21"
+  },
+  {
+   "hash": "828bca0",
+   "message": "Warm isolates before cutover",
+   "branch": "checkout-v2",
+   "author": "ken",
+   "duration": "47s",
+   "status": "ready",
+   "date": "2026-09-24 09:38"
+  },
+  {
+   "hash": "dbad3c6",
+   "message": "Bump runtime to 2.14",
+   "branch": "kv-migrate",
+   "author": "ada",
+   "duration": "171s",
+   "status": "ready",
+   "date": "2026-09-23 20:34"
+  },
+  {
+   "hash": "6bd2aa3",
+   "message": "Warm isolates before cutover",
+   "branch": "rate-limits",
+   "author": "ken",
+   "duration": "142s",
+   "status": "rolled back",
+   "date": "2026-09-23 13:25"
+  },
+  {
+   "hash": "946dc59",
+   "message": "Tighten cache keys on /api/cart",
+   "branch": "edge-cache",
+   "author": "ken",
+   "duration": "91s",
+   "status": "ready",
+   "date": "2026-09-23 14:50"
+  },
+  {
+   "hash": "aeee6f5",
+   "message": "Warm isolates before cutover",
+   "branch": "rate-limits",
+   "author": "barbara",
+   "duration": "61s",
+   "status": "ready",
+   "date": "2026-09-22 20:15"
+  },
+  {
+   "hash": "9764017",
+   "message": "Split checkout bundle",
+   "branch": "main",
+   "author": "frances",
+   "duration": "144s",
+   "status": "failed",
+   "date": "2026-09-22 18:36"
+  },
+  {
+   "hash": "6cfc740",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "kv-migrate",
+   "author": "margaret",
+   "duration": "83s",
+   "status": "failed",
+   "date": "2026-09-22 20:44"
+  },
+  {
+   "hash": "e173e4e",
+   "message": "Move image resize to workers",
+   "branch": "rate-limits",
+   "author": "barbara",
+   "duration": "151s",
+   "status": "rolled back",
+   "date": "2026-09-21 17:52"
+  },
+  {
+   "hash": "de5fe87",
+   "message": "Warm isolates before cutover",
+   "branch": "rate-limits",
+   "author": "frances",
+   "duration": "99s",
+   "status": "failed",
+   "date": "2026-09-21 12:28"
+  },
+  {
+   "hash": "2978aa2",
+   "message": "Drop legacy cookie parser",
+   "branch": "kv-migrate",
+   "author": "linus",
+   "duration": "92s",
+   "status": "ready",
+   "date": "2026-09-21 09:26"
+  },
+  {
+   "hash": "daed16d",
+   "message": "Split checkout bundle",
+   "branch": "geo-routing",
+   "author": "ada",
+   "duration": "185s",
+   "status": "ready",
+   "date": "2026-09-20 14:30"
+  },
+  {
+   "hash": "0b9cd7f",
+   "message": "Compress HTML at the edge",
+   "branch": "kv-migrate",
+   "author": "ada",
+   "duration": "137s",
+   "status": "ready",
+   "date": "2026-09-20 13:42"
+  },
+  {
+   "hash": "c5e40c0",
+   "message": "Compress HTML at the edge",
+   "branch": "checkout-v2",
+   "author": "frances",
+   "duration": "84s",
+   "status": "ready",
+   "date": "2026-09-20 08:16"
+  },
+  {
+   "hash": "ca6eaac",
+   "message": "Compress HTML at the edge",
+   "branch": "edge-cache",
+   "author": "grace",
+   "duration": "158s",
+   "status": "ready",
+   "date": "2026-09-19 08:47"
+  },
+  {
+   "hash": "1b72107",
+   "message": "Tighten cache keys on /api/cart",
+   "branch": "rate-limits",
+   "author": "linus",
+   "duration": "99s",
+   "status": "ready",
+   "date": "2026-09-19 10:30"
+  },
+  {
+   "hash": "36e8b53",
+   "message": "Retry KV writes with backoff",
+   "branch": "edge-cache",
+   "author": "grace",
+   "duration": "186s",
+   "status": "rolled back",
+   "date": "2026-09-19 08:59"
+  },
+  {
+   "hash": "9cc6273",
+   "message": "Warm isolates before cutover",
+   "branch": "geo-routing",
+   "author": "grace",
+   "duration": "182s",
+   "status": "rolled back",
+   "date": "2026-09-18 20:02"
+  },
+  {
+   "hash": "bdb2a0d",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "kv-migrate",
+   "author": "barbara",
+   "duration": "155s",
+   "status": "rolled back",
+   "date": "2026-09-18 19:09"
+  },
+  {
+   "hash": "d58fed8",
+   "message": "Drop legacy cookie parser",
+   "branch": "main",
+   "author": "ken",
+   "duration": "153s",
+   "status": "ready",
+   "date": "2026-09-18 11:48"
+  },
+  {
+   "hash": "eca0fa5",
+   "message": "Shard rate limiter by tenant",
+   "branch": "edge-cache",
+   "author": "barbara",
+   "duration": "109s",
+   "status": "ready",
+   "date": "2026-09-17 17:44"
+  },
+  {
+   "hash": "80627df",
+   "message": "Drop legacy cookie parser",
+   "branch": "geo-routing",
+   "author": "frances",
+   "duration": "163s",
+   "status": "ready",
+   "date": "2026-09-17 15:50"
+  },
+  {
+   "hash": "0297c79",
+   "message": "Shard rate limiter by tenant",
+   "branch": "kv-migrate",
+   "author": "barbara",
+   "duration": "146s",
+   "status": "ready",
+   "date": "2026-09-17 19:35"
+  },
+  {
+   "hash": "abe8987",
+   "message": "Drop legacy cookie parser",
+   "branch": "edge-cache",
+   "author": "grace",
+   "duration": "175s",
+   "status": "ready",
+   "date": "2026-09-16 20:44"
+  },
+  {
+   "hash": "566f893",
+   "message": "Warm isolates before cutover",
+   "branch": "checkout-v2",
+   "author": "barbara",
+   "duration": "83s",
+   "status": "rolled back",
+   "date": "2026-09-16 12:00"
+  },
+  {
+   "hash": "481194f",
+   "message": "Tighten cache keys on /api/cart",
+   "branch": "rate-limits",
+   "author": "ken",
+   "duration": "158s",
+   "status": "ready",
+   "date": "2026-09-16 15:28"
+  },
+  {
+   "hash": "a518f32",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "rate-limits",
+   "author": "ada",
+   "duration": "76s",
+   "status": "ready",
+   "date": "2026-09-15 10:51"
+  },
+  {
+   "hash": "9273d7c",
+   "message": "Pin TLS ciphers for PCI",
+   "branch": "edge-cache",
+   "author": "dennis",
+   "duration": "116s",
+   "status": "ready",
+   "date": "2026-09-15 17:39"
+  },
+  {
+   "hash": "1366825",
+   "message": "Move image resize to workers",
+   "branch": "main",
+   "author": "linus",
+   "duration": "38s",
+   "status": "ready",
+   "date": "2026-09-15 14:28"
+  },
+  {
+   "hash": "f91799e",
+   "message": "Drop legacy cookie parser",
+   "branch": "edge-cache",
+   "author": "margaret",
+   "duration": "146s",
+   "status": "ready",
+   "date": "2026-09-14 09:34"
+  },
+  {
+   "hash": "7484215",
+   "message": "Split checkout bundle",
+   "branch": "geo-routing",
+   "author": "ken",
+   "duration": "150s",
+   "status": "rolled back",
+   "date": "2026-09-14 09:29"
+  },
+  {
+   "hash": "9c8fe21",
+   "message": "Bump runtime to 2.14",
+   "branch": "edge-cache",
+   "author": "ken",
+   "duration": "44s",
+   "status": "failed",
+   "date": "2026-09-14 09:14"
+  },
+  {
+   "hash": "0815fe8",
+   "message": "Split checkout bundle",
+   "branch": "kv-migrate",
+   "author": "frances",
+   "duration": "61s",
+   "status": "ready",
+   "date": "2026-09-13 15:22"
+  },
+  {
+   "hash": "daa35ad",
+   "message": "Warm isolates before cutover",
+   "branch": "geo-routing",
+   "author": "dennis",
+   "duration": "178s",
+   "status": "rolled back",
+   "date": "2026-09-13 08:29"
+  },
+  {
+   "hash": "2a8a3c0",
+   "message": "Move image resize to workers",
+   "branch": "kv-migrate",
+   "author": "dennis",
+   "duration": "51s",
+   "status": "ready",
+   "date": "2026-09-13 11:33"
+  },
+  {
+   "hash": "bfe1684",
+   "message": "Pin TLS ciphers for PCI",
+   "branch": "geo-routing",
+   "author": "frances",
+   "duration": "69s",
+   "status": "failed",
+   "date": "2026-09-12 08:40"
+  },
+  {
+   "hash": "7590d27",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "kv-migrate",
+   "author": "grace",
+   "duration": "77s",
+   "status": "failed",
+   "date": "2026-09-12 15:59"
+  },
+  {
+   "hash": "98dff7e",
+   "message": "Compress HTML at the edge",
+   "branch": "checkout-v2",
+   "author": "linus",
+   "duration": "55s",
+   "status": "ready",
+   "date": "2026-09-12 12:49"
+  },
+  {
+   "hash": "da8099f",
+   "message": "Pin TLS ciphers for PCI",
+   "branch": "rate-limits",
+   "author": "frances",
+   "duration": "126s",
+   "status": "failed",
+   "date": "2026-09-11 13:35"
+  },
+  {
+   "hash": "cea67c7",
+   "message": "Compress HTML at the edge",
+   "branch": "main",
+   "author": "barbara",
+   "duration": "159s",
+   "status": "failed",
+   "date": "2026-09-11 19:58"
+  },
+  {
+   "hash": "cc4f14a",
+   "message": "Pin TLS ciphers for PCI",
+   "branch": "main",
+   "author": "frances",
+   "duration": "41s",
+   "status": "failed",
+   "date": "2026-09-11 19:09"
+  },
+  {
+   "hash": "d42f8ac",
+   "message": "Shard rate limiter by tenant",
+   "branch": "geo-routing",
+   "author": "dennis",
+   "duration": "119s",
+   "status": "ready",
+   "date": "2026-09-10 18:45"
+  },
+  {
+   "hash": "f127972",
+   "message": "Route DE/FR/NL to fra1",
+   "branch": "geo-routing",
+   "author": "grace",
+   "duration": "151s",
+   "status": "ready",
+   "date": "2026-09-10 10:44"
+  },
+  {
+   "hash": "901a19b",
+   "message": "Retry KV writes with backoff",
+   "branch": "checkout-v2",
+   "author": "dennis",
+   "duration": "182s",
+   "status": "ready",
+   "date": "2026-09-10 18:50"
+  },
+  {
+   "hash": "5552c7f",
+   "message": "Retry KV writes with backoff",
+   "branch": "checkout-v2",
+   "author": "frances",
+   "duration": "103s",
+   "status": "failed",
+   "date": "2026-09-09 15:16"
+  }
+ ],
+ "incidents": [
+  {
+   "id": "INC-311",
+   "severity": "major",
+   "title": "Elevated 5xx in gru1",
+   "start": "2026-09-12 14:20",
+   "duration": "47 min",
+   "summary": "A saturated upstream link at the São Paulo edge raised p99 to 1.4 s and returned 5xx for 0.42% of requests. Traffic was shifted to iad1 within six minutes; the link was replaced by the carrier.",
+   "cause": "Network"
+  },
+  {
+   "id": "INC-298",
+   "severity": "minor",
+   "title": "Slow cold starts after runtime 2.14",
+   "start": "2026-08-27 09:05",
+   "duration": "2 h 10 min",
+   "summary": "Isolates were not pre-warmed after the runtime upgrade, adding 180 ms to first requests in seven regions. Fixed by warming before cutover (build 7d1e09).",
+   "cause": "Release"
+  },
+  {
+   "id": "INC-284",
+   "severity": "minor",
+   "title": "KV replication lag",
+   "start": "2026-08-03 22:40",
+   "duration": "31 min",
+   "summary": "Cross-region replication from the fra1 leader fell 9 s behind under a bulk import. Reads stayed in-region; writes queued and drained without loss.",
+   "cause": "Capacity"
+  },
+  {
+   "id": "INC-277",
+   "severity": "notice",
+   "title": "Dashboard login loop",
+   "start": "2026-07-19 11:15",
+   "duration": "18 min",
+   "summary": "A cookie with the wrong SameSite attribute sent some users back to the login page. No traffic was affected.",
+   "cause": "Release"
+  }
+ ],
+ "causes": [
+  {
+   "cause": "Release",
+   "count": 9
+  },
+  {
+   "cause": "Network",
+   "count": 4
+  },
+  {
+   "cause": "Capacity",
+   "count": 3
+  },
+  {
+   "cause": "Third party",
+   "count": 2
+  }
+ ]
+}

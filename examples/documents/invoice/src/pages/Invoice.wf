@@ -1,0 +1,109 @@
+data inv = "invoice.json"
+
+const STUDIO = "Meridian Studio"
+
+page Invoice(path: "/", title: "Invoice 2026-0417", description: "Invoice for design and build work.") {
+    Document(size: "Letter", title: "Invoice 2026-0417 — Meridian Studio", author: "Meridian Studio") {
+        Background(on: .first) { Stack(class: "band") { } }
+        Watermark("PAID")
+        Footer {
+            Row(class: "foot") {
+                Text("{STUDIO} · 1180 Harbor Row, Portland OR 97209 · billing@meridian.example")
+                Text("Invoice 2026-0417 · page {page} of {pages}")
+            }
+        }
+
+        Row(class: "letterhead") {
+            Row(class: "brand") {
+                Image(src: "/logo.svg", alt: "")
+                Stack(gap: .xs) {
+                    Text(STUDIO, class: "brand-name")
+                    Text("Product design and engineering", class: "brand-tag")
+                }
+            }
+            Stack(class: "title") {
+                Heading("Invoice").h1
+                Text("No. 2026-0417", class: "number")
+            }
+        }
+
+        Grid(class: "parties") {
+            Stack(class: "party") {
+                Text("From", class: "label")
+                Text(STUDIO, class: "strong")
+                Text("1180 Harbor Row, Suite 4")
+                Text("Portland, OR 97209")
+                Text("EIN 84-1209337")
+            }
+            Stack(class: "party") {
+                Text("Bill to", class: "label")
+                Text("Northwind Outfitters, Inc.", class: "strong")
+                Text("Attn. Accounts Payable")
+                Text("88 Mercer Street, 6th floor")
+                Text("New York, NY 10012")
+            }
+            Stack(class: "meta") {
+                Row(class: "meta-row") { Text("Issued")  Text("Sep 30, 2026") }
+                Row(class: "meta-row") { Text("Terms")  Text("Net 30") }
+                Row(class: "meta-row") { Text("PO")  Text("NW-55102", class: "mono") }
+                Row(class: "meta-row") { Text("Due")  Text("Oct 30, 2026", class: "due") }
+            }
+        }
+
+        Table(class: "items") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("#", class: "num")
+                    Table.Cell("Description")
+                    Table.Cell("Qty", class: "num")
+                    Table.Cell("Unit")
+                    Table.Cell("Rate", class: "num")
+                    Table.Cell("Amount", class: "num")
+                }
+            }
+            Table.Body {
+                for l in inv.lines {
+                    Table.Row {
+                        Table.Cell("{l.n}", class: "num")
+                        Table.Cell {
+                            Text(l.item, class: "strong")
+                            Text(l.detail, class: "muted")
+                        }
+                        Table.Cell("{l.qty}", class: "num")
+                        Table.Cell(l.unit)
+                        Table.Cell(format(l.price, .currency), class: "num")
+                        Table.Cell(format(l.amount, .currency), class: "num")
+                    }
+                }
+            }
+        }
+
+        Row(class: "summary") {
+            Stack(class: "notes") {
+                Text("Notes", class: "label")
+                Text("Thank you for a third season together. Sprint 6 closed the accessibility findings from the August audit; the remaining two items are tracked as CR-15 and are not billed here.")
+                Text("Payment within 30 days of issue. A late balance accrues 1% a month from the due date.")
+            }
+            Stack(class: "totals") {
+                Row(class: "totals-row") { Text("Subtotal")  Text(format(inv.subtotal, .currency)) }
+                Row(class: "totals-row") { Text("Returning-client discount (5%)")  Text("−{format(inv.discount, .currency)}") }
+                Row(class: "totals-row") { Text("Sales tax (8.75%)")  Text(format(inv.tax, .currency)) }
+                Row(class: ["totals-row", "grand"]) { Text("Total due")  Text(format(inv.total, .currency)) }
+            }
+        }
+
+        Row(class: "pay") {
+            Stack(class: "qr") { QrCode("https://pay.meridian.example/i/2026-0417") }
+            Stack(gap: .sm) {
+                Text("Pay online or by transfer", class: "label")
+                Text("Scan to pay by card or ACH, or transfer to the account below with the invoice number as the reference.")
+                Grid(class: "bank") {
+                    Text("Bank")  Text("First Columbia Trust")
+                    Text("Account")  Text("4402 1187 9930", class: "mono")
+                    Text("Routing")  Text("123 000 220", class: "mono")
+                    Text("Reference")  Text("2026-0417", class: "mono")
+                }
+            }
+        }
+    }
+}

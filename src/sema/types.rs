@@ -772,6 +772,8 @@ struct Checker<'a, 'p> {
     /// How many handlers enclose what is being checked: `event` (`e`),
     /// and `value` and `key`, are names only there.
     in_handler: usize,
+    /// Inside a `Header` or `Footer`: `page` and `pages` are names there.
+    in_running: usize,
     /// The states whose declared type says what their values must be —
     /// `Number(1..=30)` — held to it at every assignment, not only the
     /// first.
@@ -811,6 +813,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             async_ok: false,
             in_derived: false,
             in_handler: 0,
+            in_running: 0,
             refined: HashMap::new(),
             non_empty: Vec::new(),
             in_chain: false,
@@ -2236,7 +2239,12 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.statements(&fill.body, Body::Page);
             self.pop_scope();
         }
+        // Inside a paged document's running element, `page` and `pages`
+        // are the number of the page it is drawn on and the count.
+        let running = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Header" || n == "Footer");
+        self.in_running += running as usize;
         self.statements(&el.children, Body::Page);
+        self.in_running -= running as usize;
     }
 
     /// The arguments of a call to a user component, against its props.
@@ -4589,6 +4597,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         crate::codegen::js::BROWSER_GLOBALS.contains(&name)
             || crate::codegen::js::BROWSER_VALUES.contains(&name)
             || (self.in_handler > 0 && matches!(name, "event" | "e" | "value" | "key"))
+            || (self.in_running > 0 && matches!(name, "page" | "pages"))
             || matches!(
                 name,
                 "params"

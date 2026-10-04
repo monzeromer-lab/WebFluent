@@ -1,0 +1,19 @@
+{
+  "name": "resume",
+  "version": "1.0.0",
+  "theme": { "name": "Ink" },
+  "build": {
+    "output": "./build",
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "A4",
+      "margins": { "top": 40, "bottom": 40, "left": 0, "right": 0 },
+      "default_font": "Noto Sans Arabic",
+      "default_font_size": 9.5,
+      "output_filename": "resume-ar.pdf",
+      "fonts": ["../fonts"],
+      "system_fonts": true
+    }
+  },
+  "meta": { "lang": "ar" }
+}

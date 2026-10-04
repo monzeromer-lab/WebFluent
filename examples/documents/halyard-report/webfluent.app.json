@@ -1,0 +1,19 @@
+{
+  "name": "halyard-report",
+  "version": "1.0.0",
+  "theme": { "name": "FluantInk", "builtin": "structural" },
+  "build": {
+    "output": "./build",
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "A4",
+      "margins": { "top": 64, "bottom": 60, "left": 48, "right": 48 },
+      "default_font": "Manrope",
+      "default_font_size": 9.5,
+      "output_filename": "halyard-q3-2026.pdf",
+      "fonts": ["../fonts"],
+      "system_fonts": false
+    }
+  },
+  "meta": { "lang": "en" }
+}

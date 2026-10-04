@@ -3,8 +3,6 @@ use crate::codegen::builtin::{
     layout_arg_classes,
 };
 use crate::codegen::css::generate_css;
-use crate::codegen::pdf::PdfCodegen;
-use crate::codegen::slides::SlidesCodegen;
 use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::error::{Result, WebFluentError};
 use crate::parser::ast::{ArmPattern, ForStmt, IfStmt, PropDecl};
@@ -73,6 +71,9 @@ pub struct Template {
     lang: String,
     pdf: PdfConfig,
     slides: SlidesConfig,
+    /// Where the template's files are: what an image's address and the
+    /// `fonts/` directory are read from.
+    root: Option<std::path::PathBuf>,
 }
 
 // `Template::from_str` is documented public API used throughout the README and
@@ -275,6 +276,7 @@ impl Template {
             lang: "en".to_string(),
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
+            root: root.map(|r| r.to_path_buf()),
         })
     }
 
@@ -538,49 +540,55 @@ impl Template {
     /// Returns a valid PDF file as `Vec<u8>`. Write the result to a file
     /// or send it as an HTTP response with `Content-Type: application/pdf`.
     ///
-    /// Lays out with A4 and 72pt margins unless [`with_pdf`](Template::with_pdf)
-    /// says otherwise. The template should use PDF-compatible components only
-    /// (no `Button`, `Input`, `Router`, etc.).
+    /// The PDF is the page [`render_html`](Template::render_html) draws,
+    /// laid out on paper: flex and grid, the theme's tokens, embedded fonts
+    /// (the template's `fonts/` directory, then Liberation, built in), and
+    /// pictures read from beside the template. A4 with 72pt margins unless
+    /// [`with_pdf`](Template::with_pdf) says otherwise.
     pub fn render_pdf<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
-        let resolved = self.resolve_program(&self.drawn(), &to_value(data)?)?;
-        let mut pdf = PdfCodegen::new(&self.pdf);
-        Ok(pdf.generate(&resolved))
+        Ok(self.render_pdf_with_notes(data)?.0)
+    }
+
+    /// [`render_pdf`](Template::render_pdf), with what the reader of the
+    /// render should know: a character no font had, a font taken from this
+    /// machine rather than the template's.
+    pub fn render_pdf_with_notes<T: Serialize + ?Sized>(&self, data: &T) -> Result<(Vec<u8>, Vec<String>)> {
+        let data = to_value(data)?;
+        let html = self.paged_document(&data)?;
+        let read = crate::paged::reader(self.root.clone());
+        let options = crate::paged::Options::from_pdf(&self.pdf, &read, self.root.as_deref());
+        let out = crate::paged::render(&html, "", &options).map_err(WebFluentError::CodegenError)?;
+        Ok((out.bytes, out.notes))
     }
 
     /// Render to a PDF slide deck as raw bytes.
     ///
     /// One `Slide` (or layout variant) per page, no flow pagination. The template
     /// must wrap its slides in a `Presentation { ... }` block; content that overflows
-    /// a slide is clipped and a stderr warning is emitted.
+    /// a slide is clipped and noted.
     ///
     /// Uses 16:9 (960×540pt) unless [`with_slides`](Template::with_slides) says
-    /// otherwise. The template should use slide-compatible components only.
+    /// otherwise.
     pub fn render_slides<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
-        let resolved = self.resolve_program(&self.drawn(), &to_value(data)?)?;
-        let mut slides = SlidesCodegen::new(&self.slides);
-        Ok(slides.generate(&resolved))
+        let data = to_value(data)?;
+        let html = self.paged_document(&data)?;
+        let read = crate::paged::reader(self.root.clone());
+        let (options, chrome) = crate::paged::Options::from_slides(&self.slides, &read, self.root.as_deref());
+        let out = crate::paged::render_slides(&html, "", &options, &chrome).map_err(WebFluentError::CodegenError)?;
+        Ok(out.bytes)
     }
 
-    /// Resolve all data references in the program for PDF rendering.
-    fn resolve_program(&self, program: &Program, data: &Value) -> Result<Program> {
-        let ctx = RenderContext::for_program(program, data);
-        let mut new_decls = Vec::new();
-
-        for decl in &program.declarations {
-            match decl {
-                Declaration::Page(page) => {
-                    let mut new_page = page.clone();
-                    new_page.body = resolve_statements(&page.body, &ctx);
-                    new_decls.push(Declaration::Page(new_page));
-                }
-                other => new_decls.push(other.clone()),
-            }
-        }
-
-        Ok(Program {
-            declarations: new_decls,
-        })
+    /// The document a paged output lays out: the page's markup with its
+    /// stylesheet, `page` and `pages` marked in running elements.
+    fn paged_document(&self, data: &Value) -> Result<String> {
+        let fragment = crate::template::render_program_paged(&self.drawn(), data)?;
+        let css = self.stylesheet()?;
+        let title = html_escape(&self.title(data));
+        let lang = html_escape(&self.lang);
+        let dir = if is_rtl(&self.lang) { " dir=\"rtl\"" } else { "" };
+        Ok(format!("<!DOCTYPE html><html lang=\"{lang}\"{dir}><head><title>{title}</title><style>{css}</style></head><body>{fragment}</body></html>"))
     }
+
 }
 
 /// `data` as the JSON value the renderers read.
@@ -592,7 +600,21 @@ fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
 /// The HTML fragment of every page of a lowered program, over `data`:
 /// what a template renders, and what `wf test` holds a test to.
 pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
+    render_program(program, data, false)
+}
+
+/// The markup a paged output lays out: as [`render_program_fragment`], with
+/// `page` and `pages` in a running element written as the marks each page
+/// replaces with its number.
+pub fn render_program_paged(program: &Program, data: &Value) -> Result<String> {
+    render_program(program, data, true)
+}
+
+fn render_program(program: &Program, data: &Value, paged: bool) -> Result<String> {
     let mut ctx = RenderContext::for_program(program, data);
+    if paged {
+        ctx.locals.insert(PAGED.to_string(), Value::Bool(true));
+    }
 
     let mut html = String::new();
     for decl in &program.declarations {
@@ -1302,6 +1324,9 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     // Special handling. These build their tag inline, so they carry the author's
     // `style { }` block themselves — returning early used to drop it.
     let style_attr = style_block_attr(ui, ctx);
+    if let Some(html) = render_paged(name, ui, ctx, &class_str, &style_attr) {
+        return html;
+    }
     match name {
         "Spacer" | "Spinner" => {
             return format!(
@@ -1727,6 +1752,281 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
     classes
 }
 
+/// Whether a language is written right to left.
+pub fn is_rtl(lang: &str) -> bool {
+    matches!(lang.split(['-', '_']).next(), Some("ar" | "he" | "fa" | "ur" | "ps" | "yi" | "dv" | "ku"))
+}
+
+/// A local only a paged render sets: inside a running element, `page` and
+/// `pages` are the marks the engine replaces on each page.
+const PAGED: &str = "\u{0}paged";
+
+/// A `Chart`'s arguments, read from the data.
+fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::codegen::charts::Chart {
+    use crate::codegen::charts::{Chart, Kind};
+    let mut c = Chart::default();
+    for arg in &ui.args {
+        let Arg::Named(key, expr) = arg else { continue };
+        let v = ctx.eval_expr(expr);
+        let text = || value_to_string(&v).trim_start_matches('.').to_string();
+        match key.as_str() {
+            "kind" | "type" => c.kind = Kind::parse(&text()),
+            "data" => c.data = match &v { Value::Array(a) => a.clone(), _ => Vec::new() },
+            "x" => c.x = Some(text()),
+            "y" => {
+                c.y = match &v {
+                    Value::Array(a) => a.iter().map(value_to_string).collect(),
+                    _ => vec![text()],
+                }
+            }
+            "colors" => {
+                if let Value::Array(a) = &v {
+                    c.colors = a.iter().map(value_to_string).collect();
+                }
+            }
+            "width" => c.width = v.as_f64().unwrap_or(c.width),
+            "height" => c.height = v.as_f64().unwrap_or(c.height),
+            "ink" => c.ink = text(),
+            "grid" => c.grid = text(),
+            "legend" => c.legend = is_truthy(&v),
+            "stacked" => c.stacked = is_truthy(&v),
+            "labels" => c.labels = is_truthy(&v),
+            "unit" => c.unit = text(),
+            _ => {}
+        }
+    }
+    for m in &ui.modifiers {
+        match m.as_str() {
+            "bar" | "line" | "area" | "pie" | "donut" => c.kind = Kind::parse(m),
+            "stacked" => c.stacked = true,
+            "labels" => c.labels = true,
+            _ => {}
+        }
+    }
+    c
+}
+
+/// The paged and slide elements: their markup, with what the engine reads
+/// from it as attributes. `None` for any other element.
+fn render_paged(name: &str, ui: &UIElement, ctx: &mut RenderContext, class_str: &str, style_attr: &str) -> Option<String> {
+    let named = |ctx: &mut RenderContext, key: &str| -> Option<String> {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == key => {
+                let v = ctx.eval_expr(v);
+                match v {
+                    Value::Null | Value::Bool(false) => None,
+                    Value::Bool(true) => Some(String::new()),
+                    other => Some(value_to_string(&other)),
+                }
+            }
+            _ => None,
+        })
+    };
+    let positional = |ctx: &mut RenderContext| -> Option<String> {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Positional(e) => Some(value_to_string(&ctx.eval_expr(e))),
+            _ => None,
+        })
+    };
+    // `.case` values arrive as their name.
+    let case = |s: String| s.trim_start_matches('.').to_string();
+    let indent = ctx.indent_str();
+    let open = |ctx: &mut RenderContext, tag: &str, attrs: Vec<(String, String)>| -> String {
+        let mut a = String::new();
+        if !class_str.is_empty() {
+            a.push_str(&format!(" class=\"{}\"", class_str));
+        }
+        for (k, v) in attrs {
+            a.push_str(&format!(" {k}=\"{}\"", html_escape(&v)));
+        }
+        let _ = ctx;
+        format!("{indent}<{tag}{a}{style_attr}>\n")
+    };
+    let children = |ctx: &mut RenderContext| -> String {
+        ctx.indent += 1;
+        let html = render_statements(&ui.children, ctx);
+        ctx.indent -= 1;
+        html
+    };
+    let modifier = |m: &str| ui.modifiers.iter().any(|x| x == m);
+    match name {
+        "Document" => {
+            let mut attrs = Vec::new();
+            for (key, attr) in [
+                ("size", "data-size"),
+                ("page_size", "data-size"),
+                ("pageSize", "data-size"),
+                ("margin", "data-margin"),
+                ("title", "data-title"),
+                ("author", "data-author"),
+                ("subject", "data-subject"),
+                ("keywords", "data-keywords"),
+                ("lang", "data-lang"),
+            ] {
+                if let Some(v) = named(ctx, key) {
+                    attrs.push((attr.to_string(), case(v)));
+                }
+            }
+            if modifier("landscape") || named(ctx, "landscape").is_some() {
+                attrs.push(("data-landscape".to_string(), "true".to_string()));
+            }
+            // A document in a right-to-left language reads right to left.
+            if let Some(lang) = named(ctx, "lang") {
+                if is_rtl(&lang) {
+                    attrs.push(("dir".to_string(), "rtl".to_string()));
+                }
+                attrs.push(("lang".to_string(), lang));
+            }
+            let mut out = open(ctx, "div", attrs);
+            out.push_str(&children(ctx));
+            out.push_str(&format!("{indent}</div>\n"));
+            Some(out)
+        }
+        "Header" | "Footer" | "Background" => {
+            let tag = match name {
+                "Header" => "header",
+                "Footer" => "footer",
+                _ => "div",
+            };
+            let mut attrs = Vec::new();
+            if let Some(on) = named(ctx, "on") {
+                attrs.push(("data-on".to_string(), case(on)));
+            }
+            let paged = ctx.locals.contains_key(PAGED);
+            let saved = paged.then(|| {
+                (
+                    ctx.locals.insert("page".to_string(), Value::String('\u{F8F0}'.to_string())),
+                    ctx.locals.insert("pages".to_string(), Value::String('\u{F8F1}'.to_string())),
+                )
+            });
+            let mut out = open(ctx, tag, attrs);
+            out.push_str(&children(ctx));
+            out.push_str(&format!("{indent}</{tag}>\n"));
+            if let Some((page, pages)) = saved {
+                for (k, old) in [("page", page), ("pages", pages)] {
+                    match old {
+                        Some(v) => ctx.locals.insert(k.to_string(), v),
+                        None => ctx.locals.remove(k),
+                    };
+                }
+            }
+            Some(out)
+        }
+        "Watermark" => {
+            let mut attrs = Vec::new();
+            if let Some(on) = named(ctx, "on") {
+                attrs.push(("data-on".to_string(), case(on)));
+            }
+            let text = positional(ctx).unwrap_or_default();
+            Some(format!("{}{}</div>\n", open(ctx, "div", attrs).trim_end_matches('\n'), html_escape(&text)))
+        }
+        "PageBreak" => Some(format!("{indent}<div class=\"wf-page-break\"{style_attr}></div>\n")),
+        "Chart" => {
+            let chart = chart_of(ui, ctx);
+            let mut out = open(ctx, "figure", Vec::new());
+            out.push_str(&chart.svg());
+            out.push_str(&format!("\n{indent}</figure>\n"));
+            Some(out)
+        }
+        "QrCode" => {
+            let value = positional(ctx).or_else(|| named(ctx, "value")).unwrap_or_default();
+            let dark = named(ctx, "color").unwrap_or_else(|| "#000000".to_string());
+            let light = named(ctx, "background").unwrap_or_else(|| "#ffffff".to_string());
+            let svg = crate::codegen::charts::qr_svg(&value, &dark, &light).unwrap_or_default();
+            let mut out = open(ctx, "figure", Vec::new());
+            out.push_str(&svg);
+            out.push_str(&format!("\n{indent}</figure>\n"));
+            Some(out)
+        }
+        "TableOfContents" => {
+            // The engine fills it in: it alone knows the page each heading
+            // lands on.
+            let levels = named(ctx, "levels").unwrap_or_else(|| "3".to_string());
+            let title = named(ctx, "title");
+            let mut out = open(ctx, "nav", vec![("data-levels".to_string(), levels)]);
+            if let Some(t) = title {
+                out.push_str(&format!("{indent}  <h2 class=\"wf-toc__title\">{}</h2>\n", html_escape(&t)));
+            }
+            out.push_str(&format!("{indent}</nav>\n"));
+            Some(out)
+        }
+        "Avatar" => {
+            let initials = named(ctx, "initials").unwrap_or_default();
+            let mut out = open(ctx, "div", Vec::new());
+            if let Some(src) = named(ctx, "src") {
+                let alt = named(ctx, "alt").unwrap_or_default();
+                let src = crate::codegen::url::guard(&src).to_string();
+                out.push_str(&format!("{indent}  <img src=\"{}\" alt=\"{}\">\n", html_escape(&src), html_escape(&alt)));
+            } else {
+                out.push_str(&format!("{indent}  {}\n", html_escape(&initials)));
+            }
+            out.push_str(&format!("{indent}</div>\n"));
+            Some(out)
+        }
+        "List" => {
+            // Each child is an item: one written as `List.Item` is one
+            // already, anything else is wrapped in one.
+            let tag = if modifier("ordered") { "ol" } else { "ul" };
+            let mut out = open(ctx, tag, Vec::new());
+            ctx.indent += 1;
+            for child in &ui.children {
+                let is_item = matches!(&child.kind, StatementKind::UIElement(c) if matches!(&c.component, ComponentRef::SubComponent(o, s) if o == "List" && s == "Item"));
+                let html = render_statements(std::slice::from_ref(child), ctx);
+                if is_item || html.trim().is_empty() {
+                    out.push_str(&html);
+                } else {
+                    out.push_str(&format!("{}<li class=\"wf-list__item\">\n{}{}</li>\n", ctx.indent_str(), html, ctx.indent_str()));
+                }
+            }
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</{tag}>\n"));
+            Some(out)
+        }
+        "Presentation" => {
+            let mut out = open(ctx, "div", Vec::new());
+            out.push_str(&children(ctx));
+            out.push_str(&format!("{indent}</div>\n"));
+            Some(out)
+        }
+        "Slide" | "TwoColumn" => {
+            let mut out = open(ctx, "section", Vec::new());
+            out.push_str(&children(ctx));
+            out.push_str(&format!("{indent}</section>\n"));
+            Some(out)
+        }
+        "TitleSlide" => {
+            let title = positional(ctx).unwrap_or_default();
+            let subtitle = named(ctx, "subtitle");
+            let mut out = open(ctx, "section", Vec::new());
+            out.push_str(&format!("{indent}  <h1 class=\"wf-slide__title\">{}</h1>\n", html_escape(&title)));
+            if let Some(sub) = subtitle {
+                out.push_str(&format!("{indent}  <p class=\"wf-slide__subtitle\">{}</p>\n", html_escape(&sub)));
+            }
+            out.push_str(&format!("{indent}</section>\n"));
+            Some(out)
+        }
+        "SectionSlide" => {
+            let label = positional(ctx).unwrap_or_default();
+            let mut out = open(ctx, "section", Vec::new());
+            out.push_str(&format!("{indent}  <h2 class=\"wf-slide__label\">{}</h2>\n", html_escape(&label)));
+            out.push_str(&format!("{indent}</section>\n"));
+            Some(out)
+        }
+        "ImageSlide" => {
+            let src = named(ctx, "src").map(|s| crate::codegen::url::guard(&s).to_string()).unwrap_or_default();
+            let caption = named(ctx, "caption");
+            let mut out = open(ctx, "section", Vec::new());
+            out.push_str(&format!("{indent}  <img class=\"wf-slide__image\" src=\"{}\" alt=\"{}\">\n", html_escape(&src), html_escape(caption.as_deref().unwrap_or(""))));
+            if let Some(c) = caption {
+                out.push_str(&format!("{indent}  <p class=\"wf-slide__caption\">{}</p>\n", html_escape(&c)));
+            }
+            out.push_str(&format!("{indent}</section>\n"));
+            Some(out)
+        }
+        _ => None,
+    }
+}
+
 fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -> String {
     let indent = ctx.indent_str();
     let class = std::iter::once(class.to_string())
@@ -1740,8 +2040,6 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -
     result.push_str(&format!("{}</{}>\n", indent, tag));
     result
 }
-
-// ─── Resolve statements for PDF (substitutes data into AST) ─────────
 
 /// The blocks a call of `component` fills its slots with: its own block as
 /// `children`, and each named fill.
@@ -1770,199 +2068,6 @@ fn slot_fills(component: &TemplateComponent, ui: &UIElement) -> HashMap<String, 
         );
     }
     slots
-}
-
-fn resolve_statements(stmts: &[Statement], ctx: &RenderContext) -> Vec<Statement> {
-    let mut result = Vec::new();
-
-    for stmt in stmts {
-        match &stmt.kind {
-            StatementKind::If(if_stmt) => {
-                let cond = ctx.eval_expr(&if_stmt.condition);
-                if is_truthy(&cond) {
-                    // `if let p = post { … }`: the branch reads `p` as the value.
-                    match &if_stmt.binding {
-                        Some(name) => {
-                            let mut child_ctx = RenderContext {
-                                data: ctx.data,
-                                locals: ctx.locals.clone(),
-                                components: ctx.components.clone(),
-                                indent: ctx.indent,
-                                in_thead: ctx.in_thead,
-                                slots: ctx.slots.clone(),
-                                fields: ctx.fields,
-                            };
-                            child_ctx.locals.insert(name.clone(), cond.clone());
-                            result.extend(resolve_statements(&if_stmt.then_body, &child_ctx));
-                        }
-                        None => result.extend(resolve_statements(&if_stmt.then_body, ctx)),
-                    }
-                } else {
-                    let mut matched = false;
-                    for (branch_cond, branch_body) in &if_stmt.else_if_branches {
-                        if is_truthy(&ctx.eval_expr(branch_cond)) {
-                            result.extend(resolve_statements(branch_body, ctx));
-                            matched = true;
-                            break;
-                        }
-                    }
-                    if !matched {
-                        if let Some(else_body) = &if_stmt.else_body {
-                            result.extend(resolve_statements(else_body, ctx));
-                        }
-                    }
-                }
-            }
-            StatementKind::For(for_stmt) => {
-                let collection = ctx.eval_expr(&for_stmt.iterable);
-                if let Value::Array(items) = &collection {
-                    for (i, item) in items.iter().enumerate() {
-                        let mut child_ctx = RenderContext {
-                            data: ctx.data,
-                            locals: ctx.locals.clone(),
-                            components: ctx.components.clone(),
-                            indent: ctx.indent,
-                            in_thead: ctx.in_thead,
-                            slots: ctx.slots.clone(),
-                            fields: ctx.fields + i * 1000,
-                        };
-                        child_ctx.locals.insert(for_stmt.item.clone(), item.clone());
-                        if let Some(idx_var) = &for_stmt.index {
-                            child_ctx.locals.insert(
-                                idx_var.clone(),
-                                Value::Number(serde_json::Number::from(i)),
-                            );
-                        }
-                        result.extend(resolve_statements(&for_stmt.body, &child_ctx));
-                    }
-                }
-            }
-            // A component of the template's own: its body, expanded with the
-            // props bound, as the HTML renderer expands it — so what a PDF
-            // or a deck draws is what the page draws.
-            StatementKind::UIElement(UIElement {
-                component: ComponentRef::UserDefined(name),
-                ..
-            }) if ctx.components.contains_key(name) => {
-                let StatementKind::UIElement(ui) = &stmt.kind else {
-                    unreachable!()
-                };
-                let component = ctx.components[name].clone();
-                let mut inner = ctx.clone();
-                for (key, value) in ctx.props_of(&component, ui) {
-                    inner.locals.insert(key, value);
-                }
-                inner.slots.push(slot_fills(&component, ui));
-                result.extend(resolve_statements(&component.body, &inner));
-            }
-            // `children` (or a named slot) inside a component: the caller's
-            // block, its scoped values bound.
-            StatementKind::UIElement(ui) if ui.slot_name().is_some() => {
-                let slot = ui.slot_name().unwrap_or("children");
-                if let Some(fill) = ctx.slots.last().and_then(|s| s.get(slot)).cloned() {
-                    let mut inner = ctx.clone();
-                    for (i, param) in fill.params.iter().enumerate() {
-                        let key = fill.handed.get(i).cloned().unwrap_or_else(|| param.clone());
-                        let value = ui
-                            .args
-                            .iter()
-                            .find_map(|a| match a {
-                                Arg::Named(k, v) if *k == key => Some(ctx.eval_expr(v)),
-                                _ => None,
-                            })
-                            .unwrap_or(Value::Null);
-                        inner.locals.insert(param.clone(), value);
-                    }
-                    result.extend(resolve_statements(&fill.body, &inner));
-                }
-            }
-            StatementKind::UIElement(ui) => {
-                // Carry the original statement's source span onto the resolved node.
-                result.push(Statement {
-                    kind: StatementKind::UIElement(resolve_ui_element(ui, ctx)),
-                    span: stmt.span,
-                });
-            }
-            _ => result.push(stmt.clone()),
-        }
-    }
-    result
-}
-
-fn resolve_ui_element(ui: &UIElement, ctx: &RenderContext) -> UIElement {
-    let mut new_ui = ui.clone();
-
-    // Resolve args
-    new_ui.args = ui
-        .args
-        .iter()
-        .map(|arg| match arg {
-            Arg::Positional(expr) => Arg::Positional(resolve_expr(expr, ctx)),
-            Arg::Named(key, expr) => Arg::Named(key.clone(), resolve_expr(expr, ctx)),
-        })
-        .collect();
-
-    // Resolve children
-    new_ui.children = resolve_statements(&ui.children, ctx);
-
-    new_ui
-}
-
-fn resolve_expr(expr: &Expr, ctx: &RenderContext) -> Expr {
-    match expr {
-        Expr::Identifier(_)
-        | Expr::PropertyAccess(_, _)
-        | Expr::IndexAccess(_, _)
-        | Expr::OptionalProperty(_, _)
-        | Expr::OptionalIndex(_, _) => {
-            let val = ctx.eval_expr(expr);
-            value_to_expr(&val)
-        }
-        Expr::InterpolatedString(parts) => {
-            let mut resolved = String::new();
-            for part in parts {
-                match part {
-                    StringPart::Literal(s) => resolved.push_str(s),
-                    StringPart::Expression(e) => {
-                        let val = ctx.eval_expr(e);
-                        resolved.push_str(&value_to_string(&val));
-                    }
-                }
-            }
-            Expr::StringLiteral(resolved)
-        }
-        Expr::StringLiteral(_) => expr.clone(),
-        Expr::BinaryOp(_, _, _) => {
-            let val = ctx.eval_expr(expr);
-            value_to_expr(&val)
-        }
-        Expr::FunctionCall(name, args) if name == "t" => {
-            // Resolve t() to its key string
-            if let Some(Expr::StringLiteral(key)) = args.first() {
-                Expr::StringLiteral(key.clone())
-            } else {
-                expr.clone()
-            }
-        }
-        // `format(price, .currency)`, `name.toUpperCase()`, `!paid`, an
-        // `if` as a value: worked out here, as the HTML renderer works them
-        // out, since the PDF writer only draws what is already a value.
-        Expr::FunctionCall(..)
-        | Expr::MethodCall(..)
-        | Expr::OptionalMethod(..)
-        | Expr::UnaryOp(..) => value_to_expr(&ctx.eval_expr(expr)),
-        _ => expr.clone(),
-    }
-}
-
-fn value_to_expr(val: &Value) -> Expr {
-    match val {
-        Value::String(s) => Expr::StringLiteral(s.clone()),
-        Value::Number(n) => Expr::NumberLiteral(n.as_f64().unwrap_or(0.0)),
-        Value::Bool(b) => Expr::BoolLiteral(*b),
-        Value::Null => Expr::StringLiteral(String::new()),
-        _ => Expr::StringLiteral(value_to_string(val)),
-    }
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────

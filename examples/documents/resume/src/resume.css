@@ -1,0 +1,35 @@
+body { font-family: var(--font-family); color: var(--color-text); }
+.wf-document { font-size: 9.5pt; line-height: 1.75; }
+.strip { position: absolute; top: 0; right: 0; bottom: 0; width: 190pt; background: var(--navy); }
+.strip-top { position: absolute; top: 0; right: 0; width: 190pt; height: 6pt; background: var(--accent-warm); }
+.layout { display: grid; grid-template-columns: 190pt 1fr; }
+.side { padding: 0 24pt; color: #E2E8F0; }
+.main { padding: 0 34pt 0 30pt; }
+.avatar { width: 84pt; height: 84pt; border-radius: 50%; background: var(--navy-soft); border: 2pt solid var(--accent-warm); display: flex; align-items: center; justify-content: center; font-family: "Noto Kufi Arabic", sans-serif; font-size: 26pt; font-weight: 700; color: var(--accent-warm); margin: 6pt auto 14pt; }
+.name { font-family: "Noto Kufi Arabic", sans-serif; font-size: 19pt; font-weight: 700; color: #fff; text-align: center; line-height: 1.4; }
+.role { text-align: center; color: var(--accent-warm); font-size: 9pt; margin-bottom: 16pt; }
+.side h2 { font-family: "Noto Kufi Arabic", sans-serif; font-size: 10pt; font-weight: 700; color: var(--accent-warm); border-bottom: 0.75pt solid var(--navy-soft); padding-bottom: 3pt; margin: 14pt 0 8pt; }
+.contact { display: flex; align-items: center; gap: 7pt; margin-bottom: 5pt; font-size: 8.5pt; }
+.contact .wf-icon { width: 10pt; height: 10pt; color: var(--accent-warm); flex: none; }
+.latin { direction: ltr; font-family: Manrope, sans-serif; }
+.skill { margin-bottom: 7pt; }
+.skill-name { display: flex; justify-content: space-between; font-size: 8.5pt; }
+.bar { height: 4pt; background: var(--navy-soft); border-radius: 2pt; margin-top: 2pt; }
+.bar-fill { height: 4pt; background: var(--accent-warm); border-radius: 2pt; }
+.lang { display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 3pt; }
+.main h2 { font-family: "Noto Kufi Arabic", sans-serif; font-size: 13pt; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8pt; margin: 4pt 0 10pt; }
+.main h2::after { content: ""; flex: 1; border-bottom: 1pt solid #E2E8F0; }
+.summary { background: var(--sand); border-radius: 6pt; padding: 10pt 12pt; margin-bottom: 14pt; }
+.job { position: relative; padding-right: 16pt; padding-bottom: 12pt; border-right: 1.5pt solid #E2E8F0; margin-right: 4pt; break-inside: avoid; }
+.job-dot { position: absolute; right: -5.25pt; top: 6pt; width: 9pt; height: 9pt; border-radius: 50%; background: var(--color-primary); border: 2pt solid #fff; }
+.job-head { display: flex; justify-content: space-between; align-items: baseline; }
+.job-title { font-weight: 700; font-size: 10.5pt; color: var(--navy); }
+.job-when { font-family: Manrope, sans-serif; font-size: 8pt; color: var(--color-text-muted); direction: ltr; }
+.job-org { color: var(--color-primary); font-size: 9pt; margin-bottom: 3pt; }
+.job ul { margin: 0; padding-right: 14pt; padding-left: 0; }
+.job li { margin-bottom: 1pt; }
+.tags { display: flex; flex-wrap: wrap; gap: 4pt; margin-top: 4pt; }
+.tag { font-family: Manrope, sans-serif; font-size: 7pt; background: #ECFEFF; color: var(--color-primary); border-radius: 99pt; padding: 1pt 7pt; }
+.pub { margin-bottom: 6pt; }
+.pub-title { font-weight: 700; }
+.jp { font-family: "Noto Sans CJK JP", sans-serif; direction: ltr; text-align: right; color: var(--color-text-muted); font-size: 8.5pt; }

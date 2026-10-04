@@ -194,6 +194,11 @@ pub enum TokenType {
     PageBreak,
     Header,
     Footer,
+    Background,
+    Watermark,
+    TableOfContents,
+    Chart,
+    QrCode,
 
     // Slides components (PDF slide deck)
     Presentation,
@@ -443,6 +448,11 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "PageBreak",
     "Header",
     "Footer",
+    "Background",
+    "Watermark",
+    "TableOfContents",
+    "Chart",
+    "QrCode",
     // Slides
     "Presentation",
     "Slide",
@@ -533,6 +543,11 @@ pub fn component_name(token: &TokenType) -> Option<&'static str> {
         TokenType::PageBreak => "PageBreak",
         TokenType::Header => "Header",
         TokenType::Footer => "Footer",
+        TokenType::Background => "Background",
+        TokenType::Watermark => "Watermark",
+        TokenType::TableOfContents => "TableOfContents",
+        TokenType::Chart => "Chart",
+        TokenType::QrCode => "QrCode",
         TokenType::Presentation => "Presentation",
         TokenType::Slide => "Slide",
         TokenType::TitleSlide => "TitleSlide",
@@ -673,6 +688,11 @@ pub fn keyword_or_identifier(word: &str) -> TokenType {
         "PageBreak" => TokenType::PageBreak,
         "Header" => TokenType::Header,
         "Footer" => TokenType::Footer,
+        "Background" => TokenType::Background,
+        "Watermark" => TokenType::Watermark,
+        "TableOfContents" => TokenType::TableOfContents,
+        "Chart" => TokenType::Chart,
+        "QrCode" => TokenType::QrCode,
 
         // Slides components (PDF slide deck)
         "Presentation" => TokenType::Presentation,

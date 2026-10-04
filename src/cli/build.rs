@@ -1,5 +1,5 @@
 use crate::codegen::{
-    JsCodegen, PdfCodegen, SlidesCodegen, dark_css, generate_css_for, generate_html,
+    JsCodegen, dark_css, generate_css_for, generate_html,
 };
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
@@ -242,58 +242,58 @@ fn build(project_dir: &Path, options: Options) -> Result<()> {
     crate::linter::project::keep_persisted_values(project_dir, &program, &config.env);
     let program = lowered;
 
-    // PDF output mode
-    if config.build.output_type == OutputType::Pdf {
-        let mut pdf_codegen = PdfCodegen::new(&config.build.pdf);
-        // Where the pictures are, so a report shows the chart rather than a
-        // box that says there was one.
-        pdf_codegen.set_asset_root(project_dir.to_path_buf());
-        let pdf_bytes = pdf_codegen.generate(&program);
-
-        let output_dir = project_dir.join(&config.build.output);
-        fs::create_dir_all(&output_dir)?;
-
-        let filename = config
-            .build
-            .pdf
-            .output_filename
-            .clone()
-            .unwrap_or_else(|| format!("{}.pdf", config.name));
-        fs::write(output_dir.join(&filename), &pdf_bytes)?;
-
-        let page_count = pdf_codegen.page_count();
-        say!("  PDF: {} bytes, {} page(s)", pdf_bytes.len(), page_count);
-        say!("  Output: {}/{}", config.build.output, filename);
-        if warning_count == 0 {
-            say!("Build complete.");
+    // A PDF document or a slide deck: the page's markup and the site's
+    // stylesheet, laid out on paper by the paged engine — so the document
+    // draws what the page draws.
+    if matches!(config.build.output_type, OutputType::Pdf | OutputType::Slides) {
+        let deck = config.build.output_type == OutputType::Slides;
+        let mut tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
+        crate::themes::apply_motion(&mut tokens, &config.motion);
+        let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
+        css.push_str(&project_css);
+        css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
+        let fragment = crate::template::render_program_paged(&program, &serde_json::json!({}))?;
+        let lang = if config.meta.lang.is_empty() { "en".to_string() } else { config.meta.lang.clone() };
+        let title = crate::codegen::markdown::escape(&config.name);
+        let dir = if crate::template::is_rtl(&lang) { " dir=\"rtl\"" } else { "" };
+        let html = format!(
+            "<!DOCTYPE html><html lang=\"{lang}\"{dir}><head><title>{title}</title><style>{css}</style></head><body>{fragment}</body></html>"
+        );
+        // A picture is read from the project, or from what this build wrote
+        // (an `image` the media pipeline sized).
+        let project_read = crate::paged::reader(Some(project_dir.to_path_buf()));
+        let built = output_dir.clone();
+        let read = move |src: &str| {
+            project_read(src).or_else(|| {
+                let rel = src.split(['?', '#']).next().unwrap_or(src).trim_start_matches('/');
+                fs::read(built.join(rel)).ok()
+            })
+        };
+        let rendered = if deck {
+            let (options, chrome) = crate::paged::Options::from_slides(&config.build.slides, &read, Some(project_dir));
+            crate::paged::render_slides(&html, "", &options, &chrome)
         } else {
-            say!("Build complete with {} warning(s).", warning_count);
+            let options = crate::paged::Options::from_pdf(&config.build.pdf, &read, Some(project_dir));
+            crate::paged::render(&html, "", &options)
         }
-        return Ok(());
-    }
+        .map_err(WebFluentError::CodegenError)?;
 
-    // Slides output mode (PDF deck)
-    if config.build.output_type == OutputType::Slides {
-        let mut slides_codegen = SlidesCodegen::new(&config.build.slides);
-        slides_codegen.set_asset_root(project_dir.to_path_buf());
-        let pdf_bytes = slides_codegen.generate(&program);
-
-        let output_dir = project_dir.join(&config.build.output);
-        fs::create_dir_all(&output_dir)?;
-
-        let filename = config
-            .build
-            .slides
-            .output_filename
-            .clone()
-            .unwrap_or_else(|| format!("{}.pdf", config.name));
-        fs::write(output_dir.join(&filename), &pdf_bytes)?;
-
-        let slide_count = slides_codegen.slide_count();
+        let filename = if deck {
+            config.build.slides.output_filename.clone()
+        } else {
+            config.build.pdf.output_filename.clone()
+        }
+        .unwrap_or_else(|| format!("{}.pdf", config.name));
+        fs::write(output_dir.join(&filename), &rendered.bytes)?;
+        for note in &rendered.notes {
+            say!("  note: {note}");
+        }
         say!(
-            "  Slides: {} bytes, {} slide(s)",
-            pdf_bytes.len(),
-            slide_count
+            "  {}: {} bytes, {} {}",
+            if deck { "Slides" } else { "PDF" },
+            rendered.bytes.len(),
+            rendered.pages,
+            if deck { "slide(s)" } else { "page(s)" }
         );
         say!("  Output: {}/{}", config.build.output, filename);
         if warning_count == 0 {
