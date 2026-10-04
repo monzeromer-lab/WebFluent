@@ -547,6 +547,7 @@ impl ParserV2 {
             redirect: None,
             description: None,
             image: None,
+            image_alt: None,
             page_type: None,
             noindex: false,
             layout: None,
@@ -594,6 +595,9 @@ impl ParserV2 {
                         });
                     }
                     "image" => page.image = Some(self.expect_string("the image")?),
+                    "image_alt" => {
+                        page.image_alt = Some(self.expect_string("the image's description")?)
+                    }
                     "type" => page.page_type = Some(self.expect_string("the page type")?),
                     "redirect" => page.redirect = Some(self.expect_string("the redirect")?),
                     "noindex" => {

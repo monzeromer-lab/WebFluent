@@ -66,9 +66,12 @@ jobs:
 ```
 
 In *Settings → Pages*, set the source to *GitHub Actions*. GitHub Pages
-serves `404.html` for unknown paths, so a static build needs nothing else. It
-ignores `_headers`; the Content-Security-Policy still ships as a `<meta>` tag
-in every page.
+serves `404.html` for unknown paths. It answers `/contact` with a `301` to
+`/contact/`, so set `"clean_urls": "file"` (or `"directory"`) in `build` and the
+canonical address of every page is one it serves without a redirect
+([chapter 27](27-content.md#addresses-that-do-not-redirect)). It ignores
+`_headers`; the Content-Security-Policy still ships as a `<meta>` tag in every
+page.
 
 ## Netlify
 

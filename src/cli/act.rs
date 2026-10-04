@@ -286,6 +286,7 @@ fn as_program(shared: &[Declaration], test: &crate::parser::ast::TestDecl) -> Pr
         guard: None,
         redirect: None,
         image: None,
+        image_alt: None,
         page_type: None,
         noindex: true,
         layout: None,

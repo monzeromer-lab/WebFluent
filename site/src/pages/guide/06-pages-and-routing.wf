@@ -45,6 +45,11 @@ page PagesAndRoutingGuide(path: "/docs/guide/pages-and-routing", title: "Pages a
                     Table.Cell("The image a shared link previews with, site-relative or absolute")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`image_alt:`") }
+                    Table.Cell("")
+                    Table.Cell { Markdown("What that image shows, for a reader who cannot see it (`og:image:alt`); `meta.image_alt` describes the site's image") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`type:`") }
                     Table.Cell("")
                     Table.Cell { Markdown("`og:type` — `website` (default) or `article`") }

@@ -45,6 +45,8 @@ title: Installing
 description: Get wf on your machine in a minute.
 layout: DocsShell
 type: article
+image: /install.png
+image_alt: A terminal running wf build
 ---
 
 # Installing
@@ -95,7 +97,10 @@ attributes and `meta.*` in `webfluent.app.json`:
     "lang": "en",
     "site_url": "https://acme.example",
     "site_name": "Acme Inc.",
+    "owner": "organization",
+    "same_as": ["https://github.com/acme"],
     "image": "/og-default.png",
+    "image_alt": "The Acme logo on a blue field",
     "favicon": "/favicon.svg",
     "touch_icon": "/apple-touch-icon.png",
     "sitemap": true,
@@ -112,10 +117,17 @@ attributes and `meta.*` in `webfluent.app.json`:
   canonical is worse than none, so without `site_url` the build emits none).
 - Open Graph and Twitter card tags: `og:title`, `og:description`,
   `og:image` (the page's `image:` or the site's), `og:type` from `type:`
-  (`website` or `article`), `og:site_name`.
-- JSON-LD: an `Organization`, a `WebPage` or `Article`, and a
-  `BreadcrumbList` derived from the route's segments — each a page a
-  reader can open; a level no route answers is left out.
+  (`website` or `article`), `og:site_name`, and `og:locale` in the form
+  Open Graph reads — `meta.lang` `en` is `en_US`, `en-GB` is `en_GB`, `ar`
+  is `ar_AR` — with an `og:locale:alternate` for each other locale.
+- The image's size and description: `og:image:width` and
+  `og:image:height` read from the file when the image is in `public/`
+  (one on another origin is not fetched, so its card states no size), and
+  `og:image:alt` and `twitter:image:alt` from the page's `image_alt:`, or
+  `meta.image_alt` for the site's image.
+- JSON-LD: the site's owner, a `WebSite` it publishes, a `WebPage` or
+  `Article`, and a `BreadcrumbList` derived from the route's segments —
+  each a page a reader can open; a level no route answers is left out.
 - `hreflang` alternates for each locale when the project has several.
 - The icons: `<link rel="icon">` for `favicon` (typed, so an SVG is read
   as one) and `<link rel="apple-touch-icon">` for `touch_icon`, each
@@ -124,6 +136,57 @@ attributes and `meta.*` in `webfluent.app.json`:
   page to another address. A sharing image is best 1200×630.
 - `<meta name="robots" content="noindex">` and no sitemap entry for a
   `noindex: true` page.
+
+### Who the site belongs to
+
+The owner is `meta.site_name`, published as an `Organization` unless
+`meta.owner` says it is a person. A personal site names the person, what
+they do and where else they are:
+
+```json
+{
+  "meta": {
+    "site_url": "https://ada.example",
+    "site_name": "Ada Lovelace",
+    "owner": "person",
+    "job_title": "Analyst",
+    "same_as": ["https://github.com/ada", "https://www.linkedin.com/in/ada/"]
+  }
+}
+```
+
+The JSON-LD then holds a `Person` (`@id` `…/#person`) with `jobTitle` and
+`sameAs`; the `WebSite`'s `publisher` and every `WebPage`'s `about` point
+at it. An organisation's `WebSite` names it as `publisher` too, and takes
+`same_as` for its profiles.
+
+### Addresses that do not redirect
+
+A static build writes `/contact` as `contact/index.html`. Most static hosts
+— GitHub Pages among them — answer `/contact` with a `301` to `/contact/`,
+so a canonical link, a sitemap entry and every link that names `/contact`
+name an address that redirects, which a search engine reads as "not this
+page". `build.clean_urls` picks one of the two ways out:
+
+```json
+{ "build": { "ssg": true, "clean_urls": "file" } }
+```
+
+- `"file"` keeps `/contact` and writes `contact.html` beside
+  `contact/index.html`, which the host serves for `/contact` directly. The
+  page then addresses its scripts and sheets from the site's root
+  (`/app.js`, under the `base_path`), so the one file reads the same from
+  either address.
+- `"directory"` names every route with its slash — the canonical link,
+  `og:url`, the sitemap, the breadcrumbs, the `hreflang` alternates, and
+  every `Link(to:)`, `Sidebar.Item(to:)` and `navigate()` whose target is
+  one of the site's pages (`/contact` becomes `/contact/`; a file such as
+  `/cv.pdf`, another origin, or an address worked out whole at run time is
+  left as written).
+
+Unset, the addresses are `/contact` and the files `contact/index.html`, as
+before — right for a host that serves the directory without a redirect
+(Netlify, Cloudflare Pages, Vercel with `cleanUrls`).
 
 A page adds its own tags with `head { }` ([chapter 6](06-pages-and-routing.md#per-page-head-tags)).
 
@@ -166,7 +229,11 @@ runtime keeps those tags current as the parameter changes.
 - Pre-render: `build.ssg: true`, so the text is in the HTML.
 - One `h1` per page, headings in order (`A11`, `A12`).
 - An `image:` per page that is shared, or `meta.image` for the site — 1200 ×
-  630 pixels suits most previews.
+  630 pixels suits most previews — in `public/`, so its size is in the card,
+  with an `image_alt:` (or `meta.image_alt`) saying what it shows.
+- On GitHub Pages and hosts like it, `build.clean_urls`, so the canonical
+  address is never one that redirects.
+- A personal site: `meta.owner: "person"`, with `job_title` and `same_as`.
 - `noindex: true` on pages that should not be found: sign-in, thanks, drafts.
 - Check the result: view a built page's source, and paste a URL into a
   link-preview debugger.

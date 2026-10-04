@@ -227,6 +227,12 @@ pub struct BuildConfig {
     /// Base path for deployment (e.g., "/WebFluent" for GitHub Pages project sites)
     #[serde(default)]
     pub base_path: String,
+    /// How a route's address is written so it never redirects: `"file"`
+    /// writes `contact.html` beside `contact/index.html`, `"directory"` names
+    /// every route `/contact/`. Unset, the address is `/contact` and the file
+    /// `contact/index.html`, which a host that adds the slash redirects.
+    #[serde(default)]
+    pub clean_urls: Option<CleanUrls>,
     /// Emit a strict `Content-Security-Policy` meta tag, and a `_headers` file
     /// for hosts that read one.
     ///
@@ -324,6 +330,36 @@ impl MediaConfig {
             pipeline: self.pipeline,
         }
     }
+}
+
+/// How a route's address is written where a crawler reads it, so that the
+/// address a canonical link names is one the host answers without a redirect.
+///
+/// A static build writes `/contact` as `contact/index.html`. Most static hosts
+/// (GitHub Pages among them) answer `/contact` with a `301` to `/contact/`, so
+/// a canonical, a sitemap entry or a link naming `/contact` names an address
+/// that redirects — which a search engine reads as "this is not the page".
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum CleanUrls {
+    /// Keep `/contact`, and write `contact.html` beside `contact/index.html`:
+    /// a host serves the file for the address without the slash.
+    File,
+    /// Name every route with a trailing slash — `/contact/` — in the
+    /// canonical link, `og:url`, the sitemap, the breadcrumbs and every link
+    /// to a page, which is the directory the build writes.
+    Directory,
+}
+
+/// Who a site belongs to, as its structured data describes them.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Owner {
+    /// A company, a project, a publication: `"@type":"Organization"`.
+    #[default]
+    Organization,
+    /// A personal site: `"@type":"Person"`.
+    Person,
 }
 
 /// How much of the JavaScript runtime a build ships.
@@ -532,14 +568,41 @@ pub struct MetaConfig {
     #[serde(default)]
     pub site_url: String,
 
-    /// The organisation or person behind the site, for `Organization`
+    /// The organisation or person behind the site, for the owner's
     /// structured data and `og:site_name`. Defaults to the project name.
     #[serde(default)]
     pub site_name: String,
 
+    /// Whether `site_name` is a `"person"` or an `"organization"` (the
+    /// default): the node the structured data publishes the site under.
+    #[serde(default)]
+    pub owner: Owner,
+
+    /// The owner's other profiles — `https://github.com/…`, a LinkedIn page —
+    /// as the owner node's `sameAs`, which is how a search engine joins them.
+    #[serde(default)]
+    pub same_as: Vec<String>,
+
+    /// What the owner does, for a `"person"`: the node's `jobTitle`.
+    #[serde(default)]
+    pub job_title: String,
+
     /// A default sharing image for pages that do not name their own.
     #[serde(default)]
     pub image: String,
+
+    /// What the sharing image shows, for a reader who cannot see it:
+    /// `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins.
+    #[serde(default)]
+    pub image_alt: String,
+
+    /// The width and height of each site-relative sharing image the build
+    /// found under `public/`, by the reference the config or a page wrote.
+    ///
+    /// Not a setting: the build reads the files (`seo::measure_images`), so
+    /// `og:image:width` and `og:image:height` are the picture's real size.
+    #[serde(skip)]
+    pub image_sizes: HashMap<String, (u32, u32)>,
 
     /// Emit `sitemap.xml` and `robots.txt`. On by default for static builds,
     /// which are the ones a crawler can read.
@@ -776,6 +839,7 @@ impl Default for BuildConfig {
             sourcemap: false,
             ssg: false,
             base_path: String::new(),
+            clean_urls: None,
             csp: false,
             split: true,
             compress: true,
@@ -809,7 +873,12 @@ impl Default for MetaConfig {
             lang: default_lang(),
             site_url: String::new(),
             site_name: String::new(),
+            owner: Owner::Organization,
+            same_as: Vec::new(),
+            job_title: String::new(),
             image: String::new(),
+            image_alt: String::new(),
+            image_sizes: HashMap::new(),
             sitemap: true,
             fonts: Vec::new(),
             stylesheets: Vec::new(),
